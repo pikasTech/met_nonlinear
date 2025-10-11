@@ -1,0 +1,163 @@
+{
+    "model_type": "WaveNet2",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 265,
+    "trainable_params": 265,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "input_1",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv1d",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 16
+        },
+        {
+            "name": "conv1d_2",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "conv1d_1",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "activation",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "multiply",
+            "type": "Multiply",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv1d_4",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "conv1d_3",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "activation_1",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "multiply_1",
+            "type": "Multiply",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "concatenate",
+            "type": "Concatenate",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv1d_5",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 36
+        },
+        {
+            "name": "conv1d_6",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 5
+        }
+    ]
+}

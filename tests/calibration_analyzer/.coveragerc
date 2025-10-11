@@ -1,0 +1,20 @@
+[run]
+source = calibration_analyzer
+omit =
+    calibration_analyzer/tests/*
+    calibration_analyzer/__pycache__/*
+    calibration_analyzer/test_*.py
+    calibration_analyzer/verify_*.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    raise ImportError
+    except ImportError:
+
+[html]
+directory = coverage_reports 

@@ -1,0 +1,15 @@
+{
+  "feature_range": [
+    -1,
+    1
+  ],
+  "fitted": true,
+  "scaler_x": {
+    "data_min_": 0.0,
+    "data_range_": 1201.8598130934197
+  },
+  "scaler_y": {
+    "data_min_": 0.0,
+    "data_range_": 274.4257360337147
+  }
+}

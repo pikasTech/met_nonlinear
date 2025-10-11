@@ -1,0 +1,82 @@
+{
+  "project_name": "WNET5q0.5h2u6l3",
+  "timestamp": "2025-07-09 16:10:00",
+  "layer_analysis": [
+    {
+      "layer_index": 1,
+      "mean_error": 3.4371302571429305e-06,
+      "std_error": 0.030053601691409734,
+      "rms_error": 0.030053601887956305,
+      "max_error": 0.3315452127726941,
+      "num_samples": 5736000,
+      "error_shape": [
+        5736000
+      ],
+      "nn_records": 239,
+      "spice_records": 239,
+      "error_wave_path": "error_layers/layer_1.wave"
+    },
+    {
+      "layer_index": 2,
+      "mean_error": 1.4505188547518424,
+      "std_error": 1.8043657793187664,
+      "rms_error": 2.3151114041374377,
+      "max_error": 5.4741800405719445,
+      "num_samples": 5736000,
+      "error_shape": [
+        5736000
+      ],
+      "nn_records": 239,
+      "spice_records": 239,
+      "error_wave_path": "error_layers/layer_2.wave"
+    },
+    {
+      "layer_index": 3,
+      "mean_error": 2.270814950243652,
+      "std_error": 2.9738956407226103,
+      "rms_error": 3.741745023402716,
+      "max_error": 7.73749160256036,
+      "num_samples": 5736000,
+      "error_shape": [
+        5736000
+      ],
+      "nn_records": 239,
+      "spice_records": 239,
+      "error_wave_path": "error_layers/layer_3.wave"
+    },
+    {
+      "layer_index": 4,
+      "mean_error": 0.7811518264733505,
+      "std_error": 1.7306813488079256,
+      "rms_error": 1.8988038622022736,
+      "max_error": 10.27431987163098,
+      "num_samples": 5736000,
+      "error_shape": [
+        5736000
+      ],
+      "nn_records": 239,
+      "spice_records": 239,
+      "error_wave_path": "error_layers/layer_4.wave"
+    },
+    {
+      "layer_index": 5,
+      "mean_error": -0.06915209569496801,
+      "std_error": 0.06736619012749637,
+      "rms_error": 0.09654126532887378,
+      "max_error": 3.787683431059122,
+      "num_samples": 956000,
+      "error_shape": [
+        956000
+      ],
+      "nn_records": 239,
+      "spice_records": 239,
+      "error_wave_path": "error_layers/layer_5.wave"
+    }
+  ],
+  "validation_info": {
+    "nn_layers": 5,
+    "spice_layers": 5,
+    "model_type": "WaveNet5",
+    "validation_passed": true
+  }
+}

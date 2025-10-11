@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-07-13T21:05:14.471985",
+  "plot_name": "layer_1_rms_comparison",
+  "plot_type": "layer_rms_comparison",
+  "data": {
+    "layer": 1,
+    "baseline_rms": 0.017306242929860407,
+    "compensated_rms": 0.017306242929860407,
+    "improvement_percent": 0.0
+  },
+  "metadata": {
+    "layer": 1,
+    "units": "rms_error"
+  }
+}

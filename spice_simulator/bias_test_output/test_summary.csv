@@ -1,0 +1,7 @@
+test_name,channel,expected_bias_V,numpy_value_V,spice_measured_V,spice_error_mV,relative_error_percent,spice_noise_mV,has_spice_data,use_relu,opamp_model
+basic_positive_bias,1,0.3,0.29999999999999993,,,,,False,False,ideal
+basic_positive_bias,2,0.2,0.2,,,,,False,False,ideal
+basic_negative_bias,1,-0.3,-0.29999999999999993,,,,,False,False,ideal
+basic_negative_bias,2,-0.2,-0.2,,,,,False,False,ideal
+mixed_bias_with_relu,1,0.3,-0.29999999999999993,,,,,False,True,ideal
+mixed_bias_with_relu,2,-0.2,0.0,,,,,False,True,ideal

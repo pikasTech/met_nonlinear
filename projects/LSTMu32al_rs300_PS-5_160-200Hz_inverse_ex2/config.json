@@ -1,0 +1,41 @@
+{
+    "base_project": "LSTMu32al_rs300_PS-5_160-200Hz_inverse_ex",
+    "using_gpu": true,
+    "epoch_train": 30000,
+    "step_per_epoch": 1,
+    "learning_rate": 0.002,
+    "use_train_model": true,
+    "use_model": "LSTM",
+    "kernal_units": 32,
+    "use_power_loss": true,
+    "use_points": 8000,
+    "resume_training": true,
+    "use_best_val_weights": false,
+    "SPLINE_ORDER": 2,
+    "use_auto_lr": true,
+    "auto_lr_decay_steps": 5000,
+    "RESTART_AFTER_N_CYCLES": 300,
+    "use_scale": true,
+    "use_predict_features": true,
+    "use_predict_tr": false,
+    "use_predict_tr_from_file": false,
+    "use_predict_fr": true,
+    "use_cache_features": true,
+    "use_debug_plot": false,
+    "sample_rate": 2000,
+    "time_clipped_s": 4.0,
+    "GRID_SIZE": 8,
+    "FIX_SCALE_FACTOR": true,
+    "activation": "tanh",
+    "dataset_type": "Alias",
+    "data_path": "data/ALIA_PS5-360-20250904",
+    "feature_range": [
+        -1,
+        1
+    ],
+    "target_sweep": 0,
+    "dataset": {
+        "freq_range_hz": [160, 200],
+        "inverse_target": true
+    }
+}

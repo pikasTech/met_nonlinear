@@ -1,0 +1,28 @@
+{
+  "timestamp": "2025-07-13T20:39:30.778717",
+  "plot_name": "layer_5_bias_rms_comparison",
+  "plot_type": "layer_bias_rms_comparison",
+  "data": {
+    "channels": [
+      0
+    ],
+    "baseline_bias_errors": [
+      0.0677619458609065
+    ],
+    "compensated_bias_errors": [
+      0.008912483240303581
+    ],
+    "baseline_rms_error": 0.7266840940387119,
+    "compensated_rms_error": 0.7190010228002692,
+    "baseline_mean": 0.0677619458609065,
+    "compensated_mean": 0.008912483240303581,
+    "bias_improvement_percent": 86.84736229594404,
+    "rms_improvement_percent": 1.0572780251377571
+  },
+  "metadata": {
+    "layer": 5,
+    "layer_name": "Layer_5",
+    "channel_count": 1,
+    "units": "mixed_bias_rms_errors"
+  }
+}

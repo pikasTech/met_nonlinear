@@ -1,0 +1,12 @@
+# Backup directory - temporary during refactoring
+backup/
+
+# Test outputs
+tests/test_output/
+tests/coverage_reports/
+
+# Temporary files
+*.tmp
+*.log
+__pycache__/
+*.pyc

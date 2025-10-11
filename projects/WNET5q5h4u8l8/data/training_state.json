@@ -1,0 +1,20 @@
+{
+  "completed_epoch": 30000,
+  "min_loss": 0.014456043019890785,
+  "min_val_loss": 0.016319481655955315,
+  "current_epoch": 0,
+  "model_name": "WaveNet5",
+  "training_alive": false,
+  "timestamp": "20250707201604.8",
+  "best_weights_file": "projects/WNET5q5h4u8l8/data\\WNET5q5h4u8l8_best_weights.h5",
+  "best_val_weights_file": "projects/WNET5q5h4u8l8/data\\WNET5q5h4u8l8_best_val_weights.h5",
+  "loss": 0.014456069096922874,
+  "val_loss": 0.016355736181139946,
+  "val_power_log_loss": 0.02697952277958393,
+  "power_log_loss": 0.01778988540172577,
+  "lr": 8.478225936414674e-06,
+  "elapsed_time": 5742.264641284943,
+  "remaining_time": 0.10978972775145274,
+  "expected_finish_time": "2025-04-15 17:00:00",
+  "smoothed_speed": 32789.952882931386
+}

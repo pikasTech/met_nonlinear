@@ -1,0 +1,58 @@
+{
+  "inference_config": {
+    "power_supply": {
+      "vcc": 8.0,
+      "vee": -8.0
+    },
+    "opamp_config": {
+      "model": "ideal",
+      "include_file": null,
+      "power_pins": true,
+      "params": {}
+    },
+    "bias_compensation": {
+      "enabled": false,
+      "layer_bias_adjustments": {}
+    },
+    "high_pass_config": {
+      "enable": false,
+      "cutoff_freq": 0.5,
+      "capacitance": null,
+      "resistance": null,
+      "auto_bias": true,
+      "bias_divider_high": 10000,
+      "bias_divider_low": 10000
+    },
+    "bom_config": {
+      "standardization_series": "E96",
+      "bom_package": "0805",
+      "bom_tolerance": "1%",
+      "auto_standardize": true,
+      "bom_numbering": "grouped",
+      "enable_post_processing": true,
+      "merge_same_values": true,
+      "standardize_format": true
+    }
+  },
+  "use_model": "WaveNet5",
+  "dataset_type": "MET",
+  "model_subcfg": {
+    "init_center_freqs": [
+      10,
+      80
+    ],
+    "init_quality_factors": [
+      1.0,
+      1.0
+    ],
+    "post_dense": true,
+    "post_dense_activation": "relu",
+    "post_dense_units": 6,
+    "post_dense_layers": 3
+  },
+  "learning_rate": 0.02,
+  "epoch_train": 30000,
+  "step_per_epoch": 1,
+  "auto_lr_decay_steps": 1000,
+  "use_predict_features": true
+}

@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-07-13T19:12:26.766597",
+  "baseline_dir": "/mnt/f/Work/met_nonlinear_worktrees/met_nonlinear_master/projects/WNET5q1h2u6l3/data/inference_baseline",
+  "compensated_dir": "/mnt/f/Work/met_nonlinear_worktrees/met_nonlinear_master/projects/WNET5q1h2u6l3/data/inference_c123",
+  "output_dir": "/mnt/f/Work/met_nonlinear_worktrees/met_nonlinear_master/inference/results/bias_comparison_fixed",
+  "config_used": {
+    "plots": {
+      "overview": true,
+      "layer_analysis": true,
+      "channel_analysis": true,
+      "distribution": true,
+      "statistics": true
+    },
+    "figure": {
+      "dpi": 300,
+      "figsize": [
+        10,
+        8
+      ],
+      "font_size": 12,
+      "style": "seaborn-v0_8-paper"
+    },
+    "colors": {
+      "baseline": "#666666",
+      "compensated": "#999999",
+      "colormap": "viridis"
+    },
+    "statistics": {
+      "confidence_level": 0.95,
+      "show_pvalues": true,
+      "test_type": "wilcoxon"
+    },
+    "output": {
+      "format": "png",
+      "raw_data_format": "json",
+      "latex_tables": true,
+      "save_raw_data": true
+    }
+  },
+  "project_name": "WNET5q1h2u6l3",
+  "global_improvements": {
+    "mean": 78.18535675176031,
+    "std": 85.08766279014134,
+    "max": 86.84736229594404
+  },
+  "files_generated": {
+    "figures": 10,
+    "raw_data": 10,
+    "analysis_report": "/mnt/f/Work/met_nonlinear_worktrees/met_nonlinear_master/inference/results/bias_comparison_fixed/WNET5q1h2u6l3_bias_compensation_analysis_report.md"
+  }
+}

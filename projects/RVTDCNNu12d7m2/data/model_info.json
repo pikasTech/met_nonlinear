@@ -1,0 +1,74 @@
+{
+    "model_type": "RVTDCNN",
+    "input_shape": [
+        null,
+        2,
+        3,
+        1
+    ],
+    "output_shape": [
+        null,
+        1
+    ],
+    "total_params": 603,
+    "trainable_params": 603,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "ImageInput",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    2,
+                    3,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv2d",
+            "type": "Conv2D",
+            "output_shape": [
+                null,
+                2,
+                3,
+                12
+            ],
+            "trainable": true,
+            "num_params": 84
+        },
+        {
+            "name": "flatten",
+            "type": "Flatten",
+            "output_shape": [
+                null,
+                72
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "dense",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                7
+            ],
+            "trainable": true,
+            "num_params": 511
+        },
+        {
+            "name": "dense_1",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 8
+        }
+    ]
+}

@@ -1,0 +1,174 @@
+{
+    "model_type": "WaveNet4",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 309,
+    "trainable_params": 309,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "input_1",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "initial_conv_1",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 20
+        },
+        {
+            "name": "initial_conv_2",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 68
+        },
+        {
+            "name": "initial_conv_3",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 68
+        },
+        {
+            "name": "initial_conv_4",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 68
+        },
+        {
+            "name": "post_dense_1",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 20
+        },
+        {
+            "name": "post_dense_activation_1",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "post_dense_2",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 20
+        },
+        {
+            "name": "post_dense_activation_2",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "post_dense_3",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 20
+        },
+        {
+            "name": "post_dense_activation_3",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "post_dense_4",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 20
+        },
+        {
+            "name": "post_dense_activation_4",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "dense",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 5
+        }
+    ]
+}

@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-07-13T21:20:27.240459",
+  "plot_name": "layer_5_bias_comparison_simple",
+  "plot_type": "layer_bias_comparison",
+  "data": {
+    "channels": [
+      0
+    ],
+    "baseline_errors": [
+      0.0677619458609065
+    ],
+    "compensated_errors": [
+      0.008912483240303581
+    ],
+    "baseline_mean": 0.0677619458609065,
+    "compensated_mean": 0.008912483240303581,
+    "improvement_percent": 86.84736229594404
+  },
+  "metadata": {
+    "layer": 5,
+    "layer_name": "Layer_5",
+    "channel_count": 1,
+    "units": "bias_error"
+  }
+}

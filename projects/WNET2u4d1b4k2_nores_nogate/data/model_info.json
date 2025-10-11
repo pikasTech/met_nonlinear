@@ -1,0 +1,152 @@
+{
+    "model_type": "WaveNet2",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 229,
+    "trainable_params": 229,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "input_1",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "initial_conv",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 16
+        },
+        {
+            "name": "conv1d_1",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "activation",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv1d_3",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "activation_1",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv1d_5",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "activation_2",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv1d_7",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 52
+        },
+        {
+            "name": "activation_3",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "add",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "output_conv",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 5
+        }
+    ]
+}

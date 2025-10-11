@@ -1,0 +1,1 @@
+conda activate tf26 && python -m calibration_analyzer.waveviewer

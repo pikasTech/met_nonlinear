@@ -1,0 +1,130 @@
+{
+    "model_type": "FRIKAND",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 463,
+    "trainable_params": 271,
+    "non_trainable_params": 192,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "dropout_2",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "simoiir_2",
+            "type": "SIMOIIR",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": false,
+            "num_params": 192
+        },
+        {
+            "name": "fridense_inner_0",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 54
+        },
+        {
+            "name": "fridense_inner_1",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 42
+        },
+        {
+            "name": "fridense_inner_2",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 42
+        },
+        {
+            "name": "fridense_inner_3",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 42
+        },
+        {
+            "name": "fridense_inner_4",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 42
+        },
+        {
+            "name": "fridense_inner_5",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 42
+        },
+        {
+            "name": "final_dense",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 7
+        }
+    ]
+}

@@ -1,0 +1,77 @@
+================================================================================
+SPICE BIAS COMPENSATION EXPERIMENT - DETAILED STATISTICS
+================================================================================
+
+Experiment: SPICE Bias Parameter Optimization Experiment
+Project: WNET5q1h2u6l3
+Model: WaveNet5
+Duration: 21 hours
+Method: Sequential Same-Phase Compensation
+
+Dense Layer 1
+--------------------------------------------------
+Channels: 6
+Baseline Mean: 0.005578
+Compensated Mean: -0.000000
+Improvement: 100.0%
+Status: Perfect compensation
+
+Channel-by-channel comparison:
+  Channel 0: 0.005323 → 0.000011 (Δ: -0.005312, -99.8%)
+  Channel 1: 0.002278 → -0.000291 (Δ: -0.002569, -112.8%)
+  Channel 2: 0.005201 → 0.000280 (Δ: -0.004921, -94.6%)
+  Channel 3: 0.014258 → 0.000001 (Δ: -0.014257, -100.0%)
+  Channel 4: 0.003152 → -0.000034 (Δ: -0.003186, -101.1%)
+  Channel 5: 0.003255 → 0.000033 (Δ: -0.003222, -99.0%)
+
+Dense Layer 2
+--------------------------------------------------
+Channels: 6
+Baseline Mean: 0.002097
+Compensated Mean: 0.002420
+Improvement: -15.4%
+Status: Slight degradation due to coupling
+
+Channel-by-channel comparison:
+  Channel 0: 0.009475 → 0.002181 (Δ: -0.007294, -77.0%)
+  Channel 1: 0.000095 → 0.001301 (Δ: +0.001206, +1269.5%)
+  Channel 2: -0.001626 → 0.000932 (Δ: +0.002558, +157.3%)
+  Channel 3: 0.000278 → 0.007533 (Δ: +0.007255, +2609.7%)
+  Channel 4: 0.001181 → 0.000669 (Δ: -0.000512, -43.4%)
+  Channel 5: 0.003178 → 0.001903 (Δ: -0.001275, -40.1%)
+
+Dense Layer 3
+--------------------------------------------------
+Channels: 6
+Baseline Mean: 0.001768
+Compensated Mean: 0.000610
+Improvement: 65.5%
+Status: Significant improvement
+
+Channel-by-channel comparison:
+  Channel 0: 0.000025 → 0.007174 (Δ: +0.007149, +28596.0%)
+  Channel 1: 0.004553 → 0.000358 (Δ: -0.004195, -92.1%)
+  Channel 2: 0.000025 → -0.001310 (Δ: -0.001335, -5340.0%)
+  Channel 3: 0.000025 → -0.003717 (Δ: -0.003742, -14968.0%)
+  Channel 4: 0.003487 → 0.000912 (Δ: -0.002575, -73.8%)
+  Channel 5: 0.002490 → 0.000241 (Δ: -0.002249, -90.3%)
+
+Output Layer
+--------------------------------------------------
+Channels: 1
+Baseline Mean: 0.067762
+Compensated Mean: 0.110052
+Improvement: -62.4%
+Status: Degradation due to coupling - needs special treatment
+
+Channel-by-channel comparison:
+  Channel 0: 0.067762 → 0.110052 (Δ: +0.042290, +62.4%)
+
+KEY FINDINGS
+==================================================
+• Successful Method: Sequential same-phase compensation for Dense layers
+• Compensation Direction: Same-phase (bias_error × +1), not inverse
+• Layer Coupling: Strong coupling effects between layers require sequential approach
+• Svf Limitation: SVF layer cannot be compensated due to SPICE export limitations
+• Output Layer Challenge: Output layer requires different compensation strategy
+• Optimal Configuration: Layers 1-3 compensation only, exclude output layer

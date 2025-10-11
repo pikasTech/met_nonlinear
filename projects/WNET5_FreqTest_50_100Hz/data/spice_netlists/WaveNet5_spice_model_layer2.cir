@@ -1,0 +1,348 @@
+* Differential Current-Sampling Signed Adder Circuit - NGspice Simulation
+* 基于差分电流采样的带符号加法器电路
+* 输入数量: 6
+* 输出通道数: 6
+* 增益矩阵形状: (6, 6)
+* 偏置功能: 启用
+* ReLU激活: 启用
+* 偏置值: [0.15334495902061462, -0.012870761565864086, 0.2580263316631317, -0.013388567604124546, 0.36581993103027344, -0.026307066902518272]
+
+* 二极管模型 (用于ReLU激活)
+ .model 1N4148 D(Is=2.52n Rs=0.568 N=1.752 Cjo=4p M=0.4 tt=20n)
+* .model 1N4148 D(Is=1e-14 N=1 Rs=0 Cjo=0 tt=0)
+
+* Power Supply
+Vcc vcc 0 8.0
+Vee vee 0 -8.0
+
+* Define input voltage sources (will be replaced with PWL data)
+Vin1 in1 0 0
+Vin2 in2 0 0
+Vin3 in3 0 0
+Vin4 in4 0 0
+Vin5 in5 0 0
+Vin6 in6 0 0
+
+* 输出通道 1 - 差分电流采样的带符号加法器电路
+* 通道 1 的增益列表: [-2.0657317638397217, -0.9556881189346313, -0.06806480884552002, -0.9355498552322388, -1.3217815160751343, -0.6503322124481201]
+* 通道 1 的偏置值: 0.15334495902061462
+R_pos1_1 in1 curr_pos1 1000000000.0
+R_neg1_1 in1 curr_neg1 484.08995664627304
+R_pos1_2 in2 curr_pos1 1000000000.0
+R_neg1_2 in2 curr_neg1 1046.3664664103662
+R_pos1_3 in3 curr_pos1 1000000000.0
+R_neg1_3 in3 curr_neg1 14691.87994444532
+R_pos1_4 in4 curr_pos1 1000000000.0
+R_neg1_4 in4 curr_neg1 1068.890123179766
+R_pos1_5 in5 curr_pos1 1000000000.0
+R_neg1_5 in5 curr_neg1 756.5546861098312
+R_pos1_6 in6 curr_pos1 1000000000.0
+R_neg1_6 in6 curr_neg1 1537.6756384795785
+R_bias_pos1 vcc curr_pos1 52169.95753296681
+R_bias_neg1 vcc curr_neg1 1000000000.0
+Rin_pos1 curr_pos1 0 1.0
+Rin_neg1 curr_neg1 0 1.0
+R1_pos1 curr_pos1 pos1 499.5004995004995
+R1_neg1 curr_neg1 neg1 499.5004995004995
+R2_neg1 neg1 out1_pre 500000.0
+R2_pos1 pos1 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp1 out1_pre 0 pos1 neg1 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp1 neg1 pos1 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp1 out1_pre 0 1e-06
+
+* 通道 1 的ReLU激活电路 (运放实现)
+
+* 输入电阻
+Rin_relu1 out1_pre inv_relu1 10000.0
+
+* 反馈电阻 (增益为1.0)
+Rfb_relu1 out1 inv_relu1 10000.0
+
+* 二极管D1: 运放输出到反相端
+D1_relu1 op_out_relu1 inv_relu1 1N4148
+
+* 二极管D2: 输出端到运放输出
+D2_relu1 out1 op_out_relu1 1N4148
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp_relu1 op_out_relu1 0 0 inv_relu1 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp_relu1 inv_relu1 0 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp_relu1 op_out_relu1 0 1e-06
+
+* 输出通道 2 - 差分电流采样的带符号加法器电路
+* 通道 2 的增益列表: [-1.2227321863174438, -0.18526789546012878, -1.8819230794906616, -1.500967264175415, 0.9134068489074707, 0.16367366909980774]
+* 通道 2 的偏置值: -0.012870761565864086
+R_pos2_1 in1 curr_pos2 1000000000.0
+R_neg2_1 in1 curr_neg2 817.840579638084
+R_pos2_2 in2 curr_pos2 1000000000.0
+R_neg2_2 in2 curr_neg2 5397.589245111323
+R_pos2_3 in3 curr_pos2 1000000000.0
+R_neg2_3 in3 curr_neg2 531.3713460970189
+R_pos2_4 in4 curr_pos2 1000000000.0
+R_neg2_4 in4 curr_neg2 666.237048513759
+R_pos2_5 in5 curr_pos2 1094.802388657479
+R_neg2_5 in5 curr_neg2 1000000000.0
+R_pos2_6 in6 curr_pos2 6109.718230793756
+R_neg2_6 in6 curr_neg2 1000000000.0
+R_bias_pos2 vcc curr_pos2 1000000000.0
+R_bias_neg2 vcc curr_neg2 621563.8413516765
+Rin_pos2 curr_pos2 0 1.0
+Rin_neg2 curr_neg2 0 1.0
+R1_pos2 curr_pos2 pos2 499.5004995004995
+R1_neg2 curr_neg2 neg2 499.5004995004995
+R2_neg2 neg2 out2_pre 500000.0
+R2_pos2 pos2 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp2 out2_pre 0 pos2 neg2 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp2 neg2 pos2 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp2 out2_pre 0 1e-06
+
+* 通道 2 的ReLU激活电路 (运放实现)
+
+* 输入电阻
+Rin_relu2 out2_pre inv_relu2 10000.0
+
+* 反馈电阻 (增益为1.0)
+Rfb_relu2 out2 inv_relu2 10000.0
+
+* 二极管D1: 运放输出到反相端
+D1_relu2 op_out_relu2 inv_relu2 1N4148
+
+* 二极管D2: 输出端到运放输出
+D2_relu2 out2 op_out_relu2 1N4148
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp_relu2 op_out_relu2 0 0 inv_relu2 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp_relu2 inv_relu2 0 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp_relu2 op_out_relu2 0 1e-06
+
+* 输出通道 3 - 差分电流采样的带符号加法器电路
+* 通道 3 的增益列表: [0.20177258551120758, -0.17625102400779724, 0.26236531138420105, -0.3062536418437958, 1.1100560426712036, 0.048876140266656876]
+* 通道 3 的偏置值: 0.2580263316631317
+R_pos3_1 in1 curr_pos3 4956.074669244174
+R_neg3_1 in1 curr_neg3 1000000000.0
+R_pos3_2 in2 curr_pos3 1000000000.0
+R_neg3_2 in2 curr_neg3 5673.72590105213
+R_pos3_3 in3 curr_pos3 3811.4794776952263
+R_neg3_3 in3 curr_neg3 1000000000.0
+R_pos3_4 in4 curr_pos3 1000000000.0
+R_neg3_4 in4 curr_neg3 3265.2672927561416
+R_pos3_5 in5 curr_pos3 900.8554177081292
+R_neg3_5 in5 curr_neg3 1000000000.0
+R_pos3_6 in6 curr_pos3 20459.88072184571
+R_neg3_6 in6 curr_neg3 1000000000.0
+R_bias_pos3 vcc curr_pos3 31004.587587767834
+R_bias_neg3 vcc curr_neg3 1000000000.0
+Rin_pos3 curr_pos3 0 1.0
+Rin_neg3 curr_neg3 0 1.0
+R1_pos3 curr_pos3 pos3 499.5004995004995
+R1_neg3 curr_neg3 neg3 499.5004995004995
+R2_neg3 neg3 out3_pre 500000.0
+R2_pos3 pos3 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp3 out3_pre 0 pos3 neg3 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp3 neg3 pos3 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp3 out3_pre 0 1e-06
+
+* 通道 3 的ReLU激活电路 (运放实现)
+
+* 输入电阻
+Rin_relu3 out3_pre inv_relu3 10000.0
+
+* 反馈电阻 (增益为1.0)
+Rfb_relu3 out3 inv_relu3 10000.0
+
+* 二极管D1: 运放输出到反相端
+D1_relu3 op_out_relu3 inv_relu3 1N4148
+
+* 二极管D2: 输出端到运放输出
+D2_relu3 out3 op_out_relu3 1N4148
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp_relu3 op_out_relu3 0 0 inv_relu3 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp_relu3 inv_relu3 0 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp_relu3 op_out_relu3 0 1e-06
+
+* 输出通道 4 - 差分电流采样的带符号加法器电路
+* 通道 4 的增益列表: [0.7609246969223022, 0.2626844644546509, 0.6854121088981628, -1.6195329427719116, -1.050642728805542, 1.4912397861480713]
+* 通道 4 的偏置值: -0.013388567604124546
+R_pos4_1 in1 curr_pos4 1314.1904896038743
+R_neg4_1 in1 curr_neg4 1000000000.0
+R_pos4_2 in2 curr_pos4 3806.8486542440246
+R_neg4_2 in2 curr_neg4 1000000000.0
+R_pos4_3 in3 curr_pos4 1458.9762670046116
+R_neg4_3 in3 curr_neg4 1000000000.0
+R_pos4_4 in4 curr_pos4 1000000000.0
+R_neg4_4 in4 curr_neg4 617.4619691825781
+R_pos4_5 in5 curr_pos4 1000000000.0
+R_neg4_5 in5 curr_neg4 951.7983350409545
+R_pos4_6 in6 curr_pos4 670.5829667963982
+R_neg4_6 in6 curr_neg4 1000000000.0
+R_bias_pos4 vcc curr_pos4 1000000000.0
+R_bias_neg4 vcc curr_neg4 597524.7118695119
+Rin_pos4 curr_pos4 0 1.0
+Rin_neg4 curr_neg4 0 1.0
+R1_pos4 curr_pos4 pos4 499.5004995004995
+R1_neg4 curr_neg4 neg4 499.5004995004995
+R2_neg4 neg4 out4_pre 500000.0
+R2_pos4 pos4 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp4 out4_pre 0 pos4 neg4 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp4 neg4 pos4 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp4 out4_pre 0 1e-06
+
+* 通道 4 的ReLU激活电路 (运放实现)
+
+* 输入电阻
+Rin_relu4 out4_pre inv_relu4 10000.0
+
+* 反馈电阻 (增益为1.0)
+Rfb_relu4 out4 inv_relu4 10000.0
+
+* 二极管D1: 运放输出到反相端
+D1_relu4 op_out_relu4 inv_relu4 1N4148
+
+* 二极管D2: 输出端到运放输出
+D2_relu4 out4 op_out_relu4 1N4148
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp_relu4 op_out_relu4 0 0 inv_relu4 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp_relu4 inv_relu4 0 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp_relu4 op_out_relu4 0 1e-06
+
+* 输出通道 5 - 差分电流采样的带符号加法器电路
+* 通道 5 的增益列表: [0.2509271502494812, 0.49013450741767883, 0.490005761384964, 0.7243345379829407, -0.07458370178937912, 1.3709536790847778]
+* 通道 5 的偏置值: 0.36581993103027344
+R_pos5_1 in1 curr_pos5 3985.2204076193525
+R_neg5_1 in1 curr_neg5 1000000000.0
+R_pos5_2 in2 curr_pos5 2040.2562661188597
+R_neg5_2 in2 curr_neg5 1000000000.0
+R_pos5_3 in3 curr_pos5 2040.7923310403048
+R_neg5_3 in3 curr_neg5 1000000000.0
+R_pos5_4 in4 curr_pos5 1380.5775474751028
+R_neg5_4 in4 curr_neg5 1000000000.0
+R_pos5_5 in5 curr_pos5 1000000000.0
+R_neg5_5 in5 curr_neg5 13407.754992155702
+R_pos5_6 in6 curr_pos5 729.419246803131
+R_neg5_6 in6 curr_neg5 1000000000.0
+R_bias_pos5 vcc curr_pos5 21868.682708099794
+R_bias_neg5 vcc curr_neg5 1000000000.0
+Rin_pos5 curr_pos5 0 1.0
+Rin_neg5 curr_neg5 0 1.0
+R1_pos5 curr_pos5 pos5 499.5004995004995
+R1_neg5 curr_neg5 neg5 499.5004995004995
+R2_neg5 neg5 out5_pre 500000.0
+R2_pos5 pos5 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp5 out5_pre 0 pos5 neg5 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp5 neg5 pos5 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp5 out5_pre 0 1e-06
+
+* 通道 5 的ReLU激活电路 (运放实现)
+
+* 输入电阻
+Rin_relu5 out5_pre inv_relu5 10000.0
+
+* 反馈电阻 (增益为1.0)
+Rfb_relu5 out5 inv_relu5 10000.0
+
+* 二极管D1: 运放输出到反相端
+D1_relu5 op_out_relu5 inv_relu5 1N4148
+
+* 二极管D2: 输出端到运放输出
+D2_relu5 out5 op_out_relu5 1N4148
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp_relu5 op_out_relu5 0 0 inv_relu5 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp_relu5 inv_relu5 0 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp_relu5 op_out_relu5 0 1e-06
+
+* 输出通道 6 - 差分电流采样的带符号加法器电路
+* 通道 6 的增益列表: [-0.859034538269043, -1.6622490882873535, -0.9982729554176331, -0.024613603949546814, 1.1401865482330322, -0.2851082384586334]
+* 通道 6 的偏置值: -0.026307066902518272
+R_pos6_1 in1 curr_pos6 1000000000.0
+R_neg6_1 in1 curr_neg6 1164.0975484117355
+R_pos6_2 in2 curr_pos6 1000000000.0
+R_neg6_2 in2 curr_neg6 601.5945546586636
+R_pos6_3 in3 curr_pos6 1000000000.0
+R_neg6_3 in3 curr_neg6 1001.7300324254948
+R_pos6_4 in4 curr_pos6 1000000000.0
+R_neg6_4 in4 curr_neg6 40627.93900681139
+R_pos6_5 in5 curr_pos6 877.0494631336584
+R_neg6_5 in5 curr_neg6 1000000000.0
+R_pos6_6 in6 curr_pos6 1000000000.0
+R_neg6_6 in6 curr_neg6 3507.4398600554323
+R_bias_pos6 vcc curr_pos6 1000000000.0
+R_bias_neg6 vcc curr_neg6 304100.7965519026
+Rin_pos6 curr_pos6 0 1.0
+Rin_neg6 curr_neg6 0 1.0
+R1_pos6 curr_pos6 pos6 499.5004995004995
+R1_neg6 curr_neg6 neg6 499.5004995004995
+R2_neg6 neg6 out6_pre 500000.0
+R2_pos6 pos6 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp6 out6_pre 0 pos6 neg6 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp6 neg6 pos6 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp6 out6_pre 0 1e-06
+
+* 通道 6 的ReLU激活电路 (运放实现)
+
+* 输入电阻
+Rin_relu6 out6_pre inv_relu6 10000.0
+
+* 反馈电阻 (增益为1.0)
+Rfb_relu6 out6 inv_relu6 10000.0
+
+* 二极管D1: 运放输出到反相端
+D1_relu6 op_out_relu6 inv_relu6 1N4148
+
+* 二极管D2: 输出端到运放输出
+D2_relu6 out6 op_out_relu6 1N4148
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp_relu6 op_out_relu6 0 0 inv_relu6 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp_relu6 inv_relu6 0 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp_relu6 op_out_relu6 0 1e-06

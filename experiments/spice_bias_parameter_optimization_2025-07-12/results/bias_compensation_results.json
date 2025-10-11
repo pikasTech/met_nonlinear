@@ -1,0 +1,132 @@
+{
+  "experiment_info": {
+    "name": "SPICE Bias Parameter Optimization Experiment",
+    "id": "SPICE-BIAS-OPT-001",
+    "project": "WNET5q1h2u6l3",
+    "date_range": "2025-07-12 to 2025-07-13",
+    "duration_hours": 21,
+    "model_type": "WaveNet5",
+    "compensation_method": "Sequential Same-Phase Compensation"
+  },
+  
+  "layer_architecture": {
+    "layer_0": {"name": "SVF Layer", "type": "State Variable Filter", "channels": 6, "compensation_supported": false},
+    "layer_1": {"name": "Dense Layer 1", "type": "Dense/Conv1D", "channels": 6, "compensation_supported": true},
+    "layer_2": {"name": "Dense Layer 2", "type": "Dense/Conv1D", "channels": 6, "compensation_supported": true},
+    "layer_3": {"name": "Dense Layer 3", "type": "Dense/Conv1D", "channels": 6, "compensation_supported": true},
+    "layer_4": {"name": "Output Layer", "type": "Dense", "channels": 1, "compensation_supported": false}
+  },
+  
+  "baseline_errors": {
+    "description": "Baseline bias errors without any compensation",
+    "timestamp": "2025-07-12 13:35",
+    "method": "NN-SPICE difference analysis",
+    "layer_0_svf": {
+      "channels": [0.000011, -0.000291, 0.000280, 0.000001, -0.000034, 0.000033],
+      "mean": -0.000000,
+      "note": "SVF layer - compensation not supported"
+    },
+    "layer_1_dense1": {
+      "channels": [0.005323, 0.002278, 0.005201, 0.014258, 0.003152, 0.003255],
+      "mean": 0.005578
+    },
+    "layer_2_dense2": {
+      "channels": [0.009475, 0.000095, -0.001626, 0.000278, 0.001181, 0.003178],
+      "mean": 0.002097
+    },
+    "layer_3_dense3": {
+      "channels": [0.000025, 0.004553, 0.000025, 0.000025, 0.003487, 0.002490],
+      "mean": 0.001768
+    },
+    "layer_4_output": {
+      "channels": [0.067762],
+      "mean": 0.067762
+    }
+  },
+  
+  "compensated_errors": {
+    "description": "Bias errors after layer 1+2+3 sequential compensation",
+    "timestamp": "2025-07-13 09:55",
+    "compensation_config": {
+      "layer_1": [0.005323, 0.002278, 0.005201, 0.014258, 0.003152, 0.003255],
+      "layer_2": [0.002181, 0.001301, 0.000932, 0.007533, 0.000669, 0.001903],
+      "layer_3": [0.007174, 0.000358, -0.001310, -0.003717, 0.000912, 0.000241]
+    },
+    "layer_0_svf": {
+      "channels": [0.000011, -0.000291, 0.000280, 0.000001, -0.000034, 0.000033],
+      "mean": -0.000000,
+      "note": "Unchanged - SVF layer compensation not supported"
+    },
+    "layer_1_dense1": {
+      "channels": [0.000011, -0.000291, 0.000280, 0.000001, -0.000034, 0.000033],
+      "mean": -2.213e-09,
+      "note": "Near-perfect compensation achieved"
+    },
+    "layer_2_dense2": {
+      "channels": [0.002181, 0.001301, 0.000932, 0.007533, 0.000669, 0.001903],
+      "mean": 0.002420
+    },
+    "layer_3_dense3": {
+      "channels": [0.007174, 0.000358, -0.001310, -0.003717, 0.000912, 0.000241],
+      "mean": 0.000610
+    },
+    "layer_4_output": {
+      "channels": [0.110052],
+      "mean": 0.110052,
+      "note": "Worsened due to coupling effects from previous layers"
+    }
+  },
+  
+  "compensation_effectiveness": {
+    "layer_1_dense1": {
+      "baseline_mean": 0.005578,
+      "compensated_mean": -2.213e-09,
+      "improvement_percentage": 99.9996,
+      "status": "Perfect compensation"
+    },
+    "layer_2_dense2": {
+      "baseline_mean": 0.002097,
+      "compensated_mean": 0.002420,
+      "improvement_percentage": -15.4,
+      "status": "Slight degradation due to coupling"
+    },
+    "layer_3_dense3": {
+      "baseline_mean": 0.001768,
+      "compensated_mean": 0.000610,
+      "improvement_percentage": 65.5,
+      "status": "Significant improvement"
+    },
+    "layer_4_output": {
+      "baseline_mean": 0.067762,
+      "compensated_mean": 0.110052,
+      "improvement_percentage": -62.4,
+      "status": "Degradation due to coupling - needs special treatment"
+    }
+  },
+  
+  "failed_output_compensation": {
+    "description": "Results when attempting to compensate output layer",
+    "timestamp": "2025-07-13 10:05",
+    "attempted_compensation": [0.110052],
+    "result_error": -4.800256,
+    "degradation_percentage": -7084.3,
+    "conclusion": "Same-phase compensation catastrophically fails for output layer"
+  },
+  
+  "key_findings": {
+    "successful_method": "Sequential same-phase compensation for Dense layers",
+    "compensation_direction": "Same-phase (bias_error × +1), not inverse",
+    "layer_coupling": "Strong coupling effects between layers require sequential approach",
+    "svf_limitation": "SVF layer cannot be compensated due to SPICE export limitations",
+    "output_layer_challenge": "Output layer requires different compensation strategy",
+    "optimal_configuration": "Layers 1-3 compensation only, exclude output layer"
+  },
+  
+  "recommended_config": {
+    "layer_bias_adjustments": {
+      "1": [0.005323, 0.002278, 0.005201, 0.014258, 0.003152, 0.003255],
+      "2": [0.002181, 0.001301, 0.000932, 0.007533, 0.000669, 0.001903],
+      "3": [0.007174, 0.000358, -0.001310, -0.003717, 0.000912, 0.000241]
+    }
+  }
+}

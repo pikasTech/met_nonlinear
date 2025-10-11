@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-07-13T21:21:06.558389",
+  "plot_name": "layer_1_bias_rms_comparison",
+  "plot_type": "layer_bias_rms_comparison",
+  "data": {
+    "channels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "baseline_bias_errors": [
+      1.1226189346393034e-05,
+      -0.00029130467459911777,
+      0.0002800701854696169,
+      8.449130754144382e-07,
+      -3.3761678019327414e-05,
+      3.29117837582688e-05
+    ],
+    "compensated_bias_errors": [
+      1.1226189346393034e-05,
+      -0.00029130467459911777,
+      0.0002800701854696169,
+      8.449130754144382e-07,
+      -3.3761678019327414e-05,
+      3.29117837582688e-05
+    ],
+    "baseline_rms_error": 0.017306242929860407,
+    "compensated_rms_error": 0.017306242929860407,
+    "baseline_mean": -2.213494791997039e-09,
+    "compensated_mean": -2.213494791997039e-09,
+    "bias_improvement_percent": 0.0,
+    "rms_improvement_percent": 0.0
+  },
+  "metadata": {
+    "layer": 1,
+    "layer_name": "Layer_1",
+    "channel_count": 6,
+    "units": "mixed_bias_rms_errors"
+  }
+}

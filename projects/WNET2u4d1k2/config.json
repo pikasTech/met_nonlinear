@@ -1,0 +1,16 @@
+{
+    "epoch_train": 30000,
+    "step_per_epoch": 5,
+    "learning_rate": 0.05,
+    "dataset_type": "MET",
+    "use_model": "WaveNet2",
+    "activation": "tanh",
+    "kernal_units": 4,
+    "model_subcfg": {
+        "dilations": [
+            1, 1
+        ],
+        "kernel_size": 3
+    },
+    "use_predict_features": true
+}

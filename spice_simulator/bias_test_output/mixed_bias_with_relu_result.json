@@ -1,0 +1,65 @@
+{
+  "test_info": {
+    "name": "mixed_bias_with_relu",
+    "timestamp": "2025-07-01T19:50:08.016639",
+    "gains": [
+      [
+        1.0,
+        -0.5
+      ],
+      [
+        -0.7,
+        1.2
+      ]
+    ],
+    "biases": [
+      0.3,
+      -0.2
+    ],
+    "use_relu": true,
+    "opamp_config": {
+      "model": "ideal"
+    }
+  },
+  "circuit_info": {
+    "n_inputs": 2,
+    "n_outputs": 2,
+    "has_bias": true
+  },
+  "measurements": {
+    "0": {
+      "expected_bias": 0.3,
+      "numpy_value": -0.29999999999999993,
+      "numpy_std": 5.551115123125783e-17,
+      "spice_measured": null,
+      "spice_std": null,
+      "spice_error": null,
+      "spice_error_mv": null,
+      "relative_error_percent": null,
+      "has_spice_data": false
+    },
+    "1": {
+      "expected_bias": -0.2,
+      "numpy_value": 0.0,
+      "numpy_std": 0.0,
+      "spice_measured": null,
+      "spice_std": null,
+      "spice_error": null,
+      "spice_error_mv": null,
+      "relative_error_percent": null,
+      "has_spice_data": false
+    }
+  },
+  "statistics": {
+    "total_channels": 2,
+    "channels_with_spice": 0,
+    "max_error_mv": null,
+    "mean_error_mv": null,
+    "channels_within_1mv": 0,
+    "channels_within_5mv": 0
+  },
+  "raw_data": {
+    "has_spice_data": true,
+    "has_numpy_data": true
+  }
+}

@@ -1,0 +1,14 @@
+# Development requirements for bias_tuner
+# The tool itself has zero dependencies, these are only for development/testing
+
+# Testing
+pytest>=6.0.0
+pytest-timeout>=2.0.0
+
+# Optional: Code quality
+black>=22.0.0
+flake8>=4.0.0
+mypy>=0.950
+
+# Note: The bias tuner itself requires NO dependencies
+# It uses only Python standard library modules

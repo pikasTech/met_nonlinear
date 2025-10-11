@@ -1,0 +1,21 @@
+# CLI 默认值配置文件
+# 此文件用于设置命令行参数的默认值
+
+# 项目设置
+default_project: "WNET5q1h2u6l3"
+projects_dir: "projects"
+
+# 分析设置
+default_bias_method: "auto"
+default_layers: null  # 不设置默认层数
+
+# 模式设置
+default_force_mode: false
+default_quick_inference: false
+
+# 可视化设置
+default_baseline_dir: null
+default_compensated_dir: null
+default_vis_output_dir: null
+
+# 其他默认设置可以在这里添加

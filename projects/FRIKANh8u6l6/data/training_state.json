@@ -1,0 +1,20 @@
+{
+  "lr_step": 106,
+  "min_loss": 0.011935525573790073,
+  "min_val_loss": 0.014828096143901348,
+  "current_epoch": 19,
+  "model_name": "FRIKAN",
+  "training_alive": true,
+  "timestamp": "20250707104328.7",
+  "best_weights_file": "projects/FRIKANh8u6l6/data\\FRIKANh8u6l6_best_weights.h5",
+  "best_val_weights_file": "projects/FRIKANh8u6l6/data\\FRIKANh8u6l6_best_val_weights.h5",
+  "val_loss": 0.014828096143901348,
+  "loss": 0.011935525573790073,
+  "val_power_log_loss": 0.040588054805994034,
+  "power_log_loss": 0.0314454585313797,
+  "lr": 0.0005526000168174505,
+  "elapsed_time": 54.08492732048035,
+  "remaining_time": 85619.97063879135,
+  "expected_finish_time": "2025-03-08 16:47:26",
+  "smoothed_speed": 1260.5890797993343
+}

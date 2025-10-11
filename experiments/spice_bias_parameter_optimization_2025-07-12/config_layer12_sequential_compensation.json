@@ -1,0 +1,28 @@
+{
+    "epoch_train": 30000,
+    "step_per_epoch": 1,
+    "learning_rate": 0.02,
+    "auto_lr_decay_steps": 1000,
+    "dataset_type": "MET",
+    "use_model": "WaveNet5",
+    "model_subcfg": {
+        "init_center_freqs": [10, 80],         
+        "init_quality_factors": [1.0, 1.0],
+        "post_dense": true,
+        "post_dense_activation": "relu",
+        "post_dense_units": 6,
+        "post_dense_layers": 3
+    },
+    "use_predict_features": true,
+    "inference_config": {
+        "bias_compensation": {
+            "enabled": true,
+            "layer_bias_adjustments": {
+                "1": [0.005323, 0.002278, 0.005201, 0.014258, 0.003152, 0.003255],
+                "2": [0.002181, 0.001301, 0.000932, 0.007533, 0.000669, 0.001903],
+                "3": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                "4": [0.0]
+            }
+        }
+    }
+}

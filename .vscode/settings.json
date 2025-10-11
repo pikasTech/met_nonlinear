@@ -1,0 +1,80 @@
+{
+    "latex-workshop.latex.recipes": [
+        // {
+        //     "name": "quick build",
+        //     "tools": [
+        //         "latexmk_quick"
+        //     ]
+        // },
+        {
+            "name": "latexmk",
+            "tools": [
+                // "imagepdf",
+                "latexmk"
+            ]
+        },
+        {
+            "name": "clean",
+            "tools": [
+                "clean"
+            ]
+        }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-xelatex",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-bibtex",
+                "-outdir=./build",
+                "-use-make",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "latexmk_quick",
+            "command": "latexmk",
+            "args": [
+                "-xelatex",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-outdir=./build",
+                "-use-make",
+                "-draftmode",
+                "%DOC%"
+            ]
+        },
+        {
+            "name": "clean",
+            "command": "latexmk",
+            "args": [
+                "-c",
+                "-outdir=./build",
+            ]
+        },
+        {
+            "name": "imagepdf",
+            "command": "python",
+            "args": [
+                "fig_pdf.py"
+            ]
+        }
+    ],
+    "latex-workshop.formatting.latex": "latexindent",
+    "editor.defaultFormatter": "ms-python.vscode-pylance",
+    "python.languageServer": "Pylance",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "[latex]": {
+        "editor.defaultFormatter": "James-Yu.latex-workshop"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    }
+}

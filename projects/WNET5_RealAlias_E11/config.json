@@ -1,0 +1,22 @@
+{
+    "epoch_train": 30000,
+    "step_per_epoch": 1,
+    "learning_rate": 0.02,
+    "use_model": "WaveNet5",
+    "dataset_type": "Alias",
+    "data_path": "data/ALIA",
+    "kernal_units": 8,
+    "use_best_val_weights": true,
+    "auto_lr_decay_steps": 1000,
+    "model_subcfg": {
+        "init_center_freqs": [5, 15, 30, 50, 75, 100, 130, 170],
+        "init_quality_factors": [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0],
+        "post_dense": true,
+        "post_dense_activation": "relu",
+        "post_dense_units": 16,
+        "post_dense_layers": 3,
+        "use_dense_bias": true
+    },
+    "target_sweep": 0,
+    "use_predict_features": true
+}

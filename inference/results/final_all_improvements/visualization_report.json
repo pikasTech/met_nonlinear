@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-07-13T20:43:22.361785",
+  "baseline_dir": "projects/WNET5q1h2u6l3/data/inference_baseline",
+  "compensated_dir": "projects/WNET5q1h2u6l3/data/inference_c123",
+  "output_dir": "inference/results/final_all_improvements",
+  "config_used": {
+    "plots": {
+      "overview": true,
+      "layer_analysis": true,
+      "channel_analysis": true,
+      "distribution": true,
+      "statistics": true
+    },
+    "figure": {
+      "dpi": 300,
+      "figsize": [
+        10,
+        8
+      ],
+      "font_size": 12,
+      "style": "seaborn-v0_8-paper"
+    },
+    "colors": {
+      "baseline": "#E74C3C",
+      "compensated": "#27AE60",
+      "improvement": "#3498DB",
+      "colormap": "viridis"
+    },
+    "statistics": {
+      "confidence_level": 0.95,
+      "show_pvalues": true,
+      "test_type": "wilcoxon"
+    },
+    "output": {
+      "format": "png",
+      "raw_data_format": "json",
+      "latex_tables": true,
+      "save_raw_data": true
+    }
+  },
+  "project_name": "WNET5q1h2u6l3",
+  "bias_global_improvements": {
+    "mean": 78.18535675176031,
+    "std": 85.08766279014134,
+    "max": 86.84736229594404
+  },
+  "rms_global_improvements": {
+    "mean": 1.0544050573212265,
+    "max": 1.0572780251377571
+  },
+  "files_generated": {
+    "figures": 21,
+    "raw_data": 21,
+    "analysis_report": "inference/results/final_all_improvements/WNET5q1h2u6l3_bias_compensation_analysis_report.md"
+  }
+}

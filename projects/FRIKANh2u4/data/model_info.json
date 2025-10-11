@@ -1,0 +1,75 @@
+{
+    "model_type": "FRIKAN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 173,
+    "trainable_params": 125,
+    "non_trainable_params": 48,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "dropout",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "simoiir",
+            "type": "SIMOIIR",
+            "output_shape": [
+                null,
+                null,
+                2
+            ],
+            "trainable": false,
+            "num_params": 48
+        },
+        {
+            "name": "dense_kan_1",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 84
+        },
+        {
+            "name": "dense_kan",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 41
+        }
+    ]
+}

@@ -1,0 +1,45 @@
+{
+  "project_name": "WNET5q1h2u6l3",
+  "timestamp": "2025-07-12 14:45:00",
+  "bias_analysis": {
+    "method": "auto",
+    "parameters": {},
+    "analysis_timestamp": "2025-07-12 14:45:00",
+    "nn_spice_bias": {
+      "bias_error_matrix": [
+        [0.000011, -0.000291, 0.000280, 0.000001, -0.000034, 0.000033],
+        [0.000011, -0.000291, 0.000280, 0.000001, -0.000034, 0.000033],
+        [0.000011, -0.000291, 0.000280, 0.000001, -0.000034, 0.000033],
+        [0.007174, 0.000358, -0.001310, -0.003717, 0.000912, 0.000241],
+        [0.104338]
+      ],
+      "layer_results": [
+        {
+          "layer_info": {"layer": 1, "name": "SVF Layer"},
+          "channel_count": 6,
+          "summary": {"mean_bias_error": -0.000000}
+        },
+        {
+          "layer_info": {"layer": 2, "name": "Dense Layer 1"},
+          "channel_count": 6,
+          "summary": {"mean_bias_error": -0.000000002213}
+        },
+        {
+          "layer_info": {"layer": 3, "name": "Dense Layer 2"},
+          "channel_count": 6,
+          "summary": {"mean_bias_error": -0.000000002213}
+        },
+        {
+          "layer_info": {"layer": 4, "name": "Dense Layer 3"},
+          "channel_count": 6,
+          "summary": {"mean_bias_error": 0.000610}
+        },
+        {
+          "layer_info": {"layer": 5, "name": "Output Layer"},
+          "channel_count": 1,
+          "summary": {"mean_bias_error": 0.104338}
+        }
+      ]
+    }
+  }
+}

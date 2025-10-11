@@ -1,0 +1,1248 @@
+{
+  "project_name": "WNET5q1h2u6l3",
+  "timestamp": "2025-07-13 16:30:30",
+  "comparison_summary": {
+    "has_numpy": true,
+    "comparison_types": [
+      "nn_spice",
+      "nn_numpy"
+    ]
+  },
+  "nn_spice_analysis": {
+    "layer_analysis": [
+      {
+        "mean_error": 4.110280960990921e-08,
+        "std_error": 0.0173062429298116,
+        "rms_error": 0.017306242929860407,
+        "max_error": 0.9270120510852761,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 1,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_spice_error_layers/layer_1.wave"
+      },
+      {
+        "mean_error": 0.0027978708654172865,
+        "std_error": 0.032972788170105,
+        "rms_error": 0.03309128043896409,
+        "max_error": 2.183010272692382,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 2,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_spice_error_layers/layer_2.wave"
+      },
+      {
+        "mean_error": 0.005136175340375752,
+        "std_error": 0.033286925771822164,
+        "rms_error": 0.033680851005666146,
+        "max_error": 1.8602569785335041,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 3,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_spice_error_layers/layer_3.wave"
+      },
+      {
+        "mean_error": 0.0014569925248279125,
+        "std_error": 0.022168919844541158,
+        "rms_error": 0.022216746708082512,
+        "max_error": 2.6379596556791194,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 4,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_spice_error_layers/layer_4.wave"
+      },
+      {
+        "mean_error": -0.004125007913481986,
+        "std_error": 0.7189891898335793,
+        "rms_error": 0.7190010228002692,
+        "max_error": 33.104634583751775,
+        "num_samples": 1400000,
+        "error_shape": [
+          1400000
+        ],
+        "layer_index": 5,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_spice_error_layers/layer_5.wave"
+      }
+    ],
+    "validation_info": {
+      "nn_layers": 5,
+      "spice_layers": 5,
+      "model_type": "WaveNet5",
+      "validation_passed": true
+    }
+  },
+  "nn_numpy_analysis": {
+    "layer_analysis": [
+      {
+        "mean_error": 1.218133947359534e-06,
+        "std_error": 0.030428427743507257,
+        "rms_error": 0.030428427767889895,
+        "max_error": 0.2755525591666206,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 1,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_numpy_error_layers/layer_1.wave"
+      },
+      {
+        "mean_error": -0.016685079254926807,
+        "std_error": 0.057323849715818144,
+        "rms_error": 0.059702727039766694,
+        "max_error": 0.8232738708378151,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 2,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_numpy_error_layers/layer_2.wave"
+      },
+      {
+        "mean_error": -0.004308554287671076,
+        "std_error": 0.05290002127611301,
+        "rms_error": 0.05307519091876183,
+        "max_error": 0.9628444171985775,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 3,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_numpy_error_layers/layer_3.wave"
+      },
+      {
+        "mean_error": -0.004904419916730816,
+        "std_error": 0.04056021439058116,
+        "rms_error": 0.04085565231555521,
+        "max_error": 1.5641038417816162,
+        "num_samples": 8400000,
+        "error_shape": [
+          8400000
+        ],
+        "layer_index": 4,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_numpy_error_layers/layer_4.wave"
+      },
+      {
+        "mean_error": 0.43767894017122627,
+        "std_error": 1.3990673342836328,
+        "rms_error": 1.4659305101296303,
+        "max_error": 24.91264796880256,
+        "num_samples": 1400000,
+        "error_shape": [
+          1400000
+        ],
+        "layer_index": 5,
+        "ref_records": 350,
+        "comp_records": 350,
+        "error_wave_path": "nn_numpy_error_layers/layer_5.wave"
+      }
+    ],
+    "validation_info": {
+      "nn_layers": 5,
+      "numpy_layers": 5,
+      "model_type": "WaveNet5",
+      "validation_passed": true
+    }
+  },
+  "bias_analysis": {
+    "method": "auto",
+    "parameters": {},
+    "analysis_timestamp": "2025-07-13 16:31:18",
+    "nn_spice_bias": {
+      "layer_count": 5,
+      "layer_results": [
+        {
+          "layer_info": {
+            "layer": 1,
+            "name": "Layer_1"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": -0.0003089366073254496,
+              "comp_bias": -0.0003201627966718426,
+              "bias_error": 1.1226189346393034e-05,
+              "relative_error": -0.036338164789149745
+            },
+            {
+              "channel": 1,
+              "ref_bias": -1.7240237866644748e-05,
+              "comp_bias": 0.000274064436732473,
+              "bias_error": -0.00029130467459911777,
+              "relative_error": 16.896789757333597
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.00017774684238247573,
+              "comp_bias": -0.00010232334308714118,
+              "bias_error": 0.0002800701854696169,
+              "relative_error": 1.5756689779442707
+            },
+            {
+              "channel": 3,
+              "ref_bias": 5.970942584099248e-05,
+              "comp_bias": 5.886451276557804e-05,
+              "bias_error": 8.449130754144382e-07,
+              "relative_error": 0.014150413666084487
+            },
+            {
+              "channel": 4,
+              "ref_bias": -0.00017269092495553195,
+              "comp_bias": -0.00013892924693620454,
+              "bias_error": -3.3761678019327414e-05,
+              "relative_error": 0.19550348709997975
+            },
+            {
+              "channel": 5,
+              "ref_bias": -3.544508581398986e-05,
+              "comp_bias": -6.835686957225866e-05,
+              "bias_error": 3.29117837582688e-05,
+              "relative_error": -0.9285288214841565
+            }
+          ],
+          "summary": {
+            "mean_bias_error": -2.213494791997039e-09,
+            "std_bias_error": 0.00016615630182705682,
+            "max_bias_error": 0.00029130467459911777,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 2,
+            "name": "Layer_2"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.5622092485427856,
+              "comp_bias": 0.5613191628110529,
+              "bias_error": 0.0008900857317327704,
+              "relative_error": 0.0015831929731498049
+            },
+            {
+              "channel": 1,
+              "ref_bias": 0.12667852640151978,
+              "comp_bias": 0.12593943940824107,
+              "bias_error": 0.0007390869932787092,
+              "relative_error": 0.005834351048070309
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.2973882853984833,
+              "comp_bias": 0.29722397639711184,
+              "bias_error": 0.00016430900137143212,
+              "relative_error": 0.0005525066367401374
+            },
+            {
+              "channel": 3,
+              "ref_bias": 0.36472201347351074,
+              "comp_bias": 0.36107374605720155,
+              "bias_error": 0.003648267416309192,
+              "relative_error": 0.010002871451503874
+            },
+            {
+              "channel": 4,
+              "ref_bias": 0.4767894148826599,
+              "comp_bias": 0.47664694298983556,
+              "bias_error": 0.00014247189282434736,
+              "relative_error": 0.000298815133845642
+            },
+            {
+              "channel": 5,
+              "ref_bias": 0.1756049543619156,
+              "comp_bias": 0.1744992413059248,
+              "bias_error": 0.0011057130559907757,
+              "relative_error": 0.006296593737964478
+            }
+          ],
+          "summary": {
+            "mean_bias_error": 0.0011149890152512044,
+            "std_bias_error": 0.0011873676319174389,
+            "max_bias_error": 0.003648267416309192,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 3,
+            "name": "Layer_3"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.14225104451179504,
+              "comp_bias": 0.1375259142566325,
+              "bias_error": 0.004725130255162552,
+              "relative_error": 0.033216840490550896
+            },
+            {
+              "channel": 1,
+              "ref_bias": 0.009968247264623642,
+              "comp_bias": 0.009398904395878356,
+              "bias_error": 0.0005693428687452862,
+              "relative_error": 0.05711564466963312
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.386421799659729,
+              "comp_bias": 0.38612246381828774,
+              "bias_error": 0.0002993358414412617,
+              "relative_error": 0.0007746349758343021
+            },
+            {
+              "channel": 3,
+              "ref_bias": 0.29650840163230896,
+              "comp_bias": 0.29574208034592847,
+              "bias_error": 0.0007663212863804891,
+              "relative_error": 0.0025844842242641773
+            },
+            {
+              "channel": 4,
+              "ref_bias": 0.15984700620174408,
+              "comp_bias": 0.15898440752801388,
+              "bias_error": 0.0008625986737302027,
+              "relative_error": 0.005396401810876024
+            },
+            {
+              "channel": 5,
+              "ref_bias": 0.2739977240562439,
+              "comp_bias": 0.2736853742792824,
+              "bias_error": 0.0003123497769614847,
+              "relative_error": 0.0011399721586642384
+            }
+          ],
+          "summary": {
+            "mean_bias_error": 0.001255846450403546,
+            "std_bias_error": 0.0015655986343630515,
+            "max_bias_error": 0.004725130255162552,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 4,
+            "name": "Layer_4"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.0,
+              "comp_bias": -2.496980557518839e-05,
+              "bias_error": 2.496980557518839e-05,
+              "relative_error": null
+            },
+            {
+              "channel": 1,
+              "ref_bias": 0.5773059129714966,
+              "comp_bias": 0.5772575451230539,
+              "bias_error": 4.836784844264308e-05,
+              "relative_error": 8.378200769447368e-05
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.0,
+              "comp_bias": -2.5041756627496472e-05,
+              "bias_error": 2.5041756627496472e-05,
+              "relative_error": null
+            },
+            {
+              "channel": 3,
+              "ref_bias": 0.0,
+              "comp_bias": -2.5030888549767275e-05,
+              "bias_error": 2.5030888549767275e-05,
+              "relative_error": null
+            },
+            {
+              "channel": 4,
+              "ref_bias": 0.2669547498226166,
+              "comp_bias": 0.2652372236311099,
+              "bias_error": 0.0017175261915066686,
+              "relative_error": 0.0064337727373193895
+            },
+            {
+              "channel": 5,
+              "ref_bias": 0.09816473722457886,
+              "comp_bias": 0.09600267065786827,
+              "bias_error": 0.0021620665667105854,
+              "relative_error": 0.022024880092779784
+            }
+          ],
+          "summary": {
+            "mean_bias_error": 0.0006671671762353915,
+            "std_bias_error": 0.0009090262542994086,
+            "max_bias_error": 0.0021620665667105854,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 5,
+            "name": "Layer_5"
+          },
+          "channel_count": 1,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.5290120840072632,
+              "comp_bias": 0.5200996007669596,
+              "bias_error": 0.008912483240303581,
+              "relative_error": 0.01684740955781497
+            }
+          ],
+          "summary": {
+            "mean_bias_error": 0.008912483240303581,
+            "std_bias_error": 0.0,
+            "max_bias_error": 0.008912483240303581,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        }
+      ],
+      "layer_statistics": [
+        {
+          "layer": 0,
+          "mean": -2.213494791997039e-09,
+          "std": 0.00016615630182705682,
+          "max_abs": 0.00029130467459911777,
+          "channel_count": 6
+        },
+        {
+          "layer": 1,
+          "mean": 0.0011149890152512044,
+          "std": 0.0011873676319174389,
+          "max_abs": 0.003648267416309192,
+          "channel_count": 6
+        },
+        {
+          "layer": 2,
+          "mean": 0.001255846450403546,
+          "std": 0.0015655986343630515,
+          "max_abs": 0.004725130255162552,
+          "channel_count": 6
+        },
+        {
+          "layer": 3,
+          "mean": 0.0006671671762353915,
+          "std": 0.0009090262542994086,
+          "max_abs": 0.0021620665667105854,
+          "channel_count": 6
+        },
+        {
+          "layer": 4,
+          "mean": 0.008912483240303581,
+          "std": 0.0,
+          "max_abs": 0.008912483240303581,
+          "channel_count": 1
+        }
+      ],
+      "bias_error_matrix": [
+        [
+          1.1226189346393034e-05,
+          -0.00029130467459911777,
+          0.0002800701854696169,
+          8.449130754144382e-07,
+          -3.3761678019327414e-05,
+          3.29117837582688e-05
+        ],
+        [
+          0.0008900857317327704,
+          0.0007390869932787092,
+          0.00016430900137143212,
+          0.003648267416309192,
+          0.00014247189282434736,
+          0.0011057130559907757
+        ],
+        [
+          0.004725130255162552,
+          0.0005693428687452862,
+          0.0002993358414412617,
+          0.0007663212863804891,
+          0.0008625986737302027,
+          0.0003123497769614847
+        ],
+        [
+          2.496980557518839e-05,
+          4.836784844264308e-05,
+          2.5041756627496472e-05,
+          2.5030888549767275e-05,
+          0.0017175261915066686,
+          0.0021620665667105854
+        ],
+        [
+          0.008912483240303581
+        ]
+      ],
+      "global_statistics": {
+        "mean_bias_error": 0.0010856194324270273,
+        "std_bias_error": 0.0019783848116023592,
+        "max_bias_error": 0.008912483240303581,
+        "total_channels": 25,
+        "max_channels_per_layer": 6,
+        "min_channels_per_layer": 1
+      },
+      "worst_case": {
+        "layer": 5,
+        "channel": 0,
+        "bias_error": 0.008912483240303581
+      },
+      "validation_info": {
+        "layer_count": 5,
+        "channel_counts": [
+          6,
+          6,
+          6,
+          6,
+          1
+        ],
+        "data_shapes": [
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            1
+          ]
+        ],
+        "sample_rates": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ]
+      },
+      "method_info": {
+        "method": "auto(steady_state)",
+        "parameters": {}
+      }
+    },
+    "nn_spice_matrix_formatted": {
+      "matrix": [
+        [
+          1.1226189346393034e-05,
+          -0.00029130467459911777,
+          0.0002800701854696169,
+          8.449130754144382e-07,
+          -3.3761678019327414e-05,
+          3.29117837582688e-05
+        ],
+        [
+          0.0008900857317327704,
+          0.0007390869932787092,
+          0.00016430900137143212,
+          0.003648267416309192,
+          0.00014247189282434736,
+          0.0011057130559907757
+        ],
+        [
+          0.004725130255162552,
+          0.0005693428687452862,
+          0.0002993358414412617,
+          0.0007663212863804891,
+          0.0008625986737302027,
+          0.0003123497769614847
+        ],
+        [
+          2.496980557518839e-05,
+          4.836784844264308e-05,
+          2.5041756627496472e-05,
+          2.5030888549767275e-05,
+          0.0017175261915066686,
+          0.0021620665667105854
+        ],
+        [
+          0.008912483240303581
+        ]
+      ],
+      "layer_count": 5,
+      "channels_per_layer": [
+        6,
+        6,
+        6,
+        6,
+        1
+      ],
+      "layer_names": [
+        "Layer_1",
+        "Layer_2",
+        "Layer_3",
+        "Layer_4",
+        "Layer_5"
+      ],
+      "per_layer_stats": [
+        {
+          "layer": "Layer_1",
+          "channel_count": 6,
+          "mean": -2.213494791997039e-09,
+          "std": 0.00016615630182705682,
+          "max": 0.00029130467459911777,
+          "values": [
+            1.1226189346393034e-05,
+            -0.00029130467459911777,
+            0.0002800701854696169,
+            8.449130754144382e-07,
+            -3.3761678019327414e-05,
+            3.29117837582688e-05
+          ]
+        },
+        {
+          "layer": "Layer_2",
+          "channel_count": 6,
+          "mean": 0.0011149890152512044,
+          "std": 0.0011873676319174389,
+          "max": 0.003648267416309192,
+          "values": [
+            0.0008900857317327704,
+            0.0007390869932787092,
+            0.00016430900137143212,
+            0.003648267416309192,
+            0.00014247189282434736,
+            0.0011057130559907757
+          ]
+        },
+        {
+          "layer": "Layer_3",
+          "channel_count": 6,
+          "mean": 0.001255846450403546,
+          "std": 0.0015655986343630515,
+          "max": 0.004725130255162552,
+          "values": [
+            0.004725130255162552,
+            0.0005693428687452862,
+            0.0002993358414412617,
+            0.0007663212863804891,
+            0.0008625986737302027,
+            0.0003123497769614847
+          ]
+        },
+        {
+          "layer": "Layer_4",
+          "channel_count": 6,
+          "mean": 0.0006671671762353915,
+          "std": 0.0009090262542994086,
+          "max": 0.0021620665667105854,
+          "values": [
+            2.496980557518839e-05,
+            4.836784844264308e-05,
+            2.5041756627496472e-05,
+            2.5030888549767275e-05,
+            0.0017175261915066686,
+            0.0021620665667105854
+          ]
+        },
+        {
+          "layer": "Layer_5",
+          "channel_count": 1,
+          "mean": 0.008912483240303581,
+          "std": 0.0,
+          "max": 0.008912483240303581,
+          "values": [
+            0.008912483240303581
+          ]
+        }
+      ],
+      "overall_stats": {
+        "mean": 0.0010856194324270273,
+        "std": 0.0019783848116023592,
+        "max": 0.008912483240303581,
+        "min": -0.00029130467459911777,
+        "rms": 0.002256673661574062,
+        "total_channels": 25
+      }
+    },
+    "nn_numpy_bias": {
+      "layer_count": 5,
+      "layer_results": [
+        {
+          "layer_info": {
+            "layer": 1,
+            "name": "Layer_1"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": -0.0003089366073254496,
+              "comp_bias": -0.00031669595724803694,
+              "bias_error": 7.759349922587357e-06,
+              "relative_error": -0.025116317518219078
+            },
+            {
+              "channel": 1,
+              "ref_bias": -1.7240237866644748e-05,
+              "comp_bias": -2.3559367415809727e-05,
+              "bias_error": 6.31912954916498e-06,
+              "relative_error": -0.36653377975664747
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.00017774684238247573,
+              "comp_bias": 0.0001814571981506033,
+              "bias_error": -3.7103557681275536e-06,
+              "relative_error": -0.020874383580573593
+            },
+            {
+              "channel": 3,
+              "ref_bias": 5.970942584099248e-05,
+              "comp_bias": 0.00010660652374704121,
+              "bias_error": -4.689709790604873e-05,
+              "relative_error": -0.7854220208202426
+            },
+            {
+              "channel": 4,
+              "ref_bias": -0.00017269092495553195,
+              "comp_bias": -0.0001991559994477788,
+              "bias_error": 2.6465074492246855e-05,
+              "relative_error": -0.1532511016375738
+            },
+            {
+              "channel": 5,
+              "ref_bias": -3.544508581398986e-05,
+              "comp_bias": -8.576972485098559e-05,
+              "bias_error": 5.0324639036995725e-05,
+              "relative_error": -1.4197917110736133
+            }
+          ],
+          "summary": {
+            "mean_bias_error": 6.710123221136439e-06,
+            "std_bias_error": 2.9653719220481618e-05,
+            "max_bias_error": 5.0324639036995725e-05,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 2,
+            "name": "Layer_2"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.5622092485427856,
+              "comp_bias": 0.5921020506416532,
+              "bias_error": -0.029892802098867577,
+              "relative_error": -0.05317024253220312
+            },
+            {
+              "channel": 1,
+              "ref_bias": 0.12667852640151978,
+              "comp_bias": 0.13634979079367368,
+              "bias_error": -0.009671264392153905,
+              "relative_error": -0.07634493916908934
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.2973882853984833,
+              "comp_bias": 0.3119352597170467,
+              "bias_error": -0.014546974318563444,
+              "relative_error": -0.048915761086793755
+            },
+            {
+              "channel": 3,
+              "ref_bias": 0.36472201347351074,
+              "comp_bias": 0.435194723915311,
+              "bias_error": -0.07047271044180026,
+              "relative_error": -0.19322307905310626
+            },
+            {
+              "channel": 4,
+              "ref_bias": 0.4767894148826599,
+              "comp_bias": 0.48870200538560643,
+              "bias_error": -0.011912590502946518,
+              "relative_error": -0.024985014623024427
+            },
+            {
+              "channel": 5,
+              "ref_bias": 0.1756049543619156,
+              "comp_bias": 0.20299580555734137,
+              "bias_error": -0.02739085119542578,
+              "relative_error": -0.15597994541187152
+            }
+          ],
+          "summary": {
+            "mean_bias_error": -0.027314532158292913,
+            "std_bias_error": 0.020739643562696204,
+            "max_bias_error": 0.07047271044180026,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 3,
+            "name": "Layer_3"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.14225104451179504,
+              "comp_bias": 0.18602426549946688,
+              "bias_error": -0.043773220987671835,
+              "relative_error": -0.3077180989278591
+            },
+            {
+              "channel": 1,
+              "ref_bias": 0.009968247264623642,
+              "comp_bias": 0.008236612593777238,
+              "bias_error": 0.0017316346708464037,
+              "relative_error": 0.17371505991748518
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.386421799659729,
+              "comp_bias": 0.35909353647756675,
+              "bias_error": 0.02732826318216225,
+              "relative_error": 0.0707213288852406
+            },
+            {
+              "channel": 3,
+              "ref_bias": 0.29650840163230896,
+              "comp_bias": 0.3248684725107708,
+              "bias_error": -0.02836007087846182,
+              "relative_error": -0.09564676994761949
+            },
+            {
+              "channel": 4,
+              "ref_bias": 0.15984700620174408,
+              "comp_bias": 0.16199910969819686,
+              "bias_error": -0.002152103496452784,
+              "relative_error": -0.013463520822758472
+            },
+            {
+              "channel": 5,
+              "ref_bias": 0.2739977240562439,
+              "comp_bias": 0.2947981968152003,
+              "bias_error": -0.020800472758956412,
+              "relative_error": -0.07591476473244964
+            }
+          ],
+          "summary": {
+            "mean_bias_error": -0.011004328378089033,
+            "std_bias_error": 0.02302513402491711,
+            "max_bias_error": 0.043773220987671835,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 4,
+            "name": "Layer_4"
+          },
+          "channel_count": 6,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.0,
+              "comp_bias": 0.0,
+              "bias_error": 0.0,
+              "relative_error": null
+            },
+            {
+              "channel": 1,
+              "ref_bias": 0.5773059129714966,
+              "comp_bias": 0.581039311323845,
+              "bias_error": -0.003733398352348427,
+              "relative_error": -0.006466932467627015
+            },
+            {
+              "channel": 2,
+              "ref_bias": 0.0,
+              "comp_bias": 0.0,
+              "bias_error": 0.0,
+              "relative_error": null
+            },
+            {
+              "channel": 3,
+              "ref_bias": 0.0,
+              "comp_bias": 0.0,
+              "bias_error": 0.0,
+              "relative_error": null
+            },
+            {
+              "channel": 4,
+              "ref_bias": 0.2669547498226166,
+              "comp_bias": 0.3161115504777971,
+              "bias_error": -0.04915680065518052,
+              "relative_error": -0.1841390748351312
+            },
+            {
+              "channel": 5,
+              "ref_bias": 0.09816473722457886,
+              "comp_bias": 0.09938457226345979,
+              "bias_error": -0.0012198350388809287,
+              "relative_error": -0.012426407622222023
+            }
+          ],
+          "summary": {
+            "mean_bias_error": -0.00901833900773498,
+            "std_bias_error": 0.017999234616514252,
+            "max_bias_error": 0.04915680065518052,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        },
+        {
+          "layer_info": {
+            "layer": 5,
+            "name": "Layer_5"
+          },
+          "channel_count": 1,
+          "bias_errors": [
+            {
+              "channel": 0,
+              "ref_bias": 0.5290120840072632,
+              "comp_bias": -0.2583151724313856,
+              "bias_error": 0.7873272564386488,
+              "relative_error": 1.4882973002708175
+            }
+          ],
+          "summary": {
+            "mean_bias_error": 0.7873272564386488,
+            "std_bias_error": 0.0,
+            "max_bias_error": 0.7873272564386488,
+            "method": "auto(steady_state)",
+            "parameters": {}
+          }
+        }
+      ],
+      "layer_statistics": [
+        {
+          "layer": 0,
+          "mean": 6.710123221136439e-06,
+          "std": 2.9653719220481618e-05,
+          "max_abs": 5.0324639036995725e-05,
+          "channel_count": 6
+        },
+        {
+          "layer": 1,
+          "mean": -0.027314532158292913,
+          "std": 0.020739643562696204,
+          "max_abs": 0.07047271044180026,
+          "channel_count": 6
+        },
+        {
+          "layer": 2,
+          "mean": -0.011004328378089033,
+          "std": 0.02302513402491711,
+          "max_abs": 0.043773220987671835,
+          "channel_count": 6
+        },
+        {
+          "layer": 3,
+          "mean": -0.00901833900773498,
+          "std": 0.017999234616514252,
+          "max_abs": 0.04915680065518052,
+          "channel_count": 6
+        },
+        {
+          "layer": 4,
+          "mean": 0.7873272564386488,
+          "std": 0.0,
+          "max_abs": 0.7873272564386488,
+          "channel_count": 1
+        }
+      ],
+      "bias_error_matrix": [
+        [
+          7.759349922587357e-06,
+          6.31912954916498e-06,
+          -3.7103557681275536e-06,
+          -4.689709790604873e-05,
+          2.6465074492246855e-05,
+          5.0324639036995725e-05
+        ],
+        [
+          -0.029892802098867577,
+          -0.009671264392153905,
+          -0.014546974318563444,
+          -0.07047271044180026,
+          -0.011912590502946518,
+          -0.02739085119542578
+        ],
+        [
+          -0.043773220987671835,
+          0.0017316346708464037,
+          0.02732826318216225,
+          -0.02836007087846182,
+          -0.002152103496452784,
+          -0.020800472758956412
+        ],
+        [
+          0.0,
+          -0.003733398352348427,
+          0.0,
+          0.0,
+          -0.04915680065518052,
+          -0.0012198350388809287
+        ],
+        [
+          0.7873272564386488
+        ]
+      ],
+      "global_statistics": {
+        "mean_bias_error": 0.02013377279653096,
+        "std_bias_error": 0.1578792731862686,
+        "max_bias_error": 0.7873272564386488,
+        "total_channels": 25,
+        "max_channels_per_layer": 6,
+        "min_channels_per_layer": 1
+      },
+      "worst_case": {
+        "layer": 5,
+        "channel": 0,
+        "bias_error": 0.7873272564386488
+      },
+      "validation_info": {
+        "layer_count": 5,
+        "channel_counts": [
+          6,
+          6,
+          6,
+          6,
+          1
+        ],
+        "data_shapes": [
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            6
+          ],
+          [
+            1400000,
+            1
+          ]
+        ],
+        "sample_rates": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ]
+      },
+      "method_info": {
+        "method": "auto(steady_state)",
+        "parameters": {}
+      }
+    },
+    "nn_numpy_matrix_formatted": {
+      "matrix": [
+        [
+          7.759349922587357e-06,
+          6.31912954916498e-06,
+          -3.7103557681275536e-06,
+          -4.689709790604873e-05,
+          2.6465074492246855e-05,
+          5.0324639036995725e-05
+        ],
+        [
+          -0.029892802098867577,
+          -0.009671264392153905,
+          -0.014546974318563444,
+          -0.07047271044180026,
+          -0.011912590502946518,
+          -0.02739085119542578
+        ],
+        [
+          -0.043773220987671835,
+          0.0017316346708464037,
+          0.02732826318216225,
+          -0.02836007087846182,
+          -0.002152103496452784,
+          -0.020800472758956412
+        ],
+        [
+          0.0,
+          -0.003733398352348427,
+          0.0,
+          0.0,
+          -0.04915680065518052,
+          -0.0012198350388809287
+        ],
+        [
+          0.7873272564386488
+        ]
+      ],
+      "layer_count": 5,
+      "channels_per_layer": [
+        6,
+        6,
+        6,
+        6,
+        1
+      ],
+      "layer_names": [
+        "Layer_1",
+        "Layer_2",
+        "Layer_3",
+        "Layer_4",
+        "Layer_5"
+      ],
+      "per_layer_stats": [
+        {
+          "layer": "Layer_1",
+          "channel_count": 6,
+          "mean": 6.710123221136439e-06,
+          "std": 2.9653719220481618e-05,
+          "max": 5.0324639036995725e-05,
+          "values": [
+            7.759349922587357e-06,
+            6.31912954916498e-06,
+            -3.7103557681275536e-06,
+            -4.689709790604873e-05,
+            2.6465074492246855e-05,
+            5.0324639036995725e-05
+          ]
+        },
+        {
+          "layer": "Layer_2",
+          "channel_count": 6,
+          "mean": -0.027314532158292913,
+          "std": 0.020739643562696204,
+          "max": 0.07047271044180026,
+          "values": [
+            -0.029892802098867577,
+            -0.009671264392153905,
+            -0.014546974318563444,
+            -0.07047271044180026,
+            -0.011912590502946518,
+            -0.02739085119542578
+          ]
+        },
+        {
+          "layer": "Layer_3",
+          "channel_count": 6,
+          "mean": -0.011004328378089033,
+          "std": 0.02302513402491711,
+          "max": 0.043773220987671835,
+          "values": [
+            -0.043773220987671835,
+            0.0017316346708464037,
+            0.02732826318216225,
+            -0.02836007087846182,
+            -0.002152103496452784,
+            -0.020800472758956412
+          ]
+        },
+        {
+          "layer": "Layer_4",
+          "channel_count": 6,
+          "mean": -0.00901833900773498,
+          "std": 0.017999234616514252,
+          "max": 0.04915680065518052,
+          "values": [
+            0.0,
+            -0.003733398352348427,
+            0.0,
+            0.0,
+            -0.04915680065518052,
+            -0.0012198350388809287
+          ]
+        },
+        {
+          "layer": "Layer_5",
+          "channel_count": 1,
+          "mean": 0.7873272564386488,
+          "std": 0.0,
+          "max": 0.7873272564386488,
+          "values": [
+            0.7873272564386488
+          ]
+        }
+      ],
+      "overall_stats": {
+        "mean": 0.02013377279653096,
+        "std": 0.1578792731862686,
+        "max": 0.7873272564386488,
+        "min": -0.07047271044180026,
+        "rms": 0.15915788924475835,
+        "total_channels": 25
+      }
+    },
+    "summary": {
+      "nn_spice": {
+        "overall_mean_bias": 0.0010856194324270273,
+        "overall_std_bias": 0.0019783848116023592,
+        "overall_max_bias": 0.008912483240303581,
+        "total_channels": 25,
+        "worst_case": {
+          "layer": 5,
+          "channel": 0,
+          "bias_error": 0.008912483240303581
+        }
+      },
+      "nn_numpy": {
+        "overall_mean_bias": 0.02013377279653096,
+        "overall_std_bias": 0.1578792731862686,
+        "overall_max_bias": 0.7873272564386488,
+        "total_channels": 25,
+        "worst_case": {
+          "layer": 5,
+          "channel": 0,
+          "bias_error": 0.7873272564386488
+        }
+      }
+    }
+  }
+}

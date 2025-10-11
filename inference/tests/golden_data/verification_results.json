@@ -1,0 +1,19 @@
+{
+  "project": "WNET5q0.5h2u6l4",
+  "total_tests": 2,
+  "passed": 2,
+  "failed": 0,
+  "details": [
+    {
+      "file": "projects/WNET5q0.5h2u6l4/data/inference/nn_layers.wave",
+      "golden_key": "nn_layers",
+      "passed": true,
+      "mismatches": []
+    },
+    {
+      "file": "projects/WNET5q0.5h2u6l4/data/inference/nn_layers/layer_6.wave",
+      "passed": true,
+      "mismatches": []
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+    "epoch_train": 30000,
+    "step_per_epoch": 1,
+    "learning_rate": 0.02,
+    "auto_lr_decay_steps": 1000,
+    "dataset_type": "MET",
+    "use_model": "WaveNet2",
+    "activation": "tanh",
+    "model_subcfg": {
+        "dilations": [],
+        "init_conv_units": 8,
+        "kernel_size": 8,
+        "combine_blocks_by_add": false,
+        "use_residual": false,
+        "post_dense": true,
+        "post_dense_activation": "relu",
+        "post_dense_units": 8,
+        "post_dense_layers": 4
+    },
+    "use_predict_features": true
+}

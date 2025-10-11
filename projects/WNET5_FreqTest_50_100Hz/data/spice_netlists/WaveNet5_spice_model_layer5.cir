@@ -1,0 +1,55 @@
+* Differential Current-Sampling Signed Adder Circuit - NGspice Simulation
+* 基于差分电流采样的带符号加法器电路
+* 输入数量: 6
+* 输出通道数: 1
+* 增益矩阵形状: (6, 1)
+* 偏置功能: 启用
+* ReLU激活: 禁用
+* 偏置值: [-0.16050513088703156]
+
+* Power Supply
+Vcc vcc 0 8.0
+Vee vee 0 -8.0
+
+* Define input voltage sources (will be replaced with PWL data)
+Vin1 in1 0 0
+Vin2 in2 0 0
+Vin3 in3 0 0
+Vin4 in4 0 0
+Vin5 in5 0 0
+Vin6 in6 0 0
+
+* 输出通道 1 - 差分电流采样的带符号加法器电路
+* 通道 1 的增益列表: [0.3167097568511963, 0.4246804714202881, 0.4221673905849457, -0.6959402561187744, -0.3989800214767456, 0.343051552772522]
+* 通道 1 的偏置值: -0.16050513088703156
+R_pos1_1 in1 curr_pos1 3157.465087095004
+R_neg1_1 in1 curr_neg1 1000000000.0
+R_pos1_2 in2 curr_pos1 2354.711523832568
+R_neg1_2 in2 curr_neg1 1000000000.0
+R_pos1_3 in3 curr_pos1 2368.7286661682288
+R_neg1_3 in3 curr_neg1 1000000000.0
+R_pos1_4 in4 curr_pos1 1000000000.0
+R_neg1_4 in4 curr_neg1 1436.9049515499394
+R_pos1_5 in5 curr_pos1 1000000000.0
+R_neg1_5 in5 curr_neg1 2506.3911628925625
+R_pos1_6 in6 curr_pos1 2915.01376955755
+R_neg1_6 in6 curr_neg1 1000000000.0
+R_bias_pos1 vcc curr_pos1 1000000000.0
+R_bias_neg1 vcc curr_neg1 49842.64338334857
+Rin_pos1 curr_pos1 0 1.0
+Rin_neg1 curr_neg1 0 1.0
+R1_pos1 curr_pos1 pos1 499.5004995004995
+R1_neg1 curr_neg1 neg1 499.5004995004995
+R2_neg1 neg1 out1_pre 500000.0
+R2_pos1 pos1 0 500000.0
+
+* 理想运放模型
+* 使用高增益比较反相端和同相端的电压差
+Eopamp1 out1_pre 0 pos1 neg1 1000000000.0
+* 添加极高阻抗的输入电阻以模拟理想运放
+Rin_Xopamp1 neg1 pos1 1000000000000.0
+* 添加极小的输出电阻以增强驱动能力
+Rout_Xopamp1 out1_pre 0 1e-06
+
+* 直接连接输出（无ReLU激活）
+Rlink1 out1_pre out1 1e-6

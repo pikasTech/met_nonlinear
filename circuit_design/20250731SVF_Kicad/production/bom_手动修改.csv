@@ -1,0 +1,9 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+"C1, C10, C13, C14, C2, C3, C4, C7, C8, C9",805,10,100n,
+"C5, C6",805,2,1.59u,
+"C11, C12",805,2,200n,
+"J1, J2",PinSocket_1x06_P2.54mm_Vertical,2,Conn_01x06,
+"J16, J3, J4",PinHeader_1x02_P2.54mm_Vertical,3,Conn_01x02,
+"R1, R10, R11, R12, R14, R15, R16, R17, R18, R19, R2, R20, R21, R22, R3, R5, R6, R7, R8, R9",805,20,10K 0.1%,
+"R13, R4",805,2,20K 0.1%,
+"U1, U2, U3, U4, U5",MSOP-8_3x3mm_P0.65mm,5,ADA4528-2,

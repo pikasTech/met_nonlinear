@@ -1,0 +1,20 @@
+{
+  "completed_epoch": 30000,
+  "min_loss": 0.0011321918573230505,
+  "min_val_loss": 0.001134941354393959,
+  "current_epoch": 0,
+  "model_name": "LSTM",
+  "training_alive": false,
+  "timestamp": "20250911144316.9",
+  "best_weights_file": "projects/LSTMu32al_rs300_PS-5_160-200Hz_inverse/data\\LSTMu32al_rs300_PS-5_160-200Hz_inverse_best_weights.h5",
+  "best_val_weights_file": "projects/LSTMu32al_rs300_PS-5_160-200Hz_inverse/data\\LSTMu32al_rs300_PS-5_160-200Hz_inverse_best_val_weights.h5",
+  "loss": 0.0011321931378915906,
+  "val_loss": 0.0011349428677931428,
+  "val_power_log_loss": 0.0015753539046272635,
+  "power_log_loss": 0.001529464963823557,
+  "lr": 0.00019999999494757503,
+  "elapsed_time": 74695.3898472786,
+  "remaining_time": 2.7830719430672493,
+  "expected_finish_time": "2025-09-11 14:43:19",
+  "smoothed_speed": 1293.5346529462715
+}

@@ -1,0 +1,45 @@
+{
+  "inference_config": {
+    "opamp_config": {
+      "model": "ad8622",
+      "include_file": "spice_simulator/spice_models/ad8622.cir",
+      "power_pins": true,
+      "params": {}
+    },
+    "bias_compensation": {
+      "enabled": false,
+      "layer_bias_adjustments": {
+      }
+    },
+    "high_pass_config": {
+      "enable": false,
+      "cutoff_freq": 0.5,
+      "capacitance": null,
+      "resistance": null,
+      "auto_bias": true,
+      "bias_divider_high": 10000,
+      "bias_divider_low": 10000
+    }
+  },
+  "use_model": "WaveNet5",
+  "dataset_type": "MET",
+  "model_subcfg": {
+    "init_center_freqs": [
+      10,
+      80
+    ],
+    "init_quality_factors": [
+      1.0,
+      1.0
+    ],
+    "post_dense": true,
+    "post_dense_activation": "relu",
+    "post_dense_units": 6,
+    "post_dense_layers": 3
+  },
+  "learning_rate": 0.02,
+  "epoch_train": 30000,
+  "step_per_epoch": 1,
+  "auto_lr_decay_steps": 1000,
+  "use_predict_features": true
+}

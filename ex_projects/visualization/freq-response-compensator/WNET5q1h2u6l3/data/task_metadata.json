@@ -1,0 +1,11 @@
+{
+  "execution_time": "2025-09-27T22:31:00.104935",
+  "task_info": {
+    "task_type": "freq-response-compensator",
+    "description": "基于 linear_response.json 绘制 gains_origin vs gains_comped (均值) 及差异曲线"
+  },
+  "output_files": [
+    "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compensator\\WNET5q1h2u6l3\\data\\compensator_difference_curves.png"
+  ],
+  "config_hash": "0bbe0298a54eb668a82d6deb05a3ebf8"
+}

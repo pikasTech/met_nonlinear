@@ -1,0 +1,31 @@
+{
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "visualization_config": {
+    "layout": "side_by_side",
+    "freq_range": [
+      10,
+      200
+    ],
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      12,
+      8
+    ],
+    "title": "LSTMu32al_rs300_ex2 频率响应对比"
+  },
+  "data_sources": [
+    {
+      "project": "LSTMu32al_rs300_ex2",
+      "state": "origin",
+      "label": "补偿前"
+    },
+    {
+      "project": "LSTMu32al_rs300_ex2",
+      "state": "compensation",
+      "label": "补偿后"
+    }
+  ]
+}

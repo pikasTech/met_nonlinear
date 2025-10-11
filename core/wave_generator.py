@@ -1,0 +1,191 @@
+import os
+import logging
+from typing import Optional, Dict, Any
+from .model_engine import ModelEngine
+
+
+class DatasetWaveGenerator:
+    """Dataset wave data generator
+    
+    Responsible for loading datasets from project configuration and generating wave files.
+    Design principle: Maximize reuse of existing dataset loading logic.
+    """
+    
+    def __init__(self, project_manager):
+        """
+        Initialize wave generator
+        
+        Args:
+            project_manager: ProjectManager instance
+        """
+        self.project_manager = project_manager
+        self.config = project_manager.config
+        self.logger = logging.getLogger(__name__)
+        
+    def generate_wave_data(self, 
+                          output_folder: Optional[str] = None,
+                          compress: bool = True,
+                          force: bool = False) -> Dict[str, Any]:
+        """
+        Generate wave data
+        
+        Args:
+            output_folder: Output directory, default to project_dir/wave_output
+            compress: Whether to compress wave files
+            force: Whether to force overwrite existing files
+            
+        Returns:
+            Dict: Contains generated file paths and metadata
+            
+        Raises:
+            ValueError: Configuration error or dataset loading failed
+            FileNotFoundError: Data files not found
+            PermissionError: Output directory permission insufficient
+        """
+        try:
+            # 1. Prepare output folder
+            output_folder = self._prepare_output_folder(output_folder, force)
+            
+            # 2. Load dataset
+            dataset = self._load_dataset()
+            
+            # 3. Generate wave files
+            result = self._generate_wave_files(dataset, output_folder, compress)
+            
+            # 4. Log generation result
+            self._log_generation_result(result)
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Wave data generation failed: {e}")
+            raise
+    
+    def _prepare_output_folder(self, output_folder: Optional[str], force: bool) -> str:
+        """
+        Prepare output directory
+        
+        Args:
+            output_folder: User specified output directory
+            force: Whether to force overwrite
+            
+        Returns:
+            str: Validated output directory path
+        """
+        if output_folder is None:
+            output_folder = os.path.join(
+                self.project_manager.checkpoint_dir, 
+                'wave_output'
+            )
+        
+        # Check if directory exists
+        if os.path.exists(output_folder):
+            if not force:
+                # Check for existing files
+                existing_files = self._find_existing_wave_files(output_folder)
+                if existing_files:
+                    raise FileExistsError(
+                        f"Output directory {output_folder} contains existing wave files: {existing_files}. "
+                        f"Use force=True to overwrite."
+                    )
+            else:
+                self.logger.warning(f"Force mode: will overwrite files in {output_folder}")
+        
+        # Create directory
+        os.makedirs(output_folder, exist_ok=True)
+        
+        # Verify write permission
+        if not os.access(output_folder, os.W_OK):
+            raise PermissionError(f"No write permission for directory: {output_folder}")
+            
+        return output_folder
+    
+    def _load_dataset(self):
+        """
+        Load dataset
+        
+        Reuse ModelEngine dataset loading logic
+        
+        Returns:
+            Dataset_COMP: Loaded dataset instance
+        """
+        # Create ModelEngine instance to load dataset
+        model_engine = ModelEngine(
+            self.project_manager,
+            checkpoint_dir=self.project_manager.checkpoint_dir
+        )
+        
+        # Load dataset
+        model_engine.load_dataset(self.config.dataset_type)
+        
+        # Prepare data (select feature vectors)
+        model_engine.prepare_training_data(output_folder=None)  # Don't auto-generate wave files
+        
+        # Return test dataset
+        return model_engine.dataset_test
+    
+    def _generate_wave_files(self, 
+                           dataset, 
+                           output_folder: str, 
+                           compress: bool) -> Dict[str, Any]:
+        """
+        Generate wave files
+        
+        Args:
+            dataset: Dataset instance
+            output_folder: Output directory
+            compress: Whether to compress
+            
+        Returns:
+            Dict: Generation result info
+        """
+        # Call dataset's export_to_wave method
+        file_paths = dataset.export_to_wave(
+            output_folder=output_folder,
+            description=f"Wave data for {self.project_manager.project_name} - {self.config.dataset_type}",
+            author="Generated by cli.py",
+            compress=compress
+        )
+        
+        # Build return result
+        result = {
+            'project_name': self.project_manager.project_name,
+            'dataset_type': self.config.dataset_type,
+            'output_folder': output_folder,
+            'compress': compress,
+            'files': file_paths,
+            'dataset_info': {
+                'magn_list': dataset.magn_list,
+                'freq_list': dataset.freq_list,
+                'magn_num': dataset.magn_num,
+                'freq_num': dataset.freq_num,
+                'fs': dataset.fs,
+                'time_clipped_s': dataset.time_cliped_s,
+                'type': dataset.type
+            }
+        }
+        
+        return result
+    
+    def _find_existing_wave_files(self, output_folder: str) -> list:
+        """Find existing wave files"""
+        if not os.path.exists(output_folder):
+            return []
+        
+        wave_files = []
+        for file in os.listdir(output_folder):
+            if file.endswith('.wave'):
+                wave_files.append(file)
+        
+        return wave_files
+    
+    def _log_generation_result(self, result: Dict[str, Any]):
+        """Log generation result"""
+        self.logger.info(f"Wave data generation completed for project: {result['project_name']}")
+        self.logger.info(f"Dataset type: {result['dataset_type']}")
+        self.logger.info(f"Output folder: {result['output_folder']}")
+        self.logger.info(f"Generated files: {list(result['files'].keys())}")
+        
+        # Log dataset info
+        dataset_info = result['dataset_info']
+        self.logger.info(f"Dataset info: {dataset_info['magn_num']} magnitudes, {dataset_info['freq_num']} frequencies")

@@ -1,0 +1,105 @@
+SVF (State Variable Filter) Circuit
+
+* 电路说明：
+* 这个电路是一个SVF（状态变量滤波器）电路，有三个支路输出
+* 第一部分是电压跟随器，后面接三个通道：全通、带通和低通滤波器
+
+* 电源
+Vdd vdd 0 DC 15
+Vss vss 0 DC -15
+Vin in 0 DC 0 AC 1 SIN(0 1 1k)
+
+***************************************
+* 通道1：电压跟随器 + 全通输出
+***************************************
+* 电压跟随器运放
+Xop1 in1_plus in1_minus out1 vdd vss opamp
+* 连接成电压跟随器配置
+Rin in in1_plus 10k
+* 运放反馈
+Rfb1 out1 in1_minus 100
+* 运放同相/反相输入连接
+Rgnd1 in1_minus out1 100
+
+* 通道1输出（全通）
+Rout1 out1 out_allpass 10k
+
+* 添加电压跟随器输出监测点（使用0V电压源监测电流，同时创建node用于监控电压）
+* 注意：不使用电压源来监测电压，而是直接使用节点
+Vmon_follower out1 follower_mon 0 ; 0V电压源用作电流表
+Rmon follower_mon follower_out 1   ; 几乎不影响电路的小电阻
+
+***************************************
+* 通道2：带通滤波器
+***************************************
+* 带通滤波器的组件
+R1L out1 node2L 10k    ; R1L左侧接输入，右侧接R2L
+R2L node2L in2_plus 10k  ; R2L右侧接运放同向端
+C1L node2L out2 10n    ; C1L左侧接R2L左侧，右侧接运放输出端
+R3L in2_minus out2 20k ; R3L左侧接运放输入端，右侧接运放输出端
+R4L in2_plus node4L 10k ; R4L左侧接运放同向端
+C2L node4L in2_minus 10n ; C2L右侧接运放反向端
+
+* 带通滤波器运放
+Xop2 in2_plus in2_minus out2 vdd vss opamp
+
+* 通道2输出
+Rout2 out2 out_bandpass 10k
+
+***************************************
+* 通道3：低通滤波器
+***************************************
+* 低通滤波器的组件
+R1B out1 node2B 10k    ; R1B左侧接输入
+C2B node2B in3_plus 10n ; C2B右侧接运放同向端
+R3B node2B out3 20k    ; R3B左侧接C2B左侧，右侧接运放输出端
+R4B in3_minus node4B 10k ; R4B左侧接运放反向端
+R5B node5B node4B 10k   ; R5B右侧接R4B
+R2B in3_plus node5B 10k ; R2B左侧接运放同向端
+C1B node2B node5B 10n   ; C1B左侧接R1B右侧，右侧接R5B左侧
+
+* 低通滤波器运放
+Xop3 in3_plus in3_minus out3 vdd vss opamp
+
+* 通道3输出
+Rout3 out3 out_lowpass 10k
+
+***************************************
+* 控制部分
+***************************************
+.control
+* 运行AC分析，从10Hz到100kHz，每十倍频程20个点
+AC DEC 20 10 100k
+
+* 绘制三个通道的输出
+plot db(V(out_allpass)) db(V(out_bandpass)) db(V(out_lowpass)) title "SVF滤波器频率响应"
+plot ph(V(out_allpass)) ph(V(out_bandpass)) ph(V(out_lowpass)) title "SVF滤波器相位响应"
+* 绘制电压跟随器的频率响应
+plot db(V(out1)) title "电压跟随器频率响应"
+plot ph(V(out1)) title "电压跟随器相位响应"
+
+* 运行时域分析
+TRAN 10u 5m
+
+* 绘制输入和三个通道的输出
+plot V(in) V(out1) V(out_allpass) V(out_bandpass) V(out_lowpass) title "SVF滤波器时域响应"
+* 绘制电压跟随器的输入输出对比
+plot V(in) V(out1) title "电压跟随器输入输出对比"
+* 监控电压跟随器的电流
+plot I(Vmon_follower) title "电压跟随器输出电流"
+.endc
+
+***************************************
+* 器件模型
+***************************************
+* 简单的理想运放模型
+.subckt opamp plus minus out vdd vss
+* 理想运放模型，增益为100k
+E1 out 0 plus minus 100k
+* 输出电压限制在电源电压范围内
+D1 out vdd dmod
+D2 vss out dmod
+.model dmod D
+.ends opamp
+
+.END

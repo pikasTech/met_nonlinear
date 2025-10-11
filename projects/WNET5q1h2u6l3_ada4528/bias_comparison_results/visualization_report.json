@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-07-15T09:31:48.782711",
+  "project_name": "WNET5q1h2u6l3",
+  "baseline_dir": "projects/WNET5q1h2u6l3/data/inference_baseline",
+  "compensated_dir": "projects/WNET5q1h2u6l3/data/inference_c123",
+  "output_dir": "projects/WNET5q1h2u6l3/bias_comparison_results",
+  "bias_global_improvements": {
+    "mean": 78.18535675176031,
+    "std": 85.08766279014134,
+    "max": 86.84736229594404
+  },
+  "files_generated": {
+    "total_figures": 8,
+    "analysis_report": "projects/WNET5q1h2u6l3/bias_comparison_results/WNET5q1h2u6l3_bias_compensation_analysis_report.md",
+    "all_files": [
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/overview/overview_global_improvement.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/overview/overview_bias_rms_dual_axis_comparison.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/overview/channel_bias_error_heatmap.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/layer_analysis/layer_1_bias_comparison_simple.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/layer_analysis/layer_2_bias_comparison_simple.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/layer_analysis/layer_3_bias_comparison_simple.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/layer_analysis/layer_4_bias_comparison_simple.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/figures/layer_analysis/layer_5_bias_comparison_simple.png",
+      "projects/WNET5q1h2u6l3/bias_comparison_results/WNET5q1h2u6l3_bias_compensation_analysis_report.md"
+    ]
+  }
+}

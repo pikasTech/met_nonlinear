@@ -1,0 +1,17 @@
+{
+  "task_info": {
+    "task_type": "freq-response-compensator",
+    "description": "基于 linear_response.json 绘制 gains_origin vs gains_comped (均值) 及差异曲线"
+  },
+  "project_name": "WNET5q1h2u6l3",
+  "visualization_config": {
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      10,
+      6
+    ],
+    "title": "WNET5q1h2u6l3 补偿器频率响应",
+    "log_scale": true
+  }
+}

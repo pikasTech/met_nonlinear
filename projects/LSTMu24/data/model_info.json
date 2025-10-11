@@ -1,0 +1,51 @@
+{
+    "model_type": "LSTM",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 3121,
+    "trainable_params": 3121,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "lstm_7",
+            "type": "LSTM",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 2496
+        },
+        {
+            "name": "dense_14",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 600
+        },
+        {
+            "name": "dense_15",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 25
+        }
+    ]
+}

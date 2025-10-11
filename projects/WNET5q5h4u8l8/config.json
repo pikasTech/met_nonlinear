@@ -1,0 +1,17 @@
+{
+    "epoch_train": 30000,
+    "step_per_epoch": 1,
+    "learning_rate": 0.02,
+    "auto_lr_decay_steps": 1000,
+    "dataset_type": "MET",
+    "use_model": "WaveNet5",
+    "model_subcfg": {
+        "init_center_freqs": [5, 20, 40, 160],
+        "init_quality_factors": [5.0, 5.0, 5.0, 5.0],     
+        "post_dense": true,
+        "post_dense_activation": "relu",
+        "post_dense_units": 8,
+        "post_dense_layers": 8 
+    },
+    "use_predict_features": true
+}

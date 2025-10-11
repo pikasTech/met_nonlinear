@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-07-13T21:42:02.979746",
+  "plot_name": "layer_4_bias_comparison_simple",
+  "plot_type": "layer_bias_comparison",
+  "data": {
+    "channels": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "baseline_errors": [
+      2.497185149607692e-05,
+      0.0045534610774210504,
+      2.504803093239093e-05,
+      2.503477847664708e-05,
+      0.0034869086343436995,
+      0.0024899563172791628
+    ],
+    "compensated_errors": [
+      2.496980557518839e-05,
+      4.836784844264308e-05,
+      2.5041756627496472e-05,
+      2.5030888549767275e-05,
+      0.0017175261915066686,
+      0.0021620665667105854
+    ],
+    "baseline_mean": 0.001767563448324838,
+    "compensated_mean": 0.0006671671762353915,
+    "improvement_percent": 62.254980047947825
+  },
+  "metadata": {
+    "layer": 4,
+    "layer_name": "Layer_4",
+    "channel_count": 6,
+    "units": "bias_error"
+  }
+}

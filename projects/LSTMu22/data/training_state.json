@@ -1,0 +1,21 @@
+{
+  "completed_epoch": 126,
+  "min_loss": 0.012035832740366459,
+  "min_val_loss": 0.012993334792554379,
+  "current_epoch": 0,
+  "model_name": "LSTM",
+  "training_alive": true,
+  "timestamp": "20250414181422.9",
+  "best_weights_file": "projects/LSTMu22/data\\LSTMu22_best_weights.h5",
+  "best_val_weights_file": "projects/LSTMu22/data\\LSTMu22_best_val_weights.h5",
+  "terminate": true,
+  "loss": 0.013667669147253036,
+  "val_loss": 0.01564900390803814,
+  "val_power_log_loss": 0.03700118884444237,
+  "power_log_loss": 0.02859184704720974,
+  "lr": 0.0017753816209733486,
+  "elapsed_time": 84.8292944431305,
+  "remaining_time": 35679.30343382882,
+  "expected_finish_time": "2025-04-15 03:58:27",
+  "smoothed_speed": 3014.3525699559486
+}

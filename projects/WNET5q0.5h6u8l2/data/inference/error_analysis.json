@@ -1,0 +1,17 @@
+{
+  "project_name": "WNET5q0.5h6u8l2",
+  "timestamp": "2025-07-07 20:15:20",
+  "layer_analysis": [
+    {
+      "layer_index": 1,
+      "mean_error": -0.00018873745284508914,
+      "std_error": 0.009764058515429497,
+      "rms_error": 0.009765882045030594,
+      "max_error": 0.03193110227584839,
+      "num_samples": 1000,
+      "error_shape": [
+        1000
+      ]
+    }
+  ]
+}

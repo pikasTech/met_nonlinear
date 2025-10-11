@@ -1,0 +1,15 @@
+{
+  "summary": {
+    "原始电阻数": 266,
+    "合并后编号总数": 266,
+    "合并后行数": 101,
+    "压缩率": "62.0%",
+    "编号完整性": "[PASS]",
+    "阻值映射正确性": "[PASS]",
+    "数量一致性": "[PASS]"
+  },
+  "missing_numbers": [],
+  "duplicate_numbers": {},
+  "extra_numbers": [],
+  "mismatch_count": 0
+}

@@ -1,0 +1,130 @@
+{
+    "model_type": "FRIKAN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 1249,
+    "trainable_params": 1105,
+    "non_trainable_params": 144,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "dropout_11",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "simoiir_11",
+            "type": "SIMOIIR",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": false,
+            "num_params": 144
+        },
+        {
+            "name": "dense_kan_52",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 244
+        },
+        {
+            "name": "dense_kan_53",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 164
+        },
+        {
+            "name": "dense_kan_54",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 164
+        },
+        {
+            "name": "dense_kan_55",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 164
+        },
+        {
+            "name": "dense_kan_56",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 164
+        },
+        {
+            "name": "dense_kan_57",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 164
+        },
+        {
+            "name": "dense_kan_51",
+            "type": "DenseKAN",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 41
+        }
+    ]
+}

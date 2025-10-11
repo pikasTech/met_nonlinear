@@ -1,0 +1,31 @@
+{
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "visualization_config": {
+    "layout": "side_by_side",
+    "freq_range": [
+      50,
+      200
+    ],
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      12,
+      8
+    ],
+    "title": "LSTMu32al_rs300_ex2 频率响应对比"
+  },
+  "data_sources": [
+    {
+      "project": "LSTMu32al_rs300_ex",
+      "state": "origin",
+      "label": "PS-5/190"
+    },
+    {
+      "project": "LSTMu32al_rs300_PS-5",
+      "state": "origin",
+      "label": "PS-5/360"
+    }
+  ]
+}

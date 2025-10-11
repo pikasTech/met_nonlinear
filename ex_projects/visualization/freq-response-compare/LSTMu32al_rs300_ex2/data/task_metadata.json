@@ -1,0 +1,10 @@
+{
+  "execution_time": "2025-09-15T18:53:05.076785",
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear\\visualization\\projects\\freq-response-compare\\LSTMu32al_rs300_ex2\\data\\bode_plot_sidebyside_LSTMu32al_rs300_ex2_origin_vs_LSTMu32al_rs300_ex2_compensation.png"
+  ],
+  "config_hash": "e6f1045047ef697e68b46bacc0542182"
+}

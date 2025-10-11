@@ -1,0 +1,32 @@
+# 跨平台换行符处理 - 完全不转换换行符
+# 这样可以避免Windows/Linux/macOS之间的换行符问题
+
+# 所有文件都不进行换行符转换，保持原样
+* -text
+
+# 二进制文件明确标记
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.bz2 binary
+*.7z binary
+*.rar binary
+*.h5 binary
+*.pkl binary
+*.pt binary
+*.pth binary
+*.onnx binary
+*.so binary
+*.dll binary
+*.exe binary
+*.dylib binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
