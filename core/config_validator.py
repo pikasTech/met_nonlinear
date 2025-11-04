@@ -250,6 +250,11 @@ class VisualizationConfigValidator:
                 "type": "string",
                 "minLength": 1
             },
+            "analysis_layer": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+            },
             "frequency_range": {
                 "type": "object",
                 "required": ["start_freq", "stop_freq"],

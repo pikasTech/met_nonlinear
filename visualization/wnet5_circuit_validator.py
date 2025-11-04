@@ -30,7 +30,9 @@ class WNET5CircuitValidator:
         self.frequency_range = config['frequency_range']
         # 可选: 实验对比数据 (Excel)
         self.experiment_path = config.get('compare_with_experiment')
-        
+        # 新增：指定要分析的Dense层编号（默认为1，向后兼容）
+        self.analysis_layer = config.get('analysis_layer', 1)
+
         # 确保输出目录存在
         self._setup_output_directories()
         
@@ -59,7 +61,7 @@ class WNET5CircuitValidator:
             # 1. 加载模型和提取参数
             model = self._load_model()
             svf_params = self._extract_svf_parameters(model)
-            dense_weights = self._extract_dense_weights(model)
+            dense_weights = self._extract_dense_weights(model, self.analysis_layer)
             
             # 2. 计算传递函数
             svf_tfs = self._calculate_svf_transfer_functions(svf_params)
@@ -67,9 +69,9 @@ class WNET5CircuitValidator:
             
             # 3. 计算频率响应
             freq_response = self._calculate_frequency_response(combined_tfs)
-            
+
             # 4. 生成可视化
-            plots = self._generate_plots(freq_response)
+            plots = self._generate_plots(freq_response, dense_weights)
             
             # 5. 生成报告
             report = self._generate_analysis_report(svf_params, dense_weights, freq_response)
@@ -145,27 +147,60 @@ class WNET5CircuitValidator:
             'quality_factors': list(map(float, q))
         }
     
-    def _extract_dense_weights(self, model):
-        """提取第一层Dense或输出层的权重
+    def _extract_dense_weights(self, model, analysis_layer: int = 1):
+        """提取指定Dense层的权重
 
-        逻辑: 在 layer_to_layer_models 中除去索引0(SVF层) 后找第一个 DenseLayer / Output_Layer_Model
-        如果没有后处理Dense (post_dense=False) 则只有输出层(若单输出) 可能无权重矩阵尺寸匹配频域组合需求。
-        这里我们希望获取第一个具有 get_weights() 能力且权重形状为 (channels, units) 或 (1,1,channels,units) kernel_size=1 的Conv1D/Dense。
+        Args:
+            model: WaveNet5模型实例
+            analysis_layer: 要分析的Dense层编号 (1/2/3/4)
+                           1 = Dense_Layer_Model_1 (layer_to_layer_models[1])
+                           2 = Dense_Layer_Model_2 (layer_to_layer_models[2])
+                           3 = Dense_Layer_Model_3 (layer_to_layer_models[3])
+                           4 = Output_Layer_Model (layer_to_layer_models[4])，如果存在
+
+        Returns:
+            Dict: 包含 layer_name, weights, bias, analysis_layer 的字典
+
+        Raises:
+            ValueError: 如果指定的层不存在或无法获取权重
         """
-        dense_candidate = None
-        for wrapper in model.layer_to_layer_models[1:]:
-            try:
-                w = wrapper.model.get_weights()
-                if w:
-                    dense_candidate = wrapper
-                    break
-            except Exception:
-                continue
-        if dense_candidate is None:
-            raise ValueError("未找到可用的Dense/输出层权重 (post_dense probablemente 未启用)")
+        # 验证 analysis_layer 的有效性
+        if analysis_layer < 1:
+            raise ValueError(f"analysis_layer 必须 >= 1，当前值: {analysis_layer}")
 
-        weights_list = dense_candidate.model.get_weights()
-        # 典型 Conv1D kernel=(1,) 权重 shape: (kernel, in_ch, out_ch)
+        # 计算目标层在 layer_to_layer_models 中的索引
+        # analysis_layer=1 -> 索引1 (Dense_Layer_Model_1)
+        # analysis_layer=2 -> 索引2 (Dense_Layer_Model_2)
+        # analysis_layer=3 -> 索引3 (Dense_Layer_Model_3)
+        target_index = analysis_layer  # 直接使用 analysis_layer 作为索引
+
+        # 检查目标索引是否在有效范围内
+        if target_index >= len(model.layer_to_layer_models):
+            available_layers = len(model.layer_to_layer_models) - 1  # 减去SVF层
+            raise ValueError(
+                f"请求的 analysis_layer={analysis_layer} 超出范围。"
+                f"模型共有 {available_layers} 个Dense/输出层 "
+                f"(layer_to_layer_models 长度: {len(model.layer_to_layer_models)}, "
+                f"索引0为SVF层)。"
+                f"有效的 analysis_layer 值为 1-{available_layers}。"
+            )
+
+        # 获取目标层
+        dense_candidate = model.layer_to_layer_models[target_index]
+
+        # 验证目标层确实是Dense层（不是SVF层）
+        if target_index == 0:
+            raise ValueError(f"analysis_layer=0 对应SVF层，无法提取Dense权重。请使用 analysis_layer >= 1。")
+
+        # 尝试获取权重
+        try:
+            weights_list = dense_candidate.model.get_weights()
+            if not weights_list:
+                raise ValueError(f"层 '{dense_candidate.name}' 没有可用的权重")
+        except Exception as e:
+            raise ValueError(f"无法从层 '{dense_candidate.name}' 获取权重: {e}")
+
+        # 提取kernel和bias（与原代码逻辑相同）
         kernel = None
         bias = None
         if len(weights_list) == 2:
@@ -192,11 +227,15 @@ class WNET5CircuitValidator:
         else:
             bias_vec = bias
 
-        logger.info(f"提取Dense层 '{dense_candidate.name}' 权重: {kernel_mat.shape}, bias: {bias_vec.shape}")
+        # 记录提取的层信息
+        logger.info(f"✅ 提取Dense层 '{dense_candidate.name}' (analysis_layer={analysis_layer}, 索引={target_index})")
+        logger.info(f"   权重形状: {kernel_mat.shape}, 偏置形状: {bias_vec.shape}")
+
         return {
             'layer_name': dense_candidate.name,
             'weights': kernel_mat,
-            'bias': bias_vec
+            'bias': bias_vec,
+            'analysis_layer': analysis_layer  # 新增：记录分析的层编号
         }
     
     def _calculate_svf_transfer_functions(self, svf_params):
@@ -281,7 +320,7 @@ class WNET5CircuitValidator:
             'phase_deg': phase_deg_all,
         }
     
-    def _generate_plots(self, freq_response):
+    def _generate_plots(self, freq_response, dense_weights):
         """生成幅频响应图 (线性增益对数刻度, 支持实验对比)"""
         logger.info("生成幅频响应图 (线性增益, 对比模式)...")
 
@@ -289,9 +328,11 @@ class WNET5CircuitValidator:
         frequencies = freq_response['frequencies']
         mag_db_list = freq_response['magnitude_db']
         mag_list = [np.clip(np.power(10.0, m/20.0), 1e-20, None) for m in mag_db_list]
-        output_labels = [f'D1_{i+1}' for i in range(len(mag_list))]
+        # 根据当前分析的层生成标签
+        analysis_layer = dense_weights.get('analysis_layer', 1)
+        output_labels = [f'D{analysis_layer}_{i+1}' for i in range(len(mag_list))]
 
-        # 2. 读取实验数据 (列名形式 D1_[N]_GAIN/B1)
+        # 2. 读取实验数据 (列名形式 D{layer}_[N]_GAIN/B1)
         exp_freq = None
         exp_mags = None
         if self.experiment_path:
@@ -303,7 +344,8 @@ class WNET5CircuitValidator:
                     freq_cols = [c for c in df.columns if str(c).strip().lower() in ['f','freq','frequency','freq(hz)','frequency(hz)','hz']]
                     fcol = freq_cols[0] if freq_cols else df.columns[0]
                     exp_freq = df[fcol].to_numpy(dtype=float)
-                    pattern = re.compile(r'^D1_(\d+)_GAIN/B1$')
+                    # 动态匹配当前分析的层
+                    pattern = re.compile(rf'^D{analysis_layer}_(\d+)_GAIN/B1$')
                     matched = {}
                     for c in df.columns:
                         if c == fcol:
@@ -324,7 +366,7 @@ class WNET5CircuitValidator:
                         for ch in range(1, max_theo+1):
                             if ch in matched:
                                 series.append(np.clip(matched[ch], 1e-20, None))
-                                used_labels.append(f'D1_{ch}')
+                                used_labels.append(f'D{analysis_layer}_{ch}')
                         if series:
                             exp_mags = series
                             if len(exp_mags) != len(mag_list):
@@ -335,7 +377,7 @@ class WNET5CircuitValidator:
                         else:
                             logger.warning("未按模式匹配到任何实验通道, 忽略对比")
                     else:
-                        logger.warning("实验数据缺少匹配列 D1_[N]_GAIN/B1")
+                        logger.warning(f"实验数据缺少匹配列 D{analysis_layer}_[N]_GAIN/B1")
                 else:
                     logger.warning(f"实验数据文件不存在: {self.experiment_path}")
             except Exception as e:
@@ -353,7 +395,7 @@ class WNET5CircuitValidator:
                 ax_top.semilogx(frequencies, m, color=colors[i], linewidth=1.4, label=lbl)
             for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
                 ax_bottom.semilogx(exp_freq, m, color=colors[i], linewidth=1.2, label=lbl)
-            ax_top.set_title(f'{self.model_project_name} Dense#1 输出 频率响应 (理论, 线性增益)')
+            ax_top.set_title(f'{self.model_project_name} Dense#{analysis_layer} 输出 频率响应 (理论, 线性增益)')
             ax_bottom.set_title('实验测量 频率响应 (线性增益)')
             ax_bottom.set_xlabel('频率 (Hz)')
             for ax in (ax_top, ax_bottom):
@@ -379,7 +421,7 @@ class WNET5CircuitValidator:
             fig, ax = plt.subplots(figsize=(10, 6))
             for i, (m, lbl) in enumerate(zip(mag_list, output_labels)):
                 ax.semilogx(frequencies, m, color=colors[i], linewidth=1.4, label=lbl)
-            ax.set_title(f'{self.model_project_name} Dense#1 输出 频率响应 (理论, 线性增益)')
+            ax.set_title(f'{self.model_project_name} Dense#{analysis_layer} 输出 频率响应 (理论, 线性增益)')
             ax.set_xlabel('频率 (Hz)')
             ax.set_ylabel('增益 (线性, log刻度)')
             ax.set_yscale('log')
@@ -409,9 +451,11 @@ class WNET5CircuitValidator:
         report = {
             'project_name': self.model_project_name,
             'analysis_type': 'wnet5-circuit-validation',
+            'analysis_layer': dense_weights.get('analysis_layer', 1),
             'svf_parameters': svf_params,
             'dense_layer': {
                 'name': dense_weights['layer_name'],
+                'analysis_layer_index': dense_weights.get('analysis_layer', 1),
                 'weight_shape': list(dense_weights['weights'].shape),
                 'bias_shape': list(dense_weights['bias'].shape)
             },
@@ -517,6 +561,7 @@ class WNET5CircuitValidator:
         results = {
             'project_name': self.model_project_name,
             'task_type': 'wnet5-circuit-validation',
+            'analysis_layer': self.analysis_layer,
             'frequency_range': self.frequency_range,
             'svf': {
                 'center_freqs': svf_params['center_freqs'],

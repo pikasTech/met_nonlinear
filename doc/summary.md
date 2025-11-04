@@ -10,6 +10,76 @@
 - 🔧 完整的E6/E12/E24/E96/E192电阻标准化体系已实现
 - 📦 PCB制造级BOM自动生成与分组编号系统已投入使用
 
+## 最新进展 (2025-11-04)
+
+### WNET5多层电路验证功能扩展方案 🎯
+
+**需求背景**：对实际电路板的每一层Dense输出进行频率响应对比分析。
+
+**当前实现**：
+- ✅ SVF层 + Dense层（第一层）的 RELU 前频率响应分析已完成
+- ✅ 基于传递函数理论计算电路频率响应
+- ✅ 支持理论与实验数据对比
+
+**扩展目标**：
+- 🎯 支持 SVF层 + Dense层（第二层/第三层/第四层）的频率响应分析
+- 🎯 通过 `config.json` 的 `analysis_layer` 参数灵活选择要分析的层
+- 🎯 保持架构约束：永远是 **1个SVF层 + 1个Dense层** 的组合分析
+
+**深度分析成果** (ultrathink模式)：
+
+**系统架构理解**：
+```python
+# WaveNet5 layer_to_layer_models 结构
+[0] SVFLayer: IIR_Layer_Model          (1→6通道)
+[1] DenseLayer: Dense_Layer_Model_1    (6→6通道, ReLU)
+[2] DenseLayer: Dense_Layer_Model_2    (6→6通道, ReLU)
+[3] DenseLayer: Dense_Layer_Model_3    (6→6通道, ReLU)
+[4] DenseLayer: Output_Layer_Model     (6→1通道)
+```
+
+**关键技术发现**：
+- ✅ 当前 `_extract_dense_weights()` 硬编码只提取第一层Dense
+- ✅ `load_weights()` 已自动同步所有layer_to_layer_models的权重
+- ✅ 所有Dense层权重已加载可用，只需调整提取逻辑
+- ✅ 层名称匹配机制：通过 `post_dense_1/2/3` 自动同步权重
+
+**实施方案设计**：
+
+**方案1：最小修改方案（推荐）⭐**
+- 核心：修改 `_extract_dense_weights()` 函数，通过 `analysis_layer` 参数选择层
+- 修改点：7处代码修改
+- 优势：实现简单、风险低、向后兼容
+- 配置：`config.json` 新增 `"analysis_layer": 1/2/3/4`
+
+**方案2：层索引映射方案（更健壮）**
+- 核心：创建层映射机制，自动检测可用Dense层
+- 修改点：10处代码修改 + 新增1个函数
+- 优势：健壮性更好、自动适应模型变化、详细错误处理
+- 适用：长期维护、多模型支持
+
+**关键代码位置**：
+- `visualization/wnet5_circuit_validator.py:148-200` - `_extract_dense_weights()`
+- `models/wavenet_models.py:847-892` - `load_weights()`
+- `models/model_layers.py:364-540` - `DenseLayer` 定义
+
+**实施文档**：
+- 📄 详细方案：`doc/plan/20251104/wnet5_multilayer_circuit_validation_implementation_plan.md`
+- 📋 包含：需求分析、架构深度分析、2种方案对比、代码修改详情、测试计划
+
+**预期成果**：
+- 🎯 支持分析任意Dense层（1-4层）的频率响应
+- 🎯 输出标签自动适配：`D1_1` → `D2_1` → `D3_1`
+- 🎯 图表标题动态更新：`Dense#1` → `Dense#2` → `Dense#3`
+- 🎯 完整向后兼容：默认 `analysis_layer=1`
+
+**工程价值**：
+- ✅ 支持电路板每一层输出的精确验证
+- ✅ 传递函数方法避免RELU非线性影响
+- ✅ 灵活配置，满足不同测试需求
+
+---
+
 ## 当前系统架构状态
 
 ### 1. 统一数据一致性架构 ✅
