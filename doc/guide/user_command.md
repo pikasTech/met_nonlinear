@@ -92,3 +92,17 @@ error_file: logs/20250917_100040_cli_errors.log
 - 要修改的每个代码文件的每处修改点的简要说明。
 - 之前是如何加载和使用 Dense 层的权重，现在要如何修改来加载和使用指定层数的 Dense 层的权重。
 
+
+## C05
+
+现在要对比 exam_data\SVF-W_DENSE 里面的测量出的 Dense 的频率响应和ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1 的频率响应：
+
+1. 只对比幅频响应，上下绘制两张图，上面的实际测试的幅频响应（6个通道），下面的仿真的幅频响应（6个通道），x轴是频率，y轴是幅度，单位是 dB。
+
+2. 用 loglog 坐标系绘制。
+
+3. 实际测试的幅度要除以自测试的频响（频点一一对应相除），得到补偿后的幅频响应。自测试频响是 ：exam_data\SVF-W_DENSE\output_20251103_085135_sweep_selftest_震级1.0.xlsx
+
+4. 要能够自动根据文件名识别是哪一层的第几个通道的测试结果，例如 `exam_data\SVF-W_DENSE\output_20251104_085010_SVF-W_DENSE2_2_震级1.0.xlsx` 是 第二层的第2个通道。
+
+5. 绘制对比的功能在 C04 的基础上实现，每一层绘制自己的对比图，例如 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1` 绘制。
