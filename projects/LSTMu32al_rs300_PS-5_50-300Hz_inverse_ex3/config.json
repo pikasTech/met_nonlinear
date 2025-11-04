@@ -10,7 +10,7 @@
     "use_power_loss": true,
     "use_points": 8000,
     "resume_training": true,
-    "use_best_val_weights": true,
+    "use_best_val_weights": false,
     "SPLINE_ORDER": 2,
     "use_auto_lr": true,
     "auto_lr_decay_steps": 30000,

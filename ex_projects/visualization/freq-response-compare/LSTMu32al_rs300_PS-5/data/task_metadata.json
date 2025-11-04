@@ -4,7 +4,7 @@
     "task_type": "freq-response-compare"
   },
   "output_files": [
-    "C:\\work\\met_nonlinear\\unified_projects\\visualization\\freq-response-compare\\LSTMu32al_rs300_PS-5\\data\\bode_plot_sidebyside_LSTMu32al_rs300_PS-5_origin_vs_LSTMu32al_rs300_PS-5_compensation.png"
+    "C:\\work\\met_nonlinear\\ep_projects\\visualization\\freq-response-compare\\LSTMu32al_rs300_PS-5\\data\\bode_plot_sidebyside_LSTMu32al_rs300_PS-5_origin_vs_LSTMu32al_rs300_PS-5_compensation.png"
   ],
   "config_hash": "c4aaa4d1f79333d7c8e35687258b1335"
 }

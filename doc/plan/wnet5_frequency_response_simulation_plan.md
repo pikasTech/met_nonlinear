@@ -44,7 +44,7 @@ class VisualizationPathParser:
 #### 1.2 EP命令使用示例
 ```bash
 # 创建WNET5频率响应分析项目
-python cli.py ep unified_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3
+python cli.py ep ep_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3
 python cli.py ep projects/WNET5_project/external/wnet5-circuit-validation/svf-dense-analysis
 
 # 支持的路径格式
@@ -77,7 +77,7 @@ def _create_wnet5_circuit_validation_template(ep_path: ExternalPath) -> dict:
 
 #### 3.1 项目目录组织
 ```
-unified_projects/{domain}/{task_type}/{task_name}/
+ep_projects/{domain}/{task_type}/{task_name}/
 ├── config.json                    # 任务配置文件
 └── data/                          # 输出目录（EP统一）
     ├── numerics/                  # 数值产物（传递函数/频响等JSON/NPZ）

@@ -1,0 +1,31 @@
+{
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "visualization_config": {
+    "layout": "side_by_side",
+    "freq_range": [
+      50,
+      300
+    ],
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      16,
+      8
+    ],
+    "title": "宽频带后训练对比"
+  },
+  "data_sources": [
+    {
+      "project": "LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3",
+      "state": "compensation",
+      "label": "宽频带后训练前"
+    },
+    {
+      "project": "LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex4",
+      "state": "compensation",
+      "label": "宽频带后训练后"
+    }
+  ]
+}
