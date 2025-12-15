@@ -1,6 +1,7 @@
 {
   "project_name": "WNET5q1h2u6l3",
   "task_type": "wnet5-circuit-validation",
+  "analysis_layer": 1,
   "frequency_range": {
     "start_freq": 2,
     "stop_freq": 500

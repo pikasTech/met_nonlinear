@@ -8,5 +8,9 @@
   "frequency_range": {
     "start_freq": 2,
     "stop_freq": 500
+  },
+  "compare_with_experiment": "F:\\BaiduSyncdisk\\data\\SVF-NET-CIRCUIT\\20251201-SVFNET-Dense1-3层.xlsx",
+  "experiment_comparison": {
+    "experiment_sheet_name": "layer1"
   }
 }

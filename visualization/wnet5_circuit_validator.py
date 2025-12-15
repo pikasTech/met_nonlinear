@@ -390,7 +390,7 @@ class WNET5CircuitValidator:
             svf_tfs = self._calculate_svf_transfer_functions(svf_params)
             combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
 
-            # 3. 计算频率响应
+            # 3. 计算频率响应（使用默认频率点保持计算精度）
             freq_response = self._calculate_frequency_response(combined_tfs)
 
             # 4. 生成可视化
@@ -620,6 +620,7 @@ class WNET5CircuitValidator:
         stop_freq = float(self.frequency_range['stop_freq'])
         points = int(self.frequency_range.get('points', 1000))
         frequencies = np.logspace(np.log10(start_freq), np.log10(stop_freq), points)
+
         omega = 2 * np.pi * frequencies
         s_vals = 1j * omega
         s = sp.Symbol('s')
@@ -758,6 +759,7 @@ class WNET5CircuitValidator:
 
         plots = []
         if exp_mags is not None and exp_freq is not None:
+            # 生成理论vs实验对比图
             fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(12, 8))
             for i, (m, lbl) in enumerate(zip(mag_list, output_labels)):
                 ax_top.semilogx(frequencies, m, color=colors[i], linewidth=1.4, label=lbl)
@@ -785,6 +787,102 @@ class WNET5CircuitValidator:
             plt.close(fig)
             plots.append(str(plot_path))
             logger.info(f"对比图已保存: {plot_path}")
+
+            # 生成误差图：仿真数据 ÷ 实际数据
+            # 只在误差计算时使用实验频率点，避免对实验数据插值
+            from scipy import interpolate
+            fig, ax = plt.subplots(figsize=(12, 6))
+
+            for i, (theory_mag, exp_mag, lbl) in enumerate(zip(mag_list, exp_mags, output_labels)):
+                # 将理论数据插值到实验频率点
+                theory_interp = interpolate.interp1d(frequencies, theory_mag, kind='linear',
+                                                   bounds_error=False, fill_value=np.nan)
+                theory_mag_interp = theory_interp(exp_freq)
+
+                # 计算误差：理论插值数据 ÷ 实验数据
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    error_ratio = theory_mag_interp / exp_mag
+                    error_ratio = np.where(np.abs(exp_mag) < 1e-20, np.nan, error_ratio)
+
+                # 绘制误差曲线（使用实验频率点）
+                ax.semilogx(exp_freq, error_ratio, color=colors[i], linewidth=1.4,
+                           label=f'{lbl} (理论/实验)', marker='o', markersize=2, alpha=0.7)
+
+            ax.set_title(f'{self.model_project_name} Dense#{analysis_layer} 频率响应误差分析 (仿真数据÷实际数据)')
+            ax.set_xlabel('频率 (Hz)')
+            ax.set_ylabel('误差比值 (仿真÷实际)')
+            ax.set_yscale('log')
+            ax.grid(True, which='both', alpha=0.3)
+            ax.axhline(y=1.0, color='red', linestyle='--', alpha=0.5, label='理想匹配线 (比值=1.0)')
+
+            # 设置更密集的Y轴刻度
+            from matplotlib.ticker import MultipleLocator, LogLocator
+            ax.yaxis.set_major_locator(LogLocator(base=10.0, numticks=20))
+            ax.yaxis.set_minor_locator(LogLocator(base=10.0, subs='auto', numticks=100))
+
+            ax.legend(fontsize=8, ncol=min(4, len(output_labels)))
+            plt.tight_layout()
+
+            error_plot_path = self.output_path / 'plots' / 'frequency_response_error_ratio.png'
+            plt.savefig(error_plot_path, dpi=300)
+            plt.close(fig)
+            plots.append(str(error_plot_path))
+            logger.info(f"误差比值图已保存: {error_plot_path}")
+
+            # 保存误差数据到JSON文件，供后续results.json使用
+            error_data = {
+                'frequencies': exp_freq.tolist(),  # 使用实验频率点
+                'error_ratios': [],
+                'statistics': []
+            }
+            for i, (theory_mag, exp_mag, lbl) in enumerate(zip(mag_list, exp_mags, output_labels)):
+                # 将理论数据插值到实验频率点
+                theory_interp = interpolate.interp1d(frequencies, theory_mag, kind='linear',
+                                                   bounds_error=False, fill_value=np.nan)
+                theory_mag_interp = theory_interp(exp_freq)
+
+                # 计算误差：理论插值数据 ÷ 实验数据
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    error_ratio = theory_mag_interp / exp_mag
+                    error_ratio = np.where(np.abs(exp_mag) < 1e-20, np.nan, error_ratio)
+
+                error_data['error_ratios'].append({
+                    'channel': lbl,
+                    'ratios': error_ratio.tolist()
+                })
+
+                # 计算误差统计
+                valid_errors = error_ratio[~np.isnan(error_ratio)]
+                if len(valid_errors) > 0:
+                    stats = {
+                        'channel': lbl,
+                        'mean_error_ratio': float(np.mean(valid_errors)),
+                        'std_error_ratio': float(np.std(valid_errors)),
+                        'min_error_ratio': float(np.min(valid_errors)),
+                        'max_error_ratio': float(np.max(valid_errors)),
+                        'median_error_ratio': float(np.median(valid_errors)),
+                        'within_10_percent': float(np.sum(np.abs(valid_errors - 1.0) <= 0.1) / len(valid_errors) * 100),
+                        'within_20_percent': float(np.sum(np.abs(valid_errors - 1.0) <= 0.2) / len(valid_errors) * 100)
+                    }
+                else:
+                    stats = {
+                        'channel': lbl,
+                        'mean_error_ratio': None,
+                        'std_error_ratio': None,
+                        'min_error_ratio': None,
+                        'max_error_ratio': None,
+                        'median_error_ratio': None,
+                        'within_10_percent': None,
+                        'within_20_percent': None
+                    }
+                error_data['statistics'].append(stats)
+
+            # 保存误差数据
+            error_data_path = self.output_path / 'numerics' / 'error_analysis.json'
+            error_data_path.parent.mkdir(exist_ok=True)
+            with open(error_data_path, 'w', encoding='utf-8') as f:
+                json.dump(error_data, f, indent=2, ensure_ascii=False)
+            logger.info(f"误差分析数据已保存: {error_data_path}")
         else:
             fig, ax = plt.subplots(figsize=(10, 6))
             for i, (m, lbl) in enumerate(zip(mag_list, output_labels)):
@@ -1133,6 +1231,14 @@ class WNET5CircuitValidator:
                 'report': report_rel
             }
         }
+
+        # 如果存在误差分析数据，添加到结果中
+        error_data_path = self.output_path / 'numerics' / 'error_analysis.json'
+        if error_data_path.exists():
+            with open(error_data_path, 'r', encoding='utf-8') as f:
+                error_data = json.load(f)
+            results['error_analysis'] = error_data
+            logger.info("误差分析数据已添加到results.json")
 
         results_path = self.output_path / 'results.json'
         with open(results_path, 'w', encoding='utf-8') as f:
