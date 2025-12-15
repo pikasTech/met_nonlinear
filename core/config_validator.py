@@ -281,9 +281,54 @@ class VisualizationConfigValidator:
                 "type": "string",
                 "minLength": 1
             },
+            "experiment_comparison": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "enable": {
+                        "type": "boolean"
+                    },
+                    "mode": {
+                        "type": "string",
+                        "enum": ["single_file", "multi_file"]
+                    },
+                    "experiment_data_dir": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "selftest_file": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "experiment_sheet_name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "plot_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "coordinate_system": {
+                                "type": "string",
+                                "enum": ["loglog", "semilogx", "semilogy", "linear"]
+                            },
+                            "y_unit": {
+                                "type": "string",
+                                "enum": ["dB", "linear"]
+                            }
+                        }
+                    }
+                }
+            },
             "weights_path": {
                 "type": "string",
                 "minLength": 1
+            },
+            "offline_mode": {
+                "type": "boolean"
+            },
+            "precomputed_data": {
+                "type": "object"
             }
         }
     }
@@ -315,7 +360,8 @@ class VisualizationConfigValidator:
                     "freq_range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
                     "gain_range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
                     "title": {"type": "string"},
-                    "log_scale": {"type": "boolean"}
+                    "log_scale": {"type": "boolean"},
+                    "target_magnitudes": {"type": "array", "items": {"type": "number"}}
                 }
             }
         }

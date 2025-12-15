@@ -421,6 +421,23 @@ def _execute_freq_response_compensator_task(ep_path: ExternalPath, config: dict)
         freq_range = viz_cfg.get('freq_range')
         gain_range = viz_cfg.get('gain_range')
         log_scale = viz_cfg.get('log_scale', True)
+
+        # 过滤特定震级
+        target_magnitudes = viz_cfg.get('target_magnitudes')
+        if target_magnitudes:
+            indices = []
+            for target in target_magnitudes:
+                # 找到最接近的震级索引
+                idx = (np.abs(magnitudes - target)).argmin()
+                indices.append(idx)
+            # 去重并排序
+            indices = sorted(list(set(indices)))
+            
+            magnitudes = magnitudes[indices]
+            gains_origin = gains_origin[indices]
+            gains_comped = gains_comped[indices]
+            logger.info(f"已过滤震级，保留: {magnitudes}")
+
         # 样式调优：接近报告中使用的风格（tab20 调色板 + 半透明网格 + 细线 + 稀疏标记）
         fig, ax = plt.subplots(figsize=figsize)
         plot_fn = ax.semilogx if log_scale else ax.plot

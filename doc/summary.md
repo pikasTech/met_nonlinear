@@ -12,7 +12,55 @@
 
 ## 最新进展 (2025-11-04)
 
-### WNET5多层电路验证功能扩展方案 🎯
+### C05实施完成：WNET5实验数据对比功能 ✅
+
+**实施背景**：在C04多层电路验证的基础上，实现实验测量数据与仿真数据的完整对比分析。
+
+**核心功能**：
+- ✅ **多文件实验数据自动扫描**：从目录自动匹配对应层的所有通道数据文件
+- ✅ **自测试频响补偿**：使用自测试数据对实验数据进行补偿 (`exp_compensated = exp_mag / selftest_mag`)
+- ✅ **loglog坐标系绘图**：x轴和y轴都使用对数刻度，符合频率响应分析标准
+- ✅ **上下对比布局**：上图显示实验测量（补偿后），下图显示理论仿真
+- ✅ **向后兼容设计**：保留旧的单文件对比模式，不影响现有功能
+
+**技术实现**（7个修改点）：
+1. `__init__()` - 新增 `experiment_comparison` 配置加载
+2. `_load_selftest_data()` - 加载自测试频响数据
+3. `_parse_experiment_filename()` - 解析实验文件名（支持两种命名格式）
+4. `_scan_experiment_files()` - 扫描并匹配目标层的所有通道文件
+5. `_load_experiment_channel_data()` - 加载单个通道的实验数据
+6. `_compensate_with_selftest()` - 使用scipy插值进行自测试补偿
+7. `_generate_plots()` 重构 - 拆分为 `_generate_plots_single_file()` 和 `_generate_plots_multi_file()`
+
+**配置示例**：
+```json
+{
+  "experiment_comparison": {
+    "enable": true,
+    "mode": "multi_file",
+    "experiment_data_dir": "exam_data/SVF-W_DENSE",
+    "selftest_file": "exam_data/SVF-W_DENSE/output_20251103_085135_sweep_selftest_震级1.0.xlsx",
+    "plot_config": {
+      "coordinate_system": "loglog",
+      "y_unit": "dB"
+    }
+  }
+}
+```
+
+**测试验证**：
+- ✅ 第1层测试成功：25个自测试频点，6个通道实验数据加载完成
+- ✅ 生成对比图：`frequency_response_comparison_multi.png` (531KB)
+- ✅ 自测试补偿正常工作，插值算法在对数空间进行
+- ✅ loglog坐标系正确显示实验与仿真数据
+
+**文档记录**：
+- 📄 完整实施计划：`doc/plan/20251104/wnet5_experiment_comparison_implementation_plan.md`
+- 📄 测试项目配置：`ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1_c05test/`
+
+---
+
+### C04已完成：WNET5多层电路验证功能扩展 ✅
 
 **需求背景**：对实际电路板的每一层Dense输出进行频率响应对比分析。
 

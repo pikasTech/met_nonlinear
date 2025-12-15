@@ -28,8 +28,22 @@ class WNET5CircuitValidator:
         self.output_path = Path(output_path)
         self.model_project_name = config['model_project_name']
         self.frequency_range = config['frequency_range']
-        # 可选: 实验对比数据 (Excel)
+        # 可选: 实验对比数据 (Excel) - 旧的单文件对比配置（向后兼容）
         self.experiment_path = config.get('compare_with_experiment')
+        # 离线模式：使用预计算的数据，跳过TensorFlow模型加载
+        self.offline_mode = config.get('offline_mode', False)
+        # 预计算的数据（离线模式使用）
+        self.precomputed_data = config.get('precomputed_data', {})
+
+        # ⬇️⬇️⬇️ 新增：实验对比配置（C05） ⬇️⬇️⬇️
+        self.experiment_comparison = config.get('experiment_comparison', {})
+        self.exp_comp_enable = self.experiment_comparison.get('enable', False)
+        self.exp_comp_mode = self.experiment_comparison.get('mode', 'single_file')
+        self.exp_data_dir = self.experiment_comparison.get('experiment_data_dir')
+        self.selftest_file = self.experiment_comparison.get('selftest_file')
+        self.plot_config = self.experiment_comparison.get('plot_config', {})
+        # ⬆️⬆️⬆️ 新增结束 ⬆️⬆️⬆️
+
         # 新增：指定要分析的Dense层编号（默认为1，向后兼容）
         self.analysis_layer = config.get('analysis_layer', 1)
 
@@ -44,6 +58,300 @@ class WNET5CircuitValidator:
         (self.output_path / "numerics").mkdir(exist_ok=True)
         (self.output_path / "reports").mkdir(exist_ok=True)
 
+    def _load_selftest_data(self) -> Dict[str, np.ndarray]:
+        """加载自测试频响数据（C05新增）
+
+        Returns:
+            Dict: {'frequencies': np.ndarray, 'magnitude': np.ndarray}
+                  magnitude 单位为线性增益
+
+        Raises:
+            FileNotFoundError: 如果自测试文件不存在
+            ValueError: 如果文件格式不正确
+        """
+        if not self.selftest_file:
+            raise ValueError("未配置自测试文件路径 (selftest_file)")
+
+        selftest_path = Path(self.selftest_file)
+        if not selftest_path.exists():
+            raise FileNotFoundError(f"自测试文件不存在: {selftest_path}")
+
+        logger.info(f"📂 加载自测试数据: {selftest_path}")
+
+        try:
+            import pandas as pd
+            df = pd.read_excel(selftest_path)
+
+            # 查找频率列
+            freq_cols = [c for c in df.columns if str(c).strip().lower() in [
+                'f', 'freq', 'frequency', 'freq(hz)', 'frequency(hz)', 'hz'
+            ]]
+            if not freq_cols:
+                raise ValueError(f"自测试文件中未找到频率列，列名: {df.columns.tolist()}")
+
+            freq_col = freq_cols[0]
+            frequencies = df[freq_col].to_numpy(dtype=float)
+
+            # 查找增益列（自测试通常只有一个增益列）
+            # 可能的列名：GAIN, GAIN/B1, Magnitude, Amplitude
+            gain_cols = [c for c in df.columns if c != freq_col and
+                         any(kw in str(c).upper() for kw in ['GAIN', 'MAGNITUDE', 'AMP'])]
+
+            if not gain_cols:
+                raise ValueError(f"自测试文件中未找到增益列，列名: {df.columns.tolist()}")
+
+            gain_col = gain_cols[0]
+            magnitude = df[gain_col].to_numpy(dtype=float)
+
+            # 检查数据有效性
+            if len(frequencies) != len(magnitude):
+                raise ValueError(f"频率和增益数据长度不一致: {len(frequencies)} vs {len(magnitude)}")
+
+            # 清理无效数据（NaN, Inf）
+            valid_mask = np.isfinite(frequencies) & np.isfinite(magnitude)
+            frequencies = frequencies[valid_mask]
+            magnitude = magnitude[valid_mask]
+
+            # 确保增益为正值（避免log运算错误）
+            magnitude = np.clip(magnitude, 1e-20, None)
+
+            logger.info(f"✅ 自测试数据加载成功: {len(frequencies)} 个频点")
+            logger.info(f"   频率范围: {frequencies.min():.2f} - {frequencies.max():.2f} Hz")
+            logger.info(f"   增益范围: {magnitude.min():.6f} - {magnitude.max():.6f}")
+
+            return {
+                'frequencies': frequencies,
+                'magnitude': magnitude
+            }
+
+        except Exception as e:
+            logger.error(f"加载自测试数据失败: {e}")
+            raise
+
+    def _parse_experiment_filename(self, filename: str) -> Dict[str, Any]:
+        """解析实验数据文件名（C05新增）
+
+        支持的命名格式：
+        - output_{时间戳}_SVF-W_DENSE{层号}_{通道号}_震级1.0.xlsx
+        - output_{时间戳}_SVF-W_DENSE{层号}-{通道号}_震级1.0.xlsx  (连字符格式)
+
+        Args:
+            filename: 文件名（不含路径）
+
+        Returns:
+            Dict: {
+                'layer': int,        # 层号
+                'channel': int,      # 通道号
+                'timestamp': str,    # 时间戳
+                'magnitude': float   # 震级（默认1.0）
+            }
+            如果解析失败，返回 None
+        """
+        import re
+
+        # 模式1：下划线分隔 SVF-W_DENSE{层号}_{通道号}
+        pattern1 = r'output_(\d+_\d+)_SVF-W_DENSE(\d+)_(\d+)_震级([\d.]+)\.xlsx'
+        match = re.match(pattern1, filename)
+
+        if match:
+            timestamp, layer, channel, magnitude = match.groups()
+            return {
+                'layer': int(layer),
+                'channel': int(channel),
+                'timestamp': timestamp,
+                'magnitude': float(magnitude)
+            }
+
+        # 模式2：连字符分隔 SVF-W_DENSE{层号}-{通道号}
+        pattern2 = r'output_(\d+_\d+)_SVF-W_DENSE(\d+)-(\d+)_震级([\d.]+)\.xlsx'
+        match = re.match(pattern2, filename)
+
+        if match:
+            timestamp, layer, channel, magnitude = match.groups()
+            return {
+                'layer': int(layer),
+                'channel': int(channel),
+                'timestamp': timestamp,
+                'magnitude': float(magnitude)
+            }
+
+        # 解析失败
+        return None
+
+    def _scan_experiment_files(self, target_layer: int) -> Dict[int, Path]:
+        """扫描实验数据目录，查找指定层的所有通道数据文件（C05新增）
+
+        Args:
+            target_layer: 目标层号
+
+        Returns:
+            Dict[int, Path]: {通道号: 文件路径}
+
+        Raises:
+            FileNotFoundError: 如果实验数据目录不存在
+        """
+        if not self.exp_data_dir:
+            raise ValueError("未配置实验数据目录 (experiment_data_dir)")
+
+        exp_dir = Path(self.exp_data_dir)
+        if not exp_dir.exists():
+            raise FileNotFoundError(f"实验数据目录不存在: {exp_dir}")
+
+        logger.info(f"🔍 扫描实验数据目录: {exp_dir}")
+        logger.info(f"   目标层: {target_layer}")
+
+        # 扫描目录中的所有 .xlsx 文件
+        channel_files = {}
+
+        for file_path in exp_dir.glob('*.xlsx'):
+            filename = file_path.name
+
+            # 跳过自测试文件
+            if 'selftest' in filename.lower():
+                continue
+
+            # 解析文件名
+            parsed = self._parse_experiment_filename(filename)
+
+            if parsed is None:
+                logger.debug(f"   跳过无法解析的文件: {filename}")
+                continue
+
+            # 检查是否匹配目标层
+            if parsed['layer'] == target_layer:
+                channel = parsed['channel']
+
+                # 检查重复
+                if channel in channel_files:
+                    logger.warning(
+                        f"   ⚠️ 发现重复通道数据: 层{target_layer}通道{channel}\n"
+                        f"      已有: {channel_files[channel].name}\n"
+                        f"      新文件: {filename}\n"
+                        f"      将使用新文件（假设时间戳更新）"
+                    )
+
+                channel_files[channel] = file_path
+                logger.info(f"   ✅ 找到: 层{target_layer}通道{channel} - {filename}")
+
+        if not channel_files:
+            logger.warning(f"⚠️ 未找到层{target_layer}的实验数据文件")
+            return {}
+
+        logger.info(f"✅ 共找到 {len(channel_files)} 个通道的实验数据")
+
+        # 按通道号排序
+        sorted_channels = dict(sorted(channel_files.items()))
+        return sorted_channels
+
+    def _load_experiment_channel_data(self, file_path: Path) -> Dict[str, np.ndarray]:
+        """加载单个实验通道的数据（C05新增）
+
+        Args:
+            file_path: 实验数据文件路径
+
+        Returns:
+            Dict: {'frequencies': np.ndarray, 'magnitude': np.ndarray}
+                  magnitude 单位为线性增益
+
+        Raises:
+            ValueError: 如果文件格式不正确
+        """
+        logger.debug(f"   加载实验数据: {file_path.name}")
+
+        try:
+            import pandas as pd
+            df = pd.read_excel(file_path)
+
+            # 查找频率列
+            freq_cols = [c for c in df.columns if str(c).strip().lower() in [
+                'f', 'freq', 'frequency', 'freq(hz)', 'frequency(hz)', 'hz'
+            ]]
+            if not freq_cols:
+                raise ValueError(f"文件中未找到频率列: {file_path.name}")
+
+            freq_col = freq_cols[0]
+            frequencies = df[freq_col].to_numpy(dtype=float)
+
+            # 查找增益列
+            gain_cols = [c for c in df.columns if c != freq_col and
+                         any(kw in str(c).upper() for kw in ['GAIN', 'MAGNITUDE', 'AMP'])]
+
+            if not gain_cols:
+                raise ValueError(f"文件中未找到增益列: {file_path.name}")
+
+            gain_col = gain_cols[0]
+            magnitude = df[gain_col].to_numpy(dtype=float)
+
+            # 数据清理
+            valid_mask = np.isfinite(frequencies) & np.isfinite(magnitude)
+            frequencies = frequencies[valid_mask]
+            magnitude = magnitude[valid_mask]
+            magnitude = np.clip(magnitude, 1e-20, None)
+
+            return {
+                'frequencies': frequencies,
+                'magnitude': magnitude
+            }
+
+        except Exception as e:
+            logger.error(f"加载实验数据失败 {file_path.name}: {e}")
+            raise
+
+    def _compensate_with_selftest(
+        self,
+        exp_freq: np.ndarray,
+        exp_mag: np.ndarray,
+        selftest_data: Dict[str, np.ndarray]
+    ) -> np.ndarray:
+        """使用自测试数据补偿实验数据（C05新增）
+
+        补偿方法：exp_compensated = exp_mag / selftest_mag
+        通过插值使自测试数据与实验数据的频点对齐
+
+        Args:
+            exp_freq: 实验数据的频率点
+            exp_mag: 实验数据的幅度（线性增益）
+            selftest_data: 自测试数据 {'frequencies', 'magnitude'}
+
+        Returns:
+            np.ndarray: 补偿后的幅度（线性增益）
+        """
+        from scipy.interpolate import interp1d
+
+        selftest_freq = selftest_data['frequencies']
+        selftest_mag = selftest_data['magnitude']
+
+        # 检查频率范围是否覆盖
+        exp_min, exp_max = exp_freq.min(), exp_freq.max()
+        self_min, self_max = selftest_freq.min(), selftest_freq.max()
+
+        if exp_min < self_min or exp_max > self_max:
+            logger.warning(
+                f"⚠️ 实验数据频率范围 [{exp_min:.2f}, {exp_max:.2f}] Hz "
+                f"超出自测试范围 [{self_min:.2f}, {self_max:.2f}] Hz"
+            )
+
+        # 使用线性插值（对数空间）
+        selftest_db = 20 * np.log10(selftest_mag + 1e-20)
+
+        # 创建插值函数
+        interp_func = interp1d(
+            selftest_freq,
+            selftest_db,
+            kind='linear',
+            bounds_error=False,
+            fill_value='extrapolate'
+        )
+
+        # 在实验频点处插值
+        selftest_db_interp = interp_func(exp_freq)
+        selftest_mag_interp = np.power(10.0, selftest_db_interp / 20.0)
+
+        # 执行补偿（相除）
+        compensated_mag = exp_mag / (selftest_mag_interp + 1e-20)
+
+        return compensated_mag
+
     def _to_list_2d(self, arr):
         """将二维numpy数组转换为纯float嵌套list (确保JSON可序列化)"""
         if arr is None:
@@ -57,31 +365,46 @@ class WNET5CircuitValidator:
         """执行WNET5电路验证流程"""
         try:
             logger.info("开始WNET5电路验证分析...")
-            
-            # 1. 加载模型和提取参数
-            model = self._load_model()
-            svf_params = self._extract_svf_parameters(model)
-            dense_weights = self._extract_dense_weights(model, self.analysis_layer)
-            
+
+            # 检查是否使用离线模式
+            if self.offline_mode:
+                logger.info("使用离线模式，跳过TensorFlow模型加载")
+                # 离线模式：使用预计算的数据
+                svf_params = self.precomputed_data['svf_parameters']
+                dense_weights = self.precomputed_data['dense_weights']
+
+                # 转换列表为numpy数组（离线模式）
+                if isinstance(dense_weights['weights'], list):
+                    dense_weights['weights'] = np.array(dense_weights['weights'], dtype=np.float32)
+                if isinstance(dense_weights['bias'], list):
+                    dense_weights['bias'] = np.array(dense_weights['bias'], dtype=np.float32)
+
+                dense_weights['analysis_layer'] = self.analysis_layer
+            else:
+                # 在线模式：加载模型和提取参数
+                model = self._load_model()
+                svf_params = self._extract_svf_parameters(model)
+                dense_weights = self._extract_dense_weights(model, self.analysis_layer)
+
             # 2. 计算传递函数
             svf_tfs = self._calculate_svf_transfer_functions(svf_params)
             combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
-            
+
             # 3. 计算频率响应
             freq_response = self._calculate_frequency_response(combined_tfs)
 
             # 4. 生成可视化
             plots = self._generate_plots(freq_response, dense_weights)
-            
+
             # 5. 生成报告
             report = self._generate_analysis_report(svf_params, dense_weights, freq_response)
-            
+
             # 6. 保存结果 (单一 results.json)
             self._save_results(svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report)
-            
+
             logger.info("✅ WNET5电路验证分析完成")
             return True
-            
+
         except Exception as e:
             logger.error(f"WNET5电路验证分析失败: {e}")
             return False
@@ -321,8 +644,23 @@ class WNET5CircuitValidator:
         }
     
     def _generate_plots(self, freq_response, dense_weights):
-        """生成幅频响应图 (线性增益对数刻度, 支持实验对比)"""
-        logger.info("生成幅频响应图 (线性增益, 对比模式)...")
+        """生成幅频响应图（支持多种对比模式）（C05重构）
+
+        根据配置选择使用单文件对比模式（旧）或多文件对比模式（新C05）
+        """
+        logger.info("生成幅频响应图...")
+
+        # 决定使用哪种对比模式
+        if self.exp_comp_enable and self.exp_comp_mode == 'multi_file':
+            # 新模式：多文件对比（C05需求）
+            return self._generate_plots_multi_file(freq_response, dense_weights)
+        else:
+            # 旧模式：单文件对比（保持向后兼容）
+            return self._generate_plots_single_file(freq_response, dense_weights)
+
+    def _generate_plots_single_file(self, freq_response, dense_weights):
+        """单文件对比模式（旧逻辑，向后兼容）"""
+        logger.info("使用单文件对比模式...")
 
         # 1. 理论幅度 (内部存储为 dB, 转线性)
         frequencies = freq_response['frequencies']
@@ -340,25 +678,51 @@ class WNET5CircuitValidator:
                 import pandas as pd, re
                 exp_file = Path(self.experiment_path)
                 if exp_file.exists():
-                    df = pd.read_excel(exp_file)
+                    # 检查是否是新的多sheet格式
+                    experiment_sheet_name = self.experiment_comparison.get('experiment_sheet_name')
+                    if experiment_sheet_name:
+                        # 新格式：读取指定的sheet
+                        df = pd.read_excel(exp_file, sheet_name=experiment_sheet_name)
+                        logger.info(f"读取实验数据sheet: {experiment_sheet_name}")
+                    else:
+                        # 旧格式：读取默认sheet
+                        df = pd.read_excel(exp_file)
                     freq_cols = [c for c in df.columns if str(c).strip().lower() in ['f','freq','frequency','freq(hz)','frequency(hz)','hz']]
                     fcol = freq_cols[0] if freq_cols else df.columns[0]
                     exp_freq = df[fcol].to_numpy(dtype=float)
+
                     # 动态匹配当前分析的层
-                    pattern = re.compile(rf'^D{analysis_layer}_(\d+)_GAIN/B1$')
                     matched = {}
+
+                    # 检查是否是新的GAIN/CH格式
+                    gain_ch_pattern = re.compile(r'^GAIN/CH(\d+)$')
                     for c in df.columns:
                         if c == fcol:
                             continue
+
+                        # 尝试新的GAIN/CH格式
+                        m = gain_ch_pattern.match(str(c).strip())
+                        if m:
+                            idx = int(m.group(1))
+                            try:
+                                arr = df[c].astype(float).to_numpy(dtype=float)
+                                matched[idx] = arr
+                                logger.debug(f"匹配新格式通道: {c} -> CH{idx}")
+                            except Exception:
+                                continue
+                            continue
+
+                        # 尝试旧的D{layer}_N_GAIN/B1格式
+                        pattern = re.compile(rf'^D{analysis_layer}_(\d+)_GAIN/B1$')
                         m = pattern.match(str(c).strip())
-                        if not m:
-                            continue
-                        idx = int(m.group(1))
-                        try:
-                            arr = df[c].astype(float).to_numpy(dtype=float)
-                        except Exception:
-                            continue
-                        matched[idx] = arr
+                        if m:
+                            idx = int(m.group(1))
+                            try:
+                                arr = df[c].astype(float).to_numpy(dtype=float)
+                                matched[idx] = arr
+                                logger.debug(f"匹配旧格式通道: {c} -> CH{idx}")
+                            except Exception:
+                                continue
                     if matched:
                         max_theo = len(mag_list)
                         series = []
@@ -377,7 +741,11 @@ class WNET5CircuitValidator:
                         else:
                             logger.warning("未按模式匹配到任何实验通道, 忽略对比")
                     else:
-                        logger.warning(f"实验数据缺少匹配列 D{analysis_layer}_[N]_GAIN/B1")
+                        experiment_sheet_name = self.experiment_comparison.get('experiment_sheet_name')
+                        if experiment_sheet_name:
+                            logger.warning(f"实验数据sheet '{experiment_sheet_name}' 中未找到匹配列 GAIN/CH[N]")
+                        else:
+                            logger.warning(f"实验数据缺少匹配列 D{analysis_layer}_[N]_GAIN/B1")
                 else:
                     logger.warning(f"实验数据文件不存在: {self.experiment_path}")
             except Exception as e:
@@ -441,7 +809,196 @@ class WNET5CircuitValidator:
             logger.info(f"理论图已保存: {plot_path}")
 
         return plots
-    
+
+    def _generate_plots_multi_file(self, freq_response, dense_weights):
+        """多文件对比模式（C05新增）
+
+        特性：
+        - 从目录扫描对应层的所有通道文件
+        - 使用自测试数据进行补偿
+        - loglog 坐标系
+        - dB 单位
+        - 上下布局：上图实验，下图仿真
+        """
+        logger.info("使用多文件对比模式（C05）...")
+
+        analysis_layer = dense_weights.get('analysis_layer', 1)
+
+        # ========== 1. 准备理论数据 ==========
+        theo_freq = freq_response['frequencies']
+        theo_mag_db_list = freq_response['magnitude_db']  # 已经是dB
+        n_channels = len(theo_mag_db_list)
+
+        output_labels = [f'D{analysis_layer}_{i+1}' for i in range(n_channels)]
+
+        logger.info(f"理论数据: {n_channels} 个通道, {len(theo_freq)} 个频点")
+
+        # ========== 2. 加载自测试数据 ==========
+        selftest_data = None
+        try:
+            selftest_data = self._load_selftest_data()
+        except Exception as e:
+            logger.error(f"加载自测试数据失败: {e}")
+            logger.warning("将跳过实验对比，仅绘制理论曲线")
+
+        # ========== 3. 扫描并加载实验数据 ==========
+        exp_data_dict = {}  # {通道号: {'frequencies': [...], 'magnitude_db': [...]}}
+
+        if selftest_data is not None:
+            try:
+                channel_files = self._scan_experiment_files(analysis_layer)
+
+                if not channel_files:
+                    logger.warning(f"未找到层{analysis_layer}的实验数据，将跳过实验对比")
+                else:
+                    # 逐个加载通道数据
+                    for channel, file_path in channel_files.items():
+                        try:
+                            # 加载原始数据
+                            raw_data = self._load_experiment_channel_data(file_path)
+
+                            # 自测试补偿
+                            compensated_mag = self._compensate_with_selftest(
+                                raw_data['frequencies'],
+                                raw_data['magnitude'],
+                                selftest_data
+                            )
+
+                            # 转换为dB
+                            compensated_db = 20 * np.log10(compensated_mag + 1e-20)
+
+                            exp_data_dict[channel] = {
+                                'frequencies': raw_data['frequencies'],
+                                'magnitude_db': compensated_db
+                            }
+
+                            logger.info(f"   ✅ 通道{channel}: {len(raw_data['frequencies'])} 个频点")
+
+                        except Exception as e:
+                            logger.error(f"   ❌ 通道{channel} 加载失败: {e}")
+                            continue
+
+                    logger.info(f"✅ 成功加载 {len(exp_data_dict)} 个通道的实验数据")
+
+            except Exception as e:
+                logger.error(f"扫描实验数据失败: {e}")
+                exp_data_dict = {}
+
+        # ========== 4. 绘制对比图 ==========
+        import matplotlib as mpl
+
+        # 颜色映射
+        cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+        colors = [cmap(i) for i in range(n_channels)]
+
+        plots = []
+
+        if exp_data_dict:
+            # 有实验数据：上下布局
+            fig, (ax_exp, ax_theo) = plt.subplots(2, 1, figsize=(12, 10))
+
+            # ===== 上图：实验数据 =====
+            for channel, data in sorted(exp_data_dict.items()):
+                color_idx = channel - 1
+                if color_idx >= n_channels:
+                    color_idx = n_channels - 1
+
+                ax_exp.loglog(
+                    data['frequencies'],
+                    np.power(10, data['magnitude_db'] / 20),  # dB转回线性用于loglog
+                    color=colors[color_idx],
+                    linewidth=1.5,
+                    label=f'D{analysis_layer}_{channel}',
+                    alpha=0.8
+                )
+
+            ax_exp.set_title(
+                f'{self.model_project_name} Dense#{analysis_layer} - 实验测量（补偿后）',
+                fontsize=12,
+                fontweight='bold'
+            )
+            ax_exp.set_xlabel('频率 (Hz)', fontsize=10)
+            ax_exp.set_ylabel('幅度 (线性, loglog)', fontsize=10)
+            ax_exp.grid(True, which='both', alpha=0.3, linestyle='--')
+            ax_exp.legend(fontsize=8, ncol=min(3, n_channels), loc='best')
+
+            # ===== 下图：理论数据 =====
+            for i, (mag_db, lbl) in enumerate(zip(theo_mag_db_list, output_labels)):
+                ax_theo.loglog(
+                    theo_freq,
+                    np.power(10, mag_db / 20),  # dB转回线性用于loglog
+                    color=colors[i],
+                    linewidth=1.5,
+                    label=lbl,
+                    alpha=0.8
+                )
+
+            ax_theo.set_title(
+                f'{self.model_project_name} Dense#{analysis_layer} - 理论仿真',
+                fontsize=12,
+                fontweight='bold'
+            )
+            ax_theo.set_xlabel('频率 (Hz)', fontsize=10)
+            ax_theo.set_ylabel('幅度 (线性, loglog)', fontsize=10)
+            ax_theo.grid(True, which='both', alpha=0.3, linestyle='--')
+            ax_theo.legend(fontsize=8, ncol=min(3, n_channels), loc='best')
+
+            # 统一y轴范围（可选）
+            all_exp_mag = np.concatenate([
+                np.power(10, d['magnitude_db'] / 20) for d in exp_data_dict.values()
+            ])
+            all_theo_mag = np.concatenate([
+                np.power(10, m / 20) for m in theo_mag_db_list
+            ])
+            all_mag = np.concatenate([all_exp_mag, all_theo_mag])
+
+            y_min = max(1e-6, np.nanmin(all_mag) * 0.5)
+            y_max = np.nanmax(all_mag) * 2.0
+
+            ax_exp.set_ylim(y_min, y_max)
+            ax_theo.set_ylim(y_min, y_max)
+
+            plt.tight_layout()
+
+            plot_path = self.output_path / 'plots' / 'frequency_response_comparison_multi.png'
+            plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+            plt.close(fig)
+
+            plots.append(str(plot_path))
+            logger.info(f"📊 对比图已保存: {plot_path}")
+
+        else:
+            # 无实验数据：仅绘制理论曲线
+            logger.warning("⚠️ 无实验数据，仅绘制理论曲线")
+
+            fig, ax = plt.subplots(figsize=(10, 6))
+
+            for i, (mag_db, lbl) in enumerate(zip(theo_mag_db_list, output_labels)):
+                ax.loglog(
+                    theo_freq,
+                    np.power(10, mag_db / 20),
+                    color=colors[i],
+                    linewidth=1.5,
+                    label=lbl
+                )
+
+            ax.set_title(f'{self.model_project_name} Dense#{analysis_layer} - 理论仿真', fontsize=12)
+            ax.set_xlabel('频率 (Hz)', fontsize=10)
+            ax.set_ylabel('幅度 (线性, loglog)', fontsize=10)
+            ax.grid(True, which='both', alpha=0.3)
+            ax.legend(fontsize=8, ncol=min(3, n_channels))
+
+            plt.tight_layout()
+
+            plot_path = self.output_path / 'plots' / 'frequency_response.png'
+            plt.savefig(plot_path, dpi=300)
+            plt.close(fig)
+
+            plots.append(str(plot_path))
+            logger.info(f"📊 理论图已保存: {plot_path}")
+
+        return plots
+
     def _generate_analysis_report(self, svf_params, dense_weights, freq_response):
         """生成分析报告"""
         logger.info("生成分析报告...")
