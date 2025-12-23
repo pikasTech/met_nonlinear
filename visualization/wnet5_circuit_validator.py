@@ -671,6 +671,9 @@ class WNET5CircuitValidator:
         analysis_layer = dense_weights.get('analysis_layer', 1)
         output_labels = [f'D{analysis_layer}_{i+1}' for i in range(len(mag_list))]
 
+        # 检查是否启用合并模式
+        merged_plot_mode = self.plot_config.get('merged_plot_mode', False)
+
         # 2. 读取实验数据 (列名形式 D{layer}_[N]_GAIN/B1)
         exp_freq = None
         exp_mags = None
@@ -759,34 +762,74 @@ class WNET5CircuitValidator:
 
         plots = []
         if exp_mags is not None and exp_freq is not None:
-            # 生成理论vs实验对比图
-            fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(12, 8))
-            for i, (m, lbl) in enumerate(zip(mag_list, output_labels)):
-                ax_top.semilogx(frequencies, m, color=colors[i], linewidth=1.4, label=lbl)
-            for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
-                ax_bottom.semilogx(exp_freq, m, color=colors[i], linewidth=1.2, label=lbl)
-            ax_top.set_title(f'{self.model_project_name} Dense#{analysis_layer} 输出 频率响应 (理论, 线性增益)')
-            ax_bottom.set_title('实验测量 频率响应 (线性增益)')
-            ax_bottom.set_xlabel('频率 (Hz)')
-            for ax in (ax_top, ax_bottom):
-                ax.set_ylabel('增益 (线性, log刻度)')
+            if merged_plot_mode:
+                # 合并模式：单图显示，仿真虚线，实测实线
+                logger.info("使用合并模式：单图显示，仿真虚线，实测实线")
+                # 调整尺寸与原始子图保持一致（原始上下布局12x8，每个子图约12x4）
+                fig, ax = plt.subplots(figsize=(12, 4))
+
+                # 绘制仿真结果（虚线）
+                for i, (m, lbl) in enumerate(zip(mag_list, output_labels)):
+                    ax.semilogx(frequencies, m, color=colors[i], linewidth=1.4,
+                               linestyle='--', label=f'{lbl} (仿真)', alpha=0.8)
+
+                # 绘制实测结果（实线）
+                for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
+                    ax.semilogx(exp_freq, m, color=colors[i], linewidth=1.8,
+                               linestyle='-', label=f'{lbl} (实测)', alpha=0.9)
+
+                ax.set_title(f'{self.model_project_name} Dense#{analysis_layer} 频率响应对比 (仿真虚线 vs 实测实线)', fontsize=12, fontweight='bold')
+                ax.set_xlabel('频率 (Hz)', fontsize=10)
+                ax.set_ylabel('增益 (线性, log刻度)', fontsize=10)
                 ax.set_yscale('log')
                 ax.grid(True, which='both', alpha=0.3)
-            all_vals = np.concatenate([*mag_list, *exp_mags])
-            y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
-            pad = 0.05
-            y_min_adj = max(1e-20, y_min / (1+pad))
-            y_max_adj = y_max * (1+pad)
-            ax_top.set_ylim(y_min_adj, y_max_adj)
-            ax_bottom.set_ylim(y_min_adj, y_max_adj)
-            ax_top.legend(fontsize=8, ncol=min(4, len(output_labels)))
-            ax_bottom.legend(fontsize=8, ncol=min(4, len(output_labels)))
-            plt.tight_layout()
-            plot_path = self.output_path / 'plots' / 'frequency_response_comparison.png'
-            plt.savefig(plot_path, dpi=300)
-            plt.close(fig)
-            plots.append(str(plot_path))
-            logger.info(f"对比图已保存: {plot_path}")
+
+                # 设置y轴范围
+                all_vals = np.concatenate([*mag_list, *exp_mags])
+                y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+                pad = 0.05
+                y_min_adj = max(1e-20, y_min / (1+pad))
+                y_max_adj = y_max * (1+pad)
+                ax.set_ylim(y_min_adj, y_max_adj)
+
+                # 图例：分开仿真和实测
+                ax.legend(fontsize=8, ncol=min(4, len(output_labels)*2), loc='best')
+                plt.tight_layout()
+
+                plot_path = self.output_path / 'plots' / 'frequency_response_comparison_merged.png'
+                plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+                plt.close(fig)
+                plots.append(str(plot_path))
+                logger.info(f"合并对比图已保存: {plot_path}")
+            else:
+                # 原始模式：上下两个图
+                fig, (ax_top, ax_bottom) = plt.subplots(2, 1, figsize=(12, 8))
+                for i, (m, lbl) in enumerate(zip(mag_list, output_labels)):
+                    ax_top.semilogx(frequencies, m, color=colors[i], linewidth=1.4, label=lbl)
+                for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
+                    ax_bottom.semilogx(exp_freq, m, color=colors[i], linewidth=1.2, label=lbl)
+                ax_top.set_title(f'{self.model_project_name} Dense#{analysis_layer} 输出 频率响应 (理论, 线性增益)')
+                ax_bottom.set_title('实验测量 频率响应 (线性增益)')
+                ax_bottom.set_xlabel('频率 (Hz)')
+                for ax in (ax_top, ax_bottom):
+                    ax.set_ylabel('增益 (线性, log刻度)')
+                    ax.set_yscale('log')
+                    ax.grid(True, which='both', alpha=0.3)
+                all_vals = np.concatenate([*mag_list, *exp_mags])
+                y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+                pad = 0.05
+                y_min_adj = max(1e-20, y_min / (1+pad))
+                y_max_adj = y_max * (1+pad)
+                ax_top.set_ylim(y_min_adj, y_max_adj)
+                ax_bottom.set_ylim(y_min_adj, y_max_adj)
+                ax_top.legend(fontsize=8, ncol=min(4, len(output_labels)))
+                ax_bottom.legend(fontsize=8, ncol=min(4, len(output_labels)))
+                plt.tight_layout()
+                plot_path = self.output_path / 'plots' / 'frequency_response_comparison.png'
+                plt.savefig(plot_path, dpi=300)
+                plt.close(fig)
+                plots.append(str(plot_path))
+                logger.info(f"对比图已保存: {plot_path}")
 
             # 生成误差图：仿真数据 ÷ 实际数据
             # 只在误差计算时使用实验频率点，避免对实验数据插值

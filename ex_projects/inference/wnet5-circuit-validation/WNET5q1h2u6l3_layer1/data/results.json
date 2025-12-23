@@ -13323,7 +13323,7 @@
   },
   "artifacts": {
     "plots": [
-      "plots\\frequency_response_comparison.png",
+      "plots\\frequency_response_comparison_merged.png",
       "plots\\frequency_response_error_ratio.png"
     ],
     "report": "reports\\analysis_report.json"

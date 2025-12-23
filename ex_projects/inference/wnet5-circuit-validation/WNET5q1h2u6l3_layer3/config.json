@@ -11,6 +11,9 @@
   },
   "compare_with_experiment": "F:\\BaiduSyncdisk\\data\\SVF-NET-CIRCUIT\\20251201-SVFNET-Dense1-3层.xlsx",
   "experiment_comparison": {
-    "experiment_sheet_name": "layer3"
+    "experiment_sheet_name": "layer3",
+    "plot_config": {
+      "merged_plot_mode": true
+    }
   }
 }

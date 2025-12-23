@@ -10,6 +10,44 @@
 - 🔧 完整的E6/E12/E24/E96/E192电阻标准化体系已实现
 - 📦 PCB制造级BOM自动生成与分组编号系统已投入使用
 
+## 最新进展 (2025-12-22)
+
+### 新增功能：WNET5频率响应合并模式绘图 ✅
+
+**功能描述**：为 `wnet5-circuit-validation` 任务类型新增合并绘图模式，将上下两个图绘制到一张图里面，仿真结果用虚线，实测结果用实线。
+
+**核心功能**：
+- ✅ **合并模式配置**：在 `experiment_comparison.plot_config` 中添加 `merged_plot_mode` 字段
+- ✅ **单图显示**：将仿真和实测结果绘制在同一张图上
+- ✅ **线型区分**：仿真结果使用虚线 (`linestyle='--'`)，实测结果使用实线 (`linestyle='-'`)
+- ✅ **颜色一致**：仿真和实测使用相同的颜色主题，便于对应
+- ✅ **向后兼容**：保留原有的上下布局模式，通过配置切换
+- ✅ **图例优化**：合并模式下图例显示为 "D2_1 (仿真)" 和 "D2_1 (实测)" 格式
+
+**技术实现**：
+1. **配置验证器更新** (`core/config_validator.py`)：在 `plot_config` 中添加 `merged_plot_mode` 字段支持
+2. **可视化引擎更新** (`visualization/wnet5_circuit_validator.py`)：
+   - 新增 `merged_plot_mode` 配置读取
+   - 修改 `_generate_plots_single_file()` 方法，添加条件分支逻辑
+   - 新增合并模式绘图代码：单子图、仿真虚线、实测实线
+
+**配置示例**：
+```json
+{
+  "experiment_comparison": {
+    "experiment_sheet_name": "layer2",
+    "plot_config": {
+      "merged_plot_mode": true
+    }
+  }
+}
+```
+
+**测试验证**：
+- ✅ 在 `ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer2` 成功测试
+- ✅ 生成图片：`frequency_response_comparison_merged.png`
+- ✅ 功能正常工作，仿真虚线与实测实线清晰可见
+
 ## 最新进展 (2025-11-04)
 
 ### C05实施完成：WNET5实验数据对比功能 ✅

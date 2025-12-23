@@ -315,6 +315,10 @@ class VisualizationConfigValidator:
                             "y_unit": {
                                 "type": "string",
                                 "enum": ["dB", "linear"]
+                            },
+                            "merged_plot_mode": {
+                                "type": "boolean",
+                                "description": "启用合并模式：将上下两个图绘制到一张图里面，仿真结果用虚线，实测结果用实线"
                             }
                         }
                     }
