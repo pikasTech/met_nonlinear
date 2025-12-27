@@ -30,10 +30,6 @@ class WNET5CircuitValidator:
         self.frequency_range = config['frequency_range']
         # 可选: 实验对比数据 (Excel) - 旧的单文件对比配置（向后兼容）
         self.experiment_path = config.get('compare_with_experiment')
-        # 离线模式：使用预计算的数据，跳过TensorFlow模型加载
-        self.offline_mode = config.get('offline_mode', False)
-        # 预计算的数据（离线模式使用）
-        self.precomputed_data = config.get('precomputed_data', {})
 
         # ⬇️⬇️⬇️ 新增：实验对比配置（C05） ⬇️⬇️⬇️
         self.experiment_comparison = config.get('experiment_comparison', {})
@@ -366,25 +362,10 @@ class WNET5CircuitValidator:
         try:
             logger.info("开始WNET5电路验证分析...")
 
-            # 检查是否使用离线模式
-            if self.offline_mode:
-                logger.info("使用离线模式，跳过TensorFlow模型加载")
-                # 离线模式：使用预计算的数据
-                svf_params = self.precomputed_data['svf_parameters']
-                dense_weights = self.precomputed_data['dense_weights']
-
-                # 转换列表为numpy数组（离线模式）
-                if isinstance(dense_weights['weights'], list):
-                    dense_weights['weights'] = np.array(dense_weights['weights'], dtype=np.float32)
-                if isinstance(dense_weights['bias'], list):
-                    dense_weights['bias'] = np.array(dense_weights['bias'], dtype=np.float32)
-
-                dense_weights['analysis_layer'] = self.analysis_layer
-            else:
-                # 在线模式：加载模型和提取参数
-                model = self._load_model()
-                svf_params = self._extract_svf_parameters(model)
-                dense_weights = self._extract_dense_weights(model, self.analysis_layer)
+            # 统一从 project 加载权重（纯 JSON，无 TensorFlow 依赖）
+            logger.info(f"从 project '{self.model_project_name}' 加载权重...")
+            svf_params = self._load_svf_parameters_from_project()
+            dense_weights = self._load_dense_weights_from_project(self.analysis_layer)
 
             # 2. 计算传递函数
             svf_tfs = self._calculate_svf_transfer_functions(svf_params)
@@ -408,7 +389,104 @@ class WNET5CircuitValidator:
         except Exception as e:
             logger.error(f"WNET5电路验证分析失败: {e}")
             return False
-    
+
+    def _load_svf_parameters_from_project(self) -> Dict[str, Any]:
+        """从 project 的 config.json 加载 SVF 参数（纯 JSON，无 TensorFlow）"""
+        project_cfg_path = Path('projects') / self.model_project_name / 'config.json'
+        if not project_cfg_path.exists():
+            raise FileNotFoundError(f"项目配置不存在: {project_cfg_path}")
+
+        with open(project_cfg_path, 'r', encoding='utf-8') as f:
+            project_cfg = json.load(f)
+
+        # 兼容不同配置结构
+        # 情况1: model.model_subcfg.init_center_freqs (嵌套结构)
+        # 情况2: model_subcfg.init_center_freqs (扁平结构)
+        if 'model' in project_cfg and 'model_subcfg' in project_cfg['model']:
+            subcfg = project_cfg['model']['model_subcfg']
+        else:
+            subcfg = project_cfg.get('model_subcfg', {})
+
+        center_freqs = subcfg.get('init_center_freqs', [])
+        quality_factors = subcfg.get('init_quality_factors', [])
+
+        if not center_freqs or not quality_factors:
+            raise ValueError(f"项目 {self.model_project_name} 缺少 SVF 参数")
+
+        return {
+            'center_freqs': [float(f) for f in center_freqs],
+            'quality_factors': [float(q) for q in quality_factors]
+        }
+
+    def _load_dense_weights_from_project(self, analysis_layer: int = 1) -> Dict[str, Any]:
+        """从 project 的 best.weights.json 加载指定 Dense 层权重（纯 JSON）"""
+        weights_json_path = Path('projects') / self.model_project_name / 'data' / 'best.weights.json'
+        if not weights_json_path.exists():
+            raise FileNotFoundError(f"权重文件不存在: {weights_json_path}")
+
+        with open(weights_json_path, 'r', encoding='utf-8') as f:
+            weights_data = json.load(f)
+
+        # WNET5 结构: layer_to_layer_models[0]=SVF, [1]=Dense1, [2]=Dense2, [3]=Dense3
+        # best.weights.json 中的命名:
+        # - analysis_layer=1 -> "dense/kernel:0", "dense/bias:0"
+        # - analysis_layer=2 -> "post_dense_1/kernel:0", "post_dense_1/bias:0"
+        # - analysis_layer=3 -> "post_dense_2/kernel:0", "post_dense_2/bias:0"
+        # - analysis_layer=4 -> "post_dense_3/kernel:0", "post_dense_3/bias:0"
+
+        # 根据层号映射到权重名称
+        # analysis_layer 对应模型中的 dense 层：
+        # - analysis_layer=1 -> post_dense_1 (6→6)
+        # - analysis_layer=2 -> post_dense_2 (6→6)
+        # - analysis_layer=3 -> post_dense_3 (6→6)
+        # - analysis_layer=4 -> dense (6→1，最终输出层)
+        layer_name_map = {
+            1: ('post_dense_1', 'Dense_Layer_Model_1'),
+            2: ('post_dense_2', 'Dense_Layer_Model_2'),
+            3: ('post_dense_3', 'Dense_Layer_Model_3'),
+            4: ('dense', 'Output_Layer_Model')
+        }
+
+        if analysis_layer not in layer_name_map:
+            raise ValueError(f"无效的 analysis_layer: {analysis_layer}")
+
+        layer_prefix, layer_name = layer_name_map[analysis_layer]
+
+        # 查找 kernel 和 bias (使用第一个匹配项)
+        kernel = None
+        bias = None
+
+        for entry in weights_data:
+            name = entry.get('name', '')
+            if name == f"{layer_prefix}/kernel:0":
+                kernel = np.array(entry['value'], dtype=np.float32)
+                logger.info(f"找到 {layer_prefix}/kernel:0: shape={kernel.shape}")
+            elif name == f"{layer_prefix}/bias:0" and bias is None:
+                bias = np.array(entry['value'], dtype=np.float32)
+                logger.info(f"找到 {layer_prefix}/bias:0: shape={bias.shape}")
+
+        if kernel is None:
+            raise ValueError(f"未找到层 {analysis_layer} ({layer_prefix}/kernel:0) 的权重")
+
+        # 如果没有 bias，使用零向量
+        if bias is None:
+            bias = np.zeros(kernel.shape[1], dtype=np.float32)
+
+        # 归一化 kernel 形状
+        if kernel.ndim == 3:
+            if kernel.shape[0] != 1:
+                raise ValueError(f"期望 kernel_size=1，实际 {kernel.shape[0]}")
+            kernel = kernel[0]
+
+        logger.info(f"✅ 从 JSON 加载 Dense 层 {analysis_layer}: kernel={kernel.shape}, bias={bias.shape}")
+
+        return {
+            'layer_name': layer_name,
+            'weights': kernel,
+            'bias': bias,
+            'analysis_layer': analysis_layer
+        }
+
     def _load_model(self):
         """加载真实的WaveNet5模型并加载权重
 

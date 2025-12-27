@@ -17,26 +17,26 @@
     "analysis_layer_index": 1,
     "weight_shape": [
       6,
-      1
+      6
     ],
     "bias_shape": [
-      1
+      6
     ]
   },
   "frequency_range": {
     "start_freq": 2,
-    "stop_freq": 512
+    "stop_freq": 500
   },
-  "outputs": 1,
+  "outputs": 6,
   "analysis_results": {
     "frequency_points": 1000,
     "magnitude_range_db": [
-      -4.963942173794827,
-      0.9070834121286019
+      -30.896102378288198,
+      10.220547914812704
     ],
     "phase_range_deg": [
-      -174.9229064491083,
-      -1.7821592455341329
+      -179.9963485077204,
+      179.9767950561014
     ]
   }
 }

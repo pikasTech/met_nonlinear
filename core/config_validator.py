@@ -323,16 +323,6 @@ class VisualizationConfigValidator:
                         }
                     }
                 }
-            },
-            "weights_path": {
-                "type": "string",
-                "minLength": 1
-            },
-            "offline_mode": {
-                "type": "boolean"
-            },
-            "precomputed_data": {
-                "type": "object"
             }
         }
     }
