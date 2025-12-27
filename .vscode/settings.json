@@ -67,7 +67,7 @@
     ],
     "latex-workshop.formatting.latex": "latexindent",
     "editor.defaultFormatter": "ms-python.vscode-pylance",
-    "python.languageServer": "Pylance",
+    "python.languageServer": "Jedi",
     "[python]": {
         "editor.defaultFormatter": "ms-python.autopep8"
     },
