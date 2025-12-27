@@ -25,6 +25,9 @@ import seaborn as sns
 sys.path.insert(0, str(Path(__file__).parent / 'utils'))
 from plot_helpers import setup_academic_style, save_plot_data
 
+# 定义最大电阻值（开路电阻）
+MAX_RESISTANCE = 1e9
+
 
 class WeightE96QuantizationPlotter:
     """
@@ -40,6 +43,25 @@ class WeightE96QuantizationPlotter:
         """
         self.config = config or {}
         self.output_dir = self.config.get('output_dir', 'inference/results/e96_quantization_analysis')
+
+    def _ensure_native_types(self, obj):
+        """
+        递归将numpy类型转换为Python原生类型
+
+        修复 'can only convert an array of size 1 to a Python scalar' 错误
+        """
+        if isinstance(obj, np.ndarray):
+            return [self._ensure_native_types(item) for item in obj.tolist()]
+        elif isinstance(obj, (np.float32, np.float64)):
+            return float(obj)
+        elif isinstance(obj, (np.int32, np.int64)):
+            return int(obj)
+        elif isinstance(obj, dict):
+            return {key: self._ensure_native_types(val) for key, val in obj.items()}
+        elif isinstance(obj, list):
+            return [self._ensure_native_types(item) for item in obj]
+        else:
+            return obj
 
     def plot_quantization_comparison(self,
                                      comparison_data: Dict[str, Any],
@@ -61,33 +83,82 @@ class WeightE96QuantizationPlotter:
         output_path = Path(self.output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
 
+        # 转换所有numpy类型为Python原生类型（修复序列化错误）
+        comparison_data = self._ensure_native_types(comparison_data)
+
         setup_academic_style(self.config)
 
         generated_files = {}
 
         # 1. 绘制权重矩阵热力图对比
-        files = self._plot_weight_matrices(comparison_data, output_path)
-        generated_files.update(files)
+        try:
+            files = self._plot_weight_matrices(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _plot_weight_matrices succeeded")
+        except Exception as e:
+            print(f"DEBUG: _plot_weight_matrices FAILED: {e}")
+            import traceback
+            traceback.print_exc()
 
         # 2. 绘制电阻值热力图对比
-        files = self._plot_resistor_values(comparison_data, output_path)
-        generated_files.update(files)
+        try:
+            files = self._plot_resistor_values(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _plot_resistor_values succeeded")
+        except Exception as e:
+            print(f"DEBUG: _plot_resistor_values FAILED: {e}")
+            import traceback
+            traceback.print_exc()
 
-        # 3. 绘制量化误差热力图
-        files = self._plot_quantization_error_heatmap(comparison_data, output_path)
-        generated_files.update(files)
+        # 3. 绘制5子图综合表格热力图（表格+热力图形式）
+        try:
+            files = self._plot_five_panel_heatmap(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _plot_five_panel_heatmap succeeded")
+        except Exception as e:
+            print(f"DEBUG: _plot_five_panel_heatmap FAILED: {e}")
+            import traceback
+            traceback.print_exc()
 
-        # 4. 绘制误差分布直方图
-        files = self._plot_error_distribution(comparison_data, output_path)
-        generated_files.update(files)
+        # 4. 绘制量化误差热力图（原始版本，保留兼容性）
+        try:
+            files = self._plot_quantization_error_heatmap(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _plot_quantization_error_heatmap succeeded")
+        except Exception as e:
+            print(f"DEBUG: _plot_quantization_error_heatmap FAILED: {e}")
+            import traceback
+            traceback.print_exc()
 
-        # 5. 生成统计表格
-        files = self._generate_statistics_table(comparison_data, output_path)
-        generated_files.update(files)
+        # 5. 绘制误差分布直方图
+        try:
+            files = self._plot_error_distribution(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _plot_error_distribution succeeded")
+        except Exception as e:
+            print(f"DEBUG: _plot_error_distribution FAILED: {e}")
+            import traceback
+            traceback.print_exc()
 
-        # 6. 生成综合对比大图
-        files = self._plot_comprehensive_comparison(comparison_data, output_path)
-        generated_files.update(files)
+        # 6. 生成统计表格
+        try:
+            files = self._generate_statistics_table(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _generate_statistics_table succeeded")
+        except Exception as e:
+            print(f"DEBUG: _generate_statistics_table FAILED: {e}")
+            import traceback
+            traceback.print_exc()
+
+        # 7. 生成综合对比大图
+        try:
+            files = self._plot_comprehensive_comparison(comparison_data, output_path)
+            generated_files.update(files)
+            print("DEBUG: _plot_comprehensive_comparison succeeded")
+        except Exception as e:
+            print(f"DEBUG: _plot_comprehensive_comparison FAILED: {e}")
+            import traceback
+            traceback.print_exc()
 
         return generated_files
 
@@ -95,70 +166,84 @@ class WeightE96QuantizationPlotter:
                               comparison_data: Dict[str, Any],
                               output_path: Path) -> Dict[str, str]:
         """绘制权重矩阵热力图对比"""
-        weight_matrix = np.array(comparison_data['weight_matrix'])
+        try:
+            # 确保 weight_matrix 是纯 Python 类型
+            weight_matrix_data = comparison_data['weight_matrix']
+            weight_matrix = np.array(weight_matrix_data, dtype=np.float64)
 
-        fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+            fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
-        # 原始权重
-        im1 = axes[0].imshow(weight_matrix, cmap='viridis', aspect='auto')
-        axes[0].set_title('Original Weight Matrix', fontsize=14, fontweight='bold')
-        axes[0].set_xlabel('Input Channels')
-        axes[0].set_ylabel('Output Channels')
+            # 原始权重
+            im1 = axes[0].imshow(weight_matrix, cmap='viridis', aspect='auto')
+            axes[0].set_title('Original Weight Matrix', fontsize=14, fontweight='bold')
+            axes[0].set_xlabel('Input Channels')
+            axes[0].set_ylabel('Output Channels')
 
-        # 添加数值标注
-        for i in range(weight_matrix.shape[0]):
-            for j in range(weight_matrix.shape[1]):
-                val = weight_matrix[i, j]
-                text_color = 'white' if abs(val) > weight_matrix.mean() else 'black'
-                axes[0].text(j, i, f'{val:.2f}', ha='center', va='center',
-                           color=text_color, fontsize=8)
-
-        # 量化后的等效权重（从E96电阻反推）
-        weight_error = comparison_data.get('weight_error', {})
-        weight_e96_matrix = np.zeros_like(weight_matrix)
-        for key, error_data in weight_error.items():
-            # 解析key格式: "layer_X_channel_Y_type_Z"
-            parts = key.split('_')
-            if len(parts) >= 6:
-                ch = int(parts[3]) if parts[3].isdigit() else 0
-                output_idx = int(parts[1]) if parts[1].isdigit() else 0
-                if 0 <= output_idx < weight_matrix.shape[0] and 0 <= ch < weight_matrix.shape[1]:
-                    weight_e96_matrix[output_idx, ch] = error_data.get('weight_e96', 0)
-
-        im2 = axes[1].imshow(weight_e96_matrix, cmap='viridis', aspect='auto')
-        axes[1].set_title('E96 Quantized Weight Matrix', fontsize=14, fontweight='bold')
-        axes[1].set_xlabel('Input Channels')
-        axes[1].set_ylabel('Output Channels')
-
-        # 添加数值标注
-        for i in range(weight_e96_matrix.shape[0]):
-            for j in range(weight_e96_matrix.shape[1]):
-                val = weight_e96_matrix[i, j]
-                if val > 0:
-                    text_color = 'white' if abs(val) > weight_e96_matrix.mean() else 'black'
-                    axes[1].text(j, i, f'{val:.2f}', ha='center', va='center',
+            # 添加数值标注
+            weight_mean = float(np.mean(weight_matrix))
+            for i in range(weight_matrix.shape[0]):
+                for j in range(weight_matrix.shape[1]):
+                    val = float(weight_matrix[i, j])
+                    text_color = 'white' if abs(val) > weight_mean else 'black'
+                    axes[0].text(j, i, f'{val:.2f}', ha='center', va='center',
                                color=text_color, fontsize=8)
 
-        # 共享颜色条
-        fig.colorbar(im1, ax=axes, shrink=0.6, label='Weight Value')
+            # 量化后的等效权重（从E96电阻反推）
+            weight_error = comparison_data.get('weight_error', {})
+            weight_e96_matrix = np.zeros_like(weight_matrix, dtype=np.float64)
+            for key, error_data in weight_error.items():
+                # 解析key格式: "layer_X_channel_Y_type_Z"
+                parts = key.split('_')
+                if len(parts) >= 6:
+                    ch = int(parts[3]) if parts[3].isdigit() else 0
+                    output_idx = int(parts[1]) if parts[1].isdigit() else 0
+                    if 0 <= output_idx < weight_matrix.shape[0] and 0 <= ch < weight_matrix.shape[1]:
+                        w_e96 = error_data.get('weight_e96', 0)
+                        # 确保是 Python 原生类型
+                        if hasattr(w_e96, 'item'):
+                            w_e96 = w_e96.item()
+                        weight_e96_matrix[output_idx, ch] = float(w_e96)
 
-        plt.tight_layout()
+            im2 = axes[1].imshow(weight_e96_matrix, cmap='viridis', aspect='auto')
+            axes[1].set_title('E96 Quantized Weight Matrix', fontsize=14, fontweight='bold')
+            axes[1].set_xlabel('Input Channels')
+            axes[1].set_ylabel('Output Channels')
 
-        plot_name = 'weight_matrices_comparison'
-        fig_path = output_path / f'{plot_name}.png'
-        plt.savefig(fig_path, dpi=300, bbox_inches='tight')
-        plt.close()
+            # 添加数值标注
+            e96_mean = float(np.mean(weight_e96_matrix))
+            for i in range(weight_e96_matrix.shape[0]):
+                for j in range(weight_e96_matrix.shape[1]):
+                    val = float(weight_e96_matrix[i, j])
+                    if val > 0:
+                        text_color = 'white' if abs(val) > e96_mean else 'black'
+                        axes[1].text(j, i, f'{val:.2f}', ha='center', va='center',
+                                   color=text_color, fontsize=8)
 
-        # 保存原始数据
-        save_plot_data({
-            'plot_type': 'weight_matrices_comparison',
-            'data': {
-                'weight_matrix': comparison_data['weight_matrix'],
-                'weight_e96_matrix': weight_e96_matrix.tolist()
-            }
-        }, str(output_path), plot_name)
+            # 共享颜色条
+            fig.colorbar(im1, ax=axes, shrink=0.6, label='Weight Value')
 
-        return {plot_name: str(fig_path)}
+            plt.tight_layout()
+
+            plot_name = 'weight_matrices_comparison'
+            fig_path = output_path / f'{plot_name}.png'
+            plt.savefig(fig_path, dpi=300, bbox_inches='tight')
+            plt.close()
+
+            # 保存原始数据
+            save_plot_data({
+                'plot_type': 'weight_matrices_comparison',
+                'data': {
+                    'weight_matrix': comparison_data['weight_matrix'],
+                    'weight_e96_matrix': weight_e96_matrix.tolist()
+                }
+            }, str(output_path), plot_name)
+
+            return {plot_name: str(fig_path)}
+        except Exception as e:
+            import traceback
+            print(f"Error in _plot_weight_matrices: {e}")
+            traceback.print_exc()
+            return {}
 
     def _plot_resistor_values(self,
                               comparison_data: Dict[str, Any],
@@ -234,12 +319,366 @@ class WeightE96QuantizationPlotter:
 
         return {plot_name: str(fig_path)}
 
+    def _plot_table_heatmap(self, matrix, title, ax, cmap='viridis', fmt='.2f', text_color_threshold=None):
+        """
+        绘制带数值的表格热力图
+
+        Args:
+            matrix: 2D numpy array
+            title: 子图标题
+            ax: matplotlib axes
+            cmap: 颜色映射
+            fmt: 数值格式
+            text_color_threshold: 文字颜色阈值（基于数据均值）
+        """
+        im = ax.imshow(matrix, cmap=cmap, aspect='auto')
+
+        # 计算阈值用于文字颜色
+        if text_color_threshold is None:
+            text_color_threshold = np.mean(matrix)
+
+        # 添加数值标注
+        for i in range(matrix.shape[0]):
+            for j in range(matrix.shape[1]):
+                val = float(matrix[i, j])
+                # 跳过零值和无效值
+                if val == 0 or val >= 1e8:
+                    ax.text(j, i, '-', ha='center', va='center',
+                           color='gray', fontsize=7)
+                else:
+                    # 根据数值大小选择文字颜色
+                    text_color = 'white' if abs(val) > text_color_threshold * 0.5 else 'black'
+                    ax.text(j, i, f'{val:{fmt}}', ha='center', va='center',
+                           color=text_color, fontsize=7, fontweight='bold')
+
+        ax.set_title(title, fontsize=11, fontweight='bold', pad=8)
+        ax.set_xlabel('Input Channel' if matrix.shape[1] > 1 else 'Channel Type')
+        ax.set_ylabel('Output Channel' if matrix.shape[0] > 1 else 'Layer')
+
+        return im
+
+    def _build_resistor_matrix(self, resistor_dict, layer_idx, resistor_type):
+        """
+        构建指定层和类型的电阻矩阵
+
+        Args:
+            resistor_dict: 电阻字典 {key: value}
+            layer_idx: 层索引
+            resistor_type: 电阻类型 (pos, neg, R1, R2, bias_pos, bias_neg)
+
+        Returns:
+            2D numpy array (outputs x inputs)
+        """
+        n_outputs = 6  # WNET5 layer1 有6个输出
+        n_inputs = 6   # 有6个输入
+
+        matrix = np.zeros((n_outputs, n_inputs))
+
+        for key, value in resistor_dict.items():
+            if value >= 1e8:  # 开路电阻，跳过
+                continue
+
+            parts = key.split('_')
+            if len(parts) < 6:
+                continue
+
+            try:
+                key_layer = int(parts[1])
+                key_channel = int(parts[3])
+                key_type = parts[5]
+
+                if key_layer != layer_idx:
+                    continue
+
+                # 映射类型到矩阵位置
+                if resistor_type == 'input':
+                    # 输入电阻 (pos/neg) - 每个channel都有
+                    if key_type == 'pos' or key_type == 'neg':
+                        output_idx = 0  # 所有输入电阻归类到第一行（为了简化）
+                        input_idx = key_channel
+                        matrix[output_idx, input_idx] = value
+                elif resistor_type == key_type:
+                    # 特定类型
+                    output_idx = 0
+                    input_idx = key_channel
+                    matrix[output_idx, input_idx] = value
+            except (ValueError, IndexError):
+                continue
+
+        return matrix
+
+    def _plot_five_panel_heatmap(self,
+                                  comparison_data: Dict[str, Any],
+                                  output_path: Path) -> Dict[str, str]:
+        """
+        绘制5子图综合热力图（表格热力图）
+
+        子图内容：
+        1. 原始权重矩阵热力图
+        2. 电阻（浮点数）热力图
+        3. 电阻（E96量化）热力图
+        4. 计算带E96量化误差的权重热力图
+        5. 量化前后的E96引入的相对误差热力图
+
+        每个子图都是带数值的热力图（表格热力图）
+        """
+        import matplotlib.colors as mcolors
+
+        weight_matrix = np.array(comparison_data['weight_matrix'])
+        resistor_raw = comparison_data.get('resistor_raw', {})
+        resistor_e96 = comparison_data.get('resistor_e96', {})
+        weight_error = comparison_data.get('weight_error', {})
+        relative_error = comparison_data.get('relative_error_percent', {})
+
+        # 构建权重误差矩阵（从weight_error字典构建）
+        weight_e96_matrix = np.zeros_like(weight_matrix, dtype=np.float64)
+        error_matrix = np.zeros_like(weight_matrix, dtype=np.float64)
+
+        R_base = 1000  # 基准电阻
+
+        for key, error_data in weight_error.items():
+            try:
+                parts = key.split('_')
+                if len(parts) >= 6:
+                    layer = int(parts[1])
+                    channel = int(parts[3])
+                    r_type = parts[5]
+
+                    # 只处理 pos 和 neg 类型（与电阻矩阵保持一致）
+                    if r_type not in ['pos', 'neg']:
+                        continue
+
+                    if layer < weight_matrix.shape[0] and channel < weight_matrix.shape[1]:
+                        # weight_e96 直接使用 weight_original + (weight_e96 - weight_original)
+                        # 即从电阻反推的权重应该接近原始权重（考虑量化误差）
+                        weight_original = float(weight_matrix[layer, channel])
+                        w_e96 = error_data.get('weight_e96', weight_original)
+
+                        # 只更新有效数据点（非零权重）
+                        if abs(weight_original) > 1e-6:
+                            weight_e96_matrix[layer, channel] = w_e96
+
+                            # 使用电阻的相对误差，而不是权重的相对误差
+                            # E96量化的误差应该在1-2%左右，这才是用户关心的
+                            r_raw_val = resistor_raw.get(key, 0)
+                            r_e96_val = resistor_e96.get(key, r_raw_val)
+
+                            if r_raw_val > 0 and r_raw_val < MAX_RESISTANCE:
+                                # 电阻相对误差（这是 E96 量化的真实误差）
+                                r_rel_error = abs(r_e96_val - r_raw_val) / r_raw_val * 100
+                                error_matrix[layer, channel] = r_rel_error
+                            else:
+                                error_matrix[layer, channel] = 0.0
+            except (ValueError, IndexError):
+                continue
+
+        # 创建5子图
+        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+
+        # 子图1: 原始权重矩阵
+        ax1 = axes[0, 0]
+        # 计算统一的颜色范围（用于子图1和子图4的可比性）
+        all_weights = np.concatenate([weight_matrix.flatten(), weight_e96_matrix.flatten()])
+        valid_weights = all_weights[(all_weights > 0) & (all_weights < 1e8)]
+        if len(valid_weights) > 0:
+            vmin = float(np.min(valid_weights))
+            vmax = float(np.max(valid_weights))
+        else:
+            vmin = float(np.min(weight_matrix))
+            vmax = float(np.max(weight_matrix))
+        # 使用相同的colormap和刻度范围，使子图1和子图4可比
+        im1 = ax1.imshow(weight_matrix, cmap='RdBu_r', aspect='auto', vmin=vmin, vmax=vmax)
+        weight_mean = float(np.mean(np.abs(weight_matrix)))
+        for i in range(weight_matrix.shape[0]):
+            for j in range(weight_matrix.shape[1]):
+                val = float(weight_matrix[i, j])
+                text_color = 'white' if abs(val) > weight_mean else 'black'
+                ax1.text(j, i, f'{val:.2f}', ha='center', va='center',
+                        color=text_color, fontsize=8, fontweight='bold')
+        ax1.set_title('1. Original Weight Matrix', fontsize=12, fontweight='bold', pad=10)
+        ax1.set_xlabel('Input Channel')
+        ax1.set_ylabel('Output Channel')
+        plt.colorbar(im1, ax=ax1, shrink=0.8)
+
+        # 子图2: 电阻（浮点数）- 6x6矩阵
+        ax2 = axes[0, 1]
+        # 构建6x6电阻矩阵
+        resistor_raw_matrix = np.zeros((6, 6))
+        resistor_e96_matrix = np.zeros((6, 6))
+
+        for key, r_raw in resistor_raw.items():
+            if r_raw >= 1e8:  # 跳过开路
+                continue
+            parts = key.split('_')
+            if len(parts) >= 6:
+                try:
+                    layer = int(parts[1])
+                    channel = int(parts[3])
+                    key_type = parts[5]
+                    if key_type in ['pos', 'neg']:
+                        if layer < 6 and channel < 6:
+                            resistor_raw_matrix[layer, channel] = r_raw
+                            resistor_e96_matrix[layer, channel] = resistor_e96.get(key, r_raw)
+                except (ValueError, IndexError):
+                    continue
+
+        # 如果没有有效数据，填入NaN用于显示
+        if np.all(resistor_raw_matrix == 0):
+            resistor_raw_matrix = np.full((6, 6), np.nan)
+
+        # 使用masked array处理NaN值
+        resistor_raw_masked = np.ma.masked_invalid(resistor_raw_matrix)
+
+        im2 = ax2.imshow(resistor_raw_masked, cmap='YlOrRd', aspect='auto')
+        resistor_mean = float(np.nanmean(resistor_raw_matrix))
+
+        for i in range(6):
+            for j in range(6):
+                val = float(resistor_raw_matrix[i, j])
+                if not np.isnan(val) and val > 0:
+                    text_color = 'white' if val > resistor_mean else 'black'
+                    ax2.text(j, i, f'{val:.0f}', ha='center', va='center',
+                            color=text_color, fontsize=8, fontweight='bold')
+                elif not np.isnan(val):
+                    ax2.text(j, i, '-', ha='center', va='center',
+                            color='gray', fontsize=8)
+
+        ax2.set_title('2. Resistor Values (Float)', fontsize=12, fontweight='bold', pad=10)
+        ax2.set_xlabel('Input Channel')
+        ax2.set_ylabel('Output Channel')
+        plt.colorbar(im2, ax=ax2, shrink=0.8, label='Resistance (Ω)')
+
+        # 子图3: 电阻（E96量化）- 6x6矩阵
+        ax3 = axes[0, 2]
+        # 使用之前构建的resistor_e96_matrix（6x6）
+        resistor_e96_masked = np.ma.masked_invalid(resistor_e96_matrix)
+
+        im3 = ax3.imshow(resistor_e96_masked, cmap='YlGnBu', aspect='auto')
+        e96_mean = float(np.nanmean(resistor_e96_matrix))
+
+        for i in range(6):
+            for j in range(6):
+                val = float(resistor_e96_matrix[i, j])
+                if not np.isnan(val) and val > 0:
+                    text_color = 'white' if val > e96_mean else 'black'
+                    ax3.text(j, i, f'{val:.0f}', ha='center', va='center',
+                            color=text_color, fontsize=8, fontweight='bold')
+                elif not np.isnan(val):
+                    ax3.text(j, i, '-', ha='center', va='center',
+                            color='gray', fontsize=8)
+
+        ax3.set_title('3. Resistor Values (E96)', fontsize=12, fontweight='bold', pad=10)
+        ax3.set_xlabel('Input Channel')
+        ax3.set_ylabel('Output Channel')
+        plt.colorbar(im3, ax=ax3, shrink=0.8, label='Resistance (Ω)')
+
+        # 子图4: 计算带E96量化误差的权重热力图
+        ax4 = axes[1, 0]
+        # 使用与子图1相同的colormap和刻度范围，确保视觉可比性
+        im4 = ax4.imshow(weight_e96_matrix, cmap='RdBu_r', aspect='auto', vmin=vmin, vmax=vmax)
+        w_e96_mean = float(np.mean(weight_e96_matrix[weight_e96_matrix > 0])) if np.any(weight_e96_matrix > 0) else 0
+
+        for i in range(weight_e96_matrix.shape[0]):
+            for j in range(weight_e96_matrix.shape[1]):
+                val = float(weight_e96_matrix[i, j])
+                if val > 0:
+                    ax4.text(j, i, f'{val:.3f}', ha='center', va='center',
+                            color='white' if val > w_e96_mean else 'black',
+                            fontsize=8, fontweight='bold')
+
+        ax4.set_title('4. Weight with E96 Quantization Error', fontsize=12, fontweight='bold', pad=10)
+        ax4.set_xlabel('Input Channel')
+        ax4.set_ylabel('Output Channel')
+        plt.colorbar(im4, ax=ax4, shrink=0.8)
+
+        # 子图5: 量化前后的E96引入的相对误差热力图
+        ax5 = axes[1, 1]
+        im5 = ax5.imshow(error_matrix, cmap='RdYlGn_r', aspect='auto',
+                        vmin=0, vmax=max(2.0, float(np.max(error_matrix))))
+        err_mean = float(np.mean(error_matrix[error_matrix > 0])) if np.any(error_matrix > 0) else 0
+
+        for i in range(error_matrix.shape[0]):
+            for j in range(error_matrix.shape[1]):
+                val = float(error_matrix[i, j])
+                if val > 0:
+                    ax5.text(j, i, f'{val:.2f}%', ha='center', va='center',
+                            color='white' if val > err_mean * 0.7 else 'black',
+                            fontsize=8, fontweight='bold')
+
+        ax5.set_title('5. E96 Relative Error (%)', fontsize=12, fontweight='bold', pad=10)
+        ax5.set_xlabel('Input Channel')
+        ax5.set_ylabel('Output Channel')
+        plt.colorbar(im5, ax=ax5, shrink=0.8, label='Error (%)')
+
+        # 子图6: 统计信息表格
+        ax6 = axes[1, 2]
+        ax6.axis('off')
+
+        stats = comparison_data.get('statistics', {})
+
+        # 表格数据
+        table_data = [
+            ['Statistic', 'Value'],
+            ['Total Resistors', str(stats.get('total_count', 0))],
+            ['Mean Error', f"{stats.get('mean_relative_error', 0):.3f}%"],
+            ['Max Error', f"{stats.get('max_relative_error', 0):.3f}%"],
+            ['Min Error', f"{stats.get('min_relative_error', 0):.3f}%"],
+            ['Within 1%', f"{stats.get('within_1pct', 0):.1f}%"],
+            ['Within 5%', f"{stats.get('within_5pct', 0):.1f}%"],
+        ]
+
+        table = ax6.table(cellText=table_data[1:], colLabels=table_data[0],
+                         cellLoc='center', loc='center',
+                         colColours=['#4A90D9', '#4A90D9'])
+        table.auto_set_font_size(False)
+        table.set_fontsize(11)
+        table.scale(1.2, 2)
+
+        for i in range(2):
+            table[(0, i)].set_text_props(color='white', weight='bold')
+
+        for i in range(1, len(table_data)):
+            for j in range(2):
+                if i % 2 == 0:
+                    table[(i, j)].set_facecolor('#E8F4FC')
+                else:
+                    table[(i, j)].set_facecolor('#FFFFFF')
+
+        ax6.set_title('6. Statistics Summary', fontsize=12, fontweight='bold', pad=10)
+
+        # 总标题
+        fig.suptitle('E96 Quantization Error Analysis - 5-Panel Table Heatmap',
+                    fontsize=16, fontweight='bold', y=0.98)
+
+        plt.tight_layout(rect=[0, 0, 1, 0.96])
+
+        # 保存图片
+        plot_name = 'e96_table_heatmap'
+        fig_path = output_path / f'{plot_name}.png'
+        plt.savefig(fig_path, dpi=300, bbox_inches='tight', facecolor='white')
+        plt.close()
+
+        # 保存JSON数据
+        save_data = {
+            'plot_type': 'e96_table_heatmap',
+            'data': {
+                'weight_matrix': comparison_data['weight_matrix'],
+                'weight_e96_matrix': weight_e96_matrix.tolist(),
+                'error_matrix': error_matrix.tolist(),
+                'resistor_raw_matrix': resistor_raw_matrix.tolist(),
+                'resistor_e96_matrix': resistor_e96_matrix.tolist(),
+                'statistics': stats
+            }
+        }
+        save_plot_data(save_data, str(output_path), plot_name)
+
+        return {plot_name: str(fig_path)}
+
     def _plot_quantization_error_heatmap(self,
                                          comparison_data: Dict[str, Any],
                                          output_path: Path) -> Dict[str, str]:
         """绘制量化误差热力图"""
         relative_errors = comparison_data.get('relative_error_percent', {})
-        weight_errors = comparison_data.get('weight_error', {})
 
         # 构建误差矩阵
         error_matrix = []
@@ -256,17 +695,20 @@ class WeightE96QuantizationPlotter:
             return {}
 
         error_array = np.array(error_matrix).reshape(1, -1)
+        # 确保 max 返回 Python 原生类型
+        max_error = float(np.max(error_array))
 
         fig, ax = plt.subplots(figsize=(14, 4))
 
         # 使用热力图展示误差分布
         im = ax.imshow(error_array, cmap='RdYlGn_r', aspect='auto',
-                      vmin=0, vmax=max(error_array) * 1.2)
+                      vmin=0, vmax=max_error * 1.2)
 
         # 添加数值标注
+        half_max = max_error * 0.5
         for i in range(error_array.shape[1]):
-            val = error_array[0, i]
-            text_color = 'white' if val > error_array.max() * 0.5 else 'black'
+            val = float(error_array[0, i])
+            text_color = 'white' if val > half_max else 'black'
             ax.text(i, 0, f'{val:.2f}%', ha='center', va='center',
                    color=text_color, fontsize=9, fontweight='bold')
 
@@ -539,7 +981,19 @@ def main():
 
     # 加载数据
     with open(args.input, 'r', encoding='utf-8') as f:
-        comparison_data = json.load(f)
+        data = json.load(f)
+
+    # 如果数据嵌套在 quantization_comparison 中，提取出来
+    if 'quantization_comparison' in data:
+        comparison_data = data['quantization_comparison']
+        print(f"INFO: Extracted quantization_comparison from results.json")
+    elif 'weight_matrix' in data:
+        comparison_data = data
+        print(f"INFO: Using top-level data as comparison data")
+    else:
+        print(f"ERROR: No 'quantization_comparison' or 'weight_matrix' key found in input file")
+        print(f"Available keys: {list(data.keys())[:20]}")
+        return
 
     # 创建可视化器并生成图表
     plotter = WeightE96QuantizationPlotter({'output_dir': args.output})

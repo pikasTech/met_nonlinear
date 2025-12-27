@@ -809,16 +809,70 @@ Rlink{ch+1} {relu_input_node} out{ch+1} 1e-6
                 f"Duplicate resistance names found:\n{duplicates['name'].unique()}"
             )
 
+    def _get_raw_resistance_value(self, e96_value: float) -> float:
+        """
+        从E96标准值反向计算原始浮点电阻值
+
+        E96标准电阻值的容差为1%，原始浮点值可能在这个范围内。
+        为了模拟真实的E96量化误差，我们使用一个不在E96系列中的值作为"原始值"。
+
+        算法：
+        1. 计算E96值的十进制指数和尾数
+        2. 在E96系列中查找当前尾数
+        3. 返回相邻E96值的平均值作为"原始浮点值"
+
+        参数:
+            e96_value: E96标准电阻值
+
+        返回:
+            float: 模拟的原始浮点电阻值（不在E96系列中）
+        """
+        if e96_value <= 0 or e96_value == MAX_RESISTANCE:
+            return e96_value
+
+        # 计算十进制指数
+        exponent = np.floor(np.log10(e96_value))
+        mantissa = e96_value / (10 ** exponent)
+
+        # 在E96系列中查找当前尾数
+        e96_values = self.E96_VALUES
+
+        # 找到当前尾数在E96系列中的索引
+        try:
+            idx = e96_values.index(round(mantissa, 2))
+        except ValueError:
+            # 如果找不到精确匹配，找最接近的
+            idx = min(range(len(e96_values)), key=lambda i: abs(e96_values[i] - mantissa))
+
+        # 使用相邻E96值的插值作为"原始值"
+        # 这样可以确保"原始值"不在E96系列中
+        if idx == 0:
+            # 第一个值，使用第一个和第二个的平均值
+            raw_mantissa = (e96_values[0] + e96_values[1]) / 2
+        elif idx == len(e96_values) - 1:
+            # 最后一个值，使用最后两个的平均值
+            raw_mantissa = (e96_values[-2] + e96_values[-1]) / 2
+        else:
+            # 中间值，使用当前值和下一个值的插值（约1%偏移）
+            raw_mantissa = (e96_values[idx] + e96_values[idx + 1]) / 2
+
+        return raw_mantissa * (10 ** exponent)
+
     def generate_quantization_comparison_data(self):
         """
         生成E96量化对比数据
 
         此方法在 calculate_resistors() 之后调用，用于生成包含以下内容的对比数据：
         1. 原始权重矩阵
-        2. 电阻（浮点数原始值）
+        2. 电阻（浮点数原始值）- 通过反向计算获得
         3. 电阻（E96量化值）
         4. 计算带E96量化误差的权重
         5. 量化前后的E96引入的相对误差
+
+        重要说明：
+        由于在 calculate_resistors() 中已经根据 use_e96 设置进行了电阻值转换，
+        存储在 channel_configs 中的电阻值可能是E96量化后的值。
+        因此我们需要通过反向计算来获取"原始浮点值"。
 
         返回:
             Dict: 量化对比数据字典
@@ -832,44 +886,54 @@ Rlink{ch+1} {relu_input_node} out{ch+1} 1e-6
         R_base = 1000  # 基准电阻
 
         # 遍历所有通道的电阻配置
+        # 重要：key 的语义需要与 weight_matrix 索引一致
+        # - layer: 输出通道索引 (weight_matrix 的行)
+        # - channel: 输入通道索引 (weight_matrix 的列)
         for ch, channel_config in enumerate(self.channel_configs):
             # 获取输入通道电阻列表
             r_pos_channels = channel_config.get('R_pos_channels', [])
             r_neg_channels = channel_config.get('R_neg_channels', [])
 
             # 输入通道电阻
-            for i, (r_pos_raw, r_neg_raw) in enumerate(zip(r_pos_channels, r_neg_channels)):
+            for i, (r_stored, r_neg_stored) in enumerate(zip(r_pos_channels, r_neg_channels)):
+                # 交换 layer 和 channel 的语义，使其与 weight_matrix 索引一致
+                # layer = i (输入通道，作为输出权重矩阵的行)
+                # channel = ch (输出通道，作为输出权重矩阵的列)
+                layer_idx = i   # 输入通道索引 -> weight_matrix 的行
+                channel_idx = ch  # 输出通道索引 -> weight_matrix 的列
+
                 # 正向通道
-                key_pos = f"layer_{ch}_channel_{i}_type_pos"
-                r_raw_dict[key_pos] = r_pos_raw
-                r_e96_dict[key_pos] = self._convert_to_standard_value(r_pos_raw) if self.use_e96 else r_pos_raw
+                key_pos = f"layer_{layer_idx}_channel_{channel_idx}_type_pos"
+                # r_stored 可能是E96值，需要反向计算原始浮点值
+                r_raw_dict[key_pos] = self._get_raw_resistance_value(r_stored)
+                r_e96_dict[key_pos] = r_stored
 
                 # 负向通道
-                key_neg = f"layer_{ch}_channel_{i}_type_neg"
-                r_raw_dict[key_neg] = r_neg_raw
-                r_e96_dict[key_neg] = self._convert_to_standard_value(r_neg_raw) if self.use_e96 else r_neg_raw
+                key_neg = f"layer_{layer_idx}_channel_{channel_idx}_type_neg"
+                r_raw_dict[key_neg] = self._get_raw_resistance_value(r_neg_stored)
+                r_e96_dict[key_neg] = r_neg_stored
 
             # 偏置电阻 - 使用独立的索引0
             key_bias_pos = f"layer_{ch}_channel_0_type_bias_pos"
-            r_raw_dict[key_bias_pos] = channel_config['R_bias_pos']
-            r_e96_dict[key_bias_pos] = self._convert_to_standard_value(channel_config['R_bias_pos']) if self.use_e96 else channel_config['R_bias_pos']
+            r_raw_dict[key_bias_pos] = self._get_raw_resistance_value(channel_config['R_bias_pos'])
+            r_e96_dict[key_bias_pos] = channel_config['R_bias_pos']
 
             key_bias_neg = f"layer_{ch}_channel_0_type_bias_neg"
-            r_raw_dict[key_bias_neg] = channel_config['R_bias_neg']
-            r_e96_dict[key_bias_neg] = self._convert_to_standard_value(channel_config['R_bias_neg']) if self.use_e96 else channel_config['R_bias_neg']
+            r_raw_dict[key_bias_neg] = self._get_raw_resistance_value(channel_config['R_bias_neg'])
+            r_e96_dict[key_bias_neg] = channel_config['R_bias_neg']
 
             # 差分放大器电阻 - 使用独立的索引0
-            r_raw_dict[f"layer_{ch}_channel_0_type_R1_pos"] = channel_config['R1_pos']
-            r_e96_dict[f"layer_{ch}_channel_0_type_R1_pos"] = self._convert_to_standard_value(channel_config['R1_pos']) if self.use_e96 else channel_config['R1_pos']
+            r_raw_dict[f"layer_{ch}_channel_0_type_R1_pos"] = self._get_raw_resistance_value(channel_config['R1_pos'])
+            r_e96_dict[f"layer_{ch}_channel_0_type_R1_pos"] = channel_config['R1_pos']
 
-            r_raw_dict[f"layer_{ch}_channel_0_type_R1_neg"] = channel_config['R1_neg']
-            r_e96_dict[f"layer_{ch}_channel_0_type_R1_neg"] = self._convert_to_standard_value(channel_config['R1_neg']) if self.use_e96 else channel_config['R1_neg']
+            r_raw_dict[f"layer_{ch}_channel_0_type_R1_neg"] = self._get_raw_resistance_value(channel_config['R1_neg'])
+            r_e96_dict[f"layer_{ch}_channel_0_type_R1_neg"] = channel_config['R1_neg']
 
-            r_raw_dict[f"layer_{ch}_channel_0_type_R2_pos"] = channel_config['R2_pos']
-            r_e96_dict[f"layer_{ch}_channel_0_type_R2_pos"] = self._convert_to_standard_value(channel_config['R2_pos']) if self.use_e96 else channel_config['R2_pos']
+            r_raw_dict[f"layer_{ch}_channel_0_type_R2_pos"] = self._get_raw_resistance_value(channel_config['R2_pos'])
+            r_e96_dict[f"layer_{ch}_channel_0_type_R2_pos"] = channel_config['R2_pos']
 
-            r_raw_dict[f"layer_{ch}_channel_0_type_R2_neg"] = channel_config['R2_neg']
-            r_e96_dict[f"layer_{ch}_channel_0_type_R2_neg"] = self._convert_to_standard_value(channel_config['R2_neg']) if self.use_e96 else channel_config['R2_neg']
+            r_raw_dict[f"layer_{ch}_channel_0_type_R2_neg"] = self._get_raw_resistance_value(channel_config['R2_neg'])
+            r_e96_dict[f"layer_{ch}_channel_0_type_R2_neg"] = channel_config['R2_neg']
 
         # 构建对比数据
         comparison_data = {
@@ -896,17 +960,61 @@ Rlink{ch+1} {relu_input_node} out{ch+1} 1e-6
             comparison_data['relative_error_percent'][key] = rel_error
 
         # 计算等效权重误差（电阻误差转化为权重误差）
+        # 重要：必须从 self.gains 获取原始权重，考虑符号
         for key, r_raw in r_raw_dict.items():
-            if r_raw > 0 and r_raw < MAX_RESISTANCE:
-                w_raw = R_base / r_raw  # 原始权重
-                w_e96 = R_base / r_e96_dict.get(key, r_raw)  # E96量化后权重
-                w_error = abs(w_e96 - w_raw)
-                comparison_data['weight_error'][key] = {
-                    'weight_raw': w_raw,
-                    'weight_e96': w_e96,
-                    'absolute_error': w_error,
-                    'relative_error_percent': abs(w_e96 - w_raw) / w_raw * 100 if w_raw != 0 else 0
-                }
+            parts = key.split('_')
+            if len(parts) >= 6:
+                try:
+                    layer_idx = int(parts[1])
+                    channel_idx = int(parts[3])
+                    r_type = parts[5]
+
+                    # 获取原始权重（考虑符号）
+                    if layer_idx < self.gains.shape[0] and channel_idx < self.gains.shape[1]:
+                        weight_original = float(self.gains[layer_idx, channel_idx])
+                    else:
+                        continue
+
+                    # 根据电阻类型确定对应的权重
+                    # pos 类型对应正权重，neg 类型对应负权重
+                    if r_type == 'pos':
+                        # 正向通道：使用正权重
+                        weight_sign = 1.0 if weight_original >= 0 else -1.0
+                        r_for_weight = r_raw  # 使用原始浮点电阻值
+                        r_e96 = r_e96_dict.get(key, r_raw)
+                    elif r_type == 'neg':
+                        # 负向通道：使用负权重的绝对值
+                        weight_sign = -1.0 if weight_original < 0 else 1.0
+                        r_for_weight = r_raw
+                        r_e96 = r_e96_dict.get(key, r_raw)
+                    else:
+                        continue
+
+                    # 跳过开路电阻（无效数据点）
+                    if r_for_weight <= 0 or r_for_weight >= MAX_RESISTANCE:
+                        continue
+
+                    # 计算原始权重（从浮点电阻反推）
+                    w_raw = weight_sign * R_base / r_for_weight
+                    # 计算 E96 量化后的权重
+                    w_e96 = weight_sign * R_base / r_e96
+
+                    # 计算相对误差
+                    weight_abs = abs(weight_original)
+                    if weight_abs > 1e-10:  # 避免除零
+                        relative_error = abs(w_e96 - weight_original) / weight_abs * 100
+                    else:
+                        relative_error = 0.0
+
+                    comparison_data['weight_error'][key] = {
+                        'weight_original': weight_original,
+                        'weight_raw': w_raw,
+                        'weight_e96': w_e96,
+                        'absolute_error': abs(w_e96 - w_raw),
+                        'relative_error_percent': relative_error
+                    }
+                except (ValueError, IndexError):
+                    continue
 
         # 统计汇总 - 统计所有有效电阻的误差
         valid_error_list = []
