@@ -25,7 +25,8 @@ class DenseCircuit(BaseCircuit):
     """
 
     def __init__(self, gains, biases=None, R_values=None, opamp_config=None,
-                 use_e96=False, use_relu=False, relu_config=None, bias_compensation=None, high_pass_config=None, power_supply_config=None, layer_name=None):
+                 use_e96=False, use_relu=False, relu_config=None, bias_compensation=None, high_pass_config=None, power_supply_config=None, layer_name=None,
+                 include_quantization_comparison=False):
         """
         初始化带符号加法器电路
 
@@ -207,7 +208,7 @@ class DenseCircuit(BaseCircuit):
         self.resistance_records = []  # 新增：电阻数据收集列表
         self.layer_name = layer_name  # 新增：层名称标识，从参数传入
         self.validation_enabled = True  # 强制启用校验
-        self.calculate_resistors(R_values)
+        self.calculate_resistors(R_values, include_quantization_comparison)
 
         # 生成电路网表文本(不包含仿真指令)
         self.netlist_text = self._create_circuit_netlist()
@@ -249,13 +250,16 @@ class DenseCircuit(BaseCircuit):
         # 默认实现：使用与主电路相同的运放配置
         return OpAmpModelFactory.create_model(self.relu_config.get('opamp_config', self.opamp_config))
 
-    def calculate_resistors(self, R_values=None):
+    def calculate_resistors(self, R_values=None, include_quantization_comparison=False):
         """
         计算电路所需的电阻值
 
         参数:
             R_values: 用户提供的电阻值配置字典，默认为None
+            include_quantization_comparison: 是否包含E96量化对比数据，默认为False
         """
+        # 保存是否需要生成量化对比数据的标志
+        self._include_quantization_comparison = include_quantization_comparison
         for ch in range(self.n_outputs):
             # 获取当前通道的增益值和偏置值
             channel_gains = self.gains[:, ch]
@@ -677,28 +681,30 @@ Rlink{ch+1} {relu_input_node} out{ch+1} 1e-6
     def _record_channel_resistances(self, channel: int, config: dict):
         """
         记录单个通道的所有电阻值
-        
+
         # NO ROLLBACK: 记录失败直接抛出异常
         """
         # 记录输入电阻
-        for i, (r_pos, r_neg) in enumerate(zip(config['R_pos_channels'], config['R_neg_channels'])):
+        r_pos_channels = config.get('R_pos_channels', [])
+        r_neg_channels = config.get('R_neg_channels', [])
+        for i, (r_pos, r_neg) in enumerate(zip(r_pos_channels, r_neg_channels)):
             # 正向输入电阻
             self._record_resistance(channel, 'input_pos', i, f'R_pos{channel+1}_{i+1}', r_pos)
             # 负向输入电阻
             self._record_resistance(channel, 'input_neg', i, f'R_neg{channel+1}_{i+1}', r_neg)
-        
+
         # 记录偏置电阻 - 无论是否开路都记录（确保BOM包含所有266个电阻）
         self._record_resistance(channel, 'bias_pos', None, f'R_bias_pos{channel+1}', config['R_bias_pos'])
         self._record_resistance(channel, 'bias_neg', None, f'R_bias_neg{channel+1}', config['R_bias_neg'])
-        
+
         # 记录电流采样电阻
         self._record_resistance(channel, 'sampling_pos', None, f'Rin_pos{channel+1}', config['Rin_pos'])
         self._record_resistance(channel, 'sampling_neg', None, f'Rin_neg{channel+1}', config['Rin_neg'])
-        
+
         # 记录差分放大器电阻
         self._record_resistance(channel, 'differential_pos', None, f'R1_pos{channel+1}', config['R1_pos'])
         self._record_resistance(channel, 'differential_neg', None, f'R1_neg{channel+1}', config['R1_neg'])
-        
+
         # 记录反馈电阻
         self._record_resistance(channel, 'feedback_pos', None, f'R2_pos{channel+1}', config['R2_pos'])
         self._record_resistance(channel, 'feedback_neg', None, f'R2_neg{channel+1}', config['R2_neg'])
@@ -803,13 +809,131 @@ Rlink{ch+1} {relu_input_node} out{ch+1} 1e-6
                 f"Duplicate resistance names found:\n{duplicates['name'].unique()}"
             )
 
+    def generate_quantization_comparison_data(self):
+        """
+        生成E96量化对比数据
+
+        此方法在 calculate_resistors() 之后调用，用于生成包含以下内容的对比数据：
+        1. 原始权重矩阵
+        2. 电阻（浮点数原始值）
+        3. 电阻（E96量化值）
+        4. 计算带E96量化误差的权重
+        5. 量化前后的E96引入的相对误差
+
+        返回:
+            Dict: 量化对比数据字典
+        """
+        if not getattr(self, '_include_quantization_comparison', False):
+            return None
+
+        # 重新计算电阻值，捕获原始值和E96值
+        r_raw_dict = {}
+        r_e96_dict = {}
+        R_base = 1000  # 基准电阻
+
+        # 遍历所有通道的电阻配置
+        for ch, channel_config in enumerate(self.channel_configs):
+            # 获取输入通道电阻列表
+            r_pos_channels = channel_config.get('R_pos_channels', [])
+            r_neg_channels = channel_config.get('R_neg_channels', [])
+
+            # 输入通道电阻
+            for i, (r_pos_raw, r_neg_raw) in enumerate(zip(r_pos_channels, r_neg_channels)):
+                # 正向通道
+                key_pos = f"layer_{ch}_channel_{i}_type_pos"
+                r_raw_dict[key_pos] = r_pos_raw
+                r_e96_dict[key_pos] = self._convert_to_standard_value(r_pos_raw) if self.use_e96 else r_pos_raw
+
+                # 负向通道
+                key_neg = f"layer_{ch}_channel_{i}_type_neg"
+                r_raw_dict[key_neg] = r_neg_raw
+                r_e96_dict[key_neg] = self._convert_to_standard_value(r_neg_raw) if self.use_e96 else r_neg_raw
+
+            # 偏置电阻 - 使用独立的索引0
+            key_bias_pos = f"layer_{ch}_channel_0_type_bias_pos"
+            r_raw_dict[key_bias_pos] = channel_config['R_bias_pos']
+            r_e96_dict[key_bias_pos] = self._convert_to_standard_value(channel_config['R_bias_pos']) if self.use_e96 else channel_config['R_bias_pos']
+
+            key_bias_neg = f"layer_{ch}_channel_0_type_bias_neg"
+            r_raw_dict[key_bias_neg] = channel_config['R_bias_neg']
+            r_e96_dict[key_bias_neg] = self._convert_to_standard_value(channel_config['R_bias_neg']) if self.use_e96 else channel_config['R_bias_neg']
+
+            # 差分放大器电阻 - 使用独立的索引0
+            r_raw_dict[f"layer_{ch}_channel_0_type_R1_pos"] = channel_config['R1_pos']
+            r_e96_dict[f"layer_{ch}_channel_0_type_R1_pos"] = self._convert_to_standard_value(channel_config['R1_pos']) if self.use_e96 else channel_config['R1_pos']
+
+            r_raw_dict[f"layer_{ch}_channel_0_type_R1_neg"] = channel_config['R1_neg']
+            r_e96_dict[f"layer_{ch}_channel_0_type_R1_neg"] = self._convert_to_standard_value(channel_config['R1_neg']) if self.use_e96 else channel_config['R1_neg']
+
+            r_raw_dict[f"layer_{ch}_channel_0_type_R2_pos"] = channel_config['R2_pos']
+            r_e96_dict[f"layer_{ch}_channel_0_type_R2_pos"] = self._convert_to_standard_value(channel_config['R2_pos']) if self.use_e96 else channel_config['R2_pos']
+
+            r_raw_dict[f"layer_{ch}_channel_0_type_R2_neg"] = channel_config['R2_neg']
+            r_e96_dict[f"layer_{ch}_channel_0_type_R2_neg"] = self._convert_to_standard_value(channel_config['R2_neg']) if self.use_e96 else channel_config['R2_neg']
+
+        # 构建对比数据
+        comparison_data = {
+            'weight_matrix': self.gains.tolist(),
+            'resistor_raw': {},
+            'resistor_e96': {},
+            'weight_error': {},
+            'relative_error_percent': {}
+        }
+
+        # 计算每个电阻的量化误差
+        for key, r_raw in r_raw_dict.items():
+            r_e96 = r_e96_dict.get(key, r_raw)
+
+            comparison_data['resistor_raw'][key] = r_raw
+            comparison_data['resistor_e96'][key] = r_e96
+
+            # 计算相对误差（排除开路电阻）
+            if r_raw > 0 and r_raw < MAX_RESISTANCE:
+                rel_error = abs(r_e96 - r_raw) / r_raw * 100
+            else:
+                rel_error = 0.0
+
+            comparison_data['relative_error_percent'][key] = rel_error
+
+        # 计算等效权重误差（电阻误差转化为权重误差）
+        for key, r_raw in r_raw_dict.items():
+            if r_raw > 0 and r_raw < MAX_RESISTANCE:
+                w_raw = R_base / r_raw  # 原始权重
+                w_e96 = R_base / r_e96_dict.get(key, r_raw)  # E96量化后权重
+                w_error = abs(w_e96 - w_raw)
+                comparison_data['weight_error'][key] = {
+                    'weight_raw': w_raw,
+                    'weight_e96': w_e96,
+                    'absolute_error': w_error,
+                    'relative_error_percent': abs(w_e96 - w_raw) / w_raw * 100 if w_raw != 0 else 0
+                }
+
+        # 统计汇总 - 统计所有有效电阻的误差
+        valid_error_list = []
+        for key, rel_error in comparison_data['relative_error_percent'].items():
+            r_raw = r_raw_dict.get(key, 0)
+            if r_raw > 0 and r_raw < MAX_RESISTANCE:
+                valid_error_list.append(rel_error)
+
+        comparison_data['statistics'] = {
+            'mean_relative_error': float(np.mean(valid_error_list)) if valid_error_list else 0,
+            'max_relative_error': float(np.max(valid_error_list)) if valid_error_list else 0,
+            'min_relative_error': float(np.min(valid_error_list)) if valid_error_list else 0,
+            'within_1pct': float(sum(1 for e in valid_error_list if e < 1) / len(valid_error_list) * 100) if valid_error_list else 100,
+            'within_5pct': float(sum(1 for e in valid_error_list if e < 5) / len(valid_error_list) * 100) if valid_error_list else 100,
+            'total_count': len(valid_error_list)
+        }
+
+        return comparison_data
+
 
 class DenseCircuitFactory:
     """使用组合模式的带符号加法器电路工厂类"""
 
     @staticmethod
     def create(gains=None, biases=None, R_values=None,
-               opamp_config=None, use_e96=False, use_relu=False, relu_config=None, high_pass_config=None, power_supply_config=None, layer_name=None):
+               opamp_config=None, use_e96=False, use_relu=False, relu_config=None, high_pass_config=None, power_supply_config=None, layer_name=None,
+               include_quantization_comparison=False):
         """
         创建带符号加法器电路，通过组合模式实现灵活配置
 
@@ -834,6 +958,7 @@ class DenseCircuitFactory:
                 - {'enable': False} 禁用高通滤波器
                 - {'enable': True, 'cutoff_freq': 0.5, 'bias_voltage': 2.5}
                   启用高通滤波器，0.5Hz截止频率，2.5V bias电压
+            include_quantization_comparison: 是否包含E96量化对比数据，默认为False
 
         返回:
             DenseCircuit实例
@@ -875,7 +1000,8 @@ class DenseCircuitFactory:
             relu_config=local_relu_config,
             high_pass_config=high_pass_config,
             power_supply_config=power_supply_config,
-            layer_name=layer_name
+            layer_name=layer_name,
+            include_quantization_comparison=include_quantization_comparison
         )
 
     @staticmethod

@@ -323,6 +323,75 @@ class VisualizationConfigValidator:
                         }
                     }
                 }
+            },
+            "inference_config": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "use_e96": {
+                        "type": "boolean",
+                        "description": "是否使用E96标准电阻值"
+                    },
+                    "include_quantization_comparison": {
+                        "type": "boolean",
+                        "description": "是否包含E96量化对比数据"
+                    },
+                    "opamp_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "model": {
+                                "type": "string",
+                                "enum": ["ideal", "LM324", "TL084", "OPAx205A", "AD8622", "OPA1611"]
+                            },
+                            "include_file": {
+                                "type": "string"
+                            },
+                            "power_pins": {
+                                "type": "boolean"
+                            },
+                            "params": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "power_supply": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "vcc": {
+                                "type": "number"
+                            },
+                            "vee": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "high_pass_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enable": {
+                                "type": "boolean"
+                            },
+                            "cutoff_freq": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "bias_compensation": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "layer_bias_adjustments": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                }
             }
         }
     }

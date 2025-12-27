@@ -7,6 +7,7 @@ WNET5电路验证可视化引擎
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Any
 import logging
@@ -18,6 +19,22 @@ except ImportError:
     TF_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
+
+
+def _convert_to_native_types(obj):
+    """递归将numpy类型转换为Python原生类型"""
+    if isinstance(obj, np.ndarray):
+        return [_convert_to_native_types(item) for item in obj.tolist()]
+    elif isinstance(obj, (np.float32, np.float64)):
+        return float(obj)
+    elif isinstance(obj, (np.int32, np.int64)):
+        return int(obj)
+    elif isinstance(obj, dict):
+        return {key: _convert_to_native_types(val) for key, val in obj.items()}
+    elif isinstance(obj, list):
+        return [_convert_to_native_types(item) for item in obj]
+    else:
+        return obj
 
 
 class WNET5CircuitValidator:
@@ -42,6 +59,9 @@ class WNET5CircuitValidator:
 
         # 新增：指定要分析的Dense层编号（默认为1，向后兼容）
         self.analysis_layer = config.get('analysis_layer', 1)
+
+        # 新增：推理配置（用于E96量化等）
+        self.inference_config = config.get('inference_config', {})
 
         # 确保输出目录存在
         self._setup_output_directories()
@@ -367,6 +387,9 @@ class WNET5CircuitValidator:
             svf_params = self._load_svf_parameters_from_project()
             dense_weights = self._load_dense_weights_from_project(self.analysis_layer)
 
+            # 1.5 生成E96量化对比数据（如果启用）
+            quantization_comparison = self._generate_e96_quantization_comparison(dense_weights)
+
             # 2. 计算传递函数
             svf_tfs = self._calculate_svf_transfer_functions(svf_params)
             combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
@@ -381,7 +404,7 @@ class WNET5CircuitValidator:
             report = self._generate_analysis_report(svf_params, dense_weights, freq_response)
 
             # 6. 保存结果 (单一 results.json)
-            self._save_results(svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report)
+            self._save_results(svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report, quantization_comparison)
 
             logger.info("✅ WNET5电路验证分析完成")
             return True
@@ -486,6 +509,58 @@ class WNET5CircuitValidator:
             'bias': bias,
             'analysis_layer': analysis_layer
         }
+
+    def _generate_e96_quantization_comparison(self, dense_weights: Dict[str, Any]):
+        """生成E96量化对比数据
+
+        Args:
+            dense_weights: 包含 'weights' 和 'bias' 的字典
+
+        Returns:
+            Dict: E96量化对比数据，如果未启用则返回None
+        """
+        use_e96 = self.inference_config.get('use_e96', False)
+        include_comparison = self.inference_config.get('include_quantization_comparison', False)
+
+        if not include_comparison:
+            return None
+
+        if not use_e96:
+            logger.warning("include_quantization_comparison=True 但 use_e96=False，跳过量化对比生成")
+            return None
+
+        logger.info("生成E96量化对比数据...")
+
+        try:
+            from spice_simulator.circuit_dense import DenseCircuitFactory
+
+            weights = dense_weights['weights']
+            bias = dense_weights['bias']
+            layer_name = dense_weights.get('layer_name', f'layer{self.analysis_layer}')
+
+            # 创建DenseCircuit，启用E96和量化对比
+            circuit = DenseCircuitFactory.create(
+                gains=weights,
+                biases=bias,
+                use_e96=True,
+                use_relu=False,
+                layer_name=layer_name,
+                include_quantization_comparison=True
+            )
+
+            # 生成量化对比数据
+            comparison_data = circuit.generate_quantization_comparison_data()
+
+            if comparison_data:
+                logger.info(f"✅ E96量化对比数据生成完成: {comparison_data.get('statistics', {}).get('total_count', 0)} 个电阻")
+            else:
+                logger.warning("E96量化对比数据生成返回空")
+
+            return comparison_data
+
+        except Exception as e:
+            logger.error(f"生成E96量化对比数据失败: {e}")
+            return None
 
     def _load_model(self):
         """加载真实的WaveNet5模型并加载权重
@@ -1252,7 +1327,7 @@ class WNET5CircuitValidator:
         logger.info(f"分析报告已保存: {report_path}")
         return str(report_path)
     
-    def _save_results(self, svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report):
+    def _save_results(self, svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report, quantization_comparison=None):
         """保存计算结果 (合并为单一 results.json)"""
         logger.info("保存计算结果 (results.json)...")
         
@@ -1361,8 +1436,59 @@ class WNET5CircuitValidator:
             results['error_analysis'] = error_data
             logger.info("误差分析数据已添加到results.json")
 
+        # 如果存在E96量化对比数据，添加到结果中
+        if quantization_comparison:
+            # 转换numpy类型为Python原生类型，解决JSON序列化问题
+            results['quantization_comparison'] = _convert_to_native_types(quantization_comparison)
+            logger.info(f"E96量化对比数据已添加到results.json (统计: {quantization_comparison.get('statistics', {}).get('total_count', 0)} 个电阻)")
+
         results_path = self.output_path / 'results.json'
         with open(results_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
         logger.info(f"结果已保存: {results_path.relative_to(self.output_path)}")
+
+        # 如果存在E96量化对比数据，自动生成可视化图表
+        if quantization_comparison:
+            self._generate_e96_quantization_plots(quantization_comparison)
+
+    def _generate_e96_quantization_plots(self, quantization_comparison: Dict[str, Any]):
+        """生成E96量化对比可视化图表
+
+        Args:
+            quantization_comparison: E96量化对比数据字典
+        """
+        try:
+            # 创建E96量化分析输出目录
+            e96_output_dir = self.output_path / 'plots' / 'e96_quantization'
+            e96_output_dir.mkdir(parents=True, exist_ok=True)
+
+            # 直接使用spec从文件导入
+            from importlib.machinery import SourceFileLoader
+
+            # 加载可视化工具模块 - 修复路径
+            base_dir = Path(__file__).resolve().parent.parent  # 到项目根目录
+            plotter_file = base_dir / 'inference' / 'tools' / 'visualization' / 'weight_e96_quantization_plotter.py'
+            if not plotter_file.exists():
+                logger.warning(f"E96可视化工具文件不存在: {plotter_file}")
+                return
+
+            # 动态加载模块
+            plotter_module = SourceFileLoader('weight_e96_quantization_plotter', str(plotter_file)).load_module()
+            WeightE96QuantizationPlotter = plotter_module.WeightE96QuantizationPlotter
+
+            # 生成可视化图表
+            plotter = WeightE96QuantizationPlotter({'output_dir': str(e96_output_dir)})
+            files = plotter.plot_quantization_comparison(quantization_comparison, str(e96_output_dir))
+
+            # 记录生成的文件
+            if files:
+                logger.info(f"E96量化对比可视化已生成:")
+                for name, path in files.items():
+                    rel_path = Path(path).relative_to(self.output_path)
+                    logger.info(f"  - {name}: {rel_path}")
+            else:
+                logger.warning("E96量化对比可视化未生成（可能无有效数据）")
+
+        except Exception as e:
+            logger.error(f"生成E96量化可视化失败: {e}")

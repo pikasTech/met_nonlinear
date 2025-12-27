@@ -13600,5 +13600,793 @@
         "within_20_percent": 100.0
       }
     ]
+  },
+  "quantization_comparison": {
+    "weight_matrix": [
+      [
+        -2.046748638153076,
+        -1.2283607721328735,
+        0.21272553503513336,
+        0.740289568901062,
+        0.24052532017230988,
+        -0.8589311242103577
+      ],
+      [
+        -1.016248106956482,
+        -0.21796871721744537,
+        -0.22137361764907837,
+        0.3102911710739136,
+        0.5055362582206726,
+        -1.684627890586853
+      ],
+      [
+        -0.11413031816482544,
+        -1.883636474609375,
+        0.2896444797515869,
+        0.6695430874824524,
+        0.4967893064022064,
+        -1.0125218629837036
+      ],
+      [
+        -0.9089112281799316,
+        -1.5107314586639404,
+        -0.26455867290496826,
+        -1.6553466320037842,
+        0.7438374161720276,
+        -0.0195899810642004
+      ],
+      [
+        -1.309861660003662,
+        0.8926913738250732,
+        1.0764018297195435,
+        -1.0301365852355957,
+        -0.07125196605920792,
+        1.1303753852844238
+      ],
+      [
+        -0.6977548003196716,
+        0.19576731324195862,
+        0.04893237352371216,
+        1.4898195266723633,
+        1.3476253747940063,
+        -0.2916993200778961
+      ]
+    ],
+    "resistor_raw": {
+      "layer_0_channel_0_type_pos": 1000000000.0,
+      "layer_0_channel_0_type_neg": 487.0,
+      "layer_0_channel_1_type_pos": 1000000000.0,
+      "layer_0_channel_1_type_neg": 976.0,
+      "layer_0_channel_2_type_pos": 1000000000.0,
+      "layer_0_channel_2_type_neg": 8660.0,
+      "layer_0_channel_3_type_pos": 1000000000.0,
+      "layer_0_channel_3_type_neg": 1100.0,
+      "layer_0_channel_4_type_pos": 1000000000.0,
+      "layer_0_channel_4_type_neg": 768.0,
+      "layer_0_channel_5_type_pos": 1000000000.0,
+      "layer_0_channel_5_type_neg": 1430.0,
+      "layer_0_channel_0_type_bias_pos": 97600.0,
+      "layer_0_channel_0_type_bias_neg": 1000000000.0,
+      "layer_0_channel_0_type_R1_pos": 499.0,
+      "layer_0_channel_0_type_R1_neg": 499.0,
+      "layer_0_channel_0_type_R2_pos": 499000.0,
+      "layer_0_channel_0_type_R2_neg": 499000.0,
+      "layer_1_channel_0_type_pos": 1000000000.0,
+      "layer_1_channel_0_type_neg": 806.0000610351562,
+      "layer_1_channel_1_type_pos": 1000000000.0,
+      "layer_1_channel_1_type_neg": 4640.0,
+      "layer_1_channel_2_type_pos": 1000000000.0,
+      "layer_1_channel_2_type_neg": 536.0,
+      "layer_1_channel_3_type_pos": 1000000000.0,
+      "layer_1_channel_3_type_neg": 665.0,
+      "layer_1_channel_4_type_pos": 1130.0,
+      "layer_1_channel_4_type_neg": 1000000000.0,
+      "layer_1_channel_5_type_pos": 5110.0,
+      "layer_1_channel_5_type_neg": 1000000000.0,
+      "layer_1_channel_0_type_bias_pos": 1000000000.0,
+      "layer_1_channel_0_type_bias_neg": 1100000.0,
+      "layer_1_channel_0_type_R1_pos": 499.0,
+      "layer_1_channel_0_type_R1_neg": 499.0,
+      "layer_1_channel_0_type_R2_pos": 499000.0,
+      "layer_1_channel_0_type_R2_neg": 499000.0,
+      "layer_2_channel_0_type_pos": 4750.0,
+      "layer_2_channel_0_type_neg": 1000000000.0,
+      "layer_2_channel_1_type_pos": 1000000000.0,
+      "layer_2_channel_1_type_neg": 4530.0,
+      "layer_2_channel_2_type_pos": 3480.0,
+      "layer_2_channel_2_type_neg": 1000000000.0,
+      "layer_2_channel_3_type_pos": 1000000000.0,
+      "layer_2_channel_3_type_neg": 3740.0,
+      "layer_2_channel_4_type_pos": 931.0000610351562,
+      "layer_2_channel_4_type_neg": 1000000000.0,
+      "layer_2_channel_5_type_pos": 20500.0,
+      "layer_2_channel_5_type_neg": 1000000000.0,
+      "layer_2_channel_0_type_bias_pos": 56200.0,
+      "layer_2_channel_0_type_bias_neg": 1000000000.0,
+      "layer_2_channel_0_type_R1_pos": 499.0,
+      "layer_2_channel_0_type_R1_neg": 499.0,
+      "layer_2_channel_0_type_R2_pos": 499000.0,
+      "layer_2_channel_0_type_R2_neg": 499000.0,
+      "layer_3_channel_0_type_pos": 1370.0,
+      "layer_3_channel_0_type_neg": 1000000000.0,
+      "layer_3_channel_1_type_pos": 3240.0,
+      "layer_3_channel_1_type_neg": 1000000000.0,
+      "layer_3_channel_2_type_pos": 1500.0,
+      "layer_3_channel_2_type_neg": 1000000000.0,
+      "layer_3_channel_3_type_pos": 1000000000.0,
+      "layer_3_channel_3_type_neg": 604.0,
+      "layer_3_channel_4_type_pos": 1000000000.0,
+      "layer_3_channel_4_type_neg": 976.0,
+      "layer_3_channel_5_type_pos": 665.0,
+      "layer_3_channel_5_type_neg": 1000000000.0,
+      "layer_3_channel_0_type_bias_pos": 1000000000.0,
+      "layer_3_channel_0_type_bias_neg": 1130000.0,
+      "layer_3_channel_0_type_R1_pos": 499.0,
+      "layer_3_channel_0_type_R1_neg": 499.0,
+      "layer_3_channel_0_type_R2_pos": 499000.0,
+      "layer_3_channel_0_type_R2_neg": 499000.0,
+      "layer_4_channel_0_type_pos": 4120.0,
+      "layer_4_channel_0_type_neg": 1000000000.0,
+      "layer_4_channel_1_type_pos": 1960.0,
+      "layer_4_channel_1_type_neg": 1000000000.0,
+      "layer_4_channel_2_type_pos": 2000.0,
+      "layer_4_channel_2_type_neg": 1000000000.0,
+      "layer_4_channel_3_type_pos": 1330.0,
+      "layer_4_channel_3_type_neg": 1000000000.0,
+      "layer_4_channel_4_type_pos": 1000000000.0,
+      "layer_4_channel_4_type_neg": 14000.0,
+      "layer_4_channel_5_type_pos": 750.0,
+      "layer_4_channel_5_type_neg": 1000000000.0,
+      "layer_4_channel_0_type_bias_pos": 40199.99999999999,
+      "layer_4_channel_0_type_bias_neg": 1000000000.0,
+      "layer_4_channel_0_type_R1_pos": 499.0,
+      "layer_4_channel_0_type_R1_neg": 499.0,
+      "layer_4_channel_0_type_R2_pos": 499000.0,
+      "layer_4_channel_0_type_R2_neg": 499000.0,
+      "layer_5_channel_0_type_pos": 1000000000.0,
+      "layer_5_channel_0_type_neg": 1150.0,
+      "layer_5_channel_1_type_pos": 1000000000.0,
+      "layer_5_channel_1_type_neg": 590.0,
+      "layer_5_channel_2_type_pos": 1000000000.0,
+      "layer_5_channel_2_type_neg": 976.0,
+      "layer_5_channel_3_type_pos": 1000000000.0,
+      "layer_5_channel_3_type_neg": 51100.0,
+      "layer_5_channel_4_type_pos": 887.0,
+      "layer_5_channel_4_type_neg": 1000000000.0,
+      "layer_5_channel_5_type_pos": 1000000000.0,
+      "layer_5_channel_5_type_neg": 3400.0,
+      "layer_5_channel_0_type_bias_pos": 1000000000.0,
+      "layer_5_channel_0_type_bias_neg": 536000.0,
+      "layer_5_channel_0_type_R1_pos": 499.0,
+      "layer_5_channel_0_type_R1_neg": 499.0,
+      "layer_5_channel_0_type_R2_pos": 499000.0,
+      "layer_5_channel_0_type_R2_neg": 499000.0
+    },
+    "resistor_e96": {
+      "layer_0_channel_0_type_pos": 1000000000.0,
+      "layer_0_channel_0_type_neg": 487.0,
+      "layer_0_channel_1_type_pos": 1000000000.0,
+      "layer_0_channel_1_type_neg": 976.0,
+      "layer_0_channel_2_type_pos": 1000000000.0,
+      "layer_0_channel_2_type_neg": 8660.0,
+      "layer_0_channel_3_type_pos": 1000000000.0,
+      "layer_0_channel_3_type_neg": 1100.0,
+      "layer_0_channel_4_type_pos": 1000000000.0,
+      "layer_0_channel_4_type_neg": 768.0,
+      "layer_0_channel_5_type_pos": 1000000000.0,
+      "layer_0_channel_5_type_neg": 1430.0,
+      "layer_0_channel_0_type_bias_pos": 97600.0,
+      "layer_0_channel_0_type_bias_neg": 1000000000.0,
+      "layer_0_channel_0_type_R1_pos": 499.0,
+      "layer_0_channel_0_type_R1_neg": 499.0,
+      "layer_0_channel_0_type_R2_pos": 499000.0,
+      "layer_0_channel_0_type_R2_neg": 499000.0,
+      "layer_1_channel_0_type_pos": 1000000000.0,
+      "layer_1_channel_0_type_neg": 806.0000610351562,
+      "layer_1_channel_1_type_pos": 1000000000.0,
+      "layer_1_channel_1_type_neg": 4640.0,
+      "layer_1_channel_2_type_pos": 1000000000.0,
+      "layer_1_channel_2_type_neg": 536.0,
+      "layer_1_channel_3_type_pos": 1000000000.0,
+      "layer_1_channel_3_type_neg": 665.0,
+      "layer_1_channel_4_type_pos": 1130.0,
+      "layer_1_channel_4_type_neg": 1000000000.0,
+      "layer_1_channel_5_type_pos": 5110.0,
+      "layer_1_channel_5_type_neg": 1000000000.0,
+      "layer_1_channel_0_type_bias_pos": 1000000000.0,
+      "layer_1_channel_0_type_bias_neg": 1100000.0,
+      "layer_1_channel_0_type_R1_pos": 499.0,
+      "layer_1_channel_0_type_R1_neg": 499.0,
+      "layer_1_channel_0_type_R2_pos": 499000.0,
+      "layer_1_channel_0_type_R2_neg": 499000.0,
+      "layer_2_channel_0_type_pos": 4750.0,
+      "layer_2_channel_0_type_neg": 1000000000.0,
+      "layer_2_channel_1_type_pos": 1000000000.0,
+      "layer_2_channel_1_type_neg": 4530.0,
+      "layer_2_channel_2_type_pos": 3480.0,
+      "layer_2_channel_2_type_neg": 1000000000.0,
+      "layer_2_channel_3_type_pos": 1000000000.0,
+      "layer_2_channel_3_type_neg": 3740.0,
+      "layer_2_channel_4_type_pos": 931.0000610351562,
+      "layer_2_channel_4_type_neg": 1000000000.0,
+      "layer_2_channel_5_type_pos": 20500.0,
+      "layer_2_channel_5_type_neg": 1000000000.0,
+      "layer_2_channel_0_type_bias_pos": 56200.0,
+      "layer_2_channel_0_type_bias_neg": 1000000000.0,
+      "layer_2_channel_0_type_R1_pos": 499.0,
+      "layer_2_channel_0_type_R1_neg": 499.0,
+      "layer_2_channel_0_type_R2_pos": 499000.0,
+      "layer_2_channel_0_type_R2_neg": 499000.0,
+      "layer_3_channel_0_type_pos": 1370.0,
+      "layer_3_channel_0_type_neg": 1000000000.0,
+      "layer_3_channel_1_type_pos": 3240.0,
+      "layer_3_channel_1_type_neg": 1000000000.0,
+      "layer_3_channel_2_type_pos": 1500.0,
+      "layer_3_channel_2_type_neg": 1000000000.0,
+      "layer_3_channel_3_type_pos": 1000000000.0,
+      "layer_3_channel_3_type_neg": 604.0,
+      "layer_3_channel_4_type_pos": 1000000000.0,
+      "layer_3_channel_4_type_neg": 976.0,
+      "layer_3_channel_5_type_pos": 665.0,
+      "layer_3_channel_5_type_neg": 1000000000.0,
+      "layer_3_channel_0_type_bias_pos": 1000000000.0,
+      "layer_3_channel_0_type_bias_neg": 1130000.0,
+      "layer_3_channel_0_type_R1_pos": 499.0,
+      "layer_3_channel_0_type_R1_neg": 499.0,
+      "layer_3_channel_0_type_R2_pos": 499000.0,
+      "layer_3_channel_0_type_R2_neg": 499000.0,
+      "layer_4_channel_0_type_pos": 4120.0,
+      "layer_4_channel_0_type_neg": 1000000000.0,
+      "layer_4_channel_1_type_pos": 1960.0,
+      "layer_4_channel_1_type_neg": 1000000000.0,
+      "layer_4_channel_2_type_pos": 2000.0,
+      "layer_4_channel_2_type_neg": 1000000000.0,
+      "layer_4_channel_3_type_pos": 1330.0,
+      "layer_4_channel_3_type_neg": 1000000000.0,
+      "layer_4_channel_4_type_pos": 1000000000.0,
+      "layer_4_channel_4_type_neg": 14000.0,
+      "layer_4_channel_5_type_pos": 750.0,
+      "layer_4_channel_5_type_neg": 1000000000.0,
+      "layer_4_channel_0_type_bias_pos": 40199.99999999999,
+      "layer_4_channel_0_type_bias_neg": 1000000000.0,
+      "layer_4_channel_0_type_R1_pos": 499.0,
+      "layer_4_channel_0_type_R1_neg": 499.0,
+      "layer_4_channel_0_type_R2_pos": 499000.0,
+      "layer_4_channel_0_type_R2_neg": 499000.0,
+      "layer_5_channel_0_type_pos": 1000000000.0,
+      "layer_5_channel_0_type_neg": 1150.0,
+      "layer_5_channel_1_type_pos": 1000000000.0,
+      "layer_5_channel_1_type_neg": 590.0,
+      "layer_5_channel_2_type_pos": 1000000000.0,
+      "layer_5_channel_2_type_neg": 976.0,
+      "layer_5_channel_3_type_pos": 1000000000.0,
+      "layer_5_channel_3_type_neg": 51100.0,
+      "layer_5_channel_4_type_pos": 887.0,
+      "layer_5_channel_4_type_neg": 1000000000.0,
+      "layer_5_channel_5_type_pos": 1000000000.0,
+      "layer_5_channel_5_type_neg": 3400.0,
+      "layer_5_channel_0_type_bias_pos": 1000000000.0,
+      "layer_5_channel_0_type_bias_neg": 536000.0,
+      "layer_5_channel_0_type_R1_pos": 499.0,
+      "layer_5_channel_0_type_R1_neg": 499.0,
+      "layer_5_channel_0_type_R2_pos": 499000.0,
+      "layer_5_channel_0_type_R2_neg": 499000.0
+    },
+    "weight_error": {
+      "layer_0_channel_0_type_neg": {
+        "weight_raw": 2.0533881187438965,
+        "weight_e96": 2.0533881187438965,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_1_type_neg": {
+        "weight_raw": 1.0245901346206665,
+        "weight_e96": 1.0245901346206665,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_2_type_neg": {
+        "weight_raw": 0.1154734417796135,
+        "weight_e96": 0.1154734417796135,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_3_type_neg": {
+        "weight_raw": 0.9090909361839294,
+        "weight_e96": 0.9090909361839294,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_4_type_neg": {
+        "weight_raw": 1.3020833730697632,
+        "weight_e96": 1.3020833730697632,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_5_type_neg": {
+        "weight_raw": 0.6993007063865662,
+        "weight_e96": 0.6993007063865662,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_0_type_bias_pos": {
+        "weight_raw": 0.010245901639344262,
+        "weight_e96": 0.010245901639344262,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_0_type_R1_pos": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_0_type_R1_neg": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_0_type_R2_pos": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_0_channel_0_type_R2_neg": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_0_type_neg": {
+        "weight_raw": 1.2406946420669556,
+        "weight_e96": 1.2406946420669556,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_1_type_neg": {
+        "weight_raw": 0.21551723778247833,
+        "weight_e96": 0.21551723778247833,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_2_type_neg": {
+        "weight_raw": 1.8656716346740723,
+        "weight_e96": 1.8656716346740723,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_3_type_neg": {
+        "weight_raw": 1.5037593841552734,
+        "weight_e96": 1.5037593841552734,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_4_type_pos": {
+        "weight_raw": 0.8849557638168335,
+        "weight_e96": 0.8849557638168335,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_5_type_pos": {
+        "weight_raw": 0.1956947147846222,
+        "weight_e96": 0.1956947147846222,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_0_type_bias_neg": {
+        "weight_raw": 0.0009090909090909091,
+        "weight_e96": 0.0009090909090909091,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_0_type_R1_pos": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_0_type_R1_neg": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_0_type_R2_pos": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_1_channel_0_type_R2_neg": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_0_type_pos": {
+        "weight_raw": 0.21052631735801697,
+        "weight_e96": 0.21052631735801697,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_1_type_neg": {
+        "weight_raw": 0.22075055539608002,
+        "weight_e96": 0.22075055539608002,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_2_type_pos": {
+        "weight_raw": 0.28735631704330444,
+        "weight_e96": 0.28735631704330444,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_3_type_neg": {
+        "weight_raw": 0.26737967133522034,
+        "weight_e96": 0.26737967133522034,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_4_type_pos": {
+        "weight_raw": 1.0741137266159058,
+        "weight_e96": 1.0741137266159058,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_5_type_pos": {
+        "weight_raw": 0.04878048598766327,
+        "weight_e96": 0.04878048598766327,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_0_type_bias_pos": {
+        "weight_raw": 0.017793594306049824,
+        "weight_e96": 0.017793594306049824,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_0_type_R1_pos": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_0_type_R1_neg": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_0_type_R2_pos": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_2_channel_0_type_R2_neg": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_0_type_pos": {
+        "weight_raw": 0.7299270033836365,
+        "weight_e96": 0.7299270033836365,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_1_type_pos": {
+        "weight_raw": 0.3086419701576233,
+        "weight_e96": 0.3086419701576233,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_2_type_pos": {
+        "weight_raw": 0.6666666865348816,
+        "weight_e96": 0.6666666865348816,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_3_type_neg": {
+        "weight_raw": 1.6556291580200195,
+        "weight_e96": 1.6556291580200195,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_4_type_neg": {
+        "weight_raw": 1.0245901346206665,
+        "weight_e96": 1.0245901346206665,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_5_type_pos": {
+        "weight_raw": 1.5037593841552734,
+        "weight_e96": 1.5037593841552734,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_0_type_bias_neg": {
+        "weight_raw": 0.0008849557522123894,
+        "weight_e96": 0.0008849557522123894,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_0_type_R1_pos": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_0_type_R1_neg": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_0_type_R2_pos": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_3_channel_0_type_R2_neg": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_0_type_pos": {
+        "weight_raw": 0.24271844327449799,
+        "weight_e96": 0.24271844327449799,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_1_type_pos": {
+        "weight_raw": 0.5102040767669678,
+        "weight_e96": 0.5102040767669678,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_2_type_pos": {
+        "weight_raw": 0.5,
+        "weight_e96": 0.5,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_3_type_pos": {
+        "weight_raw": 0.7518796920776367,
+        "weight_e96": 0.7518796920776367,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_4_type_neg": {
+        "weight_raw": 0.0714285746216774,
+        "weight_e96": 0.0714285746216774,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_5_type_pos": {
+        "weight_raw": 1.3333333730697632,
+        "weight_e96": 1.3333333730697632,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_0_type_bias_pos": {
+        "weight_raw": 0.02487562189054727,
+        "weight_e96": 0.02487562189054727,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_0_type_R1_pos": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_0_type_R1_neg": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_0_type_R2_pos": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_4_channel_0_type_R2_neg": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_0_type_neg": {
+        "weight_raw": 0.8695651888847351,
+        "weight_e96": 0.8695651888847351,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_1_type_neg": {
+        "weight_raw": 1.6949152946472168,
+        "weight_e96": 1.6949152946472168,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_2_type_neg": {
+        "weight_raw": 1.0245901346206665,
+        "weight_e96": 1.0245901346206665,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_3_type_neg": {
+        "weight_raw": 0.01956947147846222,
+        "weight_e96": 0.01956947147846222,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_4_type_pos": {
+        "weight_raw": 1.127395749092102,
+        "weight_e96": 1.127395749092102,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_5_type_neg": {
+        "weight_raw": 0.29411765933036804,
+        "weight_e96": 0.29411765933036804,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_0_type_bias_neg": {
+        "weight_raw": 0.0018656716417910447,
+        "weight_e96": 0.0018656716417910447,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_0_type_R1_pos": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_0_type_R1_neg": {
+        "weight_raw": 2.004008016032064,
+        "weight_e96": 2.004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_0_type_R2_pos": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      },
+      "layer_5_channel_0_type_R2_neg": {
+        "weight_raw": 0.002004008016032064,
+        "weight_e96": 0.002004008016032064,
+        "absolute_error": 0.0,
+        "relative_error_percent": 0.0
+      }
+    },
+    "relative_error_percent": {
+      "layer_0_channel_0_type_pos": 0.0,
+      "layer_0_channel_0_type_neg": 0.0,
+      "layer_0_channel_1_type_pos": 0.0,
+      "layer_0_channel_1_type_neg": 0.0,
+      "layer_0_channel_2_type_pos": 0.0,
+      "layer_0_channel_2_type_neg": 0.0,
+      "layer_0_channel_3_type_pos": 0.0,
+      "layer_0_channel_3_type_neg": 0.0,
+      "layer_0_channel_4_type_pos": 0.0,
+      "layer_0_channel_4_type_neg": 0.0,
+      "layer_0_channel_5_type_pos": 0.0,
+      "layer_0_channel_5_type_neg": 0.0,
+      "layer_0_channel_0_type_bias_pos": 0.0,
+      "layer_0_channel_0_type_bias_neg": 0.0,
+      "layer_0_channel_0_type_R1_pos": 0.0,
+      "layer_0_channel_0_type_R1_neg": 0.0,
+      "layer_0_channel_0_type_R2_pos": 0.0,
+      "layer_0_channel_0_type_R2_neg": 0.0,
+      "layer_1_channel_0_type_pos": 0.0,
+      "layer_1_channel_0_type_neg": 0.0,
+      "layer_1_channel_1_type_pos": 0.0,
+      "layer_1_channel_1_type_neg": 0.0,
+      "layer_1_channel_2_type_pos": 0.0,
+      "layer_1_channel_2_type_neg": 0.0,
+      "layer_1_channel_3_type_pos": 0.0,
+      "layer_1_channel_3_type_neg": 0.0,
+      "layer_1_channel_4_type_pos": 0.0,
+      "layer_1_channel_4_type_neg": 0.0,
+      "layer_1_channel_5_type_pos": 0.0,
+      "layer_1_channel_5_type_neg": 0.0,
+      "layer_1_channel_0_type_bias_pos": 0.0,
+      "layer_1_channel_0_type_bias_neg": 0.0,
+      "layer_1_channel_0_type_R1_pos": 0.0,
+      "layer_1_channel_0_type_R1_neg": 0.0,
+      "layer_1_channel_0_type_R2_pos": 0.0,
+      "layer_1_channel_0_type_R2_neg": 0.0,
+      "layer_2_channel_0_type_pos": 0.0,
+      "layer_2_channel_0_type_neg": 0.0,
+      "layer_2_channel_1_type_pos": 0.0,
+      "layer_2_channel_1_type_neg": 0.0,
+      "layer_2_channel_2_type_pos": 0.0,
+      "layer_2_channel_2_type_neg": 0.0,
+      "layer_2_channel_3_type_pos": 0.0,
+      "layer_2_channel_3_type_neg": 0.0,
+      "layer_2_channel_4_type_pos": 0.0,
+      "layer_2_channel_4_type_neg": 0.0,
+      "layer_2_channel_5_type_pos": 0.0,
+      "layer_2_channel_5_type_neg": 0.0,
+      "layer_2_channel_0_type_bias_pos": 0.0,
+      "layer_2_channel_0_type_bias_neg": 0.0,
+      "layer_2_channel_0_type_R1_pos": 0.0,
+      "layer_2_channel_0_type_R1_neg": 0.0,
+      "layer_2_channel_0_type_R2_pos": 0.0,
+      "layer_2_channel_0_type_R2_neg": 0.0,
+      "layer_3_channel_0_type_pos": 0.0,
+      "layer_3_channel_0_type_neg": 0.0,
+      "layer_3_channel_1_type_pos": 0.0,
+      "layer_3_channel_1_type_neg": 0.0,
+      "layer_3_channel_2_type_pos": 0.0,
+      "layer_3_channel_2_type_neg": 0.0,
+      "layer_3_channel_3_type_pos": 0.0,
+      "layer_3_channel_3_type_neg": 0.0,
+      "layer_3_channel_4_type_pos": 0.0,
+      "layer_3_channel_4_type_neg": 0.0,
+      "layer_3_channel_5_type_pos": 0.0,
+      "layer_3_channel_5_type_neg": 0.0,
+      "layer_3_channel_0_type_bias_pos": 0.0,
+      "layer_3_channel_0_type_bias_neg": 0.0,
+      "layer_3_channel_0_type_R1_pos": 0.0,
+      "layer_3_channel_0_type_R1_neg": 0.0,
+      "layer_3_channel_0_type_R2_pos": 0.0,
+      "layer_3_channel_0_type_R2_neg": 0.0,
+      "layer_4_channel_0_type_pos": 0.0,
+      "layer_4_channel_0_type_neg": 0.0,
+      "layer_4_channel_1_type_pos": 0.0,
+      "layer_4_channel_1_type_neg": 0.0,
+      "layer_4_channel_2_type_pos": 0.0,
+      "layer_4_channel_2_type_neg": 0.0,
+      "layer_4_channel_3_type_pos": 0.0,
+      "layer_4_channel_3_type_neg": 0.0,
+      "layer_4_channel_4_type_pos": 0.0,
+      "layer_4_channel_4_type_neg": 0.0,
+      "layer_4_channel_5_type_pos": 0.0,
+      "layer_4_channel_5_type_neg": 0.0,
+      "layer_4_channel_0_type_bias_pos": 0.0,
+      "layer_4_channel_0_type_bias_neg": 0.0,
+      "layer_4_channel_0_type_R1_pos": 0.0,
+      "layer_4_channel_0_type_R1_neg": 0.0,
+      "layer_4_channel_0_type_R2_pos": 0.0,
+      "layer_4_channel_0_type_R2_neg": 0.0,
+      "layer_5_channel_0_type_pos": 0.0,
+      "layer_5_channel_0_type_neg": 0.0,
+      "layer_5_channel_1_type_pos": 0.0,
+      "layer_5_channel_1_type_neg": 0.0,
+      "layer_5_channel_2_type_pos": 0.0,
+      "layer_5_channel_2_type_neg": 0.0,
+      "layer_5_channel_3_type_pos": 0.0,
+      "layer_5_channel_3_type_neg": 0.0,
+      "layer_5_channel_4_type_pos": 0.0,
+      "layer_5_channel_4_type_neg": 0.0,
+      "layer_5_channel_5_type_pos": 0.0,
+      "layer_5_channel_5_type_neg": 0.0,
+      "layer_5_channel_0_type_bias_pos": 0.0,
+      "layer_5_channel_0_type_bias_neg": 0.0,
+      "layer_5_channel_0_type_R1_pos": 0.0,
+      "layer_5_channel_0_type_R1_neg": 0.0,
+      "layer_5_channel_0_type_R2_pos": 0.0,
+      "layer_5_channel_0_type_R2_neg": 0.0
+    },
+    "statistics": {
+      "mean_relative_error": 0.0,
+      "max_relative_error": 0.0,
+      "min_relative_error": 0.0,
+      "within_1pct": 100.0,
+      "within_5pct": 100.0,
+      "total_count": 66
+    }
   }
 }

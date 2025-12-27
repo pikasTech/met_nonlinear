@@ -59,9 +59,11 @@ class UnifiedResistanceCalculator:
             
         # 提取配置参数
         self.opamp_config = self.inference_config.get('opamp_config', None)
-        self.power_supply_config = self.inference_config.get('power_supply', None) 
+        self.power_supply_config = self.inference_config.get('power_supply', None)
         self.high_pass_config = self.inference_config.get('high_pass_config', None)
         self.bias_compensation = self.inference_config.get('bias_compensation', {})
+        self.use_e96 = self.inference_config.get('use_e96', False)
+        self.include_quantization_comparison = self.inference_config.get('include_quantization_comparison', False)
         
         # 存储计算结果
         self._layer_circuits = {}  # 缓存DenseCircuit对象
@@ -116,12 +118,13 @@ class UnifiedResistanceCalculator:
                 gains=weight_matrix,
                 biases=processed_bias,
                 opamp_config=self.opamp_config,
-                use_e96=False,
+                use_e96=self.use_e96,
                 use_relu=self._determine_relu_usage(layer),
                 relu_config=None,
                 high_pass_config=self.high_pass_config,
                 power_supply_config=self.power_supply_config,
-                layer_name=layer_name
+                layer_name=layer_name,
+                include_quantization_comparison=self.include_quantization_comparison
             )
             
             # 仅计算电阻值，不生成网表
