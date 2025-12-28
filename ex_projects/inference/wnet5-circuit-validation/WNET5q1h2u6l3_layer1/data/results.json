@@ -13324,7 +13324,8 @@
   "artifacts": {
     "plots": [
       "plots\\frequency_response_comparison_merged.png",
-      "plots\\frequency_response_error_ratio.png"
+      "plots\\frequency_response_error_ratio.png",
+      "plots\\frequency_response_e96_comparison.png"
     ],
     "report": "reports\\analysis_report.json"
   },

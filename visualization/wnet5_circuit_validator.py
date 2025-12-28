@@ -400,10 +400,18 @@ class WNET5CircuitValidator:
             # 4. 生成可视化
             plots = self._generate_plots(freq_response, dense_weights)
 
-            # 5. 生成报告
+            # 5. 生成 E96 量化频率响应对比图（与 frequency_response_comparison_merged.png 相同风格）
+            if quantization_comparison:
+                e96_freq_plot = self._generate_e96_frequency_response_comparison(
+                    freq_response, dense_weights, quantization_comparison
+                )
+                if e96_freq_plot:
+                    plots.append(e96_freq_plot)
+
+            # 6. 生成报告
             report = self._generate_analysis_report(svf_params, dense_weights, freq_response)
 
-            # 6. 保存结果 (单一 results.json)
+            # 7. 保存结果 (单一 results.json)
             self._save_results(svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report, quantization_comparison)
 
             logger.info("✅ WNET5电路验证分析完成")
@@ -1292,6 +1300,192 @@ class WNET5CircuitValidator:
             logger.info(f"📊 理论图已保存: {plot_path}")
 
         return plots
+
+    def _generate_e96_frequency_response_comparison(self, freq_response, dense_weights, quantization_comparison):
+        """生成 E96 量化前后的频率响应对比图（与 frequency_response_comparison_merged.png 相同风格）
+
+        对比内容：原始权重 vs 带 E96 量化误差的权重
+        风格：合并模式 - 单图显示，原始权重用虚线，E96量化用实线
+
+        Args:
+            freq_response: 原始权重的频率响应
+            dense_weights: 原始权重数据
+            quantization_comparison: E96量化对比数据
+
+        Returns:
+            str: 生成的图片路径，如果未启用E96量化则返回None
+        """
+        if not quantization_comparison:
+            logger.info("未启用E96量化对比，跳过频率响应对比图生成")
+            return None
+
+        logger.info("生成 E96 量化前后频率响应对比图...")
+
+        try:
+            # 1. 提取原始权重和E96量化权重
+            original_weights = dense_weights['weights']  # (n_inputs, n_outputs)
+            weight_error = quantization_comparison.get('weight_error', {})
+
+            # 构建 E96 量化后的权重矩阵
+            weight_e96_matrix = np.zeros_like(original_weights, dtype=np.float64)
+            for key, error_data in weight_error.items():
+                parts = key.split('_')
+                if len(parts) >= 6:
+                    try:
+                        layer = int(parts[1])  # 输入通道索引
+                        channel = int(parts[3])  # 输出通道索引
+                        r_type = parts[5]
+
+                        # 只处理 pos 和 neg 类型
+                        if r_type not in ['pos', 'neg']:
+                            continue
+
+                        if layer < original_weights.shape[0] and channel < original_weights.shape[1]:
+                            w_e96 = error_data.get('weight_e96', original_weights[layer, channel])
+                            weight_e96_matrix[layer, channel] = w_e96
+                    except (ValueError, IndexError):
+                        continue
+
+            # 2. 计算 E96 量化权重的频率响应
+            # 使用与原始相同的 SVF 参数，但使用新的权重矩阵
+            dense_weights_e96 = {
+                'weights': weight_e96_matrix,
+                'bias': dense_weights['bias'],
+                'layer_name': dense_weights.get('layer_name', f'layer{self.analysis_layer}_e96'),
+                'analysis_layer': dense_weights.get('analysis_layer', 1)
+            }
+
+            # 加载 SVF 参数
+            svf_params = self._load_svf_parameters_from_project()
+
+            # 计算传递函数
+            svf_tfs = self._calculate_svf_transfer_functions(svf_params)
+            combined_tfs_e96 = self._calculate_combined_transfer_functions(svf_tfs, dense_weights_e96)
+
+            # 计算频率响应
+            freq_response_e96 = self._calculate_frequency_response(combined_tfs_e96)
+
+            # 3. 绘制对比图（与 merged_plot_mode 相同风格）
+            frequencies = freq_response['frequencies']
+            mag_list_original = [np.clip(np.power(10.0, m/20.0), 1e-20, None)
+                                 for m in freq_response['magnitude_db']]
+            mag_list_e96 = [np.clip(np.power(10.0, m/20.0), 1e-20, None)
+                           for m in freq_response_e96['magnitude_db']]
+
+            analysis_layer = dense_weights.get('analysis_layer', 1)
+            output_labels = [f'D{analysis_layer}_{i+1}' for i in range(len(mag_list_original))]
+
+            # 颜色映射
+            import matplotlib as mpl
+            n_channels = len(mag_list_original)
+            cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+            colors = [cmap(i) for i in range(n_channels)]
+
+            # 创建对比图（与 frequency_response_comparison_merged.png 相同风格）
+            fig, ax = plt.subplots(figsize=(12, 4))
+
+            # 绘制原始权重频率响应（虚线）
+            for i, (m, lbl) in enumerate(zip(mag_list_original, output_labels)):
+                ax.semilogx(frequencies, m, color=colors[i], linewidth=1.4,
+                           linestyle='--', label=f'{lbl} (原始)', alpha=0.8)
+
+            # 绘制 E96 量化后频率响应（实线）
+            for i, (m, lbl) in enumerate(zip(mag_list_e96, output_labels)):
+                ax.semilogx(frequencies, m, color=colors[i], linewidth=1.8,
+                           linestyle='-', label=f'{lbl} (E96量化)', alpha=0.9)
+
+            ax.set_title(f'{self.model_project_name} Dense#{analysis_layer} E96量化前后频率响应对比\n(虚线=原始权重, 实线=E96量化权重)', fontsize=12, fontweight='bold')
+            ax.set_xlabel('频率 (Hz)', fontsize=10)
+            ax.set_ylabel('增益 (线性, log刻度)', fontsize=10)
+            ax.set_yscale('log')
+            ax.grid(True, which='both', alpha=0.3)
+
+            # 设置y轴范围
+            all_vals = np.concatenate([*mag_list_original, *mag_list_e96])
+            y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+            pad = 0.05
+            y_min_adj = max(1e-20, y_min / (1+pad))
+            y_max_adj = y_max * (1+pad)
+            ax.set_ylim(y_min_adj, y_max_adj)
+
+            # 图例：分开原始和E96量化
+            ax.legend(fontsize=8, ncol=min(4, len(output_labels)*2), loc='best')
+            plt.tight_layout()
+
+            # 保存图片
+            plot_path = self.output_path / 'plots' / 'frequency_response_e96_comparison.png'
+            plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+            plt.close(fig)
+
+            logger.info(f"E96量化前后频率响应对比图已保存: {plot_path}")
+
+            # 4. 计算并保存误差分析数据
+            from scipy import interpolate
+            error_data = {
+                'frequencies': frequencies.tolist(),
+                'error_ratios': [],
+                'statistics': []
+            }
+
+            for i, (mag_orig, mag_e96, lbl) in enumerate(zip(mag_list_original, mag_list_e96, output_labels)):
+                # 计算误差比值：E96量化 / 原始
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    error_ratio = np.where(np.abs(mag_orig) > 1e-20, mag_e96 / mag_orig, np.nan)
+                    error_ratio = np.where(np.abs(mag_orig) < 1e-20, 1.0, error_ratio)
+
+                error_data['error_ratios'].append({
+                    'channel': lbl,
+                    'ratios': error_ratio.tolist()
+                })
+
+                # 计算误差统计
+                valid_errors = error_ratio[~np.isnan(error_ratio)]
+                if len(valid_errors) > 0:
+                    stats = {
+                        'channel': lbl,
+                        'mean_error_ratio': float(np.mean(valid_errors)),
+                        'std_error_ratio': float(np.std(valid_errors)),
+                        'min_error_ratio': float(np.min(valid_errors)),
+                        'max_error_ratio': float(np.max(valid_errors)),
+                        'median_error_ratio': float(np.median(valid_errors)),
+                        'mean_abs_error_percent': float(np.mean(np.abs(valid_errors - 1.0) * 100)),
+                        'max_abs_error_percent': float(np.max(np.abs(valid_errors - 1.0) * 100)),
+                        'within_0_1pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.001) / len(valid_errors) * 100),
+                        'within_0_5pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.005) / len(valid_errors) * 100),
+                        'within_1pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.01) / len(valid_errors) * 100),
+                        'within_2pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.02) / len(valid_errors) * 100)
+                    }
+                else:
+                    stats = {
+                        'channel': lbl,
+                        'mean_error_ratio': None,
+                        'std_error_ratio': None,
+                        'min_error_ratio': None,
+                        'max_error_ratio': None,
+                        'median_error_ratio': None,
+                        'mean_abs_error_percent': None,
+                        'max_abs_error_percent': None,
+                        'within_0_1pct': None,
+                        'within_0_5pct': None,
+                        'within_1pct': None,
+                        'within_2pct': None
+                    }
+                error_data['statistics'].append(stats)
+
+            # 保存误差数据
+            error_data_path = self.output_path / 'numerics' / 'e96_error_analysis.json'
+            error_data_path.parent.mkdir(exist_ok=True)
+            with open(error_data_path, 'w', encoding='utf-8') as f:
+                json.dump(error_data, f, indent=2, ensure_ascii=False)
+            logger.info(f"E96量化误差分析数据已保存: {error_data_path}")
+
+            return str(plot_path)
+
+        except Exception as e:
+            logger.error(f"生成E96频率响应对比图失败: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
     def _generate_analysis_report(self, svf_params, dense_weights, freq_response):
         """生成分析报告"""

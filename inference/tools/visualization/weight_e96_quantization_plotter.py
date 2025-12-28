@@ -19,7 +19,8 @@ from typing import Dict, Any, Optional, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import seaborn as sns
+# seaborn removed due to matplotlib compatibility issues
+# import seaborn as sns
 
 # 直接导入绘图辅助函数（避免导入整个inference包导致的tensorflow依赖问题）
 sys.path.insert(0, str(Path(__file__).parent / 'utils'))
@@ -319,6 +320,84 @@ class WeightE96QuantizationPlotter:
 
         return {plot_name: str(fig_path)}
 
+    def _plot_table_heatmap_subplot(self, ax, matrix, title, config: dict):
+        """
+        公共热力图子图绘制函数
+
+        统一处理子图1-4的绘制，根据config配置不同行为：
+        - 子图1和4: 权重矩阵，配置 {is_weight=True, value_format='.2f'}
+        - 子图2和3: 电阻矩阵，配置 {is_weight=False, value_format='.0f', show_sign=True}
+
+        Args:
+            ax: matplotlib axes
+            matrix: 2D numpy array
+            title: 子图标题
+            config: 配置字典，包含:
+                - cmap: 颜色映射 (默认 'RdBu_r')
+                - vmin, vmax: 颜色范围
+                - is_weight: 是否为权重矩阵 (决定是否使用masked array)
+                - value_format: 数值格式 (默认 '.2f')
+                - show_sign: 是否显示正负符号 (默认 False)
+                - sign_prefix: 符号前缀 (默认 '+')
+        """
+        cmap = config.get('cmap', 'RdBu_r')
+        vmin = config.get('vmin')
+        vmax = config.get('vmax')
+        is_weight = config.get('is_weight', True)
+        value_format = config.get('value_format', '.2f')
+        show_sign = config.get('show_sign', False)
+        sign_prefix = config.get('sign_prefix', '+')
+
+        # 处理无效值（NaN和极端大值）
+        invalid_mask = np.isnan(matrix) | (matrix >= 1e8)
+        plot_matrix = np.ma.masked_where(invalid_mask, matrix)
+        display_matrix = np.where(invalid_mask, np.nan, matrix)
+
+        # 绘制热力图
+        im = ax.imshow(plot_matrix, cmap=cmap, aspect='auto', vmin=vmin, vmax=vmax)
+
+        # 计算数值显示阈值
+        if is_weight:
+            mean_val = float(np.mean(np.abs(matrix[~invalid_mask]))) if np.any(~invalid_mask) else 0
+        else:
+            mean_val = float(np.nanmean(np.abs(display_matrix)))
+
+        # 添加数值标注
+        for i in range(matrix.shape[0]):
+            for j in range(matrix.shape[1]):
+                val = float(display_matrix[i, j])
+
+                # 决定显示什么
+                if np.isnan(val):
+                    # 无效值（NaN或极端大值）
+                    ax.text(j, i, '-', ha='center', va='center',
+                           color='gray', fontsize=8)
+                else:
+                    # 有效值（包括0值，0值是有效的电阻值）
+                    if show_sign:
+                        sign_str = sign_prefix if val >= 0 else '-'
+                        text = f'{sign_str}{abs(val):{value_format}}'
+                    else:
+                        text = f'{val:{value_format}}'
+
+                    text_color = 'white' if abs(val) > mean_val else 'black'
+                    ax.text(j, i, text, ha='center', va='center',
+                           color=text_color, fontsize=8, fontweight='bold')
+
+        # 设置标题和标签
+        ax.set_title(title, fontsize=12, fontweight='bold', pad=10)
+        ax.set_xlabel('Input Channel')
+        ax.set_ylabel('Output Channel')
+
+        # 添加颜色条
+        cbar = plt.colorbar(im, ax=ax, shrink=0.8)
+        if is_weight:
+            cbar.set_label('Weight Value')
+        else:
+            cbar.set_label('Resistance (Ω)')
+
+        return im
+
     def _plot_table_heatmap(self, matrix, title, ax, cmap='viridis', fmt='.2f', text_color_threshold=None):
         """
         绘制带数值的表格热力图
@@ -356,56 +435,6 @@ class WeightE96QuantizationPlotter:
         ax.set_ylabel('Output Channel' if matrix.shape[0] > 1 else 'Layer')
 
         return im
-
-    def _build_resistor_matrix(self, resistor_dict, layer_idx, resistor_type):
-        """
-        构建指定层和类型的电阻矩阵
-
-        Args:
-            resistor_dict: 电阻字典 {key: value}
-            layer_idx: 层索引
-            resistor_type: 电阻类型 (pos, neg, R1, R2, bias_pos, bias_neg)
-
-        Returns:
-            2D numpy array (outputs x inputs)
-        """
-        n_outputs = 6  # WNET5 layer1 有6个输出
-        n_inputs = 6   # 有6个输入
-
-        matrix = np.zeros((n_outputs, n_inputs))
-
-        for key, value in resistor_dict.items():
-            if value >= 1e8:  # 开路电阻，跳过
-                continue
-
-            parts = key.split('_')
-            if len(parts) < 6:
-                continue
-
-            try:
-                key_layer = int(parts[1])
-                key_channel = int(parts[3])
-                key_type = parts[5]
-
-                if key_layer != layer_idx:
-                    continue
-
-                # 映射类型到矩阵位置
-                if resistor_type == 'input':
-                    # 输入电阻 (pos/neg) - 每个channel都有
-                    if key_type == 'pos' or key_type == 'neg':
-                        output_idx = 0  # 所有输入电阻归类到第一行（为了简化）
-                        input_idx = key_channel
-                        matrix[output_idx, input_idx] = value
-                elif resistor_type == key_type:
-                    # 特定类型
-                    output_idx = 0
-                    input_idx = key_channel
-                    matrix[output_idx, input_idx] = value
-            except (ValueError, IndexError):
-                continue
-
-        return matrix
 
     def _plot_five_panel_heatmap(self,
                                   comparison_data: Dict[str, Any],
@@ -458,13 +487,11 @@ class WeightE96QuantizationPlotter:
                         if abs(weight_original) > 1e-6:
                             weight_e96_matrix[layer, channel] = w_e96
 
-                            # 使用电阻的相对误差，而不是权重的相对误差
-                            # E96量化的误差应该在1-2%左右，这才是用户关心的
+                            # 使用电阻的相对误差
                             r_raw_val = resistor_raw.get(key, 0)
                             r_e96_val = resistor_e96.get(key, r_raw_val)
 
                             if r_raw_val > 0 and r_raw_val < MAX_RESISTANCE:
-                                # 电阻相对误差（这是 E96 量化的真实误差）
                                 r_rel_error = abs(r_e96_val - r_raw_val) / r_raw_val * 100
                                 error_matrix[layer, channel] = r_rel_error
                             else:
@@ -475,34 +502,29 @@ class WeightE96QuantizationPlotter:
         # 创建5子图
         fig, axes = plt.subplots(2, 3, figsize=(18, 12))
 
-        # 子图1: 原始权重矩阵
-        ax1 = axes[0, 0]
-        # 计算统一的颜色范围（用于子图1和子图4的可比性）
+        # ========== 计算统一的颜色范围 ==========
+        # 权重矩阵的颜色范围（用于子图1和子图4）
         all_weights = np.concatenate([weight_matrix.flatten(), weight_e96_matrix.flatten()])
         valid_weights = all_weights[(all_weights > 0) & (all_weights < 1e8)]
         if len(valid_weights) > 0:
-            vmin = float(np.min(valid_weights))
-            vmax = float(np.max(valid_weights))
+            weight_vmin = float(np.min(valid_weights))
+            weight_vmax = float(np.max(valid_weights))
         else:
-            vmin = float(np.min(weight_matrix))
-            vmax = float(np.max(weight_matrix))
-        # 使用相同的colormap和刻度范围，使子图1和子图4可比
-        im1 = ax1.imshow(weight_matrix, cmap='RdBu_r', aspect='auto', vmin=vmin, vmax=vmax)
-        weight_mean = float(np.mean(np.abs(weight_matrix)))
-        for i in range(weight_matrix.shape[0]):
-            for j in range(weight_matrix.shape[1]):
-                val = float(weight_matrix[i, j])
-                text_color = 'white' if abs(val) > weight_mean else 'black'
-                ax1.text(j, i, f'{val:.2f}', ha='center', va='center',
-                        color=text_color, fontsize=8, fontweight='bold')
-        ax1.set_title('1. Original Weight Matrix', fontsize=12, fontweight='bold', pad=10)
-        ax1.set_xlabel('Input Channel')
-        ax1.set_ylabel('Output Channel')
-        plt.colorbar(im1, ax=ax1, shrink=0.8)
+            weight_vmin = float(np.min(weight_matrix))
+            weight_vmax = float(np.max(weight_matrix))
 
-        # 子图2: 电阻（浮点数）- 6x6矩阵
-        ax2 = axes[0, 1]
-        # 构建6x6电阻矩阵
+        # ========== 子图1: 原始权重矩阵 ==========
+        ax1 = axes[0, 0]
+        self._plot_table_heatmap_subplot(ax1, weight_matrix, '1. Original Weight Matrix', {
+            'cmap': 'RdBu_r',
+            'vmin': weight_vmin,
+            'vmax': weight_vmax,
+            'is_weight': True,
+            'value_format': '.2f',
+            'show_sign': False,
+        })
+
+        # ========== 子图2和3: 构建电阻矩阵 ==========
         resistor_raw_matrix = np.zeros((6, 6))
         resistor_e96_matrix = np.zeros((6, 6))
 
@@ -517,95 +539,87 @@ class WeightE96QuantizationPlotter:
                     key_type = parts[5]
                     if key_type in ['pos', 'neg']:
                         if layer < 6 and channel < 6:
-                            resistor_raw_matrix[layer, channel] = r_raw
-                            resistor_e96_matrix[layer, channel] = resistor_e96.get(key, r_raw)
+                            # 获取对应权重的符号
+                            weight_val = float(weight_matrix[layer, channel])
+                            sign = 1 if weight_val >= 0 else -1
+                            resistor_raw_matrix[layer, channel] = r_raw * sign
+                            resistor_e96_matrix[layer, channel] = resistor_e96.get(key, r_raw) * sign
                 except (ValueError, IndexError):
                     continue
 
-        # 如果没有有效数据，填入NaN用于显示
+        # 如果没有有效数据，填入0用于显示
         if np.all(resistor_raw_matrix == 0):
-            resistor_raw_matrix = np.full((6, 6), np.nan)
+            resistor_raw_matrix = np.full((6, 6), 0.0)
+            resistor_e96_matrix = np.full((6, 6), 0.0)
 
-        # 使用masked array处理NaN值
-        resistor_raw_masked = np.ma.masked_invalid(resistor_raw_matrix)
+        # 计算电阻矩阵的颜色范围（用于子图2和子图3）
+        all_resistor_values = np.concatenate([resistor_raw_matrix.flatten(), resistor_e96_matrix.flatten()])
+        valid_resistors = all_resistor_values[(all_resistor_values != 0)]
+        if len(valid_resistors) > 0:
+            resistor_vmin = float(np.min(valid_resistors))
+            resistor_vmax = float(np.max(valid_resistors))
+        else:
+            resistor_vmin, resistor_vmax = -22000, 22000  # 默认值
 
-        im2 = ax2.imshow(resistor_raw_masked, cmap='YlOrRd', aspect='auto')
-        resistor_mean = float(np.nanmean(resistor_raw_matrix))
+        # ========== 子图2: 电阻（浮点数） ==========
+        ax2 = axes[0, 1]
+        self._plot_table_heatmap_subplot(ax2, resistor_raw_matrix, '2. Resistor Values (Float)', {
+            'cmap': 'RdBu_r',
+            'vmin': resistor_vmin,
+            'vmax': resistor_vmax,
+            'is_weight': False,
+            'value_format': '.0f',
+            'show_sign': True,
+        })
 
-        for i in range(6):
-            for j in range(6):
-                val = float(resistor_raw_matrix[i, j])
-                if not np.isnan(val) and val > 0:
-                    text_color = 'white' if val > resistor_mean else 'black'
-                    ax2.text(j, i, f'{val:.0f}', ha='center', va='center',
-                            color=text_color, fontsize=8, fontweight='bold')
-                elif not np.isnan(val):
-                    ax2.text(j, i, '-', ha='center', va='center',
-                            color='gray', fontsize=8)
-
-        ax2.set_title('2. Resistor Values (Float)', fontsize=12, fontweight='bold', pad=10)
-        ax2.set_xlabel('Input Channel')
-        ax2.set_ylabel('Output Channel')
-        plt.colorbar(im2, ax=ax2, shrink=0.8, label='Resistance (Ω)')
-
-        # 子图3: 电阻（E96量化）- 6x6矩阵
+        # ========== 子图3: 电阻（E96量化） ==========
         ax3 = axes[0, 2]
-        # 使用之前构建的resistor_e96_matrix（6x6）
-        resistor_e96_masked = np.ma.masked_invalid(resistor_e96_matrix)
+        self._plot_table_heatmap_subplot(ax3, resistor_e96_matrix, '3. Resistor Values (E96)', {
+            'cmap': 'RdBu_r',
+            'vmin': resistor_vmin,
+            'vmax': resistor_vmax,
+            'is_weight': False,
+            'value_format': '.0f',
+            'show_sign': True,
+        })
 
-        im3 = ax3.imshow(resistor_e96_masked, cmap='YlGnBu', aspect='auto')
-        e96_mean = float(np.nanmean(resistor_e96_matrix))
-
-        for i in range(6):
-            for j in range(6):
-                val = float(resistor_e96_matrix[i, j])
-                if not np.isnan(val) and val > 0:
-                    text_color = 'white' if val > e96_mean else 'black'
-                    ax3.text(j, i, f'{val:.0f}', ha='center', va='center',
-                            color=text_color, fontsize=8, fontweight='bold')
-                elif not np.isnan(val):
-                    ax3.text(j, i, '-', ha='center', va='center',
-                            color='gray', fontsize=8)
-
-        ax3.set_title('3. Resistor Values (E96)', fontsize=12, fontweight='bold', pad=10)
-        ax3.set_xlabel('Input Channel')
-        ax3.set_ylabel('Output Channel')
-        plt.colorbar(im3, ax=ax3, shrink=0.8, label='Resistance (Ω)')
-
-        # 子图4: 计算带E96量化误差的权重热力图
+        # ========== 子图4: 计算带E96量化误差的权重 ==========
         ax4 = axes[1, 0]
-        # 使用与子图1相同的colormap和刻度范围，确保视觉可比性
-        im4 = ax4.imshow(weight_e96_matrix, cmap='RdBu_r', aspect='auto', vmin=vmin, vmax=vmax)
-        w_e96_mean = float(np.mean(weight_e96_matrix[weight_e96_matrix > 0])) if np.any(weight_e96_matrix > 0) else 0
+        self._plot_table_heatmap_subplot(ax4, weight_e96_matrix, '4. Weight with E96 Quantization Error', {
+            'cmap': 'RdBu_r',
+            'vmin': weight_vmin,
+            'vmax': weight_vmax,
+            'is_weight': True,
+            'value_format': '.3f',
+            'show_sign': False,
+        })
 
-        for i in range(weight_e96_matrix.shape[0]):
-            for j in range(weight_e96_matrix.shape[1]):
-                val = float(weight_e96_matrix[i, j])
-                if val > 0:
-                    ax4.text(j, i, f'{val:.3f}', ha='center', va='center',
-                            color='white' if val > w_e96_mean else 'black',
-                            fontsize=8, fontweight='bold')
-
-        ax4.set_title('4. Weight with E96 Quantization Error', fontsize=12, fontweight='bold', pad=10)
-        ax4.set_xlabel('Input Channel')
-        ax4.set_ylabel('Output Channel')
-        plt.colorbar(im4, ax=ax4, shrink=0.8)
-
-        # 子图5: 量化前后的E96引入的相对误差热力图
+        # 子图5: 量化前后的E96引入的相对误差热力图（权重相对误差：子图1 vs 子图4）
         ax5 = axes[1, 1]
-        im5 = ax5.imshow(error_matrix, cmap='RdYlGn_r', aspect='auto',
-                        vmin=0, vmax=max(2.0, float(np.max(error_matrix))))
-        err_mean = float(np.mean(error_matrix[error_matrix > 0])) if np.any(error_matrix > 0) else 0
+        # 计算权重相对误差：(weight_e96 - weight_original) / weight_original * 100
+        weight_error_matrix = np.zeros_like(weight_matrix, dtype=np.float64)
+        for i in range(weight_matrix.shape[0]):
+            for j in range(weight_matrix.shape[1]):
+                w_orig = float(weight_matrix[i, j])
+                w_e96 = float(weight_e96_matrix[i, j])
+                if abs(w_orig) > 1e-6:
+                    weight_error_matrix[i, j] = abs(w_e96 - w_orig) / abs(w_orig) * 100
+                else:
+                    weight_error_matrix[i, j] = 0.0
 
-        for i in range(error_matrix.shape[0]):
-            for j in range(error_matrix.shape[1]):
-                val = float(error_matrix[i, j])
+        im5 = ax5.imshow(weight_error_matrix, cmap='RdYlGn_r', aspect='auto',
+                        vmin=0, vmax=max(2.0, float(np.max(weight_error_matrix))))
+        err_mean = float(np.mean(weight_error_matrix[weight_error_matrix > 0])) if np.any(weight_error_matrix > 0) else 0
+
+        for i in range(weight_error_matrix.shape[0]):
+            for j in range(weight_error_matrix.shape[1]):
+                val = float(weight_error_matrix[i, j])
                 if val > 0:
                     ax5.text(j, i, f'{val:.2f}%', ha='center', va='center',
                             color='white' if val > err_mean * 0.7 else 'black',
                             fontsize=8, fontweight='bold')
 
-        ax5.set_title('5. E96 Relative Error (%)', fontsize=12, fontweight='bold', pad=10)
+        ax5.set_title('5. Weight Relative Error (%)', fontsize=12, fontweight='bold', pad=10)
         ax5.set_xlabel('Input Channel')
         ax5.set_ylabel('Output Channel')
         plt.colorbar(im5, ax=ax5, shrink=0.8, label='Error (%)')

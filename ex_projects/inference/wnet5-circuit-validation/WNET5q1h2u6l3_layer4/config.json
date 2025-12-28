@@ -8,5 +8,12 @@
   "frequency_range": {
     "start_freq": 2,
     "stop_freq": 500
+  },
+  "inference_config": {
+    "use_e96": true,
+    "include_quantization_comparison": true,
+    "opamp_config": {
+      "model": "ideal"
+    }
   }
 }

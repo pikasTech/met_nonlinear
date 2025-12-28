@@ -61,8 +61,17 @@ im4 = ax4.imshow(weight_e96_matrix, cmap='RdBu_r', aspect='auto', vmin=vmin, vma
 python -m inference.tools.visualization.weight_e96_quantization_plotter --input ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1/data/results.json --output ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1/data/plots/e96_quantization
 ```
 
+## 实际验证结果
+
+![e96_table_heatmap.png](../../../../ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1/data/plots/e96_quantization/e96_table_heatmap.png)
+
+**验证结论**：
+- ✅ 子图1 (1. Original Weight Matrix): `RdBu_r` colormap, 刻度 0-0.25
+- ✅ 子图4 (4. Weight with E96 Quantization Error): `RdBu_r` colormap, 刻度 0-0.25
+- ✅ 两个子图使用完全相同的颜色条，**可以直接视觉对比**
+
 ## 结论
 
-✅ 子图1和子图4现在使用相同的配色方案（`RdBu_r`）和刻度范围（`vmin/vmax`），便于视觉对比 E96 量化前后的权重变化。
+✅ 子图1和子图4现在使用相同的配色方案（`RdBu_r`）和刻度范围（`vmin=0, vmax=0.25`），便于视觉对比 E96 量化前后的权重变化。
 
 修改完成！报告已生成。
