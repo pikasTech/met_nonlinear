@@ -1,7 +1,7 @@
 {
-  "mean_relative_error": 1.193694977481479,
-  "max_relative_error": 1.4814814329147339,
-  "min_relative_error": 0.8771929740905762,
+  "mean_relative_error": 1.1936955948094512,
+  "max_relative_error": 1.4814814814814816,
+  "min_relative_error": 0.8771929824561403,
   "within_1pct": 3.0303030303030303,
   "within_5pct": 100.0,
   "total_count": 66

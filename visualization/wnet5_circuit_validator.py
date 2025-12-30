@@ -21,6 +21,14 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def _expand_env_vars(path: str) -> str:
+    """展开路径中的环境变量，支持 ${VAR_NAME} 和 $VAR_NAME 格式"""
+    if not path:
+        return path
+    expanded = os.path.expandvars(path)
+    return Path(expanded).as_posix() if '/' in expanded or '\\' in expanded else expanded
+
+
 def _convert_to_native_types(obj):
     """递归将numpy类型转换为Python原生类型"""
     if isinstance(obj, np.ndarray):
@@ -46,14 +54,16 @@ class WNET5CircuitValidator:
         self.model_project_name = config['model_project_name']
         self.frequency_range = config['frequency_range']
         # 可选: 实验对比数据 (Excel) - 旧的单文件对比配置（向后兼容）
-        self.experiment_path = config.get('compare_with_experiment')
+        # 支持环境变量替换，如 ${MET_DATA_BASE}/data/xxx.xlsx
+        self.experiment_path = _expand_env_vars(config.get('compare_with_experiment'))
 
         # ⬇️⬇️⬇️ 新增：实验对比配置（C05） ⬇️⬇️⬇️
         self.experiment_comparison = config.get('experiment_comparison', {})
         self.exp_comp_enable = self.experiment_comparison.get('enable', False)
         self.exp_comp_mode = self.experiment_comparison.get('mode', 'single_file')
-        self.exp_data_dir = self.experiment_comparison.get('experiment_data_dir')
-        self.selftest_file = self.experiment_comparison.get('selftest_file')
+        # 支持环境变量替换
+        self.exp_data_dir = _expand_env_vars(self.experiment_comparison.get('experiment_data_dir'))
+        self.selftest_file = _expand_env_vars(self.experiment_comparison.get('selftest_file'))
         self.plot_config = self.experiment_comparison.get('plot_config', {})
         # ⬆️⬆️⬆️ 新增结束 ⬆️⬆️⬆️
 
