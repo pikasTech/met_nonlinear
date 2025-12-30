@@ -21,11 +21,11 @@
 
 ## C03.3
 
-严格按照计划执行，然后用 WNET5q1h2u6l3 这个模型来测试，独立的 ep 工程创建到 unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3 里面，用 cli.py ep 测试这个 ep 工程确保能用。
+严格按照计划执行，然后用 WNET5q1h2u6l3 这个模型来测试，独立的 ep 工程创建到 ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3 里面，用 cli.py ep 测试这个 ep 工程确保能用。
 
 ## C03.4
 
-每次执行结果都不一样，说明根本没有真正读取权重，完全没有按照计划里面的执行，在搞欺骗，在搞弄虚作假 (tf26) C:\work\met_nonlinear>python cli.py ep unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3
+每次执行结果都不一样，说明根本没有真正读取权重，完全没有按照计划里面的执行，在搞欺骗，在搞弄虚作假 (tf26) C:\work\met_nonlinear>python cli.py ep ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3
 正在配置 logging_setup...
 logging_setup 从配置文件加载: C:\work\met_nonlinear\logger\logging_config.yaml
 log 文件路径: logs/metnl.log
@@ -36,13 +36,13 @@ error_file: logs/20250917_100040_cli_errors.log
 
 [INFO 0.12s] cli.py start... | cli.py:50
 [INFO 0.15s] 加载配置文件: core/cli_defaults.yaml | cli_parser.py:144
-[INFO 0.17s] 🎯 开始处理外部项目: unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3 | external_cli_handler.py:35
+[INFO 0.17s] 🎯 开始处理外部项目: ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3 | external_cli_handler.py:35
 [INFO 0.17s] 📂 项目信息: | external_cli_handler.py:41
 [INFO 0.17s] 项目名称: inference | external_cli_handler.py:42
 [INFO 0.17s] 任务类型: wnet5-circuit-validation | external_cli_handler.py:43
 [INFO 0.17s] 任务名称: WNET5q1h2u6l3 | external_cli_handler.py:44
-[INFO 0.17s] 配置文件: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\config.json | external_cli_handler.py:45
-[INFO 0.17s] 输出目录: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:46
+[INFO 0.17s] 配置文件: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\config.json | external_cli_handler.py:45
+[INFO 0.17s] 输出目录: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:46
 [INFO 0.17s] 📊 开始处理外部项目任务: WNET5q1h2u6l3 | external_cli_handler.py:68
 [INFO 0.18s] 🚀 执行外部项目任务... | external_cli_handler.py:80
 [INFO 0.18s] ✅ 配置验证通过: wnet5-circuit-validation | config_validator.py:354
@@ -54,13 +54,55 @@ error_file: logs/20250917_100040_cli_errors.log
 [INFO 1.63s] 计算组合传递函数... | wnet5_circuit_validator.py:130
 [INFO 1.64s] 计算频率响应... | wnet5_circuit_validator.py:150
 [INFO 1.66s] 生成可视化图表... | wnet5_circuit_validator.py:187
-[INFO 3.16s] 图表已保存: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data\plots\frequency_response.png | wnet5_circuit_validator.py:217
+[INFO 3.16s] 图表已保存: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data\plots\frequency_response.png | wnet5_circuit_validator.py:217
 [INFO 3.16s] 生成分析报告... | wnet5_circuit_validator.py:222
-[INFO 3.16s] 分析报告已保存: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data\reports\analysis_report.json | wnet5_circuit_validator.py:251
+[INFO 3.16s] 分析报告已保存: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data\reports\analysis_report.json | wnet5_circuit_validator.py:251
 [INFO 3.16s] 保存计算结果... | wnet5_circuit_validator.py:256
-[INFO 3.17s] 频率响应数据已保存: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data\numerics\frequency_response.json | wnet5_circuit_validator.py:269
+[INFO 3.17s] 频率响应数据已保存: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data\numerics\frequency_response.json | wnet5_circuit_validator.py:269
 [INFO 3.17s] ✅ WNET5电路验证分析完成 | wnet5_circuit_validator.py:63
-[INFO 3.17s] ✅ WNET5电路验证任务完成: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:448
+[INFO 3.17s] ✅ WNET5电路验证任务完成: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:448
 [INFO 3.17s] ✅ 任务执行完成 | external_cli_handler.py:84
-[INFO 3.17s] 输出目录: C:\work\met_nonlinear\unified_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:85
+[INFO 3.17s] 输出目录: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:85
 
+
+## C04
+
+现在要在 `wnet5-circuit-validation` 的基础上进行拓展，目前已经实现了： `SVF层 + Dense 层（第一层）的 RELU 前的频率响应分析`。
+
+现在的需求是：
+
+1. 支持 SVF 层 + Dense 层（第二层/第三层/第四层）的 RELU 前的频率响应分析。
+
+这个分析的目的是对实际电路板的每一层输出进行频率响应对比分析。因此应该将第二层/第三层/第四层 的模型权重替换到原来的 SVF 层的后面，然后进行同样的频率响应分析。
+
+要求能够通过 `config.json` 来配置需要分析的层数（第二层/第三层/第四层）。例如：
+
+```json
+"analysis_layer": 2
+```
+
+要注意，Dense 层任何时候有且只有一个被分析，**不要同时分析多个Dense层**。
+**永远是 1 个 SVF层 + 1个 Dense层** 的组合进行分析。
+
+请基于现有的 `wnet5-circuit-validation` 功能，设计一个实施方案，放到 `doc/plan/20251104` 目录下，方案中要包含：
+
+- 需要修改或新增的代码文件和函数。
+- 需要修改或新增的配置项。
+- 预期的输出结果和文件结构。
+- 要修改的每个代码文件的每处修改点的简要说明。
+- 之前是如何加载和使用 Dense 层的权重，现在要如何修改来加载和使用指定层数的 Dense 层的权重。
+
+
+## C05
+
+现在要对比 exam_data\SVF-W_DENSE 里面的测量出的 Dense 的频率响应和ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1 的频率响应：
+
+1. 只对比幅频响应，上下绘制两张图，上面的实际测试的幅频响应（6个通道），下面的仿真的幅频响应（6个通道），x轴是频率，y轴是幅度，单位是 dB。
+
+2. 用 loglog 坐标系绘制。
+
+3. 实际测试的幅度要除以自测试的频响（频点一一对应相除），得到补偿后的幅频响应。自测试频响是 ：exam_data\SVF-W_DENSE\output_20251103_085135_sweep_selftest_震级1.0.xlsx
+
+4. 要能够自动根据文件名识别是哪一层的第几个通道的测试结果，例如 `exam_data\SVF-W_DENSE\output_20251104_085010_SVF-W_DENSE2_2_震级1.0.xlsx` 是 第二层的第2个通道。
+
+5. 绘制对比的功能在 C04 的基础上实现，每一层绘制自己的对比图，例如 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1` 绘制。

@@ -250,6 +250,11 @@ class VisualizationConfigValidator:
                 "type": "string",
                 "minLength": 1
             },
+            "analysis_layer": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+            },
             "frequency_range": {
                 "type": "object",
                 "required": ["start_freq", "stop_freq"],
@@ -276,9 +281,117 @@ class VisualizationConfigValidator:
                 "type": "string",
                 "minLength": 1
             },
-            "weights_path": {
-                "type": "string",
-                "minLength": 1
+            "experiment_comparison": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "enable": {
+                        "type": "boolean"
+                    },
+                    "mode": {
+                        "type": "string",
+                        "enum": ["single_file", "multi_file"]
+                    },
+                    "experiment_data_dir": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "selftest_file": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "experiment_sheet_name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "plot_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "coordinate_system": {
+                                "type": "string",
+                                "enum": ["loglog", "semilogx", "semilogy", "linear"]
+                            },
+                            "y_unit": {
+                                "type": "string",
+                                "enum": ["dB", "linear"]
+                            },
+                            "merged_plot_mode": {
+                                "type": "boolean",
+                                "description": "启用合并模式：将上下两个图绘制到一张图里面，仿真结果用虚线，实测结果用实线"
+                            }
+                        }
+                    }
+                }
+            },
+            "inference_config": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "use_e96": {
+                        "type": "boolean",
+                        "description": "是否使用E96标准电阻值"
+                    },
+                    "include_quantization_comparison": {
+                        "type": "boolean",
+                        "description": "是否包含E96量化对比数据"
+                    },
+                    "opamp_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "model": {
+                                "type": "string",
+                                "enum": ["ideal", "LM324", "TL084", "OPAx205A", "AD8622", "OPA1611"]
+                            },
+                            "include_file": {
+                                "type": "string"
+                            },
+                            "power_pins": {
+                                "type": "boolean"
+                            },
+                            "params": {
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "power_supply": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "vcc": {
+                                "type": "number"
+                            },
+                            "vee": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "high_pass_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enable": {
+                                "type": "boolean"
+                            },
+                            "cutoff_freq": {
+                                "type": "number"
+                            }
+                        }
+                    },
+                    "bias_compensation": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "layer_bias_adjustments": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -310,7 +423,8 @@ class VisualizationConfigValidator:
                     "freq_range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
                     "gain_range": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2},
                     "title": {"type": "string"},
-                    "log_scale": {"type": "boolean"}
+                    "log_scale": {"type": "boolean"},
+                    "target_magnitudes": {"type": "array", "items": {"type": "number"}}
                 }
             }
         }

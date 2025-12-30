@@ -12,7 +12,7 @@
 cli.py ep <ep-project-path> [OPTIONS]
 
 # 使用示例（统一工程路径）
-cli.py ep unified_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3
+cli.py ep ep_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3
 cli.py ep LSTMu32al_rs300_ex2/freq-response-compare/baseline-comparison
 cli.py ep LSTMu32al_rs300_ex2/baseline-comparison
 ```
@@ -38,7 +38,7 @@ core/
 ├── config_validator.py              # 配置验证器（复用）
 └── ...（各任务执行器分散在对应子模块，如 visualization/ 下）
 
-unified_projects/
+ep_projects/
 └── {domain}/
     └── {task_type}/
         └── {task_name}/
@@ -86,8 +86,8 @@ EP 项目路径解析器将支持以下路径格式：
 
 1. **完整路径格式**:
    ```
-    unified_projects/{domain}/{task_type}/{task_name}
-    例: unified_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3
+    ep_projects/{domain}/{task_type}/{task_name}
+    例: ep_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3
    ```
 
 2. **相对路径格式**:

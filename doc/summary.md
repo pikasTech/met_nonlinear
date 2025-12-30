@@ -10,6 +10,162 @@
 - 🔧 完整的E6/E12/E24/E96/E192电阻标准化体系已实现
 - 📦 PCB制造级BOM自动生成与分组编号系统已投入使用
 
+## 最新进展 (2025-12-22)
+
+### 新增功能：WNET5频率响应合并模式绘图 ✅
+
+**功能描述**：为 `wnet5-circuit-validation` 任务类型新增合并绘图模式，将上下两个图绘制到一张图里面，仿真结果用虚线，实测结果用实线。
+
+**核心功能**：
+- ✅ **合并模式配置**：在 `experiment_comparison.plot_config` 中添加 `merged_plot_mode` 字段
+- ✅ **单图显示**：将仿真和实测结果绘制在同一张图上
+- ✅ **线型区分**：仿真结果使用虚线 (`linestyle='--'`)，实测结果使用实线 (`linestyle='-'`)
+- ✅ **颜色一致**：仿真和实测使用相同的颜色主题，便于对应
+- ✅ **向后兼容**：保留原有的上下布局模式，通过配置切换
+- ✅ **图例优化**：合并模式下图例显示为 "D2_1 (仿真)" 和 "D2_1 (实测)" 格式
+
+**技术实现**：
+1. **配置验证器更新** (`core/config_validator.py`)：在 `plot_config` 中添加 `merged_plot_mode` 字段支持
+2. **可视化引擎更新** (`visualization/wnet5_circuit_validator.py`)：
+   - 新增 `merged_plot_mode` 配置读取
+   - 修改 `_generate_plots_single_file()` 方法，添加条件分支逻辑
+   - 新增合并模式绘图代码：单子图、仿真虚线、实测实线
+
+**配置示例**：
+```json
+{
+  "experiment_comparison": {
+    "experiment_sheet_name": "layer2",
+    "plot_config": {
+      "merged_plot_mode": true
+    }
+  }
+}
+```
+
+**测试验证**：
+- ✅ 在 `ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer2` 成功测试
+- ✅ 生成图片：`frequency_response_comparison_merged.png`
+- ✅ 功能正常工作，仿真虚线与实测实线清晰可见
+
+## 最新进展 (2025-11-04)
+
+### C05实施完成：WNET5实验数据对比功能 ✅
+
+**实施背景**：在C04多层电路验证的基础上，实现实验测量数据与仿真数据的完整对比分析。
+
+**核心功能**：
+- ✅ **多文件实验数据自动扫描**：从目录自动匹配对应层的所有通道数据文件
+- ✅ **自测试频响补偿**：使用自测试数据对实验数据进行补偿 (`exp_compensated = exp_mag / selftest_mag`)
+- ✅ **loglog坐标系绘图**：x轴和y轴都使用对数刻度，符合频率响应分析标准
+- ✅ **上下对比布局**：上图显示实验测量（补偿后），下图显示理论仿真
+- ✅ **向后兼容设计**：保留旧的单文件对比模式，不影响现有功能
+
+**技术实现**（7个修改点）：
+1. `__init__()` - 新增 `experiment_comparison` 配置加载
+2. `_load_selftest_data()` - 加载自测试频响数据
+3. `_parse_experiment_filename()` - 解析实验文件名（支持两种命名格式）
+4. `_scan_experiment_files()` - 扫描并匹配目标层的所有通道文件
+5. `_load_experiment_channel_data()` - 加载单个通道的实验数据
+6. `_compensate_with_selftest()` - 使用scipy插值进行自测试补偿
+7. `_generate_plots()` 重构 - 拆分为 `_generate_plots_single_file()` 和 `_generate_plots_multi_file()`
+
+**配置示例**：
+```json
+{
+  "experiment_comparison": {
+    "enable": true,
+    "mode": "multi_file",
+    "experiment_data_dir": "exam_data/SVF-W_DENSE",
+    "selftest_file": "exam_data/SVF-W_DENSE/output_20251103_085135_sweep_selftest_震级1.0.xlsx",
+    "plot_config": {
+      "coordinate_system": "loglog",
+      "y_unit": "dB"
+    }
+  }
+}
+```
+
+**测试验证**：
+- ✅ 第1层测试成功：25个自测试频点，6个通道实验数据加载完成
+- ✅ 生成对比图：`frequency_response_comparison_multi.png` (531KB)
+- ✅ 自测试补偿正常工作，插值算法在对数空间进行
+- ✅ loglog坐标系正确显示实验与仿真数据
+
+**文档记录**：
+- 📄 完整实施计划：`doc/plan/20251104/wnet5_experiment_comparison_implementation_plan.md`
+- 📄 测试项目配置：`ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1_c05test/`
+
+---
+
+### C04已完成：WNET5多层电路验证功能扩展 ✅
+
+**需求背景**：对实际电路板的每一层Dense输出进行频率响应对比分析。
+
+**当前实现**：
+- ✅ SVF层 + Dense层（第一层）的 RELU 前频率响应分析已完成
+- ✅ 基于传递函数理论计算电路频率响应
+- ✅ 支持理论与实验数据对比
+
+**扩展目标**：
+- 🎯 支持 SVF层 + Dense层（第二层/第三层/第四层）的频率响应分析
+- 🎯 通过 `config.json` 的 `analysis_layer` 参数灵活选择要分析的层
+- 🎯 保持架构约束：永远是 **1个SVF层 + 1个Dense层** 的组合分析
+
+**深度分析成果** (ultrathink模式)：
+
+**系统架构理解**：
+```python
+# WaveNet5 layer_to_layer_models 结构
+[0] SVFLayer: IIR_Layer_Model          (1→6通道)
+[1] DenseLayer: Dense_Layer_Model_1    (6→6通道, ReLU)
+[2] DenseLayer: Dense_Layer_Model_2    (6→6通道, ReLU)
+[3] DenseLayer: Dense_Layer_Model_3    (6→6通道, ReLU)
+[4] DenseLayer: Output_Layer_Model     (6→1通道)
+```
+
+**关键技术发现**：
+- ✅ 当前 `_extract_dense_weights()` 硬编码只提取第一层Dense
+- ✅ `load_weights()` 已自动同步所有layer_to_layer_models的权重
+- ✅ 所有Dense层权重已加载可用，只需调整提取逻辑
+- ✅ 层名称匹配机制：通过 `post_dense_1/2/3` 自动同步权重
+
+**实施方案设计**：
+
+**方案1：最小修改方案（推荐）⭐**
+- 核心：修改 `_extract_dense_weights()` 函数，通过 `analysis_layer` 参数选择层
+- 修改点：7处代码修改
+- 优势：实现简单、风险低、向后兼容
+- 配置：`config.json` 新增 `"analysis_layer": 1/2/3/4`
+
+**方案2：层索引映射方案（更健壮）**
+- 核心：创建层映射机制，自动检测可用Dense层
+- 修改点：10处代码修改 + 新增1个函数
+- 优势：健壮性更好、自动适应模型变化、详细错误处理
+- 适用：长期维护、多模型支持
+
+**关键代码位置**：
+- `visualization/wnet5_circuit_validator.py:148-200` - `_extract_dense_weights()`
+- `models/wavenet_models.py:847-892` - `load_weights()`
+- `models/model_layers.py:364-540` - `DenseLayer` 定义
+
+**实施文档**：
+- 📄 详细方案：`doc/plan/20251104/wnet5_multilayer_circuit_validation_implementation_plan.md`
+- 📋 包含：需求分析、架构深度分析、2种方案对比、代码修改详情、测试计划
+
+**预期成果**：
+- 🎯 支持分析任意Dense层（1-4层）的频率响应
+- 🎯 输出标签自动适配：`D1_1` → `D2_1` → `D3_1`
+- 🎯 图表标题动态更新：`Dense#1` → `Dense#2` → `Dense#3`
+- 🎯 完整向后兼容：默认 `analysis_layer=1`
+
+**工程价值**：
+- ✅ 支持电路板每一层输出的精确验证
+- ✅ 传递函数方法避免RELU非线性影响
+- ✅ 灵活配置，满足不同测试需求
+
+---
+
 ## 当前系统架构状态
 
 ### 1. 统一数据一致性架构 ✅
