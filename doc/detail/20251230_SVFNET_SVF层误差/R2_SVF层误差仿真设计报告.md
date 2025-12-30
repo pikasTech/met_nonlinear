@@ -1,0 +1,487 @@
+# SVF层误差仿真实现方案设计报告
+
+**设计日期**: 2025-12-30
+**报告位置**: `doc/detail/20251230_SVFNET_SVF层误差/R2_SVF层误差仿真设计报告.md`
+
+---
+
+## 1. 设计概述
+
+### 1.1 设计目标
+
+设计一个从实际测量结果中加载SVF层频率响应并进行误差仿真的配置选项和代码实现方案。该功能将支持：
+- 从Excel文件加载SVF层实测频率响应数据
+- 计算仿真结果与实测数据的误差
+- 生成可视化对比图
+
+### 1.2 核心思路
+
+基于现有的 `WNET5CircuitValidator` 类架构进行扩展：
+- **复用现有基础设施**：利用已有的 `experiment_comparison` 配置和数据加载方法
+- **最小修改原则**：仅添加SVF层专用的配置项和数据处理逻辑
+- **复用绘图代码**：使用与 `frequency_response_comparison_merged.png` 相同的绘图风格
+
+### 1.3 数据格式分析
+
+**SVF_ONLY.xlsx 数据格式**：
+| 列名 | 说明 |
+|------|------|
+| freq | 频率点 (Hz)，共25个频点，2Hz - 161Hz (logspace) |
+| ch1 - ch6 | 6个通道的线性增益值 |
+
+**频率分布**（logspace）：
+```
+2.0, 2.52, 3.17, 4.0, 5.04, 6.35, 8.0, 10.08, 12.70, 16.0,
+20.16, 25.40, 32.0, 40.32, 50.80, 64.0, 80.63, 101.59, 128.0, 161.27, ...
+```
+
+---
+
+## 2. config.json 配置设计
+
+### 2.1 新增配置项结构
+
+```json
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "WNET5电路SVF层误差仿真"
+  },
+  "model_project_name": "WNET5q1h2u6l3",
+  "analysis_layer": 1,
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 500
+  },
+  "svf_error_simulation": {
+    "enable": true,
+    "measured_data_file": "${MET_DATA_BASE}/data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+    "compensation": {
+      "enabled": true,
+      "selftest_file": "${MET_DATA_BASE}/data/SVF-W_DENSE/output_20251103_085135_sweep_selftest_震级1.0.xlsx"
+    },
+    "plot_config": {
+      "merged_plot_mode": true,
+      "show_error_ratio": true,
+      "output_filename": "svf_error_comparison_merged.png"
+    }
+  },
+  "inference_config": {
+    "use_e96": true,
+    "include_quantization_comparison": true
+  }
+}
+```
+
+### 2.2 配置项说明
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| `enable` | bool | false | 是否启用SVF层误差仿真 |
+| `measured_data_file` | string | - | SVF实测数据Excel文件路径 |
+| `compensation.enabled` | bool | false | 是否启用自测试补偿 |
+| `compensation.selftest_file` | string | - | 自测试数据文件路径 |
+| `plot_config.merged_plot_mode` | bool | true | 是否使用合并模式绘图 |
+| `plot_config.show_error_ratio` | bool | true | 是否显示误差比值图 |
+| `plot_config.output_filename` | string | "svf_error_comparison.png" | 输出图片文件名 |
+
+---
+
+## 3. 代码修改方案
+
+### 3.1 需要修改的文件
+
+**核心文件**: `visualization/wnet5_circuit_validator.py`
+
+### 3.2 类初始化修改
+
+在 `WNET5CircuitValidator.__init__` 中添加SVF误差仿真配置：
+
+```python
+def __init__(self, config: Dict[str, Any], output_path: Path):
+    # ... 现有代码 ...
+
+    # 新增：SVF误差仿真配置
+    self.svf_error_config = config.get('svf_error_simulation', {})
+    self.svf_error_enable = self.svf_error_config.get('enable', False)
+    self.svf_measured_file = _expand_env_vars(
+        self.svf_error_config.get('measured_data_file')
+    )
+    self.svf_compensation = self.svf_error_config.get('compensation', {})
+    self.svf_compensation_enabled = self.svf_compensation.get('enabled', False)
+    self.svf_selftest_file = _expand_env_vars(
+        self.svf_compensation.get('selftest_file')
+    )
+```
+
+### 3.3 新增方法
+
+#### 3.3.1 `_load_svf_measured_data()`
+
+```python
+def _load_svf_measured_data(self) -> Dict[str, np.ndarray]:
+    """加载SVF层实测频率响应数据
+
+    Returns:
+        Dict: {
+            'frequencies': np.ndarray,
+            'magnitude': List[np.ndarray]  # 6个通道
+        }
+    """
+    if not self.svf_measured_file:
+        raise ValueError("未配置SVF实测数据文件路径 (measured_data_file)")
+
+    import pandas as pd
+    file_path = Path(self.svf_measured_file)
+
+    df = pd.read_excel(file_path)
+
+    # 解析频率列
+    freq_cols = [c for c in df.columns if str(c).strip().lower() in ['freq', 'f', 'frequency']]
+    if not freq_cols:
+        raise ValueError(f"文件中未找到频率列: {df.columns.tolist()}")
+
+    frequencies = df[freq_cols[0]].to_numpy(dtype=float)
+
+    # 解析6个通道数据 (ch1-ch6)
+    channels = []
+    for i in range(1, 7):
+        col_name = f'ch{i}'
+        if col_name in df.columns:
+            channel_data = df[col_name].to_numpy(dtype=float)
+            channel_data = np.clip(channel_data, 1e-20, None)
+            channels.append(channel_data)
+
+    logger.info(f"加载SVF实测数据: {len(frequencies)}频点 x {len(channels)}通道")
+
+    return {
+        'frequencies': frequencies,
+        'magnitude': channels
+    }
+```
+
+#### 3.3.2 `_calculate_svf_frequency_response_only()`
+
+```python
+def _calculate_svf_frequency_response_only(self, svf_params: Dict) -> Dict[str, Any]:
+    """计算仅SVF层的频率响应（不含Dense层）
+
+    SVF层每个滤波器输出3个通道：HP, BP, LP
+    共 n_filters * 3 个输出通道
+
+    Returns:
+        Dict: {
+            'frequencies': np.ndarray,
+            'magnitude_db': List[np.ndarray],
+            'phase_deg': List[np.ndarray]
+        }
+    """
+    import sympy as sp
+    s = sp.Symbol('s')
+
+    # 使用与实测数据相同的频率点
+    if self.svf_measured_file:
+        measured_data = self._load_svf_measured_data()
+        frequencies = measured_data['frequencies']
+    else:
+        start_freq = float(self.frequency_range['start_freq'])
+        stop_freq = float(self.frequency_range['stop_freq'])
+        points = int(self.frequency_range.get('points', 1000))
+        frequencies = np.logspace(np.log10(start_freq), np.log10(stop_freq), points)
+
+    omega = 2 * np.pi * frequencies
+    s_vals = 1j * omega
+
+    mag_db_all = []
+    phase_deg_all = []
+
+    for f0, Q in zip(svf_params['center_freqs'], svf_params['quality_factors']):
+        omega0 = 2 * sp.pi * f0
+        denominator = s**2 + (omega0/Q)*s + omega0**2
+
+        # HP, BP, LP 传递函数
+        H_hp = s**2 / denominator
+        H_bp = (s * omega0/Q) / denominator
+        H_lp = omega0**2 / denominator
+
+        for H_sym in [H_hp, H_bp, H_lp]:
+            try:
+                H_func = sp.lambdify(s, H_sym, 'numpy')
+                H_resp = H_func(s_vals)
+            except Exception:
+                H_resp = np.ones_like(s_vals, dtype=complex)
+
+            mag = np.abs(H_resp)
+            mag_db_all.append(20 * np.log10(mag + 1e-20))
+            phase_deg_all.append(np.degrees(np.angle(H_resp)))
+
+    return {
+        'frequencies': frequencies,
+        'magnitude_db': mag_db_all,
+        'phase_deg': phase_deg_all
+    }
+```
+
+#### 3.3.3 `_generate_svf_error_comparison_plot()`
+
+```python
+def _generate_svf_error_comparison_plot(
+    self,
+    svf_response: Dict[str, Any],
+    measured_data: Dict[str, np.ndarray]
+) -> str:
+    """生成SVF误差对比图（复用 merged_plot_mode 风格）
+
+    风格与 frequency_response_comparison_merged.png 相同：
+    - 单图显示，仿真虚线，实测实线
+    - semilogx 坐标系
+    - 线性增益
+    """
+    import matplotlib as mpl
+
+    frequencies = svf_response['frequencies']
+    sim_mag_db = svf_response['magnitude_db']
+    sim_mag = [np.clip(np.power(10.0, m/20.0), 1e-20, None) for m in sim_mag_db]
+
+    exp_freq = measured_data['frequencies']
+    exp_mags = measured_data['magnitude']
+
+    # SVF层输出标签: SVF1_HP, SVF1_BP, SVF1_LP, SVF2_HP, ...
+    n_filters = len(self.svf_params['center_freqs'])
+    output_labels = []
+    for i in range(n_filters):
+        output_labels.extend([f'SVF{i+1}_HP', f'SVF{i+1}_BP', f'SVF{i+1}_LP'])
+
+    # 颜色映射
+    n_channels = len(sim_mag)
+    cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+    colors = [cmap(i) for i in range(n_channels)]
+
+    # 创建对比图
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    # 绘制仿真结果（虚线）
+    for i, (m, lbl) in enumerate(zip(sim_mag, output_labels)):
+        ax.semilogx(frequencies, m, color=colors[i], linewidth=1.4,
+                   linestyle='--', label=f'{lbl} (仿真)', alpha=0.8)
+
+    # 绘制实测结果（实线）- 映射到对应的SVF输出
+    # SVF_ONLY的ch1-ch6对应: SVF1_HP, SVF1_BP, SVF1_LP, SVF2_HP, SVF2_BP, SVF2_LP
+    for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
+        ax.semilogx(exp_freq, m, color=colors[i], linewidth=1.8,
+                   linestyle='-', label=f'{lbl} (实测)', alpha=0.9)
+
+    ax.set_title(f'{self.model_project_name} SVF层频率响应误差仿真对比\n(虚线=仿真, 实线=实测)',
+                fontsize=12, fontweight='bold')
+    ax.set_xlabel('频率 (Hz)', fontsize=10)
+    ax.set_ylabel('增益 (线性, log刻度)', fontsize=10)
+    ax.set_yscale('log')
+    ax.grid(True, which='both', alpha=0.3)
+
+    # 设置y轴范围
+    all_vals = np.concatenate([*sim_mag, *exp_mags])
+    y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+    pad = 0.05
+    y_min_adj = max(1e-20, y_min / (1+pad))
+    y_max_adj = y_max * (1+pad)
+    ax.set_ylim(y_min_adj, y_max_adj)
+
+    ax.legend(fontsize=8, ncol=min(4, len(output_labels)*2), loc='best')
+    plt.tight_layout()
+
+    output_filename = self.svf_error_config.get('plot_config', {}).get(
+        'output_filename', 'svf_error_comparison.png'
+    )
+    plot_path = self.output_path / 'plots' / output_filename
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+
+    logger.info(f"SVF误差对比图已保存: {plot_path}")
+    return str(plot_path)
+```
+
+### 3.4 execute_validation 修改
+
+在 `execute_validation()` 方法中添加SVF误差仿真流程：
+
+```python
+def execute_validation(self) -> bool:
+    """执行WNET5电路验证流程"""
+    try:
+        logger.info("开始WNET5电路验证分析...")
+
+        # ... 现有代码：加载权重、计算传递函数 ...
+
+        # 新增：SVF层误差仿真（如果启用）
+        if self.svf_error_enable:
+            logger.info("执行SVF层误差仿真...")
+
+            # 加载SVF参数
+            svf_params = self._load_svf_parameters_from_project()
+
+            # 计算SVF层频率响应（仅SVF，不含Dense）
+            svf_response = self._calculate_svf_frequency_response_only(svf_params)
+
+            # 加载实测数据
+            measured_data = self._load_svf_measured_data()
+
+            # 自测试补偿（如果启用）
+            if self.svf_compensation_enabled and self.svf_selftest_file:
+                selftest_data = self._load_selftest_data()
+                measured_data = self._compensate_svf_with_selftest(
+                    measured_data, selftest_data
+                )
+
+            # 生成对比图
+            svf_plot = self._generate_svf_error_comparison_plot(svf_response, measured_data)
+            plots.append(svf_plot)
+
+            # 生成误差分析数据
+            svf_error_data = self._calculate_svf_error_statistics(svf_response, measured_data)
+            self._save_svf_error_data(svf_error_data)
+
+        # ... 现有代码：生成Dense层图表、报告、保存结果 ...
+
+    except Exception as e:
+        logger.error(f"WNET5电路验证分析失败: {e}")
+        return False
+```
+
+---
+
+## 4. 数据流程设计
+
+### 4.1 Baseline 计算流程
+
+```
+1. 从 config.json 读取 svf_error_simulation 配置
+2. 加载 SVF 参数 (center_freqs, quality_factors)
+3. 使用 SymPy 计算传递函数 (HP, BP, LP)
+4. 计算频率响应 (magnitude_db, phase_deg)
+5. 转换为线性增益
+```
+
+### 4.2 Target 计算流程
+
+```
+1. 从 measured_data_file 加载 Excel 数据
+2. 解析 freq 列和 ch1-ch6 列
+3. 数据清理 (NaN, Inf 检查)
+4. 自测试补偿 (如果启用)
+   - 加载 selftest 数据
+   - 插值到实验频率点
+   - 执行补偿: compensated = exp / selftest
+5. 输出: {frequencies, magnitude: [ch1, ch2, ..., ch6]}
+```
+
+### 4.3 对比图生成流程
+
+```
+1. 准备颜色映射 (tab10/turbo)
+2. 创建 12x4 尺寸 figure
+3. 绘制仿真曲线 (虚线, semilogx)
+4. 绘制实测曲线 (实线, semilogx)
+5. 设置标题、标签、网格
+6. 调整y轴范围
+7. 添加图例
+8. 保存为 PNG (300 DPI)
+```
+
+### 4.4 误差分析流程
+
+```
+1. 将仿真数据插值到实测频率点
+2. 计算误差比值: error_ratio = sim / exp
+3. 统计指标:
+   - mean_error_ratio
+   - std_error_ratio
+   - min/max_error_ratio
+   - within_5pct, within_10pct
+4. 保存到 svf_error_analysis.json
+```
+
+---
+
+## 5. 风险评估
+
+### 5.1 潜在问题
+
+| 问题 | 风险等级 | 描述 |
+|------|----------|------|
+| 频率点不匹配 | 中 | 仿真频率范围可能与实测数据不同 |
+| 通道映射错误 | 中 | SVF的HP/BP/LP与Excel的ch1-ch6对应关系 |
+| 自测试补偿边界 | 低 | 频率范围超出插值边界时外推可能不准确 |
+| 增益单位混淆 | 中 | 线性 vs dB 单位转换错误 |
+
+### 5.2 应对措施
+
+| 问题 | 应对措施 |
+|------|----------|
+| 频率点不匹配 | 优先使用实测数据频率点，仿真时自动插值 |
+| 通道映射 | 在config中明确指定映射关系，默认顺序HP->BP->LP |
+| 自测试补偿 | 添加边界检查和日志警告 |
+| 增益单位 | 统一在线性空间处理，绘图时根据需要转换 |
+
+---
+
+## 6. 实现优先级
+
+### Phase 1: 基础功能
+- 添加 config.json 配置项
+- 实现 `_load_svf_measured_data()` 方法
+- 实现 `_calculate_svf_frequency_response_only()` 方法
+- 实现 `_generate_svf_error_comparison_plot()` 方法
+
+### Phase 2: 增强功能
+- 添加自测试补偿功能
+- 实现误差统计分析
+- 生成误差比值图
+- 保存误差分析数据到JSON
+
+### Phase 3: 优化
+- 添加配置验证
+- 完善错误处理
+- 优化绘图样式
+- 添加单元测试
+
+---
+
+## 7. 测试用例
+
+### 7.1 正常流程测试
+- 使用现有的 `20251230_SVF_ONLY.xlsx` 数据
+- 验证数据加载正确性
+- 验证对比图生成
+
+### 7.2 边界条件测试
+- 频率范围超出
+- 缺失通道数据
+- 自测试文件不存在
+
+### 7.3 对比验证
+- 与现有 `frequency_response_comparison_merged.png` 风格一致
+- 误差统计结果合理
+
+---
+
+## 8. 关键文件清单
+
+以下是实现此方案最关键的5个文件：
+
+- **C:\work\met_nonlinear_master\visualization\wnet5_circuit_validator.py** - 核心修改文件，需要添加SVF误差仿真相关方法
+- **C:\work\met_nonlinear_master\ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1\config.json** - 配置参考模板
+- **C:\work\met_nonlinear_master\exam_data\20251230_SVFNET_SVF_ONLY\20251230_SVF_ONLY.xlsx** - SVF实测数据格式参考
+- **C:\work\met_nonlinear_master\exam_data\SVF-W_DENSE\output_20251103_085135_sweep_selftest_震级1.0.xlsx** - 自测试数据格式参考
+- **C:\work\met_nonlinear_master\projects\WNET5q1h2u6l3\config.json** - 项目SVF参数来源，用于获取 center_freqs 和 quality_factors
+
+---
+
+## 9. 后续步骤
+
+根据此设计方案，R3 阶段需要：
+1. 修改 `wnet5_circuit_validator.py` 添加新方法
+2. 创建测试用的 config.json 配置文件
+3. 运行测试验证功能正确性
+4. 查看生成的对比图，确认结果符合预期
+
+详细实现过程见 **R3_SVF层误差仿真实现报告**。

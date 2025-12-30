@@ -25,3 +25,11 @@
 ## R3
 
 根据 R1， R2 的报告，实现 SVF 层误差仿真功能，并形成一个实现报告到 [R3](../../doc/detail/20251230_SVFNET_SVF层误差/R3_SVF层误差仿真实现报告.md) 中。实际运行后要实际查看图像结果，确认其正确性，如果有问题，进行调试，直到正确为止。
+
+## R4
+
+`ex_projects\inference\wnet5-circuit-validation\SVF_ERROR_SIM\config.json` 中的路径，在 `met_nonlinear_master` 内部的，应该用相对路径表示，而不是绝对路径，避免换 PC 之后用不了。修改报告写到 [R4](../../doc/detail/20251230_SVFNET_SVF层误差/R4_SVF层误差仿真相对路径修改报告.md) 中。
+
+## R5
+
+现在仿真出的结果是 SVF（实际测试误差） vs SVF（无误差），这不是我一开始要的结果，但是也有用，继续保留。我再强调我要的是 SVF（实际测试误差） + Dense（无误差） vs SVF（无误差） + Dense（无误差），也就是必须要带 Dense 层的结果，你再调研，如何在当前的基础上再多仿真出来一个我真实要的结果。形成调查报告 + 实现方案到 [R5](../../doc/detail/20251230_SVFNET_SVF层误差/R5_SVF层误差仿真含Dense调查与实现方案.md) 中。

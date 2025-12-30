@@ -73,6 +73,18 @@ class WNET5CircuitValidator:
         # 新增：推理配置（用于E96量化等）
         self.inference_config = config.get('inference_config', {})
 
+        # 新增：SVF层误差仿真配置（R3实现）
+        self.svf_error_config = config.get('svf_error_simulation', {})
+        self.svf_error_enable = self.svf_error_config.get('enable', False)
+        self.svf_measured_file = _expand_env_vars(
+            self.svf_error_config.get('measured_data_file')
+        )
+        self.svf_compensation_config = self.svf_error_config.get('compensation', {})
+        self.svf_compensation_enabled = self.svf_compensation_config.get('enabled', False)
+        self.svf_selftest_file = _expand_env_vars(
+            self.svf_compensation_config.get('selftest_file')
+        )
+
         # 确保输出目录存在
         self._setup_output_directories()
         
@@ -378,6 +390,360 @@ class WNET5CircuitValidator:
 
         return compensated_mag
 
+    def _load_svf_measured_data(self) -> Dict[str, Any]:
+        """加载SVF层实测频率响应数据（R3新增）
+
+        Returns:
+            Dict: {
+                'frequencies': np.ndarray,
+                'magnitude': List[np.ndarray]  # 6个通道
+            }
+        """
+        if not self.svf_measured_file:
+            raise ValueError("未配置SVF实测数据文件路径 (measured_data_file)")
+
+        import pandas as pd
+        file_path = Path(self.svf_measured_file)
+
+        if not file_path.exists():
+            raise FileNotFoundError(f"SVF实测数据文件不存在: {file_path}")
+
+        logger.info(f"加载SVF实测数据: {file_path}")
+
+        try:
+            df = pd.read_excel(file_path)
+
+            # 解析频率列
+            freq_cols = [c for c in df.columns if str(c).strip().lower() in [
+                'freq', 'f', 'frequency', 'freq(hz)', 'frequency(hz)', 'hz'
+            ]]
+            if not freq_cols:
+                raise ValueError(f"文件中未找到频率列: {df.columns.tolist()}")
+
+            frequencies = df[freq_cols[0]].to_numpy(dtype=float)
+
+            # 解析6个通道数据 (ch1-ch6)
+            channels = []
+            for i in range(1, 7):
+                col_name = f'ch{i}'
+                if col_name in df.columns:
+                    channel_data = df[col_name].to_numpy(dtype=float)
+                    channel_data = np.clip(channel_data, 1e-20, None)
+                    channels.append(channel_data)
+
+            # 数据清理
+            valid_mask = np.isfinite(frequencies)
+            for i, channel_data in enumerate(channels):
+                valid_mask = valid_mask & np.isfinite(channel_data)
+
+            frequencies = frequencies[valid_mask]
+            for i in range(len(channels)):
+                channels[i] = channels[i][valid_mask]
+
+            logger.info(f"✅ SVF实测数据加载成功: {len(frequencies)} 频点 x {len(channels)} 通道")
+            logger.info(f"   频率范围: {frequencies.min():.2f} - {frequencies.max():.2f} Hz")
+
+            return {
+                'frequencies': frequencies,
+                'magnitude': channels
+            }
+
+        except Exception as e:
+            logger.error(f"加载SVF实测数据失败: {e}")
+            raise
+
+    def _calculate_svf_frequency_response_only(self, svf_params: Dict) -> Dict[str, Any]:
+        """计算仅SVF层的频率响应（不含Dense层）（R3新增）
+
+        SVF层每个滤波器输出3个通道：HP, BP, LP
+        共 n_filters * 3 个输出通道
+
+        Args:
+            svf_params: SVF参数字典，包含 center_freqs 和 quality_factors
+
+        Returns:
+            Dict: {
+                'frequencies': np.ndarray,
+                'magnitude_db': List[np.ndarray],
+                'phase_deg': List[np.ndarray]
+            }
+        """
+        import sympy as sp
+        s = sp.Symbol('s')
+
+        # 使用与实测数据相同的频率点
+        if self.svf_measured_file:
+            measured_data = self._load_svf_measured_data()
+            frequencies = measured_data['frequencies']
+        else:
+            start_freq = float(self.frequency_range['start_freq'])
+            stop_freq = float(self.frequency_range['stop_freq'])
+            points = int(self.frequency_range.get('points', 1000))
+            frequencies = np.logspace(np.log10(start_freq), np.log10(stop_freq), points)
+
+        omega = 2 * np.pi * frequencies
+        s_vals = 1j * omega
+
+        mag_db_all = []
+        phase_deg_all = []
+
+        for f0, Q in zip(svf_params['center_freqs'], svf_params['quality_factors']):
+            omega0 = 2 * sp.pi * f0
+            denominator = s**2 + (omega0/Q)*s + omega0**2
+
+            # HP, BP, LP 传递函数
+            H_hp = s**2 / denominator
+            H_bp = (s * omega0/Q) / denominator
+            H_lp = omega0**2 / denominator
+
+            for H_sym in [H_hp, H_bp, H_lp]:
+                try:
+                    H_func = sp.lambdify(s, H_sym, 'numpy')
+                    H_resp = H_func(s_vals)
+                except Exception:
+                    H_resp = np.ones_like(s_vals, dtype=complex)
+
+                mag = np.abs(H_resp)
+                mag_db_all.append(20 * np.log10(mag + 1e-20))
+                phase_deg_all.append(np.degrees(np.angle(H_resp)))
+
+        logger.info(f"✅ SVF层理论频响计算完成: {len(mag_db_all)} 个通道")
+
+        return {
+            'frequencies': frequencies,
+            'magnitude_db': mag_db_all,
+            'phase_deg': phase_deg_all
+        }
+
+    def _generate_svf_error_comparison_plot(
+        self,
+        svf_response: Dict[str, Any],
+        measured_data: Dict[str, Any]
+    ) -> str:
+        """生成SVF误差对比图（R3新增）
+
+        风格与 frequency_response_comparison_merged.png 相同：
+        - 单图显示，仿真虚线，实测实线
+        - semilogx 坐标系
+        - 线性增益
+
+        Args:
+            svf_response: SVF理论频率响应
+            measured_data: SVF实测数据
+
+        Returns:
+            str: 生成的图片路径
+        """
+        import matplotlib as mpl
+
+        frequencies = svf_response['frequencies']
+        sim_mag_db = svf_response['magnitude_db']
+        sim_mag = [np.clip(np.power(10.0, m/20.0), 1e-20, None) for m in sim_mag_db]
+
+        exp_freq = measured_data['frequencies']
+        exp_mags = measured_data['magnitude']
+
+        # SVF层输出标签: SVF1_HP, SVF1_BP, SVF1_LP, SVF2_HP, ...
+        n_filters = len(self._load_svf_parameters_from_project()['center_freqs'])
+        output_labels = []
+        for i in range(n_filters):
+            output_labels.extend([f'SVF{i+1}_HP', f'SVF{i+1}_BP', f'SVF{i+1}_LP'])
+
+        # 颜色映射
+        n_channels = len(sim_mag)
+        cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+        colors = [cmap(i) for i in range(n_channels)]
+
+        # 创建对比图
+        fig, ax = plt.subplots(figsize=(12, 4))
+
+        # 绘制仿真结果（虚线）
+        for i, (m, lbl) in enumerate(zip(sim_mag, output_labels)):
+            ax.semilogx(frequencies, m, color=colors[i], linewidth=1.4,
+                       linestyle='--', label=f'{lbl} (仿真)', alpha=0.8)
+
+        # 绘制实测结果（实线）- 映射到对应的SVF输出
+        # SVF_ONLY的ch1-ch6对应: SVF1_HP, SVF1_BP, SVF1_LP, SVF2_HP, SVF2_BP, SVF2_LP
+        for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
+            ax.semilogx(exp_freq, m, color=colors[i], linewidth=1.8,
+                       linestyle='-', label=f'{lbl} (实测)', alpha=0.9)
+
+        ax.set_title(f'{self.model_project_name} SVF层频率响应误差仿真对比\n(虚线=仿真, 实线=实测)',
+                    fontsize=12, fontweight='bold')
+        ax.set_xlabel('频率 (Hz)', fontsize=10)
+        ax.set_ylabel('增益 (线性, log刻度)', fontsize=10)
+        ax.set_yscale('log')
+        ax.grid(True, which='both', alpha=0.3)
+
+        # 设置y轴范围
+        all_vals = np.concatenate([*sim_mag, *exp_mags])
+        y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+        pad = 0.05
+        y_min_adj = max(1e-20, y_min / (1+pad))
+        y_max_adj = y_max * (1+pad)
+        ax.set_ylim(y_min_adj, y_max_adj)
+
+        ax.legend(fontsize=8, ncol=min(4, len(output_labels)*2), loc='best')
+        plt.tight_layout()
+
+        output_filename = self.svf_error_config.get('plot_config', {}).get(
+            'output_filename', 'svf_error_comparison.png'
+        )
+        plot_path = self.output_path / 'plots' / output_filename
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+
+        logger.info(f"SVF误差对比图已保存: {plot_path}")
+        return str(plot_path)
+
+    def _compensate_svf_with_selftest(
+        self,
+        measured_data: Dict[str, Any],
+        selftest_data: Dict[str, np.ndarray]
+    ) -> Dict[str, Any]:
+        """使用自测试数据补偿SVF实测数据（R3新增）
+
+        补偿方法：compensated = measured_mag / selftest_mag_interp
+        通过插值使自测试数据与测量数据的频点对齐
+
+        Args:
+            measured_data: SVF测量数据 {'frequencies', 'magnitude'}
+            selftest_data: 自测试数据 {'frequencies', 'magnitude'}
+
+        Returns:
+            Dict: 补偿后的测量数据
+        """
+        from scipy.interpolate import interp1d
+
+        exp_freq = measured_data['frequencies']
+        selftest_freq = selftest_data['frequencies']
+        selftest_mag = selftest_data['magnitude']
+
+        # 检查频率范围是否覆盖
+        exp_min, exp_max = exp_freq.min(), exp_freq.max()
+        self_min, self_max = selftest_freq.min(), selftest_freq.max()
+
+        if exp_min < self_min or exp_max > self_max:
+            logger.warning(
+                f"⚠️ SVF测量数据频率范围 [{exp_min:.2f}, {exp_max:.2f}] Hz "
+                f"超出自测试范围 [{self_min:.2f}, {self_max:.2f}] Hz"
+            )
+
+        # 使用线性插值（对数空间）
+        selftest_db = 20 * np.log10(selftest_mag + 1e-20)
+
+        interp_func = interp1d(
+            selftest_freq,
+            selftest_db,
+            kind='linear',
+            bounds_error=False,
+            fill_value='extrapolate'
+        )
+
+        # 在测量频点处插值
+        selftest_db_interp = interp_func(exp_freq)
+        selftest_mag_interp = np.power(10.0, selftest_db_interp / 20.0)
+
+        # 执行补偿（相除）
+        compensated_channels = []
+        for channel_mag in measured_data['magnitude']:
+            compensated = channel_mag / (selftest_mag_interp + 1e-20)
+            compensated_channels.append(compensated)
+
+        logger.info("✅ SVF自测试补偿完成")
+
+        return {
+            'frequencies': exp_freq,
+            'magnitude': compensated_channels
+        }
+
+    def _calculate_svf_error_statistics(
+        self,
+        svf_response: Dict[str, Any],
+        measured_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """计算SVF误差统计（R3新增）
+
+        计算仿真数据与实测数据的误差比值和统计指标
+
+        Args:
+            svf_response: SVF理论频率响应
+            measured_data: SVF实测数据
+
+        Returns:
+            Dict: 误差统计数据
+        """
+        from scipy import interpolate
+
+        sim_freq = svf_response['frequencies']
+        sim_mag_db = svf_response['magnitude_db']
+        sim_mag = [np.power(10.0, m/20.0) for m in sim_mag_db]
+
+        exp_freq = measured_data['frequencies']
+        exp_mags = measured_data['magnitude']
+
+        # SVF层输出标签
+        n_filters = len(self._load_svf_parameters_from_project()['center_freqs'])
+        output_labels = []
+        for i in range(n_filters):
+            output_labels.extend([f'SVF{i+1}_HP', f'SVF{i+1}_BP', f'SVF{i+1}_LP'])
+
+        error_data = {
+            'frequencies': exp_freq.tolist(),
+            'error_ratios': [],
+            'statistics': []
+        }
+
+        for i, (sim_ch, exp_ch, lbl) in enumerate(zip(sim_mag, exp_mags, output_labels)):
+            # 将仿真数据插值到实测频率点
+            sim_interp = interpolate.interp1d(
+                sim_freq, sim_ch, kind='linear',
+                bounds_error=False, fill_value=np.nan
+            )
+            sim_mag_interp = sim_interp(exp_freq)
+
+            # 计算误差比值: sim / exp
+            with np.errstate(divide='ignore', invalid='ignore'):
+                error_ratio = sim_mag_interp / (exp_ch + 1e-20)
+                error_ratio = np.where(np.abs(exp_ch) < 1e-20, np.nan, error_ratio)
+
+            error_data['error_ratios'].append({
+                'channel': lbl,
+                'ratios': error_ratio.tolist()
+            })
+
+            # 计算误差统计
+            valid_errors = error_ratio[~np.isnan(error_ratio)]
+            if len(valid_errors) > 0:
+                stats = {
+                    'channel': lbl,
+                    'mean_error_ratio': float(np.mean(valid_errors)),
+                    'std_error_ratio': float(np.std(valid_errors)),
+                    'min_error_ratio': float(np.min(valid_errors)),
+                    'max_error_ratio': float(np.max(valid_errors)),
+                    'median_error_ratio': float(np.median(valid_errors)),
+                    'mean_abs_error_percent': float(np.mean(np.abs(valid_errors - 1.0) * 100)),
+                    'max_abs_error_percent': float(np.max(np.abs(valid_errors - 1.0) * 100)),
+                    'within_5pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.05) / len(valid_errors) * 100),
+                    'within_10pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.1) / len(valid_errors) * 100)
+                }
+            else:
+                stats = {
+                    'channel': lbl,
+                    'mean_error_ratio': None,
+                    'std_error_ratio': None,
+                    'min_error_ratio': None,
+                    'max_error_ratio': None,
+                    'median_error_ratio': None,
+                    'mean_abs_error_percent': None,
+                    'max_abs_error_percent': None,
+                    'within_5pct': None,
+                    'within_10pct': None
+                }
+            error_data['statistics'].append(stats)
+
+        return error_data
+
     def _to_list_2d(self, arr):
         """将二维numpy数组转换为纯float嵌套list (确保JSON可序列化)"""
         if arr is None:
@@ -397,38 +763,73 @@ class WNET5CircuitValidator:
             svf_params = self._load_svf_parameters_from_project()
             dense_weights = self._load_dense_weights_from_project(self.analysis_layer)
 
-            # 1.5 生成E96量化对比数据（如果启用）
-            quantization_comparison = self._generate_e96_quantization_comparison(dense_weights)
+            # 初始化变量
+            svf_tfs = None
+            combined_tfs = None
+            freq_response = None
+            report = None
+            quantization_comparison = None
+            plots = []
 
-            # 2. 计算传递函数
-            svf_tfs = self._calculate_svf_transfer_functions(svf_params)
-            combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
+            # 新增：SVF层误差仿真（R3实现）
+            if self.svf_error_enable:
+                logger.info("执行SVF层误差仿真...")
+                svf_response = self._calculate_svf_frequency_response_only(svf_params)
+                measured_data = self._load_svf_measured_data()
 
-            # 3. 计算频率响应（使用默认频率点保持计算精度）
-            freq_response = self._calculate_frequency_response(combined_tfs)
+                # 自测试补偿（如果启用）
+                if self.svf_compensation_enabled and self.svf_selftest_file:
+                    selftest_data = self._load_selftest_data()
+                    measured_data = self._compensate_svf_with_selftest(measured_data, selftest_data)
 
-            # 4. 生成可视化
-            plots = self._generate_plots(freq_response, dense_weights)
+                # 生成对比图
+                svf_plot = self._generate_svf_error_comparison_plot(svf_response, measured_data)
+                plots.append(svf_plot)
 
-            # 5. 生成 E96 量化频率响应对比图（与 frequency_response_comparison_merged.png 相同风格）
-            if quantization_comparison:
-                e96_freq_plot = self._generate_e96_frequency_response_comparison(
-                    freq_response, dense_weights, quantization_comparison
-                )
-                if e96_freq_plot:
-                    plots.append(e96_freq_plot)
+                # 生成误差分析数据
+                svf_error_data = self._calculate_svf_error_statistics(svf_response, measured_data)
 
-            # 6. 生成报告
-            report = self._generate_analysis_report(svf_params, dense_weights, freq_response)
+                # 保存误差分析数据
+                svf_error_path = self.output_path / 'numerics' / 'svf_error_analysis.json'
+                with open(svf_error_path, 'w', encoding='utf-8') as f:
+                    json.dump(svf_error_data, f, indent=2, ensure_ascii=False)
+                logger.info(f"SVF误差分析数据已保存: {svf_error_path}")
+            else:
+                # 原有逻辑：Dense层分析
+                # 1.5 生成E96量化对比数据（如果启用）
+                quantization_comparison = self._generate_e96_quantization_comparison(dense_weights)
+
+                # 2. 计算传递函数
+                svf_tfs = self._calculate_svf_transfer_functions(svf_params)
+                combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
+
+                # 3. 计算频率响应（使用默认频率点保持计算精度）
+                freq_response = self._calculate_frequency_response(combined_tfs)
+
+                # 4. 生成可视化
+                plots = self._generate_plots(freq_response, dense_weights)
+
+                # 5. 生成 E96 量化频率响应对比图（与 frequency_response_comparison_merged.png 相同风格）
+                if quantization_comparison:
+                    e96_freq_plot = self._generate_e96_frequency_response_comparison(
+                        freq_response, dense_weights, quantization_comparison
+                    )
+                    if e96_freq_plot:
+                        plots.append(e96_freq_plot)
+
+                # 6. 生成报告
+                report = self._generate_analysis_report(svf_params, dense_weights, freq_response)
 
             # 7. 保存结果 (单一 results.json)
             self._save_results(svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report, quantization_comparison)
 
-            logger.info("✅ WNET5电路验证分析完成")
+            logger.info("WNET5电路验证分析完成")
             return True
 
         except Exception as e:
             logger.error(f"WNET5电路验证分析失败: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def _load_svf_parameters_from_project(self) -> Dict[str, Any]:
@@ -1534,7 +1935,7 @@ class WNET5CircuitValidator:
     def _save_results(self, svf_params, svf_tfs, combined_tfs, freq_response, dense_weights, plots, report, quantization_comparison=None):
         """保存计算结果 (合并为单一 results.json)"""
         logger.info("保存计算结果 (results.json)...")
-        
+
         # 保存频率响应数据
         numerics_dir = self.output_path / 'numerics'
         import sympy as sp
@@ -1542,10 +1943,35 @@ class WNET5CircuitValidator:
 
         # 构建SVF传递函数结构与系数
         svf_transfer = []
-        for entry in svf_tfs:
-            channels = {}
-            for cname in ['high_pass', 'band_pass', 'low_pass']:
-                Hsym = entry[cname]
+        if svf_tfs is not None:
+            for entry in svf_tfs:
+                channels = {}
+                for cname in ['high_pass', 'band_pass', 'low_pass']:
+                    Hsym = entry[cname]
+                    try:
+                        num_poly, den_poly = sp.together(Hsym).as_numer_denom()
+                        num_poly = sp.Poly(num_poly, s)
+                        den_poly = sp.Poly(den_poly, s)
+                        num_coeff = [float(c) for c in num_poly.all_coeffs()]
+                        den_coeff = [float(c) for c in den_poly.all_coeffs()]
+                        if den_coeff and den_coeff[0] != 0:
+                            lead = den_coeff[0]
+                            num_coeff = [c/lead for c in num_coeff]
+                            den_coeff = [c/lead for c in den_coeff]
+                    except Exception as e:
+                        logger.error(f"SVF通道 {cname} 系数提取失败: {e}")
+                        num_coeff, den_coeff = [], []
+                    channels[cname] = {
+                        'symbolic': str(Hsym),
+                        'numerator_coeffs': num_coeff,
+                        'denominator_coeffs': den_coeff
+                    }
+                svf_transfer.append({'f0': entry['f0'], 'Q': entry['Q'], 'channels': channels})
+
+        # 组合传递函数
+        combined_serialized = []
+        if combined_tfs is not None:
+            for idx, Hsym in enumerate(combined_tfs):
                 try:
                     num_poly, den_poly = sp.together(Hsym).as_numer_denom()
                     num_poly = sp.Poly(num_poly, s)
@@ -1557,49 +1983,29 @@ class WNET5CircuitValidator:
                         num_coeff = [c/lead for c in num_coeff]
                         den_coeff = [c/lead for c in den_coeff]
                 except Exception as e:
-                    logger.error(f"SVF通道 {cname} 系数提取失败: {e}")
+                    logger.error(f"组合传递函数 out{idx} 系数提取失败: {e}")
                     num_coeff, den_coeff = [], []
-                channels[cname] = {
+                combined_serialized.append({
+                    'output_index': idx,
                     'symbolic': str(Hsym),
                     'numerator_coeffs': num_coeff,
                     'denominator_coeffs': den_coeff
-                }
-            svf_transfer.append({'f0': entry['f0'], 'Q': entry['Q'], 'channels': channels})
-
-        # 组合传递函数
-        combined_serialized = []
-        for idx, Hsym in enumerate(combined_tfs):
-            try:
-                num_poly, den_poly = sp.together(Hsym).as_numer_denom()
-                num_poly = sp.Poly(num_poly, s)
-                den_poly = sp.Poly(den_poly, s)
-                num_coeff = [float(c) for c in num_poly.all_coeffs()]
-                den_coeff = [float(c) for c in den_poly.all_coeffs()]
-                if den_coeff and den_coeff[0] != 0:
-                    lead = den_coeff[0]
-                    num_coeff = [c/lead for c in num_coeff]
-                    den_coeff = [c/lead for c in den_coeff]
-            except Exception as e:
-                logger.error(f"组合传递函数 out{idx} 系数提取失败: {e}")
-                num_coeff, den_coeff = [], []
-            combined_serialized.append({
-                'output_index': idx,
-                'symbolic': str(Hsym),
-                'numerator_coeffs': num_coeff,
-                'denominator_coeffs': den_coeff
-            })
+                })
 
         # 频率响应
-        fr = {
-            'frequencies': freq_response['frequencies'].tolist(),
-            'outputs': [
-                {
-                    'index': i,
-                    'magnitude_db': m.tolist(),
-                    'phase_deg': p.tolist()
-                } for i, (m, p) in enumerate(zip(freq_response['magnitude_db'], freq_response['phase_deg']))
-            ]
-        }
+        if freq_response is not None:
+            fr = {
+                'frequencies': freq_response['frequencies'].tolist(),
+                'outputs': [
+                    {
+                        'index': i,
+                        'magnitude_db': m.tolist(),
+                        'phase_deg': p.tolist()
+                    } for i, (m, p) in enumerate(zip(freq_response['magnitude_db'], freq_response['phase_deg']))
+                ]
+            }
+        else:
+            fr = None
 
         # Dense 权重
         dw = dense_weights
