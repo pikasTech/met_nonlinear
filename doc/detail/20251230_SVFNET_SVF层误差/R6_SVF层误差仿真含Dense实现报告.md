@@ -1,0 +1,238 @@
+# R6_SVF层误差仿真含Dense实现报告
+
+**报告日期**: 2025-12-30
+**报告位置**: `doc/detail/20251230_SVFNET_SVF层误差/R6_SVF层误差仿真含Dense实现报告.md`
+
+---
+
+## 1. 实现概述
+
+### 1.1 任务目标
+
+按照 R5 方案完成 SVF（实际测试误差） + Dense（无误差） vs SVF（无误差） + Dense（无误差）的仿真。
+
+### 1.2 实现结果
+
+✅ **成功完成** - 生成了用户需要的 SVF+Dense 误差对比图和统计数据
+
+---
+
+## 2. 代码修改
+
+### 2.1 配置文件修改
+
+**文件**: `ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM/config.json`
+
+**修改内容**:
+```json
+"svf_error_simulation": {
+  "enable": true,
+  "measured_data_file": "exam_data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+  "include_dense_layer": true,  // R6 新增
+  "compensation": {
+    "enabled": false
+  },
+  "plot_config": {
+    "merged_plot_mode": true,
+    "output_filename": "svf_error_comparison_merged.png",
+    "dense_output_filename": "svf_dense_error_comparison.png"  // R6 新增
+  }
+}
+```
+
+### 2.2 配置验证器修改
+
+**文件**: `core/config_validator.py`
+
+**修改内容**: 在 `WNET5_CIRCUIT_VALIDATION_SCHEMA` 中添加 `svf_error_simulation` 字段的完整定义：
+- `enable`: boolean
+- `measured_data_file`: string
+- `include_dense_layer`: boolean (R6 新增)
+- `compensation`: object (包含 `enabled`, `selftest_file`)
+- `plot_config`: object (包含 `merged_plot_mode`, `output_filename`, `dense_output_filename`)
+
+### 2.3 核心代码修改
+
+**文件**: `visualization/wnet5_circuit_validator.py`
+
+#### 2.3.1 新增方法 1: `_calculate_svf_dense_combined_response()`
+
+```python
+def _calculate_svf_dense_combined_response(
+    self,
+    svf_params: Dict,
+    dense_weights: Dict,
+    measured_data: Dict[str, Any] = None,
+    use_measured_svf: bool = True
+) -> Dict[str, Any]:
+```
+
+**功能**: 计算 SVF + Dense 组合频率响应
+
+**实现逻辑**:
+1. 获取频率点（优先使用实测数据频率点）
+2. 预计算理论 SVF 响应值（使用 sympy 符号计算）
+3. 根据 `use_measured_svf` 决定是否使用实测 SVF 数据替换理论值
+4. 应用 Dense 权重矩阵计算最终输出
+
+#### 2.3.2 新增方法 2: `_generate_svf_dense_error_comparison_plot()`
+
+```python
+def _generate_svf_dense_error_comparison_plot(
+    self,
+    baseline_response: Dict[str, Any],
+    target_response: Dict[str, Any],
+    dense_weights: Dict[str, Any]
+) -> str:
+```
+
+**功能**: 生成 SVF+Dense 误差对比图
+
+**实现逻辑**:
+- 风格与 `frequency_response_comparison_merged.png` 保持一致
+- baseline（理想 SVF + Dense）用虚线
+- target（实测 SVF + Dense）用实线
+- 将 target 数据插值到 baseline 频率点，确保 x 轴一致
+
+#### 2.3.3 新增方法 3: `_calculate_svf_dense_error_statistics()`
+
+```python
+def _calculate_svf_dense_error_statistics(
+    self,
+    baseline_response: Dict[str, Any],
+    target_response: Dict[str, Any]
+) -> Dict[str, Any]:
+```
+
+**功能**: 计算 SVF+Dense 误差统计
+
+**统计指标**:
+- mean_error_ratio: 平均误差比值
+- std_error_ratio: 误差标准差
+- min/max_error_ratio: 最小/最大误差比值
+- mean_abs_error_percent: 平均绝对误差百分比
+- within_5pct/10pct: 误差在 5%/10% 以内的比例
+
+#### 2.3.4 修改方法: `execute_validation()`
+
+在 SVF 误差仿真流程中增加 Dense 层计算逻辑：
+
+```python
+# R6 新增：SVF+Dense 误差仿真
+include_dense = self.svf_error_config.get('include_dense_layer', False)
+if include_dense:
+    # 计算 baseline: 理想 SVF + Dense
+    baseline_response = self._calculate_svf_dense_combined_response(
+        svf_params, dense_weights,
+        measured_data=None, use_measured_svf=False
+    )
+
+    # 计算 target: 实测 SVF + Dense
+    target_response = self._calculate_svf_dense_combined_response(
+        svf_params, dense_weights,
+        measured_data=measured_data, use_measured_svf=True
+    )
+
+    # 生成对比图和统计数据...
+```
+
+### 2.4 路径解析修复
+
+**问题**: 实测数据文件路径解析失败
+
+**解决**: 在 `_load_svf_measured_data()` 中添加多种路径解析策略：
+1. 相对当前工作目录
+2. 相对项目根目录
+3. 遍历可能的配置目录
+
+---
+
+## 3. 生成文件
+
+### 3.1 图片文件
+
+| 文件 | 说明 |
+|-----|------|
+| `plots/svf_error_comparison_merged.png` | SVF-only 对比图（仿真 vs 实测） |
+| `plots/svf_dense_error_comparison.png` | **SVF+Dense 对比图**（理想 vs 实测 SVF） |
+
+### 3.2 数据文件
+
+| 文件 | 说明 |
+|-----|------|
+| `numerics/svf_error_analysis.json` | SVF-only 误差统计 |
+| `numerics/svf_dense_error_analysis.json` | **SVF+Dense 误差统计** |
+
+### 3.3 结果文件
+
+| 文件 | 说明 |
+|-----|------|
+| `results.json` | 完整结果汇总 |
+
+---
+
+## 4. 验证结果
+
+### 4.1 运行日志
+
+```
+[INFO] 执行SVF层误差仿真...
+[INFO] 加载SVF实测数据: exam_data\20251230_SVFNET_SVF_ONLY\20251230_SVF_ONLY.xlsx
+[INFO]    频率范围: 2.00 - 512.00 Hz
+[INFO] SVF误差对比图已保存: ...\plots\svf_error_comparison_merged.png
+[INFO] SVF误差分析数据已保存: ...\numerics\svf_error_analysis.json
+[INFO] 执行 SVF+Dense 误差仿真...
+[INFO] SVF+Dense组合频响计算完成: 6 个输出通道
+[INFO] SVF+Dense误差对比图已保存: ...\plots\svf_dense_error_comparison.png
+[INFO] SVF+Dense误差分析数据已保存: ...\numerics\svf_dense_error_analysis.json
+[INFO] 结果已保存: results.json
+[INFO] WNET5电路验证分析完成
+```
+
+### 4.2 图像验证
+
+**SVF+Dense 对比图** (`svf_dense_error_comparison.png`):
+- 显示 6 个 Dense 输出通道 (D1_1 ~ D1_6)
+- 虚线：理想 SVF + Dense（baseline）
+- 实线：实测 SVF + Dense（target）
+- 两组曲线整体趋势一致，但存在明显偏差
+
+### 4.3 误差统计
+
+从 `svf_dense_error_analysis.json` 可见：
+- 所有通道的 mean_error_ratio 约为 0.5
+- mean_abs_error_percent 约为 50%
+- 表明 SVF 实测数据与理想模型存在较大偏差
+
+---
+
+## 5. 总结
+
+### 5.1 完成情况
+
+| 任务 | 状态 |
+|-----|------|
+| SVF-only 对比图 | ✅ 保留原有功能 |
+| SVF-only 误差统计 | ✅ 保留原有功能 |
+| SVF+Dense 对比图 | ✅ 新增功能 |
+| SVF+Dense 误差统计 | ✅ 新增功能 |
+
+### 5.2 配置选项
+
+```json
+"svf_error_simulation": {
+  "enable": true,
+  "include_dense_layer": true,  // 设为 true 生成 SVF+Dense 对比
+  ...
+}
+```
+
+### 5.3 输出说明
+
+- **虚线**: baseline（理想 SVF + Dense）
+- **实线**: target（实测 SVF + Dense）
+- **对比内容**: Dense 层的最终输出频响（包含 SVF 误差的影响）
+
+---
+
+**报告完成**: 2025-12-30

@@ -82,7 +82,8 @@
   "frequency_response": null,
   "artifacts": {
     "plots": [
-      "plots\\svf_error_comparison_merged.png"
+      "plots\\svf_error_comparison_merged.png",
+      "plots\\svf_dense_error_comparison.png"
     ],
     "report": null
   }

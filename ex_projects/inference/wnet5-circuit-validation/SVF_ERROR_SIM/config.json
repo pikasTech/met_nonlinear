@@ -11,13 +11,15 @@
   },
   "svf_error_simulation": {
     "enable": true,
-    "measured_data_file": "C:/work/met_nonlinear_master/exam_data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+    "measured_data_file": "exam_data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+    "include_dense_layer": true,
     "compensation": {
       "enabled": false
     },
     "plot_config": {
       "merged_plot_mode": true,
-      "output_filename": "svf_error_comparison_merged.png"
+      "output_filename": "svf_error_comparison_merged.png",
+      "dense_output_filename": "svf_dense_error_comparison.png"
     }
   },
   "inference_config": {

@@ -33,3 +33,11 @@
 ## R5
 
 现在仿真出的结果是 SVF（实际测试误差） vs SVF（无误差），这不是我一开始要的结果，但是也有用，继续保留。我再强调我要的是 SVF（实际测试误差） + Dense（无误差） vs SVF（无误差） + Dense（无误差），也就是必须要带 Dense 层的结果，你再调研，如何在当前的基础上再多仿真出来一个我真实要的结果。形成调查报告 + 实现方案到 [R5](../../doc/detail/20251230_SVFNET_SVF层误差/R5_SVF层误差仿真含Dense调查与实现方案.md) 中。
+
+## R6
+
+按照 R5 的方案，完成 SVF（实际测试误差） + Dense（无误差） vs SVF（无误差） + Dense（无误差）的仿真，并形成实现报告到 [R6](../../doc/detail/20251230_SVFNET_SVF层误差/R6_SVF层误差仿真含Dense实现报告.md) 中。实际运行后要实际查看图像结果，确认其正确性，如果有问题，进行调试，直到正确为止。
+
+## R7
+
+R6 运行出来的结果过于离谱，`ex_projects\inference\wnet5-circuit-validation\SVF_ERROR_SIM\data\plots\svf_dense_error_comparison.png` 中的虚线（理想SVF+DENSE）应当与`ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1\data\plots\frequency_response_e96_comparison.png`中的虚线（理想SVF）完全一致，但是并不一致，差异巨大。你应当实际读取两个图像和数据，分析原因，修复代码，直到两者一致为止。形成调查与修复报告到 [R7](../../doc/detail/20251230_SVFNET_SVF层误差/R7_SVF层误差仿真含Dense结果修复报告.md) 中。

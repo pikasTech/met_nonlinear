@@ -392,6 +392,52 @@ class VisualizationConfigValidator:
                         }
                     }
                 }
+            },
+            "svf_error_simulation": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "enable": {
+                        "type": "boolean"
+                    },
+                    "measured_data_file": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "include_dense_layer": {
+                        "type": "boolean"
+                    },
+                    "compensation": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "selftest_file": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    },
+                    "plot_config": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "merged_plot_mode": {
+                                "type": "boolean"
+                            },
+                            "output_filename": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "dense_output_filename": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
+                    }
+                }
             }
         }
     }
