@@ -1,0 +1,8 @@
+{
+  "mean_relative_error": 1.1813827942576838,
+  "max_relative_error": 1.4814814814814816,
+  "min_relative_error": 0.9174311926605394,
+  "within_1pct": 3.0303030303030303,
+  "within_5pct": 100.0,
+  "total_count": 66
+}

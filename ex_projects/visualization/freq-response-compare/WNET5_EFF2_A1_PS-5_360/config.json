@@ -1,0 +1,31 @@
+{
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "visualization_config": {
+    "layout": "side_by_side",
+    "freq_range": [
+      160,
+      200
+    ],
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      12,
+      8
+    ],
+    "title": "WNET5_EFF2_A1_PS-5_360 频率响应对比"
+  },
+  "data_sources": [
+    {
+      "project": "WNET5_EFF2_A1_PS-5_360",
+      "state": "origin",
+      "label": "补偿前"
+    },
+    {
+      "project": "WNET5_EFF2_A1_PS-5_360",
+      "state": "compensation",
+      "label": "补偿后"
+    }
+  ]
+}

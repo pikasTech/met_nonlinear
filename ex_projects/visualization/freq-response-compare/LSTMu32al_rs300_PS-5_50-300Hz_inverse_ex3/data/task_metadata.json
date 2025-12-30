@@ -1,0 +1,10 @@
+{
+  "execution_time": "2025-10-12T11:40:16.165633",
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "output_files": [
+    "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3\\data\\bode_plot_sidebyside_LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3_origin_vs_LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3_compensation.png"
+  ],
+  "config_hash": "21c39d6b2e4ff9c16e11209fada080f5"
+}

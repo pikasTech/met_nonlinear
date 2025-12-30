@@ -1,0 +1,26 @@
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "WNET5电路频率响应理论验证 - Dense层3"
+  },
+  "model_project_name": "WNET5q1h2u6l3",
+  "analysis_layer": 3,
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 500
+  },
+  "inference_config": {
+    "use_e96": true,
+    "include_quantization_comparison": true,
+    "opamp_config": {
+      "model": "ideal"
+    }
+  },
+  "compare_with_experiment": "F:\\BaiduSyncdisk\\data\\SVF-NET-CIRCUIT\\20251201-SVFNET-Dense1-3层.xlsx",
+  "experiment_comparison": {
+    "experiment_sheet_name": "layer3",
+    "plot_config": {
+      "merged_plot_mode": true
+    }
+  }
+}

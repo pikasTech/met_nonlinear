@@ -1,0 +1,10 @@
+{
+  "execution_time": "2025-12-15T23:23:40.766915",
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "output_files": [
+    "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\WNET5_EFF2_A1_PS-5_360\\data\\bode_plot_sidebyside_WNET5_EFF2_A1_PS-5_360_origin_vs_WNET5_EFF2_A1_PS-5_360_compensation.png"
+  ],
+  "config_hash": "d48633429158ebea129c50e1853f4e4f"
+}
