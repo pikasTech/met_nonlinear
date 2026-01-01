@@ -10,10 +10,28 @@
     "stop_freq": 500
   },
   "inference_config": {
-    "use_e96": true,
-    "include_quantization_comparison": true,
+    "use_e96": false,
+    "include_quantization_comparison": false,
     "opamp_config": {
       "model": "ideal"
+    }
+  },
+  "svf_error_simulation": {
+    "enable": true,
+    "measured_data_file": "exam_data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+    "include_dense_layer": true,
+    "compensation": {
+      "enabled": false
+    },
+    "fitting": {
+      "enabled": true,
+      "output_filename": "svf_fit_comparison.png",
+      "save_fitted_params": true
+    },
+    "plot_config": {
+      "merged_plot_mode": true,
+      "output_filename": "svf_error_comparison_merged.png",
+      "dense_output_filename": "svf_dense_error_comparison.png"
     }
   }
 }

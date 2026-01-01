@@ -49,9 +49,35 @@
   - 高通滤波器配置传递完整，但运放配置传递需要完善
 - **核心结论**: 运放配置架构设计完善，但需要统一纳入inference_config管理以提升配置一致性
 - **建议**: 完善配置传递机制，统一inference_config管理，增强配置验证和默认值处理
-- cli.py 运行的时候要用 conda run -n tf26
+
+### 🐍 Conda 环境运行指南
+
+#### tf26 环境启动方法
+
+**正确命令**:
+```powershell
+& 'C:\Users\lyon\MiniConda3\condabin\conda.bat' 'run' '--no-capture-output' '-n' 'tf26' 'python' 'cli.py' 'ep' 'ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1'
+```
+
+**关键参数**: `--no-capture-output` - 避免编码问题
+
+**环境路径**: `C:\Users\lyon\MiniConda3\envs\tf26`
+
+#### 常见问题与解决方案
+
+| 问题 | 原因 | 解决方案 |
+|------|------|----------|
+| 路径不存在 `C:\Users\liang\.conda\envs\` | 用户名不同 | 使用 `C:\Users\lyon\MiniConda3\envs\` |
+| `conda: command not found` | bash 环境找不到 conda | 使用完整路径调用 `.bat` |
+| `UnicodeEncodeError` gbk 编码 | 控制台编码问题 | 添加 `--no-capture-output` |
+| `cmd /c` 无输出 | 重定向问题 | 使用 PowerShell 调用 |
+
+#### 验证环境存在
+```powershell
+& 'C:\Users\lyon\MiniConda3\condabin\conda.bat' 'env' 'list'
+```
+
 - 禁止在根目录创建任何新的文件，保持根目录整洁！
-- 用 C:\Users\liang\.conda\envs\tf26\python.exe 运行 cli.py
 - 调查过程中禁止修改任何代码，禁止运行任何代码
 - 完成调研或者按计划执行后更新 doc/summary.md
 - 分析过程中不要创建脚本，不要运行代码！！！
