@@ -1392,6 +1392,9 @@ class WNET5CircuitValidator:
                     with open(dense_error_path, 'w', encoding='utf-8') as f:
                         json.dump(dense_error_stats, f, indent=2, ensure_ascii=False)
                     logger.info(f"SVF+Dense误差分析数据已保存: {dense_error_path}")
+
+                # R13: 生成SVF误差仿真报告
+                report = self._generate_svf_error_report(plots, fitted_params)
             else:
                 # 原有逻辑：Dense层分析
                 # 1.5 生成E96量化对比数据（如果启用）
@@ -2697,6 +2700,212 @@ class WNET5CircuitValidator:
                     logger.info(f"  - {name}: {rel_path}")
             else:
                 logger.warning("E96量化对比可视化未生成（可能无有效数据）")
-
         except Exception as e:
             logger.error(f"生成E96量化可视化失败: {e}")
+
+    def _generate_svf_error_report(self, plots: List[str], fitted_params: Dict = None) -> str:
+        """生成SVF层误差仿真的Markdown报告（R14改进 - 逻辑重构）
+
+        Args:
+            plots: 生成的图片路径列表
+            fitted_params: 拟合参数（可选）
+
+        Returns:
+            str: 报告文件路径
+        """
+        logger.info("生成SVF误差仿真报告...")
+        from datetime import datetime
+
+        # 获取配置
+        fitting_config = self.svf_error_config.get('fitting', {})
+        fitting_enabled = fitting_config.get('enabled', False)
+        include_dense = self.svf_error_config.get('include_dense_layer', False)
+
+        # 报告保存路径
+        report_path = self.output_path / "reports" / "report.md"
+        
+        # 1. 概述
+        report_content = f"""# WNET5 电路验证与误差分析报告
+
+## 1. 概述
+
+本报告展示了 {self.model_project_name} 项目中 Dense 层 {self.analysis_layer} 的电路验证结果，重点分析了仿真理论计算与实际测量之间的差异及其影响因素。
+
+- **项目**: {self.model_project_name}
+- **分析层数**: {self.analysis_layer}
+- **频率范围**: {self.frequency_range['start_freq']} - {self.frequency_range['stop_freq']} Hz
+- **SVF仿真模式**: {'拟合传递函数' if fitting_enabled else '实测数据对比'}
+- **包含Dense层**: {'是' if include_dense else '否'}
+
+---
+
+## 2. 频率响应对比（仿真 vs 实测）
+
+本章节对比了电路的理论仿真结果与实际测量数据，评估整体模型的准确性。
+
+### 2.1 仿真与实测合并对比图
+
+![仿真与实测合并对比图](../plots/frequency_response_comparison_merged.png)
+
+**设计目的**: 将仿真理论值与实验测量值合并在同一张图中进行对比，直观展示两者的一致性。
+**横轴**: 频率 (Hz)，对数刻度
+**纵轴**: 增益（线性），对数刻度
+**数据曲线**: 虚线代表仿真理论值，实线代表实验测量值。
+**数据来源**: 理论计算 + 实验测量数据
+
+### 2.2 频率响应误差比值图
+
+![频率响应误差比值图](../plots/frequency_response_error_ratio.png)
+
+**设计目的**: 展示仿真理论值与实验测量值之间的误差比值（仿真/实验），用于精细化误差分析。
+**横轴**: 频率 (Hz)，对数刻度
+**纵轴**: 误差比值（线性），对数刻度
+**数据曲线**: 每条曲线代表一个通道的误差比值，红色虚线为理想匹配线（比值=1.0）。
+**数据来源**: 仿真数据 ÷ 实际测量数据
+
+---
+
+## 3. 误差因素分析
+
+本章节深入探讨导致仿真与实测差异的各种因素，包括硬件量化误差和模拟电路参数偏差。
+
+### 3.1 E96 量化影响分析
+
+在实际电路实现中，电阻电容通常采用 E96 系列标准值，这会引入一定的量化误差。
+
+![E96量化前后对比图](../plots/frequency_response_e96_comparison.png)
+
+**设计目的**: 对比 Dense 层权重在 E96 量化前后的频率响应差异，评估量化对精度的影响。
+**横轴**: 频率 (Hz)，对数刻度
+**纵轴**: 增益（线性），对数刻度
+**数据曲线**: 虚线代表原始权重，实线代表 E96 量化后的权重。
+**数据来源**: 原始权重计算 vs E96 量化权重计算
+
+### 3.2 SVF 层误差对整体的影响
+
+SVF（状态可变滤波器）作为电路的前级，其参数（中心频率、品质因数）的实际偏差会传递到最终输出。
+
+#### 3.2.1 SVF 参数拟合验证
+
+![SVF拟合对比图](../plots/svf_fit_comparison.png)
+
+**设计目的**: 验证拟合传递函数是否能够准确描述实测 SVF 层的频率响应特性。
+**数据曲线**: 实线为 Measured，虚线为 Fitted。
+**拟合结果**: 
+- 拟合中心频率: {[round(x, 2) for x in fitted_params['fitted_params']['center_freqs']] if fitted_params and 'fitted_params' in fitted_params else 'N/A'} Hz
+- 拟合品质因数: {[round(x, 4) for x in fitted_params['fitted_params']['quality_factors']] if fitted_params and 'fitted_params' in fitted_params else 'N/A'}
+
+#### 3.2.2 SVF 层原始误差分布
+
+![SVF误差对比图](../plots/svf_error_comparison_merged.png)
+
+**设计目的**: 对比理想 SVF 层理论计算与实际测量之间的频率响应差异。
+**纵轴**: 增益比值（理论/实测），单位 dB。
+
+#### 3.2.3 SVF 误差对整体电路（SVF+Dense）的影响
+
+![SVF+Dense误差对比图](../plots/svf_dense_error_comparison.png)
+
+**设计目的**: 展示当前级 SVF 存在实测误差时，对整体电路频率响应的最终影响。
+**数据曲线**: 实线为 Ideal SVF + Dense，虚线为 Measured SVF + Dense。
+
+---
+
+## 4. 结论
+
+本仿真通过对 SVF 层参数的拟合与 Dense 层权重的量化分析，得出以下结论：
+
+1. **拟合质量**: 
+"""
+
+        # 添加拟合质量信息
+        if fitted_params and 'fit_quality' in fitted_params:
+            fit_quality = fitted_params['fit_quality']
+            report_content += f"""
+   - 整体 RMSE: {fit_quality.get('overall_rmse', 'N/A'):.6f}
+   - 整体 R²: {fit_quality.get('overall_r2', 'N/A'):.6f}
+   - 结论: {'拟合良好 (R² > 0.99)' if fit_quality.get('overall_r2', 0) > 0.99 else '拟合存在一定偏差'}
+"""
+
+        report_content += f"""
+2. **误差来源**: 
+   - 观察 3.1 节可知 E96 量化带来的偏差。
+   - 观察 3.2.3 节可知 SVF 层参数偏差对最终输出的影响。
+
+---
+"""
+
+        # R14: 确保所有图片都被插入
+        # 检查是否有遗漏的图片
+        plot_dir = self.output_path / "plots"
+        all_plots = list(plot_dir.glob("*.png"))
+        
+        # 简单的正则匹配已插入的图片
+        import re
+        inserted_plots = re.findall(r'!\[.*?\]\(\.\./plots/(.*?)\)', report_content)
+        
+        missing_plots = []
+        for plot_file in all_plots:
+            if plot_file.name not in inserted_plots:
+                missing_plots.append(plot_file.name)
+        
+        if missing_plots:
+            # 定义已知图表的说明
+            plot_descriptions = {
+                'frequency_response.png': {
+                    'title': 'Dense层理论频率响应图',
+                    'purpose': '展示Dense层输出的理论频率响应曲线（线性增益）。',
+                    'xaxis': '频率 (Hz)，对数刻度',
+                    'yaxis': '增益（线性），对数刻度',
+                    'curves': '每个通道一条曲线，代表该通道在不同频率下的理论增益。',
+                    'source': '基于模型权重的理论计算'
+                }
+            }
+
+            report_content += "\n## 5. 其他生成图表\n\n"
+            for plot_name in missing_plots:
+                desc = plot_descriptions.get(plot_name)
+                if desc:
+                    report_content += f"### {desc['title']}\n\n"
+                    report_content += f"![{desc['title']}](../plots/{plot_name})\n\n"
+                    report_content += f"**设计目的**: {desc['purpose']}\n\n"
+                    report_content += f"**横轴**: {desc['xaxis']}\n\n"
+                    report_content += f"**纵轴**: {desc['yaxis']}\n\n"
+                    report_content += f"**数据曲线**: {desc['curves']}\n\n"
+                    report_content += f"**数据来源**: {desc['source']}\n\n"
+                else:
+                    report_content += f"### {plot_name}\n\n![{plot_name}](../plots/{plot_name})\n\n"
+
+        report_content += f"""
+---
+
+*报告生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+"""
+
+        # 保存报告
+        with open(report_path, 'w', encoding='utf-8') as f:
+            f.write(report_content)
+
+        # R14: 验证代码
+        with open(report_path, 'r', encoding='utf-8') as f:
+            final_content = f.read()
+        
+        verification_failed = False
+        for plot_file in all_plots:
+            if plot_file.name not in final_content:
+                logger.error(f"❌ 报告验证失败！图片 {plot_file.name} 未被插入到报告中。")
+                verification_failed = True
+            else:
+                # 检查是否使用了正确的相对路径格式
+                expected_rel_path = f"../plots/{plot_file.name}"
+                if expected_rel_path not in final_content:
+                    logger.error(f"❌ 报告验证失败！图片 {plot_file.name} 的路径格式不正确。")
+                    verification_failed = True
+
+        if not verification_failed:
+            logger.info("✅ 报告验证通过：所有图片均已正确插入且路径正确。")
+        else:
+            logger.warning("⚠️ 报告验证存在问题，请检查输出。")
+
+        logger.info(f"SVF误差仿真报告已保存: {report_path}")
+        return str(report_path)

@@ -65,3 +65,11 @@ ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer2
 ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer3
 ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer4 也配置为带 SVF+Dense，带 SVF_only 误差仿真的功能，要确保其原有的功能不受影响，调整 config.json 后实际运行。形成实现报告到 [R12](../../doc/detail/20251230_SVFNET_SVF层误差/R12_SVF层误差仿真含Dense多层支持实现报告.md) 中。
 
+## R13
+
+支持让 `wnet5-circuit-validation` 的 `task_type` 支持生成结果报告md，md中要引用生成的所有图片，对每个图片进行简要说明，报告中不应当包含图片里面的具体数据，只要说明每个图片的设计目的，横轴纵轴，每个数据曲线的含义和来源等。报告生成到 `ex_projects\inference\wnet5-circuit-validation\SVF_ERROR_SIM\data\reports\report.md` 中，只生成一个总报告，不要为每个图单独生成报告。形成设计与实现报告到 [R13](../../doc/detail/20251230_SVFNET_SVF层误差/R13_SVF层误差仿真含Dense结果报告生成设计与实现报告.md) 中。 确保代码实际运行后，报告正确生成，内容正确。
+
+## R14
+
+用 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1`
+继续完善 R13 的功能，插入图片必须用 []() 的 markdown 格式插入，相对路径，且必须在生成后加入验证代码，确保 data/plots 里面的所有 png 图片都被正确插入到 data/reports/report.md 中，没有遗漏的图片，且路径正确，形成实现报告到 [R14](../../doc/detail/20251230_SVFNET_SVF层误差/R14_SVF层误差仿真含Dense结果报告图片插入验证实现报告.md) 中。确保代码实际运行后，报告正确生成，内容正确。
