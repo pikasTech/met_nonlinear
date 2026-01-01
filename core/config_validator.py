@@ -436,6 +436,22 @@ class VisualizationConfigValidator:
                                 "minLength": 1
                             }
                         }
+                    },
+                    "fitting": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enabled": {
+                                "type": "boolean"
+                            },
+                            "output_filename": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "save_fitted_params": {
+                                "type": "boolean"
+                            }
+                        }
                     }
                 }
             }

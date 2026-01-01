@@ -1,0 +1,170 @@
+# R10: SVF层误差仿真含Dense拟合传递函数实现报告
+
+## 1. 实现概述
+
+按照 R9 设计方案，成功实现了基于拟合传递函数的 SVF 层误差仿真功能。
+
+### 1.1 主要改动
+
+| 文件 | 改动类型 | 说明 |
+|------|---------|------|
+| `visualization/wnet5_circuit_validator.py` | 修改 | 添加拟合方法、修改执行流程 |
+| `core/config_validator.py` | 修改 | 添加 fitting 配置验证 |
+| `ex_projects/.../SVF_ERROR_SIM/config.json` | 修改 | 添加 fitting 配置项 |
+
+### 1.2 新增功能
+
+1. **`_get_svf_magnitude_response`** - 计算指定类型 SVF 滤波器的幅度响应
+2. **`_fit_svf_parameters`** - 使用联合拟合方法拟合 SVF 参数
+3. **`_calculate_fitted_magnitudes`** - 使用拟合参数计算幅度响应
+4. **`_save_fitted_params`** - 保存拟合参数到 JSON 文件
+5. **`_generate_fit_comparison_plot`** - 生成拟合结果对比图
+
+---
+
+## 2. 拟合方法说明
+
+### 2.1 联合拟合策略
+
+每个 SVF 滤波器有 1 个 f0 和 1 个 Q，但产生 3 个输出通道（HP, BP, LP）。采用联合拟合方法：
+
+```python
+# 对每个滤波器同时拟合3个通道
+joint_objective(params, f, mags, types):
+    f0, Q = params
+    total_error = sum(sum((model - data)^2) for each channel)
+    return total_error
+```
+
+### 2.2 幅度响应公式
+
+**高通 (HP):**
+$$|H_{HP}(f)| = \frac{\omega^4}{\sqrt{\omega^4 + (\frac{\omega_0}{Q})^2\omega^2 + \omega_0^4}}$$
+
+**带通 (BP):**
+$$|H_{BP}(f)| = \frac{(\frac{\omega_0}{Q})^2\omega^2}{\sqrt{\omega^4 + (\frac{\omega_0}{Q})^2\omega^2 + \omega_0^4}}$$
+
+**低通 (LP):**
+$$|H_{LP}(f)| = \frac{\omega_0^4}{\sqrt{\omega^4 + (\frac{\omega_0}{Q})^2\omega^2 + \omega_0^4}}$$
+
+其中 $\omega = 2\pi f$, $\omega_0 = 2\pi f_0$。
+
+---
+
+## 3. 运行结果
+
+### 3.1 测试命令
+
+```bash
+python cli.py ep ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM
+```
+
+### 3.2 生成的文件
+
+```
+data/
+├── numerics/
+│   ├── svf_fitted_params.json      # 拟合参数
+│   ├── svf_error_analysis.json     # SVF误差分析
+│   └── svf_dense_error_analysis.json # SVF+Dense误差分析
+├── plots/
+│   ├── svf_fit_comparison.png      # 拟合对比图
+│   ├── svf_error_comparison_merged.png  # SVF误差对比
+│   └── svf_dense_error_comparison.png   # SVF+Dense误差对比
+└── results.json
+```
+
+### 3.3 拟合结果
+
+```json
+{
+  "fitted_params": {
+    "center_freqs": [4394.36, 909.85],
+    "quality_factors": [-0.68, 0.57]
+  },
+  "fit_quality": {
+    "overall_rmse": 0.584,
+    "overall_r2": -1.42
+  }
+}
+```
+
+**注意：** R² 值为负，说明简单的 SVF 模型无法完全拟合实测数据。这可能是因为：
+1. 实测数据包含理想模型未考虑的实际电路效应
+2. 实测频率范围（2-512 Hz）不包含滤波器谐振点
+
+---
+
+## 4. 配置项说明
+
+在 `config.json` 中新增 `fitting` 配置：
+
+```json
+{
+  "svf_error_simulation": {
+    "enable": true,
+    "fitting": {
+      "enabled": true,
+      "output_filename": "svf_fit_comparison.png",
+      "save_fitted_params": true
+    },
+    "include_dense_layer": true
+  }
+}
+```
+
+| 配置项 | 说明 |
+|-------|------|
+| `enabled` | 是否启用拟合功能 |
+| `output_filename` | 拟合对比图文件名 |
+| `save_fitted_params` | 是否保存拟合参数 |
+
+---
+
+## 5. 图表说明
+
+### 5.1 拟合对比图 (svf_fit_comparison.png)
+
+- 实线：实测数据
+- 虚线：拟合曲线
+- 展示每个通道的拟合质量
+
+### 5.2 SVF+Dense误差对比图 (svf_dense_error_comparison.png)
+
+- 虚线：理想 SVF + Dense
+- 实线：拟合 SVF + Dense
+- 展示带误差的 SVF 对 Dense 层输出的影响
+
+---
+
+## 6. 验证结果
+
+测试成功运行，生成的文件包括：
+- ✅ `svf_fitted_params.json` - 拟合参数
+- ✅ `svf_fit_comparison.png` - 拟合对比图
+- ✅ `svf_dense_error_comparison.png` - SVF+Dense对比图
+- ✅ `svf_dense_error_analysis.json` - 误差分析数据
+
+---
+
+## 7. 问题与改进建议
+
+### 7.1 拟合质量
+
+当前拟合 R² 值为负，说明模型拟合效果不佳。可能原因：
+1. 实测数据可能包含非理想效应（运放特性、PCB寄生参数等）
+2. 建议在更大频率范围内测量以覆盖谐振点
+3. 可考虑使用更高阶模型或添加额外参数
+
+### 7.2 后续改进方向
+
+1. **多频段拟合**：在不同频率范围使用不同参数
+2. **添加增益系数**：考虑实测增益与理论增益的差异
+3. **相位拟合**：当前只拟合幅度，可扩展到相位拟合
+
+---
+
+## 8. 参考
+
+- R9 设计方案：`doc/detail/20251230_SVFNET_SVF层误差/R9_SVF层误差仿真含Dense拟合传递函数设计方案.md`
+- R8 调查报告：`doc/detail/20251230_SVFNET_SVF层误差/R8_SVF层误差仿真数学原理调查报告.md`

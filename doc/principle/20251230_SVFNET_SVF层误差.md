@@ -41,3 +41,27 @@
 ## R7
 
 R6 运行出来的结果过于离谱，`ex_projects\inference\wnet5-circuit-validation\SVF_ERROR_SIM\data\plots\svf_dense_error_comparison.png` 中的虚线（理想SVF+DENSE）应当与`ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1\data\plots\frequency_response_e96_comparison.png`中的虚线（理想SVF）完全一致，但是并不一致，差异巨大。你应当实际读取两个图像和数据，分析原因，修复代码，直到两者一致为止。形成调查与修复报告到 [R7](../../doc/detail/20251230_SVFNET_SVF层误差/R7_SVF层误差仿真含Dense结果修复报告.md) 中。
+
+## R8
+
+分别调查带 误差的 SVF 层和不带误差的 SVF 层的计算过程的数学原理，重点分析两者的计算公式的差异，每一个公式都要追溯到特定的代码实现位置，形成调查报告到 [R8](../../doc/detail/20251230_SVFNET_SVF层误差/R8_SVF层误差仿真数学原理调查报告.md) 中。
+
+## R9
+
+R8 中报告的带误差的 SVF 层是通过实测增益+理论相位计算出来的，这个方法不合适，要替换成通过拟合得到实测传递函数，然后使用实测传递函数的参数 + 理论仿真的代码来计算带误差的 SVF 层，按照这个思路先使得 `ep ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM` 能够生成一个新的拟合结果对比图，即对比 SVF 层的实测带误差的原始图形和通过拟合传递函数计算出来的图形，确认两者一致，然后再生成 SVF+DENSE 的最终对比图。形成设计方案，方案要充分调研当前的代码实现，充分利用现有 基础设施，并删除掉 R8 的旧版的实测增益+理论相位的计算方法。设计方案写到 [R9](../../doc/detail/20251230_SVFNET_SVF层误差/R9_SVF层误差仿真含Dense拟合传递函数设计方案.md) 中。
+
+## R10
+
+按照 R9 的方案设计，然后实际运行，查看拟合对比图和最终 SVF+DENSE 对比图，确认其正确性，如果有问题，进行调试，直到正确为止。形成实现报告到 [R10](../../doc/detail/20251230_SVFNET_SVF层误差/R10_SVF层误差仿真含Dense拟合传递函数实现报告.md) 中。
+
+## R11
+
+拟合效果不好，应当只拟合频率响应的幅度，不拟合相位，同时设置好初始值，初始值使用理论计算值。修改报告写到 [R11](../../doc/detail/20251230_SVFNET_SVF层误差/R11_SVF层误差仿真含Dense拟合传递函数改进报告.md) 中。修改后实际运行，查看拟合结果对比图，确认其正确性，如果有问题，进行调试，直到正确为止。
+
+## R12
+
+让 ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1
+ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer2
+ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer3
+ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer4 也配置为带 SVF+Dense，带 SVF_only 误差仿真的功能，要确保其原有的功能不受影响。形成实现报告到 [R12](../../doc/detail/20251230_SVFNET_SVF层误差/R12_SVF层误差仿真含Dense多层支持实现报告.md) 中。
+

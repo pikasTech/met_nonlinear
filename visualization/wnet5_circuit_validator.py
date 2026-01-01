@@ -515,12 +515,12 @@ class WNET5CircuitValidator:
             omega0 = 2 * sp.pi * f0
             denominator = s**2 + (omega0/Q)*s + omega0**2
 
-            # HP, BP, LP 传递函数
-            H_hp = s**2 / denominator
-            H_bp = (s * omega0/Q) / denominator
+            # LP, BP, HP 传递函数
             H_lp = omega0**2 / denominator
+            H_bp = (s * omega0/Q) / denominator
+            H_hp = s**2 / denominator
 
-            for H_sym in [H_hp, H_bp, H_lp]:
+            for H_sym in [H_lp, H_bp, H_hp]:
                 try:
                     H_func = sp.lambdify(s, H_sym, 'numpy')
                     H_resp = H_func(s_vals)
@@ -567,11 +567,11 @@ class WNET5CircuitValidator:
         exp_freq = measured_data['frequencies']
         exp_mags = measured_data['magnitude']
 
-        # SVF层输出标签: SVF1_HP, SVF1_BP, SVF1_LP, SVF2_HP, ...
+        # SVF层输出标签: SVF1_LP, SVF1_BP, SVF1_HP, SVF2_LP, ...
         n_filters = len(self._load_svf_parameters_from_project()['center_freqs'])
         output_labels = []
         for i in range(n_filters):
-            output_labels.extend([f'SVF{i+1}_HP', f'SVF{i+1}_BP', f'SVF{i+1}_LP'])
+            output_labels.extend([f'SVF{i+1}_LP', f'SVF{i+1}_BP', f'SVF{i+1}_HP'])
 
         # 颜色映射
         n_channels = len(sim_mag)
@@ -768,20 +768,316 @@ class WNET5CircuitValidator:
 
         return error_data
 
+    def _get_svf_magnitude_response(self, f: np.ndarray, f0: float, Q: float, filter_type: str) -> np.ndarray:
+        """计算指定类型SVF滤波器的幅度响应（R10新增，R11修正公式）
+
+        Args:
+            f: 频率数组 (Hz)
+            f0: 中心频率 (Hz)
+            Q: 品质因数
+            filter_type: 'HP', 'BP', 或 'LP'
+
+        Returns:
+            np.ndarray: 幅度响应（线性）
+        """
+        omega = 2 * np.pi * f
+        omega0 = 2 * np.pi * f0
+
+        # 分母平方: |(omega0^2 - omega^2) + j * (omega0 * omega / Q)|^2
+        # = (omega0^2 - omega^2)^2 + (omega0 * omega / Q)^2
+        denominator_sq = (omega0**2 - omega**2)**2 + (omega0 * omega / Q)**2
+
+        if filter_type.upper() == 'HP':
+            # 高通: |H| = omega^2 / sqrt(...)
+            numerator = omega**4
+        elif filter_type.upper() == 'BP':
+            # 带通: |H| = (omega0 * omega / Q) / sqrt(...)
+            numerator = (omega0 * omega / Q)**2
+        elif filter_type.upper() == 'LP':
+            # 低通: |H| = omega0^2 / sqrt(...)
+            numerator = omega0**4
+        else:
+            raise ValueError(f"未知的滤波器类型: {filter_type}")
+
+        magnitude = np.sqrt(numerator / (denominator_sq + 1e-20))
+        return magnitude
+
+    def _fit_svf_parameters(
+        self,
+        frequencies: np.ndarray,
+        measured_magnitudes: List[np.ndarray],
+        svf_params: Dict
+    ) -> Dict[str, Any]:
+        """拟合SVF参数以匹配实测数据（R10新增，R11改进）
+
+        每个SVF滤波器有1个f0和1个Q，但产生3个输出通道（HP, BP, LP）。
+        使用联合拟合方法，同时考虑所有3个通道的误差。
+        R11改进：添加增益参数，优化初始值。
+
+        Args:
+            frequencies: 频率数组 (Hz)
+            measured_magnitudes: 实测幅度数据列表（6个通道：HP/BP/LP for 2 filters）
+            svf_params: 初始 SVF 参数
+
+        Returns:
+            Dict: 拟合结果
+        """
+        from scipy.optimize import minimize
+
+        center_freqs = svf_params['center_freqs']
+        quality_factors = svf_params['quality_factors']
+        n_filters = len(center_freqs)
+
+        # 通道标签：SVF1_LP, SVF1_BP, SVF1_HP, SVF2_LP, SVF2_BP, SVF2_HP
+        channel_labels = []
+        for i in range(n_filters):
+            channel_labels.extend([f'SVF{i+1}_LP', f'SVF{i+1}_BP', f'SVF{i+1}_HP'])
+
+        fitted_channels = []
+        fitted_center_freqs = []
+        fitted_quality_factors = []
+
+        logger.info("开始拟合 SVF 参数 (R11改进：带增益参数)...")
+
+        # 对每个滤波器进行联合拟合（3个通道共享相同的f0和Q，但各有自己的增益）
+        for filter_idx in range(n_filters):
+            # 获取该滤波器的3个通道数据
+            filter_types = ['LP', 'BP', 'HP']
+            filter_mags = [
+                measured_magnitudes[filter_idx * 3 + i]
+                for i in range(3)
+            ]
+
+            # 计算每个通道的初始增益（使用低频或高频的平均值）
+            gains_init = []
+            for mag, t in zip(filter_mags, filter_types):
+                if t == 'HP':
+                    # HP在高频时增益应该为1
+                    high_freq_gain = np.mean(mag[-5:])
+                    gains_init.append(high_freq_gain)
+                elif t == 'LP':
+                    # LP在低频时增益应该为1
+                    low_freq_gain = np.mean(mag[:5])
+                    gains_init.append(low_freq_gain)
+                else:  # BP
+                    # BP使用峰值作为初始增益估计
+                    gains_init.append(np.max(mag))
+
+            # 初始猜测值（使用理论计算值）
+            f0_init = center_freqs[filter_idx]
+            Q_init = quality_factors[filter_idx]
+
+            # R11改进：使用有边界的优化器，设置合理的参数范围
+            # f0范围: 1Hz - 10000Hz (基于测量频率范围)
+            # Q范围: 0.01 - 50 (适当放宽，因为高Q值滤波器需要)
+            # 增益范围: 0.001 - 100 (大幅放宽增益边界)
+            bounds = [(1.0, 10000.0), (0.01, 50.0)] + [(0.001, 100.0) for _ in range(3)]
+
+            # 联合目标函数：同时考虑3个通道的误差（R11：带增益参数）
+            def joint_objective(params, f, mags, types):
+                f0, Q = params[0], params[1]
+                gains = params[2:]  # 每个通道的增益
+                total_error = 0.0
+                for i, (mag, t, gain) in enumerate(zip(mags, types, gains)):
+                    model = self._get_svf_magnitude_response(f, f0, Q, t)
+                    # 应用增益
+                    model = model * gain
+                    total_error += np.sum((model - mag)**2)
+                return total_error
+
+            # 初始参数：[f0, Q, gain_HP, gain_BP, gain_LP]
+            x0 = [f0_init, Q_init] + gains_init
+
+            # 使用 L-BFGS-B 优化器（有边界约束）
+            result = minimize(
+                joint_objective,
+                x0=x0,
+                args=(frequencies, filter_mags, filter_types),
+                method='L-BFGS-B',
+                bounds=bounds,
+                options={'maxiter': 2000, 'ftol': 1e-10}
+            )
+
+            f0_fitted, Q_fitted = result.x[0], result.x[1]
+            gains_fitted = result.x[2:]
+
+            # 计算每个通道的拟合质量
+            for i, (filter_type, meas_mag, gain) in enumerate(zip(filter_types, filter_mags, gains_fitted)):
+                ch_idx = filter_idx * 3 + i
+                label = channel_labels[ch_idx]
+
+                fitted_mag = self._get_svf_magnitude_response(frequencies, f0_fitted, Q_fitted, filter_type) * gain
+                rmse = np.sqrt(np.mean((fitted_mag - meas_mag)**2))
+
+                # R² 计算
+                ss_res = np.sum((meas_mag - fitted_mag)**2)
+                ss_tot = np.sum((meas_mag - np.mean(meas_mag))**2)
+                r2 = 1 - (ss_res / (ss_tot + 1e-20))
+
+                fitted_channels.append({
+                    'channel': label,
+                    'f0': float(f0_fitted),
+                    'Q': float(Q_fitted),
+                    'gain': float(gain),
+                    'rmse': float(rmse),
+                    'r2': float(r2)
+                })
+
+                logger.info(f"  {label}: f0={f0_fitted:.2f}Hz, Q={Q_fitted:.4f}, gain={gain:.4f}, RMSE={rmse:.6f}, R²={r2:.4f}")
+
+            fitted_center_freqs.append(float(f0_fitted))
+            fitted_quality_factors.append(float(Q_fitted))
+
+        # 计算整体拟合质量
+        all_rmse = np.mean([ch['rmse'] for ch in fitted_channels])
+        all_r2 = np.mean([ch['r2'] for ch in fitted_channels])
+
+        logger.info(f"拟合完成: 平均RMSE={all_rmse:.6f}, 平均R²={all_r2:.4f}")
+
+        return {
+            'fitted_params': {
+                'center_freqs': fitted_center_freqs,
+                'quality_factors': fitted_quality_factors
+            },
+            'fitted_channels': fitted_channels,
+            'fit_quality': {
+                'overall_rmse': float(all_rmse),
+                'overall_r2': float(all_r2)
+            }
+        }
+
+    def _calculate_fitted_magnitudes(
+        self,
+        frequencies: np.ndarray,
+        fitted_params: Dict[str, Any]
+    ) -> List[np.ndarray]:
+        """使用拟合参数计算各通道的幅度响应（R10新增，R11改进：带增益）
+
+        Args:
+            frequencies: 频率数组
+            fitted_params: 拟合参数（包含fitted_channels中的gain）
+
+        Returns:
+            List[np.ndarray]: 各通道的幅度响应
+        """
+        center_freqs = fitted_params['fitted_params']['center_freqs']
+        quality_factors = fitted_params['fitted_params']['quality_factors']
+        fitted_channels = fitted_params['fitted_channels']
+        n_filters = len(center_freqs)
+
+        magnitudes = []
+        channel_idx = 0
+        for filter_idx in range(n_filters):
+            f0 = center_freqs[filter_idx]
+            Q = quality_factors[filter_idx]
+
+            for filter_type in ['LP', 'BP', 'HP']:
+                # R11改进：获取通道的增益参数
+                gain = fitted_channels[channel_idx].get('gain', 1.0)
+                mag = self._get_svf_magnitude_response(frequencies, f0, Q, filter_type) * gain
+                magnitudes.append(mag)
+                channel_idx += 1
+
+        return magnitudes
+
+    def _save_fitted_params(self, fitted_params: Dict[str, Any]) -> str:
+        """保存拟合参数到JSON文件（R10新增）
+
+        Args:
+            fitted_params: 拟合参数
+
+        Returns:
+            str: 保存的文件路径
+        """
+        output_path = self.output_path / 'numerics' / 'svf_fitted_params.json'
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(fitted_params, f, indent=2, ensure_ascii=False)
+        logger.info(f"拟合参数已保存: {output_path}")
+        return str(output_path)
+
+    def _generate_fit_comparison_plot(
+        self,
+        frequencies: np.ndarray,
+        measured_magnitudes: List[np.ndarray],
+        fitted_magnitudes: List[np.ndarray],
+        channel_labels: List[str]
+    ) -> str:
+        """生成拟合结果对比图（R10新增）
+
+        对比实测数据与拟合曲线的吻合程度
+
+        Args:
+            frequencies: 频率数组
+            measured_magnitudes: 实测幅度数据
+            fitted_magnitudes: 拟合得到的幅度数据
+            channel_labels: 通道标签
+
+        Returns:
+            str: 生成的图片路径
+        """
+        import matplotlib as mpl
+
+        n_channels = len(channel_labels)
+        cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+        colors = [cmap(i) for i in range(n_channels)]
+
+        fig, ax = plt.subplots(figsize=(12, 5))
+
+        for i, (meas_mag, fit_mag, label) in enumerate(zip(measured_magnitudes, fitted_magnitudes, channel_labels)):
+            # 实测数据（实线）
+            ax.semilogx(frequencies, meas_mag, color=colors[i], linewidth=1.8,
+                       linestyle='-', label=f'{label} (实测)', alpha=0.9)
+            # 拟合曲线（虚线）
+            ax.semilogx(frequencies, fit_mag, color=colors[i], linewidth=1.4,
+                       linestyle='--', label=f'{label} (拟合)', alpha=0.8)
+
+        ax.set_title(f'{self.model_project_name} SVF层拟合结果对比\n(实线=实测, 虚线=拟合)',
+                    fontsize=12, fontweight='bold')
+        ax.set_xlabel('频率 (Hz)', fontsize=10)
+        ax.set_ylabel('增益 (线性)', fontsize=10)
+        ax.set_yscale('log')
+        ax.grid(True, which='both', alpha=0.3)
+
+        # 设置y轴范围
+        all_vals = np.concatenate([*measured_magnitudes, *fitted_magnitudes])
+        y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+        pad = 0.05
+        y_min_adj = max(1e-20, y_min / (1+pad))
+        y_max_adj = y_max * (1+pad)
+        ax.set_ylim(y_min_adj, y_max_adj)
+
+        ax.legend(fontsize=7, ncol=min(4, n_channels), loc='best')
+        plt.tight_layout()
+
+        output_filename = self.svf_error_config.get('fitting', {}).get(
+            'output_filename', 'svf_fit_comparison.png'
+        )
+        plot_path = self.output_path / 'plots' / output_filename
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+
+        logger.info(f"拟合对比图已保存: {plot_path}")
+        return str(plot_path)
+
     def _calculate_svf_dense_combined_response(
         self,
         svf_params: Dict,
         dense_weights: Dict,
         measured_data: Dict[str, Any] = None,
-        use_measured_svf: bool = True
+        use_measured_svf: bool = True,
+        fitted_params: Dict[str, Any] = None
     ) -> Dict[str, Any]:
-        """计算 SVF + Dense 组合频率响应（R6新增）
+        """计算 SVF + Dense 组合频率响应（R6新增，R10修改）
+
+        复用已有的 _calculate_svf_transfer_functions 和 _calculate_combined_transfer_functions
+        方法来构建传递函数，然后使用 _calculate_frequency_response 计算频响。
 
         Args:
             svf_params: SVF 参数（中心频率、Q因子）
             dense_weights: Dense 权重
             measured_data: SVF 实测数据（可选）
-            use_measured_svf: True=使用实测数据，False=使用理论值
+            use_measured_svf: True=使用拟合参数，False=使用理论值
+            fitted_params: 拟合后的 SVF 参数（优先使用）
 
         Returns:
             Dict: {
@@ -790,75 +1086,32 @@ class WNET5CircuitValidator:
                 'phase_deg': List[np.ndarray]
             }
         """
-        import sympy as sp
-        from scipy import interpolate
+        # 选择使用的参数：如果有拟合参数，使用 fitted_params['fitted_params']
+        params_to_use = fitted_params['fitted_params'] if (use_measured_svf and fitted_params) else svf_params
 
-        # 1. 获取频率点
+        # 1. 构建传递函数（使用拟合参数或原始参数）
+        svf_tfs = self._calculate_svf_transfer_functions(params_to_use)
+        combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
+
+        # 2. 获取频率点
         if measured_data is not None:
             frequencies = measured_data['frequencies']
-        else:
-            start_freq = float(self.frequency_range['start_freq'])
-            stop_freq = float(self.frequency_range['stop_freq'])
-            points = int(self.frequency_range.get('points', 1000))
-            frequencies = np.logspace(np.log10(start_freq), np.log10(stop_freq), points)
+            # 临时修改频率范围配置以使用实测数据频率点
+            original_range = self.frequency_range.copy()
+            self.frequency_range = {
+                'start_freq': float(frequencies.min()),
+                'stop_freq': float(frequencies.max()),
+                'points': len(frequencies)
+            }
 
-        omega = 2 * np.pi * frequencies
-        s_vals = 1j * omega
+        # 3. 计算频率响应（复用已有方法）
+        freq_response = self._calculate_frequency_response(combined_tfs)
 
-        # 2. 获取 Dense 权重
-        W = dense_weights['weights']  # (6, 6)
-        bias = dense_weights['bias']  # (6,)
-        n_inputs, n_outputs = W.shape
+        # 恢复原始频率范围配置
+        if measured_data is not None:
+            self.frequency_range = original_range
 
-        # 3. 计算 SVF 传递函数
-        s = sp.Symbol('s')
-        all_svf_tfs = []
-        for f0, Q in zip(svf_params['center_freqs'], svf_params['quality_factors']):
-            omega0 = 2 * sp.pi * f0
-            denominator = s**2 + (omega0/Q)*s + omega0**2
-            all_svf_tfs.append({
-                'hp': s**2 / denominator,
-                'bp': (s * omega0/Q) / denominator,
-                'lp': omega0**2 / denominator
-            })
-
-        # 4. 预计算理论 SVF 响应值
-        svf_theoretical = []
-        for svf in all_svf_tfs:
-            for key in ['hp', 'bp', 'lp']:
-                H_func = sp.lambdify(s, svf[key], 'numpy')
-                H_resp = H_func(s_vals)
-                svf_theoretical.append(np.abs(H_resp))
-
-        svf_theoretical = np.array(svf_theoretical)  # (6, n_frequencies)
-
-        # 5. 计算每个频率点的响应
-        mag_db_all = [[] for _ in range(n_outputs)]
-
-        for freq_idx, f in enumerate(frequencies):
-            # 获取理论 SVF 响应
-            svf_responses = svf_theoretical[:, freq_idx]  # (6,)
-
-            # 如果使用实测数据，替换理论值
-            if use_measured_svf and measured_data is not None:
-                for ch_idx, ch_data in enumerate(measured_data['magnitude']):
-                    if freq_idx < len(ch_data):
-                        svf_responses[ch_idx] = ch_data[freq_idx]
-
-            # Dense 层计算: output = W.T @ input + bias
-            for o in range(n_outputs):
-                output_val = bias[o] + np.sum(W[:, o] * svf_responses)
-                if output_val <= 0:
-                    output_val = 1e-20
-                mag_db_all[o].append(20 * np.log10(output_val))
-
-        logger.info(f"✅ SVF+Dense 组合频响计算完成: {n_outputs} 个输出通道")
-
-        return {
-            'frequencies': frequencies,
-            'magnitude_db': [np.array(m) for m in mag_db_all],
-            'phase_deg': [[] for _ in range(n_outputs)]  # 暂不计算相位
-        }
+        return freq_response
 
     def _generate_svf_dense_error_comparison_plot(
         self,
@@ -1047,10 +1300,9 @@ class WNET5CircuitValidator:
             quantization_comparison = None
             plots = []
 
-            # 新增：SVF层误差仿真（R3实现）
+            # 新增：SVF层误差仿真（R3实现，R10修改）
             if self.svf_error_enable:
                 logger.info("执行SVF层误差仿真...")
-                svf_response = self._calculate_svf_frequency_response_only(svf_params)
                 measured_data = self._load_svf_measured_data()
 
                 # 自测试补偿（如果启用）
@@ -1058,7 +1310,42 @@ class WNET5CircuitValidator:
                     selftest_data = self._load_selftest_data()
                     measured_data = self._compensate_svf_with_selftest(measured_data, selftest_data)
 
-                # 生成对比图
+                frequencies = measured_data['frequencies']
+                measured_magnitudes = measured_data['magnitude']
+
+                # ========== R10新增：拟合SVF参数 ==========
+                fitting_config = self.svf_error_config.get('fitting', {})
+                fitting_enabled = fitting_config.get('enabled', False)
+
+                if fitting_enabled:
+                    logger.info("开始拟合 SVF 参数...")
+
+                    # 拟合 SVF 参数
+                    fitted_params = self._fit_svf_parameters(frequencies, measured_magnitudes, svf_params)
+
+                    # 保存拟合参数
+                    self._save_fitted_params(fitted_params)
+
+                    # 使用拟合参数计算理论频响
+                    fitted_magnitudes = self._calculate_fitted_magnitudes(frequencies, fitted_params)
+
+                    # 生成拟合对比图
+                    n_filters = len(svf_params['center_freqs'])
+                    channel_labels = []
+                    for i in range(n_filters):
+                        channel_labels.extend([f'SVF{i+1}_LP', f'SVF{i+1}_BP', f'SVF{i+1}_HP'])
+
+                    fit_plot = self._generate_fit_comparison_plot(
+                        frequencies, measured_magnitudes, fitted_magnitudes, channel_labels
+                    )
+                    plots.append(fit_plot)
+                else:
+                    fitted_params = None
+
+                # 计算理论 SVF 频响（用于对比图）
+                svf_response = self._calculate_svf_frequency_response_only(svf_params)
+
+                # 生成 SVF 误差对比图（理论 vs 实测）
                 svf_plot = self._generate_svf_error_comparison_plot(svf_response, measured_data)
                 plots.append(svf_plot)
 
@@ -1082,10 +1369,11 @@ class WNET5CircuitValidator:
                         measured_data=None, use_measured_svf=False
                     )
 
-                    # 计算 target: 实测 SVF + Dense
+                    # 计算 target: 拟合 SVF + Dense（使用拟合参数）
                     target_response = self._calculate_svf_dense_combined_response(
                         svf_params, dense_weights,
-                        measured_data=measured_data, use_measured_svf=True
+                        measured_data=measured_data, use_measured_svf=True,
+                        fitted_params=fitted_params  # 传递拟合参数
                     )
 
                     # 生成对比图
