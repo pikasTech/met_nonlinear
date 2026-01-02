@@ -1,7 +1,7 @@
 ## TIPS
 
 测试使用环境 conda tf26
-测试使用命令 python cli.py ep ex_projects/...
+测试使用命令 conda.bat run --no-capture-output -n tf26 python cli.py ep ex_projects/...
 
 可以参考的成功案例 `doc\principle\20251227_SVFNET_E96量化.md`
 

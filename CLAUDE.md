@@ -55,13 +55,11 @@
 #### tf26 环境启动方法
 
 **正确命令**:
-```powershell
-& 'C:\Users\lyon\MiniConda3\condabin\conda.bat' 'run' '--no-capture-output' '-n' 'tf26' 'python' 'cli.py' 'ep' 'ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1'
+```bash
+conda.bat run --no-capture-output -n tf26 python cli.py ep ex_projects/inference/wnet5-circuit-validation/WNET5q1h2u6l3_layer1
 ```
 
 **关键参数**: `--no-capture-output` - 避免编码问题
-
-**环境路径**: `C:\Users\lyon\MiniConda3\envs\tf26`
 
 #### 常见问题与解决方案
 
