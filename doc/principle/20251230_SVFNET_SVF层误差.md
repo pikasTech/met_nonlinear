@@ -73,3 +73,17 @@ ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer4 也配置为
 
 用 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1`
 继续完善 R13 的功能，插入图片必须用 []() 的 markdown 格式插入，相对路径，且必须在生成后加入验证代码，确保 data/plots 里面的所有 png 图片都被正确插入到 data/reports/report.md 中，没有遗漏的图片，且路径正确，形成实现报告到 [R14](../../doc/detail/20251230_SVFNET_SVF层误差/R14_SVF层误差仿真含Dense结果报告图片插入验证实现报告.md) 中。确保代码实际运行后，报告正确生成，内容正确。
+
+## R15
+
+调查代码中是否存在根据 SVF 电路的 f0 和 Q 值计算电路的元件参数的代码，调查计算公式，将调查结果写到 [R15](../../doc/detail/20251230_SVFNET_SVF层误差/R15_SVF电路元件参数计算调查报告.md) 中。
+
+## R16
+
+SVF 实际制作的电路中，两个 SVF 电路的电容标称值分别是 1.5uF 和 200nF，现在需要对比三个值：
+
+1. 理论计算值（R15 中调查得到的计算公式计算出来的值）
+2. 标称值（1.5uF 和 200nF）
+3. 实测值，从实测 SVF 频率响应的拟合结果中反推出来的电容值（电阻都视为标称值）
+
+这个计算过程要集成到 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1` 中，形成设计与实现报告到 [R16](../../doc/detail/20251230_SVFNET_SVF层误差/R16_SVF电路元件参数对比计算设计与实现报告.md) 中。确保代码实际运行后，能够生成一个对比表格，表格中包含上述三种值的对比。这个表格补充输出到 R13 提到的 `report.md` 中。

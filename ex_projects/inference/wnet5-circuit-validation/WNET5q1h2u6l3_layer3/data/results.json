@@ -86,7 +86,7 @@
       "plots\\svf_error_comparison_merged.png",
       "plots\\svf_dense_error_comparison.png"
     ],
-    "report": null
+    "report": "reports\\report.md"
   },
   "error_analysis": {
     "frequencies": [
