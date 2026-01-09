@@ -1,0 +1,34 @@
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "SVF层误差仿真测试 - 使用拟合传递函数方法（R10）"
+  },
+  "model_project_name": "WNET5q1h2u6l3",
+  "analysis_layer": 1,
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 500
+  },
+  "svf_error_simulation": {
+    "enable": true,
+    "measured_data_file": "exam_data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+    "include_dense_layer": true,
+    "compensation": {
+      "enabled": false
+    },
+    "fitting": {
+      "enabled": true,
+      "output_filename": "svf_fit_comparison.png",
+      "save_fitted_params": true
+    },
+    "plot_config": {
+      "merged_plot_mode": true,
+      "output_filename": "svf_error_comparison_merged.png",
+      "dense_output_filename": "svf_dense_error_comparison.png"
+    }
+  },
+  "inference_config": {
+    "use_e96": false,
+    "include_quantization_comparison": false
+  }
+}

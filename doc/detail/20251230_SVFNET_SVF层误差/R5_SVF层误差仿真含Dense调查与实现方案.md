@@ -1,0 +1,529 @@
+# R5_SVF层误差仿真含Dense调查与实现方案
+
+**报告日期**: 2025-12-30
+**报告位置**: `doc/detail/20251230_SVFNET_SVF层误差/R5_SVF层误差仿真含Dense调查与实现方案.md`
+
+---
+
+## 1. 调查概述
+
+### 1.1 当前 R3 实现的问题
+
+**R3 实现位置**: `visualization/wnet5_circuit_validator.py`
+
+**R3 核心方法**:
+| 方法 | 功能 | 问题 |
+|-----|------|-----|
+| `_calculate_svf_frequency_response_only()` | 只计算 SVF 层理论频响 | **跳过了 Dense 层** |
+| `_generate_svf_error_comparison_plot()` | 对比 SVF 仿真 vs SVF 实测 | 只看 SVF 本身 |
+| `_calculate_svf_error_statistics()` | 计算 SVF 层误差统计 | 只看 SVF 本身 |
+
+**R3 执行流程** (当 `svf_error_enable=True` 时):
+```python
+# execute_validation() 中的逻辑
+if self.svf_error_enable:
+    # 只计算 SVF 层
+    svf_response = self._calculate_svf_frequency_response_only(svf_params)
+    measured_data = self._load_svf_measured_data()
+    # ...
+    # ❌ 跳过了所有 Dense 层计算！
+    svf_tfs = None
+    combined_tfs = None
+    freq_response = None
+```
+
+### 1.2 用户需求确认
+
+**保留原有功能**:
+- SVF（实际测试误差）vs SVF（无误差）- ✅ 保留
+
+**新增真正需要的结果**:
+- **target**: SVF（实际测试误差） + Dense（无误差）
+- **baseline**: SVF（无误差） + Dense（无误差）
+
+---
+
+## 2. 技术方案调研
+
+### 2.1 Dense 层计算方式
+
+Dense 层的数学形式（频域）：
+```
+output_o(f) = bias[o] + Σ(W[i,o] × input_i(f))
+```
+
+其中：
+- `W`: Dense 权重矩阵 (n_inputs × n_outputs)
+- `input_i(f)`: 第 i 个 SVF 通道在频率 f 处的增益
+- `output_o(f)`: 第 o 个 Dense 输出在频率 f 处的增益
+
+### 2.2 SVF 输出与 Dense 输入的映射
+
+**WNET5 结构**:
+- 2 个 SVF 滤波器
+- 每个 SVF 输出 3 个通道：HP, BP, LP
+- 共 6 个 SVF 输出 → 作为 Dense 输入
+
+**通道映射**:
+| Dense 输入索引 | SVF 输出 | 说明 |
+|---------------|---------|------|
+| 0 | SVF1_HP | 高通 |
+| 1 | SVF1_BP | 带通 |
+| 2 | SVF1_LP | 低通 |
+| 3 | SVF2_HP | 高通 |
+| 4 | SVF2_BP | 带通 |
+| 5 | SVF2_LP | 低通 |
+
+---
+
+## 3. 修改计划
+
+### 3.1 配置修改
+
+**文件**: `ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM/config.json`
+
+**新增配置项**:
+```json
+{
+  "svf_error_simulation": {
+    "enable": true,
+    "measured_data_file": "${MET_DATA_BASE}/data/20251230_SVFNET_SVF_ONLY/20251230_SVF_ONLY.xlsx",
+    "include_dense_layer": true,  // R5 新增：是否计算 Dense 层
+    "compensation": {
+      "enabled": false
+    },
+    "plot_config": {
+      "merged_plot_mode": true,
+      "output_filename": "svf_dense_error_comparison.png"
+    }
+  }
+}
+```
+
+### 3.2 代码修改清单
+
+#### 3.2.1 新增方法
+
+| 序号 | 方法名 | 功能 | 位置 |
+|-----|-------|------|-----|
+| 1 | `_calculate_svf_dense_combined_response()` | 计算 SVF+Dense 组合频响 | _calculate_svf_error_statistics 后 |
+| 2 | `_generate_svf_dense_error_comparison_plot()` | 生成 SVF+Dense 对比图 | _generate_svf_error_comparison_plot 后 |
+| 3 | `_calculate_svf_dense_error_statistics()` | 计算 SVF+Dense 误差统计 | _calculate_svf_error_statistics 后 |
+
+#### 3.2.2 修改方法
+
+| 序号 | 方法名 | 修改内容 |
+|-----|-------|---------|
+| 1 | `execute_validation()` | 当 `include_dense_layer=true` 时，增加 Dense 层计算流程 |
+
+### 3.3 详细实现方案
+
+#### 3.3.1 `_calculate_svf_dense_combined_response()`
+
+```python
+def _calculate_svf_dense_combined_response(
+    self,
+    svf_params: Dict,
+    dense_weights: Dict,
+    measured_data: Dict[str, Any] = None,
+    use_measured_svf: bool = True
+) -> Dict[str, Any]:
+    """计算 SVF + Dense 组合频率响应
+
+    Args:
+        svf_params: SVF 参数（中心频率、Q因子）
+        dense_weights: Dense 权重
+        measured_data: SVF 实测数据（可选）
+        use_measured_svf: True=使用实测数据，False=使用理论值
+
+    Returns:
+        Dict: {
+            'frequencies': np.ndarray,
+            'magnitude_db': List[np.ndarray],  # 每个输出通道
+            'phase_deg': List[np.ndarray]
+        }
+    """
+    import sympy as sp
+    from scipy import interpolate
+
+    # 1. 获取频率点
+    if measured_data is not None:
+        frequencies = measured_data['frequencies']
+    else:
+        start_freq = float(self.frequency_range['start_freq'])
+        stop_freq = float(self.frequency_range['stop_freq'])
+        points = int(self.frequency_range.get('points', 1000))
+        frequencies = np.logspace(np.log10(start_freq), np.log10(stop_freq), points)
+
+    omega = 2 * np.pi * frequencies
+    s_vals = 1j * omega
+
+    # 2. 获取 Dense 权重
+    W = dense_weights['weights']  # (6, 6)
+    bias = dense_weights['bias']  # (6,)
+    n_inputs, n_outputs = W.shape
+
+    # 3. 计算 SVF 传递函数
+    s = sp.Symbol('s')
+    all_svf_tfs = []
+    for f0, Q in zip(svf_params['center_freqs'], svf_params['quality_factors']):
+        omega0 = 2 * sp.pi * f0
+        denominator = s**2 + (omega0/Q)*s + omega0**2
+        all_svf_tfs.append({
+            'hp': s**2 / denominator,
+            'bp': (s * omega0/Q) / denominator,
+            'lp': omega0**2 / denominator
+        })
+
+    # 4. 计算每个频率点的响应
+    mag_db_all = [[] for _ in range(n_outputs)]
+
+    for freq_idx, f in enumerate(frequencies):
+        s_val = 1j * 2 * np.pi * f
+
+        # 计算每个 SVF 通道在该频率的响应（理论值）
+        svf_responses = []
+        for svf in all_svf_tfs:
+            for key in ['hp', 'bp', 'lp']:
+                H_func = sp.lambdify(s, svf[key], 'numpy')
+                H_resp = H_func(s_val)
+                svf_responses.append(np.abs(H_resp))
+
+        svf_responses = np.array(svf_responses)  # (6,)
+
+        # 如果使用实测数据，替换理论值
+        if use_measured_svf and measured_data is not None:
+            for ch_idx, ch_data in enumerate(measured_data['magnitude']):
+                if freq_idx < len(ch_data):
+                    svf_responses[ch_idx] = ch_data[freq_idx]
+
+        # Dense 层计算: output = W.T @ input + bias
+        for o in range(n_outputs):
+            output_val = bias[o] + np.sum(W[:, o] * svf_responses)
+            if output_val <= 0:
+                output_val = 1e-20
+            mag_db_all[o].append(20 * np.log10(output_val))
+
+    return {
+        'frequencies': frequencies,
+        'magnitude_db': [np.array(m) for m in mag_db_all],
+        'phase_deg': [[] for _ in range(n_outputs)]  # 暂不计算相位
+    }
+```
+
+#### 3.3.2 `_generate_svf_dense_error_comparison_plot()`
+
+```python
+def _generate_svf_dense_error_comparison_plot(
+    self,
+    baseline_response: Dict[str, Any],
+    target_response: Dict[str, Any],
+    dense_weights: Dict[str, Any]
+) -> str:
+    """生成 SVF+Dense 误差对比图
+
+    对比 baseline (SVF理想+Dense) vs target (SVF实测+Dense)
+
+    Args:
+        baseline_response: 理想情况的频响
+        target_response: 实测 SVF 情况的频响
+        dense_weights: Dense 权重信息
+
+    Returns:
+        str: 生成的图片路径
+    """
+    import matplotlib as mpl
+
+    frequencies = baseline_response['frequencies']
+    baseline_mag = [np.power(10.0, m/20.0) for m in baseline_response['magnitude_db']]
+    target_mag = [np.power(10.0, m/20.0) for m in target_response['magnitude_db']]
+
+    # 输出标签
+    analysis_layer = dense_weights.get('analysis_layer', 1)
+    output_labels = [f'D{analysis_layer}_{i+1}' for i in range(len(baseline_mag))]
+
+    # 颜色映射
+    n_channels = len(baseline_mag)
+    cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+    colors = [cmap(i) for i in range(n_channels)]
+
+    # 创建对比图
+    fig, ax = plt.subplots(figsize=(12, 4))
+
+    # 绘制 baseline（虚线）
+    for i, (m, lbl) in enumerate(zip(baseline_mag, output_labels)):
+        ax.semilogx(frequencies, m, color=colors[i], linewidth=1.4,
+                   linestyle='--', label=f'{lbl} (理想)', alpha=0.8)
+
+    # 绘制 target（实线）
+    for i, (m, lbl) in enumerate(zip(target_mag, output_labels)):
+        ax.semilogx(frequencies, m, color=colors[i], linewidth=1.8,
+                   linestyle='-', label=f'{lbl} (SVF实测)', alpha=0.9)
+
+    ax.set_title(
+        f'{self.model_project_name} Dense#{analysis_layer} 频率响应对比\n'
+        f'(虚线=理想SVF, 实线=SVF实测误差)',
+        fontsize=12, fontweight='bold'
+    )
+    ax.set_xlabel('频率 (Hz)', fontsize=10)
+    ax.set_ylabel('增益 (线性, log刻度)', fontsize=10)
+    ax.set_yscale('log')
+    ax.grid(True, which='both', alpha=0.3)
+
+    # 设置y轴范围
+    all_vals = np.concatenate([*baseline_mag, *target_mag])
+    y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+    pad = 0.05
+    y_min_adj = max(1e-20, y_min / (1+pad))
+    y_max_adj = y_max * (1+pad)
+    ax.set_ylim(y_min_adj, y_max_adj)
+
+    ax.legend(fontsize=8, ncol=min(4, len(output_labels)*2), loc='best')
+    plt.tight_layout()
+
+    output_filename = self.svf_error_config.get('plot_config', {}).get(
+        'output_filename', 'svf_dense_error_comparison.png'
+    )
+    plot_path = self.output_path / 'plots' / output_filename
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+
+    logger.info(f"SVF+Dense误差对比图已保存: {plot_path}")
+    return str(plot_path)
+```
+
+#### 3.3.3 `_calculate_svf_dense_error_statistics()`
+
+```python
+def _calculate_svf_dense_error_statistics(
+    self,
+    baseline_response: Dict[str, Any],
+    target_response: Dict[str, Any]
+) -> Dict[str, Any]:
+    """计算 SVF+Dense 误差统计
+
+    计算 target / baseline 的误差比值
+    """
+    from scipy import interpolate
+
+    base_freq = baseline_response['frequencies']
+    base_mag = [np.power(10.0, m/20.0) for m in baseline_response['magnitude_db']]
+
+    target_freq = target_response['frequencies']
+    target_mags = [np.power(10.0, m/20.0) for m in target_response['magnitude_db']]
+
+    # 使用 baseline 频率点
+    error_data = {
+        'frequencies': base_freq.tolist(),
+        'error_ratios': [],
+        'statistics': []
+    }
+
+    n_channels = len(base_mag)
+    output_labels = [f'D{self.analysis_layer}_{i+1}' for i in range(n_channels)]
+
+    for i, (base_ch, target_ch, lbl) in enumerate(zip(base_mag, target_mags, output_labels)):
+        # 将 target 数据插值到 baseline 频率点
+        target_interp = interpolate.interp1d(
+            target_freq, target_ch, kind='linear',
+            bounds_error=False, fill_value=np.nan
+        )
+        target_interp_vals = target_interp(base_freq)
+
+        # 计算误差比值: target / baseline
+        with np.errstate(divide='ignore', invalid='ignore'):
+            error_ratio = target_interp_vals / (base_ch + 1e-20)
+            error_ratio = np.where(np.abs(base_ch) < 1e-20, np.nan, error_ratio)
+
+        error_data['error_ratios'].append({
+            'channel': lbl,
+            'ratios': error_ratio.tolist()
+        })
+
+        # 计算统计指标
+        valid_errors = error_ratio[~np.isnan(error_ratio)]
+        if len(valid_errors) > 0:
+            stats = {
+                'channel': lbl,
+                'mean_error_ratio': float(np.mean(valid_errors)),
+                'std_error_ratio': float(np.std(valid_errors)),
+                'min_error_ratio': float(np.min(valid_errors)),
+                'max_error_ratio': float(np.max(valid_errors)),
+                'mean_abs_error_percent': float(np.mean(np.abs(valid_errors - 1.0) * 100)),
+                'within_5pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.05) / len(valid_errors) * 100),
+                'within_10pct': float(np.sum(np.abs(valid_errors - 1.0) <= 0.1) / len(valid_errors) * 100)
+            }
+        else:
+            stats = {k: None for k in [
+                'channel', 'mean_error_ratio', 'std_error_ratio',
+                'min_error_ratio', 'max_error_ratio', 'mean_abs_error_percent',
+                'within_5pct', 'within_10pct'
+            ]}
+
+        error_data['statistics'].append(stats)
+
+    return error_data
+```
+
+#### 3.3.4 修改 `execute_validation()`
+
+```python
+if self.svf_error_enable:
+    logger.info("执行SVF层误差仿真...")
+
+    # 加载数据
+    svf_params = self._load_svf_parameters_from_project()
+    dense_weights = self._load_dense_weights_from_project(self.analysis_layer)
+    measured_data = self._load_svf_measured_data()
+
+    # 自测试补偿（如果启用）
+    if self.svf_compensation_enabled and self.svf_selftest_file:
+        selftest_data = self._load_selftest_data()
+        measured_data = self._compensate_svf_with_selftest(measured_data, selftest_data)
+
+    # 检查是否包含 Dense 层计算
+    include_dense = self.svf_error_config.get('include_dense_layer', False)
+
+    # ========== 原有功能：SVF-only 对比（始终执行）==========
+    svf_response = self._calculate_svf_frequency_response_only(svf_params)
+    svf_plot = self._generate_svf_error_comparison_plot(svf_response, measured_data)
+    plots.append(svf_plot)
+
+    svf_error_data = self._calculate_svf_error_statistics(svf_response, measured_data)
+    svf_error_path = self.output_path / 'numerics' / 'svf_error_analysis.json'
+    with open(svf_error_path, 'w', encoding='utf-8') as f:
+        json.dump(svf_error_data, f, indent=2, ensure_ascii=False)
+    logger.info(f"SVF误差分析数据已保存: {svf_error_path}")
+
+    # ========== 新增功能：SVF+Dense 对比（如果启用）==========
+    if include_dense:
+        logger.info("执行 SVF+Dense 误差仿真...")
+
+        # 计算 baseline: 理想 SVF + Dense
+        baseline_response = self._calculate_svf_dense_combined_response(
+            svf_params, dense_weights,
+            measured_data=None, use_measured_svf=False
+        )
+
+        # 计算 target: 实测 SVF + Dense
+        target_response = self._calculate_svf_dense_combined_response(
+            svf_params, dense_weights,
+            measured_data=measured_data, use_measured_svf=True
+        )
+
+        # 生成对比图
+        dense_plot = self._generate_svf_dense_error_comparison_plot(
+            baseline_response, target_response, dense_weights
+        )
+        plots.append(dense_plot)
+
+        # 计算误差统计
+        dense_error_stats = self._calculate_svf_dense_error_statistics(
+            baseline_response, target_response
+        )
+
+        # 保存误差分析
+        dense_error_path = self.output_path / 'numerics' / 'svf_dense_error_analysis.json'
+        with open(dense_error_path, 'w', encoding='utf-8') as f:
+            json.dump(dense_error_stats, f, indent=2, ensure_ascii=False)
+        logger.info(f"SVF+Dense误差分析数据已保存: {dense_error_path}")
+
+    # 跳过原有的 Dense 层计算
+    svf_tfs = None
+    combined_tfs = None
+    freq_response = None
+```
+
+---
+
+## 4. 预期输出
+
+### 4.1 生成文件
+
+| 文件 | 说明 | 保留原有 |
+|-----|------|---------|
+| `plots/svf_error_comparison_merged.png` | SVF-only 对比图 | ✅ 保留 |
+| `numerics/svf_error_analysis.json` | SVF-only 误差统计 | ✅ 保留 |
+| `plots/svf_dense_error_comparison.png` | **SVF+Dense 对比图** | 🆕 新增 |
+| `numerics/svf_dense_error_analysis.json` | **SVF+Dense 误差统计** | 🆕 新增 |
+
+### 4.2 SVF+Dense 对比图说明
+
+**文件**: `plots/svf_dense_error_comparison.png`
+- **虚线**: baseline（理想 SVF + Dense）
+- **实线**: target（实测 SVF + Dense）
+- X 轴: 频率 (Hz)
+- Y 轴: 增益（线性，log刻度）
+- 标题: `WNET5q1h2u6l3 Dense#1 频率响应对比 (虚线=理想SVF, 实线=SVF实测误差)`
+
+### 4.3 误差分析数据
+
+```json
+// numerics/svf_dense_error_analysis.json
+{
+  "frequencies": [2.0, 2.5, 3.16, ...],
+  "error_ratios": [
+    {
+      "channel": "D1_1",
+      "ratios": [0.95, 0.97, 0.96, ...]
+    },
+    ...
+  ],
+  "statistics": [
+    {
+      "channel": "D1_1",
+      "mean_error_ratio": 0.96,
+      "std_error_ratio": 0.03,
+      "within_5pct": 85.0,
+      "within_10pct": 95.0,
+      ...
+    },
+    ...
+  ]
+}
+```
+
+---
+
+## 5. 修改清单
+
+### 5.1 代码修改
+
+| 序号 | 文件 | 修改内容 | 类型 |
+|-----|------|---------|------|
+| 1 | `visualization/wnet5_circuit_validator.py` | 添加 `_calculate_svf_dense_combined_response()` | 新增 |
+| 2 | `visualization/wnet5_circuit_validator.py` | 添加 `_generate_svf_dense_error_comparison_plot()` | 新增 |
+| 3 | `visualization/wnet5_circuit_validator.py` | 添加 `_calculate_svf_dense_error_statistics()` | 新增 |
+| 4 | `visualization/wnet5_circuit_validator.py` | 修改 `execute_validation()` 流程 | 修改 |
+
+### 5.2 配置修改
+
+| 序号 | 文件 | 修改内容 |
+|-----|------|---------|
+| 1 | `ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM/config.json` | 添加 `include_dense_layer: true` |
+
+---
+
+## 6. 总结
+
+### 6.1 保留原有功能
+
+✅ SVF（实际测试误差）vs SVF（无误差）对比图
+✅ SVF-only 误差分析数据
+
+### 6.2 新增功能
+
+🆕 SVF（实际测试误差） + Dense vs SVF（无误差） + Dense 对比图
+🆕 SVF+Dense 误差分析数据
+
+### 6.3 配置方式
+
+```json
+"svf_error_simulation": {
+  "enable": true,
+  "include_dense_layer": true,  // 新增：设为 true 则生成 SVF+Dense 对比
+  ...
+}
+```
+
+**默认值**: `false`（保持向后兼容）

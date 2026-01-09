@@ -1,0 +1,373 @@
+# R1_SVF层仿真调查报告
+
+**调查日期**: 2025-12-30
+**报告位置**: `doc/detail/20251230_SVFNET_SVF层误差/R1_SVF层仿真调查报告.md`
+
+---
+
+## 1. 调查概述
+
+### 1.1 调查目标
+调查 `ex_projects\wnet5-circuit-validation\layer1\config.json` 中的 SVF 层是如何进行仿真的，代码位置及实现方式。
+
+### 1.2 关键文件清单
+
+| 文件路径 | 说明 |
+|---------|------|
+| `C:\work\met_nonlinear_master\ex_projects\wnet5-circuit-validation\layer1\config.json` | 任务配置文件 |
+| `C:\work\met_nonlinear_master\visualization\wnet5_circuit_validator.py` | SVF层仿真核心代码 |
+| `C:\work\met_nonlinear_master\core\external_cli_handler.py` | CLI任务分发器 |
+| `C:\work\met_nonlinear_master\models\model_layers.py` | SVFLayer模型定义 |
+| `C:\work\met_nonlinear_master\spice_simulator\circuit_svf.py` | SVF电路实现 |
+| `C:\work\met_nonlinear_master\inference\export_svf_to_spice.py` | SVF导出SPICE示例 |
+
+---
+
+## 2. 配置文件分析
+
+### 2.1 layer1/config.json 结构
+
+```json
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "WNET5电路频率响应理论验证 - Layer1"
+  },
+  "model_project_name": "WNET5q1h2u6l3",
+  "analysis_layer": 1,
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 512
+  },
+  "compare_with_experiment": "F:/BaiduSyncdisk/data/SVF-NET-CIRCUIT/20251201-SVFNET-Dense1-3层.xlsx",
+  "experiment_comparison": {
+    "enable": true,
+    "mode": "single_file",
+    "experiment_sheet_name": "layer1",
+    "plot_config": {
+      "coordinate_system": "semilogx",
+      "y_unit": "linear"
+    }
+  }
+}
+```
+
+### 2.2 inference配置（带E96量化）
+
+```json
+{
+  "model_project_name": "WNET5q1h2u6l3",
+  "analysis_layer": 1,
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 500
+  },
+  "inference_config": {
+    "use_e96": true,
+    "include_quantization_comparison": true,
+    "opamp_config": {
+      "model": "ideal"
+    }
+  },
+  "compare_with_experiment": "${MET_DATA_BASE}/data/SVF-NET-CIRCUIT/20251201-SVFNET-Dense1-3层.xlsx",
+  "experiment_comparison": {
+    "experiment_sheet_name": "layer1",
+    "plot_config": {
+      "merged_plot_mode": true
+    }
+  }
+}
+```
+
+---
+
+## 3. 仿真代码调用链路
+
+### 3.1 CLI入口
+
+```
+cli.py ep ex_projects/wnet5-circuit-validation/layer1
+    ↓
+core/external_cli_handler.py::handle_ep_command()
+    ↓
+core/external_cli_handler.py::_execute_wnet5_circuit_validation_task()
+    ↓
+visualization/wnet5_circuit_validator.py::WNET5CircuitValidator.execute_validation()
+```
+
+### 3.2 核心仿真流程
+
+**文件**: `C:\work\met_nonlinear_master\visualization\wnet5_circuit_validator.py`
+
+```python
+class WNET5CircuitValidator:
+    def execute_validation(self) -> bool:
+        """执行WNET5电路验证流程"""
+        # 1. 从 project 加载权重（纯 JSON，无 TensorFlow 依赖）
+        svf_params = self._load_svf_parameters_from_project()
+        dense_weights = self._load_dense_weights_from_project(self.analysis_layer)
+
+        # 2. 计算传递函数
+        svf_tfs = self._calculate_svf_transfer_functions(svf_params)
+        combined_tfs = self._calculate_combined_transfer_functions(svf_tfs, dense_weights)
+
+        # 3. 计算频率响应（使用默认频率点保持计算精度）
+        freq_response = self._calculate_frequency_response(combined_tfs)
+
+        # 4. 生成可视化
+        plots = self._generate_plots(freq_response, dense_weights)
+
+        # 5. 保存结果
+        self._save_results(...)
+```
+
+---
+
+## 4. SVF层仿真实现细节
+
+### 4.1 SVF参数加载
+
+```python
+def _load_svf_parameters_from_project(self) -> Dict[str, Any]:
+    """从 project 的 config.json 加载 SVF 参数（纯 JSON，无 TensorFlow）"""
+    project_cfg_path = Path('projects') / self.model_project_name / 'config.json'
+
+    # 兼容不同配置结构
+    if 'model' in project_cfg and 'model_subcfg' in project_cfg['model']:
+        subcfg = project_cfg['model']['model_subcfg']
+    else:
+        subcfg = project_cfg.get('model_subcfg', {})
+
+    center_freqs = subcfg.get('init_center_freqs', [])
+    quality_factors = subcfg.get('init_quality_factors', [])
+
+    return {
+        'center_freqs': [float(f) for f in center_freqs],
+        'quality_factors': [float(q) for q in quality_factors]
+    }
+```
+
+### 4.2 SVF传递函数计算
+
+```python
+def _calculate_svf_transfer_functions(self, svf_params):
+    """计算SVF传递函数"""
+    import sympy as sp
+    s = sp.Symbol('s')
+
+    transfer_functions = []
+    for f0, Q in zip(svf_params['center_freqs'], svf_params['quality_factors']):
+        omega0 = 2 * sp.pi * f0
+        denominator = s**2 + (omega0/Q)*s + omega0**2
+
+        H_hp = s**2 / denominator                    # 高通
+        H_bp = (s * omega0/Q) / denominator          # 带通
+        H_lp = omega0**2 / denominator               # 低通
+
+        transfer_functions.append({
+            'high_pass': H_hp,
+            'band_pass': H_bp,
+            'low_pass': H_lp,
+            'f0': f0,
+            'Q': Q
+        })
+
+    return transfer_functions
+```
+
+### 4.3 SVF+Dense组合传递函数
+
+```python
+def _calculate_combined_transfer_functions(self, svf_tfs, dense_weights):
+    """计算SVF+Dense组合传递函数"""
+    import sympy as sp
+
+    # 展开所有SVF通道 (顺序: 每个滤波器 HP,BP,LP)
+    all_svf_channels = []
+    for svf in svf_tfs:
+        all_svf_channels.extend([svf['high_pass'], svf['band_pass'], svf['low_pass']])
+
+    n_inputs = len(all_svf_channels)
+    w = dense_weights['weights']  # (in_ch, out_ch)
+
+    bias_vec = dense_weights['bias']
+    combined = []
+    for o in range(w.shape[1]):
+        Hc = bias_vec[o]
+        for i, H_svf in enumerate(all_svf_channels):
+            Hc += w[i, o] * H_svf
+        combined.append(Hc)
+    return combined
+```
+
+### 4.4 频率响应计算
+
+```python
+def _calculate_frequency_response(self, transfer_functions):
+    """计算所有输出通道频率响应"""
+    import sympy as sp
+
+    start_freq = float(self.frequency_range['start_freq'])
+    stop_freq = float(self.frequency_range['stop_freq'])
+    points = int(self.frequency_range.get('points', 1000))
+    frequencies = np.logspace(np.log10(start_freq), np.log10(stop_freq), points)
+
+    omega = 2 * np.pi * frequencies
+    s_vals = 1j * omega
+    s = sp.Symbol('s')
+
+    mag_db_all = []
+    phase_deg_all = []
+    for idx, Hsym in enumerate(transfer_functions):
+        try:
+            H_func = sp.lambdify(s, Hsym, 'numpy')
+            H_resp = H_func(s_vals)
+        except Exception as e:
+            H_resp = np.ones_like(s_vals, dtype=complex)
+        mag = np.abs(H_resp)
+        mag_db_all.append(20 * np.log10(mag + 1e-20))
+        phase_deg_all.append(np.degrees(np.angle(H_resp)))
+
+    return {
+        'frequencies': frequencies,
+        'magnitude_db': mag_db_all,
+        'phase_deg': phase_deg_all,
+    }
+```
+
+---
+
+## 5. 仿真代码位置汇总
+
+### 5.1 核心文件
+
+| 路径 | 功能 | 行数 |
+|-----|------|-----|
+| `visualization/wnet5_circuit_validator.py` | WNET5电路验证主逻辑 | 1697行 |
+| `models/model_layers.py` | SVFLayer类定义 | 225行起 |
+| `spice_simulator/circuit_svf.py` | SVF电路实现类 | 459行 |
+
+### 5.2 任务分发
+
+| 路径 | 功能 |
+|-----|------|
+| `core/external_cli_handler.py:564` | `_execute_wnet5_circuit_validation_task()` |
+| `core/external_cli_handler.py:154` | `_create_wnet5_circuit_validation_template()` |
+
+### 5.3 可视化工具
+
+| 路径 | 功能 |
+|-----|------|
+| `inference/tools/visualization/weight_e96_quantization_plotter.py` | E96量化对比图 |
+| `visualization/frequency_response_json_comparator.py` | 频率响应对比 |
+
+---
+
+## 6. 现有基础设施分析
+
+### 6.1 WNET5模型结构
+
+```
+WNET5:
+├── SVFLayer (索引0)
+│   ├── center_freqs: 中心频率列表
+│   └── quality_factors: Q因子列表
+├── Dense_Layer_Model_1 (索引1, analysis_layer=1)
+├── Dense_Layer_Model_2 (索引2, analysis_layer=2)
+├── Dense_Layer_Model_3 (索引3, analysis_layer=3)
+└── Output_Layer_Model (索引4, analysis_layer=4)
+```
+
+### 6.2 SVF输出通道
+
+每个SVF滤波器产生3个输出通道：
+- `out1`: 高通 (HP)
+- `out2`: 带通 (BP)
+- `out3`: 低通 (LP)
+
+多个SVF滤波器输出通道依次排列：HP0, BP0, LP0, HP1, BP1, LP1, ...
+
+### 6.3 Dense层权重加载
+
+```python
+# analysis_layer 到权重名称的映射
+layer_name_map = {
+    1: ('post_dense_1', 'Dense_Layer_Model_1'),
+    2: ('post_dense_2', 'Dense_Layer_Model_2'),
+    3: ('post_dense_3', 'Dense_Layer_Model_3'),
+    4: ('dense', 'Output_Layer_Model')
+}
+```
+
+### 6.4 E96量化支持
+
+在 `inference_config` 中启用：
+```json
+"inference_config": {
+    "use_e96": true,
+    "include_quantization_comparison": true
+}
+```
+
+---
+
+## 7. 与现有E96量化实现的对比
+
+### 7.1 现有E96量化流程
+
+```
+原始权重 → DenseCircuitFactory.create() → E96量化 → 量化对比数据
+                                           ↓
+                              generate_quantization_comparison_data()
+```
+
+### 7.2 SVF层误差仿真需求对比
+
+| 特性 | 现有E96量化 | SVF层误差仿真 |
+|-----|------------|--------------|
+| 误差来源 | 电阻E96标准化 | 实测频率响应偏差 |
+| 数据输入 | 权重矩阵 | Excel测量数据 |
+| 计算方式 | 电阻值映射 | 传递函数修正 |
+| 对比方式 | 量化前后权重 | baseline vs target |
+
+### 7.3 可复用代码
+
+- `WNET5CircuitValidator._generate_plots()` - 频率响应绘图
+- `WNET5CircuitValidator._generate_e96_frequency_response_comparison()` - 对比图生成
+- `WNET5CircuitValidator._save_results()` - 结果保存
+
+---
+
+## 8. 结论
+
+### 8.1 SVF层仿真当前实现
+
+SVF层仿真采用**符号计算（SymPy）+ 传递函数**的方式：
+1. 从project的config.json加载SVF参数（center_freqs, quality_factors）
+2. 使用SymPy计算每个SVF的高通/带通/低通传递函数
+3. 将SVF输出与Dense层权重组合成完整传递函数
+4. 计算频率响应并与实验数据对比
+
+### 8.2 仿真方法
+
+- **理论仿真**: 使用理想传递函数，无SPICE仿真
+- **计算方式**: 符号数学计算（不使用电路仿真器）
+- **输出**: 频率响应曲线（dB/线性）
+
+### 8.3 扩展SVF层误差仿真的思路
+
+1. **方案A**: 在`inference_config`中添加`svf_measured_data`配置项
+2. **方案B**: 加载实测Excel数据替换理论传递函数
+3. **方案C**: 添加`svf_error_mode`配置，启用误差仿真
+
+---
+
+## 9. 后续建议
+
+根据调查结果，建议：
+1. 在`config.json`中添加SVF实测数据配置选项
+2. 实现从Excel加载实测频率响应的功能
+3. 复用现有的`frequency_response_comparison_merged.png`绘图风格
+4. 生成baseline和target的对比图
+
+详细设计方案见 **R2_SVF层误差仿真设计报告**。

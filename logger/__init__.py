@@ -7,12 +7,9 @@ Logger 包 - Python 日志系统增强实现
 # Import print replacer
 from .print_replacer import PrintReplacer
 
-# Optional imports (with yaml dependency)
-try:
-    from .logging_setup import setup_logging, get_module_logger
-    _yaml_available = True
-except ImportError:
-    _yaml_available = False
+
+from .logging_setup import setup_logging, get_module_logger
+_yaml_available = True
 
 __version__ = "0.1.0"
 

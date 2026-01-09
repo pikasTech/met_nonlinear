@@ -1,0 +1,119 @@
+# R11: SVF层误差仿真含Dense拟合传递函数改进报告
+
+## 1. 问题分析
+
+### 1.1 R10拟合结果问题
+
+根据R10实现报告，拟合效果极不理想：
+
+```json
+{
+  "fitted_params": {
+    "center_freqs": [4394.36, 909.85],
+    "quality_factors": [-0.68, 0.57]
+  },
+  "fit_quality": {
+    "overall_rmse": 0.584,
+    "overall_r2": -1.42
+  }
+}
+```
+
+**问题表现：**
+- 拟合的 f0 值与理论值（10Hz, 80Hz）差距巨大。
+- Q 值出现负数或极大的不合理数值。
+- R² 为负值，说明拟合模型完全无法解释实测数据。
+
+### 1.2 根本原因分析
+
+经过深入调查，发现 R10 存在以下三个致命问题：
+
+1.  **公式错误：** `_get_svf_magnitude_response` 中的 SVF 幅度响应公式不正确，分母缺少了关键的交叉项，且分子在某些类型下计算错误。
+2.  **通道顺序不匹配：** 实测数据 Excel (`20251230_SVF_ONLY.xlsx`) 中的通道顺序为 `LP, BP, HP`，而代码中默认为 `HP, BP, LP`。这导致优化器试图将低通数据拟合到高通模型上，反之亦然。
+3.  **优化器缺乏约束：** R10 使用的 Nelder-Mead 优化器没有边界约束，导致参数在错误的模型下飞向了物理上不可能的区域。
+
+---
+
+## 2. 改进方案（R11）
+
+### 2.1 核心改进点
+
+| 改进项 | R10实现 | R11改进 |
+|--------|---------|---------|
+| **数学模型** | 错误的幅度公式 | **修正为标准的 SVF 传递函数幅度公式** |
+| **通道映射** | 固定 HP, BP, LP | **修正为与实测数据一致的 LP, BP, HP** |
+| **优化器** | Nelder-Mead（无边界） | **L-BFGS-B（有边界约束）** |
+| **参数边界** | 无 | **f0: 1-10000Hz, Q: 0.01-50, Gain: 0.001-100** |
+| **初始值** | 理论值 | **保持使用理论值作为 f0 和 Q 的初始值** |
+
+### 2.2 修正后的数学公式
+
+SVF 滤波器的幅度响应公式修正为：
+
+$$|H_{LP}(j\omega)| = \frac{\omega_0^2}{\sqrt{(\omega_0^2 - \omega^2)^2 + (\frac{\omega_0\omega}{Q})^2}}$$
+$$|H_{BP}(j\omega)| = \frac{\frac{\omega_0\omega}{Q}}{\sqrt{(\omega_0^2 - \omega^2)^2 + (\frac{\omega_0\omega}{Q})^2}}$$
+$$|H_{HP}(j\omega)| = \frac{\omega^2}{\sqrt{(\omega_0^2 - \omega^2)^2 + (\frac{\omega_0\omega}{Q})^2}}$$
+
+---
+
+## 3. 代码修改
+
+### 3.1 修改文件
+
+`visualization/wnet5_circuit_validator.py`
+
+### 3.2 具体修改内容
+
+1.  **修正公式：** 在 `_get_svf_magnitude_response` 中实现了上述正确公式。
+2.  **修正顺序：** 在 `_fit_svf_parameters`、`_calculate_fitted_magnitudes` 和 `execute_validation` 中将通道顺序统一修改为 `LP, BP, HP`。
+3.  **引入增益：** 为每个通道添加了独立的增益拟合参数，以补偿电路中的电阻容差导致的整体增益偏差。
+4.  **边界约束：** 使用 `L-BFGS-B` 优化器并设置合理的物理边界。
+
+---
+
+## 4. 运行结果与验证
+
+### 4.1 拟合结果
+
+运行命令：`python cli.py ep ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM`
+
+**最终拟合参数：**
+
+| 通道 | 拟合 f0 (Hz) | 拟合 Q | 拟合增益 | RMSE | R² |
+|------|-------------|--------|---------|------|----|
+| SVF1_LP | 11.83 | 0.9937 | 0.9914 | 0.006285 | 0.9998 |
+| SVF1_BP | 11.83 | 0.9937 | 0.9820 | 0.002038 | 1.0000 |
+| SVF1_HP | 11.83 | 0.9937 | 0.9885 | 0.004985 | 0.9998 |
+| SVF2_LP | 84.11 | 0.9997 | 0.9892 | 0.003836 | 0.9999 |
+| SVF2_BP | 84.11 | 0.9997 | 0.9826 | 0.005296 | 0.9997 |
+| SVF2_HP | 84.11 | 0.9997 | 0.9876 | 0.004740 | 0.9999 |
+
+**整体质量：**
+- **平均 RMSE:** 0.004530
+- **平均 R²:** 0.9998
+
+### 4.2 图像验证
+
+- **拟合对比图:** `ex_projects\inference\wnet5-circuit-validation\SVF_ERROR_SIM\data\plots\svf_fit_comparison.png` 显示实测曲线与拟合曲线几乎完全重合。
+- **最终对比图:** `ex_projects\inference\wnet5-circuit-validation\SVF_ERROR_SIM\data\plots\svf_dense_error_comparison.png` 成功生成。
+
+---
+
+## 5. 结论
+
+R11 通过修正数学模型、对齐数据通道以及引入带边界的优化器，彻底解决了 SVF 层误差仿真的拟合问题。拟合精度从完全不可用提升到了 $R^2 = 0.9998$ 的极高水平。这证明了实测电路的行为高度符合二阶 SVF 理论模型，之前的拟合失败纯粹是由于代码实现层面的错误导致的。
+
+---
+
+## 6. 运行命令
+
+```bash
+python cli.py ep ex_projects/inference/wnet5-circuit-validation/SVF_ERROR_SIM
+```
+
+---
+
+## 7. 参考
+
+- R10实现报告：`doc/detail/20251230_SVFNET_SVF层误差/R10_SVF层误差仿真含Dense拟合传递函数实现报告.md`
+- R9设计方案：`doc/detail/20251230_SVFNET_SVF层误差/R9_SVF层误差仿真含Dense拟合传递函数设计方案.md`
