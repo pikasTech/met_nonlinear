@@ -4,7 +4,9 @@
       "Bash(find:*)",
       "Bash(mkdir:*)",
       "Bash(python:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(C:Usersliang.condaenvstf26python.exe cli.py:*)",
+      "Bash(\"C:/Users/liang/.conda/envs/tf26/python.exe\" cli.py ep ex_projects/inference/wnet5-circuit-validation/WNET5_EFF2_A1/layer2)"
     ],
     "deny": []
   }

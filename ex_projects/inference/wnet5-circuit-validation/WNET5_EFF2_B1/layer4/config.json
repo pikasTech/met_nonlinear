@@ -1,0 +1,12 @@
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "WNET5电路频率响应理论验证 - Dense层1"
+  },
+  "model_project_name": "WNET5_EFF2_B1",
+  "analysis_layer": 4,
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 500
+  }
+}

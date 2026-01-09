@@ -1842,8 +1842,43 @@ class WNET5CircuitValidator:
         
         return transfer_functions
     
+    def _adapt_svf_channels(self, all_svf_channels: list, target_channels: int) -> tuple[list, str]:
+        """自适应调整SVF通道数以匹配目标通道数
+
+        Args:
+            all_svf_channels: 原始SVF通道列表 (SymPy表达式)
+            target_channels: 目标通道数 (权重输入通道数)
+
+        Returns:
+            tuple: (调整后的通道列表, 操作描述字符串)
+
+        Raises:
+            ValueError: 如果目标通道数 <= 0
+        """
+        current_channels = len(all_svf_channels)
+
+        if current_channels == target_channels:
+            return all_svf_channels, "通道数匹配，无需调整"
+
+        if target_channels <= 0:
+            raise ValueError(f"目标通道数必须 > 0，实际: {target_channels}")
+
+        adapted_channels = []
+
+        if current_channels > target_channels:
+            # 裁剪模式：SVF通道 > 权重通道
+            adapted_channels = all_svf_channels[:target_channels]
+            operation = "裁剪"
+        else:
+            # 循环拓展模式：SVF通道 < 权重通道
+            for i in range(target_channels):
+                adapted_channels.append(all_svf_channels[i % current_channels])
+            operation = "循环拓展"
+
+        return adapted_channels, operation
+
     def _calculate_combined_transfer_functions(self, svf_tfs, dense_weights):
-        """计算SVF+Dense组合传递函数"""
+        """计算SVF+Dense组合传递函数（支持通道自适应）"""
         logger.info("计算组合传递函数...")
         import sympy as sp
 
@@ -1854,8 +1889,24 @@ class WNET5CircuitValidator:
 
         n_inputs = len(all_svf_channels)
         w = dense_weights['weights']  # (in_ch, out_ch)
-        if w.shape[0] != n_inputs:
-            raise ValueError(f"权重输入通道数 {w.shape[0]} 与SVF展开通道数 {n_inputs} 不匹配")
+        target_channels = w.shape[0]
+
+        # 通道自适应适配
+        if n_inputs != target_channels:
+            adapted_channels, operation = self._adapt_svf_channels(all_svf_channels, target_channels)
+            logger.warning(
+                f"SVF通道数 ({n_inputs}) 与权重输入通道数 ({target_channels}) 不匹配，"
+                f"已{operation}适配"
+            )
+            logger.warning(f"   原始SVF通道: {n_inputs} -> 适配后: {len(adapted_channels)}")
+            all_svf_channels = adapted_channels
+            n_inputs = len(all_svf_channels)
+
+        # 验证适配后是否匹配
+        if n_inputs != target_channels:
+            raise ValueError(
+                f"通道适配失败: SVF通道适配后为 {n_inputs}，但权重需要 {target_channels} 通道"
+            )
 
         bias_vec = dense_weights['bias']
         out_ch = w.shape[1]

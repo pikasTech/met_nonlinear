@@ -1,0 +1,11 @@
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "WNET5电路频率响应理论验证"
+  },
+  "model_project_name": "ex_projectsinferencewnet5-circuit-validationWNET5_EFF2_A1layer1",
+  "frequency_range": {
+    "start_freq": 0.1,
+    "stop_freq": 1000
+  }
+}
