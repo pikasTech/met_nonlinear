@@ -87,3 +87,4 @@ SVF 实际制作的电路中，两个 SVF 电路的电容标称值分别是 1.5u
 3. 实测值，从实测 SVF 频率响应的拟合结果中反推出来的电容值（电阻都视为标称值）
 
 这个计算过程要集成到 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1` 中，形成设计与实现报告到 [R16](../../doc/detail/20251230_SVFNET_SVF层误差/R16_SVF电路元件参数对比计算设计与实现报告.md) 中。确保代码实际运行后，能够生成一个对比表格，表格中包含上述三种值的对比。这个表格补充输出到 R13 提到的 `report.md` 中。
+
