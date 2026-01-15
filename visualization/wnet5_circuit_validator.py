@@ -1544,6 +1544,29 @@ class WNET5CircuitValidator:
             'quality_factors': [float(q) for q in quality_factors]
         }
 
+    def _detect_post_dense_layers(self, weights_data: List[Dict]) -> List[int]:
+        """检测权重文件中实际存在的 post_dense 层序号
+
+        Args:
+            weights_data: 权重 JSON 数据列表
+
+        Returns:
+            按升序排列的 post_dense 层序号列表，如 [1, 2, 3]
+        """
+        post_dense_nums = []
+        for entry in weights_data:
+            name = entry.get('name', '')
+            # 匹配形如 "post_dense_N/kernel:0" 的名称
+            if name.startswith('post_dense_') and name.endswith('/kernel:0'):
+                layer_name = name.split('/')[0]  # 如 "post_dense_3"
+                layer_num_str = layer_name.replace('post_dense_', '')
+                try:
+                    layer_num = int(layer_num_str)
+                    post_dense_nums.append(layer_num)
+                except ValueError:
+                    logger.warning(f"忽略无效的层名称: {layer_name}")
+        return sorted(post_dense_nums)
+
     def _load_dense_weights_from_project(self, analysis_layer: int = 1) -> Dict[str, Any]:
         """从 project 的 best.weights.json 加载指定 Dense 层权重（纯 JSON）"""
         weights_json_path = Path('projects') / self.model_project_name / 'data' / 'best.weights.json'
@@ -1553,25 +1576,26 @@ class WNET5CircuitValidator:
         with open(weights_json_path, 'r', encoding='utf-8') as f:
             weights_data = json.load(f)
 
-        # WNET5 结构: layer_to_layer_models[0]=SVF, [1]=Dense1, [2]=Dense2, [3]=Dense3
-        # best.weights.json 中的命名:
-        # - analysis_layer=1 -> "dense/kernel:0", "dense/bias:0"
-        # - analysis_layer=2 -> "post_dense_1/kernel:0", "post_dense_1/bias:0"
-        # - analysis_layer=3 -> "post_dense_2/kernel:0", "post_dense_2/bias:0"
-        # - analysis_layer=4 -> "post_dense_3/kernel:0", "post_dense_3/bias:0"
+        # 动态检测权重文件中实际存在的 post_dense 层
+        post_dense_nums = self._detect_post_dense_layers(weights_data)
+        logger.info(f"检测到 {len(post_dense_nums)} 个 post_dense 层: {post_dense_nums}")
 
-        # 根据层号映射到权重名称
-        # analysis_layer 对应模型中的 dense 层：
-        # - analysis_layer=1 -> post_dense_1 (6→6)
-        # - analysis_layer=2 -> post_dense_2 (6→6)
-        # - analysis_layer=3 -> post_dense_3 (6→6)
-        # - analysis_layer=4 -> dense (6→1，最终输出层)
-        layer_name_map = {
-            1: ('post_dense_1', 'Dense_Layer_Model_1'),
-            2: ('post_dense_2', 'Dense_Layer_Model_2'),
-            3: ('post_dense_3', 'Dense_Layer_Model_3'),
-            4: ('dense', 'Output_Layer_Model')
-        }
+        if not post_dense_nums:
+            raise ValueError(f"权重文件中未找到任何 post_dense 层")
+
+        # 动态生成 layer_name_map
+        # - 最后一个 post_dense 之前的所有层按顺序映射
+        # - 最后一个 post_dense 层之后的 dense（输出层）总是 analysis_layer = N+1
+        # - 但用户可能想单独分析某个 post_dense 层，所以我们按序号排序后的实际层数来映射
+        # 约定: analysis_layer=1,2,3...N 对应 post_dense_1, post_dense_2, ..., post_dense_N
+        #       analysis_layer=N+1 对应 dense（输出层）
+        layer_name_map = {}
+        for i, layer_num in enumerate(post_dense_nums):
+            layer_name_map[i + 1] = (f'post_dense_{layer_num}', f'Dense_Layer_Model_{i + 1}')
+        # dense 始终是最后一层
+        layer_name_map[len(post_dense_nums) + 1] = ('dense', 'Output_Layer_Model')
+
+        logger.debug(f"动态生成的 layer_name_map: {layer_name_map}")
 
         if analysis_layer not in layer_name_map:
             raise ValueError(f"无效的 analysis_layer: {analysis_layer}")

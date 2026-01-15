@@ -1,7 +1,7 @@
 {
   "project_name": "WNET5_EFF2_A1_PS-5_360-07",
   "analysis_type": "wnet5-circuit-validation",
-  "analysis_layer": 4,
+  "analysis_layer": 3,
   "svf_parameters": {
     "center_freqs": [
       8.0,
@@ -18,7 +18,7 @@
   },
   "dense_layer": {
     "name": "Output_Layer_Model",
-    "analysis_layer_index": 4,
+    "analysis_layer_index": 3,
     "weight_shape": [
       14,
       1
