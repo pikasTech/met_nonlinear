@@ -84,7 +84,8 @@
     "plots": [
       "plots\\svf_fit_comparison.png",
       "plots\\svf_error_comparison_merged.png",
-      "plots\\svf_dense_error_comparison.png"
+      "plots\\svf_dense_error_comparison.png",
+      "plots\\svf_dense_vs_experiment_comparison.png"
     ],
     "report": "reports\\report.md"
   },

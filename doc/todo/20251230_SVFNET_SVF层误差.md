@@ -57,10 +57,17 @@ R1.8 中报告的带误差的 SVF 层是通过实测增益+理论相位计算出
 
 ### R1.12 [completed]
 
-让 ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1
+让 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1
 ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer2
 ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer3
-ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer4 也配置为带 SVF+Dense，带 SVF_only 误差仿真的功能，要确保其原有的功能不受影响，调整 config.json 后实际运行。形成实现报告到 [R1.12](./details/20251230_SVFNET_SVF层误差/R1.12_SVF层误差仿真含Dense多层支持实现报告.md) 中。
+ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer4` 也配置为带 SVF+Dense，带 SVF_only 误差仿真的功能，要确保其原有的功能不受影响，调整 config.json 后实际运行。形成实现报告到 [R1.12](./details/20251230_SVFNET_SVF层误差/R1.12_SVF层误差仿真含Dense多层支持实现报告.md) 中。
+
+### R1.13 [completed]
+
+应当增加一个对比图，这个对比图对比 `ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1\data\plots\svf_dense_error_comparison.png` 和
+`ex_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3_layer1\data\plots\frequency_response_comparison_merged.png`，新的对比图中，虚线是`SVF层（带误差）+ Dense 层`，实线是 `实测的SVF层+Dense层`, 完成任务后将详细报告写入[R1.13](./details/20251230_SVFNET_SVF层误差/20260125_2321_Task_Report.md)。
+
+**完成情况**: 已完成。新增 `_load_experiment_data_for_r1_13` 和 `_generate_r1_13_comparison_plot` 方法，在 `svf_error_simulation` 流程中加载实验数据并生成对比图。已为所有4个Dense层配置启用R1.13功能。输出图片: `svf_dense_vs_experiment_comparison.png`。
 
 ## R2 [completed]
 

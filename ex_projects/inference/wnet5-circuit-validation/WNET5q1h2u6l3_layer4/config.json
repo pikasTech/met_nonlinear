@@ -32,6 +32,10 @@
       "merged_plot_mode": true,
       "output_filename": "svf_error_comparison_merged.png",
       "dense_output_filename": "svf_dense_error_comparison.png"
+    },
+    "r1_13_comparison": {
+      "enable": true,
+      "output_filename": "svf_dense_vs_experiment_comparison.png"
     }
   }
 }

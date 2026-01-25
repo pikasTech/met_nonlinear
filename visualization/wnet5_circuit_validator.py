@@ -1359,7 +1359,185 @@ class WNET5CircuitValidator:
         if arr.ndim != 2:
             raise ValueError(f"_to_list_2d 期望二维数组, 实际ndim={arr.ndim}")
         return [[float(x) for x in row] for row in arr]
-    
+
+    def _load_experiment_data_for_r1_13(self, dense_weights: Dict[str, Any]):
+        """加载实验数据用于R1.13对比（R1.13新增）
+
+        从实验数据文件中加载实测的SVF+Dense层数据
+
+        Args:
+            dense_weights: Dense层权重信息
+
+        Returns:
+            tuple: (exp_freq, exp_mags) 实验频率和增益数据
+        """
+        import pandas as pd
+        import re
+
+        exp_freq = None
+        exp_mags = None
+
+        # 使用 experiment_path 或 compare_with_experiment
+        exp_file_path = self.experiment_path
+        if not exp_file_path:
+            logger.warning("R1.13: 未配置实验数据文件路径")
+            return None, None
+
+        exp_file = Path(exp_file_path)
+        if not exp_file.exists():
+            logger.warning(f"R1.13: 实验数据文件不存在: {exp_file_path}")
+            return None, None
+
+        try:
+            # 获取实验sheet名称
+            experiment_sheet_name = self.experiment_comparison.get('experiment_sheet_name')
+
+            if experiment_sheet_name:
+                # 新格式：读取指定的sheet
+                df = pd.read_excel(exp_file, sheet_name=experiment_sheet_name)
+                logger.info(f"R1.13: 读取实验数据sheet: {experiment_sheet_name}")
+            else:
+                # 旧格式：读取默认sheet
+                df = pd.read_excel(exp_file)
+
+            # 查找频率列
+            freq_cols = [c for c in df.columns if str(c).strip().lower() in ['f','freq','frequency','freq(hz)','frequency(hz)','hz']]
+            fcol = freq_cols[0] if freq_cols else df.columns[0]
+            exp_freq = df[fcol].to_numpy(dtype=float)
+
+            # 动态匹配当前分析的层
+            analysis_layer = dense_weights.get('analysis_layer', 1)
+            matched = {}
+
+            # 检查是否是新的GAIN/CH格式
+            gain_ch_pattern = re.compile(r'^GAIN/CH(\d+)$')
+            for c in df.columns:
+                if c == fcol:
+                    continue
+                # 尝试新的GAIN/CH格式
+                m = gain_ch_pattern.match(str(c).strip())
+                if m:
+                    idx = int(m.group(1))
+                    try:
+                        arr = df[c].astype(float).to_numpy(dtype=float)
+                        matched[idx] = arr
+                    except Exception:
+                        continue
+
+            if matched:
+                # 匹配通道
+                max_ch = len(matched)
+                series = []
+                for ch in range(1, max_ch+1):
+                    if ch in matched:
+                        series.append(np.clip(matched[ch], 1e-20, None))
+                if series:
+                    exp_mags = series
+                    logger.info(f"R1.13: 成功加载实验数据，{len(series)} 个通道")
+                else:
+                    logger.warning("R1.13: 未匹配到任何实验通道")
+            else:
+                logger.warning("R1.13: 实验数据格式不匹配")
+
+        except Exception as e:
+            logger.warning(f"R1.13: 加载实验数据失败: {e}")
+
+        return exp_freq, exp_mags
+
+    def _generate_r1_13_comparison_plot(
+        self,
+        target_response: Dict[str, Any],
+        exp_freq: Any,
+        exp_mags: List[Any],
+        dense_weights: Dict[str, Any]
+    ):
+        """生成R1.13对比图：SVF误差仿真结果 vs 实测数据（R1.13新增）
+
+        虚线=SVF层（带误差）+ Dense层， 实线=实测的SVF层+Dense层
+
+        Args:
+            target_response: SVF实测误差+Dense的仿真结果
+            exp_freq: 实验频率数据
+            exp_mags: 实验增益数据列表
+            dense_weights: Dense层权重信息
+
+        Returns:
+            str: 生成的图片路径
+        """
+        from scipy import interpolate
+
+        # 获取仿真数据的频率和增益
+        sim_freq = target_response['frequencies']
+        sim_mag_db = target_response['magnitude_db']
+        sim_mag = [np.clip(np.power(10.0, m/20.0), 1e-20, None) for m in sim_mag_db]
+
+        # 输出标签
+        analysis_layer = dense_weights.get('analysis_layer', 1)
+        output_labels = [f'D{analysis_layer}_{i+1}' for i in range(len(sim_mag))]
+
+        # 颜色映射
+        import matplotlib as mpl
+        n_channels = len(sim_mag)
+        cmap = mpl.cm.get_cmap('tab10', n_channels) if n_channels <= 10 else mpl.cm.get_cmap('turbo', n_channels)
+        colors = [cmap(i) for i in range(n_channels)]
+
+        # 创建对比图
+        fig, ax = plt.subplots(figsize=(12, 4))
+
+        # 绘制仿真结果（虚线）- SVF实测误差+Dense
+        for i, (m, lbl) in enumerate(zip(sim_mag, output_labels)):
+            ax.semilogx(sim_freq, m, color=colors[i], linewidth=1.4,
+                       linestyle='--', label=f'{lbl} (仿真误差)', alpha=0.8)
+
+        # 绘制实测结果（实线）- 实测SVF+Dense
+        # 将实验数据插值到仿真频率点
+        for i, (m, lbl) in enumerate(zip(exp_mags, output_labels)):
+            if i < len(sim_mag):  # 确保通道数匹配
+                # 插值到仿真频率点
+                interp_func = interpolate.interp1d(
+                    exp_freq, m, kind='linear',
+                    bounds_error=False, fill_value=np.nan
+                )
+                exp_interp = interp_func(sim_freq)
+                ax.semilogx(sim_freq, exp_interp, color=colors[i], linewidth=1.8,
+                           linestyle='-', label=f'{lbl} (实测)', alpha=0.9)
+
+        ax.set_title(
+            f'{self.model_project_name} Dense#{analysis_layer} SVF误差仿真 vs 实测对比\n'
+            f'(虚线=SVF仿真(带误差)+Dense, 实线=实测SVF+Dense)',
+            fontsize=12, fontweight='bold'
+        )
+        ax.set_xlabel('频率 (Hz)', fontsize=10)
+        ax.set_ylabel('增益 (线性, log刻度)', fontsize=10)
+        ax.set_yscale('log')
+        ax.grid(True, which='both', alpha=0.3)
+
+        # 设置y轴范围
+        all_sim_vals = np.concatenate([*sim_mag])
+        all_exp_vals = []
+        for m in exp_mags[:len(sim_mag)]:
+            interp_func = interpolate.interp1d(exp_freq, m, kind='linear', bounds_error=False, fill_value=np.nan)
+            all_exp_vals.extend(interp_func(sim_freq))
+        all_vals = np.concatenate([all_sim_vals, np.array(all_exp_vals)])
+        y_min, y_max = float(np.nanmin(all_vals)), float(np.nanmax(all_vals))
+        pad = 0.05
+        y_min_adj = max(1e-20, y_min / (1+pad))
+        y_max_adj = y_max * (1+pad)
+        ax.set_ylim(y_min_adj, y_max_adj)
+
+        ax.legend(fontsize=8, ncol=min(4, len(output_labels)*2), loc='best')
+        plt.tight_layout()
+
+        # 保存图片
+        r1_13_config = self.svf_error_config.get('r1_13_comparison', {})
+        output_filename = r1_13_config.get('output_filename', 'svf_dense_vs_experiment_comparison.png')
+        plot_path = self.output_path / 'plots' / output_filename
+        plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+
+        logger.info(f"R1.13对比图已保存: {plot_path}")
+        return str(plot_path)
+
     def execute_validation(self) -> bool:
         """执行WNET5电路验证流程"""
         try:
@@ -1475,6 +1653,26 @@ class WNET5CircuitValidator:
                 component_comparison = None
                 if fitting_enabled and fitted_params:
                     component_comparison = self._generate_component_comparison_table(svf_params, fitted_params)
+
+                # ========== R1.13新增：SVF误差仿真结果与实测数据对比 ==========
+                r1_13_config = self.svf_error_config.get('r1_13_comparison', {})
+                r1_13_enable = r1_13_config.get('enable', False)
+                if r1_13_enable and include_dense:
+                    logger.info("执行 R1.13: SVF误差仿真结果与实测数据对比...")
+
+                    # 加载实验数据（实测的SVF+Dense层数据）
+                    exp_freq, exp_mags = self._load_experiment_data_for_r1_13(dense_weights)
+
+                    if exp_freq is not None and exp_mags is not None and target_response is not None:
+                        # 生成对比图：虚线=SVF实测误差+Dense，实线=实测SVF+Dense
+                        r1_13_plot = self._generate_r1_13_comparison_plot(
+                            target_response, exp_freq, exp_mags, dense_weights
+                        )
+                        if r1_13_plot:
+                            plots.append(r1_13_plot)
+                            logger.info(f"R1.13对比图已生成: {r1_13_plot}")
+                    else:
+                        logger.warning("R1.13对比图生成失败：缺少实验数据或仿真数据")
 
                 # R13: 生成SVF误差仿真报告
                 report = self._generate_svf_error_report(plots, fitted_params, component_comparison)

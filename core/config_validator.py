@@ -452,6 +452,19 @@ class VisualizationConfigValidator:
                                 "type": "boolean"
                             }
                         }
+                    },
+                    "r1_13_comparison": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "enable": {
+                                "type": "boolean"
+                            },
+                            "output_filename": {
+                                "type": "string",
+                                "minLength": 1
+                            }
+                        }
                     }
                 }
             }
