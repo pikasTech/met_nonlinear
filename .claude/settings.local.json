@@ -6,7 +6,13 @@
       "Bash(python:*)",
       "Bash(rm:*)",
       "Bash(C:Usersliang.condaenvstf26python.exe cli.py:*)",
-      "Bash(\"C:/Users/liang/.conda/envs/tf26/python.exe\" cli.py ep ex_projects/inference/wnet5-circuit-validation/WNET5_EFF2_A1/layer2)"
+      "Bash(\"C:/Users/liang/.conda/envs/tf26/python.exe\" cli.py ep ex_projects/inference/wnet5-circuit-validation/WNET5_EFF2_A1/layer2)",
+      "Bash(cmd /c \"cd /d f:\\\\Work\\\\met_nonlinear_worktrees\\\\met_nonlinear_master && conda run --no-capture-output -n tf26 python cli.py ep ex_projects\\\\inference\\\\wnet5-circuit-validation\\\\WNET5_EFF2_A1\\\\layer2\")",
+      "Bash(powershell -Command \"Set-Location ''f:\\\\Work\\\\met_nonlinear_worktrees\\\\met_nonlinear_master''; conda run --no-capture-output -n tf26 python cli.py ep ex_projects\\\\inference\\\\wnet5-circuit-validation\\\\WNET5_EFF2_A1\\\\layer2\")",
+      "Bash(powershell:*)",
+      "Bash(cmd.exe /c \"cd /d f:\\\\Work\\\\met_nonlinear_worktrees\\\\met_nonlinear_master && C:\\\\Users\\\\lyon\\\\MiniConda3\\\\condabin\\\\conda.bat run --no-capture-output -n tf26 python cli.py ep ex_projects\\\\inference\\\\wnet5-circuit-validation\\\\WNET5_EFF2_A1\\\\layer2\")",
+      "Bash(cmd.exe /c:*)",
+      "Bash(ls -lt:*)"
     ],
     "deny": []
   }
