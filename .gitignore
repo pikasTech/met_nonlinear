@@ -47,3 +47,5 @@ workspace/
 
 **nul**
 .rag_storage/
+cache/
+src/inference/results/

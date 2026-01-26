@@ -3,9 +3,15 @@ cli.py - CLI 接口，仅作为内部功能的代理
 严格控制启动时序，确保多进程安全
 """
 
-import logging
-import os
 import sys
+import os
+
+# 将 src 目录加入 Python 路径，实现模块兼容
+_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.path.join(_SCRIPT_DIR, 'src') not in sys.path:
+    sys.path.insert(0, os.path.join(_SCRIPT_DIR, 'src'))
+
+import logging
 import shutil
 from logger import setup_logging
 
