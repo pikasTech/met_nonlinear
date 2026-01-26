@@ -1,6 +1,0 @@
-[submodule "lib/met"]
-	path = lib/met
-	url = https://gitee.com/seismic518-met/met
-[submodule "lib/calibration_analyzer"]
-	path = lib/calibration_analyzer
-	url = https://gitee.com/Lyon1998/calibration_analyzer

@@ -5,7 +5,7 @@
   "current_epoch": 0,
   "model_name": "WaveNet5",
   "training_alive": false,
-  "timestamp": "20251010210346.0",
+  "timestamp": "20260126104812.4",
   "best_weights_file": "projects/WNET5q1h2u6l3/data\\WNET5q1h2u6l3_best_weights.h5",
   "best_val_weights_file": "projects/WNET5q1h2u6l3/data\\WNET5q1h2u6l3_best_val_weights.h5",
   "loss": 0.016177549958229065,

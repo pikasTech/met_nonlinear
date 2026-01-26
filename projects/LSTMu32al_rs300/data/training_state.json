@@ -5,7 +5,7 @@
   "current_epoch": 0,
   "model_name": "LSTM",
   "training_alive": false,
-  "timestamp": "20251010220959.3",
+  "timestamp": "20260126105224.8",
   "best_weights_file": "projects/LSTMu32al_rs300/data\\LSTMu32al_rs300_best_weights.h5",
   "best_val_weights_file": "projects/LSTMu32al_rs300/data\\LSTMu32al_rs300_best_val_weights.h5",
   "terminate": false,
