@@ -1,0 +1,50 @@
+{
+  "project_name": "WNET5_EFF2_A1_PS-5_360",
+  "analysis_type": "wnet5-circuit-validation",
+  "analysis_layer": 3,
+  "svf_parameters": {
+    "center_freqs": [
+      8.0,
+      25.0,
+      50.0,
+      85.0,
+      120.0,
+      180.0
+    ],
+    "quality_factors": [
+      1.5,
+      2.0,
+      2.5,
+      3.0,
+      4.0,
+      5.0
+    ]
+  },
+  "dense_layer": {
+    "name": "Dense_Layer_Model_3",
+    "analysis_layer_index": 3,
+    "weight_shape": [
+      14,
+      14
+    ],
+    "bias_shape": [
+      14
+    ]
+  },
+  "frequency_range": {
+    "start_freq": 2,
+    "stop_freq": 500
+  },
+  "outputs": 14,
+  "analysis_results": {
+    "frequency_points": 1000,
+    "magnitude_range_db": [
+      -28.536277837240096,
+      19.104117877844455
+    ],
+    "phase_range_deg": [
+      -179.99729229356723,
+      179.99326580292916
+    ]
+  }
+}

@@ -14,12 +14,9 @@ from .utilities import getname
 from pandas.core.frame import DataFrame
 from numpy import ndarray as array
 from . import utilities
-from .utilities import _DictData
+from .utilities import _DictData, shift_phase
 from .met_datastruct import CFun
 from scipy.interpolate import CubicSpline
-from . import utilities
-from calibration_analyzer.analyzer import shift_phase
-from calibration_analyzer import analyzer
 from sympy import symbols, simplify, expand, Rational, sympify
 from sympy import Poly
 from sympy import lambdify

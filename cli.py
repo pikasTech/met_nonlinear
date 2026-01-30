@@ -5,6 +5,8 @@ cli.py - CLI 接口，仅作为内部功能的代理
 
 import sys
 import os
+import subprocess
+import time
 
 # 将 src 目录加入 Python 路径，实现模块兼容
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -18,8 +20,48 @@ from logger import setup_logging
 logger = logging.getLogger('cli')
 
 
+def _run_test_command(args) -> None:
+    """运行单元测试命令。"""
+    from core.cli_parser import TaskType
+
+    if args.task_type != TaskType.TEST:
+        return
+
+    logger.info("Running unit tests...")
+
+    # 构建 pytest 命令
+    cmd = [sys.executable, '-m', 'pytest']
+
+    # 添加测试路径
+    test_path = args.test_path if args.test_path else 'src/tests'
+    cmd.append(test_path)
+
+    # 添加超时参数
+    cmd.extend(['--timeout', str(args.test_timeout)])
+
+    # 并行测试配置
+    if not args.no_parallel:
+        cmd.extend(['--workers', str(args.test_workers)])
+
+    logger.info(f"Executing: {' '.join(cmd)}")
+
+    # 记录开始时间
+    start_time = time.time()
+
+    # 运行测试
+    try:
+        result = subprocess.run(cmd, cwd=_SCRIPT_DIR)
+        elapsed = time.time() - start_time
+
+        logger.info(f"Tests completed in {elapsed:.2f} seconds")
+        sys.exit(result.returncode)
+    except Exception as e:
+        logger.error(f"Test execution failed: {e}")
+        sys.exit(1)
+
+
 def _run_ep_subcommand(args) -> None:
-    """仅处理 ep 子命令，避免加载重型依赖（如 TensorFlow）。"""
+    """仅处理 ep 子命令，避免加载重型依赖（如TensorFlow）。"""
     from core.external_cli_handler import handle_ep_command
     handle_ep_command(args)
 
@@ -62,6 +104,12 @@ if __name__ == '__main__':
     # 子命令优先，若是 ep 则不导入任何重型模块
     if getattr(args, 'command', None) == 'ep':
         _run_ep_subcommand(args)
+        sys.exit(0)
+
+    # 测试命令（不加载重型依赖）
+    from core.cli_parser import TaskType
+    if args.task_type == TaskType.TEST:
+        _run_test_command(args)
         sys.exit(0)
 
     # 非 ep 的主命令再加载重型依赖并执行

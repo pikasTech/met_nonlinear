@@ -130,3 +130,83 @@ def get_file_size(filename: str) -> str:
         return f"{size} {size_name[i]}"
     except OSError as e:
         return f"Error: {e}"
+
+
+def _unwrap_with_period(phase_array, period):
+    """
+    实现兼容旧版NumPy的unwrap功能（period参数在NumPy 1.21+才支持）。
+
+    参数:
+        phase_array: 相位数组（度）
+        period: 相位周期
+
+    返回:
+        展开后的相位数组
+    """
+    # 转换为弧度进行unwrap
+    phase_rad = np.deg2rad(phase_array)
+    unwrapped_rad = np.unwrap(phase_rad)
+
+    # 转换回度
+    unwrapped_deg = np.rad2deg(unwrapped_rad)
+
+    # 考虑到周期边界
+    # 对于360度周期，unwrap会处理-180到180的边界
+    # 手动调整以确保正确展开
+    n = len(phase_array)
+    for i in range(1, n):
+        diff = phase_array[i] - phase_array[i - 1]
+        if diff > period / 2:
+            unwrapped_deg[i:] -= period
+        elif diff < -period / 2:
+            unwrapped_deg[i:] += period
+
+    return unwrapped_deg
+
+
+def shift_phase(phase_array, period=360, phase_shift_manual=0):
+    """
+    Shift the entire phase array by a constant offset to center it around zero.
+
+    参数:
+        phase_array: 相位数组
+        period: 相位周期（默认360度）
+        phase_shift_manual: 手动相位偏移
+
+    返回:
+        调整后的相位数组
+    """
+    # 首先进行相位展开（使用兼容旧版NumPy的实现）
+    unwrapped_phase = _unwrap_with_period(phase_array, period)
+
+    # 计算平均相位值
+    unwrapped_phase_sample = unwrapped_phase[int(
+        len(unwrapped_phase) * 0.25):int(len(unwrapped_phase) * 0.75)]
+    mean_phase = np.mean(unwrapped_phase_sample)
+
+    # 计算需要移动的周期数
+    shift_cycles = np.round(mean_phase / period)
+
+    # 平移整个相位数组
+    shifted_phase = unwrapped_phase - shift_cycles * period
+
+    # 判断信号是否是反向的（-180度），通过mean到0度和-180度的距离来判断
+    # 求 mean 时只留中间的 50% 的数据
+    shifted_phase_sample = shifted_phase[int(len(shifted_phase) * 0.25):int(
+        len(shifted_phase) * 0.75)]
+    mean_phase_to_0 = np.abs(np.mean(shifted_phase_sample))
+    mean_phase_to_180n = np.abs(np.mean(shifted_phase_sample + 180))
+    mean_phase_to_180p = np.abs(np.mean(shifted_phase_sample - 180))
+
+    if mean_phase_to_180n < mean_phase_to_0 and mean_phase_to_180n < mean_phase_to_180p:
+        shifted_phase += 180
+    if mean_phase_to_180p < mean_phase_to_0 and mean_phase_to_180p < mean_phase_to_180n:
+        shifted_phase -= 180
+
+    # 重新展开相位（使用兼容旧版NumPy的实现）
+    shifted_phase = _unwrap_with_period(shifted_phase, period)
+
+    # 手动调整相位
+    shifted_phase += phase_shift_manual
+
+    return shifted_phase

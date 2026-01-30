@@ -31,6 +31,7 @@ class TaskType(Enum):
     EXPORT_RESISTANCE = "export_resistance"
     STANDARDIZE_RESISTANCE = "standardize_resistance"
     WAVEFORM_VIS = "waveform_vis"
+    TEST = "test"
 
 
 @dataclass
@@ -62,6 +63,12 @@ class CLIArgs:
     # 子命令支持（简化设计）
     command: Optional[str] = None
     ep_project_path: Optional[str] = None
+
+    # 测试相关参数
+    test_path: Optional[str] = None
+    test_workers: int = 4
+    test_timeout: int = 300
+    no_parallel: bool = False
 
 
 @dataclass
@@ -269,7 +276,10 @@ def _add_main_arguments(parser: argparse.ArgumentParser, config: CLIConfig) -> N
     task_group.add_argument('--vis', '--waveform-vis', action='store_const',
                            const=TaskType.WAVEFORM_VIS, dest='task_type',
                            help='生成Origin/Target波形可视化图')
-    
+    task_group.add_argument('--test', action='store_const',
+                           const=TaskType.TEST, dest='task_type',
+                           help='运行单元测试')
+
     # 项目名称
     parser.add_argument('project_name', nargs='?', 
                        default=config.default_project,
@@ -354,6 +364,19 @@ def _add_main_arguments(parser: argparse.ArgumentParser, config: CLIConfig) -> N
                                  action='store_true',
                                  help='跳过验证步骤（不推荐）')
 
+    # 测试参数组
+    test_group = parser.add_argument_group('测试参数')
+    test_group.add_argument('--test-path', type=str, metavar='PATH',
+                           help='指定测试路径（默认: src/tests）')
+    test_group.add_argument('--test-workers', type=int, metavar='N',
+                           default=4,
+                           help='并行测试worker数量（默认: 4）')
+    test_group.add_argument('--test-timeout', type=int, metavar='SECONDS',
+                           default=300,
+                           help='单个测试超时时间（默认: 300秒）')
+    test_group.add_argument('--no-parallel', action='store_true',
+                           help='禁用并行测试')
+
 
 def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
     """
@@ -400,6 +423,9 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 ep_project_path=getattr(args, 'ep_project_path', None)
             )
 
+        # 检查是否为测试任务
+        is_test_task = getattr(args, 'task_type', None) == TaskType.TEST
+
         # 检查是否为频率响应对比任务
         is_freq_compare_task = hasattr(args, 'vis_freq_response_compare') and args.vis_freq_response_compare is not None
 
@@ -407,11 +433,13 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
         if is_freq_compare_task and args.task_type is not None:
             raise ArgumentParsingError("不能同时指定任务类型和频率响应对比")
 
-        if not is_freq_compare_task and args.task_type is None:
+        if not is_freq_compare_task and args.task_type is None and not is_test_task:
             raise ArgumentParsingError("必须指定一个任务类型或使用 --vis-freq-response-compare")
-        
-        # 解析项目名称
-        if args.all_projects:
+
+        # 解析项目名称（测试任务不需要项目名称）
+        if is_test_task:
+            project_names = []
+        elif args.all_projects:
             project_names = get_all_project_dirs(config.projects_dir)
             if not project_names:
                 raise ArgumentParsingError(f"在目录 '{config.projects_dir}' 中没有找到任何项目")
@@ -452,7 +480,11 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             bom_package=args.bom_package if hasattr(args, 'bom_package') else '0805',
             bom_standardize=args.bom_standardize if hasattr(args, 'bom_standardize') else None,
             command=getattr(args, 'command', None),
-            ep_project_path=getattr(args, 'ep_project_path', None)
+            ep_project_path=getattr(args, 'ep_project_path', None),
+            test_path=getattr(args, 'test_path', None),
+            test_workers=getattr(args, 'test_workers', 4),
+            test_timeout=getattr(args, 'test_timeout', 300),
+            no_parallel=getattr(args, 'no_parallel', False)
         )
         
     except SystemExit as e:

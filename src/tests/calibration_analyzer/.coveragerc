@@ -1,12 +1,11 @@
 [run]
-source = calibration_analyzer
-omit =
-    calibration_analyzer/tests/*
-    calibration_analyzer/__pycache__/*
-    calibration_analyzer/test_*.py
-    calibration_analyzer/verify_*.py
+source = src/calibration_analyzer
+parallel = true
+branch = true
 
 [report]
+include =
+    src/calibration_analyzer/*.py
 exclude_lines =
     pragma: no cover
     def __repr__

@@ -89,6 +89,7 @@ class DIAGIIR(tf.keras.layers.Layer):
                  trainable=False,
                  init_by_system=True,
                  fs=2000,
+                 debug=False,
                  **kwargs):
         super(DIAGIIR, self).__init__(**kwargs)
         self.units = units
@@ -101,7 +102,7 @@ class DIAGIIR(tf.keras.layers.Layer):
         self.fs = fs
         self.learning_rate = learning_rate
         self.trainable = trainable
-        self.debug = False
+        self.debug = debug
         self.init_by_system = init_by_system
         self.built = False
 

@@ -79,8 +79,11 @@ except ImportError:
     print("警告: cli模块无法导入，相关测试将被跳过")
 
 try:
-    from experimental import kan_lut
+    from experimental import kan_lut as kan_lut_module
     KAN_LUT_AVAILABLE = True
+    # 将模块赋值给全局变量
+    import sys
+    sys.modules['kan_lut'] = kan_lut_module
 except ImportError:
     KAN_LUT_AVAILABLE = False
     print("警告: kan_lut模块无法导入，相关测试将被跳过")

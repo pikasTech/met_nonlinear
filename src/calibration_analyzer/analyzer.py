@@ -1,5 +1,6 @@
 from .datastruct import DataRecord, DataRecordList
 from . import config
+from .utilities import shift_phase  # 从 utilities 导入，打破循环依赖
 import scipy.signal as signal
 import numpy as np
 import pandas as pd
@@ -459,47 +460,6 @@ class DataAnalyzeResultList:
 
     def get_freq(self) -> list[float]:
         return [result.freq for result in self.dataAnalyzeResults]
-
-
-def shift_phase(phase_array, period=360, phase_shift_manual=0):
-    """
-    Shift the entire phase array by a constant offset to center it around zero.
-    """
-    # 首先进行相位展开
-    unwrapped_phase = np.unwrap(phase_array, period=period)
-
-    # 计算平均相位值
-    unwrapped_phase_sample = unwrapped_phase[int(
-        len(unwrapped_phase) * 0.25):int(len(unwrapped_phase) * 0.75)]
-    mean_phase = np.mean(unwrapped_phase_sample)
-
-    # 计算需要移动的周期数
-    shift_cycles = np.round(mean_phase / period)
-
-    # 平移整个相位数组
-    shifted_phase = unwrapped_phase - shift_cycles * period
-
-    # 判断信号是否是反向的（-180°），通过mean到0°和-180°的距离来判断
-    # 求 mean 时只留中间的 50% 的数据
-    shifted_phase_sample = shifted_phase[int(len(shifted_phase) * 0.25):int(
-        len(shifted_phase) * 0.75)]
-    mean_phase_to_0 = np.abs(np.mean(shifted_phase_sample))
-    mean_phase_to_180n = np.abs(np.mean(shifted_phase_sample + 180))
-    mean_phase_to_180p = np.abs(np.mean(shifted_phase_sample - 180))
-
-    if mean_phase_to_180n < mean_phase_to_0 and mean_phase_to_180n < mean_phase_to_180p:
-        shifted_phase += 180
-    if mean_phase_to_180p < mean_phase_to_0 and mean_phase_to_180p < mean_phase_to_180n:
-        shifted_phase -= 180
-
-    # 重新展开相位
-    shifted_phase = np.unwrap(shifted_phase, period=period)
-
-    # 手动调整相位
-    # print(f'phase shift manual: {phase_shift_manual}')
-    shifted_phase += phase_shift_manual
-
-    return shifted_phase
 
 
 def extract_values_to_dict(input_str):
