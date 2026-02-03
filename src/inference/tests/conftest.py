@@ -88,18 +88,18 @@ class GoldenMasterTest:
 # Pytest configuration options
 def pytest_addoption(parser):
     """Add custom command line options."""
-    parser.addoption(
-        "--run-slow", 
-        action="store_true", 
-        default=False, 
-        help="Run slow tests"
-    )
-    parser.addoption(
-        "--benchmark-save",
-        action="store",
-        default=None,
-        help="Save benchmark results with given name"
-    )
+    # Note: --run-slow is already defined in root conftest.py
+    # Only add options that are not already defined
+    try:
+        parser.addoption(
+            "--benchmark-save",
+            action="store",
+            default=None,
+            help="Save benchmark results with given name"
+        )
+    except ValueError:
+        # Option already exists, skip
+        pass
 
 
 def pytest_collection_modifyitems(config, items):

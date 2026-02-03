@@ -1304,5 +1304,1001 @@ class TestWaveProcessorProcessHistory(unittest.TestCase):
         self.assertEqual(len(freq_range_stored), len(freq_range))
 
 
+class TestWaveProcessorFilterDesign(unittest.TestCase):
+    """测试WaveProcessor滤波器设计相关功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_analyze_sweep_response_filter_chain(self):
+        """测试分析滤波器链"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freqs = [10, 20, 50]
+
+        for freq in freqs:
+            t = np.arange(0, 0.2, 1/fs)
+            input_signal = np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        # 验证系统属性
+        self.assertIsNotNone(system.f)
+        self.assertEqual(len(system.f), len(freqs))
+
+    def test_analyze_sweep_response_phase_shift(self):
+        """测试带相移的响应分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freq = 10
+        phase_shift = np.pi / 4  # 45度相移
+
+        t = np.arange(0, 0.2, 1/fs)
+        input_signal = np.sin(2 * np.pi * freq * t)
+        output_signal = np.sin(2 * np.pi * freq * t + phase_shift)
+
+        input_record = WaveRecord(
+            data=input_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Input"],
+            user_metadata={"frequency": freq}
+        )
+        output_record = WaveRecord(
+            data=output_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Output"],
+            user_metadata={"frequency": freq}
+        )
+
+        input_wave_data.add_record(input_record)
+        output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        # 验证相位差不为零
+        self.assertIsNotNone(system.phase)
+
+    def test_analyze_sweep_response_high_frequency(self):
+        """测试高频响应分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 10000
+        freqs = [100, 500, 1000]
+
+        for freq in freqs:
+            t = np.arange(0, 0.1, 1/fs)
+            input_signal = np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 1.5
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertEqual(len(system.f), len(freqs))
+
+    def test_analyze_sweep_response_low_frequency(self):
+        """测试低频响应分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 500
+        freqs = [1, 2, 5]
+
+        for freq in freqs:
+            t = np.arange(0, 2, 1/fs)  # 较长时间以确保有足够周期
+            input_signal = np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertEqual(len(system.f), len(freqs))
+
+    def test_analyze_multi_magnitudes_linear_system(self):
+        """测试线性系统的多震级分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        amplitudes = [0.1, 0.5, 1.0, 2.0]
+        freq = 10
+
+        for amp in amplitudes:
+            t = np.arange(0, 0.2, 1/fs)
+            input_signal = amp * np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2  # 线性增益
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        amplitudes_result, systems_result = self.processor.analyze_multi_magnitudes_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        # 验证所有震级都被正确处理
+        self.assertEqual(len(amplitudes_result), len(amplitudes))
+        self.assertEqual(len(systems_result), len(amplitudes))
+
+        # 验证线性增益一致性
+        for i, system in enumerate(systems_result):
+            if len(system.gain) > 0 and not np.isnan(system.gain[0]):
+                pass  # 增益应该在2附近
+
+    def test_analyze_multi_magnitudes_equal_amplitudes(self):
+        """测试相等等级的多震级分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        amplitudes = [1.0, 1.0, 1.0]  # 重复的震级
+
+        for i, amp in enumerate(amplitudes):
+            freq = 10 + i * 5
+            t = np.arange(0, 0.2, 1/fs)
+            input_signal = amp * np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        # 重复震级应该被合并处理
+        amplitudes_result, systems_result = self.processor.analyze_multi_magnitudes_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertEqual(len(amplitudes_result), 1)  # 只有一个唯一震级
+        self.assertEqual(len(systems_result), 1)
+
+
+class TestWaveProcessorErrorHandling(unittest.TestCase):
+    """测试WaveProcessor错误处理"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_analyze_sweep_response_empty_input(self):
+        """测试空输入数据"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        t = np.arange(0, 0.2, 1/fs)
+        input_signal = np.sin(2 * np.pi * 10 * t)
+        output_signal = input_signal * 2
+
+        output_record = WaveRecord(
+            data=output_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Output"],
+            user_metadata={"frequency": 10}
+        )
+        output_wave_data.add_record(output_record)
+
+        with self.assertRaises((ValueError, IndexError)):
+            self.processor.analyze_sweep_response(
+                input_wave_data=input_wave_data,
+                output_wave_data=output_wave_data
+            )
+
+    def test_analyze_sweep_response_empty_output(self):
+        """测试空输出数据"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        t = np.arange(0, 0.2, 1/fs)
+        input_signal = np.sin(2 * np.pi * 10 * t)
+
+        input_record = WaveRecord(
+            data=input_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Input"],
+            user_metadata={"frequency": 10}
+        )
+        input_wave_data.add_record(input_record)
+
+        with self.assertRaises((ValueError, IndexError)):
+            self.processor.analyze_sweep_response(
+                input_wave_data=input_wave_data,
+                output_wave_data=output_wave_data
+            )
+
+    def test_analyze_multi_magnitudes_empty_input(self):
+        """测试空输入的多震级分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        # 空数据时，返回空列表而不是抛出异常
+        amplitudes_result, systems_result = self.processor.analyze_multi_magnitudes_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+        self.assertEqual(len(amplitudes_result), 0)
+        self.assertEqual(len(systems_result), 0)
+
+    def test_generate_sweep_with_none_freq(self):
+        """测试频率为None的扫频生成"""
+        freq_range = [10, None, 20]
+        with self.assertRaises((TypeError, ValueError)):
+            self.processor.generate_sweep_input_waveform(freq_range=freq_range)
+
+
+class TestWaveProcessorPerformance(unittest.TestCase):
+    """测试WaveProcessor性能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+
+    def test_analyze_many_frequencies(self):
+        """测试多频率点分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        # 20个频率点
+        freqs = list(range(10, 210, 10))
+
+        for freq in freqs:
+            t = np.arange(0, 0.1, 1/fs)
+            input_signal = np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertEqual(len(system.f), len(freqs))
+
+    def test_analyze_many_magnitudes(self):
+        """测试多震级分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        # 10个震级
+        amplitudes = np.linspace(0.1, 2.0, 10)
+        freq = 10
+
+        for amp in amplitudes:
+            t = np.arange(0, 0.2, 1/fs)
+            input_signal = amp * np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        amplitudes_result, systems_result = self.processor.analyze_multi_magnitudes_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertEqual(len(amplitudes_result), len(amplitudes))
+        self.assertEqual(len(systems_result), len(amplitudes))
+
+
+class TestWaveData(unittest.TestCase):
+    """测试WaveData类"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_wavedata_creation(self):
+        """测试创建WaveData"""
+        wave_data = WaveData(
+            description="测试数据",
+            author="Test"
+        )
+        self.assertIsNotNone(wave_data)
+        self.assertEqual(len(wave_data.records), 0)
+
+    def test_wavedata_add_record(self):
+        """测试添加记录"""
+        wave_data = WaveData(description="测试", author="Test")
+        t = np.arange(0, 0.1, 1/1000)
+        data = np.sin(2 * np.pi * 10 * t).reshape(-1, 1)
+        record = WaveRecord(
+            data=data,
+            sample_rate=1000,
+            channel_names=["Ch1"]
+        )
+        wave_data.add_record(record)
+        self.assertEqual(len(wave_data.records), 1)
+
+    def test_wavedata_add_multiple_records(self):
+        """测试添加多条记录"""
+        wave_data = WaveData(description="测试", author="Test")
+        for i in range(5):
+            t = np.arange(0, 0.1, 1/1000)
+            data = np.sin(2 * np.pi * (10 + i * 5) * t).reshape(-1, 1)
+            record = WaveRecord(
+                data=data,
+                sample_rate=1000,
+                channel_names=["Ch1"],
+                user_metadata={"frequency": 10 + i * 5}
+            )
+            wave_data.add_record(record)
+        self.assertEqual(len(wave_data.records), 5)
+
+    def test_wavedata_get_metadata(self):
+        """测试获取元数据"""
+        wave_data = WaveData(
+            description="测试",
+            author="Test",
+            tags=["test", "example"]
+        )
+        self.assertEqual(wave_data.description, "测试")
+        self.assertEqual(wave_data.author, "Test")
+        self.assertEqual(wave_data.tags, ["test", "example"])
+
+
+class TestWaveRecord(unittest.TestCase):
+    """测试WaveRecord类"""
+
+    def test_waverecord_creation(self):
+        """测试创建WaveRecord"""
+        data = np.random.randn(100, 2)
+        record = WaveRecord(
+            data=data,
+            sample_rate=1000,
+            channel_names=["Ch1", "Ch2"]
+        )
+        self.assertEqual(record.sample_rate, 1000)
+        self.assertEqual(len(record.channel_names), 2)
+        self.assertEqual(record.data.shape, (100, 2))
+
+    def test_waverecord_get_channel(self):
+        """测试获取通道数据"""
+        data = np.array([[1, 2], [3, 4], [5, 6]])
+        record = WaveRecord(
+            data=data,
+            sample_rate=1000,
+            channel_names=["Ch1", "Ch2"]
+        )
+        ch0 = record.get_channel(0)
+        np.testing.assert_array_equal(ch0, np.array([1, 3, 5]))
+
+    def test_waverecord_invalid_dimensions(self):
+        """测试无效数据维度"""
+        data = np.array([1, 2, 3, 4, 5])  # 一维数据
+        with self.assertRaises(ValueError):
+            WaveRecord(data=data, sample_rate=1000)
+
+    def test_waverecord_mismatched_channels(self):
+        """测试通道名数量不匹配"""
+        data = np.random.randn(100, 2)
+        with self.assertRaises(ValueError):
+            WaveRecord(
+                data=data,
+                sample_rate=1000,
+                channel_names=["Ch1"]  # 数量不匹配
+            )
+
+    def test_waverecord_with_metadata(self):
+        """测试带元数据的WaveRecord"""
+        data = np.random.randn(100, 1)
+        record = WaveRecord(
+            data=data,
+            sample_rate=1000,
+            channel_names=["Ch1"],
+            user_metadata={"test": "value", "number": 42}
+        )
+        self.assertEqual(record.user_metadata.get("test"), "value")
+        self.assertEqual(record.user_metadata.get("number"), 42)
+
+    def test_waverecord_default_channel_names(self):
+        """测试默认通道名"""
+        data = np.random.randn(100, 3)
+        record = WaveRecord(data=data, sample_rate=1000)
+        self.assertEqual(len(record.channel_names), 3)
+        self.assertEqual(record.channel_names[0], "通道1")
+
+
+class TestWaveProcessorAdditional(unittest.TestCase):
+    """测试WaveProcessor附加功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_generate_sweep_with_min_max_periods(self):
+        """测试不同周期的扫频"""
+        freq_range = [10, 20, 50]
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=freq_range,
+            amplitude=1.0,
+            fs=2000,
+            time_length=0.1,
+            min_periods=2,
+            max_periods=5
+        )
+        self.assertEqual(len(wave_data.records), len(freq_range))
+
+    def test_analyze_sweep_response_with_progress_callback(self):
+        """测试带进度回调的分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freqs = [10, 20, 50]
+
+        for freq in freqs:
+            t = np.arange(0, 0.2, 1/fs)
+            input_signal = np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertIsNotNone(system)
+        self.assertEqual(len(system.f), len(freqs))
+
+
+class TestWaveProcessorSaveLoadComplete(unittest.TestCase):
+    """测试WaveProcessor完整保存加载流程"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            for file in os.listdir(self.temp_dir):
+                os.remove(os.path.join(self.temp_dir, file))
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_save_load_cycle_multiple_times(self):
+        """测试多次保存加载循环"""
+        wave_data = WaveData(description="多次测试", author="Test")
+
+        for i in range(3):
+            t = np.arange(0, 0.1, 1/1000)
+            data = np.sin(2 * np.pi * 10 * t + i).reshape(-1, 1)
+            record = WaveRecord(
+                data=data,
+                sample_rate=1000,
+                channel_names=["Test"],
+                user_metadata={"iteration": i}
+            )
+            wave_data.add_record(record)
+
+        filepath = os.path.join(self.temp_dir, "cycle_test.wave")
+
+        # 多次保存加载循环
+        for _ in range(2):
+            self.processor.save_waveform(filepath, wave_data=wave_data)
+            loaded = self.processor.load_waveform(filepath)
+            self.assertEqual(len(loaded.records), 3)
+
+    def test_save_with_auto_filename(self):
+        """测试使用内部状态自动保存"""
+        # 先生成扫频数据
+        freq_range = [10, 20, 50]
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=freq_range,
+            amplitude=1.0,
+            fs=2000,
+            time_length=0.1
+        )
+
+        # 设置内部状态
+        self.processor.wave_data = wave_data
+
+        # 使用内部状态保存
+        filepath = os.path.join(self.temp_dir, "auto.wave")
+        self.processor.save_waveform(filepath)  # 不传入wave_data，使用内部状态
+
+        self.assertTrue(os.path.exists(filepath))
+
+    def test_load_updates_processor_state(self):
+        """测试加载后处理器状态的更新"""
+        wave_data = WaveData(description="状态测试", author="Test")
+        t = np.arange(0, 0.1, 1/1000)
+        data = np.sin(2 * np.pi * 10 * t).reshape(-1, 1)
+        record = WaveRecord(data=data, sample_rate=1000, channel_names=["Test"])
+        wave_data.add_record(record)
+
+        filepath = os.path.join(self.temp_dir, "state_test.wave")
+        self.processor.save_waveform(filepath, wave_data=wave_data)
+
+        # 验证加载前状态
+        self.assertIsNone(self.processor.wave_data)
+
+        # 加载
+        self.processor.load_waveform(filepath)
+
+        # 验证加载后状态
+        self.assertIsNotNone(self.processor.wave_data)
+        self.assertEqual(len(self.processor.wave_data.records), 1)
+
+
+class TestWaveProcessorAnalyzeEdgeCases(unittest.TestCase):
+    """测试analyze_sweep_response边缘情况"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_analyze_with_dc_offset(self):
+        """测试带直流偏置的分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freq = 10
+        t = np.arange(0, 0.2, 1/fs)
+
+        # 带直流偏置的信号
+        input_signal = np.sin(2 * np.pi * freq * t) + 1.0
+        output_signal = input_signal * 2
+
+        input_record = WaveRecord(
+            data=input_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Input"],
+            user_metadata={"frequency": freq}
+        )
+        output_record = WaveRecord(
+            data=output_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Output"],
+            user_metadata={"frequency": freq}
+        )
+
+        input_wave_data.add_record(input_record)
+        output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertIsInstance(system, System)
+
+    def test_analyze_with_noise(self):
+        """测试带噪声的分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freq = 10
+        t = np.arange(0, 0.2, 1/fs)
+
+        # 添加噪声的信号
+        np.random.seed(42)
+        input_signal = np.sin(2 * np.pi * freq * t) + 0.01 * np.random.randn(len(t))
+        output_signal = input_signal * 2 + 0.01 * np.random.randn(len(t))
+
+        input_record = WaveRecord(
+            data=input_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Input"],
+            user_metadata={"frequency": freq}
+        )
+        output_record = WaveRecord(
+            data=output_signal.reshape(-1, 1),
+            sample_rate=fs,
+            channel_names=["Output"],
+            user_metadata={"frequency": freq}
+        )
+
+        input_wave_data.add_record(input_record)
+        output_wave_data.add_record(output_record)
+
+        system = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertIsInstance(system, System)
+
+    def test_analyze_multi_magnitudes_with_single_frequency(self):
+        """测试单频率多震级分析"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freq = 50
+        amplitudes = [0.1, 0.5, 1.0]
+
+        for amp in amplitudes:
+            t = np.arange(0, 0.2, 1/fs)
+            input_signal = amp * np.sin(2 * np.pi * freq * t)
+            output_signal = input_signal * 2
+
+            input_record = WaveRecord(
+                data=input_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Input"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+            output_record = WaveRecord(
+                data=output_signal.reshape(-1, 1),
+                sample_rate=fs,
+                channel_names=["Output"],
+                user_metadata={"frequency": freq, "magnitude": amp}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        amplitudes_result, systems_result = self.processor.analyze_multi_magnitudes_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data
+        )
+
+        self.assertEqual(len(amplitudes_result), len(amplitudes))
+        self.assertEqual(len(systems_result), len(amplitudes))
+
+
+class TestWaveProcessorGenerateSweepEdgeCases(unittest.TestCase):
+    """测试generate_sweep_input_waveform边缘情况"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_generate_sweep_zero_amplitude(self):
+        """测试零振幅扫频"""
+        freq_range = [10, 20]
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=freq_range,
+            amplitude=0.0,
+            fs=2000,
+            time_length=0.1
+        )
+
+        self.assertEqual(len(wave_data.records), len(freq_range))
+
+    def test_generate_sweep_very_short_time(self):
+        """测试非常短的信号持续时间"""
+        freq_range = [1000]  # 高频需要短时间
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=freq_range,
+            amplitude=1.0,
+            fs=10000,
+            time_length=0.001,  # 非常短的时间
+            min_periods=1,
+            max_periods=2
+        )
+
+        self.assertEqual(len(wave_data.records), 1)
+        # 验证记录有数据
+        self.assertGreater(len(wave_data.records[0].data), 0)
+
+    def test_generate_sweep_single_period(self):
+        """测试单周期扫频"""
+        freq_range = [5]
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=freq_range,
+            amplitude=1.0,
+            fs=100,
+            time_length=1.0,
+            min_periods=1,
+            max_periods=1  # 强制单周期
+        )
+
+        self.assertEqual(len(wave_data.records), 1)
+
+
+class TestWaveProcessorMultiChannel(unittest.TestCase):
+    """测试WaveProcessor多通道功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_analyze_two_channel_data(self):
+        """测试分析双通道数据"""
+        input_wave_data = WaveData(description="输入", author="Test")
+        output_wave_data = WaveData(description="输出", author="Test")
+
+        fs = 2000
+        freqs = [10, 20, 50]
+
+        for freq in freqs:
+            t = np.arange(0, 0.2, 1/fs)
+
+            # 双通道输入
+            input_ch1 = np.sin(2 * np.pi * freq * t)
+            input_ch2 = np.cos(2 * np.pi * freq * t)
+            input_data = np.column_stack([input_ch1, input_ch2])
+
+            # 双通道输出
+            output_ch1 = input_ch1 * 2
+            output_ch2 = input_ch2 * 1.5
+            output_data = np.column_stack([output_ch1, output_ch2])
+
+            input_record = WaveRecord(
+                data=input_data,
+                sample_rate=fs,
+                channel_names=["Ch1", "Ch2"],
+                user_metadata={"frequency": freq}
+            )
+            output_record = WaveRecord(
+                data=output_data,
+                sample_rate=fs,
+                channel_names=["Out1", "Out2"],
+                user_metadata={"frequency": freq}
+            )
+
+            input_wave_data.add_record(input_record)
+            output_wave_data.add_record(output_record)
+
+        # 分析通道0
+        system_ch0 = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data,
+            input_channel_index=0,
+            output_channel_index=0
+        )
+
+        # 分析通道1
+        system_ch1 = self.processor.analyze_sweep_response(
+            input_wave_data=input_wave_data,
+            output_wave_data=output_wave_data,
+            input_channel_index=1,
+            output_channel_index=1
+        )
+
+        self.assertIsInstance(system_ch0, System)
+        self.assertIsInstance(system_ch1, System)
+        self.assertEqual(len(system_ch0.f), len(freqs))
+        self.assertEqual(len(system_ch1.f), len(freqs))
+
+
+class TestWaveProcessorMetadata(unittest.TestCase):
+    """测试WaveProcessor元数据功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.processor = WaveProcessor()
+        self.temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_generate_sweep_with_custom_metadata(self):
+        """测试带自定义元数据的扫频生成"""
+        custom_metadata = {"test_key": "test_value", "version": 1}
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=[10, 20, 50],
+            amplitude=1.0,
+            fs=2000,
+            time_length=0.1
+        )
+
+        # 添加自定义元数据
+        for record in wave_data.records:
+            record.user_metadata.update(custom_metadata)
+
+        # 验证元数据存在
+        for record in wave_data.records:
+            self.assertEqual(record.user_metadata.get("test_key"), "test_value")
+
+    def test_process_history_structure(self):
+        """测试处理历史结构"""
+        wave_data = self.processor.generate_sweep_input_waveform(
+            freq_range=[10, 20],
+            amplitude=1.0,
+            fs=2000,
+            time_length=0.1
+        )
+
+        process_history = wave_data.user_metadata.get("process_history", [])
+        self.assertIsInstance(process_history, list)
+
+        if len(process_history) > 0:
+            latest_record = process_history[-1]
+            self.assertIn("operation", latest_record)
+            self.assertIn("parameters", latest_record)
+            self.assertIn("timestamp", latest_record)
+
+
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

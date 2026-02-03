@@ -144,12 +144,12 @@ def pytest_configure(config):
         "markers", "integration: marks integration tests"
     )
 
-    # Configure coverage for calibration_analyzer module
-    # This ensures coverage can track modules imported via sys.path modification
+    # Configure unified coverage for all src/ modules
+    # Use root .coveragerc for consistent measurement across all modules
     config.addinivalue_line(
         "addopts",
-        f"--cov=src.calibration_analyzer --cov-report=term-missing --cov-report=html "
-        f"--cov-config={_SRC_DIR / 'tests' / 'calibration_analyzer' / '.coveragerc'}"
+        f"--cov --cov-report=term-missing --cov-report=html "
+        f"--cov-config={_PROJECT_ROOT / '.coveragerc'}"
     )
 
 

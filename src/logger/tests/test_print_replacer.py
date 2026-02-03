@@ -243,7 +243,7 @@ class TestAnalyzePrintPattern:
         """测试模式分析功能"""
         test_file = temp_dir / "patterns.py"
         test_file.write_text('''
-# 各种 print 模式
+# Various print patterns
 print("Simple")
 print(f"Formatted {x}")
 print("Multiple", "args", "here")

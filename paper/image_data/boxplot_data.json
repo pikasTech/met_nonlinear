@@ -1,0 +1,10 @@
+{
+  "ORIGIN": {
+    "sensitivity": {"min": 0.8, "median": 1.0, "max": 1.2},
+    "natural_frequency": {"min": 9.5, "median": 10.0, "max": 10.5}
+  },
+  "MODEL_A": {
+    "sensitivity": {"min": 0.9, "median": 1.0, "max": 1.1},
+    "natural_frequency": {"min": 9.8, "median": 10.0, "max": 10.2}
+  }
+}

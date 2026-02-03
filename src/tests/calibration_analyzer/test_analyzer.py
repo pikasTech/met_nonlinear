@@ -460,3 +460,329 @@ def test_channel_analyze_fft_parametrized(freq_select, start_s, time_s):
 
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
+
+
+class TestChannelAnalyzeResultAntiAliasing(unittest.TestCase):
+    """测试ChannelAnalyzeResult类的抗混叠滤波功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.sampling_rate = CONF_SAMPLING_RATE
+        # 创建较长的正弦波数据以测试抗混叠滤波
+        t = np.arange(0, 1, 1/self.sampling_rate)
+        freq = 10  # 10Hz
+        self.channel_data = np.sin(2 * np.pi * freq * t)
+        self.result = ChannelAnalyzeResult(
+            channel=self.channel_data,
+            sampling_rate=self.sampling_rate
+        )
+
+    def test_analyze_fft_with_anti_aliasing(self):
+        """测试启用抗混叠滤波的FFT分析"""
+        # 临时修改配置
+        import calibration_analyzer.config as config_module
+        original_value = config_module.CONF_USING_ANTI_ALIASING
+        try:
+            config_module.CONF_USING_ANTI_ALIASING = True
+            self.result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+            self.assertIsNotNone(self.result.fft)
+            self.assertIsNotNone(self.result.fft_abs)
+        finally:
+            config_module.CONF_USING_ANTI_ALIASING = original_value
+
+    def test_analyze_fft_without_anti_aliasing(self):
+        """测试禁用抗混叠滤波的FFT分析"""
+        import calibration_analyzer.config as config_module
+        original_value = config_module.CONF_USING_ANTI_ALIASING
+        try:
+            config_module.CONF_USING_ANTI_ALIASING = False
+            self.result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+            self.assertIsNotNone(self.result.fft)
+        finally:
+            config_module.CONF_USING_ANTI_ALIASING = original_value
+
+    def test_analyze_fft_with_hanning_window(self):
+        """测试启用汉宁窗的FFT分析"""
+        import calibration_analyzer.config as config_module
+        original_value = config_module.CONF_USING_HANNING
+        try:
+            config_module.CONF_USING_HANNING = True
+            self.result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+            self.assertIsNotNone(self.result.fft_abs)
+        finally:
+            config_module.CONF_USING_HANNING = original_value
+
+    def test_analyze_fft_with_ifft_enabled(self):
+        """测试启用IFFT时的get_amp行为"""
+        import calibration_analyzer.config as config_module
+        original_value = config_module.CONF_USING_IFFT
+        try:
+            config_module.CONF_USING_IFFT = True
+            self.result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+            amp = self.result.get_amp(freq_select=10)
+            self.assertIsNone(amp)
+        finally:
+            config_module.CONF_USING_IFFT = original_value
+
+    def test_analyze_fft_with_ifft_phase(self):
+        """测试启用IFFT时的get_phase行为"""
+        import calibration_analyzer.config as config_module
+        original_value = config_module.CONF_USING_IFFT
+        try:
+            config_module.CONF_USING_IFFT = True
+            self.result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+            phase = self.result.get_phase(freq_select=10)
+            self.assertIsNone(phase)
+        finally:
+            config_module.CONF_USING_IFFT = original_value
+
+
+class TestChannelAnalyzeResultEdgeCases(unittest.TestCase):
+    """测试ChannelAnalyzeResult边界情况"""
+
+    def test_analyze_fft_extended_time(self):
+        """测试扩展时间范围的FFT分析"""
+        import calibration_analyzer.config as config_module
+        original_anti_aliasing = config_module.CONF_USING_ANTI_ALIASING
+        try:
+            # 禁用抗混叠滤波，因为低采样率下滤波器设计会失败
+            config_module.CONF_USING_ANTI_ALIASING = False
+            sampling_rate = 1000
+            t = np.arange(0, 2, 1/sampling_rate)
+            data = np.sin(2 * np.pi * 10 * t)
+            result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+            result.analyze_fft(freq_select=10, start_s=0, time_s=2)
+            self.assertIsNotNone(result.fft)
+        finally:
+            config_module.CONF_USING_ANTI_ALIASING = original_anti_aliasing
+
+    def test_analyze_fft_large_duration(self):
+        """测试较大时间范围的FFT分析"""
+        import calibration_analyzer.config as config_module
+        original_anti_aliasing = config_module.CONF_USING_ANTI_ALIASING
+        try:
+            # 禁用抗混叠滤波
+            config_module.CONF_USING_ANTI_ALIASING = False
+            sampling_rate = 1000
+            t = np.arange(0, 10, 1/sampling_rate)
+            data = np.sin(2 * np.pi * 10 * t)
+            result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+            result.analyze_fft(freq_select=10, start_s=0, time_s=10)
+            self.assertIsNotNone(result.fft)
+        finally:
+            config_module.CONF_USING_ANTI_ALIASING = original_anti_aliasing
+
+    def test_get_phase_with_weighted_frequency_ratio(self):
+        """测试带频率比的加权相位计算"""
+        sampling_rate = CONF_SAMPLING_RATE
+        t = np.arange(0, 1, 1/sampling_rate)
+        # 创建包含多个频率分量的信号
+        data = np.sin(2 * np.pi * 10 * t) + 0.5 * np.sin(2 * np.pi * 20 * t)
+        result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+        result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+        result.analyze_indicators(freq_select=10, freq_ratio=1.5)
+        phase = result.get_phase(freq_select=10, freq_ratio=1.5)
+        self.assertIsInstance(phase, (float, np.floating))
+
+    def test_analyze_indicators_dc_threshold(self):
+        """测试带直流阈值的指标分析"""
+        sampling_rate = CONF_SAMPLING_RATE
+        t = np.arange(0, 1, 1/sampling_rate)
+        data = np.sin(2 * np.pi * 10 * t)
+        result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+        result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+        result.analyze_indicators(freq_select=10, dc_threshold=10, high_freq_threshold=5000)
+        self.assertTrue(hasattr(result, 'thd'))
+        self.assertTrue(hasattr(result, 'distortion'))
+
+    def test_analyze_indicators_high_freq_threshold(self):
+        """测试带高频阈值的指标分析"""
+        sampling_rate = CONF_SAMPLING_RATE
+        t = np.arange(0, 1, 1/sampling_rate)
+        data = np.sin(2 * np.pi * 10 * t)
+        result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+        result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+        # 测试高频阈值小于频率两倍的情况
+        result.analyze_indicators(freq_select=10, high_freq_threshold=15)
+        self.assertTrue(hasattr(result, 'thd'))
+
+
+class TestDataAnalyzeResultIFFT(unittest.TestCase):
+    """测试DataAnalyzeResult的IFFT功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.sampling_rate = CONF_SAMPLING_RATE
+        param = DataIdentifierParam("var=1,freq=10")
+        param.params['freq'] = '10'
+        t = np.arange(0, 1, 1/self.sampling_rate)
+        ch1 = np.sin(2 * np.pi * 10 * t).tolist()
+        ch2 = np.sin(2 * np.pi * 10 * t + np.pi/4).tolist()
+        self.record = DataRecord(param, ch1, ch2)
+
+    def test_analyze_delta_ifft_with_gain(self):
+        """测试IFFT差分分析返回增益和相位"""
+        result = DataAnalyzeResult(record=self.record, sample_rate=self.sampling_rate)
+        result.analyze()
+        gain, phi = result.analyze_delta_ifft(result.ch1Result, result.ch2Result)
+        self.assertGreater(gain, 0)
+        self.assertIsInstance(phi, (float, np.floating))
+
+    def test_analyze_with_gain_ratio(self):
+        """测试带增益比的分析"""
+        result = DataAnalyzeResult(record=self.record, sample_rate=self.sampling_rate)
+        result.analyze(gain_ratio=2.0)
+        self.assertEqual(result.gain_ratio, 2.0)
+
+
+class TestDataAnalyzeResultListExcel(unittest.TestCase):
+    """测试DataAnalyzeResultList的Excel功能"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.sampling_rate = CONF_SAMPLING_RATE
+        self.result_list = DataAnalyzeResultList()
+        self.temp_dir = tempfile.mkdtemp()
+
+        for freq in [5, 10, 20]:
+            param = DataIdentifierParam(f"var=1,freq={freq}")
+            param.params['freq'] = str(freq)
+            t = np.arange(0, 1, 1/self.sampling_rate)
+            ch1 = np.sin(2 * np.pi * freq * t).tolist()
+            ch2 = np.sin(2 * np.pi * freq * t + np.pi/6).tolist()
+            record = DataRecord(param, ch1, ch2)
+            result = DataAnalyzeResult(record=record, sample_rate=self.sampling_rate)
+            result.analyze()
+            self.result_list.append(result)
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_save_to_excel_file(self):
+        """测试保存到Excel文件"""
+        filepath = os.path.join(self.temp_dir, "test_results.xlsx")
+        self.result_list.save_to_excel_file(filepath)
+        self.assertTrue(os.path.exists(filepath))
+
+    def test_load_from_excel_file(self):
+        """测试从Excel文件加载"""
+        # 先保存
+        filepath = os.path.join(self.temp_dir, "test_results.xlsx")
+        self.result_list.save_to_excel_file(filepath)
+
+        # 再加载
+        new_list = DataAnalyzeResultList()
+        new_list.load_from_excel_file(filepath)
+
+        self.assertEqual(len(new_list.dataAnalyzeResults), 3)
+
+    def test_dump_to_json_file(self):
+        """测试导出到JSON文件"""
+        filepath = os.path.join(self.temp_dir, "test_results.json")
+        self.result_list.dump_to_json_file(filepath)
+        self.assertTrue(os.path.exists(filepath))
+
+
+class TestExtractValuesToDictEdgeCases(unittest.TestCase):
+    """测试extract_values_to_dict函数的边界情况"""
+
+    def test_mixed_integer_float(self):
+        """测试混合整数和浮点数"""
+        input_str = "A1B2.5C3D4.7"
+        result = extract_values_to_dict(input_str)
+        self.assertEqual(result['A'], 1)
+        self.assertEqual(result['B'], 2.5)
+        self.assertEqual(result['C'], 3)
+        self.assertEqual(result['D'], 4.7)
+
+    def test_single_letter_number(self):
+        """测试单个字母数字"""
+        input_str = "Z9"
+        result = extract_values_to_dict(input_str)
+        self.assertEqual(result['Z'], 9)
+
+    def test_consecutive_matches(self):
+        """测试连续匹配"""
+        input_str = "A1B2C3"
+        result = extract_values_to_dict(input_str)
+        self.assertEqual(len(result), 3)
+
+    def test_decimal_only(self):
+        """测试只有小数点"""
+        input_str = "X.5"
+        result = extract_values_to_dict(input_str)
+        # 小数点前没有数字不会匹配成功
+        self.assertNotIn('X', result)
+
+    def test_large_numbers(self):
+        """测试大数字"""
+        input_str = "A10000B5000.5"
+        result = extract_values_to_dict(input_str)
+        self.assertEqual(result['A'], 10000)
+        self.assertEqual(result['B'], 5000.5)
+
+    def test_negative_numbers(self):
+        """测试负数（不应该匹配）"""
+        input_str = "A-10B5"
+        result = extract_values_to_dict(input_str)
+        # 负号不会匹配，因为正则只匹配正数
+        self.assertIn('B', result)
+
+
+# 参数化测试 - 扩展
+@pytest.mark.parametrize("freq_select,start_s,time_s", [
+    (5, 0, 0.5),
+    (25, 0.1, 1.0),
+    (100, 0, 2.0),
+    (10, 0.5, 0.5),
+])
+def test_channel_analyze_fft_extended(freq_select, start_s, time_s):
+    """参数化测试FFT分析扩展场景"""
+    sampling_rate = CONF_SAMPLING_RATE
+    # 确保有足够的数据
+    t = np.arange(0, max(time_s + start_s + 0.1, 1), 1/sampling_rate)
+    data = np.sin(2 * np.pi * freq_select * t)
+    result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+    result.analyze_fft(freq_select=freq_select, start_s=start_s, time_s=time_s)
+    assert result.fft is not None
+    assert result.fft_abs is not None
+
+
+@pytest.mark.parametrize("freq_ratio", [1.0, 1.1, 1.5, 2.0])
+def test_get_power_various_ratios(freq_ratio):
+    """参数化测试不同频率比的功率计算"""
+    sampling_rate = CONF_SAMPLING_RATE
+    t = np.arange(0, 1, 1/sampling_rate)
+    data = np.sin(2 * np.pi * 10 * t)
+    result = ChannelAnalyzeResult(channel=data, sampling_rate=sampling_rate)
+    result.analyze_fft(freq_select=10, start_s=0, time_s=1)
+    power = result.get_power(freq_select=10, freq_ratio=freq_ratio)
+    assert power >= 0
+
+
+class TestAnalyzeFileFunction(unittest.TestCase):
+    """测试analyze_file函数"""
+
+    def setUp(self):
+        """设置测试数据"""
+        self.temp_dir = tempfile.mkdtemp()
+        self.sampling_rate = CONF_SAMPLING_RATE
+
+    def tearDown(self):
+        """清理临时文件"""
+        try:
+            for file in os.listdir(self.temp_dir):
+                os.remove(os.path.join(self.temp_dir, file))
+            os.rmdir(self.temp_dir)
+        except (FileNotFoundError, OSError):
+            pass
+
+    def test_analyze_file_function_structure(self):
+        """测试analyze_file函数的基本结构"""
+        # 这个测试验证analyze_file函数的导入和结构
+        from calibration_analyzer.analyzer import analyze_file
+        self.assertTrue(callable(analyze_file))

@@ -410,7 +410,7 @@ def test_iir_mimoiir():
     plt.xlabel('Sample Index')
     plt.ylabel('Output')
     plt.grid(True)
-    plt.show()
+    # plt.show()  # 移除以避免测试阻塞
 
     # Plot the difference
     plt.figure(figsize=(12, 4))
@@ -421,7 +421,7 @@ def test_iir_mimoiir():
     plt.xlabel('Sample Index')
     plt.ylabel('Difference')
     plt.grid(True)
-    plt.show()
+    # plt.show()  # 移除以避免测试阻塞
 
 
 def test_performance():
@@ -494,7 +494,7 @@ def test_single_unit_iir():
     plt.xlabel('Sample Index')
     plt.ylabel('Output')
     plt.grid(True)
-    plt.show()
+    # plt.show()  # 移除以避免测试阻塞
 
     # 差异可视化
     plt.figure(figsize=(12, 4))
@@ -504,11 +504,11 @@ def test_single_unit_iir():
     plt.xlabel('Sample Index')
     plt.ylabel('Difference')
     plt.grid(True)
-    plt.show()
+    # plt.show()  # 移除以避免测试阻塞
 
 
 if __name__ == "__main__":
     # test_iir_mimoiir()
     # test_performance()
     test_single_unit_iir()
-    plt.show()
+    # plt.show()  # 移除以避免测试阻塞

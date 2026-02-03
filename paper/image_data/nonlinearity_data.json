@@ -1,0 +1,10 @@
+{
+  "ORIGIN": {
+    "nonlinearity_mean": 5.0,
+    "total_params": 10000
+  },
+  "MODEL_A": {
+    "nonlinearity_mean": 3.0,
+    "total_params": 20000
+  }
+}

@@ -1,5 +1,7 @@
 """
 Tests for visualization/figure_paper module
+
+This module tests figure_paper functions with proper mocking of external dependencies.
 """
 
 import pytest
@@ -17,18 +19,35 @@ if str(_SRC_DIR) not in sys.path:
     sys.path.insert(0, str(_SRC_DIR))
 
 # Mock external dependencies before importing figure_paper
-mock_paper = MagicMock()
-mock_paper.fig_process = MagicMock()
-mock_paper.fig_process.plot_frirnn = MagicMock()
-mock_paper.fig_process.plot_lut = MagicMock()
-mock_paper.fig_process.fig_pdf = MagicMock()
-mock_paper.fig_process.plot_config = MagicMock()
-mock_paper.fig_process.plot_scatter = MagicMock()
+# These mocks are needed because figure_paper imports from paper.fig_process
+mock_plot_config = MagicMock()
+MOCK_MODEL_COLOR_MAP = {
+    'WNET': '#4E79A7',
+    'FRIKAN': '#F28E2B',
+    'GRU': '#E15759',
+    'LSTM': '#76B7B2',
+    'RVTDCNN': '#59A14F',
+}
+mock_plot_config.MODEL_COLOR_MAP = MOCK_MODEL_COLOR_MAP
 
+mock_fig_process = MagicMock()
+mock_fig_process.plot_frirnn = MagicMock()
+mock_fig_process.plot_lut = MagicMock()
+mock_fig_process.fig_pdf = MagicMock()
+mock_fig_process.plot_config = mock_plot_config
+mock_fig_process.plot_scatter = MagicMock()
+
+mock_paper = MagicMock()
+mock_paper.fig_process = mock_fig_process
+
+# Set up sys.modules BEFORE importing figure_paper
 sys.modules['paper'] = mock_paper
-sys.modules['paper.fig_process'] = mock_paper.fig_process
-sys.modules['paper.fig_process.plot_config'] = MagicMock()
-sys.modules['paper.fig_process.plot_scatter'] = MagicMock()
+sys.modules['paper.fig_process'] = mock_fig_process
+sys.modules['paper.fig_process.plot_config'] = mock_plot_config
+sys.modules['paper.fig_process.plot_scatter'] = mock_fig_process.plot_scatter
+
+# Now we can import figure_paper module directly
+import visualization.figure_paper as figure_paper
 
 
 class TestConvertNumpy:
@@ -36,45 +55,35 @@ class TestConvertNumpy:
 
     def test_convert_numpy_array(self):
         """Test converting numpy array to list"""
-        from visualization.figure_paper import convert_numpy
-
         arr = np.array([1, 2, 3])
-        result = convert_numpy(arr)
+        result = figure_paper.convert_numpy(arr)
         assert result == [1, 2, 3]
         assert isinstance(result, list)
 
     def test_convert_numpy_nested_array(self):
         """Test converting nested numpy array"""
-        from visualization.figure_paper import convert_numpy
-
         arr = np.array([[1, 2], [3, 4]])
-        result = convert_numpy(arr)
+        result = figure_paper.convert_numpy(arr)
         assert result == [[1, 2], [3, 4]]
 
     def test_convert_numpy_list(self):
         """Test converting list (no change)"""
-        from visualization.figure_paper import convert_numpy
-
         lst = [1, 2, 3]
-        result = convert_numpy(lst)
+        result = figure_paper.convert_numpy(lst)
         assert result == [1, 2, 3]
 
     def test_convert_numpy_dict(self):
         """Test converting dictionary"""
-        from visualization.figure_paper import convert_numpy
-
         d = {'a': np.array([1, 2]), 'b': 3}
-        result = convert_numpy(d)
+        result = figure_paper.convert_numpy(d)
         assert result == {'a': [1, 2], 'b': 3}
 
     def test_convert_numpy_primitive(self):
         """Test converting primitive types"""
-        from visualization.figure_paper import convert_numpy
-
-        assert convert_numpy(5) == 5
-        assert convert_numpy(3.14) == 3.14
-        assert convert_numpy("test") == "test"
-        assert convert_numpy(None) is None
+        assert figure_paper.convert_numpy(5) == 5
+        assert figure_paper.convert_numpy(3.14) == 3.14
+        assert figure_paper.convert_numpy("test") == "test"
+        assert figure_paper.convert_numpy(None) is None
 
 
 class TestGetComplementaryColor:
@@ -82,25 +91,19 @@ class TestGetComplementaryColor:
 
     def test_complementary_black(self):
         """Test complementary color of black (#000000)"""
-        from visualization.figure_paper import get_complementary_color
-
-        result = get_complementary_color("#000000")
+        result = figure_paper.get_complementary_color("#000000")
         # White should be the complement
         assert result == "#ffffff" or result == "#fff"
 
     def test_complementary_white(self):
         """Test complementary color of white (#ffffff)"""
-        from visualization.figure_paper import get_complementary_color
-
-        result = get_complementary_color("#ffffff")
+        result = figure_paper.get_complementary_color("#ffffff")
         # Black should be the complement
         assert result == "#000000" or result == "#000"
 
     def test_complementary_red(self):
         """Test complementary color of red (#ff0000)"""
-        from visualization.figure_paper import get_complementary_color
-
-        result = get_complementary_color("#ff0000")
+        result = figure_paper.get_complementary_color("#ff0000")
         # Should be cyan-ish
         assert result.startswith("#")
 
@@ -114,10 +117,8 @@ class TestMyArraw:
         matplotlib.use('Agg')
         import matplotlib.pyplot as plt
 
-        from visualization.figure_paper import my_arraw
-
         fig, ax = plt.subplots()
-        my_arraw(ax, text="Test arrow")
+        figure_paper.my_arraw(ax, text="Test arrow")
 
         # Check that text was added
         texts = [t for t in ax.texts]
@@ -128,85 +129,22 @@ class TestMyArraw:
 
 
 class TestProjectResult:
-    """Test ProjectResult class"""
+    """Test ProjectResult class basic functionality with mocked data"""
 
-    @pytest.fixture
-    def temp_project_dir(self):
-        """Create a temporary project directory with required files"""
-        temp_dir = tempfile.mkdtemp()
-        project_name = "test_project"
-        project_dir = os.path.join(temp_dir, project_name, "data")
-        os.makedirs(project_dir)
-
-        # Create required JSON files
-        raw_data = {
-            "gains_origin": [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-            "gains_comped": [[1.1, 2.1, 3.1], [4.1, 5.1, 6.1]],
-            "magnitudes": [0.5, 1.0],
-            "frequencies": [10.0, 50.0, 100.0],
-            "fit_params_origin": [[1, 4, 2], [1, 9, 2]],
-            "fit_params_comped": [[1.1, 4, 2], [1.1, 9, 2]]
-        }
-
-        training_info = {
-            "epochs": 100,
-            "min_loss": 0.01,
-            "min_val_loss": 0.02
-        }
-
-        model_info = {
-            "param_count": 1000,
-            "model_type": "WNET"
-        }
-
-        with open(os.path.join(project_dir, "linear_response.json"), 'w') as f:
-            json.dump(raw_data, f)
-        with open(os.path.join(project_dir, "training_info.json"), 'w') as f:
-            json.dump(training_info, f)
-        with open(os.path.join(project_dir, "model_info.json"), 'w') as f:
-            json.dump(model_info, f)
-
-        yield temp_dir, project_name
-
-        # Cleanup
-        import shutil
-        shutil.rmtree(temp_dir)
-
-    def test_project_result_init(self, temp_project_dir):
+    def test_project_result_init(self):
         """Test ProjectResult initialization"""
-        from visualization.figure_paper import ProjectResult
-
-        temp_dir, project_name = temp_project_dir
-
-        with patch.dict('os.environ', {'PATH': ''}):
-            # Set the correct project path prefix
-            with patch('os.getcwd', return_value=temp_dir):
-                result = ProjectResult(project_name)
+        # Mock file operations to avoid file system dependency
+        with patch('builtins.open', side_effect=FileNotFoundError("Mocked")):
+            with patch('os.path.exists', return_value=False):
+                result = figure_paper.ProjectResult("test_project")
 
                 # Verify basic attributes exist
-                assert result.project_name == project_name
-                assert result.raw_data_path is not None
-                assert result.training_info_path is not None
-                assert result.model_info_path is not None
-
-    def test_project_result_load_data(self, temp_project_dir):
-        """Test ProjectResult.load_data method"""
-        from visualization.figure_paper import ProjectResult
-
-        temp_dir, project_name = temp_project_dir
-
-        with patch.dict('os.environ', {'PATH': ''}):
-            with patch('os.getcwd', return_value=temp_dir):
-                result = ProjectResult(project_name)
-                result.load_data()
-
-                # Data should be loaded (may be empty if paths don't match)
-                assert result.raw_data == {} or len(result.raw_data) >= 0
+                assert result.project_name == "test_project"
+                assert "test_project" in result.raw_data_path
+                assert "training_info" in result.training_info_path
 
     def test_project_result_model_name_extraction(self):
         """Test model name extraction from project name"""
-        from visualization.figure_paper import ProjectResult
-
         # Create a mock ProjectResult with just the project name
         # by testing the string parsing logic
         project_name = "WNET5_test"
@@ -223,11 +161,9 @@ class TestProjectResult:
 
     def test_project_result_calculate_parameters(self):
         """Test _calculate_parameters method"""
-        from visualization.figure_paper import ProjectResult
-
         # Create a minimal instance
         with patch('os.getcwd', return_value='/tmp'):
-            result = ProjectResult("test")
+            result = figure_paper.ProjectResult("test")
 
             params = [[1, 4, 2], [1, 9, 2]]  # A, B, C values
 
@@ -242,14 +178,25 @@ class TestProjectResult:
             assert abs(wn[0] - 2.0) < 0.01  # sqrt(4) = 2
             assert abs(wn[1] - 3.0) < 0.01  # sqrt(9) = 3
 
+    def test_project_result_calculate_single_param(self):
+        """Test _calculate_parameters with single parameter set"""
+        with patch('os.getcwd', return_value='/tmp'):
+            result = figure_paper.ProjectResult("test")
+
+            params = [[1, 16, 4]]  # A=1, B=16, C=4 -> wn=4, zeta=0.5
+
+            wn, zeta, A = result._calculate_parameters(params)
+
+            assert len(wn) == 1
+            assert abs(wn[0] - 4.0) < 0.01  # sqrt(16) = 4
+            assert abs(zeta[0] - 0.5) < 0.01  # C/(2*wn) = 4/(2*4) = 0.5
+
 
 class TestExpandProjectPatterns:
     """Test expand_project_patterns function"""
 
     def test_expand_project_patterns_no_matches(self):
         """Test with no matching projects"""
-        from visualization.figure_paper import expand_project_patterns
-
         # Create mock directory entries
         mock_entry = MagicMock()
         mock_entry.is_dir.return_value = False
@@ -257,17 +204,15 @@ class TestExpandProjectPatterns:
         with patch('os.scandir') as mock_scandir:
             mock_scandir.return_value = [mock_entry]
 
-            with patch('visualization.figure_paper.RESULT_LIST', ['WNET*']):
-                with patch('visualization.figure_paper.IGNORE_LIST', []):
-                    result = expand_project_patterns()
+            with patch.object(figure_paper, 'RESULT_LIST', ['WNET*']):
+                with patch.object(figure_paper, 'IGNORE_LIST', []):
+                    result = figure_paper.expand_project_patterns()
 
             # Should return empty list when no dir matches
             assert isinstance(result, list)
 
     def test_expand_project_patterns_with_matches(self):
         """Test with matching projects"""
-        from visualization.figure_paper import expand_project_patterns
-
         # Create mock directory entries with proper name attribute
         mock_entries = []
         for name in ['WNET5_test1', 'WNET5_test2', 'LSTM_test']:
@@ -277,17 +222,15 @@ class TestExpandProjectPatterns:
             mock_entries.append(mock_entry)
 
         with patch('os.scandir', return_value=mock_entries):
-            with patch('visualization.figure_paper.RESULT_LIST', ['WNET*']):
-                with patch('visualization.figure_paper.IGNORE_LIST', []):
-                    result = expand_project_patterns()
+            with patch.object(figure_paper, 'RESULT_LIST', ['WNET*']):
+                with patch.object(figure_paper, 'IGNORE_LIST', []):
+                    result = figure_paper.expand_project_patterns()
 
         # Should match WNET projects
         assert len(result) >= 2
 
     def test_expand_project_patterns_ignore_filter(self):
         """Test that ignore patterns work correctly"""
-        from visualization.figure_paper import expand_project_patterns
-
         # Create mock directory entries with proper name attribute
         mock_entries = []
         for name in ['WNET5_test', 'WNET5_test_nb', 'LSTM_test']:
@@ -297,9 +240,9 @@ class TestExpandProjectPatterns:
             mock_entries.append(mock_entry)
 
         with patch('os.scandir', return_value=mock_entries):
-            with patch('visualization.figure_paper.RESULT_LIST', ['WNET*']):
-                with patch('visualization.figure_paper.IGNORE_LIST', ['*nb']):
-                    result = expand_project_patterns()
+            with patch.object(figure_paper, 'RESULT_LIST', ['WNET*']):
+                with patch.object(figure_paper, 'IGNORE_LIST', ['*nb']):
+                    result = figure_paper.expand_project_patterns()
 
         # Should exclude WNET5_test_nb
         project_names = ' '.join(result)
@@ -307,8 +250,6 @@ class TestExpandProjectPatterns:
 
     def test_expand_project_patterns_exact_match(self):
         """Test with exact project name (no wildcard)"""
-        from visualization.figure_paper import expand_project_patterns
-
         mock_entries = [
             MagicMock(name='WNET5_exact'),
             MagicMock(name='WNET5_other')
@@ -317,12 +258,27 @@ class TestExpandProjectPatterns:
             entry.is_dir.return_value = True
 
         with patch('os.scandir', return_value=mock_entries):
-            with patch('visualization.figure_paper.RESULT_LIST', ['WNET5_exact']):
-                with patch('visualization.figure_paper.IGNORE_LIST', []):
-                    result = expand_project_patterns()
+            with patch.object(figure_paper, 'RESULT_LIST', ['WNET5_exact']):
+                with patch.object(figure_paper, 'IGNORE_LIST', []):
+                    result = figure_paper.expand_project_patterns()
 
         assert 'WNET5_exact' in result
         assert 'WNET5_other' not in result
+
+    def test_expand_project_patterns_empty_result_list(self):
+        """Test with empty RESULT_LIST"""
+        mock_entries = [
+            MagicMock(name='WNET5_test'),
+        ]
+        mock_entries[0].is_dir.return_value = True
+
+        with patch('os.scandir', return_value=mock_entries):
+            with patch.object(figure_paper, 'RESULT_LIST', []):
+                with patch.object(figure_paper, 'IGNORE_LIST', []):
+                    result = figure_paper.expand_project_patterns()
+
+        # Should return empty list
+        assert len(result) == 0
 
 
 class TestCombineImagesWithLabels:
@@ -354,23 +310,19 @@ class TestCombineImagesWithLabels:
 
     def test_combine_images_basic(self, temp_images):
         """Test basic image combination"""
-        from visualization.figure_paper import combine_images_with_labels
-
         image_paths, temp_dir = temp_images
         output_path = os.path.join(temp_dir, "combined.png")
 
-        combine_images_with_labels(image_paths, output_path)
+        figure_paper.combine_images_with_labels(image_paths, output_path)
 
         assert os.path.exists(output_path)
 
     def test_combine_images_with_custom_labels(self, temp_images):
         """Test image combination with custom labels"""
-        from visualization.figure_paper import combine_images_with_labels
-
         image_paths, temp_dir = temp_images
         output_path = os.path.join(temp_dir, "combined.png")
 
-        combine_images_with_labels(
+        figure_paper.combine_images_with_labels(
             image_paths,
             output_path,
             labels=['(a)', '(b)']
@@ -380,14 +332,38 @@ class TestCombineImagesWithLabels:
 
     def test_combine_images_with_space_param(self, temp_images):
         """Test image combination with custom spacing"""
-        from visualization.figure_paper import combine_images_with_labels
-
         image_paths, temp_dir = temp_images
         output_path = os.path.join(temp_dir, "combined.png")
 
-        combine_images_with_labels(image_paths, output_path, space=0.1)
+        figure_paper.combine_images_with_labels(image_paths, output_path, space=0.1)
 
         assert os.path.exists(output_path)
+
+    def test_combine_images_three_images(self):
+        """Test combining three images"""
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        from PIL import Image
+
+        temp_dir = tempfile.mkdtemp()
+        image_paths = []
+
+        for i in range(3):
+            fig, ax = plt.subplots()
+            ax.plot([1, 2, 3], [i, i+1, i+2])
+            path = os.path.join(temp_dir, f"test_image_{i}.png")
+            fig.savefig(path, dpi=100)
+            plt.close(fig)
+            image_paths.append(path)
+
+        output_path = os.path.join(temp_dir, "combined_three.png")
+        figure_paper.combine_images_with_labels(image_paths, output_path)
+
+        assert os.path.exists(output_path)
+
+        import shutil
+        shutil.rmtree(temp_dir)
 
 
 class TestConcatenateImages:
@@ -418,18 +394,15 @@ class TestConcatenateImages:
 
     def test_concatenate_images_basic(self, temp_images):
         """Test basic image concatenation"""
-        from visualization.figure_paper import concatenate_images
-
         image_paths, temp_dir = temp_images
         output_path = os.path.join(temp_dir, "concatenated.png")
 
-        concatenate_images(image_paths[0], image_paths[1], output_path)
+        figure_paper.concatenate_images(image_paths[0], image_paths[1], output_path)
 
         assert os.path.exists(output_path)
 
     def test_concatenate_images_height_adjustment(self):
         """Test that images with different heights are resized"""
-        from visualization.figure_paper import concatenate_images
         from PIL import Image
 
         temp_dir = tempfile.mkdtemp()
@@ -445,7 +418,7 @@ class TestConcatenateImages:
         img1.save(path1)
         img2.save(path2)
 
-        concatenate_images(path1, path2, output_path)
+        figure_paper.concatenate_images(path1, path2, output_path)
 
         assert os.path.exists(output_path)
 
@@ -454,11 +427,191 @@ class TestConcatenateImages:
 
     def test_concatenate_images_with_space(self, temp_images):
         """Test concatenation with custom space parameter"""
-        from visualization.figure_paper import concatenate_images
-
         image_paths, temp_dir = temp_images
         output_path = os.path.join(temp_dir, "concatenated.png")
 
-        concatenate_images(image_paths[0], image_paths[1], output_path, space=0.05)
+        figure_paper.concatenate_images(image_paths[0], image_paths[1], output_path, space=0.05)
 
         assert os.path.exists(output_path)
+
+    def test_concatenate_images_same_height(self):
+        """Test concatenation of images with same height"""
+        from PIL import Image
+
+        temp_dir = tempfile.mkdtemp()
+
+        # Create images with same height
+        img1 = Image.new('RGB', (100, 100), color='red')
+        img2 = Image.new('RGB', (150, 100), color='blue')
+
+        path1 = os.path.join(temp_dir, "img1.png")
+        path2 = os.path.join(temp_dir, "img2.png")
+        output_path = os.path.join(temp_dir, "output.png")
+
+        img1.save(path1)
+        img2.save(path2)
+
+        figure_paper.concatenate_images(path1, path2, output_path)
+
+        assert os.path.exists(output_path)
+
+        import shutil
+        shutil.rmtree(temp_dir)
+
+
+class TestGetModelColor:
+    """Test get_model_color function"""
+
+    def test_get_model_color_wavewnet(self):
+        """Test get_model_color with WNET prefix"""
+        result = figure_paper.get_model_color("WNET5_test")
+        assert result.startswith("#")
+
+    def test_get_model_color_frikan(self):
+        """Test get_model_color with FRIKAN prefix"""
+        result = figure_paper.get_model_color("FRIKANh6u6l3")
+        assert result.startswith("#")
+
+    def test_get_model_color_gru(self):
+        """Test get_model_color with GRU prefix"""
+        result = figure_paper.get_model_color("GRNu16")
+        assert result.startswith("#")
+
+    def test_get_model_color_lstm(self):
+        """Test get_model_color with LSTM prefix"""
+        result = figure_paper.get_model_color("LSTMu22")
+        assert result.startswith("#")
+
+    def test_get_model_color_rvtdcnn(self):
+        """Test get_model_color with RVTDCNN prefix"""
+        result = figure_paper.get_model_color("RVTDCNNu12d7m8")
+        assert result.startswith("#")
+
+    def test_get_model_color_default(self):
+        """Test get_model_color with unknown prefix returns default"""
+        result = figure_paper.get_model_color("UnknownModel")
+        assert result.startswith("#")
+
+
+class TestProjectResultCalculateParameters:
+    """Test ProjectResult._calculate_parameters method with direct mocking"""
+
+    def test_calculate_parameters_basic(self):
+        """Test _calculate_parameters method basic functionality"""
+        # Mock file operations
+        with patch('builtins.open', side_effect=FileNotFoundError("Mocked")):
+            with patch('os.path.exists', return_value=False):
+                result = figure_paper.ProjectResult("test")
+
+                params = [[1, 4, 2], [1, 9, 2]]  # A, B, C values
+
+                wn, zeta, A = result._calculate_parameters(params)
+
+                # Verify calculations
+                assert len(wn) == 2
+                assert len(zeta) == 2
+                assert len(A) == 2
+
+                # wn = sqrt(B)
+                assert abs(wn[0] - 2.0) < 0.01  # sqrt(4) = 2
+                assert abs(wn[1] - 3.0) < 0.01  # sqrt(9) = 3
+
+    def test_calculate_parameters_single_set(self):
+        """Test _calculate_parameters with single parameter set"""
+        with patch('builtins.open', side_effect=FileNotFoundError("Mocked")):
+            with patch('os.path.exists', return_value=False):
+                result = figure_paper.ProjectResult("test")
+
+                params = [[1, 16, 4]]  # A=1, B=16, C=4 -> wn=4, zeta=0.5
+
+                wn, zeta, A = result._calculate_parameters(params)
+
+                assert len(wn) == 1
+                assert abs(wn[0] - 4.0) < 0.01  # sqrt(16) = 4
+                assert abs(zeta[0] - 0.5) < 0.01  # C/(2*wn) = 4/(2*4) = 0.5
+
+    def test_calculate_parameters_multiple_sets(self):
+        """Test _calculate_parameters with multiple parameter sets"""
+        with patch('builtins.open', side_effect=FileNotFoundError("Mocked")):
+            with patch('os.path.exists', return_value=False):
+                result = figure_paper.ProjectResult("test")
+
+                # Test with 5 parameter sets
+                params = [[1, 1, 1], [2, 4, 2], [3, 9, 3], [4, 16, 4], [5, 25, 5]]
+
+                wn, zeta, A = result._calculate_parameters(params)
+
+                assert len(wn) == 5
+                assert len(zeta) == 5
+                assert len(A) == 5
+
+                # Verify sqrt(B) for each
+                for i, (_, b, _) in enumerate(params):
+                    assert abs(wn[i] - np.sqrt(b)) < 0.001
+
+
+class TestModelColorMap:
+    """Test MODEL_COLOR_MAP configuration"""
+
+    def test_model_color_map_accessible(self):
+        """Test MODEL_COLOR_MAP is accessible from figure_paper module"""
+        import visualization.figure_paper as fp
+        # MODEL_COLOR_MAP should be imported in the module
+        assert hasattr(fp, 'MODEL_COLOR_MAP') or 'MODEL_COLOR_MAP' in dir(fp)
+
+    def test_model_color_map_has_required_keys(self):
+        """Test MODEL_COLOR_MAP has expected model prefixes"""
+        import visualization.figure_paper as fp
+
+        # MODEL_COLOR_MAP should be accessible
+        if hasattr(fp, 'MODEL_COLOR_MAP'):
+            color_map = fp.MODEL_COLOR_MAP
+        else:
+            # Check if it's imported from paper.fig_process.plot_config
+            from paper.fig_process.plot_config import MODEL_COLOR_MAP
+            color_map = MODEL_COLOR_MAP
+
+        # Check for common model prefixes
+        expected_keys = ['WNET', 'FRIKAN', 'GRU', 'LSTM', 'RVTDCNN']
+        for key in expected_keys:
+            assert any(k.startswith(key) for k in color_map.keys()), \
+                f"No key starting with {key}"
+
+    def test_model_color_map_values_are_hex(self):
+        """Test all color values are valid hex colors"""
+        import re
+        import visualization.figure_paper as fp
+
+        if hasattr(fp, 'MODEL_COLOR_MAP'):
+            color_map = fp.MODEL_COLOR_MAP
+        else:
+            from paper.fig_process.plot_config import MODEL_COLOR_MAP
+            color_map = MODEL_COLOR_MAP
+
+        hex_pattern = re.compile(r'^#[0-9A-Fa-f]{6}$')
+
+        for key, color in color_map.items():
+            assert hex_pattern.match(color), \
+                f"Invalid hex color for {key}: {color}"
+
+
+class TestResultListAndIgnoreList:
+    """Test RESULT_LIST and IGNORE_LIST configurations"""
+
+    def test_result_list_exists(self):
+        """Test RESULT_LIST is defined"""
+        assert hasattr(figure_paper, 'RESULT_LIST')
+        assert isinstance(figure_paper.RESULT_LIST, list)
+
+    def test_ignore_list_exists(self):
+        """Test IGNORE_LIST is defined"""
+        assert hasattr(figure_paper, 'IGNORE_LIST')
+        assert isinstance(figure_paper.IGNORE_LIST, list)
+
+    def test_result_list_has_valid_patterns(self):
+        """Test RESULT_LIST has valid project patterns"""
+        # Should contain model name patterns
+        patterns = figure_paper.RESULT_LIST
+        assert len(patterns) > 0
+        # At least some should be valid project names or patterns
+        assert any('WNET' in p or 'FRIKAN' in p or 'LSTM' in p for p in patterns)

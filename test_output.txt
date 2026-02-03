@@ -1,0 +1,213 @@
+
+============================================================
+Test Session Started
+  Progress monitor: 60s timeout for no output
+  Test paths: []
+============================================================
+
+============================= test session starts =============================
+platform win32 -- Python 3.9.20, pytest-8.4.1, pluggy-1.6.0 -- C:\Users\liang\.conda\envs\tf26\python.exe
+cachedir: .pytest_cache
+rootdir: F:\Work\met_nonlinear_worktrees\met_nonlinear_master
+configfile: pytest.ini
+plugins: asyncio-0.25.3, cov-6.2.1, parallel-0.1.1, timeout-2.4.0
+asyncio: mode=strict, asyncio_default_fixture_loop_scope=None
+timeout: 300.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 128 items
+
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_build_lut PASSED [  0%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_build_lut_idempotent PASSED [  1%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_bases PASSED [  2%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_bases_boundary PASSED [  3%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output PASSED [  3%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_lut PASSED [  4%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_lut_autobuild PASSED [  5%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_lut_logscale PASSED [  6%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_lut_no_interp PASSED [  7%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_lut_numpy_input PASSED [  7%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_positive_constraint PASSED [  8%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_calc_spline_output_symmetry PASSED [  9%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_generate_c_struct PASSED [ 10%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_generate_c_struct_format PASSED [ 10%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_grid_generation PASSED [ 11%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_initialization_custom PASSED [ 12%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_initialization_default PASSED [ 13%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_set_spline_kernel PASSED [ 14%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_set_spline_kernel_invalid_length PASSED [ 14%]
+src/tests/experimental/test_kan_lut.py::TestKANLUT::test_set_spline_kernel_numpy_array PASSED [ 15%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_build_lut PASSED [ 16%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_forward_batch PASSED [ 17%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_forward_batch_with_lut PASSED [ 17%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_forward_once PASSED [ 18%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_forward_once_invalid_input_size PASSED [ 19%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_forward_once_with_lut PASSED [ 20%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_generate_c_struct PASSED [ 21%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_initialization PASSED [ 21%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_initialization_with_weights PASSED [ 22%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_set_spline_kernels PASSED [ 23%]
+src/tests/experimental/test_kan_lut.py::TestLayerKANLUT::test_set_spline_kernels_invalid_shape PASSED [ 24%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_filter PASSED      [ 25%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_filter_impulse_response PASSED [ 25%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_filter_list_input PASSED [ 26%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_generate_c_struct PASSED [ 27%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_initialization_custom PASSED [ 28%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_initialization_default PASSED [ 28%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_set_a PASSED       [ 29%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_set_a_invalid_length PASSED [ 30%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_set_b PASSED       [ 31%]
+src/tests/experimental/test_kan_lut.py::TestIIR::test_set_b_invalid_length PASSED [ 32%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_forward_batch PASSED [ 32%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_forward_once PASSED [ 33%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_forward_once_invalid_input PASSED [ 34%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_forward_once_single_value PASSED [ 35%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_generate_c_struct PASSED [ 35%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_initialization PASSED [ 36%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_set_weights PASSED [ 37%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_set_weights_invalid_shape_a PASSED [ 38%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIR::test_set_weights_invalid_shape_b PASSED [ 39%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_add_iirlayer PASSED [ 39%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_add_kanlayer PASSED [ 40%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_forward_with_lut PASSED [ 41%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_forward_without_lut PASSED [ 42%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_generate_c_struct PASSED [ 42%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_generate_c_struct_header_guard PASSED [ 43%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_initialization PASSED [ 44%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUT::test_set_weights PASSED [ 45%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_calc_spline_output_lut_debug_mode PASSED [ 46%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_calc_spline_output_lut_debug_true PASSED [ 46%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_calc_spline_output_lut_logscale_with_log_scale PASSED [ 47%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_empty_grid_range PASSED [ 48%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_large_grid_size PASSED [ 49%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_large_layer PASSED [ 50%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_layer_weights_attribute PASSED [ 50%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_lut_log_scale_attribute PASSED [ 51%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_min_x_attribute PASSED [ 52%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_single_input_layer PASSED [ 53%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTEdgeCases::test_zero_lut_points PASSED [ 53%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUTAdvanced::test_forward_verbose_false PASSED [ 54%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUTAdvanced::test_forward_verbose_true PASSED [ 55%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUTAdvanced::test_forward_with_lut_verbose_true PASSED [ 56%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUTAdvanced::test_load_weights_json_with_mock FAILED [ 57%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUTAdvanced::test_model_with_kan_and_iir_layers PASSED [ 57%]
+src/tests/experimental/test_kan_lut.py::TestModelKANLUTAdvanced::test_model_with_multiple_kan_layers PASSED [ 58%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTUtilityFunctions::test_kan_lut_siso_function FAILED [ 59%]
+src/tests/experimental/test_kan_lut.py::TestKANLUTUtilityFunctions::test_kan_lut_siso_single_input FAILED [ 60%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIRAdvanced::test_forward_once_with_float_input PASSED [ 60%]
+src/tests/experimental/test_kan_lut.py::TestLayerIIRAdvanced::test_forward_with_empty_list PASSED [ 61%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_build PASSED [ 62%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_call_different_timesteps PASSED [ 63%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_call_multiple_batches PASSED [ 64%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_call_single_batch PASSED [ 64%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_initialization_custom PASSED [ 65%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_initialization_default PASSED [ 66%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterLayer::test_initialization_none_lists PASSED [ 67%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_build PASSED   [ 67%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_build_idempotent PASSED [ 68%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_call_multi_unit PASSED [ 69%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_call_single_unit PASSED [ 70%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_call_units_greater_than_one PASSED [ 71%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_initialization_custom PASSED [ 71%]
+src/tests/experimental/test_mimoiir.py::TestDIAGIIR::test_initialization_default PASSED [ 72%]
+src/tests/experimental/test_mimoiir.py::TestSIMOIIR::test_build_multi_channel PASSED [ 73%]
+src/tests/experimental/test_mimoiir.py::TestSIMOIIR::test_build_single_channel PASSED [ 74%]
+src/tests/experimental/test_mimoiir.py::TestSIMOIIR::test_call_multi_channel PASSED [ 75%]
+src/tests/experimental/test_mimoiir.py::TestSIMOIIR::test_call_single_channel PASSED [ 75%]
+src/tests/experimental/test_mimoiir.py::TestSIMOIIR::test_initialization_custom PASSED [ 76%]
+src/tests/experimental/test_mimoiir.py::TestSIMOIIR::test_initialization_default PASSED [ 77%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterComparison::test_different_filter_coefficients PASSED [ 78%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterComparison::test_iir_standard_equation PASSED [ 78%]
+src/tests/experimental/test_mimoiir.py::TestIIRFilterComparison::test_simo_iir_output_shape PASSED [ 79%]
+src/tests/experimental/test_mimoiir.py::TestIIREdgeCases::test_constant_input PASSED [ 80%]
+src/tests/experimental/test_mimoiir.py::TestIIREdgeCases::test_different_sampling_rates PASSED [ 81%]
+src/tests/experimental/test_mimoiir.py::TestIIREdgeCases::test_single_batch PASSED [ 82%]
+src/tests/experimental/test_mimoiir.py::TestIIREdgeCases::test_single_timestep PASSED [ 82%]
+src/tests/experimental/test_mimoiir.py::TestIIREdgeCases::test_zero_input PASSED [ 83%]
+src/tests/experimental/test_mimoiir.py::TestIIRNumericalStability::test_stable_poles PASSED [ 84%]
+src/tests/experimental/test_mimoiir.py::TestIIRNumericalStability::test_unstable_poles_behavior PASSED [ 85%]
+src/tests/experimental/test_mimoiir.py::TestIIRDebugMode::test_debug_attribute_exists PASSED [ 85%]
+src/tests/experimental/test_mimoiir.py::TestIIRLayerCounting::test_layer_weights_accessible PASSED [ 86%]
+src/tests/experimental/test_mimoiir.py::TestIIRLayerCounting::test_simo_layer_weights_accessible PASSED [ 87%]
+src/tests/experimental/test_mimoiir.py::TestIIRPerformanceFunctions::test_run_performance_test_no_exception PASSED [ 88%]
+src/tests/experimental/test_mimoiir.py::TestIIRPerformanceFunctions::test_run_performance_test_small_params FAILED [ 89%]
+src/tests/experimental/test_mimoiir.py::TestIIRPerformanceFunctions::test_test_iir_mimoiir_no_exception +++++++++++++++++++++++++++++++++++ Timeout +++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Captured stdout ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+EfficientIIRFilterLayer 参数数量: 72
+IIR filter outputs vs EfficientIIRFilterLayer outputs maximum absolute error: 0.1376180545506196
+~~~~~~~~~~~~~~~~~~~~~~~~~ Stack of MainThread (59924) ~~~~~~~~~~~~~~~~~~~~~~~~~
+  File "C:\Users\liang\.conda\envs\tf26\lib\runpy.py", line 197, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\liang\.conda\envs\tf26\lib\runpy.py", line 87, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pytest\__main__.py", line 9, in <module>
+    raise SystemExit(pytest.console_main())
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\config\__init__.py", line 201, in console_main
+    code = main()
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\config\__init__.py", line 175, in main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\main.py", line 336, in pytest_cmdline_main
+    return wrap_session(config, _main)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\main.py", line 289, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\main.py", line 343, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\main.py", line 367, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\runner.py", line 117, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\runner.py", line 136, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\runner.py", line 245, in call_and_report
+    call = CallInfo.from_call(
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\runner.py", line 344, in from_call
+    result: TResult | None = func()
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\runner.py", line 246, in <lambda>
+    lambda: runtest_hook(item=item, **kwds), when=when, reraise=reraise
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\runner.py", line 178, in pytest_runtest_call
+    item.runtest()
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\_pytest\unittest.py", line 351, in runtest
+    testcase(result=self)
+  File "C:\Users\liang\.conda\envs\tf26\lib\unittest\case.py", line 651, in __call__
+    return self.run(*args, **kwds)
+  File "C:\Users\liang\.conda\envs\tf26\lib\unittest\case.py", line 592, in run
+    self._callTestMethod(testMethod)
+  File "C:\Users\liang\.conda\envs\tf26\lib\unittest\case.py", line 550, in _callTestMethod
+    method()
+  File "F:\Work\met_nonlinear_worktrees\met_nonlinear_master\src\tests\experimental\test_mimoiir.py", line 776, in test_test_iir_mimoiir_no_exception
+    test_iir_mimoiir()
+  File "F:\Work\met_nonlinear_worktrees\met_nonlinear_master\src\experimental\mimoiir.py", line 413, in test_iir_mimoiir
+    plt.show()
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\matplotlib\pyplot.py", line 421, in show
+    return _get_backend_mod().show(*args, **kwargs)
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\matplotlib\backend_bases.py", line 3554, in show
+    cls.mainloop()
+  File "C:\Users\liang\.conda\envs\tf26\lib\site-packages\matplotlib\backends\_backend_tk.py", line 1040, in mainloop
+    first_manager.window.mainloop()
+  File "C:\Users\liang\.conda\envs\tf26\lib\tkinter\__init__.py", line 1429, in mainloop
+    self.tk.mainloop(n)
++++++++++++++++++++++++++++++++++++ Timeout +++++++++++++++++++++++++++++++++++

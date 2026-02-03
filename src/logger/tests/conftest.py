@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import tempfile
 import shutil
+import logging
 
 # 添加 logger 目录到 Python 路径
 logger_dir = Path(__file__).parent.parent
@@ -17,7 +18,14 @@ def temp_dir():
     """创建临时目录用于测试"""
     temp_path = tempfile.mkdtemp()
     yield Path(temp_path)
-    shutil.rmtree(temp_path)
+    # 强制关闭所有文件句柄后删除
+    try:
+        shutil.rmtree(temp_path, ignore_errors=True)
+    except PermissionError:
+        # Windows 上可能存在文件锁定，等待后重试
+        import time
+        time.sleep(0.5)
+        shutil.rmtree(temp_path, ignore_errors=True)
 
 
 @pytest.fixture
@@ -88,9 +96,23 @@ def reset_logging():
     """每个测试后重置 logging 配置"""
     import logging
     yield
-    # 清理所有 handlers
+    # 清理所有 handlers 并关闭它们
     for logger_name in list(logging.Logger.manager.loggerDict.keys()):
         logger = logging.getLogger(logger_name)
-        logger.handlers = []
+        # 关闭并清理 handlers
+        for handler in logger.handlers[:]:
+            try:
+                handler.close()
+            except Exception:
+                pass
+            logger.removeHandler(handler)
         logger.filters = []
         logger.setLevel(logging.WARNING)
+    # 重置 root logger
+    root_logger = logging.getLogger()
+    for handler in root_logger.handlers[:]:
+        try:
+            handler.close()
+        except Exception:
+            pass
+        root_logger.removeHandler(handler)
