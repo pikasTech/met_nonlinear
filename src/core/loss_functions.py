@@ -119,57 +119,6 @@ def power_log_mae_loss(
     return k * loss_power_log_avr + (1 - k) * loss_mae_avr
 
 
-def power_log_mse_loss(
-    y_true,
-    y_pred,
-    k=0.2,
-    use_balence=True,
-    group_points=4000,
-    use_debug=False
-):
-    """power_log_mae_loss 的 MSE 版本。"""
-
-    if len(y_true.shape) == 2:
-        if use_debug:
-            tf.print("y_true.shape:", y_true.shape)
-        y_true = tf.reshape(y_true, [-1, group_points, y_true.shape[-1]])
-        y_pred = tf.reshape(y_pred, [-1, group_points, y_pred.shape[-1]])
-        if use_debug:
-            tf.print("reshaped y_true.shape:", y_true.shape)
-
-    if use_debug:
-        tf.debugging.check_numerics(y_true, "y_true contains NaN or Inf")
-        tf.debugging.check_numerics(y_pred, "y_pred contains NaN or Inf")
-        tf.print("batch_size:", y_true.shape[0])
-        tf.print("seq_num:", y_true.shape[1])
-        tf.print("feature_num:", y_true.shape[2])
-
-    power_true = tf.reduce_sum(tf.abs(y_true), axis=1)
-    power_pred = tf.reduce_sum(tf.abs(y_pred), axis=1)
-
-    if use_debug:
-        tf.print("power_true range:", tf.reduce_min(power_true), tf.reduce_max(power_true))
-        tf.print("power_pred range:", tf.reduce_min(power_pred), tf.reduce_max(power_pred))
-
-    power_true_log = tf.math.log(power_true + 1e-8)
-    power_pred_log = tf.math.log(power_pred + 1e-8)
-
-    loss_power_log = tf.square(power_true_log - power_pred_log)
-    loss_mse = tf.reduce_mean(tf.square(y_true - y_pred), axis=1)
-
-    if use_balence:
-        power_true_safe = tf.maximum(power_true, 1e-8)
-        loss_mse = loss_mse / power_true_safe * 350
-
-        if use_debug:
-            tf.print("loss_mse after balance:", tf.reduce_min(loss_mse), tf.reduce_max(loss_mse))
-
-    loss_power_log_avr = tf.reduce_mean(loss_power_log)
-    loss_mse_avr = tf.reduce_mean(loss_mse)
-
-    return k * loss_power_log_avr + (1 - k) * loss_mse_avr
-
-
 def power_log_loss(y_true, y_pred, group_points=4000, use_debug=False):
     # ============ 1) 以 group_points 为单位拆分序列 ============
     # 假设 seq_num 能被 group_points 整除
