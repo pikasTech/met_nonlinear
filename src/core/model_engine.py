@@ -17,7 +17,7 @@ from . import data_processing
 from .data_processing import Dataset_COMP_MET, Dataset_COMP_PE,  CustomScaler, Dataset_COMP_AliasSimu, Dataset_COMP_Alias
 from visualization.model_analysis import FR_for_comp_real_data
 from .data_processing import augment_data
-from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_mse_loss, power_log_loss
+from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_loss
 from .training import RealTimeTrainingCallback, CosineAnnealingWithDecayFixedPeriod
 from .freq_config_manager import freq_config_manager
 
@@ -426,8 +426,7 @@ class ModelEngine:
             'mae': 'mae',
             'af_mse': af_mse_loss,
             'afmse': af_mse_loss,
-            'power_log_mae': power_log_mae_loss,
-            'power_log_mse': power_log_mse_loss
+            'power_log_mae': power_log_mae_loss
         }
         if loss_type is not None:
             loss_fn = loss_map[loss_type]

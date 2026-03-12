@@ -141,6 +141,7 @@ epochs = self.config.epoch_train - self.state_manager.get('completed_epoch', 0)
 - 在 `src/core/model_engine.py:424` 的 `loss_type` 选择中新增：
   - `af_mse`
   - `afmse`
+- 已删除先前误加的 `power_log_mse_loss`，避免与纯 AFMSE 概念混淆
 - 原有默认行为不变：未设置 `loss_type` 时，仍按 `use_power_loss` 决定是否使用 `power_log_mae_loss`
 
 ## 新建 AFMSE 微调项目
