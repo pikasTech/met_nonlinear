@@ -36,11 +36,35 @@ class TrainingStateManager:
             }
             self.save_state()
 
+    def _normalize_legacy_state(self):
+        """兼容旧版训练状态字段，确保断点续训可用。"""
+        updated = False
+
+        if 'completed_epoch' not in self.state:
+            self.state['completed_epoch'] = self.state.get('current_epoch', 0)
+            updated = True
+
+        if 'current_epoch' not in self.state:
+            self.state['current_epoch'] = self.state.get('completed_epoch', 0)
+            updated = True
+
+        if 'model_name' not in self.state:
+            self.state['model_name'] = self.project_name
+            updated = True
+
+        if 'training_alive' not in self.state:
+            self.state['training_alive'] = False
+            updated = True
+
+        return updated
+
     def load_state(self):
         """从文件加载训练状态"""
         try:
             with portalocker.Lock(self.state_file, 'r') as f:
                 self.state = json.load(f)
+            if self._normalize_legacy_state():
+                self.save_state()
             return True
         except Exception as e:
             print(f"加载训练状态失败: {e}")
@@ -65,6 +89,12 @@ class TrainingStateManager:
         self.load_state()  # 确保使用最新状态
         for key, value in kwargs.items():
             self.state[key] = value
+
+        if 'completed_epoch' in kwargs and 'current_epoch' not in kwargs:
+            self.state['current_epoch'] = kwargs['completed_epoch']
+        if 'current_epoch' in kwargs and 'completed_epoch' not in kwargs:
+            self.state['completed_epoch'] = kwargs['current_epoch']
+
         if not self.save_state():
             print(f"更新状态失败: {kwargs}")
 

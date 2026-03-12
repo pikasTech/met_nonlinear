@@ -10,8 +10,8 @@
         null,
         1
     ],
-    "total_params": 3301,
-    "trainable_params": 3109,
+    "total_params": 2569,
+    "trainable_params": 2377,
     "non_trainable_params": 192,
     "model_summary": [
         {
@@ -106,28 +106,6 @@
         },
         {
             "name": "dense_kan_6",
-            "type": "DenseKAN",
-            "output_shape": [
-                null,
-                null,
-                6
-            ],
-            "trainable": true,
-            "num_params": 366
-        },
-        {
-            "name": "dense_kan_7",
-            "type": "DenseKAN",
-            "output_shape": [
-                null,
-                null,
-                6
-            ],
-            "trainable": true,
-            "num_params": 366
-        },
-        {
-            "name": "dense_kan_8",
             "type": "DenseKAN",
             "output_shape": [
                 null,

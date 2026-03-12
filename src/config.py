@@ -26,6 +26,7 @@ class Config:
         self.use_train_model = True
         self.use_model = 'GRN'  # 可以是 'GRN', 'FRIKAN', 'LSTM', 'Transformer', 'WaveNet', 'RNN'
         self.use_power_loss = True
+        self.loss_type = None
         self.use_points = 8000
         self.resume_training = True  # 断点续训
         self.use_best_val_weights = True  # 加载旧的权重文件

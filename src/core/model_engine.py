@@ -17,7 +17,7 @@ from . import data_processing
 from .data_processing import Dataset_COMP_MET, Dataset_COMP_PE,  CustomScaler, Dataset_COMP_AliasSimu, Dataset_COMP_Alias
 from visualization.model_analysis import FR_for_comp_real_data
 from .data_processing import augment_data
-from .loss_functions import power_log_mae_loss, power_log_loss
+from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_mse_loss, power_log_loss
 from .training import RealTimeTrainingCallback, CosineAnnealingWithDecayFixedPeriod
 from .freq_config_manager import freq_config_manager
 
@@ -421,9 +421,22 @@ class ModelEngine:
             optimizer = tf.keras.optimizers.Adam(
                 learning_rate=self.learning_rate)
 
+        loss_type = getattr(self.config, 'loss_type', None)
+        loss_map = {
+            'mae': 'mae',
+            'af_mse': af_mse_loss,
+            'afmse': af_mse_loss,
+            'power_log_mae': power_log_mae_loss,
+            'power_log_mse': power_log_mse_loss
+        }
+        if loss_type is not None:
+            loss_fn = loss_map[loss_type]
+        else:
+            loss_fn = power_log_mae_loss if self.config.use_power_loss else 'mae'
+
         self.model_comp.compile(
             optimizer=optimizer,
-            loss=power_log_mae_loss if self.config.use_power_loss else 'mae',
+            loss=loss_fn,
             metrics=[power_log_loss]
         )
 
