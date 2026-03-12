@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 import os
 from core.training_log import TrainingLogger
+from core.freq_config_manager import freq_config_manager
 from paper.fig_process.plot_config import *
 from paper.fig_process.plot_scatter import plot_nonlinearity_scatter
 
@@ -447,7 +448,7 @@ class ProjectResult:
                                              freq_range=(10, 128), amp_range=(30, 250), figsize=(8, 6), subtitle='(a)', config=None):
         # 支持配置的频率范围
         if config is not None:
-            freq_range = getattr(config, 'dataset', {}).get('freq_range_hz', freq_range)
+            freq_range = freq_config_manager.get_freq_range_hz(config, freq_range)
         
         print(
             f'Plotting frequency response by magnitude to {fig_path}..., use_compensated={use_compensated}')

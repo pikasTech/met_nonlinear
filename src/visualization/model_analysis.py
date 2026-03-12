@@ -3,6 +3,7 @@ import json
 import re
 import matplotlib.pyplot as plt
 from core.data_processing import Dataset_COMP
+from core.freq_config_manager import freq_config_manager
 # 假设TimeSeries和System来自signal_processing模块，如果不是请调整
 from calibration_analyzer import exam_process, exam_class
 from calibration_analyzer.exam_class import TimeSeries, System
@@ -84,7 +85,7 @@ def FR_for_comp_real_data(
         # 使用配置的频率范围或默认值
         default_range = (5, 200)
         if config is not None:
-            freq_range_hz = getattr(config, 'dataset', {}).get('freq_range_hz', default_range)
+            freq_range_hz = freq_config_manager.get_freq_range_hz(config, default_range)
         else:
             freq_range_hz = default_range
         system_fit_origin = exam_process.ws_system_fit(
@@ -94,7 +95,7 @@ def FR_for_comp_real_data(
         # 使用配置的频率范围或默认值
         default_range_comped = (10, 200)
         if config is not None:
-            freq_range_hz_comped = getattr(config, 'dataset', {}).get('freq_range_hz', default_range_comped)
+            freq_range_hz_comped = freq_config_manager.get_freq_range_hz(config, default_range_comped)
         else:
             freq_range_hz_comped = default_range_comped
         system_fit_comped = exam_process.ws_system_fit(

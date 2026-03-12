@@ -17,8 +17,9 @@ from . import data_processing
 from .data_processing import Dataset_COMP_MET, Dataset_COMP_PE,  CustomScaler, Dataset_COMP_AliasSimu, Dataset_COMP_Alias
 from visualization.model_analysis import FR_for_comp_real_data
 from .data_processing import augment_data
-from .loss_functions import power_log_mae_loss, power_log_loss
+from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_mse_loss, power_log_loss
 from .training import RealTimeTrainingCallback, CosineAnnealingWithDecayFixedPeriod
+from .freq_config_manager import freq_config_manager
 
 # 创建 logger
 logger = logging.getLogger(__name__)
@@ -420,9 +421,22 @@ class ModelEngine:
             optimizer = tf.keras.optimizers.Adam(
                 learning_rate=self.learning_rate)
 
+        loss_type = getattr(self.config, 'loss_type', None)
+        loss_map = {
+            'mae': 'mae',
+            'af_mse': af_mse_loss,
+            'afmse': af_mse_loss,
+            'power_log_mae': power_log_mae_loss,
+            'power_log_mse': power_log_mse_loss
+        }
+        if loss_type is not None:
+            loss_fn = loss_map[loss_type]
+        else:
+            loss_fn = power_log_mae_loss if self.config.use_power_loss else 'mae'
+
         self.model_comp.compile(
             optimizer=optimizer,
-            loss=power_log_mae_loss if self.config.use_power_loss else 'mae',
+            loss=loss_fn,
             metrics=[power_log_loss]
         )
 
@@ -501,7 +515,7 @@ class ModelEngine:
             ws = System.loadFile(data_info_list[index].file_path)
             # 使用配置的Hz范围或默认值
             default_range = (5, 200)
-            freq_range_hz = getattr(self.config, 'dataset', {}).get('freq_range_hz', default_range)
+            freq_range_hz = freq_config_manager.get_freq_range_hz(self.config, default_range)
             ws_fit = exam_process.ws_system_fit(ws, k=1.0, freq_range=freq_range_hz)
             H_fit.append(ws_fit)
             H.append(ws)
@@ -647,7 +661,7 @@ class ModelEngine:
             FR_for_comp_real_data(
                 self.model_comp,
                 self.dataset_test,
-                freq_range=getattr(self.config, 'dataset', {}).get('freq_range_hz', (10, 128)),
+                freq_range=freq_config_manager.get_freq_range_hz(self.config, (10, 128)),
                 gain_range=(30, 200),
                 freq_start_skip=0,
                 freq_end_skip=2,

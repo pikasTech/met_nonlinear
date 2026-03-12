@@ -11,6 +11,7 @@ from calibration_analyzer.waveprocessor import WaveData, WaveRecord, WaveProcess
 from calibration_analyzer import config as calibration_config
 import json
 import re
+from .freq_config_manager import freq_config_manager
 
 # 创建 logger
 logger = logging.getLogger(__name__)
@@ -454,7 +455,7 @@ class Dataset_COMP:
                 # 使用配置的频率范围或默认值
                 default_range = [10, 128]
                 if config is not None:
-                    freq_range_hz = getattr(config, 'dataset', {}).get('freq_range_hz', default_range)
+                    freq_range_hz = freq_config_manager.get_freq_range_hz(config, default_range)
                 else:
                     freq_range_hz = default_range
                     

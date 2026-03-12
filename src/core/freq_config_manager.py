@@ -16,6 +16,18 @@ class FreqConfigManager:
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+
+    def get_freq_range_hz(self, config, default_range):
+        """获取Hz频率范围，未配置或显式为None时回退默认值。"""
+        dataset_config = getattr(config, 'dataset', {}) if config is not None else {}
+        if not dataset_config:
+            return default_range
+
+        freq_range_hz = dataset_config.get('freq_range_hz')
+        if freq_range_hz is None:
+            return default_range
+
+        return tuple(freq_range_hz)
     
     def get_freq_indices(self, config, freq_list, n_total):
         """获取频率索引范围（主要方法）
@@ -29,7 +41,7 @@ class FreqConfigManager:
             range对象: 频率索引范围
         """
         # 检查是否配置了dataset.freq_range_hz
-        dataset_config = getattr(config, 'dataset', {})
+        dataset_config = getattr(config, 'dataset', {}) or {}
         freq_range_hz = dataset_config.get('freq_range_hz')
         
         if freq_range_hz is not None:
