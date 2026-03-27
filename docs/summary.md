@@ -150,3 +150,53 @@ epochs = self.config.epoch_train - self.state_manager.get('completed_epoch', 0)
 - 该项目基于 `FRIKANh8u6l6` 做二阶段微调，并显式设置：
   - `loss_type = "afmse"`
 - 因此它现在使用的是纯 AFMSE，而不是包含 MAE 项的混合损失
+
+## 2026-03-12 AFMSE 生效性核查
+
+- `projects/FRIKANh8u6l6_ex_afmse/config.json:10` 明确设置了 `loss_type = "afmse"`
+- `Config` 默认已声明 `loss_type` 字段，因此该配置能被正常加载，不会被 `load_from_json()` 视为未知字段：`src/config.py:29`、`src/config.py:203`
+- `ModelEngine.build_model()` 编译模型前会读取 `self.config.loss_type`：`src/core/model_engine.py:424`
+- 在当前 `loss_map` 中，`afmse` 和 `af_mse` 都映射到 `af_mse_loss`：`src/core/model_engine.py:425`
+- 因此 `FRIKANh8u6l6_ex_afmse` 的 `model.compile(..., loss=loss_fn, ...)` 最终会使用 `af_mse_loss` 作为训练损失：`src/core/model_engine.py:436`
+- `af_mse_loss` 的实现也符合预期定义：仅计算分组能量对数差的平方均值，不包含任何 MAE 项：`src/core/loss_functions.py:183`
+- 需要注意：训练指标 `metrics` 仍然是 `power_log_loss`，它用的是绝对值版本，不是平方版本：`src/core/model_engine.py:439`
+- 结论：从静态代码链路看，`FRIKANh8u6l6_ex_afmse` 的 AFMSE 损失函数已经真正接入训练损失；但训练日志中的 `power_log_loss` 仍只是评估指标，不等于 AFMSE 本身
+
+## 2026-03-12 AFMSE 日志核查
+
+- `RealTimeTrainingCallback.on_epoch_end()` 从 Keras `logs` 里读取的主损失字段仍然叫 `loss` / `val_loss`：`src/core/training.py:85`
+- 控制台滚动输出中的
+  - `Loss: x / y`
+  - 对应的是当前编译损失；对于 `FRIKANh8u6l6_ex_afmse`，这里实际就是 AFMSE：`src/core/training.py:101`
+- 同一行里的
+  - `PLog: x / y`
+  - 来自 metric `power_log_loss` / `val_power_log_loss`，仍是绝对值版本的幅频误差，不是 AFMSE：`src/core/training.py:102`
+- 写入 `training_log.jsonl` 的字段也是：
+  - `loss`
+  - `val_loss`
+  - `power_log_loss`
+  - `val_power_log_loss`
+  见 `src/core/training.py:107`
+- `training_state.json` 中保存的也是同一套字段命名，没有单独的 `afmse` 键：`src/core/training.py:118`
+- `training_info.json` 后处理统计的仍是 `min_loss`、`min_val_loss`、`min_power_log_loss`、`min_val_power_log_loss`：`src/core/training_log.py:220`
+- 结论：AFMSE 会真正生效，但日志层不会显式把它命名成 `afmse`；你在训练中看到的 `loss/val_loss` 才是 AFMSE，而 `power_log_loss/val_power_log_loss` 只是辅助指标
+
+## 2026-03-12 `-e` 线性度输出增强
+
+- 在 `src/visualization/model_analysis.py:14` 附近新增了按频点 R² 线性度计算逻辑
+- 当 `-e` 走到 `predict_FR()` 并生成 `linear_response.json` 时，会额外计算每个频率点的 R² 线性度
+- R² 计算方式：
+  - 对每个频点，以 `magnitudes`（输入震级）为横坐标，`gains`（增益）为纵坐标
+  - 计算皮尔逊相关系数 `r`，再用 `R² = r²` 得到决定系数
+  - `R² ≈ 1` 表示高度线性，`R² ≈ 0` 表示严重非线性
+  - `Improvement = R²_comped - R²_origin`，正值表示补偿后更线性
+- 结果写入 `data/linearity_by_frequency.json`，字段包括：
+  - `r_squared_origin`
+  - `r_squared_comped`
+  - `improvement`
+- 终端按 Markdown 表格逐频打印：
+  - `Frequency (Hz)`
+  - `Origin R²`
+  - `Comped R²`
+  - `Improvement`
+- 执行 `python cli.py -e <project>` 时可直接看到各频点 R² 线性度结果

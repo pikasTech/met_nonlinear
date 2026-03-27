@@ -5,7 +5,7 @@
   "current_epoch": 19,
   "model_name": "FRIKAN",
   "training_alive": true,
-  "timestamp": "20260312212155.2",
+  "timestamp": "20260312235037.2",
   "best_weights_file": "projects/FRIKANh8u6l6/data\\FRIKANh8u6l6_best_weights.h5",
   "best_val_weights_file": "projects/FRIKANh8u6l6/data\\FRIKANh8u6l6_best_val_weights.h5",
   "val_loss": 0.014828096143901348,
@@ -16,5 +16,6 @@
   "elapsed_time": 54.08492732048035,
   "remaining_time": 85619.97063879135,
   "expected_finish_time": "2025-03-08 16:47:26",
-  "smoothed_speed": 1260.5890797993343
+  "smoothed_speed": 1260.5890797993343,
+  "completed_epoch": 19
 }

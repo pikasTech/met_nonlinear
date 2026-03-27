@@ -1,0 +1,1174 @@
+% \documentclass[lettersize,journal]{IEEEtran}
+\documentclass[journal]{IEEEtranTIE}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{makecell}
+\usepackage{bm}
+\usepackage{algorithm}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{etoolbox}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{cite}
+\usepackage{fontspec}
+\usepackage{wrapfig}
+\usepackage{cuted}
+\usepackage{color, xcolor}
+\usepackage{arydshln}
+\usepackage{cnenstyle}
+
+%ENGLISH_REMOVE_BEGIN
+
+\usepackage{xeCJK}
+\usepackage{xeCJKfntef}
+\setCJKmainfont[BoldFont=SimSun, BoldFeatures={FakeBold=2.5}]{SimSun}
+\setCJKsansfont{SimHei}
+\setCJKmonofont{SimSun}
+
+% 手稿页码，投稿时删除
+\usepackage{fancyhdr} % 加载 fancyhdr 宏包
+\pagestyle{fancy}     % 启用自定义页眉和页脚
+\fancyhf{}            % 清空默认设置
+\renewcommand{\headrulewidth}{0pt} % 去除页眉横线
+\renewcommand{\footrulewidth}{0pt} % 去除页脚横线（如果有）
+\rhead{\thepage}      % 在右上角显示页码
+
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+% \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+\newcommand{\hl}[1]{\CJKunderanyline*{0.5ex}{\color{yellow}\rule{0.1pt}{2.5ex}}{#1}}
+
+% \renewcommand{\hl}[1]{}
+
+% \SetLanguage{english}
+\SetLanguage{chinese}
+% \SetLanguage{bilingual}
+
+
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\setmainfont{TeX Gyre Termes}
+
+%ENGLISH_REMOVE_END
+
+% values
+\newcommand{\valNonlinearBefore}{46.7\%~} 
+\newcommand{\valNonlinearAfter}{3.84\%~} 
+\newcommand{\valNonlinearSuppression}{95.41\%~} 
+\newcommand{\valSensitivityDriftSuppression}{93.95\%~} 
+\newcommand{\valFnDriftSuppression}{96.45\%~} 
+\newcommand{\valSensitivityDriftSuppressionLI}{65.30\%~}
+\newcommand{\valNonlinearSuppressionSUN}{88.66\%~} 
+\newcommand{\valCompImprove}{11.22\%~} 
+\newcommand{\valSpeedup}{2.1}
+\newcommand{\valFreqScanStart}{10}
+\newcommand{\valFreqScanEnd}{128}
+\newcommand{\valFreqScanPoints}{13}
+\newcommand{\valMagScanStart}{0.24}
+\newcommand{\valMagScanEnd}{6.0}
+\newcommand{\valMagScanPoints}{25}
+\newcommand{\valScanSeconds}{4}
+\newcommand{\valCalibrationTableFreqStart}{5}
+\newcommand{\valCalibrationTableFreqEnd}{200}
+\newcommand{\valInitLR}{0.002}
+\newcommand{\valSequenceNum}{8000}
+\newcommand{\valEpochs}{30000}
+\newcommand{\valBatchSize}{260000}
+
+% symbols
+\newcommand{\fn}{\eta} % natural frequency
+\newcommand{\Sen}{S} % sensitivity on natural frequency
+\newcommand{\magn}{m} % magnitude
+\newcommand{\fidx}{i} % frequency index
+\newcommand{\fmax}{F} % frequency index max
+\newcommand{\midx}{j} % magnitude index
+\newcommand{\mmax}{M} % magnitude index max
+\newcommand{\pidx}{n} % sample index
+\newcommand{\pmax}{N} % sample index max
+\newcommand{\dataset}{{\mathcal{D}}} % dataset
+\newcommand{\yseq}{{\mathbf{Y}}} % sequence of output
+\newcommand{\wMAE}{\beta} % MAE loss weight
+\newcommand{\lr}{\alpha} % learning rate
+\newcommand{\lrdecay}{\gamma} % learning rate decay
+\newcommand{\lridx}{k} % learning rate index
+\newcommand{\lrperiod}{K} % learning rate period
+\newcommand{\kr}{k_{\text{r}}} % rubber mold stiffness
+
+% functions
+\newcommand{\relative}[1]{\overset{\rho}{#1}} % relative value
+\newcommand{\ideal}[1]{\overset{\circ}{#1}} % ideal value
+\newcommand{\exam}[1]{\tilde{#1}} % meatured  value
+\newcommand{\pred}[1]{\hat{#1}} % predicted value
+\newcommand{\true}[1]{{#1}} % true value
+
+% short names
+\newcommand{\Wrecarray}{\mathcal{W}_{\text{rec}}}
+\newcommand{\Winarray}{\mathcal{W}_{\text{in}}}
+\newcommand{\Woutarray}{\mathcal{W}_{\text{out}}}
+\newcommand{\harray}{\mathcal{H}}
+\newcommand{\abase}{\exam{\Sen}  T^{2} \ideal{\fn} ^{2} \exam{\fn}  \pi^{2} \exam{\zeta}  + 2 \exam{\Sen}  T \ideal{\fn}  \exam{\fn}  \pi \ideal{\zeta}  \exam{\zeta}  + \exam{\Sen}  \exam{\fn}  \exam{\zeta}}
+
+
+% Use this command to set the layout (single or double)
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.4} 
+
+\begin{document}
+
+\title{
+    Feedforward Nonlinearity Compensation for Electrochemical Seismometer via Frequency Response Prior Injection and Physics-Constrained KAN}
+
+\author{
+    Ang Li, Hongyuan Yang, Fan Zheng, Huaizhu Zhang, Linhang Zhang, Xunqian Tong, Can Liu, Ruojin Li
+
+    \thanks{
+		Manuscript received April 10, 2025; (Corresponding author: Hongyuan Yang; Fan Zheng.)
+        This work was funded by the DeepEarth Probe and Mineral Resources Exploration - National Science and Technology Major Project (Grant No. 2024ZD1002503).
+		Ang Li, Hongyuan Yang, Fan Zheng, Huaizhu Zhang, Linhang Zhang, Xunqian Tong, Can Liu, Ruojin Li are with the Key Laboratory of Geophysical Exploration Equipment, Ministry of Education, College of Instrumentation and Electrical Engineering, Jilin University, Changchun 130061, China. (e-mail:liang20@mails.jlu.edu.cn; yang\_hy@jlu.edu.cn; zhengfan@jlu.edu.cn;huaizhuzhang@jlu.edu.cn; linxing@jlu.edu.cn;txq@jlu.edu.cn; canliu23@mails.jlu.edu.cn; lirj24@mails.jlu.edu.cn)
+	}
+}
+
+\maketitle
+
+\begin{abstract}
+    \CNEN{
+        本文针对电化学地震检波器（MET）振幅相关的频率响应非线性问题，提出了一种 novel 的前馈式补偿网络(FRIKAN)，结合了频响先验注入 and 物理约束 KAN。前馈架构避免了力反馈的稳定性风险，同时降低了系统复杂度，将待补偿系统与理想系统的相对频率响应作为物理先验信息注入 RNN，并利用了 KAN 中的可训练激活函数对传感器输入-输出曲线的天然结构适配性提高单个神经元的非线性补偿能力，同时引入奇对称性和同向性物理约束克服传统神经网络因物理信息缺失导致的过拟合与性能退化瓶颈，实现 MET 非线性补偿。基于振动激励实验首次系统性地构建包含幅频耦合效应的三维频率响应数据集，并设计了适配数据集的幅频损失函数，提高了频域拟合精度。测试结果表明，FRIKAN 在振幅增大超过10倍的情况下，将MET的输入-输出非线性平均降低了\valNonlinearSuppression，灵敏度漂移减小\valSensitivityDriftSuppression，固有频率漂移减小\valFnDriftSuppression，与LSTM、GRU、RVTDCNN 典型模型相比，在参数量相近时，FRIKAN 的补偿效果平均提升了\valCompImprove。此外，提出了查找表加速方案实现该方法的嵌入式部署，计算效率较LSTM提高\valSpeedup 倍(精度损失小于 0.5\%)，具有promising 的应用前景。}{This paper addresses the magnitude-dependent nonlinearity in the frequency response of electrochemical seismometers (METs) by proposing a novel feedforward compensation network that integrates frequency response prior injection and physics-constrained KAN (FRIKAN). The feedforward architecture avoids stability risks associated with force feedback while reducing system complexity. It injects the relative frequency response between the target system and an ideal system as physical prior into the RNN, leveraging the trainable activation function in KAN to enhance individual neurons' nonlinear compensation capability through natural structural adaptation to sensor input-output curves. Physical constraints of odd symmetry and positivity are introduced to overcome overfitting and performance degradation caused by lack of physical information in traditional neural networks, achieving MET nonlinear compensation. For the first time, a systematic 3D frequency response dataset incorporating amplitude-frequency coupling effects is constructed through vibration excitation experiments. A tailored amplitude-frequency loss function is designed to improve frequency-domain fitting accuracy. Test results show that FRIKAN reduces MET's input-output nonlinearity by \valNonlinearSuppression on average with magnitude increases over 10×, while decreasing sensitivity drift by \valSensitivityDriftSuppression and natural frequency drift by \valFnDriftSuppression. Compared to LSTM, GRU, and RVTDCNN with similar parameter counts, FRIKAN improves compensation performance by \valCompImprove on average. A lookup table acceleration strategy enables embedded deployment, achieving \valSpeedup× computational efficiency gain over LSTM (accuracy loss <0.5\%), showing promising application potential.%<CNHash>C34F7352</CNHash>
+}
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+    \CNEN{
+        电化学地震检波器，Kolmogorov-Arnold网络，非线性补偿，频率响应，样条激活函数，幅频损失函数，低算力}{
+electrochemical seismometer, Kolmogorov-Arnold network, nonlinear compensation, frequency response, spline activation function, amplitude-frequency loss function, low-compute%<CNHash>5FE767DC</CNHash>
+}
+\end{IEEEkeywords}
+
+\markboth{IEEE TRANSACTIONS ON INDUSTRIAL ELECTRONICS}%
+{}
+
+\section{Introduction}
+
+\CNEN{
+    电化学地震检波器（MET）因其高灵敏度与宽频带、抗倾斜、抗冲击等特点，在地下资源勘探、地震监测领域展现出潜力，有望成为下一代地震检波器的主导力量\cite{10841463}。随着全球地震观测网络（GSNs）逐步实现宽频带、高动态范围的实时数据采集\cite{WOS:000853457100001}，对核心传感器的线性度与稳定性提出了更严苛的要求，然而，电化学反应与流体力学耦合的复杂过程导致了 MET 频率响应在不同振幅下出现显著非线性，包括灵敏度和固有频率的漂移，从而造成震动波形检测失真，严重限制了动态范围，影响地震勘探数据质量与地震事件可靠检测。因而，如何改进非线性频率响应成为当前研究的热点。
+}{
+Electrochemical seismometers (METs) exhibit potential in underground resource exploration and seismic monitoring due to their high sensitivity, wide bandwidth, and tilt/impact resistance, positioning them as leading candidates for next-generation seismometers\cite{10841463}. With global seismic networks (GSNs) progressively achieving real-time data acquisition with broadband and high dynamic range\cite{WOS:000853457100001}, stricter demands are placed on core sensors' linearity and stability. However, the complex coupling between electrochemical reactions and fluid mechanics introduces significant magnitude-dependent nonlinearity in MET frequency response, including sensitivity and natural frequency drift. This distorts vibration waveform detection, severely limiting dynamic range and compromising seismic exploration data quality and reliable event detection. Consequently, improving nonlinear frequency response has become a research priority.
+%<CNHash>D5BDCC0A</CNHash>
+}
+
+\CNEN{
+    已有研究尝试从结构设计的改善提升线性度。Xu 等\cite{9481294}等提出了一种基于阳极键合技术的MEMS电化学地震传感器，通过硅-玻璃-硅三层集成电极结构提高了灵敏度和器件间一致性，但受 MET 复杂的电化学-机电耦合机制的限制，结构优化手段对线性度的提升效果有限且难以突破固有物理限制，系统仅在振幅低于 1.0 mm/s@20Hz（ 0.13 $\text{m}/\text{s}^2$）时才能保持线性工作特性。力反馈方式能够有效抑制非线性，例如，Li 等\cite{li_electrochemical_2017}在振幅小于 1.8 mm/s，分别在 1Hz (0.011$\text{m}/\text{s}^2$) 和 5Hz (0.057 $\text{m}/\text{s}^2$)下测试了 MET 的非线性表现，并通过力反馈将平均灵敏度漂移降低了 \valSensitivityDriftSuppressionLI，Sun 等\cite{WOS:000408118700046}在振幅小于 3.7 mm/s@20Hz（0.46 $\text{m}/\text{s}^2$）的条件下测试了 MET，并使用力反馈将输入输出非线性误差降低了 \valNonlinearSuppressionSUN。然而力反馈需依赖额外机械反馈单元实时产生反馈力，增加了系统复杂度和制造成本，更严重的是，大振幅下非线性带来的稳定裕度下降和闭环振荡风险严重制约系统稳定性，限制其在更宽频带和更大动态范围的实用性，由此可见亟需不依赖硬件反馈单元的补偿方法。在数字预失真方法的启发\cite{wangInputAmplitudeBasedAdaptive2024}下，本研究提出了一种用于 MET 的前馈补偿架构。相比于力反馈系统，前馈补偿架构具有结构稳定性优势，无需考虑闭环稳定裕度问题，便于在大动态范围下保持系统可靠性。此外，前馈架构通过软件算法实现补偿，可以大幅降低硬件复杂度，更适合便携式和野外应用场景。
+}{
+    Previous studies have attempted to improve linearity through structural design optimization. Xu et al. \cite{9481294} proposed a MEMS electrochemical seismometer using anodic bonding technology, which enhanced sensitivity and device consistency via a silicon-glass-silicon three-layer integrated electrode structure. However, constrained by the complex electrochemical-mechanical coupling mechanism of MET, structural optimization showed limited effectiveness in linearity improvement and could not overcome inherent physical limitations. The system maintained linear operation only when the magnitude was below 1.0 mm/s@20Hz (0.13 $\text{m}/\text{s}^2$). Force feedback effectively suppresses nonlinearity. For instance, Li et al. \cite{li_electrochemical_2017} tested MET's nonlinear performance at magnitudes below 1.8 mm/s under 1Hz (0.011$\text{m}/\text{s}^2$) and 5Hz (0.057 $\text{m}/\text{s}^2$), reducing average sensitivity drift by \valSensitivityDriftSuppressionLI via force feedback. Sun et al. \cite{WOS:000408118700046} tested MET at magnitudes below 3.7 mm/s@20Hz (0.46 $\text{m}/\text{s}^2$) and reduced input-output nonlinear error by \valNonlinearSuppressionSUN using force feedback. However, force feedback relies on additional mechanical feedback units to generate real-time feedback force, increasing system complexity and manufacturing costs. More critically, nonlinearity-induced stability margin reduction and closed-loop oscillation risks at large magnitudes severely constrain system stability, limiting its practicality in wider bandwidth and larger dynamic range applications. This highlights the urgent need for compensation methods independent of hardware feedback units. Inspired by digital predistortion techniques \cite{wangInputAmplitudeBasedAdaptive2024}, this study proposes a feedforward compensation framework for MET. Compared to force feedback systems, the feedforward framework offers inherent stability advantages by eliminating closed-loop phase margin concerns, ensuring reliability in large dynamic range scenarios. Moreover, its software-based implementation significantly reduces hardware complexity, making it more suitable for portable and field applications.
+%<CNHash>E7CC54C5</CNHash>
+}
+\CNEN{
+    前馈补偿方法需要充足、完备的时域-频域测试数据，然而已有研究局限于有限的频率、振幅条件。本研究实施了覆盖全工作频带的系统性测试方案，将测试频率上限由 20Hz 扩展至 128Hz，振幅上限由 0.46 $\text{m}/\text{s}^2$ 扩展至 6.0 $\text{m}/\text{s}^2$，首次构建了包含幅频耦合效应的 三维频率响应数据集(包括振幅，频率，输入输出时间序列) 。
+}{
+Feedforward compensation methods require comprehensive time-frequency domain test data, yet existing studies are limited to restricted frequency and magnitude conditions. This study implements a systematic testing scheme covering the full bandwidth, extending the upper test frequency from 20Hz to 128Hz and the upper magnitude from 0.46 $\text{m}/\text{s}^2$ to 6.0 $\text{m}/\text{s}^2$. For the first time, a three-dimensional frequency response dataset (including magnitude, frequency, and input-output time series) incorporating amplitude-frequency coupling effects is constructed.
+%<CNHash>976E9CBF</CNHash>
+}
+
+\CNEN{
+    在完备测试数据的基础上，如何利用这些数据开发高效补偿算法成为新的核心挑战。现有信号处理领域提出了多种传统方法，如摄动法\cite{royOptimalModifiedHomotopy2023}、多尺度法\cite{jainModelOrderReduction2020}、调和平衡法\cite{shawHybridAveragingHarmonic2023}、以及基于 Volterra 级数\cite{helieInputOutputReduced2021}、Wiener 等模型\cite{ sersourNonlinearSystemIdentification2018}的识别方法。然而，这些模型在处理类似 MET 这种电化学-流体-机械强耦合系统时普遍受限，存在高阶计算量庞大和模型参数难以精确确定的问题。
+}{
+    With comprehensive test data available, developing efficient compensation algorithms becomes the new core challenge. The signal processing field has proposed various conventional methods, such as the perturbation method \cite{royOptimalModifiedHomotopy2023}, multi-scale method \cite{jainModelOrderReduction2020}, harmonic balance \cite{shawHybridAveragingHarmonic2023}, and identification approaches based on Volterra series \cite{helieInputOutputReduced2021} and Wiener models \cite{sersourNonlinearSystemIdentification2018}. However, these models face limitations when handling strongly coupled electrochemical-fluid-mechanical systems like MET, exhibiting high computational complexity and difficulties in precisely determining model parameters.
+%<CNHash>1908C407</CNHash>
+}
+
+\CNEN{
+    数据驱动的深度学习方法因其端到端的优越学习能力逐渐受到关注，LSTM/GRU 等深度学习方法在非线性系统输出预测方面表现出色，但通常被视为“黑盒”，且在实时信号处理中面临过拟合与计算量大的问题\cite{zhaoDetectingEarlyDamages2020}。为弥合物理与数据驱动的差距，一些研究开始将物理信息融入神经网络（如 PINNs\cite{wangEigenvectorBiasFourier2021}），但 MET 难以由偏微分方程精确描述，这使得基于微分方程约束的物理信息神经网络难以直接应用。除了偏微分精确描述外，亦有物理启发式研究试图将传感器环境参数与网络结构结合\cite{motaqiArtificialIntelligenceBasedPowerTemperature2022}，在功率放大器领域取得良好效果，但尚未应用于传感器非线性补偿。频率响应信息是频率响应漂移补偿任务具有针对性的关键物理信息，为了将频率响应信息融入神经网络，本研究提出了可显式控制频率响应的多通道 RNN 线性核阵列(FRIRNN)，以表征在不同振幅下 MET 的频率响应特征，每个 RNN 线性核的阶次仅有 4 个隐状态，显著降低了网络的计算复杂度，为后续嵌入式硬件部署的计算量压缩奠定基础。
+}{
+    Data-driven deep learning methods have gained increasing attention due to their superior end-to-end learning capabilities. While LSTM/GRU-based approaches excel in nonlinear system output prediction\cite{zhaoDetectingEarlyDamages2020}, they are often treated as "black box" solutions and face challenges of overfitting and high computational cost in real-time signal processing. To bridge the gap between physics and data-driven approaches, some studies integrate physical information into neural networks (e.g., PINNs\cite{wangEigenvectorBiasFourier2021}). However, METs cannot be precisely described by PDEs, making physics-constrained networks based on differential equations difficult to apply. Beyond PDE-based descriptions, physics-inspired approaches combining sensor environmental parameters with network architectures\cite{motaqiArtificialIntelligenceBasedPowerTemperature2022} have shown promise in power amplifier linearization but remain unexplored for sensor nonlinear compensation. Frequency response information serves as the key physics prior for targeted compensation of frequency drift. To incorporate this prior, we propose a multi-channel RNN kernel array (FRIRNN) with explicit frequency response control, characterizing MET's magnitude-dependent frequency response characteristics. Each RNN kernel contains only 4 hidden states, significantly reducing computational complexity and facilitating subsequent deployment on embedded platforms.
+%<CNHash>43BFE2D8</CNHash>
+}
+
+\CNEN{
+    除物理先验融合外，网络结构本身的数学可解释性改进也被证明能增强模型泛化能力，传统的 MLP （多层感知机）只能通过线性权重和固定激活函数的多层加权和隐式逼近传感器的输入-输出关系，而近年来出现的 Kolmogorov-Arnold 网络（KAN）因激活函数可学习性天然适配传感器的输入-输出关系，并有望改善网络的泛化能力和提高可解释性 \cite{schmidt-hieberKolmogorovArnoldRepresentation2021, livierisCKANNewApproach2024}。}{
+    Beyond physics-constrained fusion, improving the mathematical interpretability of network architecture has been proven to enhance model generalization. Traditional MLPs (multilayer perceptrons) can only implicitly approximate sensor input-output relationships through linear weights and fixed activation functions. In contrast, the recently proposed Kolmogorov-Arnold network (KAN) naturally adapts to sensor input-output mappings via learnable activation functions, showing potential to improve both generalization and interpretability \cite{schmidt-hieberKolmogorovArnoldRepresentation2021, livierisCKANNewApproach2024}.
+%<CNHash>8AE4D830</CNHash>
+}
+
+\CNEN{
+    综上，针对MET非线性补偿中的物理泛化能力、可解释性和计算效率难题，本研究结合 MET 的频域物理特性和 KAN 的结构可解释性优势，提出了一种结合了频响先验注入线性 RNN 和物理约束 KAN 的新型网络 FRIKAN，实现了物理信息启发和网络结构增强的双重改进。FRIKAN 网络被后置于传感器，摆脱了对高阶核或外部机械反馈的依赖。在训练时，基于包含幅频耦合效应的三维频率响应数据集设计了幅频损失函数以提高频率域敏感性。最后，为验证在资源受限平台的可用性，本文还提出基于查找表（LUT）的 KAN 网络加速方案，并在 STM32F405 上验证其实时可行性。文章的主要贡献如下：}{
+In summary, to address the challenges of physical generalization, interpretability, and computational efficiency in MET nonlinear compensation, this study combines MET's frequency-domain physical characteristics with KAN's structural interpretability advantages, proposing a novel FRIKAN network integrating frequency response prior-injected linear RNN and physics-constrained KAN. This achieves dual improvements in physics-informed inspiration and network architecture enhancement. The FRIKAN network is post-positioned to the sensor, eliminating dependence on high-order kernels or external mechanical feedback. During training, an amplitude-frequency loss function is designed based on a 3D frequency response dataset incorporating amplitude-frequency coupling effects to enhance frequency-domain sensitivity. Finally, to validate platform feasibility, a lookup table (LUT)-based KAN acceleration scheme is proposed and verified on STM32F405 for real-time feasibility. The main contributions are as follows:
+%<CNHash>350F008E</CNHash>
+}
+
+\begin{enumerate}
+    \CNEN{
+    \item 提出了不依赖反馈单元的前馈补偿架构，避免力反馈中的稳定性风险，简化了系统设计，支持增大超过10倍的输入振幅。
+    \item 对 MET 在振幅 \valMagScanStart~$\text{m}/\text{s}^2$ 至 \valMagScanEnd~$\text{m}/\text{s}^2$、频率范围 \valFreqScanStart~Hz 至 \valFreqScanEnd~Hz 的系统性测试获取全工作频带频率响应数据，并以此构建了首个涵盖幅频耦合效应的高精度传感器特性映射数据集。
+    \item 提出了结合了频响先验注入线性 RNN 和物理约束 KAN 的新型网络 FRIKAN。
+    \item 提出了新的幅频损失函数，更好度量系统在频率域的非线性改善效果，提升模型对频率漂移的敏感性。
+    \item 采用查找表（LUT）方式实施加速策略，在 STM32F405 平台验证了实时补偿的可行性，比 LSTM 模型计算速度提高了\valSpeedup 倍。
+          }{
+    \item A feedforward compensation architecture independent of feedback units is proposed, avoiding stability risks in force feedback, simplifying structural design, and supporting over 10× input magnitude increase.
+    \item Systematic testing of MET from \valMagScanStart~$\text{m}/\text{s}^2$ to \valMagScanEnd~$\text{m}/\text{s}^2$ and \valFreqScanStart~Hz to \valFreqScanEnd~Hz acquires full bandwidth frequency response data, constructing the first high-precision sensor characteristic mapping dataset covering magnitude-frequency coupling effects.
+    \item A novel FRIKAN network is proposed, combining frequency response prior-injected linear RNN with physics-constrained KAN.
+    \item A new amplitude-frequency loss function is introduced to better quantify nonlinear improvement in frequency domain, enhancing model sensitivity to frequency drift.
+    \item An acceleration strategy using lookup table (LUT) implementation demonstrates real-time feasibility on STM32F405, achieving \valSpeedup× speedup over LSTM models.
+%<CNHash>49895D2F</CNHash>
+}
+\end{enumerate}
+
+\CNEN{
+    本文其余部分安排如下：第二章介绍 MET 的研究背景和工作原理。第三章详述 FRIKAN 的网络结构。第四章展示实验设置、数据集与训练分析。第五章对主要贡献进行总结并展望未来研究方向。
+}{
+The remainder of this paper is organized as follows. Section~II introduces the research background and working principle of MET. Section~III details the network structure of FRIKAN. Section~IV presents the experimental setup, dataset, and training analysis. Section~V summarizes the main contributions and discusses future research directions.
+%<CNHash>27B70A8E</CNHash>
+}
+
+\section{Background and Principle}
+
+\subsection{Structure and Principle of MET Electrochemical Seismometers}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{image_pdf/4.MET_structure.pdf}
+    \caption{Schematic diagram of MET structure}
+    \label{fig:MET_structure}
+\end{figure}
+
+\CNEN{
+    电化学地震检波器（MET）是基于分子电子转移原理检测地震振动的高灵敏度传感器，核心组件包含电化学反应腔、敏感电极、电解液及机械拾振部件（橡胶模(复数)和质量体），结构如图~\ref{fig:MET_structure}所示。电化学反应腔为有机玻璃密闭容器，内封装多孔敏感电极（阳极/阴极）及含活性离子（如碘离子）的电解液，电解液由橡胶模(复数)包覆，读出电路如图~\ref{fig:readout_circuit}所示，读出电路采用基于AD706运算放大器将MET电极产生的微弱差分电流转换为电压信号。
+}{The electrochemical seismometer (MET) is a high sensitivity sensor that detects seismic vibrations based on molecular electron transfer. Its core components include an electrochemical chamber, sensitive electrodes, electrolyte, and mechanical vibration pickup (rubber membranes and mass body). The structure is shown in Fig.~\ref{fig:MET_structure}. The electrochemical chamber is a sealed plexiglass container housing porous sensitive electrodes (anode/cathode) and electrolyte containing active ions (e.g., iodide). The electrolyte is encapsulated by rubber membranes. The readout circuit, illustrated in Fig.~\ref{fig:readout_circuit}, employs an AD706 operational amplifier to convert the weak differential current from MET electrodes into voltage signals.%<CNHash>9AEBAF30</CNHash>
+}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.4\textwidth]{image_pdf/39.Readout_circuit.pdf}
+    \caption{Readout circuit of MET}
+    \label{fig:readout_circuit}
+\end{figure}
+
+
+\CNEN{
+    地震波引发机械部件变形，驱动电解液流动并改变电极区离子浓度分布，从而调制电极反应电流密度。电流变化经微弱电流检测电路转换为电压信号，通过前置放大器与信号调理电路处理，输出反映地震振动的电信号。
+}{
+Seismic waves induce mechanical deformation, driving electrolyte flow and altering ion concentration distribution in the electrode region, thereby modulating the current density of electrode reactions. The current variation is converted into voltage signals via weak-current detection circuits, then processed by preamplifier and signal conditioning modules to output electrical signals reflecting seismic vibrations.
+%<CNHash>D8F50ED0</CNHash>
+}
+
+\CNEN{
+    MET 整体传递函数可以表示为机械拾振部分和流体力学与电化学转换部分的耦合\cite{WOS:000318036400036}，如式(\ref{eq:Ws_mech_cq}) 所示。
+}{The overall transfer function of MET can be expressed as the coupling between the mechanical vibration pickup and the electrochemical-fluid system\cite{WOS:000318036400036}, as shown in Eq.~(\ref{eq:Ws_mech_cq}).%<CNHash>3A109D7A</CNHash>
+}
+
+\begin{equation}\label{eq:Ws_mech_cq}
+    H(s)  = H_{\rm mech}(s) \cdot H_{\rm ec}(s)
+\end{equation}
+
+	\CNEN{
+其中，$H_{\rm mech}(s)$ 是机械拾振部分的传递函数，$H_{\rm ec}(s)$ 是流体力学与电化学转换部分的传递函数。
+}{
+where $H_{\rm mech}(s)$ is the transfer function of the mechanical vibration pickup part, and $H_{\rm ec}(s)$ is the transfer function of the fluid mechanics and electrochemical conversion part.
+%<CNHash>5A2FC608</CNHash>
+}
+
+\CNEN{机械拾振部分在进行传递函数分析时近似为线性系统，类似于固态阻尼、受驱动的谐振子, 如公式(\ref{fun:h_mech_model})所示，需要指出的是实验表明这种线性近似仅在小震级的时候是有效的，在大震级下会出现明显的漂移。}{The mechanical vibration pickup is approximated as a linear system during transfer function analysis, resembling a solid-state damped, driven harmonic oscillator, as shown in Eq.~(\ref{fun:h_mech_model}). It should be noted that experiments indicate this linear approximation is only valid for small magnitudes, while significant drift occurs under large magnitudes.%<CNHash>A57CDF17</CNHash>
+}
+
+\begin{equation}
+    \frac{d^2 V}{dt^2} + \frac{R_{\text{h}} S_{\rm ch}}{\rho L} \frac{dV}{dt} + \frac{\kr}{\rho L} V = -S_{\rm ch} a
+    \label{fun:h_mech_model}
+\end{equation}
+
+\CNEN{其中， $ V $  是通过通道的流体体积， $ a $  是外部振动加速度， $ S_{\rm ch} $ 是通道的横截面积, $ \kr $ 是膜的弹性系数, $ \rho $ 是电解质的密度, $ L $ 表示通道长度, $ R_{\text{h}} $ 是流体动力学阻力\cite{agafonov2015}。
+流体力学与电化学转换部分的特性主要由Navier-Stokes方程、Nernst-Planck方程和Butler-Volmer方程描述，如公式(\ref{eq:navier_stokes})所示。}{where $V$ is the fluid volume through the channel, $a$ is the external vibration acceleration, $S_{\rm ch}$ is the channel cross-sectional area, $\kr$ is the membrane elasticity coefficient, $\rho$ is the electrolyte density, $L$ denotes the channel length, and $R_{\text{h}}$ is the hydrodynamic resistance \cite{agafonov2015}. The characteristics of the electrochemical-fluid system are primarily governed by the Navier-Stokes equation, Nernst-Planck equation, and Butler-Volmer equation, as shown in Eq.~(\ref{eq:navier_stokes}).%<CNHash>0D68E24C</CNHash>
+}
+
+\begin{equation}
+    \left\{
+    \begin{aligned}
+         & \rho \left( \frac{\partial \mathbf{u}}{\partial t} + (\mathbf{u} \cdot \nabla) \mathbf{u} \right) = -\nabla P + \mu \nabla^2 \mathbf{u} \\
+         & \nabla \cdot \mathbf{u} = 0                                                                                                             \\
+         & \frac{\partial c}{\partial t} + \nabla \cdot \left(-D \nabla c + c \mathbf{u}\right) = 0
+    \end{aligned}
+    \label{eq:navier_stokes}
+    \right.
+\end{equation}
+
+\CNEN{
+其中，$\rho$ 为流体密度，$\mathbf{u}$ 为流速矢量，$P$ 为压力，$\mu$ 为动力粘度，$c$ 为离子浓度，$D$ 为扩散系数。
+}{
+where $\rho$ denotes the fluid density, $\mathbf{u}$ represents the flow velocity vector, $P$ is the pressure, $\mu$ indicates the dynamic viscosity, $c$ stands for the ion concentration, and $D$ corresponds to the diffusion coefficient.
+%<CNHash>847F4F32</CNHash>
+}
+
+\CNEN{
+由式 (\ref{fun:h_mech_model})， $H_{\rm mech}$ 的传递函数可以写为式 (\ref{fun:h_mech_transfer})。其中，$ Q = \frac{dV}{dt} $  是体积流速, $ S_{\rm ch} $ 是通道的横截面积, $ \kr $ 是膜的弹性系数, $ \rho $ 是电解质的密度, $ L $ 表示通道长度, $ R_{\text{h}} $ 是流体动力学阻力\cite{agafonov2015}。
+经过理论分析，公式 (\ref{eq:navier_stokes}) 被近似为一阶滞后模型, 如公式 (\ref{fun:h_ec_transfer}) 所示\cite{WOS:000318036400036}。
+}{
+From Eq.~(\ref{fun:h_mech_model}), the transfer function of $H_{\rm mech}$ can be expressed as Eq.~(\ref{fun:h_mech_transfer}), where $ Q = \frac{dV}{dt} $ denotes the volumetric flow rate, $ S_{\rm ch} $ represents the channel cross-sectional area, $ \kr $ is the elastic coefficient of the membrane, $ \rho $ indicates the electrolyte density, $ L $ denotes the channel length, and $ R_{\text{h}} $ stands for the hydrodynamic resistance \cite{agafonov2015}.
+Through theoretical analysis, Eq.~(\ref{eq:navier_stokes}) is approximated as a first-order lag model shown in Eq.~(\ref{fun:h_ec_transfer}) \cite{WOS:000318036400036}.
+%<CNHash>018C1040</CNHash>
+}
+
+\begin{equation}
+    H_{\rm mech}(s)  = \frac{Q(s)}{v(s)} = \frac{- S_{\rm ch} s}{s^2 + \frac{R_{\text{h}} S_{\rm ch}}{\rho L}s + \frac{\kr}{\rho L }}
+    \label{fun:h_mech_transfer}
+\end{equation}
+
+\begin{equation}
+    H_{\rm{ec}}(s) = \frac{I(s)}{Q(s)} = \frac{C}{1 + \frac{s}{s_{\rm{D}}}}
+    \label{fun:h_ec_transfer}
+\end{equation}
+
+\CNEN{
+其中， $ v $  是外界的振动速度， $ I $  是电流， $ C $  是电化学反应的灵敏度常数， $ s_{\rm{D}} $  是电化学反应的时间常数。
+根据已有的数据结果的分析，当前研究频段下的  $ H $  传递函数由  $ H_{\rm mech} $  主导，本文中使用的  $ H $  的表达式为公式 (\ref{fun:h_transfer})，并为了后续频率特性分析的便利, 等价改写为公式 (\ref{fun:theFittingFormatOfWs_modified})。
+}{
+where $ v $ denotes the external vibration velocity, $ I $ represents the current, $ C $ is the sensitivity constant of the electrochemical reaction, and $ s_{\rm{D}} $ stands for the time constant of the electrochemical reaction.
+Based on existing data analysis, the $ H $ transfer function in the studied bandwidth is dominated by $ H_{\rm mech} $. The expression of $ H $ used in this work is given by Eq.~(\ref{fun:h_transfer}), which is equivalently rewritten as Eq.~(\ref{fun:theFittingFormatOfWs_modified}) for subsequent frequency response analysis.
+%<CNHash>1D90CD80</CNHash>
+}
+
+\begin{equation}
+    H(s)  = \frac{Q(s)}{v(s)} = \frac{S_{\rm ch} s}{s^2 + \frac{R_{\text{h}} S_{\rm ch}}{\rho L}s + \frac{\kr}{\rho L }}
+    \label{fun:h_transfer}
+\end{equation}
+
+
+\begin{equation}
+    H(s) = \Sen \frac{4\pi \zeta \fn s}{s^2 + 4\pi \zeta \fn s + 4\pi^2 \fn^2}
+    \label{fun:theFittingFormatOfWs_modified}
+\end{equation}
+
+\CNEN{
+其中固有频率$\fn = \frac{1}{2\pi} \sqrt{\frac{\kr}{\rho L}}$，灵敏度$\Sen=\rho L/R_{\text{h}}$，阻尼比$\zeta = \frac{R_{\text{h}} S_{\rm ch}}{2 \sqrt{\rho L \kr}}$。
+}{
+where the natural frequency $\fn = \frac{1}{2\pi} \sqrt{\frac{\kr}{\rho L}}$, sensitivity $\Sen=\rho L/R_{\text{h}}$, and damping ratio $\zeta = \frac{R_{\text{h}} S_{\rm ch}}{2 \sqrt{\rho L \kr}}$.
+%<CNHash>D542CCE6</CNHash>
+}
+
+\subsection{Nonlinear Frequency Response Characteristics of MET}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{image_pdf/3.MET_nonlinear_frequency_response.pdf}
+    \caption{\CNEN{MET的非线性频率响应特性}{The nonlinear frequency response characteristics of MET%<CNHash>2B4ABB75</CNHash>
+}}
+    \label{fig:MET_nonlinear}
+\end{figure}
+
+\CNEN{
+    
+        然而，MET因电化学反应和流体力学复杂耦合效应存在显著非线性。图~\ref{fig:MET_nonlinear}展示了 MET 的在不同振幅下的频率响应(数据来源于Section IV 的实验)。当输入振幅从0.24~$\text{m}/\text{s}^2$增加到6.0~$\text{m}/\text{s}^2$时，固有频率从34.2Hz 变化到 93.4Hz，漂移了 173.1 \%；灵敏度则从 60.6 $\text{V} \cdot \text{s} / \text{m}$ 变化到 203.4 $\text{V} \cdot \text{s} / \text{m}$，漂移了 254.6 \%，频率响应漂移严重。
+    
+}{
+    
+        However, the MET exhibits significant nonlinearity due to the complex coupling effects between electrochemical reactions and fluid mechanics. Fig.~\ref{fig:MET_nonlinear} shows the frequency response of MET under different magnitudes (data from experiments in Section IV). When the input magnitude increases from 0.24~$\text{m}/\text{s}^2$ to 6.0~$\text{m}/\text{s}^2$, the natural frequency shifts from 34.2Hz to 93.4Hz (173.1\% variation), while the sensitivity changes from 60.6 $\text{V} \cdot \text{s} / \text{m}$ to 203.4 $\text{V} \cdot \text{s} / \text{m}$ (254.6\% variation), indicating severe frequency response drift.
+    
+%<CNHash>1792A651</CNHash>
+}
+
+
+\CNEN{
+这种非线性会造成地震记录失真，从而影响地震波形的正确解释，在油气资源勘探中会导致地震图像分辨率下降、最终影响钻井决策与资源评估的准确性，增加勘探风险与成本。因此，解决MET非线性问题对于提高地震数据质量和资源勘探效率具有重要意义。
+}{
+This nonlinearity causes distortion in seismic records, affecting the correct interpretation of seismic waveforms. In oil and gas exploration, it reduces seismic image resolution, ultimately impacting drilling decisions and resource assessment accuracy while increasing exploration risks and costs. Thus, addressing the MET nonlinearity is critical for improving seismic data quality and exploration efficiency.
+%<CNHash>268C0BD6</CNHash>
+}
+
+\section{\CNEN{FRIKAN网络结构的设计}{Design of the FRIKAN network structure%<CNHash>1BB0E440</CNHash>
+}}
+
+% figure
+\begin{figure*}[htbp]
+    \centering
+    % \includegraphics[width=1.1\textwidth]{image_pdf/13.NN_extern2.pdf}
+    \includegraphics[width=0.95\textwidth]{image/13.NN_extern2.png}
+    \caption{\CNEN{FRIKAN 补偿框架示意图。}{Schematic of the FRIKAN compensation framework.%<CNHash>F0AB0ACF</CNHash>
+}}
+    \label{fig:FRIKAN_structure}
+\end{figure*}
+
+\CNEN{
+        本研究提出的前馈式补偿架构如图~\ref{fig:FRIKAN_structure}所示，受到功率放大器线性化中的数字预失真方法的启发\cite{wangInputAmplitudeBasedAdaptive2024}，其核心思想是通过串联非线性补偿器对MET输出信号进行补偿。该架构相比传统力反馈方案无需额外的机械反馈装置，避免了力反馈系统中由非线性引起的稳定性问题，因此可以适用于更大范围的振幅和频率条件。
+    }{The feedforward compensation architecture proposed in this study is illustrated in Fig.~\ref{fig:FRIKAN_structure}, inspired by the digital predistortion method for power amplifier linearization \cite{wangInputAmplitudeBasedAdaptive2024}. Its core concept is to compensate the MET output signal through a nonlinear compensator connected in series. Compared with traditional force feedback schemes, this architecture eliminates the need for additional mechanical feedback devices, avoiding stability issues caused by nonlinearity in force feedback systems, thus enabling operation under broader magnitude and bandwidth conditions.%<CNHash>457AB69B</CNHash>
+}
+
+
+\CNEN{
+    在前馈式框架下我们提出了融合频率响应信息的 Kolmogorov-Arnold 神经网络（FRIKAN）用于补偿非线性。FRIKAN 由物理信息约束的 Kolmogorov-Arnold 神经网络 (PIKAN) 和频率响应注入的线性 RNN（FRIRNN）两个关键组成部分。训练前将先验频率响应信息注入到 FRIRNN，训练时将多频率多振幅振动信号通过vibration table同时输入到 MET 和理想线性系统，比较理想线性系统和 FRIKAN 补偿后的 MET 输出信号，计算损失函数并经过反向传播训练 FRIKAN 权重。
+}{
+    Under the feedforward framework, we propose a frequency response-informed Kolmogorov-Arnold network (FRIKAN) for nonlinear compensation. FRIKAN consists of two key components: a physics-constrained Kolmogorov-Arnold network (PIKAN) and a frequency response-injected linear RNN (FRIRNN). Prior to training, the frequency response prior is injected into FRIRNN. During training, multi-frequency multi-magnitude vibration signals are simultaneously input to the MET and an ideal linear system via a vibration table. The outputs of the ideal linear system and FRIKAN-compensated MET are compared to compute the loss function, which backpropagates to train FRIKAN weights.
+%<CNHash>4E358F6C</CNHash>
+}
+
+\subsection{Physics-Constrained KAN Spline Activation Function}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{image_pdf/34.PE_COMP.pdf}
+    \caption{\CNEN{单个KAN神经元对典型三阶非线性系统的补偿结果。}{Compensation results of a single KAN neuron for a typical third-order nonlinear system.%<CNHash>DC1EE237</CNHash>
+}}
+    \label{fig:kan_compensation}
+\end{figure}
+
+\CNEN{
+    选用合适的神经网络结构表达传感器输入-输出关系对实现具有物理可解释性和强泛化能力的补偿器至关重要。传统的 MLP（多层感知器）只能通过线性权重与固定激活函数（如 ReLU、tanh 等）的多层加权和来隐式逼近传感器的真实校准曲线，增加了训练难度和过拟合风险，并且难以解释。为解决这一问题，我们通过 KAN 引入可训练的 B-spline激活函数，直接学习传感器的校准曲线，相比于MLP依赖固定形状激活函数的组合间接拟合校准曲线，PIKAN通过可学习的B-spline系数优化激活函数形状，拓展了单神经元对传感器非线性特性的建模能力 \cite{livierisCKANNewApproach2024}。
+    在 KAN 的基础上，我们增加了奇对称性与同向性等物理约束，如式(\ref{fun:KAN_activation})所示。
+    }{
+    Selecting an appropriate neural network structure to represent the sensor input-output relationship is crucial for achieving a compensator with interpretability and strong generalization. Traditional MLP (multilayer perceptron) can only implicitly approximate the true calibration curve of the sensor through linear weights and fixed activation functions (e.g., ReLU, tanh), increasing training difficulty and overfitting risk while lacking interpretability. To address this, we introduce trainable B-spline activation functions via KAN to directly learn the sensor's calibration curve. Compared to MLP's indirect fitting using fixed-shape activation functions, PIKAN optimizes activation function shapes through learnable B-spline coefficients, enhancing single-neuron modeling capability for sensor nonlinearity \cite{livierisCKANNewApproach2024}.
+    Building upon KAN, we incorporate physics constraints such as odd symmetry and positivity, as shown in Eq.~(\ref{fun:KAN_activation}).
+%<CNHash>7F19FEA8</CNHash>
+}
+
+\begin{equation}
+    \phi(x) = \text{sign}(x) \sum_{k=1}^{K} c_k B_k(|x|), B_i(x) \geq 0 \ \forall x \in \mathbb{R}, c_k \geq 0
+    \label{fun:KAN_activation}
+\end{equation}
+
+\CNEN{
+    其中 $B_k(x)$ 是 B-spline基函数，$c_k$ 是可训练权重。通过训练，这些权重能够自适应地逼近传感器的校准曲线，其物理信息约束如下：
+}{
+    where $B_k(x)$ denotes the B-spline basis function and $c_k$ represents the trainable weights. Through training, these weights can adaptively approximate the sensor calibration curve under the physics constraints:
+%<CNHash>F3385ED9</CNHash>
+}
+
+\CNEN{
+    \begin{enumerate}
+        \item \textbf{奇对称性} $\phi(-x) = -\phi(x)$: 通过对输入信号取绝对值计算激活值后恢复符号实现；
+        \item \textbf{同向性} $\phi(x) > 0\ (x > 0)$: 通过非负基函数 $B_k(\cdot) \geq 0$ 并强制权重非负，即 $c_k \geq 0$，使得输入和输出具有一致的符号方向。
+    \end{enumerate}
+}{
+    \begin{enumerate}
+        \item \textbf{Odd symmetry} $\phi(-x) = -\phi(x)$: Achieved by computing activation values using absolute input signals followed by sign recovery;
+        \item \textbf{Positivity} $\phi(x) > 0\ (x > 0)$: Enforced through non-negative basis functions $B_k(\cdot) \geq 0$ with constrained weights $c_k \geq 0$, ensuring consistent input-output sign direction.
+    \end{enumerate}
+%<CNHash>C1BA1CCB</CNHash>
+}
+
+\CNEN{
+    对于MET传感器而言，基于电化学原理的输入-输出关系具有特定的对称性和同向性特征，在模型中加入相应的数学约束可能有助于在数据稀疏区域保持物理上合理的预测行为。传统 MLP 只能通过损失函数添加惩罚项实现软约束，约束强度在训练过程中可能难以平衡，而 KAN 可以通过直接约束B样条系数空间来实现，形成结构性约束。
+}{For MET sensors, the electrochemical-based input-output relationship exhibits specific symmetry and positivity characteristics. Incorporating corresponding mathematical constraints into the model may help maintain physically plausible predictions in data-sparse regions. Conventional MLPs can only implement soft constraints through penalty terms in the loss function, where constraint strength is difficult to balance during training. In contrast, KAN achieves structural constraints by directly restricting the B-spline coefficient space.%<CNHash>9615D050</CNHash>
+}
+
+\CNEN{
+    在传感器特性建模结构上，MLP在复杂非线性关系建模时通常需要增加网络层数或神经元数量。而KAN采用的B样条激活函数具有分段多项式结构，在数学形式上与MET传感器在不同振幅区间表现出的分段响应特性存在一定相似性。从函数逼近理论角度看，分段多项式在建模具有区间性变化的函数时可能具有参数效率。
+    我们仅使用单个 KAN 神经元在典型三阶非线性系统($y = k_1 x + k_3 x^3$)上进行了仿真，其中 $k_1 = \frac{1}{3}$ 和 $k_3 = \frac{1}{6}$。图~\ref{fig:kan_compensation} 展示了在不同训练周期（Epoch）下，输入与输出的非线性补偿效果。左列为输入与原始输出的关系，中列显示了 KAN 补偿器的输出，右列则为输入与补偿后输出的关系，补偿后的输出随着训练的进行（Epoch 10, 30, 50），最终恢复出理想的线性关系，验证了 KAN 补偿器物理信息约束的有效性。
+}{
+    In terms of sensor characteristic modeling structure, MLP typically requires increasing network depth or neuron count when modeling complex nonlinear relationships. In contrast, the B-spline activation function adopted by KAN exhibits a piecewise polynomial structure, which shares mathematical similarity with the segmented response characteristics of MET sensors across different magnitude intervals. From a function approximation perspective, piecewise polynomials may offer parameter efficiency when modeling functions with interval-dependent variations.
+    We simulated a single KAN neuron on a typical third-order nonlinear system ($y = k_1 x + k_3 x^3$) with $k_1 = \frac{1}{3}$ and $k_3 = \frac{1}{6}$. Fig.~\ref{fig:kan_compensation} demonstrates the nonlinear compensation effects under different training epochs. The left column shows input-original output relationships, the middle column displays KAN compensator outputs, and the right column presents input-compensated output relationships. The compensated output progressively restores ideal linearity during training (Epoch 10, 30, 50), validating the effectiveness of physics-informed constraints in the KAN compensator.
+%<CNHash>4F519C91</CNHash>
+}
+
+\CNEN{
+    为应对更复杂的 MET 非线性补偿，使用了式~(\ref{fun:KAN}) 中的多层 KAN 结构\cite{liu2025kankolmogorovarnoldnetworks}，给定一个输入向量 $\mathbf{x}$，输出为 $\operatorname{PIKAN}(\mathbf{x})$。
+}{
+    To address more complex MET nonlinear compensation, a multi-layer KAN structure in Eq.~(\ref{fun:KAN}) \cite{liu2025kankolmogorovarnoldnetworks} is employed. Given an input vector $\mathbf{x}$, the output is $\operatorname{PIKAN}(\mathbf{x})$.
+%<CNHash>FB3EF81B</CNHash>
+}
+
+\begin{equation}
+    \operatorname{PIKAN}(\mathbf{x})  = \left( \bm{\Phi}_{L-1} \circ \bm{\Phi}_{L-2} \circ \cdots \circ \bm{\Phi}_0 \right) \mathbf{x}
+    \label{fun:KAN}
+\end{equation}
+
+\CNEN{其中，$\bm{\Phi}_l$ 是第 $l$ 层的函数矩阵，元素为 $\phi_{l,j,i}$，是连接第 $l$ 层第 $i$ 节点到第 $l+1$ 层第 $j$ 节点的激活函数，如式(\ref{fun:KAN_activation})带有物理约束，$L$ 是 KAN 网络总层数。
+}{where $\bm{\Phi}_l$ denotes the function matrix of the $l$-th layer, whose element $\phi_{l,j,i}$ represents the physics-constrained activation function connecting the $i$-th node in layer $l$ to the $j$-th node in layer $l+1$, as defined in Eq.~(\ref{fun:KAN_activation}), and $L$ is the total number of KAN layers.%<CNHash>BE958530</CNHash>
+}
+
+
+\CNEN{
+    然而单独的 KAN 不能捕获频率域信息，因此我们在 KAN 前端接入了能够提供频率响应信息的频率响应注入 RNN（FRIRNN），为 KAN 提供了频率响应信息。}{
+    However, the standalone KAN cannot capture frequency domain information. Thus, we cascade a frequency response injection RNN (FRIRNN) before the KAN to provide frequency response prior.
+%<CNHash>8452D8A0</CNHash>
+}
+
+\subsection{FRIRNN with Quasi-Linear Frequency Response Slice (QLFRS) Injection}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.48\textwidth]{image_pdf/35.FRIRNN_3D_response_slices.pdf}
+    \caption{\CNEN{QLFRS 图示。(a) MET 的频率响应的 QLFRS。(b) 相对传递函数的 QLFRS}{QLFRS illustration. (a) QLFRS of the MET's frequency response. (b) QLFRS of the relative transfer function%<CNHash>42218A55</CNHash>
+}}
+    \label{fig:FRIRNN_3D_response_slices}
+\end{figure}
+
+\CNEN{
+    我们提出了一种融合频率响应信息的递归神经网络架构即频率响应注入 RNN (FRIRNN) ，有效解决了现有模型缺乏物理先验知识导致的补偿性能瓶颈问题， FRIRNN 核心思想在于对 MET 在局部条件下取线性近似，我们将单一振幅下的 MET 近似频率响应称为 MET 的准线性频率响应切片(QLFRS)，如图 \ref{fig:FRIRNN_3D_response_slices}(a)，随后借鉴线性系统的相对传递函数方法计算补偿器的频率响应切片 QLFRS，如图 \ref{fig:FRIRNN_3D_response_slices}(b)。通过将补偿器 QLFRS 注入神经网络，达到融入信号处理领域专家知识的目的，增强网络对频率相关的补偿能力。具体来说，FRIRNN 是通过把补偿器 QLFRS 参数等价转换为线性 RNN 的初始权重，将多个补偿器 QLFRS 组成并联 RNN 层。}{
+We propose a frequency response-injected recurrent neural network (FRIRNN) architecture that integrates frequency response prior, effectively addressing the compensation performance bottleneck caused by the lack of physical prior in existing models. The core concept of FRIRNN lies in linear approximation of the MET under local conditions. We define the approximated frequency response of MET at a single magnitude as quasi-linear frequency response slice (QLFRS), as shown in Fig.~\ref{fig:FRIRNN_3D_response_slices}(a). Following the relative transfer function method of linear systems, we calculate the compensator's QLFRS (Fig.~\ref{fig:FRIRNN_3D_response_slices}(b)). By injecting QLFRS into the neural network, we incorporate domain knowledge from signal processing, enhancing frequency-dependent compensation capability. Specifically, FRIRNN converts QLFRS parameters into initial weights of linear RNN and constructs parallel RNN layers with multiple QLFRS compensators.%<CNHash>8DAEF64B</CNHash>
+}%<CNHash>BF2AAE7E</CNHash>
+
+
+
+\CNEN{
+    下面给出将 QLFRS 注入 RNN 的计算过程，首先基于公式 (\ref{fun:theFittingFormatOfWs_modified}) 对 MET 在特定振幅下测量得到的频率响应进行拟合获得实测传递函数 $\exam{H}$，$\exam{H}$ 相较于理想系统存在非线性漂移，其漂移参数包括固有频率$\exam{\fn}$，固有频率处的灵敏度$\exam{\Sen} $ 和阻尼比 $\exam{\zeta} $ 。为了构建目标响应特性，定义理想线性系统的传递函数 $\ideal{H}$，其中包含预设的固有频率 $\ideal{\fn}$，固有频率处的灵敏度$\ideal{S}$ 和阻尼比$\ideal{\zeta}$。
+    基于线性系统理论，针对特定振幅的频率响应，可通过在 $\exam{H}$ 后串联一个相对传递函数 $\relative{H}$ 实现系统补偿，可以表示为 $\ideal{H} = \exam{H} \cdot \relative{H}$。其中 $\relative{H}$ 是相对传递函数，如公式 (\ref{eq:FRIRNN_relative}) 所示。}{
+The computational process for injecting QLFRS into the RNN is described below. First, the measured transfer function $\exam{H}$ is obtained by fitting the frequency response of the MET at a specific magnitude using Eq.~(\ref{fun:theFittingFormatOfWs_modified}). Compared with the ideal system, $\exam{H}$ exhibits nonlinear drift characterized by natural frequency $\exam{\fn}$, sensitivity $\exam{\Sen}$ at $\exam{\fn}$, and damping ratio $\exam{\zeta}$. To construct the target response, the transfer function $\ideal{H}$ of an ideal linear system is defined with preset parameters: natural frequency $\ideal{\fn}$, sensitivity $\ideal{S}$ at $\ideal{\fn}$, and damping ratio $\ideal{\zeta}$.
+
+Based on linear system theory, the compensation for a specific magnitude's frequency response can be achieved by connecting a relative transfer function $\relative{H}$ in series with $\exam{H}$, expressed as $\ideal{H} = \exam{H} \cdot \relative{H}$. Here, $\relative{H}$ represents the relative transfer function given in Eq.~(\ref{eq:FRIRNN_relative}).
+%<CNHash>9DF59EE5</CNHash>
+}
+
+\begin{equation}
+    \relative{H}(s)  = \frac{\ideal{H}(s)}{\exam{H}(s)}
+    = \frac{\ideal{S}\ideal{\zeta}  \ideal{\fn} }{\exam{\Sen} \exam{\zeta}  \exam{\fn} } \cdot
+    \frac{s^2 + 4\pi \exam{\zeta}  \exam{\fn}   s + 4\pi^2 \exam{\fn} ^2}{s^2 + 4\pi \ideal{\zeta}  \ideal{\fn}   s + 4\pi^2 \ideal{\fn} ^2}
+    \label{eq:FRIRNN_relative}
+\end{equation}
+
+\CNEN{随后基于双线性变换将连续域的传递函数 $ \relative{H} (s) $ 映射到数字域得到 IIR 滤波器的系数，其形式如式 (\ref{eq:IIR_difference}) 所示。}{Subsequently, the continuous-domain transfer function $\relative{H}(s)$ is mapped to the digital domain via bilinear transformation to obtain the IIR filter coefficients, whose form is given by Eq.~(\ref{eq:IIR_difference}).%<CNHash>C21246FD</CNHash>
+}
+
+\begin{equation}
+    \begin{aligned}
+        y[n]  = & b_0 x[n] + b_1 x[n-1] + b_2 x[n-2] \\
+              - & a_1 y[n-1] - a_2 y[n-2]
+    \end{aligned}
+    \label{eq:IIR_difference}
+\end{equation}
+
+\CNEN{
+    其中，$ y[n] $为第$ n $时刻的输出，$ x[n] $为第$ n $时刻的输入，$ b_0, b_1, b_2 $为滤波器的零点系数，$ a_1, a_2 $为滤波器的极点系数。}{
+    where $ y[n] $ denotes the output at the $ n $-th time step, $ x[n] $ represents the input at the $ n $-th time step, $ b_0, b_1, b_2 $ are the zero coefficients of the filter, and $ a_1, a_2 $ are the pole coefficients of the filter.%<CNHash>73C84C99</CNHash>
+}
+
+\CNEN{
+    为了使得IIR线性频率响应单元能够通过梯度下降训练，我们找到了一种无激活函数的线性 RNN (LRNN)，能够完整地表示二阶IIR滤波器的频率响应特性，可将式 (\ref{eq:IIR_difference}) 完全映射为一个带有 4 维隐藏状态的 LRNN。
+}{
+    To enable gradient descent training for the IIR linear frequency response unit, we developed an activation-free linear RNN (LRNN) that fully represents the frequency response characteristics of second-order IIR filters. This LRNN with 4-dimensional hidden states can precisely map Eq.~(\ref{eq:IIR_difference}).
+%<CNHash>6B6E2522</CNHash>
+}
+
+
+\CNEN{
+为了完成IIR到LRNN的转换，先将式(\ref{eq:IIR_difference})中的IIR系统转换为状态空间模型，并使其形式与RNN的矩阵形式相匹配，我们定义了状态向量$ \mathbf{z}[n] $，其中包含了IIR滤波器中输出和输入的延迟项。状态向量形式如公式 (\ref{eq:FRI_RNN_Zn}) 所示。
+          }{
+To achieve the IIR-to-LRNN conversion, we first transform the IIR system in Eq.~(\ref{eq:IIR_difference}) into a state-space model that matches the matrix form of RNNs. The state vector $\mathbf{z}[n]$ is defined to include the delayed terms of both output and input in the IIR filter, with its formulation given by Eq.~(\ref{eq:FRI_RNN_Zn}).
+%<CNHash>D3A0F064</CNHash>
+}
+
+          \begin{equation}
+              \mathbf{z}[n] = \begin{bmatrix} y[n-1] & y[n-2] & x[n-1] & x[n-2] \end{bmatrix}^\top
+              \label{eq:FRI_RNN_Zn}
+          \end{equation}
+
+          \CNEN{
+          其中，$ \mathbf{z}[n] $ 包含了输出和输入的延迟项。接着，基于该状态向量，系统的状态更新方程如公式 (\ref{eq:FRI_RNN_state}) 所示。}{
+where $\mathbf{z}[n]$ contains the delayed terms of the output and input. Then, based on this state vector, the state update equation of the system is shown in Eq.~(\ref{eq:FRI_RNN_state}).
+%<CNHash>66D2758C</CNHash>
+}
+
+          \begin{equation}
+              \mathbf{z}[n+1] = \mathbf{A} \mathbf{z}[n] + \mathbf{B} x[n]
+              \label{eq:FRI_RNN_state}
+          \end{equation}
+
+          \CNEN{
+          其中，$ \mathbf{A} \in \mathbb{R}^{4 \times 4} $和$ \mathbf{B} \in \mathbb{R}^{4 \times 1} $分别为状态转移矩阵和输入矩阵。通过对比差分方程（式 (\ref{eq:IIR_difference})）和状态更新方程（式 (\ref{eq:FRI_RNN_state})），我们可以求得状态空间模型中矩阵的具体形式，如公式 (\ref{eq:FRI_RNN_AB}) 所示。 
+          }{
+where $\mathbf{A} \in \mathbb{R}^{4 \times 4}$ and $\mathbf{B} \in \mathbb{R}^{4 \times 1}$ denote the state transition matrix and input matrix, respectively. By comparing the difference equation (Eq.~\ref{eq:IIR_difference}) with the state update equation (Eq.~\ref{eq:FRI_RNN_state}), we derive the explicit forms of these matrices as shown in Eq.~\ref{eq:FRI_RNN_AB}.
+%<CNHash>C91DC7C9</CNHash>
+}
+
+          \begin{equation}
+              \mathbf{A} = \begin{bmatrix}
+                  -a_1 & -a_2 & b_1 & b_2 \\
+                  1    & 0    & 0   & 0   \\
+                  0    & 0    & 0   & 0   \\
+                  0    & 0    & 1   & 0
+              \end{bmatrix}, \quad
+              \mathbf{B} = \begin{bmatrix}
+                  b_0 \\
+                  0   \\
+                  1   \\
+                  0
+              \end{bmatrix}
+              \label{eq:FRI_RNN_AB}
+          \end{equation}
+
+          \CNEN{
+          输出方程也可以通过状态空间模型的输出矩阵$ \mathbf{C} $和直接传递项$ D $给出，如公式(\ref{eq:FRI_RNN_output})所示。
+          }{The output equation can also be expressed through the output matrix $\mathbf{C}$ and the direct transfer term $D$ of the state-space model, as shown in Eq.~(\ref{eq:FRI_RNN_output}).%<CNHash>401A5017</CNHash>
+}
+
+          \begin{equation}
+              y[n] = \mathbf{C} \mathbf{z}[n] + D
+              \label{eq:FRI_RNN_output}
+          \end{equation}
+
+          \CNEN{
+          在此模型中，$ \mathbf{C} \in \mathbb{R}^{1 \times 4} $，$ D \in \mathbb{R} $。通过与差分方程（式 (\ref{eq:IIR_difference})）对比，我们得到了输出矩阵和直接传递项的具体形式如公式 (\ref{eq:FRI_RNN_C_D}) 所示。
+          }{
+          In this model, $\mathbf{C} \in \mathbb{R}^{1 \times 4}$ and $D \in \mathbb{R}$. By comparing with the difference equation (Eq.~\ref{eq:IIR_difference}), we derive the explicit forms of the output matrix and direct transmission term as shown in Eq.~\ref{eq:FRI_RNN_C_D}.
+%<CNHash>5FB2EF01</CNHash>
+}
+
+          \begin{equation}
+              \mathbf{C} = \begin{bmatrix} -a_1 & -a_2 & b_1 & b_2 \end{bmatrix}, \quad D = b_0
+              \label{eq:FRI_RNN_C_D}
+          \end{equation}
+
+          \CNEN{
+          接下来，我们考虑如何将IIR的状态空间方程转化为标准的RNN形式。标准RNN的状态更新方程如公式 (\ref{eq:FRI_RNN_update}) 所示。
+          }{Next, we consider transforming the state-space equation of the IIR into the standard RNN form. The state update equation of the standard RNN is shown in Eq.~(\ref{eq:FRI_RNN_update}).%<CNHash>3B8FC7EC</CNHash>
+}
+
+            \begin{equation}
+              \mathbf{h}[n+1] = \mathbf{W}_{\text{rec}} \mathbf{h}[n] + \mathbf{W}_{\text{in}} x[n]
+                \label{eq:FRI_RNN_update}
+            \end{equation}
+
+          \CNEN{
+          其中，$ \mathbf{h}[n] $是隐藏状态，$ \mathbf{W}_{\text{rec}} $是隐藏状态到隐藏状态的权重矩阵，$ \mathbf{W}_{\text{in}} $是输入到隐藏状态的权重矩阵。为了使RNN与二阶IIR滤波器的结构相匹配，我们将矩阵的形状设置为: $ \mathbf{h} \in \mathbb{R}^{4 \times 1} $，$ \mathbf{W}_{\text{rec}} \in \mathbb{R}^{4 \times 4} $，$ \mathbf{W}_{\text{in}} \in \mathbb{R}^{4 \times 1} $。
+          }{where $ \mathbf{h}[n] $ is the hidden state, $ \mathbf{W}_{\text{rec}} $ is the hidden-to-hidden weight matrix, and $ \mathbf{W}_{\text{in}} $ is the input-to-hidden weight matrix. To match the structure of the second-order IIR filter, we set the matrix dimensions as: $ \mathbf{h} \in \mathbb{R}^{4 \times 1} $, $ \mathbf{W}_{\text{rec}} \in \mathbb{R}^{4 \times 4} $, and $ \mathbf{W}_{\text{in}} \in \mathbb{R}^{4 \times 1} $.%<CNHash>7D8F0C5E</CNHash>
+}
+
+          \CNEN{
+          与式(\ref{eq:FRI_RNN_Zn})对比，可以得到隐藏状态 $ \mathbf{h}[n] = \mathbf{z}[n+1] $，因此，隐藏状态可以表示为公式 (\ref{eq:FRI_RNN_hn}) 所示。
+          }{
+          Compared with Eq.~(\ref{eq:FRI_RNN_Zn}), the hidden state $ \mathbf{h}[n] = \mathbf{z}[n+1] $ can be obtained, which is expressed as shown in Eq.~(\ref{eq:FRI_RNN_hn}).
+%<CNHash>356ED9F6</CNHash>
+}
+
+          \begin{equation}
+              \mathbf{h}[n] = \begin{bmatrix} y[n] & y[n-1] & x[n] & x[n-1] \end{bmatrix}^\top
+              \label{eq:FRI_RNN_hn}
+          \end{equation}
+
+          \CNEN{
+          通过对比，我们可以得到IIR滤波器与RNN之间的对应关系: $ \mathbf{W}_{\text{rec}} = \mathbf{A} $，$ \mathbf{W}_{\text{in}} = \mathbf{B} $。
+          由于IIR滤波器的输出是单一的一维信号，因此，为了使RNN与IIR滤波器的输出一致，我们在RNN的后端添加一个全连接层，用于将隐藏状态的第一个元素输出为最终结果，LRNN 的数学表达式如公式 (\ref{eq:FRI_LRNN_output}) 所示。
+          }{
+          Through comparison, we establish the correspondence between the IIR filter and RNN: $\mathbf{W}_{\text{rec}} = \mathbf{A}$, $\mathbf{W}_{\text{in}} = \mathbf{B}$.
+          Since the IIR filter output is a one-dimensional signal, we append a fully connected layer after the RNN to output the first element of the hidden state as the final result, ensuring consistency. The mathematical expression of LRNN is given by Eq.~(\ref{eq:FRI_LRNN_output}).
+%<CNHash>EADABBCF</CNHash>
+}
+          \begin{equation}
+              \mathrm{LRNN}(x[n]) = y[n] = \mathbf{W}_{\text{out}} \mathbf{h}[n]
+              \label{eq:FRI_LRNN_output}
+          \end{equation}
+
+          \CNEN{
+          其中，$ \mathbf{W}_{\text{out}} \in \mathbb{R}^{1 \times 4} $是输出层的权重矩阵。
+          }{where $ \mathbf{W}_{\text{out}} \in \mathbb{R}^{1 \times 4} $ is the weight matrix of the output layer.%<CNHash>F0C089D1</CNHash>
+}
+
+
+\CNEN{
+其中输入权重、输出权重和循环权重定义如公式 (\ref{eq:W_rec})所示。
+}{
+where the input weights, output weights, and recurrent weights are defined as shown in Eq.~\ref{eq:W_rec}.
+%<CNHash>7856E68E</CNHash>
+}
+\begin{equation}
+    \begin{cases}
+        \mathbf{W}_{\text{in}} = \begin{bmatrix}
+                                     b_0 & 0 & 1 & 0
+                                 \end{bmatrix}^\top     \\
+        \mathbf{W}_{\text{out}} = \begin{bmatrix}
+                                      1.0 & 0.0 & 0.0 & 0.0
+                                  \end{bmatrix} \\
+        \mathbf{W}_{\text{rec}} = \begin{bmatrix}
+                                      -a_1 & -a_2 & b_1 & b_2 \\
+                                      1    & 0    & 0   & 0   \\
+                                      0    & 0    & 0   & 0   \\
+                                      0    & 0    & 1   & 0
+                                  \end{bmatrix}
+    \end{cases}
+    \label{eq:W_rec}
+\end{equation}
+
+\CNEN{
+    可以证明稳定的 IIR 滤波器参数注入到 RNN 后直接确保了 RNN 的初始稳定性 \cite{WOS:001148230800001}。将 \mmax~个对应不同振幅切片的 FRIRNN 核并行连接在一起，对同一输入 $x[n]$ 同时处理，就形成了一个多核并联的单输入多输出（SIMO）的RNN线性核阵列，如式(\ref{eq:FRIRNN_parallel})。}{
+It can be proved that injecting stable IIR filter parameters into the RNN directly ensures its initial stability \cite{WOS:001148230800001}. By connecting \mmax~FRIRNN kernels corresponding to different magnitude slices in parallel to process the same input $x[n]$, a single-input multi-output (SIMO) RNN kernel array with multi-core parallel structure is formed, as shown in Eq.~(\ref{eq:FRIRNN_parallel}).%<CNHash>E73633F7</CNHash>
+}
+
+\begin{equation}
+    \mathrm{FRIRNN}(x[n]) = \begin{bmatrix}
+        \mathrm{LRNN}_1(x[n]) \\
+        \mathrm{LRNN}_2(x[n]) \\
+        \vdots                \\
+        \mathrm{LRNN}_{\mmax}(x[n])
+    \end{bmatrix}
+    \label{eq:FRIRNN_parallel}
+\end{equation}
+
+    \CNEN{
+          我们采用块对角矩阵算法来实现 FRIRNN 的并联计算，块对角矩阵仅进行一次矩阵乘法运算即可完成所有切片的状态更新，相比于单个核的多次矩阵乘法运算提高了计算效率，降低了结构复杂度。
+          }{
+          We employ a block diagonal matrix algorithm to implement the parallel computation of FRIRNN. The block diagonal matrix completes state updates for all slices through a single matrix multiplication, enhancing computational efficiency and reducing structural complexity compared to multiple matrix operations in individual kernels.
+%<CNHash>29E5067B</CNHash>
+}
+
+    \CNEN{
+          使用 $\boldsymbol{\magn}$ 来表示一组输入振幅切片如公式 (\ref{eq:FRIRNN_alpha}) 所示。
+    }{Use $\boldsymbol{\magn}$ to denote a set of input amplitude slices as shown in Eq.~(\ref{eq:FRIRNN_alpha}).%<CNHash>727BF543</CNHash>
+}
+
+          \begin{equation}
+              \boldsymbol{\magn} = [\magn_1, \magn_2, \cdots, \magn_\midx, \cdots, \magn_\mmax]
+              \label{eq:FRIRNN_alpha}
+          \end{equation}
+
+    \CNEN{
+          其中 $\mmax$ 是幅度切片的数量，对每个振幅 $\magn_\midx$ 根据权重转换公式(\ref{eq:W_rec})，将其变换为对应的FRIRNN核权重 $\relative{\mathbf{W}_{\text{rec},j}}, \relative{\mathbf{W}_{\text{in},j}}$。
+    }{
+          where $\mmax$ denotes the number of magnitude slices. For each amplitude $\magn_\midx$, the weight transformation formula in Eq.~(\ref{eq:W_rec}) converts it into corresponding FRIRNN kernel weights $\relative{\mathbf{W}_{\text{rec},j}}$ and $\relative{\mathbf{W}_{\text{in},j}}$.
+%<CNHash>22D6DD59</CNHash>
+}
+
+
+    \CNEN{
+          在块对角矩阵FRIRNN核阵列层中，总的隐藏状态向量 $\harray[n]$ 是所有切片对应隐藏状态的拼接形式，如公式(\ref{eq:h_array})所示。
+    }{In the block diagonal matrix FRIRNN kernel array layer, the total hidden state vector $\harray[n]$ is the concatenation of the hidden states from all slices, as shown in Eq.~(\ref{eq:h_array}).%<CNHash>15D6EF2A</CNHash>
+}
+
+          \begin{equation}
+              \harray[n] = \begin{bmatrix}
+                  \mathbf{h}_1[n] & \mathbf{h}_\midx[n] & \cdots & \mathbf{h}_\mmax[n] 
+              \end{bmatrix}^\top \in \mathbb{R}^{4\mmax \times 1}
+              \label{eq:h_array}
+          \end{equation}
+
+          \CNEN{
+          其中 $\mathbf{h}_\midx[n]$ 是第 $j$ 个切片对应的隐藏状态向量，$\harray[n]$ 的状态更新方程可表示为:
+          }{
+          where $\mathbf{h}_\midx[n]$ is the hidden state vector corresponding to the $j$-th slice, and the state update equation of $\harray[n]$ can be expressed as:
+%<CNHash>B6D65953</CNHash>
+}
+
+          \begin{equation}
+              \harray[n+1] = \Wrecarray \harray[n] + \Winarray x[n],
+              \label{eq:h_array_update}
+          \end{equation}
+
+          \CNEN{
+          其中:
+          $\Wrecarray \in \mathbb{R}^{4\mmax \times 4\mmax}$ 是块对角递归权重矩阵，如公式 (\ref{eq:W_rec_array}) 所示。
+          }{where: $\Wrecarray \in \mathbb{R}^{4\mmax \times 4\mmax}$ is the block diagonal recursive weight matrix, as shown in Eq.~(\ref{eq:W_rec_array}).%<CNHash>2887B697</CNHash>
+}
+          \begin{equation}
+              \Wrecarray = \begin{bmatrix}
+                  \relative{\mathbf{W}_{\text{rec},1}} & \mathbf{0}                               & \cdots & \mathbf{0}                               \\
+                  \mathbf{0}                           & \relative{\mathbf{W}_{\text{rec},\midx}} & \cdots & \mathbf{0}                               \\
+                  \vdots                               & \vdots                                   & \ddots & \vdots                                   \\
+                  \mathbf{0}                           & \mathbf{0}                               & \cdots & \relative{\mathbf{W}_{\text{rec},\mmax}}
+              \end{bmatrix}
+              \label{eq:W_rec_array}
+          \end{equation}
+
+          \CNEN{
+          其中每个 $\relative{\mathbf{W}_{\text{rec},j}} \in \mathbb{R}^{4 \times 4}$ 是第 $j$ 个幅度切片对应的递归权重矩阵。
+          }{
+          where each $\relative{\mathbf{W}_{\text{rec},j}} \in \mathbb{R}^{4 \times 4}$ is the recurrent weight matrix corresponding to the $j$-th amplitude slice.
+%<CNHash>10B319BC</CNHash>
+}
+
+          \CNEN{
+          $\Winarray \in \mathbb{R}^{4\mmax \times 1}$ 是输入权重向量的堆叠形式，如公式 (\ref{eq:W_in_array}) 所示。
+          }{$\Winarray \in \mathbb{R}^{4\mmax \times 1}$ is the stacked form of the input weight vector, as shown in Eq.~(\ref{eq:W_in_array}).%<CNHash>67FB0929</CNHash>
+}
+          \begin{equation}
+              \Winarray = \begin{bmatrix}
+                  \relative{\mathbf{W}_{\text{in},1}}    & 
+                  \relative{\mathbf{W}_{\text{in},\midx}} &
+                  \vdots                                 & 
+                  \relative{\mathbf{W}_{\text{in},\mmax}}
+              \end{bmatrix} ^\top
+              \label{eq:W_in_array}
+          \end{equation}
+
+          \CNEN{
+          其中每个 $\relative{\mathbf{W}_{\text{in},j}} \in \mathbb{R}^{4 \times 1}$ 是第 $j$ 个幅度切片对应的输入权重矩阵。
+          多切片FRIRNN核阵列层的输出向量如公式 (\ref{eq:y_array}) 所示。
+          }{
+          where each $\relative{\mathbf{W}_{\text{in},j}} \in \mathbb{R}^{4 \times 1}$ is the input weight matrix corresponding to the $j$-th amplitude slice.
+          The output vector of the multi-slice FRIRNN kernel array layer is shown in Eq.~(\ref{eq:y_array}).
+%<CNHash>89D702EA</CNHash>
+}
+
+          \begin{equation}
+             \mathrm{FRIRNN}(x[n]) = \mathbf{y}[n] = \Woutarray \harray[n] = \begin{bmatrix}
+                  y_1[n] \\ y_\midx[n] \\ \vdots \\ y_\mmax[n]
+              \end{bmatrix}
+              \label{eq:y_array}
+          \end{equation}
+
+          \CNEN{
+          其中 $\Woutarray \in \mathbb{R}^{\mmax \times 4\mmax}$ 是输出权重矩阵，具体表示为公式 (\ref{eq:W_out_array})。
+          }{where $\Woutarray \in \mathbb{R}^{\mmax \times 4\mmax}$ is the output weight matrix, as shown in Eq.~(\ref{eq:W_out_array}).%<CNHash>84B5AB1E</CNHash>
+}
+
+          \begin{equation}
+              \Woutarray = \begin{bmatrix}
+                  \relative{\mathbf{W}_{\text{out},1}} & \mathbf{0}                               & \cdots & \mathbf{0}                               \\
+                  \mathbf{0}                           & \relative{\mathbf{W}_{\text{out},\midx}} & \cdots & \mathbf{0}                               \\
+                  \vdots                               & \vdots                                   & \ddots & \vdots                                   \\
+                  \mathbf{0}                           & \mathbf{0}                               & \cdots & \relative{\mathbf{W}_{\text{out},\mmax}}
+              \end{bmatrix}
+              \label{eq:W_out_array}
+          \end{equation}
+
+
+          \CNEN{
+          其中每个 $\relative{\mathbf{W}_{\text{out},j}} \in \mathbb{R}^{1 \times 4}$ 是第 $j$ 个幅度切片对应的输出权重矩阵。
+          }{
+          where each $\relative{\mathbf{W}_{\text{out},j}} \in \mathbb{R}^{1 \times 4}$ is the output weight matrix corresponding to the $j$-th amplitude slice.
+%<CNHash>3A302C13</CNHash>
+}
+
+
+\CNEN{
+    最终，FRIRNN 与 PIKAN 串联构成了 FRIKAN 模型，用于 MET 系统的非线性频率响应补偿，如式 (\ref{eq:FRIKAN}) 所示。
+}{
+    Finally, the FRIRNN and PIKAN are connected in series to form the FRIKAN model for nonlinear compensation of the MET system's frequency response, as shown in Eq.~(\ref{eq:FRIKAN}).
+%<CNHash>8E9604E1</CNHash>
+}
+
+\begin{equation}
+    \text{FRIKAN}(x[n]) = \text{PIKAN} \circ \text{FRIRNN}(x[n])
+    \label{eq:FRIKAN}
+\end{equation}
+
+\subsection{Amplitude-Frequency Response MAE Loss Function}
+
+\CNEN{传统的平均绝对误差（MAE）与均方误差（MSE）在回归任务中应用广泛，但它们主要度量点对点的误差累积，对高频随机噪声通常过度敏感，在非线性系统建模中，更关注信号整体频率特性。因此，我们设计了幅频平均绝对误差（AFMAE），以在频域层面度量补偿输出与理想输出的差异。}{Conventional mean absolute error (MAE) and mean squared error (MSE) are widely adopted in regression tasks, but they primarily measure point-to-point error accumulation and often exhibit excessive sensitivity to high-frequency random noise. For nonlinear system modeling, greater emphasis is placed on the overall frequency response of signals. Therefore, we design amplitude-frequency mean absolute error (AFMAE) to quantify the discrepancy between compensated output and ideal output in the frequency domain.%<CNHash>13CC4EF6</CNHash>
+}
+
+    \CNEN{
+          为了推导 AFMAE的表达式，先考察正弦波信号的能量—幅值关系。对于周期为 $T = \frac{2\pi}{\omega}$ 的正弦波 $A\sin(\omega t)$，其能量 $E$ 可表示为公式 (\ref{eq:ContinuousEnergy})。
+          }{
+          To derive the expression of AFMAE, we first examine the energy-amplitude relationship of sinusoidal signals. For a sine wave $A\sin(\omega t)$ with period $T = \frac{2\pi}{\omega}$, its energy $E$ can be expressed as Eq.~(\ref{eq:ContinuousEnergy}).
+%<CNHash>86D42B4A</CNHash>
+}
+
+          \begin{equation}
+              E = \int_{0}^{T} A^2 \sin^2(\omega t) \, dt = \frac{1}{2} A^2 \, T
+              \label{eq:ContinuousEnergy}
+          \end{equation}
+
+          \CNEN{
+          在离散情况下（采样频率为 $f_s$，采样点数为 $\pmax$，则 $T = \frac{N}{f_s}$），信号能量可近似为公式 (\ref{eq:DiscreteEnergy})。
+          }{
+          In the discrete case (sampling frequency $f_s$, number of samples $\pmax$, thus $T = \frac{N}{f_s}$), the signal energy can be approximated by Eq.~(\ref{eq:DiscreteEnergy}).
+%<CNHash>4A863DE8</CNHash>
+}
+
+          \begin{equation}
+              E \approx \frac{1}{f_s} \sum_{\pidx=0}^{\pmax-1} \bigl(y[n]\bigr)^2
+              \label{eq:DiscreteEnergy}
+          \end{equation}
+
+          \CNEN{
+          据此，输出信号的幅值可写为 $A \approx \sqrt{\frac{2E}{T}}$。对于输入振幅为 $\magn_\midx$ 的正弦信号在频率 $f_\fidx$ 下的输出，定义其幅频响应为公式 (\ref{eq:HatH})。
+          }{Accordingly, the amplitude of the output signal can be written as $A \approx \sqrt{\frac{2E}{T}}$. For a sinusoidal input with amplitude $\magn_\midx$ at frequency $f_\fidx$, its frequency response is defined by Eq.~(\ref{eq:HatH}).%<CNHash>36B61396</CNHash>
+}
+
+          \begin{equation}
+              \begin{aligned}
+                  \left|\pred{H}(f_\fidx,\magn_\midx)\right|
+                   & = \frac{\pred{A}(f_\fidx,\magn_\midx)}{\magn_\midx}
+                  = \sqrt{\frac{2}{T}} \frac{\sqrt{\hat{E}(f_\fidx,\magn_\midx)}}{\magn_\midx} \\
+                   & = \sqrt{\frac{2}{T f_s}}
+                  \frac{\sqrt{\sum_{\pidx=0}^{\pmax-1} \hat{y}_{\fidx,\midx}[n]^2}}{\magn_\midx}
+              \end{aligned}
+              \label{eq:HatH}
+          \end{equation}
+
+        \CNEN{
+          其中$\pred{H}$ 为网络预测的频率响应，$\pred{A}$ 与 $\hat{E}$ 分别是网络预测得到的输出幅值与离散能量估计，$\hat{y}_{\fidx,\midx}[n]$ 为在输入振幅 $\magn_\midx$ 与频率 $f_\fidx$ 下得到的网络预测采样。
+        }{
+where $\pred{H}$ is the network-predicted frequency response, $\pred{A}$ and $\hat{E}$ are the network-predicted output amplitude and discrete energy estimate, respectively, and $\hat{y}_{\fidx,\midx}[n]$ is the network-predicted sample under input amplitude $\magn_\midx$ and frequency $f_\fidx$.
+%<CNHash>FB3D81AA</CNHash>
+}
+
+        \CNEN{
+          为了量化模型预测输出与真实输出的频率响应差异，对真实的频率响应 $H(f_\fidx,\magn_\midx)$ 与网络预测的频率响应 $\pred{H}(f_\fidx,\magn_\midx)$ 取对数做差，得到公式 (\ref{eq:LogH})。
+        }{To quantify the frequency response difference between the model prediction and the true output, the logarithmic difference between the true frequency response $H(f_\fidx,\magn_\midx)$ and the network-predicted frequency response $\pred{H}(f_\fidx,\magn_\midx)$ is calculated, yielding Eq.~(\ref{eq:LogH}).%<CNHash>453D1577</CNHash>
+}
+
+
+          \begin{equation}
+              \begin{aligned}
+                    & \log  \left|H(f_\fidx,\magn_\midx)\right|  - \log\left|\pred{H}(f_\fidx, \magn_\midx)\right|                                            \\
+                  = & \log \sqrt{\frac{\sum_{\pidx=0}^{\pmax-1}y_{\fidx,\midx}[n]^2}{{\sum_{\pidx=0}^{\pmax-1}\hat{y}_{\fidx,\midx}[n]^2}}}                   \\
+                  = & \frac{1}{2} \left( \log \sum_{\pidx=0}^{\pmax-1}y_{\fidx,\midx}[n]^2 -  \log \sum_{\pidx=0}^{\pmax-1}\hat{y}_{\fidx,\midx}[n]^2 \right)
+              \end{aligned}
+              \label{eq:LogH}
+          \end{equation}
+
+          \CNEN{
+          其中，$H$ 为真实的频率响应，取对数可视为在对数幅度轴（dB 标度）上度量输出差异，从而保证幅值偏差在高于真实值与低于真实值时拥有对称性，避免预测值大于真实值和预测值小于真实值在损失上的不均衡，同时抵消了对 $\magn_\midx$ 的计算需求。
+          }{
+          where $H$ denotes the true frequency response. Taking the logarithm ensures symmetric measurement of output differences on the logarithmic amplitude axis (dB scale), thereby balancing the loss when the predicted value exceeds or falls below the true value, while eliminating the need for $\magn_\midx$ computation.
+%<CNHash>9488EBCC</CNHash>
+}
+
+          \CNEN{
+          在式(\ref{eq:LogH})基础上我们简化了系数，随后定义了 $\mathcal{L}_{\text{AFMAE}}$ 为公式 (\ref{eq:AFMAE_loss2})。
+          }{
+          Based on Eq.~(\ref{eq:LogH}), we simplified the coefficients and subsequently defined $\mathcal{L}_{\text{AFMAE}}$ as Eq.~(\ref{eq:AFMAE_loss2}).
+%<CNHash>7435E9AE</CNHash>
+}
+
+          \begin{equation}
+              \begin{aligned}
+                  \mathcal{L}_{\text{AFMAE}} & =  \frac{1}{\fmax\mmax} \sum_{\fidx=1}^{\fmax} \sum_{\midx=1}^{\mmax}
+                  \left|
+                  \log \sum_{\pidx=0}^{\pmax-1}y_{\fidx,\midx}[n]^2
+                  - \log \sum_{\pidx=0}^{\pmax-1}\hat{y}_{\fidx,\midx}[n]^2
+                  \right|
+              \end{aligned}
+              \label{eq:AFMAE_loss2}
+          \end{equation}
+
+
+\CNEN{其中$\fmax$是参与计算的频率的样本数量，$\mmax$是参与计算的振幅的样本数量。这种计算方法只需做一次能量计算，高效反映系统的幅频特性。}{where $\fmax$ is the sample count of frequencies involved in computation, and $\mmax$ is the sample count of magnitudes. This method requires only a single energy calculation, efficiently characterizing the amplitude-frequency characteristics of the system.%<CNHash>BCFD3559</CNHash>
+}
+\CNEN{
+    在实际训练中 MAE 和 AFMAE 加权组合取得了较好的效果，我们在总体损失中添加一个加权超参数 $\wMAE$，如公式(\ref{eq:TotalLoss})所示。}{
+In practical training, the weighted combination of MAE and AFMAE achieves optimal results. We introduce a weighting hyperparameter $\wMAE$ into the total loss function as shown in Eq.~(\ref{eq:TotalLoss}).%<CNHash>E81C1750</CNHash>
+}
+\begin{equation}
+    \mathcal{L}_{\text{total}}
+    = (1-\wMAE)\,\mathcal{L}_{\text{MAE}}
+    + \wMAE\,\mathcal{L}_{\text{AFMAE}}
+    \label{eq:TotalLoss}
+\end{equation}
+
+
+
+\section{\CNEN{实验与结果}{Experiments and Results%<CNHash>62C309C4</CNHash>
+}}
+
+\subsection{Experimental Setup and Data Acquisition}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.48\textwidth]{image_pdf/5.Calibration_table_test.pdf}
+    \caption{\CNEN{实验测试环境实物图。}{Physical diagram of the experimental test setup.%<CNHash>0000DD33</CNHash>
+}}
+    \label{fig:Calibration_table_test}
+\end{figure}
+
+\CNEN{如图~\ref{fig:Calibration_table_test} 所示，振动台可生成不同振幅与频率的振动信号，MET 将其转换为电信号后由数据采集系统记录。表~\ref{tab:experimental_setup} 列出了综合实验设置。实验对象为型号 MTSS-1001\cite{RSensors2024} 的反应腔体，不带力闭环。}{As shown in Fig.~\ref{fig:Calibration_table_test}, the vibration table generates vibration signals with varying magnitude and frequency, which are converted into electrical signals by the MET and recorded by the data acquisition system. Tab.~\ref{tab:experimental_setup} summarizes the experimental setup. The test specimen is an MTSS-1001\cite{RSensors2024} electrochemical chamber without force feedback.%<CNHash>1254FD0A</CNHash>
+}
+
+
+\begin{table}[htbp]
+    \centering
+    \caption{Experimental Setup}
+    \label{tab:experimental_setup}
+    \begin{tabular}{ll}
+        \hline\hline
+        \multicolumn{2}{l}{\textbf{Experimental Setup}}                                                                              \\
+        \hline
+        Vibration Table Distortion Rate       & $\leq 1\%$                                                                           \\
+        Data Acquisition Resolution           & 16-bit                                                                               \\
+        Laboratory Environment Temperature    & $25^\circ\text{C}$                                                                   \\
+        Test Frequency Range                  & \valFreqScanStart\,Hz$\sim$\valFreqScanEnd\,Hz                                       \\
+        Amplitude Range                       & \valMagScanStart~$\text{mm}/ \text{s}^2\sim$~\valMagScanEnd  $\text{mm}/ \text{s}^2$ \\
+        Sampling Frequency                    & 2000\,Hz                                                                             \\
+        Number of Frequency Sequences $\fmax$ & \valFreqScanPoints                                                                   \\
+        Number of Amplitude Sequences $\mmax$ & \valMagScanPoints                                                                    \\
+        Sampling Points per Sequence $\pmax$  & \valSequenceNum                                                                      \\
+        \hline\hline
+    \end{tabular}
+\end{table}
+
+
+\CNEN{为了评估 FRIKAN 的性能，我们选取了四种具有代表性的非线性补偿技术进行对比。首先是传统的 Wiener 模型，这是一种基于 Volterra 级数展开的方法，广泛应用于非线性系统建模。其次是两种改进的 RNN 模型：LSTM 和 GRU。LSTM（长短期记忆网络）通过引入独立的“记忆单元”和遗忘门机制，能够在捕捉长时间序列依赖方面表现优异；而 GRU（门控循环单元）在结构上更为简洁，它将遗忘门和输入门合并为更新门，计算效率更高。}{To evaluate the performance of FRIKAN, we compare it with four representative nonlinear compensation techniques. First is the conventional Wiener model, a Volterra series-based method widely used for nonlinear system modeling. Next are two improved RNN models: LSTM and GRU. LSTM (long short-term memory) excels in capturing long-term dependencies through independent memory cells and forget gates. GRU (gated recurrent unit) has a more compact structure by merging forget and input gates into update gates, achieving higher computational efficiency.%<CNHash>3EDAF973</CNHash>
+}
+\CNEN{最后是融合物理先验信息的数字预失真模型 RVTDCNN\cite{motaqiArtificialIntelligenceBasedPowerTemperature2022}，该方法通过实值时间延迟卷积网络，将温度、I/Q 信号以及高阶幂等关键物理量融入二维特征图，并在功放线性化中取得了显著成效。需要指出，由于 MET 难以写成显式偏微分方程，因此无法直接采用标准的 PDE 型 PINNs，因此选择具备物理先验融合思路的 RVTDCNN 作为广义物理启发方法的对照模型。}{
+Finally, the physics-informed digital predistortion model RVTDCNN\cite{motaqiArtificialIntelligenceBasedPowerTemperature2022} incorporates physical priors by mapping temperature, I/Q signals, and high-order power terms into 2D feature maps via real-valued time-delay convolutional networks, demonstrating notable efficacy in PA linearization. Notably, since the MET cannot be expressed as explicit PDEs, standard PDE-based PINNs are inapplicable. Thus, RVTDCNN with physics-prior fusion is selected as the comparative model for generalized physics-inspired methods.%<CNHash>1017F63D</CNHash>
+}
+
+\subsection{Dataset and Training}
+
+\CNEN{
+    数据集可以用一个 $\fmax \times \mmax$ 的二维矩阵 $\dataset$ 表示，如公式 (\eqref{eq:dataset}) 所示，其中 $\fidx=1,\dots,\fmax$ 为频率$f_\fidx$索引，$\midx=1,\dots,\mmax$ 为振幅$\magn_\midx$索引，而 $\pidx = 0,\dots,\pmax-1$ 为输出信号序列的采样点索引。}{
+The dataset can be represented by a $\fmax \times \mmax$ matrix $\dataset$ as shown in Eq.~(\ref{eq:dataset}), where $\fidx=1,\dots,\fmax$ denotes the frequency index $f_\fidx$, $\midx=1,\dots,\mmax$ represents the magnitude index $\magn_\midx$, and $\pidx = 0,\dots,\pmax-1$ indicates the sampling point index of the output signal sequence.%<CNHash>D2B84981</CNHash>
+}
+
+\begin{equation}
+    \dataset = \left\{ \left(\exam{\yseq}_{\fidx,\midx}, \ideal{\yseq}_{\fidx,\midx} \right) \ \middle| \ \fidx = 1, \dots, \fmax; \midx = 1, \dots, \mmax \right\}
+    \label{eq:dataset}
+\end{equation}
+
+\begin{equation}
+    \left\{
+    \begin{aligned}
+        \exam{\yseq}_{\fidx,\midx}  & =
+        \bigl[
+            \,\exam{y}_{\fidx,\midx}[0],\;
+            \exam{y}_{\fidx,\midx}[1],\;
+            \ldots,\;
+            \exam{y}_{\fidx,\midx}[\pmax-1]
+        \bigr]                          \\
+        \ideal{\yseq}_{\fidx,\midx} & =
+        \bigl[
+            \,\ideal{y}_{\fidx,\midx}[0],\;
+            \ideal{y}_{\fidx,\midx}[1],\;
+            \ldots,\;
+            \ideal{y}_{\fidx,\midx}[\pmax-1]
+            \bigr]
+    \end{aligned}
+    \right.
+    \label{eq:dataset_element}
+\end{equation}
+
+\CNEN{在数据集$\dataset$中，每个元素 $\bigl(\exam{\yseq}_{\fidx,\midx}, \ideal{\yseq}_{\fidx,\midx}\bigr)$ 是一对信号序列：
+    \(\exam{\yseq}_{\fidx,\midx}\) 表示测量的 MET 补偿后输出信号序列，\(\ideal{\yseq}_{\fidx,\midx}\) 表示在同频率与振幅下的理想线性系统输出信号，每个序列长度为 $\pmax$。}{In the dataset $\dataset$, each element $\bigl(\exam{\yseq}_{\fidx,\midx}, \ideal{\yseq}_{\fidx,\midx}\bigr)$ represents a pair of signal sequences: 
+    $\exam{\yseq}_{\fidx,\midx}$ denotes the measured MET compensated output sequence, while $\ideal{\yseq}_{\fidx,\midx}$ corresponds to the ideal linear system output at identical frequency and magnitude. Each sequence has a length of $\pmax$.%<CNHash>9B6CA6AC</CNHash>
+}
+
+\CNEN{数据在训练前进行归一化（范围为$-1 \sim 1$），将每个时间序列（长度 $\pmax$）分割为长度为 $\pmax/2$ 的子序列，随机抽取训练集与测试集。模型基于 TensorFlow 训练，使用Adam优化器，批量大小为260000，训练轮数为\valEpochs~。采用结合余弦退火、指数衰减与周期性重启的学习率策略如公式~（\ref{eq:learning_rate}），其中初始最大学习率$\lr_{\max}$为\valInitLR，退火周期$\lrperiod_{\text{cos}}$为100，衰减因子$\lrdecay$为0.9，每逢$\lrperiod_{\text{restart}}$（5000）的整数倍Epoch重置学习率。损失函数权重系数$\wMAE$设置为0.2。}{The data is normalized to the range $-1 \sim 1$ before training. Each time series (length $\pmax$) is sliced into subsequences of length $\pmax/2$, with random sampling for the training and test sets. The model is trained on TensorFlow using the Adam optimizer, with a batch size of 260000 and \valEpochs~training epochs. A learning rate strategy combining cosine annealing, exponential decay, and periodic restart is employed as in Eq.~(\ref{eq:learning_rate}), where the initial maximum learning rate $\lr_{\max}$ is \valInitLR, the annealing period $\lrperiod_{\text{cos}}$ is 100, the decay factor $\lrdecay$ is 0.9, and the learning rate resets every $\lrperiod_{\text{restart}}$ (5000) epochs. The loss function weight coefficient $\wMAE$ is set to 0.2.%<CNHash>61191535</CNHash>
+}
+
+\begin{equation}
+    \lr(\lridx) =
+    \lr_{\max} \cdot \frac{1}{2}\left[1 + \cos\left(\frac{2\pi (\lridx \bmod \lrperiod_{\text{cos}})}{\lrperiod_{\text{cos}}}\right)\right]
+    \cdot \lrdecay^{\lfloor \lridx/\lrperiod_{\text{cos}} \rfloor},
+    \label{eq:learning_rate}
+\end{equation}
+
+\subsection{Nonlinear Compensation Effect of FRIKAN on MET}
+
+% \begin{figure*}[htbp]
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=1.0\textwidth]{image_pdf/32.Combined_18_and_23.pdf}
+    \caption{\CNEN{FRIKAN 对频率响应漂移抑制的效果。(a) FRIKAN 模型在不同振幅下，补偿前后的频率响应曲线对比。(b)灵敏度(@100Hz)的补偿前后对比。(c)固有频率 $\fn$ 的补偿前后对比。(d)FRIKAN的对输入-输出曲线的改善效果。}{Effectiveness of FRIKAN in suppressing frequency drift. (a) Comparison of frequency response curves before and after compensation by the FRIKAN model at different magnitudes. (b) Sensitivity (@100Hz) comparison before and after compensation. (c) Natural frequency $\fn$ comparison before and after compensation. (d) Improvement of input-output curves by FRIKAN.%<CNHash>3C160F7F</CNHash>
+}}
+    \label{fig:frequency_response_comparison}
+\end{figure*}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.48\textwidth]{image_pdf/37.predict_features.pdf}
+    \caption{\CNEN{在不同频率与振幅条件下 FRIKAN 补偿器的时间域输出。}{Time-domain outputs of the FRIKAN compensator under different frequency and magnitude conditions.%<CNHash>421283CC</CNHash>
+}}
+    \label{fig:predict_features}
+\end{figure}
+
+
+
+
+
+
+\CNEN{FRIKAN 的超参数包括 FRIRNN 层注入的相对频率响应数量 $h$ 和 PIKAN 的层数 $l$ 及单元数量 $u$，B-spline 激活函数的阶数，以及 B-spline 的网格数量。这些超参数的选择基于在真实数据上的系统性参数扫描，最终确定网格数量为 8、B-spline 阶数为 2 的配置。此外，我们设计了三种不同复杂度的 FRIKAN 模型，分别为 FRIKANh6u6l3、FRIKANh6u6l4 和 FRIKANh8u6l6，以适应不同的性能需求和资源约束。}{The hyperparameters of FRIKAN include the relative frequency response injection quantity $h$ of FRIRNN layer, the layer count $l$ and unit number $u$ of PIKAN, the order of B-spline activation function, and the grid count of B-spline. These hyperparameters were determined through systematic parameter scanning on real-world data, ultimately selecting a configuration with grid count 8 and B-spline order 2. Additionally, we designed three FRIKAN variants with varying complexities: FRIKANh6u6l3, FRIKANh6u6l4, and FRIKANh8u6l6, to accommodate different performance requirements and resource constraints.%<CNHash>6F26974C</CNHash>
+}
+
+\CNEN{FRIRNN的频率响应注入机制使网络具备了对频率响应非线性的先验知识。
+图~\ref{fig:frequency_response_comparison}(c)显示这种机制显著改善了\valFnDriftSuppression 的固有频率漂移。幅频损失函数AFMAE关注频域整体特性，这在图~\ref{fig:frequency_response_comparison}(a)和(b)中体现为补偿后频响曲线的集中性和\valSensitivityDriftSuppression 的灵敏度漂移抑制，超越了力反馈方案\cite{li_electrochemical_2017}的\valSensitivityDriftSuppressionLI。此外，为便于对比不同频率与灵敏度条件下的输入-输出特性，本研究对测试数据进行\textbf{灵敏度归一化}处理，将理想线性输入-输出特性归一化为了斜率为1的直线。如图~\ref{fig:frequency_response_comparison}(d)可实现高达\valNonlinearSuppression 的输入-输出非线性抑制，超越了传统力反馈方案\cite{WOS:000408118700046} 的\valNonlinearSuppressionSUN。为验证FRIKAN在时域的实际表现，图~\ref{fig:predict_features}展示了在\valFreqScanStart~Hz 到 \valFreqScanEnd~Hz 频率范围内，具有代表性的频率与振幅条件下的时域波形。}{The frequency response injection mechanism of FRIRNN equips the network with prior knowledge of frequency response nonlinearity. Fig.~\ref{fig:frequency_response_comparison}(c) demonstrates this mechanism significantly improves the natural frequency drift suppression to \valFnDriftSuppression. The amplitude-frequency loss function AFMAE focuses on holistic frequency-domain characteristics, which manifests as concentrated post-compensation frequency response curves in Fig.~\ref{fig:frequency_response_comparison}(a)-(b) and sensitivity drift suppression of \valSensitivityDriftSuppression, outperforming the \valSensitivityDriftSuppressionLI achieved by force feedback solutions \cite{li_electrochemical_2017}. For standardized comparison under varying frequency and sensitivity conditions, test data underwent \textbf{sensitivity normalization}, converting ideal linear input-output characteristics to unity-slope lines. As shown in Fig.~\ref{fig:frequency_response_comparison}(d), input-output nonlinearity suppression reaches \valNonlinearSuppression, surpassing the \valNonlinearSuppressionSUN of conventional force feedback \cite{WOS:000408118700046}. To validate FRIKAN's time-domain performance, Fig.~\ref{fig:predict_features} presents representative waveforms across frequencies from \valFreqScanStart~Hz to \valFreqScanEnd~Hz with varying magnitudes.%<CNHash>FFEEA554</CNHash>
+}
+
+
+
+\subsection{FRIKAN parameter efficiency and real-time feasibility}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{image_pdf/31.Combined_27_and_30.pdf}
+    \caption{\CNEN{(a) 各个模型的训练集 Loss 和验证集 Loss。(b) 验证集 Loss 与学习率。}{(a) Training loss and validation loss across different models. (b) Validation loss versus learning rate.%<CNHash>8617EC42</CNHash>
+}}
+    \label{fig:validation_loss_learning_rate_cn}
+\end{figure*}
+
+\begin{table}[htbp]
+    \centering
+    \caption{Model Performance Comparison, IONS: Input-Output Nonlinearity Suppression, SDS: Sensitivity Drift Suppression, NFDS: Natural Frequency Drift Suppression}
+    \label{tab:models}
+    \begin{tabular}{ccccc}
+        \hline\hline
+        \textbf{Method}                                                      & \textbf{IONS}                                      & \textbf{SDS }                                                & \textbf{NFDS} & \textbf{Parameters} \\ \hline
+        % Force-Feedback                                                       & \valNonlinearSuppressionSUN \cite{WOS:000408118700046} & \valSensitivityDriftSuppressionLI \cite{li_electrochemical_2017} & -                  & -                   \\
+        WIENER                                                               & 46.29\%                                                & 55.54\%                                                          & -18.37\%           & -                   \\
+        GRNu16                                                               & 86.70\%                                                & 76.47\%                                                          & 91.33\%            & 1,201               \\
+        \textbf{FRIKANh6u6l3}                                                & 95.34\%                                                & 92.59\%                                                          & 95.67\%            & 1,303               \\
+        LSTMu16                                                              & 89.74\%                                                & 84.32\%                                                          & 92.95\%            & 1,441               \\
+        \hdashline % 第一条虚线
+        \textbf{FRIKANh6u6l4}                                                & \textbf{95.41\%}                                       & \textbf{93.95\%}                                                 & 96.45\%            & 1,669               \\ 
+        GRNu22                                                               & 78.96\%                                                & 84.57\%                                                          & 91.06\%            & 2,179               \\
+        \hdashline % 第二条虚线
+        \textbf{FRIKANh8u6l6}                                                & 94.30\%                                                & 93.14\%                                                          & \textbf{96.59\%}   & 2,569               \\ 
+        RVTDCNN \cite{motaqiArtificialIntelligenceBasedPowerTemperature2022} & 81.77\%                                                & 77.58\%                                                          & 93.82\%            & 2,595               \\
+        LSTMu22                                                              & 72.20\%                                                & 85.40\%                                                          & 91.51\%            & 2,641               \\ \hline\hline
+    \end{tabular}
+\end{table}
+
+\begin{figure*}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{image_pdf/33.Combined_29_and_28.pdf}
+    \caption{\CNEN{(a, b)灵敏度及固有频率补偿分布 (c)1000点推理耗时对比 (d)LUT精度与存储关系}{(a, b) Sensitivity and natural frequency compensation distribution (c) Inference latency comparison for 1000 points (d) LUT accuracy versus memory relationship%<CNHash>F71575DD</CNHash>
+}}
+    \label{fig:linearity_Sn_fn_boxplots}
+\end{figure*}
+
+\CNEN{图~\ref{fig:validation_loss_learning_rate_cn}(a) 显示，在相近参数量下 FRIKAN 的验证损失低于 GRU 和 LSTM。如表~\ref{tab:models}所示，三个关键指标即输入输出非线性误差抑制(IONS) (95.34\% vs 86.70\%)，灵敏度漂移抑制(SDS) (92.59\% vs 76.47\%) 和固有频率漂移抑制(NFDS) (95.67\% vs 91.33\%) 均有显著提升。RVTDCNN 在 NFDS 指标表现较好，但在 IONS 和 SDS 的效果低于 FRIKAN。PIKAN引入的物理约束增强了模型的功能泛化能力，从图~\ref{fig:validation_loss_learning_rate_cn}(b)可见FRIKAN抑制了LSTM模型的过拟合现象。图~\ref{fig:linearity_Sn_fn_boxplots}(a) 表明 FRIKAN 显著收敛灵敏度分布区间，改善程度优于其他模型。图~\ref{fig:linearity_Sn_fn_boxplots}(b) 显示 FRIKAN 对固有频率$\fn$的补偿效果最佳，箱型与须线收敛程度最大。}{Fig.~\ref{fig:validation_loss_learning_rate_cn}(a) shows that FRIKAN achieves lower validation loss than GRU and LSTM under comparable parameter counts. As shown in Tab.~\ref{tab:models}, three key metrics demonstrate significant improvements: input-output nonlinearity suppression (IONS) (95.34\% vs 86.70\%), sensitivity drift suppression (SDS) (92.59\% vs 76.47\%), and natural frequency drift suppression (NFDS) (95.67\% vs 91.33\%). RVTDCNN performs well on NFDS but underperforms FRIKAN in IONS and SDS. The physics constraint introduced by PIKAN enhances model generalization, with Fig.~\ref{fig:validation_loss_learning_rate_cn}(b) showing FRIKAN's suppression of LSTM's overfitting. Fig.~\ref{fig:linearity_Sn_fn_boxplots}(a) indicates FRIKAN's superior convergence in sensitivity distribution compared to other models. Fig.~\ref{fig:linearity_Sn_fn_boxplots}(b) demonstrates FRIKAN's optimal compensation for natural frequency $\fn$, exhibiting maximal box-and-whisker convergence.%<CNHash>38B0045B</CNHash>
+}
+
+\CNEN{我们进一步评估了 FRIKAN 在实时传感器应用的可行性，在 STM32F405RG 微控制器上的实测数据显示FRIKAN 未加速推理耗时 2.805 秒，引入 800 点 LUT 后降至 0.113 秒，优于 LSTM 的 0.347 秒（图~\ref{fig:linearity_Sn_fn_boxplots}(c)）。当 LUT 点数增加至 MAE <0.005 时，Flash 占用仍控制在 550 KB 以内（图~\ref{fig:linearity_Sn_fn_boxplots}(d)）。FRIKAN不仅抑制了非线性，在计算效率上优于传统模型，使其在资源受限的嵌入式环境中具备部署潜力。}{We further evaluate FRIKAN's real-time feasibility for sensor applications. Benchmarking on STM32F405RG shows FRIKAN's unaccelerated inference latency of 2.805~s, reduced to 0.113~s using an 800-point lookup table (LUT), outperforming LSTM's 0.347~s (Fig.~\ref{fig:linearity_Sn_fn_boxplots}(c)). When increasing LUT points to achieve MAE <0.005, Flash usage remains below 550~KB (Fig.~\ref{fig:linearity_Sn_fn_boxplots}(d)). FRIKAN not only suppresses nonlinearity but also surpasses conventional models in computational efficiency, demonstrating deployment potential in resource-constrained embedded platforms.%<CNHash>037CADD6</CNHash>
+}
+
+\section{Conclusion}
+
+\CNEN{本文通过融合频率响应物理先验与Kolmogorov-Arnold网络的结构优势，提出了FRIKAN非线性补偿框架，实现了三方面贡献：1) 物理-数据融合方面，将相对频率响应切片转化为RNN初始权重，搭建了频域专家知识与神经网络的桥梁；2) 网络结构方面，采用物理约束的可训练样条激活函数，直接学习传感器的校准曲线，使单个神经元具备更强的非线性建模能力；3) 损失函数设计方面，提出的 AFMAE 利用能量高效计算幅频差异，克服了传统MAE对高频噪声的过度敏感，实现频域特性的精确补偿}{This paper proposes the FRIKAN nonlinear compensation framework by integrating frequency response physical priors with the structural advantages of Kolmogorov-Arnold networks, achieving three contributions: 1) In physics-data fusion, slicing relative frequency responses into RNN initial weights bridges expert knowledge and neural networks in the frequency domain; 2) Architecturally, physics-constrained trainable spline activation functions directly learn sensor calibration curves, enhancing individual neurons' nonlinear modeling capability; 3) For loss function design, the proposed AFMAE efficiently computes amplitude-frequency differences using energy metrics, overcoming traditional MAE's oversensitivity to high-frequency noise and enabling precise frequency-domain compensation.%<CNHash>92F84880</CNHash>
+}
+
+\CNEN{实验结果表明，FRIKAN 模型在电化学检波器输入-输出曲线提升和频率响应漂移抑制方面优于传统方法，可以大幅改善电化学的非线性问题，推动电化学检波器在油气资源增储领域的规模化应用。同时，FRIKAN 具有低算力需求的优势，有望在嵌入式系统和大规模传感器设备中应用。}{Experimental results demonstrate that the FRIKAN model outperforms conventional methods in improving the input-output curve of electrochemical seismometers and suppressing frequency drift, significantly mitigating nonlinearity issues in electrochemical systems. This advancement promotes large-scale applications of electrochemical seismometers in oil/gas reservoir enhancement. Moreover, FRIKAN's low-compute requirement makes it promising for deployment on embedded platforms and large-scale sensor arrays.%<CNHash>1EE2B856</CNHash>
+}
+
+\CNEN{下一步的研究将会把FRIKAN集成到传感器内部，并开展大规模的多传感器野外实验，验证并进一步提升FRIKAN在地震成像中的非线性补偿效果。此外，环境因素（温度、湿度）也可能影响 MET 的非线性，多环境因素对FRIKAN补偿效果的影响以及对应的自适应补偿方法是未来的重要研究方向。
+}{Future research will integrate FRIKAN into the sensor interior and conduct large-scale multi-sensor field experiments to validate and further improve its nonlinear compensation performance in seismic imaging. Additionally, environmental factors (temperature, humidity) may affect the MET's nonlinearity. Investigating their impacts on FRIKAN's compensation efficacy and developing corresponding adaptive compensation methods remain critical future directions.%<CNHash>D833D57B</CNHash>
+}
+
+% \section*{Acknowledgment}
+% The preferred spelling of the word ``acknowledgment'' in American English is without an ``e'' after the ``g.'' Use the singular heading even if you have many acknowledgments. Avoid expressions such as ``One of us (S.B.A.) would like to thank ... .'' Instead, write ``F. A. Author thanks ... .'' In most cases, sponsor and financial support acknowledgments are placed in the unnumbered footnote on the first page, not here.
+
+\bibliographystyle{IEEEtran}
+\bibliography{nonlinear.bib}
+
+\vspace{-1cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/angli.png}}]
+{Ang Li} received the B.S. degree in instrumentation science and technology from Jilin University, China, in 2020, where he is currently pursuing the Ph.D. degree. His research interests include physics-informed neural networks for sensor signal processing, nonlinear compensation of geophysical instruments, embedded AI implementation for sensing systems, and electrochemical seismometer technology.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/hongyuanyang.jpg}}]
+{Hongyuan Yang} (Member, IEEE) received the Ph.D. degree in geophysical exploration and information technology from Jilin University, Changchun, China, in 2009. He was a Visiting Scholar with the University of Houston, Houston, TX, USA, from 2017 to 2018. He is currently a Professor with the College of Instrumentation and Electrical Engineering, Jilin University. His research interests include development of seismic exploration instrument, wireless seismic data acquisition, and seismic data processing.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/fanzheng.jpg}}]
+{Fan Zheng} received the Ph.D. degree in circuits and systems from Jilin University, Changchun, China, in 2008. He was a Visiting Scholar with Uppsala University, Uppsala, Sweden, from 2016 to 2017. He is currently an Associate Professor with the College of Instrumentation and Electrical Engineering, Jilin University. His research interests include development of seismic exploration instrument, wireless seismic data acquisition, and seismic data processing.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/huaizhuzhang.png}}]
+{Huaizhu Zhang} received the B.S. degree in Mechatronics Engineering in 1998 from Jilin University of Technology, and the Ph.D. degree in 2008 from Changchun Institute of Optics and Machinery, Chinese Academy of Sciences. He was a Visiting Scholar with the University of Houston, Houston, TX, USA, from 2018 to 2019. He is currently an Associate Professor with the College of Instrumentation and Electrical Engineering, Jilin University. His research interests include seismic instruments, data acquisition and signal processing.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/linhangzhang.jpg}}]
+{Linhang Zhang} received the Ph.D. degree in Earth exploration \& information technology from Jilin University, Changchun, China, in 2007. He was a Visiting Scholar with the University of Houston, Houston, TX, USA, from 2019 to 2020. He is currently an Associate Professor with the College of Instrumentation and Electrical Engineering, Jilin University. His research interests include development of seismic exploration instrument, wireless seismic data acquisition, and seismic data processing.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/xunqiantong.jpg}}]
+{Xunqian Tong} received the Ph.D. degree from Jilin University, China, in 2016. He was a cotutelle student in Macquarie University, Australia under the CSC sponsor from 2014 to 2016. He is currently an Associate Professor with the College of Instrumentation \& Electrical Engineering, Jilin University. His research interests include IOT protocol design and LPWAN performance analysis.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo-men.eps}}]
+{Can Liu} is currently pursuing the Ph.D. degree at Jilin University. He received the Master's degree in Instrument Science and Technology from North University of China in 2022. His research interests include sensor signal processing and nonlinear compensation techniques for geophysical instruments.
+\end{IEEEbiography}
+
+\vspace{-1.2cm}
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{photo/ruojinli.jpg}}]
+{Ruojin Li} received the B.S. degree in instrumentation science and technology from Jilin University, China, in 2024, where she is currently pursuing the Ph.D. degree. Her research interests include application of sensor signal processing, zero-phase correction of geophysical instruments ,and force feedback technology in seismic sensing systems.
+\end{IEEEbiography}
+
+\end{document}
+

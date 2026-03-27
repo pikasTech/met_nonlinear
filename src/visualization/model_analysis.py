@@ -1,6 +1,7 @@
 import os
 import json
 import re
+import math
 import matplotlib.pyplot as plt
 from core.data_processing import Dataset_COMP
 from core.freq_config_manager import freq_config_manager
@@ -8,6 +9,100 @@ from core.freq_config_manager import freq_config_manager
 from calibration_analyzer import exam_process, exam_class
 from calibration_analyzer.exam_class import TimeSeries, System
 import numpy as np
+
+
+def _compute_linearity_by_frequency(input_rms_by_freq, output_rms_origin_by_freq, output_rms_comped_by_freq, magnitudes, frequencies):
+    """按频点计算 R² 线性度（标准定义：1 - SS_res/SS_tot）。
+
+    正确计算：输出 RMS vs 输入 RMS
+    - x: input_rms_by_freq[i] - 第 i 个频率点在不同 sweep 下的输入 RMS
+    - y: output_rms_origin_by_freq[i] - 第 i 个频率点在不同 sweep 下的输出 RMS
+    - 理想线性：y = k*x，R² ≈ 1
+    - 非线性：R² < 1
+    """
+    results = []
+
+    for i, freq in enumerate(frequencies):
+        x = np.array(input_rms_by_freq[i], dtype=float)
+        y_origin = np.array(output_rms_origin_by_freq[i], dtype=float)
+        y_comped = np.array(output_rms_comped_by_freq[i], dtype=float)
+
+        r2_origin, details_origin = _calculate_standard_r2(x, y_origin)
+        r2_comped, details_comped = _calculate_standard_r2(x, y_comped)
+
+        improvement = r2_comped - r2_origin
+
+        results.append({
+            'frequency_hz': float(freq),
+            'magnitudes': [float(v) for v in magnitudes],
+            'input_rms': [float(v) for v in x],
+            'output_rms_origin': [float(v) for v in y_origin],
+            'output_rms_comped': [float(v) for v in y_comped],
+            'r_squared_origin': float(r2_origin),
+            'r_squared_comped': float(r2_comped),
+            'improvement': float(improvement),
+            'details_origin': details_origin,
+            'details_comped': details_comped,
+        })
+
+    return results
+
+
+def _calculate_standard_r2(x, y):
+    """计算标准 R²（决定系数）：R² = 1 - SS_res/SS_tot。
+    
+    使用最小二乘法拟合 y = a*x + b，然后计算拟合优度。
+    """
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+
+    n = len(x)
+    if n < 2:
+        return 0.0, {}
+
+    x_mean = np.mean(x)
+    y_mean = np.mean(y)
+
+    ss_tot = np.sum((y - y_mean) ** 2)
+    if ss_tot < 1e-12:
+        return 1.0, {'ss_tot': 0.0, 'ss_res': 0.0, 'r2': 1.0, 'slope': 0.0, 'intercept': 0.0}
+
+    sum_x = np.sum(x)
+    sum_y = np.sum(y)
+    sum_xy = np.sum(x * y)
+    sum_x2 = np.sum(x ** 2)
+
+    denominator = n * sum_x2 - sum_x ** 2
+    if abs(denominator) < 1e-12:
+        slope = 0.0
+        intercept = y_mean
+    else:
+        slope = (n * sum_xy - sum_x * sum_y) / denominator
+        intercept = (sum_y - slope * sum_x) / n
+
+    y_pred = slope * x + intercept
+    ss_res = np.sum((y - y_pred) ** 2)
+
+    r_squared = 1.0 - ss_res / ss_tot if ss_tot > 0 else 1.0
+
+    details = {
+        'n': int(n),
+        'x_mean': float(x_mean),
+        'y_mean': float(y_mean),
+        'sum_x': float(sum_x),
+        'sum_y': float(sum_y),
+        'sum_xy': float(sum_xy),
+        'sum_x2': float(sum_x2),
+        'denominator': float(denominator),
+        'slope': float(slope),
+        'intercept': float(intercept),
+        'y_pred': [float(v) for v in y_pred],
+        'ss_tot': float(ss_tot),
+        'ss_res': float(ss_res),
+        'r2': float(r_squared),
+    }
+
+    return float(r_squared), details
 
 
 def FR_for_comp_real_data(
@@ -25,6 +120,9 @@ def FR_for_comp_real_data(
 ):
     systems_origin_list = []
     systems_comped_list = []
+    input_rms_by_freq = []
+    output_rms_origin_by_freq = []
+    output_rms_comped_by_freq = []
 
     # reshape X_features from (magn_num, freq_num, points_num) to (seq_num=magn_num*freq_num, points_num, 1)
 
@@ -33,6 +131,26 @@ def FR_for_comp_real_data(
     print(f'X_features shape: {X_features.shape}')
     pre_features = model.predict(X_features, batch_size=10)
     pre_samples = dataset.reshape2sample(pre_features)
+
+    freq_num = dataset.inputs.shape[1]
+
+    for freq_i in range(freq_num):
+        input_rms_list = []
+        output_rms_origin_list = []
+        output_rms_comped_list = []
+        for sweep_i in range(dataset.magn_num):
+            input_signal = dataset.inputs[sweep_i, freq_i, :]
+            output_ori_signal = dataset.output_ori[sweep_i, freq_i, :]
+            output_cmp_signal = pre_samples[sweep_i, freq_i, :]
+            input_rms = float(np.sqrt(np.mean(input_signal ** 2)))
+            output_rms_origin = float(np.sqrt(np.mean(output_ori_signal ** 2)))
+            output_rms_comped = float(np.sqrt(np.mean(output_cmp_signal ** 2)))
+            input_rms_list.append(input_rms)
+            output_rms_origin_list.append(output_rms_origin)
+            output_rms_comped_list.append(output_rms_comped)
+        input_rms_by_freq.append(input_rms_list)
+        output_rms_origin_by_freq.append(output_rms_origin_list)
+        output_rms_comped_by_freq.append(output_rms_comped_list)
 
     if use_debug:
         plt.figure(figsize=(12, 8))
@@ -131,6 +249,29 @@ def FR_for_comp_real_data(
         output_path = os.path.join(output_folder, 'linear_response.json')
         with open(output_path, 'w') as json_file:
             json.dump(linear_response_data, json_file)
+
+        linearity_by_frequency = _compute_linearity_by_frequency(
+            input_rms_by_freq,
+            output_rms_origin_by_freq,
+            output_rms_comped_by_freq,
+            magnitudes,
+            f,
+        )
+        linearity_output_path = os.path.join(output_folder, 'linearity_by_frequency.json')
+        with open(linearity_output_path, 'w', encoding='utf-8') as json_file:
+            json.dump({'linearity_by_frequency': linearity_by_frequency}, json_file, indent=2, ensure_ascii=False)
+
+        print('Per-frequency R² linearity (markdown table):')
+        print('| Frequency (Hz) | Origin R² | Comped R² | Improvement |')
+        print('| :--- | ---: | ---: | ---: |')
+        for item in linearity_by_frequency:
+            print(
+                f"| {item['frequency_hz']:>9.1f} | "
+                f"{item['r_squared_origin']:>10.4f} | "
+                f"{item['r_squared_comped']:>10.4f} | "
+                f"{item['improvement']:>10.4f} |"
+            )
+        print(f'Linearity-by-frequency results saved to: {linearity_output_path}')
 
         # 创建颜色映射
         color_map = plt.cm.get_cmap("tab20", len(f))  # 使用 20 种不同颜色
