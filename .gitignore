@@ -49,3 +49,4 @@ workspace/
 .rag_storage/
 cache/
 src/inference/results/
+.playwright-cli
