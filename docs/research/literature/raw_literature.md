@@ -1507,4 +1507,128 @@
 
 ---
 
+## STEP1 Round71 新增文献 (2026-03-29)
+
+### MEASUREMENT期刊传感器标定/补偿新发现（待核实）
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Chen, Wang | 2026 | A DE-LOESS and LSTM-Transformer based model for temperature compensation of MEMS accelerometers | 10.1016/j.measurement.2026.120823 | P2 | 高 | 新增待核实 (R71) |
+| Nie, Lv, Xiao, Bai, He, Lin | 2026 | Error compensation method for TDLAS oxygen sensor based on physical information constraints | 10.1016/j.measurement.2026.121258 | P2 | 高 | 新增待核实 (R71) |
+| Yifan, Ye, Fei, Yong | 2026 | A novel algorithm for drift spectrum analysis in dynamic process monitoring with optical fiber sensors | 10.1016/j.measurement.2025.118611 | P2 | 高 | 新增待核实 (R71) |
+| Chen, Sun, Chang, Xue, Su, Zhang | 2026 | A hardware-software co-design calibration framework for two-electrode gas sensors under low-temperature conditions | 10.1016/j.measurement.2026.120656 | P2 | 高 | 新增待核实 (R71) |
+| Geng, Chen, Xie, Ni | 2025 | A new accurate theoretical model for the calculation of limiting current in a limiting current oxygen sensor | 10.1016/j.measurement.2025.116665 | P2 | 中 | 新增待核实 (R71) |
+| Zheng, Mei, Yang | 2026 | Sub-pixel shift compensation method for temperature-induced drift in near-infrared optical positioning systems | 10.1016/j.measurement.2025.119097 | P2 | 中 | 新增待核实 (R71) |
+
+### KAN新文献 (Round 71 - 待核实)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|-----|-----|--------|
+| Cheon | 2026 | RepKAN: Demystifying KAN for Vision Tasks | https://arxiv.org/abs/2603.06002 | P1 | 中 | 新增待核实 (R71) |
+| Zhang, Chen, Zhong, Deng | 2026 | PAKAN: Pixel Adaptive Kolmogorov-Arnold Network Modules for Pansharpening | https://arxiv.org/abs/2603.15109 | P1 | 中 | 新增待核实 (R71) |
+| Lu, Shang, Du, Li, Liang | 2026 | Bridging Theory and Data: Correcting Nuclear Mass Models with Interpretable ML | https://arxiv.org/abs/2603.15203 | P1 | 中 | 新增待核实 (R71) |
+
+### 本轮文献库完整性确认
+
+| 类别 | 已收录数量 | 状态 |
+|------|------------|------|
+| KAN网络 | 50+篇 | ✅ 已完备 |
+| Wiener模型 | 30+篇 | ✅ 已完备 |
+| 频域损失函数 | 20+篇 | ✅ 已完备 |
+| 漂移补偿 | 25+篇 | ✅ 已完备 |
+| 架构效率 | 15+篇 | ✅ 已完备 |
+| MEASUREMENT期刊 | 90+篇 | ✅ 超额完成 |
+
+---
+
+## 文献调研第72轮新增 (2026-03-29)
+
+### MEASUREMENT期刊新发现待核实（R71延续）
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Chen, Wang | 2026 | DE-LOESS and LSTM-Transformer for MEMS accelerometer temperature compensation | 10.1016/j.measurement.2026.120823 | P2 | 高 | 新增待核实 (R72) |
+| Nie, Lv, Xiao, Bai, He, Lin | 2026 | TDLAS oxygen sensor error compensation with physical information constraints | 10.1016/j.measurement.2026.121258 | P2 | 高 | 新增待核实 (R72) |
+| Yifan, Ye, Fei, Yong | 2026 | Drift spectrum analysis for optical fiber sensors | 10.1016/j.measurement.2025.118611 | P2 | 高 | 新增待核实 (R72) |
+| Chen, Sun, Chang, Xue, Su, Zhang | 2026 | Hardware-software co-design calibration for two-electrode gas sensors | 10.1016/j.measurement.2026.120656 | P2 | 高 | 新增待核实 (R72) |
+| Geng, Chen, Xie, Ni | 2025 | Limiting current calculation for limiting current oxygen sensor | 10.1016/j.measurement.2025.116665 | P2 | 中 | 新增待核实 (R72) |
+| Zheng, Mei, Yang | 2026 | Sub-pixel shift compensation for temperature-induced drift in NIR optical positioning | 10.1016/j.measurement.2025.119097 | P2 | 中 | 新增待核实 (R72) |
+
+### arXiv新增待核实论文（R72）
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Cheon | 2026 | RepKAN: Demystifying KAN for Vision Tasks | https://arxiv.org/abs/2603.06002 | P1 | 中 | 新增待核实 (R72) |
+| Zhang, Chen, Zhong, Deng | 2026 | PAKAN: Pixel Adaptive Kolmogorov-Arnold Network Modules for Pansharpening | https://arxiv.org/abs/2603.15109 | P1 | 中 | 新增待核实 (R72) |
+| Lu, Shang, Du, Li, Liang | 2026 | Correcting Nuclear Mass Models with Interpretable ML | https://arxiv.org/abs/2603.15203 | P1 | 中 | 新增待核实 (R72) |
+
+### 本轮文献库完整性确认
+
+| 类别 | 已收录数量 | 状态 |
+|------|------------|------|
+| KAN网络 | 50+篇 | ✅ 已完备 |
+| Wiener模型 | 30+篇 | ✅ 已完备 |
+| 频域损失函数 | 20+篇 | ✅ 已完备 |
+| 漂移补偿 | 25+篇 | ✅ 已完备 |
+| 架构效率 | 15+篇 | ✅ 已完备 |
+| MEASUREMENT期刊 | 90+篇 | ✅ 超额完成 |
+
+---
+
+## STEP1 Round74 新增文献 (2026-03-29)
+
+### KAN新论文（R74 - 新发现）
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Impraimakis, Vazquez, Zhou | 2026 | YOLOv10 with Kolmogorov-Arnold Networks for Interpretable Object Detection | https://doi.org/10.48550/arXiv.2603.23037 | P1 | 中 | 新增 (R74) |
+| Dai, Yi, Wei, Zhang | 2026 | Many-body Mobility Edges with KAN | https://doi.org/10.48550/arXiv.2603.21807 | P1 | 中 | 新增 (R74) |
+| Almodóvar et al. | 2026 | Kolmogorov-Arnold Causal Generative Models (KaCGM) | https://doi.org/10.48550/arXiv.2603.20184 | P1 | 中 | 新增 (R74) |
+| Yuan | 2026 | HMAR: Hierarchical Modality-Aware Expert KAN for Medical Image Retrieval | https://doi.org/10.48550/arXiv.2603.16679 | P1 | 中 | 新增 (R74) |
+| Boledi, Bosbach, Poonoosamy | 2026 | KAN Surrogate Model for Chemical Equilibria | https://doi.org/10.48550/arXiv.2603.15307 | P1 | 中 | 新增 (R74) |
+| Sovrano et al. | 2026 | In-Context Symbolic Regression for Robustness-Improved KAN | https://doi.org/10.48550/arXiv.2603.15250 | P0 | 高 | 新增 (R74) |
+| Lu et al. | 2026 | Correcting Nuclear Mass Models with Interpretable ML | https://doi.org/10.48550/arXiv.2603.15203 | P1 | 中 | 新增 (R74) |
+| Zhang et al. | 2026 | PAKAN: Pixel Adaptive KAN Modules for Pansharpening | https://doi.org/10.48550/arXiv.2603.15109 | P1 | 中 | 新增 (R74) |
+| Moreau et al. | 2026 | Faithful Multimodal Concept Bottleneck Models with KAN | https://doi.org/10.48550/arXiv.2603.13163 | P1 | 中 | 新增 (R74) |
+| Alikhani | 2026 | DKD-KAN: Knowledge-Distilled KAN for Intrusion Detection | https://doi.org/10.48550/arXiv.2603.03486 | P1 | 高 | 新增 (R74) |
+| Wakaura | 2026 | Merged Amplitude Encoding for Quantum KAN | https://doi.org/10.48550/arXiv.2603.02818 | P2 | 中 | 新增 (R74) |
+| Jiang et al. | 2026 | TokenCom: VLM with KAN for Multimodal Token Communications | https://doi.org/10.48550/arXiv.2603.00482 | P1 | 中 | 新增 (R74) |
+
+### 频域损失新论文（R74 - 新发现）
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Chen et al. | 2023 | FCDNet: Frequency-Guided Complementary Dependency Modeling | https://arxiv.org/abs/2312.16450 | P0 | 高 | 新增 (R74) |
+| Fons et al. | 2022 | HyperTime: Implicit Neural Representation for Time Series | https://arxiv.org/abs/2208.05836 | P0 | 高 | 新增 (R74) |
+| Dunston et al. | 2025 | FastNet: Spectral Loss for Weather Prediction | https://arxiv.org/abs/2509.17601 | P1 | 中 | 新增 (R74) |
+
+### 传感器漂移补偿新论文（R74 - 新发现）
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Unknown | 2025 | Self-Calibrating Neural Network for Sensor Drift Correction | N/A (IAJSE) | P1 | 高 | 新增待核实 (R74) |
+| Zhu et al. | 2024 | Electronic Nose Drift Suppression via Smooth Conditional DAN | 10.3390/s24041319 | P1 | 高 | 新增 (R74) |
+| Xu et al. | 2024 | Interference Model Guided NN for Aeromagnetic Compensation | 10.1109/JSEN.2024.3370539 | P1 | 高 | 新增 (R74) |
+| Gupta et al. | 2025 | Target-Domain Data Free MAML for E-nose Drift Correction | 10.1109/LSENS.2025.3591494 | P1 | 高 | 新增 (R74) |
+| Feng et al. | 2026 | GNIO: Gated Neural Inertial Odometry | https://arxiv.org/abs/2603.15281 | P1 | 高 | 新增 (R74) |
+| Barrett, Mishra | 2025 | Statistical Study of ML-based Calibration for Inexpensive Sensor Modules | 10.1109/TIM.2024.3372211 | P1 | 高 | 新增 (R74) |
+
+### MEASUREMENT期刊新论文（R74 - 新发现）
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Han et al. | 2020 | Temperature drift modeling of capacitive accelerometer based on AGA-BP neural network | 10.1016/j.measurement.2020.108019 | P2 | 高 | 新增 (R74) |
+| Yuan et al. | 2025 | Dynamic thermal drift compensation for piezoresistive sensors | 10.1016/j.measurement.2025.118227 | P2 | 高 | 新增 (R74) |
+| Kokuyama et al. | 2022 | Primary accelerometer calibration with two-axis automatic positioning stage | 10.1016/j.measurement.2022.112044 | P2 | 高 | 新增 (R74) |
+| Zhao et al. | 2022 | Study on nonlinear error calibration of FOG scale factor based on LSTM | 10.1016/j.measurement.2022.110783 | P2 | 高 | 新增 (R74) |
+| Shi et al. | 2024 | Integrated package and calibration of high-g MEMS ASIC acceleration sensor | 10.1016/j.measurement.2024.115510 | P2 | 高 | 新增 (R74) |
+| Koziel et al. | 2024 | Field calibration of low-cost PM sensors using ANN | 10.1016/j.measurement.2024.114529 | P2 | 高 | 新增 (R74) |
+| Wang et al. | 2024 | Physics-Guided neural network calibration for wind sensors | 10.1016/j.measurement.2024.114812 | P2 | 高 | 新增 (R74) |
+| Yao et al. | 2020 | Coarse-to-fine denoising for dynamic calibration of pressure sensors | 10.1016/j.measurement.2020.107935 | P2 | 中 | 新增 (R74) |
+| Iriarte et al. | 2021 | Optimal strain-gauge placement for mechanical load estimation | 10.1016/j.measurement.2020.108938 | P2 | 中 | 新增 (R74) |
+| Bednarski et al. | 2024 | Thermal compensation of distributed fibre optic sensors | 10.1016/j.measurement.2024.115280 | P2 | 高 | 新增 (R74) |
+| Lahdhiri et al. | 2020 | Interval valued data driven approach for sensor fault detection | 10.1016/j.measurement.2020.108776 | P2 | 中 | 新增 (R74) |
+
+---
+
 （文件结束）

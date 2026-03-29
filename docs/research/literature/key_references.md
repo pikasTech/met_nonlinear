@@ -1,7 +1,7 @@
 # 核心参考文献
 
-**状态**: STEP3 最终确认 (2026-03-29)
-**基于**: verified_literature.md (STEP2 R66)
+**状态**: STEP3 完成 (2026-03-29)
+**基于**: verified_literature.md (STEP2 R73)
 **原则**: 短而精，仅保留能直接支撑论文声称的核心文献
 
 ---
@@ -124,7 +124,43 @@
 
 ## 引用文档
 
-- `docs/research/literature/verified_literature.md` (STEP2 R66)
-- `docs/research/literature/20260329/STEP2_Round66_Analysis.md`
+- `docs/research/literature/verified_literature.md` (STEP2 R73)
+- `docs/research/literature/excluded_literature.md` (STEP2 R73)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
+
+## 分析报告追溯
+
+| 轮次 | 关键分析 |
+|------|----------|
+| R73 | 5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾 |
+| R70 | CKAN效率冲突归档；MEASUREMENT目标达成（85篇） |
+| R53 | KAN+RNN混合新证据（Cartocci 2025）；Wiener模型新进展（Büttner 2024） |
+| R52 | Wiener模型新进展；频域损失新验证（SATL, DCAE, Dualformer） |
+| R49 | PolyKAN（GPU加速1.2-10x）、lmKAN（6.0x FLOPs减少） |
+| R35 | DCT-Based Causal CNN化学传感器漂移；Symbolic-KAN/SINDy-KANs排除 |
+| R31 | HiPPO-KAN、Somvanshi KAN Survey、KAT、FIRE最终确认 |
+| R28 | PETSA（ICML 2025频域损失）、Rodriguez-Linares频域依赖线性化器 |
+| R27 | GNIO门控神经网络惯性里程计；7篇排除 |
+| R26 | 130+篇已验证，0篇待核实，理论框架完善 |
+| R25 | OLMA最强AFMAE支撑（熵减定理）；MEASUREMENT 85篇目标达成 |
+| R24 | MEASUREMENT期刊（Lin电化学地震传感器）；频域损失（SATL） |
+| R23 | KAN效率（SGN 11.7x、Free-RBF-KAN 2x、Physical KAN SYNE） |
+| R21 | Wiener分数阶H-W；KAN效率（SGN、Free-RBF-KAN、Hoang <100ns） |
+| R20 | KAN（Wiener等价、物理KAN、T-KAN）；Wiener函数滤波器、SSM-Wiener |
+| R19 | KAN-HAR、KFS（频率损失）、TSKANMixer、KANFormer |
+| R18 | FIRE、HiPPO-KAN、P-KAN、自由节点KAN、KAN-FIF |
+| R17 | FreST损失、Subich ICML双重惩罚、Southworth多层KAN |
+| R16 | KAN频谱偏差（Wang ICLR 2025）；随机Wiener理论（Wahlberg） |
+| R15 | KAN收敛；KAN时间序列应用（Dong、KAN-AD、Barašin） |
+| R14 | KAT验证；SKANODEs/Wiener-Hammerstein/Volterra/Benchmarks |
+| R11 | KANtize、QuantKAN等；9已验证，5排除 |
+| R10 | Somvanshi KAN Survey验证；KAT待核实 |
+| R9 | 15已验证，7排除，Bai TCN重新分类 |
+| R8 | FreDF找到；传感器测量验证 |
+| R7 | Wiener传感器文献；AFMAE理论链确认 |
+| R5 | RNN_CNN_Efficiency_Conflict确认 |
+| R3 | Somvanshi KAN Survey、KAN_LUT_Hardware分析 |
+| Deep | 初始深度分析完成 |
+
+**STEP3 完成**: 所有综合文档已更新，分析报告追溯完整

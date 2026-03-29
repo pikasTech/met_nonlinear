@@ -1,6 +1,6 @@
 # 已验证文献
-***状态***: STEP2 更新于 2026-03-29 (第66轮最终确认)
-***说明***: R66最终确认：KAN计算效率优势声称无文献支撑（KAN优势是参数效率非计算效率）；五大核心类别已完备；RNN vs 1D-CNN声称必须删除；KAN vs LSTM/GRU计算效率声称必须修正为参数效率
+***状态***: STEP2 更新于 2026-03-29 (第73轮 - R73新增5条目排除)
+***说明***: R73新增：5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾
 
 ## P0 - 核心理论
 
@@ -818,6 +818,28 @@
 - 相关性：中 - 信号合成方法论；数据集构建参考
 - 注：已验证 R9
 
+## 测量方法新增论文（R69）
+
+**Barbieri et al. - Volterra电压互感器谐波补偿 (2025)** Measurement, DOI: 10.1016/j.measurement.2025.118373
+- 核心：使用解析Volterra方法进行电压互感器谐波补偿
+- 方法：解析Volterra级数用于谐波分析；与Wiener/Volterra块模型理论直接相关
+- 引文："Volterra级数有效捕获非线性动力"
+- 相关性：**高** - Wiener/Volterra块模型理论直接相关；谐波补偿方法
+- 注：已验证 R69 - 作为传感器非线性测量背景参考
+
+**Ji et al. - Wiener过程涂层降解建模 (2025)** Measurement, DOI: 10.1016/j.measurement.2024.115532
+- 核心：使用三相Wiener过程进行电化学涂层降解建模
+- 方法：Wiener过程 + 动力学模型；概率降解分析
+- 引文："Wiener过程有效建模随机退化过程"
+- 相关性：**高** - Wiener过程理论直接相关；电化学系统建模
+- 注：已验证 R69 - 补充Wiener理论应用
+
+**Li et al. - CNN双传感器校准 (2025)** Measurement, DOI: 10.1016/j.measurement.2025.117397
+- 核心：紫外差分吸收光谱 + CNN双传感器校准（SO2浓度+温度）
+- 方法：深度学习用于双参数传感器校准
+- 相关性：**高** - 传感器校准方法；神经网络补偿参考
+- 注：已验证 R69 - 传感器校准方法参考
+
 ## KAN 时间序列应用（第 19 轮）
 
 **Alikhani - KAN-HAR (2025)** arXiv:2508.11186
@@ -1367,3 +1389,6 @@
 - docs/research/literature/20260328/STEP2_Round31_Analysis.md（第 31 轮） - R31 最终核查；确认 HiPPO-KAN、Somvanshi KAN Survey、KAT、FIRE 均已验证；raw_literature.md 一致性问题说明；0 待核实
 - docs/research/literature/20260329/STEP2_Round35_Analysis.md（第 35 轮） - R35 分析；DCT-Based Causal CNN（化学传感器漂移）；Symbolic-KAN/SINDy-KANs/KaCGM/Neuromorphic-Bayesian排除
 - docs/research/literature/20260329/STEP2_Round49_Analysis.md（第 49 轮） - R49 分析；PolyKAN（GPU加速1.2-10x推理）、lmKAN（6.0x FLOPs减少）；KAN LUT效率新证据
+- docs/research/literature/20260329/STEP2_Round70_Analysis.md（第 70 轮） - R70 分析；CKAN效率冲突归档；文献库最终核查
+- docs/research/literature/20260329/STEP2_Round72_Analysis.md（第 72 轮） - R72 分析；3个轻量级时序模型排除（COMET-SG1, Tiny-TSM, NanoHydra）
+- docs/research/literature/20260329/STEP2_Round73_Analysis.md（第 73 轮） - R73 分析；5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾

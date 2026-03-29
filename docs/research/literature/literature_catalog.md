@@ -131,7 +131,7 @@ Wiener-KAN模型和时序信号处理相关文献。
 | New (R11) | QuantKAN: Quantization Framework | Fuad, Chen | 2025 | arXiv | https://doi.org/10.48550/arXiv.2511.18689 | High |
 | Mixed (R11) | KAN Stability Analysis | Spotorno et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2602.09988 | Medium |
 | Mixed (R11) | PINNs vs PIKANs | Pérez-Bernal et al. | 2025 | arXiv | https://doi.org/10.48550/arXiv.2512.12074 | Medium |
-| ⚠️ New (R69) | CKAN Efficiency Bottlenecks | Dahal, Murad, Rahimi | 2025 | arXiv | https://doi.org/10.48550/arXiv.2501.15757 | Medium |
+| ⚠️ CONFLICT (R70) | CKAN Efficiency Bottlenecks | Dahal, Murad, Rahimi | 2025 | arXiv | https://doi.org/10.48550/arXiv.2501.15757 | Medium |
 
 ## 综述报告索引
 
@@ -179,8 +179,10 @@ Wiener-KAN模型和时序信号处理相关文献。
 | 2026-03-29 | docs/research/literature/20260329/STEP1_Round67_Research_Report.md |
 | 2026-03-29 | docs/research/literature/20260329/STEP1_Round68_Research_Report.md |
 | 2026-03-29 | docs/research/literature/20260329/STEP1_Round69_Research_Report.md |
-   
-    最后更新: 2026-03-29 (第69轮 - 新增3篇MEASUREMENT期刊论文 + 1篇CKAN效率论文)
+| 2026-03-29 | docs/research/literature/20260329/STEP1_Round71_Research_Report.md |
+| 2026-03-29 | docs/research/literature/20260329/STEP1_Round72_Research_Report.md |
+     
+     最后更新: 2026-03-29 (第73轮 - 文献库最终收尾，5条目排除)
 
 ---
 
@@ -256,8 +258,11 @@ Wiener-KAN模型和时序信号处理相关文献。
 | 2026-03-29 | docs/research/literature/20260329/STEP2_Round50_Final_Confirmation.md |
 | 2026-03-29 | docs/research/literature/20260329/STEP2_Round52_Final_Completion_Report.md |
 | 2026-03-29 | docs/research/literature/20260329/STEP2_Round64_Final_Confirmation.md |
+| 2026-03-29 | docs/research/literature/20260329/STEP2_Round70_Analysis.md |
+| 2026-03-29 | docs/research/literature/20260329/STEP2_Round73_Analysis.md |
+| 2026-03-29 | docs/research/literature/20260329/STEP2_Round74_Analysis.md |
 
-   最后更新: 2026-03-29 (第64轮 - STEP2最终确认完成)
+   最后更新: 2026-03-29 (第74轮 - 文献库最终收尾完成)
 
 
 ## 时序Transformer
@@ -1364,3 +1369,60 @@ Last Updated: 2026-03-28 (Round 22 - KAN效率新论文、频域损失新论文)
 | ⚠️ New (R69) | Efficiency Bottlenecks of Convolutional KAN Networks | Dahal, Murad, Rahimi | 2025 | 10.48550/arXiv.2501.15757 | Medium |
 
 **重要警示**：CKAN效率论文发现CKAN在小型数据集上比CNN慢，在ImageNet大规模场景下效率远不如CNN。
+
+### 第74轮调研报告索引 (2026-03-29)
+
+| 日期 | 路径 | 主要内容 |
+|------|------|----------|
+| 2026-03-29 | docs/research/literature/20260329/STEP1_Round74_Research_Report.md | 并行五路子代理搜索：KAN新论文12篇、频域损失3篇、传感器漂移6篇、MEASUREMENT期刊11篇 |
+
+### KAN新论文（R74）
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R74) | YOLOv10 with KAN for Interpretable Object Detection | Impraimakis, Vazquez, Zhou | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.23037 | Medium |
+| New (R74) | Many-body Mobility Edges with KAN | Dai et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.21807 | Medium |
+| New (R74) | KaCGM: Kolmogorov-Arnold Causal Generative Models | Almodóvar et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.20184 | Medium |
+| New (R74) | HMAR: KAN for Medical Image Retrieval | Yuan | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.16679 | Medium |
+| New (R74) | KAN Surrogate Model for Chemical Equilibria | Boledi et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.15307 | Medium |
+| New (R74) | In-Context Symbolic Regression for KAN | Sovrano et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.15250 | High |
+| New (R74) | PAKAN: Pixel Adaptive KAN for Pansharpening | Zhang et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.15109 | Medium |
+| New (R74) | Faithful Multimodal CBM with KAN | Moreau et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.13163 | Medium |
+| New (R74) | DKD-KAN: Knowledge-Distilled KAN for Intrusion Detection | Alikhani | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.03486 | High |
+| New (R74) | Merged Amplitude Encoding for Quantum KAN | Wakaura | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.02818 | Medium |
+| New (R74) | TokenCom: VLM with KAN | Jiang et al. | 2026 | arXiv | https://doi.org/10.48550/arXiv.2603.00482 | Medium |
+
+### 频域损失新论文（R74）
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R74) | FCDNet: Frequency-Guided Complementary Dependency Modeling | Chen et al. | 2023 | arXiv | https://arxiv.org/abs/2312.16450 | High |
+| New (R74) | HyperTime: Implicit Neural Representation for Time Series | Fons et al. | 2022 | arXiv | https://arxiv.org/abs/2208.05836 | High |
+| New (R74) | FastNet: Spectral Loss for Weather Prediction | Dunston et al. | 2025 | arXiv | https://arxiv.org/abs/2509.17601 | Medium |
+
+### 传感器漂移补偿新论文（R74）
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接/DOI | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R74) | SCNN: Self-Calibrating Neural Network for Sensor Drift | Unknown | 2025 | IAJSE | N/A | High |
+| New (R74) | SC-DAN: Smooth Conditional DAN for E-nose Drift | Zhu et al. | 2024 | Sensors | 10.3390/s24041319 | High |
+| New (R74) | Interference Model Guided NN for Aeromagnetic Compensation | Xu et al. | 2024 | IEEE Sensors | 10.1109/JSEN.2024.3370539 | High |
+| New (R74) | MAML for E-nose Drift Correction | Gupta et al. | 2025 | IEEE Sensors Letters | 10.1109/LSENS.2025.3591494 | High |
+| New (R74) | GNIO: Gated Neural Inertial Odometry | Feng et al. | 2026 | IEEE RA-L | https://arxiv.org/abs/2603.15281 | High |
+| New (R74) | Statistical Study of ML-based Calibration for Inexpensive Sensors | Barrett, Mishra | 2025 | IEEE TIM | 10.1109/TIM.2024.3372211 | High |
+
+### MEASUREMENT期刊新论文（R74）
+
+| 状态 | 标题 | 作者 | 年份 | DOI | 相关性 |
+|------|------|------|------|-----|--------|
+| New (R74) | Temperature drift modeling of capacitive accelerometer based on AGA-BP NN | Han et al. | 2020 | 10.1016/j.measurement.2020.108019 | High |
+| New (R74) | Dynamic thermal drift compensation for piezoresistive sensors | Yuan et al. | 2025 | 10.1016/j.measurement.2025.118227 | High |
+| New (R74) | Primary accelerometer calibration with two-axis automatic positioning stage | Kokuyama et al. | 2022 | 10.1016/j.measurement.2022.112044 | High |
+| New (R74) | Nonlinear error calibration of FOG scale factor based on LSTM | Zhao et al. | 2022 | 10.1016/j.measurement.2022.110783 | High |
+| New (R74) | Integrated package and calibration of high-g MEMS ASIC acceleration sensor | Shi et al. | 2024 | 10.1016/j.measurement.2024.115510 | High |
+| New (R74) | Field calibration of low-cost PM sensors using ANN | Koziel et al. | 2024 | 10.1016/j.measurement.2024.114529 | High |
+| New (R74) | Physics-Guided NN calibration for wind sensors | Wang et al. | 2024 | 10.1016/j.measurement.2024.114812 | High |
+| New (R74) | Coarse-to-fine denoising for pressure sensor calibration | Yao et al. | 2020 | 10.1016/j.measurement.2020.107935 | Medium |
+| New (R74) | Optimal strain-gauge placement for mechanical load estimation | Iriarte et al. | 2021 | 10.1016/j.measurement.2020.108938 | Medium |
+| New (R74) | Thermal compensation of distributed fibre optic sensors | Bednarski et al. | 2024 | 10.1016/j.measurement.2024.115280 | High |
+| New (R74) | Interval valued data driven approach for sensor fault detection | Lahdhiri et al. | 2020 | 10.1016/j.measurement.2020.108776 | Medium |

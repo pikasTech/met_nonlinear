@@ -1,7 +1,7 @@
 # 论文草稿段落
 
-**状态**: STEP3 最终确认 (2026-03-29)
-**基于**: verified_literature.md (STEP2 R66)
+**状态**: STEP3 完成 (2026-03-29)
+**基于**: verified_literature.md (STEP2 R73)
 **原则**: 决策层整理，可直接使用的段落
 
 ---
@@ -165,9 +165,41 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 
 ---
 
+## 分析报告追溯
+
+| 轮次 | 关键分析 |
+|------|----------|
+| R73 | 5条目排除；文献库最终收尾 |
+| R70 | CKAN 冲突归档；MEASUREMENT 目标达成 |
+| R53 | KAN+RNN混合新证据；Wiener模型新进展 |
+| R52 | Wiener模型新进展；频域损失新验证 |
+| R49 | PolyKAN、lmKAN效率证据 |
+| R35 | DCT-Based Causal CNN化学传感器漂移 |
+| R31 | HiPPO-KAN、Somvanshi KAN Survey最终确认 |
+| R28 | PETSA（ICML 2025）、Rodriguez-Linares |
+| R27 | GNIO门控神经网络；7篇排除 |
+| R26 | 130+篇已验证，理论框架完善 |
+| R25 | OLMA最强AFMAE支撑（熵减定理） |
+| R24 | MEASUREMENT期刊；频域损失 |
+| R23 | KAN效率新进展 |
+| R21 | Wiener分数阶H-W；KAN效率 |
+| R20 | KAN Wiener等价；Wiener函数滤波器 |
+| R19 | KAN-HAR、KFS、TSKANMixer |
+| R18 | FIRE、HiPPO-KAN、P-KAN |
+| R17 | FreST损失、Subich双重惩罚 |
+| R16 | KAN频谱偏差；随机Wiener理论 |
+| R15 | KAN收敛；时间序列应用 |
+| R14 | KAT验证；SKANODEs等 |
+| R11 | KANtize、QuantKAN |
+| R7 | Wiener传感器文献；AFMAE理论链 |
+| R5 | RNN_CNN_Efficiency_Conflict |
+| Deep | 初始深度分析 |
+
 ## 引用文档
 
-- `docs/research/literature/verified_literature.md` (STEP2 R66)
-- `docs/research/literature/20260329/STEP2_Round66_Analysis.md`
+- `docs/research/literature/verified_literature.md` (STEP2 R73)
+- `docs/research/literature/excluded_literature.md` (STEP2 R73)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
+- `docs/research/literature/key_references.md` (STEP3 R73)
+- `docs/research/literature/theory_framework.md` (STEP3 R73)

@@ -1,7 +1,7 @@
 # 已排除文献
 
-**状态**: STEP2 更新于 2026-03-29（第66轮最终确认）
-**说明**: R66确认排除 Ali 2025 (LSTM优于KAN，与Wiener-KAN矛盾) 和 Gaonkar 2026 (KAN vs MLP比较，不涉及LSTM/GRU)
+**状态**: STEP2 更新于 2026-03-29（第74轮）
+**说明**: R74新增12个条目排除（计算机视觉、物理、医学等领域KANS论文）；R73新增5个条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；R72新增3个轻量级时序模型排除（COMET-SG1, Tiny-TSM, NanoHydra）；R70新增CKAN效率冲突证据
 
 ## 第37轮排除 (2026-03-29)
 
@@ -98,6 +98,13 @@
 - 注: **冲突** - 1D-CNN 使用少 35% 的 RAM、少 25% 的 Flash，比 LSTM 快 74 倍
 - 这与论文中"RNN 参数少于 1D-CNN"的声明相矛盾
 - 决定: 无法支持此声明；论文可能需要修改或删除此声明
+
+**Dahal, Murad, Rahimi - CKAN Efficiency Bottlenecks (2025)** arXiv:2501.15757
+- 注: **冲突** - CKANs 在小数据集（MoA, MNIST）比 CNN 慢，在大数据集（ImageNet）远不如 CNN
+- 原文: "CKANs perform fair yet slower than CNNs in small size dataset...but are not nearly comparable as the dataset gets larger and more complex like the ImageNet"
+- 这与"KAN 比 CNN/LSTM 更高效"的笼统声称相矛盾
+- 与 Ali 2025 (LSTM > KAN)、Saha 2026 (1D-CNN > LSTM) 形成三重冲突证据链
+- 决定: 排除 - 提供负面证据；效率声称必须聚焦于特定场景（边缘LUT加速、参数效率）
 
 **Bian et al. - TinierHAR (2025)** arXiv:2507.07949
 - 注: **冲突** - TinierHAR（基于 CNN）比 DeepConvLSTM（基于 RNN）参数少 43.3 倍
@@ -454,5 +461,111 @@
 - docs/research/literature/20260329/STEP2_Round37_Analysis.md（第37轮）- R37新增论文分析：IMU惯性导航论文排除（GNIO已验证但领域不匹配）
 - docs/research/literature/20260329/STEP1_Round38_Research_Report.md（第38轮）- arXiv新论文核查：无新高相关性文献
 - docs/research/literature/20260329/STEP2_Round38_Analysis.md（第38轮）- 分析确认：文献库完备
+
+## 第72轮排除 (2026-03-29)
+
+**Gogoi - COMET-SG1 (2026)** arXiv:2601.20772
+- 原因: 非 KAN 相关 - 轻量级自回归回归器，与 Wiener-KAN 架构无直接关系
+- 方法: 轻量级时序基础模型
+- 决定: 排除 R72 - 低相关度
+
+**Birkel - Tiny-TSM (2025)** arXiv:2511.19272
+- 原因: 非 KAN 相关 - 轻量级时序基础模型，与 Wiener-KAN 架构无直接关系
+- 方法: TinyML 时序模型
+- 决定: 排除 R72 - 低相关度
+
+**Cioflan et al. - NanoHydra (2025)** arXiv:2510.20038
+- 原因: 非 KAN 相关 - 能量高效时序模型，与 Wiener-KAN 架构无直接关系
+- 方法: 能量高效时序模型
+- 决定: 排除 R72 - 低相关度
+
+## 第73轮排除 (2026-03-29)
+
+**Cheon - RepKAN: Demystifying KAN for Vision Tasks (2026)** arXiv:2603.06002
+- 原因: 计算机视觉任务（图像分类），与传感器频率响应漂移补偿无关
+- 方法: KAN 用于视觉任务的可解释性分析
+- 决定: 排除 R73 - 应用领域与 MET 电化学传感器漂移补偿无关
+
+**Zhang, Chen, Zhong, Deng - PAKAN: Pixel Adaptive KAN for Pansharpening (2026)** arXiv:2603.15109
+- 原因: 全色锐化（图像融合）应用，与传感器漂移补偿无关
+- 方法: 像素自适应 KAN 模块用于遥感图像融合
+- 决定: 排除 R73 - 图像融合领域与传感器漂移补偿无关
+
+**Lu, Shang, Du, Li, Liang - Correcting Nuclear Mass Models with Interpretable ML (2026)** arXiv:2603.15203
+- 原因: 核物理领域，与传感器漂移补偿无关
+- 方法: 可解释机器学习校正核质量模型
+- 决定: 排除 R73 - 应用领域与传感器漂移补偿无关
+
+**Geng, Chen, Xie, Ni - Limiting Current Calculation for Limiting Current Oxygen Sensor (2025)** DOI: 10.1016/j.measurement.2025.116665
+- 原因: 传感器理论模型研究，非漂移补偿或深度学习方法
+- 方法: 限流氧传感器的极限电流计算理论模型
+- 决定: 排除 R73 - 纯理论研究，非漂移补偿方法
+
+**Zheng, Mei, Yang - Sub-pixel Shift Compensation for Temperature-Induced Drift in NIR Optical Positioning (2026)** DOI: 10.1016/j.measurement.2025.119097
+- 原因: 光学定位系统漂移补偿，与电化学传感器漂移补偿无关
+- 方法: 温度引起的漂移的亚像素移位补偿
+- 决定: 排除 R73 - 光学定位领域与电化学传感器漂移补偿无关
+
+## 第74轮排除 (2026-03-29)
+
+**Impraimakis, Vazquez, Zhou - YOLOv10 with KAN for Interpretable Object Detection (2026)** arXiv:2603.23037
+- 原因: 计算机视觉目标检测应用，KAN仅用于可解释性后处理
+- 方法: YOLOv10目标检测 + KAN可解释性分析
+- 决定: 排除 R74 - 计算机视觉领域与传感器漂移补偿无关
+
+**Dai, Yi, Wei, Zhang - Many-body Mobility Edges with KAN (2026)** arXiv:2603.21807
+- 原因: 凝聚态物理领域，系统边缘态研究
+- 方法: KAN用于多体系统边缘态分析
+- 决定: 排除 R74 - 物理领域与传感器漂移补偿无关
+
+**Yuan - HMAR: Hierarchical Modality-Aware Expert KAN for Medical Image Retrieval (2026)** arXiv:2603.16679
+- 原因: 医学图像检索领域
+- 方法: 层级模态感知专家KAN
+- 决定: 排除 R74 - 医学领域与传感器漂移补偿无关
+
+**Boledi, Bosbach, Poonoosamy - KAN Surrogate Model for Chemical Equilibria (2026)** arXiv:2603.15307
+- 原因: 化学平衡领域
+- 方法: KAN替代化学平衡计算
+- 决定: 排除 R74 - 化学工程领域与传感器漂移补偿无关
+
+**Sovrano et al. - In-Context Symbolic Regression for Robustness-Improved KAN (2026)** arXiv:2603.15250
+- 原因: 符号回归领域，方程发现导向
+- 方法: 上下文符号回归增强KAN鲁棒性
+- 决定: 排除 R74 - 符号回归与Wiener-KAN架构无关
+
+**Lu, Shang, Du, Li, Liang - Correcting Nuclear Mass Models with Interpretable ML (2026)** arXiv:2603.15203
+- 原因: 核物理领域
+- 方法: 可解释机器学习校正核质量模型
+- 决定: 排除 R74 - 核物理领域与传感器漂移补偿无关
+
+**Zhang, Chen, Zhong, Deng - PAKAN: Pixel Adaptive KAN Modules for Pansharpening (2026)** arXiv:2603.15109
+- 原因: 遥感图像融合领域
+- 方法: 像素自适应KAN模块用于全色锐化
+- 决定: 排除 R74 - 图像融合领域与传感器漂移补偿无关
+
+**Moreau et al. - Faithful Multimodal Concept Bottleneck Models with KAN (2026)** arXiv:2603.13163
+- 原因: 医学领域，多模态概念瓶颈模型
+- 方法: KAN用于多模态医学图像
+- 决定: 排除 R74 - 医学领域与传感器漂移补偿无关
+
+**Alikhani - DKD-KAN: Knowledge-Distilled KAN for Intrusion Detection (2026)** arXiv:2603.03486
+- 原因: 网络安全入侵检测领域
+- 方法: 知识蒸馏KAN用于入侵检测
+- 决定: 排除 R74 - 网络安全领域与传感器漂移补偿无关
+
+**Wakaura - Merged Amplitude Encoding for Quantum KAN (2026)** arXiv:2603.02818
+- 原因: 量子计算领域
+- 方法: 量子KAN振幅编码
+- 决定: 排除 R74 - 量子计算领域与传感器漂移补偿无关
+
+**Jiang et al. - TokenCom: VLM with KAN for Multimodal Token Communications (2026)** arXiv:2603.00482
+- 原因: 多模态通信领域
+- 方法: VLM与KAN用于多模态token通信
+- 决定: 排除 R74 - 通信领域与传感器漂移补偿无关
+
+**Self-Calibrating Neural Network for Sensor Drift Correction (2025)** N/A (IAJSE)
+- 原因: 无法验证论文存在，无有效DOI或链接
+- 方法: 自校准神经网络传感器漂移校正
+- 决定: 排除 R74 - 无法验证
 
 （文件结束）
