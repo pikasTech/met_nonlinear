@@ -1,8 +1,9 @@
 # 论文草稿段落
 
-**状态**: STEP3 完成 (2026-03-29)
-**基于**: verified_literature.md (STEP2 R73)
+**状态**: STEP3 R94 最终确认完成 (2026-03-29 14:12)
+**基于**: verified_literature.md (STEP2 R94)
 **原则**: 决策层整理，可直接使用的段落
+**R94更新**: STEP2 R94最终确认完成，文献库完备，理论框架就绪
 
 ---
 
@@ -18,6 +19,8 @@
 - **Shi 等 [2022]** 提出了 EEMD-GRNN，实现位移精度从 95.64% 提高到 98.00%
 - **Margarit-Taulé 等 [2022]** 实现了 73% 的 RMSE 降低
 - **Heng 等 [2025]** 提出了 SAD-CNN（半监督对抗域适应 CNN），用于电子鼻传感器漂移补偿
+- **van Meer 等 [2025]** 提出了Hall传感器Wiener系统自标定，实现2.6x RMS误差降低
+- **Niu 等 [2022]** 提出了LSTM迁移学习用于Wiener-Hammerstein系统，实现10-50%学习加速
 
 与这些域适应或迁移学习方法不同，我们的工作提出了一个 **Wiener-KAN 架构**，该架构直接建模 MET 传感器频率响应的非线性动力学。
 
@@ -44,7 +47,7 @@ Kolmogorov-Arnold 网络（KAN）由 **Liu 等 [2024]** 首次提出，使用边
 
 频域损失函数已显示出对时间序列任务的有效性：
 
-- **Shi 等 [2025] OLMA (ICLR 2026)** 提供了**最强理论支撑**：Theorem 1 证明酉变换可降低边缘熵
+- **Shi 等 [2025] OLMA (arXiv)** 提供了**最强理论支撑**：Theorem 1 证明酉变换可降低边缘熵
 - **Subich 等 [2025] (ICML)** 证明了 MSE 损失通过"双惩罚"效应平滑细尺度
 - **Wang 等 [2025] FreDF (ICLR)** 提供了直接公式匹配：L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
 - **Wu 等 [2025] KFS** 提供了完整频域损失 ℒ = αℒ_F + (1-α)ℒ_MSE，与 AFMAE 结构完全匹配
@@ -86,7 +89,7 @@ L_AFMAE = α · |FFT(pred) - FFT(real)|₁ + (1-α) · MAE
 
 ### 3.3 理论基础
 
-**最强支撑 - OLMA (Shi 2025, ICLR 2026)**：Theorem 1 证明酉变换（DFT）可以降低多元高斯过程的边缘熵
+**最强支撑 - OLMA (Shi 2025, arXiv)**：Theorem 1 证明酉变换（DFT）可以降低多元高斯过程的边缘熵
 
 **直接解释 - Subich (ICML 2025)**：MSE 损失通过"双惩罚"效应导致细尺度平滑
 
@@ -169,6 +172,10 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 
 | 轮次 | 关键分析 |
 |------|----------|
+| R94 | STEP3 R94验证：根目录清理完成，文档状态更新为R94 |
+| R88 | 文献库全部核实完毕；Bruder 2019排除(领域不匹配) |
+| R85 | van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速) |
+| R83 | GRAU/BitLogic LUT效率完善 |
 | R73 | 5条目排除；文献库最终收尾 |
 | R70 | CKAN 冲突归档；MEASUREMENT 目标达成 |
 | R53 | KAN+RNN混合新证据；Wiener模型新进展 |
@@ -197,9 +204,9 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 
 ## 引用文档
 
-- `docs/research/literature/verified_literature.md` (STEP2 R73)
-- `docs/research/literature/excluded_literature.md` (STEP2 R73)
+- `docs/research/literature/verified_literature.md` (STEP2 R94)
+- `docs/research/literature/excluded_literature.md` (STEP2 R94)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
-- `docs/research/literature/key_references.md` (STEP3 R73)
-- `docs/research/literature/theory_framework.md` (STEP3 R73)
+- `docs/research/literature/key_references.md` (STEP3 R91)
+- `docs/research/literature/theory_framework.md` (STEP3 R91)

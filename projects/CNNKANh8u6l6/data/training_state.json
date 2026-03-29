@@ -1,0 +1,20 @@
+{
+  "completed_epoch": 41,
+  "min_loss": 0.1147545725107193,
+  "min_val_loss": 0.10143081843852997,
+  "current_epoch": 41,
+  "model_name": "CNNKAN",
+  "training_alive": true,
+  "timestamp": "20260329142653.2",
+  "best_weights_file": "projects/CNNKANh8u6l6/data\\CNNKANh8u6l6_best_weights.h5",
+  "best_val_weights_file": "projects/CNNKANh8u6l6/data\\CNNKANh8u6l6_best_val_weights.h5",
+  "loss": 0.11649204790592194,
+  "val_loss": 0.10571514815092087,
+  "val_power_log_loss": 0.26870718598365784,
+  "power_log_loss": 0.2135716676712036,
+  "lr": 0.0016820129239931703,
+  "elapsed_time": 30.256701231002808,
+  "remaining_time": 31116.434323176505,
+  "expected_finish_time": "2026-03-29 23:05:29",
+  "smoothed_speed": 3466.2069207481604
+}

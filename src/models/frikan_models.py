@@ -819,3 +819,217 @@ class FRIKAN5(FRIKAN):
                 x = tf.keras.layers.Add()(skip_connections)  # 密集残差连接
 
         return x
+
+
+class CNNKAN(BaseModel):
+    """
+    CNNKAN (1D CNN based KAN) 模型
+    
+    用 Conv1D 完全替换 IIR 滤波器层，直接继承 BaseModel 构建新模型。
+    参考 LSTM 的简洁写法，不需要传入 system 参数。
+    
+    架构: Input(1) → Conv1D(filters=8, kernel_size=3) → DenseKAN×6 → DenseKAN → Output(1)
+    """
+
+    def __init__(self,
+                 grid_size=5,
+                 grid_range=(-1.0, 1.0),
+                 spline_order=3,
+                 basis_activation='silu',
+                 fs=2000,
+                 checkpoint_dir='data',
+                 fix_scale_factor=True,
+                 disable_basis_activation=True,
+                 inner_kan_units=6,
+                 inner_kan_layers=6,
+                 use_fast_model=True,
+                 cnn_filters=8,
+                 cnn_kernel_size=3,
+                 dropout_rate=0.2,
+                 kan_log_grid=False,
+                 kan_grid_expand=True,
+                 save_each_epoch=False,
+                 model_subcfg={}
+                 ):
+        """
+        初始化 CNNKAN 模型
+
+        Args:
+            grid_size: KAN网络的网格大小
+            grid_range: 网格范围，如(-1.0, 1.0)
+            spline_order: 样条阶数
+            basis_activation: 基底激活函数
+            fs: 采样频率
+            checkpoint_dir: 检查点目录
+            fix_scale_factor: 是否固定缩放因子
+            disable_basis_activation: 是否禁用基底激活
+            inner_kan_units: 内部KAN单元数量
+            inner_kan_layers: 内部KAN层数
+            use_fast_model: 是否使用快速模型
+            cnn_filters: Conv1D 输出通道数 (h8 = 8)
+            cnn_kernel_size: Conv1D 卷积核大小
+            dropout_rate: Dropout比率
+            kan_log_grid: 是否使用对数网格
+            kan_grid_expand: 是否扩展网格
+            save_each_epoch: 是否每个周期保存
+            model_subcfg: 模型子配置
+        """
+        self.model_name = 'CNNKAN'
+        self.callback = None
+        
+        self.cnn_filters = cnn_filters
+        self.cnn_kernel_size = cnn_kernel_size
+        self.cnn = tf.keras.layers.Conv1D(
+            filters=cnn_filters,
+            kernel_size=cnn_kernel_size,
+            strides=1,
+            padding='same',
+            activation='linear',
+            name='cnn_filter'
+        )
+        
+        self.fast_cnn = tf.keras.layers.Conv1D(
+            filters=cnn_filters,
+            kernel_size=cnn_kernel_size,
+            strides=1,
+            padding='same',
+            activation='linear',
+            name='fast_cnn_filter'
+        )
+        self.fast_iir = self.fast_cnn
+        
+        self.kan = DenseKAN(
+            units=1,
+            grid_size=grid_size,
+            grid_range=grid_range,
+            spline_order=spline_order,
+            use_bias=True,
+            basis_activation=basis_activation,
+            fix_scale_factor=fix_scale_factor,
+            disable_basis_activation=disable_basis_activation,
+            kan_log_grid=kan_log_grid,
+            grid_expand=kan_grid_expand
+        )
+
+        self.kan_inner_layers = [
+            DenseKAN(
+                units=inner_kan_units,
+                grid_size=grid_size,
+                grid_range=grid_range,
+                spline_order=spline_order,
+                use_bias=True,
+                basis_activation=basis_activation,
+                fix_scale_factor=fix_scale_factor,
+                disable_basis_activation=disable_basis_activation,
+                kan_log_grid=kan_log_grid,
+                grid_expand=kan_grid_expand
+            ) for _ in range(inner_kan_layers)
+        ]
+
+        self.dropout_rate = dropout_rate
+        self.dropout_layer = tf.keras.layers.Dropout(
+            self.dropout_rate) if self.dropout_rate > 0.0 else None
+        self.fs = fs
+        self.features_num = cnn_filters
+        self.use_fast_model = use_fast_model
+        self.dropout_position = 'input'
+        self.save_each_epoch = save_each_epoch
+        self.init_checkpoint(checkpoint_dir)
+        self.build_model()
+
+    def build_model(self):
+        """
+        构建并编译模型
+        """
+        input_layer = tf.keras.layers.Input(shape=(None, 1), name='input')
+        if self.dropout_layer is not None and self.dropout_position == 'input':
+            input_drop_out = self.dropout_layer(input_layer)
+        else:
+            input_drop_out = input_layer
+
+        cnn_out = self.cnn(input_drop_out)
+        fast_input = tf.keras.layers.Input(
+            shape=(None, self.cnn_filters), name='fast_input')
+        fast_cnn_out = self.fast_cnn(fast_input)
+
+        if self.dropout_layer is not None and self.dropout_position == 'cnn':
+            cnn_drop_out = self.dropout_layer(cnn_out)
+            fast_cnn_drop_out = self.dropout_layer(fast_cnn_out)
+        else:
+            cnn_drop_out = cnn_out
+            fast_cnn_drop_out = fast_cnn_out
+
+        kan_inner_output = self.build_kan_inner_layers(cnn_drop_out)
+        fast_kan_inner_output = self.build_kan_inner_layers(fast_cnn_drop_out)
+
+        if self.dropout_layer is not None and self.dropout_position == 'output':
+            kan_inner_output = self.dropout_layer(kan_inner_output)
+            fast_kan_inner_output = self.dropout_layer(fast_kan_inner_output)
+
+        output = self.kan(kan_inner_output)
+        fast_output = self.kan(fast_kan_inner_output)
+
+        self.model = tf.keras.Model(
+            inputs=input_layer, outputs=output, name='CNNKAN')
+        self.model.build(input_shape=(None, None, 1))
+        
+        if self.use_fast_model:
+            self.fast_model = tf.keras.Model(
+                inputs=fast_input, outputs=fast_output, name='fast_CNNKAN')
+            self.fast_model.build(input_shape=(None, None, self.cnn_filters))
+
+    def build_kan_inner_layers(self, cnn_out):
+        """
+        构建KAN内层
+
+        Args:
+            cnn_out: CNN输出
+
+        Returns:
+            处理后的张量
+        """
+        x = cnn_out
+        for i, kan_inner in enumerate(self.kan_inner_layers):
+            x = kan_inner(x)
+            if i + 1 == len(self.kan_inner_layers) // 2:
+                if self.dropout_layer is not None and self.dropout_position == 'inner':
+                    x = self.dropout_layer(x)
+        return x
+
+    def evaluate(self, *args, **kwargs):
+        """
+        评估模型性能
+
+        对于 CNNKAN，直接使用完整模型评估，
+        因为 fast_model 期望的输入（CNN输出，8通道）与原始输入（1通道）不同
+        """
+        return self.model.evaluate(*args, **kwargs)
+
+    def fit(self, *args, **kwargs):
+        """
+        训练模型
+
+        对于 CNNKAN，直接使用完整模型训练，
+        因为 fast_model 期望的输入（CNN输出，8通道）与原始输入（1通道）不同
+        """
+        return self.model.fit(*args, **kwargs)
+
+    def save_weights(self, *args, **kwargs):
+        """
+        保存模型权重
+
+        对于 CNNKAN，直接保存完整模型权重，
+        因为 fast_model 的层结构与 model 不同，不能直接从 fast_model 复制权重
+        """
+        return self.model.save_weights(*args, **kwargs)
+
+    def predict(self, x_input, batch_size=None, verbose=1, **kwargs):
+        """
+        预测
+
+        对于 CNNKAN，直接使用完整模型预测，
+        因为 fast_model 期望的输入（CNN输出，8通道）与原始输入（1通道）不同
+        """
+        kwargs.pop('use_scaler', None)
+        return self.model.predict(x_input, batch_size=batch_size, verbose=verbose, **kwargs)
+

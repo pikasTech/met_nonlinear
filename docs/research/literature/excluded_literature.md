@@ -1,7 +1,15 @@
 # 已排除文献
 
-**状态**: STEP2 更新于 2026-03-29（第74轮）
-**说明**: R74新增12个条目排除（计算机视觉、物理、医学等领域KANS论文）；R73新增5个条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；R72新增3个轻量级时序模型排除（COMET-SG1, Tiny-TSM, NanoHydra）；R70新增CKAN效率冲突证据
+**状态**: STEP2 更新于 2026-03-29（第88轮）
+**说明**: R88新增Bruder 2019 Koopman软体机器人排除；R74新增12个条目排除（计算机视觉、物理、医学等领域KANS论文）；R73新增5个条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；R72新增3个轻量级时序模型排除（COMET-SG1, Tiny-TSM, NanoHydra）；R70新增CKAN效率冲突证据
+
+## 第88轮排除 (2026-03-29)
+
+**Bruder et al. - Koopman软体机器人 (2019)** arXiv:1810.06637
+- 原因: 软体机器人动力学 vs 电化学传感器漂移补偿 - 领域不匹配
+- 方法: Koopman算子理论用于软体机器人系统辨识
+- 决定: 排除 R88 - 领域不匹配；Iacob 2025 (Schoukens组 Koopman) 已覆盖更相关内容
+- 注: Koopman理论与Wiener模型理论虽有联系但应用场景差异大
 
 ## 第37轮排除 (2026-03-29)
 

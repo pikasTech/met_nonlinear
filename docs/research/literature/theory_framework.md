@@ -1,8 +1,9 @@
 # 理论框架
 
-**状态**: STEP3 完成 (2026-03-29)
-**基于**: verified_literature.md (STEP2 R73)
+**状态**: STEP3 R94 最终确认完成 (2026-03-29 14:12)
+**基于**: verified_literature.md (STEP2 R94)
 **原则**: 决策层整理，直接支撑论文声称
+**R94更新**: STEP2 R94最终确认完成，文献库完备，理论框架就绪
 
 ---
 
@@ -62,14 +63,14 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
          ↓
       AFMAE = FFT L1 + MAE
          ↓
-   熵减理论 (OLMA Shi ICLR 2026) → 信息论基础
+   熵减理论 (OLMA Shi arXiv 2025) → 信息论基础
 ```
 
 ### 3.3 关键文献
 
 | 论文 | 贡献 |
 |------|------|
-| **Shi 2025 OLMA (ICLR 2026)** | **最强支撑**：Theorem 1 证明酉变换降低边缘熵 |
+| **Shi 2025 OLMA (arXiv 2025)** | **最强支撑**：Theorem 1 证明酉变换降低边缘熵 |
 | **Subich 2025 (ICML)** | MSE"双惩罚"效应 → 直接解释时域 MSE 不足 |
 | Wang 2025 FreDF (ICLR) | **直接公式匹配**：L^α = α·\|F(Ŷ)-F(Y)\|₁ + (1-α)·MSE |
 | Wu 2025 KFS | ℒ = αℒ_F + (1-α)ℒ_MSE + Parseval 定理 |
@@ -88,6 +89,8 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 | Errabii 2026 KANtize | **50x BitOps 减少**；2.9x GPU 加速 |
 | Kuznetsov 2026 LUT-KAN | **比基线 KAN 快 12 倍** |
 | Kuznetsov 2026 IoT KAN | **比原始 KAN 快 5000 倍** |
+| **Liu 2026 GRAU (R83)** | 分段线性拟合+power-of-two斜率；**>90% LUT消耗减少** |
+| **Bührer 2026 BitLogic (R83)** | 基于LUT的NN计算；**<0.3M逻辑门；<20ns推理** |
 
 ### 4.2 ⚠️ 必须删除的声称
 
@@ -130,6 +133,8 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 | FET 漂移 | Margarit-Taulé 2022 | DNN 实现 73% RMSE 降低 |
 | WH 传感器 | Willemstein 2023 | 传感器补偿直接证据 |
 | SAD-CNN | Heng 2025 | 半监督对抗域适应；电化学传感器漂移 |
+| **Wiener自标定 (R85)** | van Meer 2025 | Hall传感器Wiener系统自标定；**2.6x RMS误差降低** |
+| **LSTM迁移学习 (R85)** | Niu 2022 | LSTM用于Wiener-H系统；**10-50%学习加速** |
 
 ---
 
@@ -160,6 +165,10 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 
 | 轮次 | 关键分析 |
 |------|----------|
+| R94 | STEP3 R94验证：根目录清理完成，文档状态更新为R94 |
+| R88 | 文献库全部核实完毕；Bruder 2019排除(领域不匹配) |
+| R85 | van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速)、GRAU/BitLogic LUT效率完善 |
+| R83 | GRAU (>90% LUT减少), BitLogic (<20ns推理) - KAN LUT效率证据链完善 |
 | R73 | 5条目排除；文献库最终收尾 |
 | R70 | CKAN效率冲突归档；MEASUREMENT目标达成 |
 | R53 | KAN+RNN混合新证据；Wiener模型新进展 |
@@ -188,8 +197,8 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 
 ## 引用文档
 
-- `docs/research/literature/verified_literature.md` (STEP2 R73)
-- `docs/research/literature/excluded_literature.md` (STEP2 R73)
+- `docs/research/literature/verified_literature.md` (STEP2 R94)
+- `docs/research/literature/excluded_literature.md` (STEP2 R94)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
-- `docs/research/literature/key_references.md` (STEP3 R73)
+- `docs/research/literature/key_references.md` (STEP3 R91)

@@ -1,8 +1,9 @@
 # 核心参考文献
 
-**状态**: STEP3 完成 (2026-03-29)
-**基于**: verified_literature.md (STEP2 R73)
+**状态**: STEP3 R94 最终确认完成 (2026-03-29 14:12)
+**基于**: verified_literature.md (STEP2 R94)
 **原则**: 短而精，仅保留能直接支撑论文声称的核心文献
+**R94更新**: STEP2 R94最终确认完成，文献库完备，理论框架就绪
 
 ---
 
@@ -54,7 +55,7 @@
 
 | 论文 | 核心贡献 | 支撑声称 |
 |------|----------|----------|
-| **Shi 2025 OLMA (ICLR 2026)** | 熵减定理：酉变换降低边缘熵 | **最强 AFMAE 支撑** |
+| **Shi 2025 OLMA (arXiv 2025)** | 熵减定理：酉变换降低边缘熵 | **最强 AFMAE 支撑** |
 | **Subich 2025 (ICML)** | MSE 导致"双惩罚"效应 | **直接解释时域 MSE 不足** |
 | Wang 2025 FreDF (ICLR) | L^α = α·\|F(Ŷ)-F(Y)\|₁ + (1-α)·MSE | **直接公式匹配 AFMAE** |
 | Wu 2025 KFS | ℒ = αℒ_F + (1-α)ℒ_MSE + Parseval 定理 | **完整频域损失匹配 AFMAE** |
@@ -71,6 +72,8 @@
 | Errabii 2026 KANtize | **50x BitOps 减少**；2.9x GPU 加速 | 量化 LUT 直接证据 |
 | Kuznetsov 2026 LUT-KAN | 分段 LUT 量化 | **比基线 KAN 快 12 倍** |
 | Kuznetsov 2026 IoT KAN | 边缘 LUT 编译 KAN | **比原始 KAN 快 5000 倍** |
+| **Liu 2026 GRAU (R83)** | 分段线性拟合+power-of-two斜率 | **>90% LUT消耗减少；支持混合精度量化** |
+| **Bührer 2026 BitLogic (R83)** | 基于LUT的NN计算替代乘累加 | **<0.3M逻辑门；单样本推理<20ns** |
 
 ---
 
@@ -84,6 +87,8 @@
 | Shi 2022 EEMD-GRNN | EEMD + GRNN；95.64%→98.00% | 完整漂移补偿框架 |
 | Willemstein 2023 WH | Wiener-Hammerstein 用于压阻传感器 | **传感器补偿直接证据** |
 | Heng 2025 SAD-CNN | 半监督对抗域适应 CNN（电子鼻） | **电化学传感器漂移直接证据** |
+| **van Meer 2025 (R85)** | Hall传感器 Wiener 自标定；LUT补偿 | **Wiener系统直接证据；2.6x RMS误差降低** |
+| **Niu 2022 (R85)** | LSTM迁移学习用于Wiener-Hammerstein系统 | **迁移学习加速10-50%；Wiener-H系统直接证据** |
 
 ---
 
@@ -124,8 +129,8 @@
 
 ## 引用文档
 
-- `docs/research/literature/verified_literature.md` (STEP2 R73)
-- `docs/research/literature/excluded_literature.md` (STEP2 R73)
+- `docs/research/literature/verified_literature.md` (STEP2 R94)
+- `docs/research/literature/excluded_literature.md` (STEP2 R94)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
 
@@ -133,6 +138,11 @@
 
 | 轮次 | 关键分析 |
 |------|----------|
+| R94 | STEP3 R94最终确认：文献库完备，根目录清理(-p文件已移至logs/temp/) |
+| R92 | STEP3 R92验证完成：根目录清理(-p文件已移至logs/temp/)，文档状态更新为R92 |
+| R88 | 文献库全部核实完毕；Bruder 2019排除(领域不匹配) |
+| R85 | van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速)、Kim 2026排除(传统方法)、GRAU/BitLogic LUT效率证据完善 |
+| R83 | GRAU (>90% LUT减少), BitLogic (<20ns推理) - KAN LUT效率证据链完善 |
 | R73 | 5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾 |
 | R70 | CKAN效率冲突归档；MEASUREMENT目标达成（85篇） |
 | R53 | KAN+RNN混合新证据（Cartocci 2025）；Wiener模型新进展（Büttner 2024） |
@@ -163,4 +173,4 @@
 | R3 | Somvanshi KAN Survey、KAN_LUT_Hardware分析 |
 | Deep | 初始深度分析完成 |
 
-**STEP3 完成**: 所有综合文档已更新，分析报告追溯完整
+**STEP3 R93 完成**: 所有综合文档已更新，分析报告追溯完整，文献调研工作完备

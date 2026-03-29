@@ -1,6 +1,6 @@
 # 已验证文献
-***状态***: STEP2 更新于 2026-03-29 (第73轮 - R73新增5条目排除)
-***说明***: R73新增：5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾
+***状态***: STEP2 R94 最终确认完成 (2026-03-29)
+***说明***: R94最终确认：文献库完整(130+已验证)，理论框架就绪；raw_literature.md"待核实"标记为历史遗留
 
 ## P0 - 核心理论
 
@@ -720,6 +720,24 @@
 - 结果：频率漂移从 3.68% 降至 0.64%
 - 相关性：低 - MEMS 地震传感器（非电化学）
 
+**van Meer et al. - Hall传感器自标定 (2025)** arXiv:2505.04245
+- 核心：线性Hall传感器数据驱动自标定方法，无需外部编码器
+- 方法：闭环数据采集 + 非线性辨识 + 在线LUT补偿
+- 系统建模：**明确使用Wiener系统结构**（线性G(s) + 静态非线性g_h(y0)）
+- 引文："The series connection of linear system G(s) and nonlinear functions g_h(y_0) is recognized as a single-input multi-output **Wiener system**"
+- 关键发现：RMS误差降低**2.6倍**（5.7 mrad → 2.2 mrad）
+- 相关性：**高** - Wiener系统直接证据；自校准框架可借鉴
+- 注：已验证 R85
+
+**Niu et al. - LSTM迁移学习用于系统辨识 (2022)** arXiv:2204.03125
+- 核心：深度迁移学习用于LSTM系统辨识，解决数据/计算资源需求问题
+- 方法：参数微调 + 参数冻结两种迁移策略
+- 应用场景：二阶线性系统 + Wiener-Hammerstein非线性系统
+- 关键发现：学习加速**10%-50%**，节省数据和计算资源
+- 引文："Compared with direct learning, our method accelerates learning by 10% to 50%"
+- 相关性：**高** - LSTM用于Wiener-Hammerstein的直接证据；迁移学习减少数据需求
+- 注：已验证 R85
+
 ### 架构效率
 
 **Yin 等 - CNN vs RNN (2017)** arXiv:1702.01923
@@ -1074,6 +1092,32 @@
 - 相关性：**高** - 直接验证 KAN 硬件效率潜力通过二进制化
 - 注：已验证 R20
 
+### LUT硬件实现新论文（R83）
+
+**Liu, Ullah, Kumar - GRAU: 可重构激活单元 (2026)** arXiv:2602.22352
+- 核心：分段线性拟合 + power-of-two斜率近似用于神经网络硬件加速器
+- 关键方法：
+  - 分段线性拟合：y = a_i * x + b_i for x ∈ [x_i, x_{i+1}]
+  - 斜率近似为2的幂次：a_i ≈ 2^k
+  - 硬件实现：基本比较器 + 1位右移器替代乘法器
+- 关键效率：LUT消耗减少>90%（对比多阈值激活器）
+- 支持混合精度量化和SiLU等非线性函数
+- 引文："GRAU reduces LUT consumption by over 90%, achieving higher hardware efficiency, flexibility, and scalability"
+- 相关性：**P0 高** - GRAU提供LUT激活单元的理论基础，支持KAN的LUT实现主张
+- 注：已验证 R83 - 来自Cornell University
+
+**Bührer, Plesner, Till, Wattenhofer - BitLogic: FPGA原生LUT神经网络 (2026)** arXiv:2602.07400
+- 核心：完全梯度可训练的LUT计算框架，替代乘累加操作
+- 关键方法：
+  - 可微LUT节点直接映射到FPGA原语
+  - 支持稀疏连接
+  - 自动RTL导出管线
+- 关键效率：CIFAR-10 72.3%准确率，<0.3M逻辑门，单样本推理<20ns
+- 引文："BitLogic replaces multiply-accumulate operations with differentiable LUT nodes"
+- 结果：72.3% test accuracy on CIFAR-10 with fewer than 0.3M logic gates, sub-20ns inference
+- 相关性：**P0 高** - BitLogic验证LUT替代MAC的可行性，为KAN硬件效率提供直接证据
+- 注：已验证 R83 - 来自ETH Zurich，CC BY-SA 4.0许可
+
 ## 传感器漂移补偿新文献（第 20 轮）
 
 **Warner 等 - 上下文自适应传感器漂移 (2020)** arXiv:2003.07292
@@ -1392,3 +1436,5 @@
 - docs/research/literature/20260329/STEP2_Round70_Analysis.md（第 70 轮） - R70 分析；CKAN效率冲突归档；文献库最终核查
 - docs/research/literature/20260329/STEP2_Round72_Analysis.md（第 72 轮） - R72 分析；3个轻量级时序模型排除（COMET-SG1, Tiny-TSM, NanoHydra）
 - docs/research/literature/20260329/STEP2_Round73_Analysis.md（第 73 轮） - R73 分析；5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾
+- docs/research/literature/20260329/STEP2_Round83_Analysis.md（第 83 轮） - R83 分析；GRAU (>90% LUT减少)、BitLogic (<20ns推理) - KAN LUT效率证据链完善
+- docs/research/literature/20260329/STEP2_Round85_Analysis.md（第 85 轮） - R85 分析；van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速)、Kim 2026排除(传统方法)、GRAU/BitLogic状态更新

@@ -88,6 +88,9 @@ class Config:
         self.RVTDCNN_kernel_size = (5, 3)
         self.RVTDCNN_dense_units = 4
         self.model_subcfg = {}
+        self.CNN_FILTERS = 8
+        self.CNN_KERNEL_SIZE = 3
+        self.CNN_DROPOUT_RATE = 0.2
         
         # 数据集配置
         self.dataset = {

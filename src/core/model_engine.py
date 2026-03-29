@@ -395,6 +395,27 @@ class ModelEngine:
                 dense_units=self.config.RVTDCNN_dense_units,
                 kernel_size=self.config.RVTDCNN_kernel_size,                model_subcfg=self.config.model_subcfg,
             )
+        elif self.config.use_model == 'CNNKAN':
+            self.model_comp = CNNKAN(
+                fs=self.config.sample_rate,
+                grid_size=self.config.GRID_SIZE,
+                grid_range=(
+                    self.config.grid_range[0], self.config.grid_range[1]),
+                spline_order=self.config.SPLINE_ORDER,
+                basis_activation=self.config.basis_activation,
+                fix_scale_factor=self.config.FIX_SCALE_FACTOR,
+                inner_kan_units=self.config.INNER_KAN_UNITS,
+                inner_kan_layers=self.config.INNER_KAN_LAYERS,
+                use_fast_model=self.config.USE_FAST_MODEL,
+                checkpoint_dir=self.checkpoint_dir,
+                kan_log_grid=self.config.kan_log_grid,
+                kan_grid_expand=self.config.kan_grid_expand,
+                save_each_epoch=self.config.save_each_epoch,
+                model_subcfg=self.config.model_subcfg,
+                cnn_filters=self.config.CNN_FILTERS,
+                cnn_kernel_size=self.config.CNN_KERNEL_SIZE,
+                dropout_rate=self.config.CNN_DROPOUT_RATE,
+            )
         else:
             raise ValueError(f'未知的模型类型: {self.config.use_model}')
 

@@ -8,7 +8,7 @@
 from .utils import merge_config
 from .frikan_models import (
     FRIKAN, FRIKAND, FRIKAN2, FRIKAN3, FRIKAN4, 
-    FRIKAN5, FRIKAN6, FRIKAN23
+    FRIKAN5, FRIKAN6, FRIKAN23, CNNKAN
 )
 from .base_models import LSTM, GRN, RNN
 from .wavenet_models import WaveNet, WaveNet2, WaveNet3, WaveNet4, WaveNet5
