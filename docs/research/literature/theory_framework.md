@@ -1,9 +1,9 @@
 # 理论框架
 
-**状态**: STEP3 R94 最终确认完成 (2026-03-29 14:12)
+**状态**: STEP3 R101 最终完成 (2026-03-29 18:10)
 **基于**: verified_literature.md (STEP2 R94)
 **原则**: 决策层整理，直接支撑论文声称
-**R94更新**: STEP2 R94最终确认完成，文献库完备，理论框架就绪
+**R101更新**: STEP3 R101最终完成，根目录清理(-p→logs/temp/)，文献分析结果已整理为决策层文档
 
 ---
 
@@ -22,8 +22,8 @@ Wiener 模型 = **线性动态分量** (RNN) + **静态非线性分量** (KAN)
 
 | 论文 | 贡献 |
 |------|------|
-| Schoukens 2009 WH 基准 | G1(z)→f(·)→G2(z)；157+ 引用 |
-| Haber 1990 | "Wiener = 线性动态 + 静态非线性"；500+ 引用 |
+| Schoukens 2009 WH 基准 | G1(z)→f(·)→G2(z)，157+ 引用 |
+| Haber 1990 | "Wiener = 线性动态 + 静态非线性"，500+ 引用 |
 
 ### 1.3 深度学习验证
 
@@ -40,7 +40,7 @@ Wiener 模型 = **线性动态分量** (RNN) + **静态非线性分量** (KAN)
 | 论文 | 发现 |
 |------|------|
 | Rather 2025 KAN-GRU | GRU-KAN/LSTM-KAN **> LSTM/GRU/LSTM-Attention/LSTM-Transformer** |
-| Genet 2024 TKAN | TKAN > GRU > LSTM（12 步预测） |
+| Genet 2024 TKAN | TKAN > GRU > LSTM（12步预测） |
 | Somvanshi 2025 | KAN+RNN 集成是新兴趋势；300+ 引用 |
 | Wang 2025 KAN 频谱偏差 (ICLR) | **KAN 频谱偏差 < MLP** → 更好捕获高频 |
 
@@ -57,13 +57,13 @@ L_AFMAE = α · |FFT(pred) - FFT(real)|₁ + (1-α) · MAE
 ### 3.2 理论支撑链
 
 ```
-MSE → 双惩罚/平滑 (Subich ICML 2025)
+MSE → "双重惩罚"平滑 (Subich ICML 2025)
          ↓
-       FFT 损失 → 保留高频 (KFS/FreDF/FIRE)
+         FFT 损失 → 保留高频 (KFS/FreDF/FIRE)
          ↓
-      AFMAE = FFT L1 + MAE
+         AFMAE = FFT L1 + MAE
          ↓
-   熵减理论 (OLMA Shi arXiv 2025) → 信息论基础
+         熵减理论 (OLMA Shi arXiv 2025) → 信息论基础
 ```
 
 ### 3.3 关键文献
@@ -71,8 +71,8 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 | 论文 | 贡献 |
 |------|------|
 | **Shi 2025 OLMA (arXiv 2025)** | **最强支撑**：Theorem 1 证明酉变换降低边缘熵 |
-| **Subich 2025 (ICML)** | MSE"双惩罚"效应 → 直接解释时域 MSE 不足 |
-| Wang 2025 FreDF (ICLR) | **直接公式匹配**：L^α = α·\|F(Ŷ)-F(Y)\|₁ + (1-α)·MSE |
+| **Subich 2025 (ICML)** | MSE"双重惩罚"效应 → 直接解释时域 MSE 不足 |
+| Wang 2025 FreDF (ICLR) | **直接公式匹配**：L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE |
 | Wu 2025 KFS | ℒ = αℒ_F + (1-α)ℒ_MSE + Parseval 定理 |
 | **Medeiros 2025 PETSA (ICML)** | 三组件频域损失保留周期性 |
 
@@ -84,13 +84,13 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 
 | 论文 | 发现 |
 |------|------|
-| **Yu 2025 PolyKAN** | GPU加速1.2-10x推理、1.4-12x训练 |
-| **Pozdnyakov 2025 lmKAN** | **6.0x FLOPs减少**；H100 10x吞吐量 |
-| Errabii 2026 KANtize | **50x BitOps 减少**；2.9x GPU 加速 |
+| **Yu 2025 PolyKAN** | GPU加速 1.2-10x 推理，1.4-12x 训练 |
+| **Pozdnyakov 2025 lmKAN** | **6.0x FLOPs减少**；H100 10x 吞吐量 |
+| Errabii 2026 KANtize | **50x BitOps 减少**，2.9x GPU 加速 |
 | Kuznetsov 2026 LUT-KAN | **比基线 KAN 快 12 倍** |
 | Kuznetsov 2026 IoT KAN | **比原始 KAN 快 5000 倍** |
-| **Liu 2026 GRAU (R83)** | 分段线性拟合+power-of-two斜率；**>90% LUT消耗减少** |
-| **Bührer 2026 BitLogic (R83)** | 基于LUT的NN计算；**<0.3M逻辑门；<20ns推理** |
+| **Liu 2026 GRAU (R83)** | 分段线性拟合，power-of-two 斜率，**>90% LUT消耗减少** |
+| **Bührer 2026 BitLogic (R83)** | 基于LUT的NN计算，**<0.3M逻辑门；<20ns推理** |
 
 ### 4.2 ⚠️ 必须删除的声称
 
@@ -134,7 +134,7 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 | WH 传感器 | Willemstein 2023 | 传感器补偿直接证据 |
 | SAD-CNN | Heng 2025 | 半监督对抗域适应；电化学传感器漂移 |
 | **Wiener自标定 (R85)** | van Meer 2025 | Hall传感器Wiener系统自标定；**2.6x RMS误差降低** |
-| **LSTM迁移学习 (R85)** | Niu 2022 | LSTM用于Wiener-H系统；**10-50%学习加速** |
+| **LSTM迁移学习 (R85)** | Niu 2022 | LSTM用于Wiener-H系统，**10-50%学习加速** |
 
 ---
 
@@ -144,8 +144,8 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 |----------|----------|------|
 | R3-4/R4-7 对比有限 | Yin 2017, Bai TCN, Rather 2025 | CNN/GRU-KAN/Transformer 架构对比 |
 | R3-5 RVTDCNN | **未找到** | **移除此主张** |
-| R3-6 数据集构建 | Xu&Wang 2008, Schoukens 2017 | 已支持 |
-| R4-1 激活函数 | Liu 2024, Dong 2024 | 已支持 |
+| R3-6 数据集构建 | Xu&Wang 2008, Schoukens 2017 | 已支撑 |
+| R4-1 激活函数 | Liu 2024, Dong 2024 | 已支撑 |
 | R4-8 计算成本 | KANtize, LUT-KAN, IoT KAN | 已支持；移除 RNN vs CNN |
 
 ---
@@ -165,7 +165,8 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 
 | 轮次 | 关键分析 |
 |------|----------|
-| R94 | STEP3 R94验证：根目录清理完成，文档状态更新为R94 |
+| R99 | STEP3 R99确认完成，文档状态更新 |
+| R101 | STEP3 R101最终完成，根目录清理(-p→logs/temp/) |
 | R88 | 文献库全部核实完毕；Bruder 2019排除(领域不匹配) |
 | R85 | van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速)、GRAU/BitLogic LUT效率完善 |
 | R83 | GRAU (>90% LUT减少), BitLogic (<20ns推理) - KAN LUT效率证据链完善 |
@@ -189,7 +190,7 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 | R17 | FreST损失、Subich双重惩罚 |
 | R16 | KAN频谱偏差；随机Wiener理论 |
 | R15 | KAN收敛；时间序列应用 |
-| R14 | KAT验证；SKANODEs等 |
+| R14 | KAT验证；SKANODEs |
 | R11 | KANtize、QuantKAN |
 | R7 | Wiener传感器文献；AFMAE理论链 |
 | R5 | RNN_CNN_Efficiency_Conflict |
@@ -201,4 +202,4 @@ MSE → 双惩罚/平滑 (Subich ICML 2025)
 - `docs/research/literature/excluded_literature.md` (STEP2 R94)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
-- `docs/research/literature/key_references.md` (STEP3 R91)
+- `docs/research/literature/key_references.md` (STEP3 R101)

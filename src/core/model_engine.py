@@ -406,7 +406,6 @@ class ModelEngine:
                 fix_scale_factor=self.config.FIX_SCALE_FACTOR,
                 inner_kan_units=self.config.INNER_KAN_UNITS,
                 inner_kan_layers=self.config.INNER_KAN_LAYERS,
-                use_fast_model=self.config.USE_FAST_MODEL,
                 checkpoint_dir=self.checkpoint_dir,
                 kan_log_grid=self.config.kan_log_grid,
                 kan_grid_expand=self.config.kan_grid_expand,

@@ -9,7 +9,7 @@
 
 按照总任务做调研，形成一个实现方案, 完成任务后将详细报告写入[R1](./details/05_1DCNN_KAN/20260329_0928_Task_Report.md)。
 
-### R1.1
+### R1.1 [completed] 
 
 按照方案2做详细计划，包括修改的文件列表，详细计划每个代码修改点, 完成任务后将详细报告写入[R1.1](./details/05_1DCNN_KAN/20260329_0941_Task_Report.md)。
 
@@ -94,3 +94,22 @@
 #### R2.7.2 [completed]
 
 审查 R2.7.1 的执行结果，完成任务后将详细报告写入[任务报告](./details/05_1DCNN_KAN/R2.7.2_Task_Report.md)。
+## R3
+
+配置相关
+
+### R3.1 [completed]
+
+需要在`config.json`增加配置项，来调整 1DCNN 的卷积的时间步数，完成任务后将详细报告写入[R3.1](./details/05_1DCNN_KAN/20260329_1433_Task_Report.md)。
+
+### R3.1.1
+
+CNN_KERNEL_SIZE 已经实现
+
+### R3.2 [completed]
+
+调查 CNNKAN 里面的 use_fast_model 是否真正生效，开启与不开启有什么区别？CNN 按理说不存在 fast_model, 完成任务后将详细报告写入[R3.2](./details/05_1DCNN_KAN/20260329_1446_Task_Report.md)。
+
+### R3.2.1 [completed] [done]
+
+完全移除 use_fast_model 相关代码以避免混淆, 完成任务后将详细报告写入[R3.2.1](./details/05_1DCNN_KAN/20260329_1453_Task_Report.md)。

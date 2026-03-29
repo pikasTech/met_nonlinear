@@ -25,6 +25,8 @@ docs/FRIKAN_REJECT.md
 
 ## 流程
 
+- **编码检查**：在开始任何工作前，检查所有要写入的文档编码是否正确。如发现文件编码错误（如乱码），必须先完整读取文件内容，然后用相同路径完全重写该文件以修复编码问题，然后再继续
+
 ### A. 目录整理
 
 - 整理根目录的临时文件和杂乱文件，保持根目录干净，符合根目录白名单
@@ -32,7 +34,7 @@ docs/FRIKAN_REJECT.md
 #### 根目录白名单（允许存在的文件/目录）
 
 📄 文件	CLAUDE.md, cli.py, conftest.py, pytest.ini, README.md, README_circuit.md, requirements.txt, waveviewer.bat
-📁 目录	.claude/, .git/, .loop/, .playwright-cli/, .vscode/, assets/, cache/, calibration_analyzer/, circuit_design/, docs/, ex_projects/, exam_data/, logs/, paper/, projects/, scripts/, src/
+📁 目录	.claude/, .git/, .loop/, .playwright-cli/, .vscode/, assets/, cache/, calibration_analyzer/, circuit_design/, docs/, ex_projects/, exam_data/, logs/, paper/, projects/, scripts/, src/, .gitignore
 
 #### 整理规则
 - 如发现违规文件，立即移动到对应目录或 `logs/temp/`（临时文件）

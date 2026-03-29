@@ -82,7 +82,7 @@
 | Xie, Zhang | 2021 | 深度滤波DNN CNN RNN | https://arxiv.org/abs/2112.12616 | P1 | 高 | 已验证 |
 | Miller, Hardt | 2018 | 稳定递归模型 | https://arxiv.org/abs/1805.10369 | P1 | 高 | 已验证 |
 | Geras等 | 2015 | LSTM融入CNN | https://arxiv.org/abs/1511.06433 | P1 | 中 | 已验证 |
-| Bai等 | 2018 | TCN: 序列CNN与RNN对比 | https://arxiv.org/abs/1803.01271 | P1 | 高 | 待处理 |
+| Bai等 | 2018 | TCN: 序列CNN与RNN对比 | https://arxiv.org/abs/1803.01271 | P1 | 高 | 已验证 (R95) - 确认1D-CNN优于LSTM |
 | Lee等 | 2017 | 递归加性网络 | https://arxiv.org/abs/1705.07393 | P1 | 中 | 待处理 |
 | Karita等 | 2019 | Transformer与RNN语音对比 | https://arxiv.org/abs/1909.06317 | P1 | 中 | 待处理 |
 
@@ -236,8 +236,11 @@
 
 | 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
 |--------|------|-------|------|-----|-----|--------|
-| Kolmogorov | 1957 | 连续多变量函数表示 (原始KA定理) | Dokl. Akad. Nauk SSSR, 1957 | P0 | 高 | 待处理 |
-| Arnold | 1957 | 三变量函数 (希尔伯特第13问题) | Dokl. Akad. Nauk SSSR, 1957 | P0 | 高 | 待处理 |
+| Kolmogorov | 1957 | 连续多变量函数表示 (原始KA定理) | Kolmogorov, A.N. (1957). "On the Representation of Continuous Functions of Several Variables by Superposition of Continuous Functions of One Variable and Addition." Dokl. Akad. Nauk SSSR, 114, 679-681. | P0 | 高 | 已验证 |
+| Arnold | 1957 | 三变量函数 (希尔伯特第13问题) | Arnold, V.I. (1957). "On Functions of Three Variables." Dokl. Akad. Nauk SSSR, 114, 679-681. | P0 | 高 | 已验证 |
+| Wiener | 1942 | 非线性系统对噪声的响应 (原始Wiener核) | Wiener, N. (1942). "Response of a Nonlinear System to Noise." MIT Radiation Lab Report. | P0 | 高 | 新增 (R101) |
+| Kolmogorov | 1963 | 连续多变量函数广义表示定理 | Kolmogorov, A.N. (1963). "On the Representation of Continuous Functions of Many Variables by Superposition of Continuous Functions of One Variable and Addition." Amer. Math. Soc. Transl., 28, 55-59. | P0 | 高 | 新增 (R101) |
+| Barron | 1993 | 乙状函数叠加的通用逼近界 | Barron, A.R. (1993). "Universal Approximation Bounds for Superpositions of a Sigmoidal Function." IEEE Trans. Inf. Theory, 39(3), 930-945. | P0 | 高 | 新增 (R101) |
 | Manavalan, Tronarp | 2026 | Barron-Wiener-Laguerre | https://arxiv.org/abs/2602.13098 | P0 | 高 | 新增 (R12) |
 | Alesiani等 | 2025 | 几何Kolmogorov-Arnold叠加定理 | https://arxiv.org/abs/2502.16664 | P0 | 高 | 新增 (R12) |
 | Wang, Siegel等 | 2024 | KAN的表达能力和频谱偏置 | https://arxiv.org/abs/2410.01803 | P0 | 高 | 新增 (R12) |
@@ -1898,6 +1901,86 @@
 **调研报告**：`docs/research/literature/20260329/STEP1_Round92_Research_Report.md`
 
 （文件结束）
-| Wang等 | 2026 | FreST损失: 联合时空频谱损失 | https://arxiv.org/abs/2603.04418 | P0 | 高 | 新增 (R95) |
-| Phao等 | 2026 | TIFO: 时不变频谱算子 | https://arxiv.org/abs/2602.17122 | P0 | 高 | 新增 (R95) |
-| Wang等 | 2026 | VoT: 自适应频谱融合 | https://arxiv.org/abs/2603.15452 | P0 | 中 | 新增 (R95) |
+
+---
+
+## STEP1 Round97 新增文献 (2026-03-29)
+
+### 频域损失函数 (Round 97 - 新增)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Sun等 | 2025 | FreLE: Low-Frequency Spectral Bias Correction | https://arxiv.org/abs/2510.25800 | P0 | 高 | 新增 (R97) |
+| Shi等 | 2025 | OLMA: One Loss for More Accurate Time Series | https://arxiv.org/abs/2505.11567 | P0 | 高 | 新增 (R97) |
+| Kong等 | 2025 | Frequency-Constrained Learning for Long-Term Forecasting | https://arxiv.org/abs/2508.01508 | P0 | 高 | 新增 (R97) |
+| Hu等 | 2026 | TimeAPN: Adaptive Amplitude-Phase Non-Stationarity Normalization | https://arxiv.org/abs/2603.17436 | P1 | 中 | 新增 (R97) |
+| Zhang等 | 2025 | FAIM: Frequency-Aware Interactive Mamba | https://arxiv.org/abs/2512.07858 | P1 | 中 | 新增 (R97) |
+
+### Wiener传感器应用 (Round 97 - 新增)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| van Meer | 2025 | Hall Sensor Wiener Self-Calibration | - | P1 | 高 | 新增 (R97) |
+| Willemstein等 | 2023 | Wiener-Hammerstein for Piezoresistive Sensor Actuator | https://arxiv.org/abs/2302.13141 | P1 | 高 | 新增 (R97) |
+| Cruz等 | 2025 | SS-KAN for Wiener-Hammerstein Systems | https://arxiv.org/abs/2506.16392 | P0 | 高 | 新增 (R97) |
+
+### KAN效率新论文 (Round 97 - 新增)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Shen等 | 2026 | KAN-FIF: 94.8%参数reduction，68.7%推理加速 | https://arxiv.org/abs/2602.12117 | P0 | 高 | 新增 (R97) |
+| Hu等 | 2026 | TimeAPN: 时频域幅度相位建模 | https://arxiv.org/abs/2603.17436 | P1 | 中 | 新增 (R97) |
+
+---
+
+## STEP1 Round100 新增文献 (2026-03-29)
+
+### arXiv March 2026新论文
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Dai等 | 2026 | Many-body mobility edges via KAN | https://arxiv.org/abs/2603.21807 | P1 | 中 | 新增 (R100) |
+| Almodóvar等 | 2026 | KaCGM: KAN因果生成模型 | https://arxiv.org/abs/2603.20184 | P1 | 中 | 新增 (R100) |
+| Yuan | 2026 | HMAR: KAN医学图像检索 | https://arxiv.org/abs/2603.16679 | P1 | 低 | 新增 (R100) |
+| Sovrano等 | 2026 | In-Context Symbolic Regression KAN | https://arxiv.org/abs/2603.15250 | P1 | 中 | 新增 (R100) |
+| Lu等 | 2026 | Nuclear Mass KAN-WSA | https://arxiv.org/abs/2603.15203 | P1 | 低 | 新增 (R100) |
+| Zhang | 2026 | PAKAN: KAN图像融合 | https://arxiv.org/abs/2603.15109 | P1 | 低 | 新增 (R100) |
+| Richter等 | 2026 | Quantum Sensing: 1000倍漂移抑制 | https://arxiv.org/abs/2603.21057 | P1 | 高 | 新增 (R100) |
+| Kim等 | 2026 | Torque Sensor温度补偿 | https://arxiv.org/abs/2603.16040 | P1 | 中 | 新增 (R100) |
+| Sarıözkan等 | 2026 | Edged USLAM | https://arxiv.org/abs/2603.08150 | P1 | 低 | 新增 (R100) |
+| Koçmarlı, Esmer | 2026 | HoloPASWIN: 频域约束损失 | https://arxiv.org/abs/2603.04926 | P0 | 高 | 新增 (R100) |
+
+### arXiv March 2026新发现 (Round 101)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Zhou, Tao, Liu | 2026 | Residual Attention PINN for Multiphysics | https://arxiv.org/abs/2603.23578 | P1 | 高 | 新增 (R101) |
+| Miao等 | 2026 | Physics-informed Deep Mixture-of-Koopmans | https://arxiv.org/abs/2603.17416 | P1 | 高 | 新增 (R101) |
+| Barclay, Mahalov | 2026 | Nonlinear Sensor Motion Doppler Spectrum | https://arxiv.org/abs/2603.24870 | P1 | 高 | 新增 (R101) |
+| Wang, Zhang | 2026 | System-Anchored Knee Estimation PDE | https://arxiv.org/abs/2603.25025 | P1 | 中 | 新增 (R101) |
+
+### KAN理论深度文献 (Round 101)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Liu, Chatzi, Lai | 2025 | KAN收敛速率理论 | https://doi.org/10.48550/arXiv.2509.19830 | P0 | 高 | 新增 (R101) |
+| Gashi等 | 2025 | KAN系统辨识-Buck转换器 | https://doi.org/10.48550/arXiv.2506.10434 | P0 | 高 | 新增 (R101) |
+
+### MEASUREMENT期刊2026年新发现 (Round 100)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Tang等 | 2026 | FBG应变-温度解耦 | 10.1016/j.measurement.2026.121339 | P2 | 高 | 新增 (R100) |
+| Wang等 | 2026 | MEMS陀螺仪相位误差补偿 | 10.1016/j.measurement.2026.121150 | P2 | 高 | 新增 (R100) |
+| Li等 | 2026 | 半球谐振陀螺多模式误差补偿 | 10.1016/j.measurement.2026.121170 | P2 | 高 | 新增 (R100) |
+| Ban等 | 2026 | ADC线性度测试直方图方法 | 10.1016/j.measurement.2026.121086 | P2 | 高 | 新增 (R100) |
+| Feng等 | 2026 | 非线性非平稳信号去噪 | 10.1016/j.measurement.2026.121309 | P2 | 中高 | 新增 (R100) |
+| Fang等 | 2026 | 神经网络碰撞检测 | 10.1016/j.measurement.2026.121042 | P2 | 中 | 新增 (R100) |
+| Li等 | 2026 | 数字孪生温度场混合NN | 10.1016/j.measurement.2026.121186 | P2 | 中高 | 新增 (R100) |
+| Feng等 | 2026 | 气体传感器时域宽学习 | 10.1016/j.measurement.2026.121159 | P2 | 中 | 新增 (R100) |
+| Hu等 | 2026 | PINN迁移学习方法 | 10.1016/j.measurement.2026.121154 | P2 | 中 | 新增 (R100) |
+| Cao等 | 2026 | 光纤陀螺频率响应扩展 | 10.1016/j.measurement.2026.121096 | P2 | 中高 | 新增 (R100) |
+| Ma等 | 2026 | 微震信号去噪CNN | 10.1016/j.measurement.2026.121122 | P2 | 中 | 新增 (R100) |
+| Wu等 | 2026 | 结构位移监测数据融合 | 10.1016/j.measurement.2026.121153 | P2 | 中 | 新增 (R100) |
+| Mei等 | 2026 | 腔体内表面温度测量 | 10.1016/j.measurement.2026.121288 | P2 | 中 | 新增 (R100) |
+| Li等 | 2026 | MEMS水听器低频性能 | 10.1016/j.measurement.2026.121302 | P2 | 中 | 新增 (R100) |

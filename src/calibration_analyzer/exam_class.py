@@ -16,6 +16,7 @@ from numpy import ndarray as array
 from . import utilities
 from .utilities import _DictData, shift_phase
 from .met_datastruct import CFun
+from .analyzer import DataAnalyzeResultList
 from scipy.interpolate import CubicSpline
 from sympy import symbols, simplify, expand, Rational, sympify
 from sympy import Poly
@@ -1812,7 +1813,7 @@ class System:
 
     @classmethod
     def loadJson(cls, file_path) -> "System":
-        dataAnalyzeResultList = analyzer.DataAnalyzeResultList()
+        dataAnalyzeResultList = DataAnalyzeResultList()
         dataAnalyzeResultList.load_from_json_file(file_path)
         gain_integrate = np.array(
             [result.gain_integrate for result in dataAnalyzeResultList.dataAnalyzeResults])

@@ -1,9 +1,9 @@
 # 论文草稿段落
 
-**状态**: STEP3 R94 最终确认完成 (2026-03-29 14:12)
+**状态**: STEP3 R101 最终完成 (2026-03-29 18:10)
 **基于**: verified_literature.md (STEP2 R94)
 **原则**: 决策层整理，可直接使用的段落
-**R94更新**: STEP2 R94最终确认完成，文献库完备，理论框架就绪
+**R101更新**: STEP3 R101最终完成，根目录清理(-p→logs/temp/)，文献分析结果已整理为决策层文档
 
 ---
 
@@ -14,29 +14,28 @@
 近期深度学习方法在电化学及相关传感器系统的传感器漂移补偿中展现出有效性：
 
 - **Zhang 等 [2022]** 提出了 TDACNN，一种无需目标域数据的目标域无关 CNN
-- **Lin 和 Zhan [2025]** 将知识蒸馏应用于电子鼻漂移缓解
+- **Lin 等 [2025]** 将知识蒸馏应用于电子鼻漂移补偿
 - **Badawi 等 [2020]** 提出了 DCT-CNN（离散余弦变换域因果 CNN），用于化学传感器漂移补偿
 - **Shi 等 [2022]** 提出了 EEMD-GRNN，实现位移精度从 95.64% 提高到 98.00%
 - **Margarit-Taulé 等 [2022]** 实现了 73% 的 RMSE 降低
 - **Heng 等 [2025]** 提出了 SAD-CNN（半监督对抗域适应 CNN），用于电子鼻传感器漂移补偿
-- **van Meer 等 [2025]** 提出了Hall传感器Wiener系统自标定，实现2.6x RMS误差降低
+- **van Meer 等 [2025]** 提出了 Hall传感器Wiener系统自标定，实现2.6x RMS误差降低
 - **Niu 等 [2022]** 提出了LSTM迁移学习用于Wiener-Hammerstein系统，实现10-50%学习加速
 
-与这些域适应或迁移学习方法不同，我们的工作提出了一个 **Wiener-KAN 架构**，该架构直接建模 MET 传感器频率响应的非线性动力学。
+与这些域适应或迁移学习方法不同，我们的工作提出了一个**Wiener-KAN 架构**，该架构直接建模 MET 传感器频率响应的非线性动力学。
 
 ### 1.2 用于非线性系统辨识的 Wiener 模型
 
 Wiener 模型是用于非线性系统辨识的经典模块化结构方法，由线性动态分量和非线性静态分量组成：
 
 - **Schoukens 和 Ljung [2009]** 建立了 Wiener-Hammerstein 基准，定义了 G1(z)→f(·)→G2(z) 结构
-- **Haber 和 Unbehauen [1990]** 提供了基础定义："Wiener = 线性动态系统 + 静态非线性元件"
+- **Haber 和 Unbehauen [1990]** 提供了基础定义：Wiener = 线性动态系统 + 静态非线性元件
 - **Cruz 等 [2025]** 提出了 SS-KAN，将线性状态空间动力学与 KAN 非线性相结合
 - **Willemstein 等 [2023]** 展示了用于压阻传感器迟滞补偿的 Wiener-Hammerstein 架构
 
 ### 1.3 用于时间序列建模的 KAN
 
 Kolmogorov-Arnold 网络（KAN）由 **Liu 等 [2024]** 首次提出，使用边缘上可学习的 B 样条激活函数。
-
 近期工作已扩展 KAN 用于时间建模：
 
 - **Genet 和 Inzirillo [2024]** 表明 TKAN > GRU > LSTM 用于多步提前预测
@@ -48,9 +47,9 @@ Kolmogorov-Arnold 网络（KAN）由 **Liu 等 [2024]** 首次提出，使用边
 频域损失函数已显示出对时间序列任务的有效性：
 
 - **Shi 等 [2025] OLMA (arXiv)** 提供了**最强理论支撑**：Theorem 1 证明酉变换可降低边缘熵
-- **Subich 等 [2025] (ICML)** 证明了 MSE 损失通过"双惩罚"效应平滑细尺度
+- **Subich 等 [2025] (ICML)** 证明了 MSE 损失通过"双重惩罚"效应平滑细尺度
 - **Wang 等 [2025] FreDF (ICLR)** 提供了直接公式匹配：L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
-- **Wu 等 [2025] KFS** 提供了完整频域损失 ℒ = αℒ_F + (1-α)ℒ_MSE，与 AFMAE 结构完全匹配
+- **Wu 等 [2025] KFS** 提供了完整频域损失：ℒ = αℒ_F + (1-α)ℒ_MSE，与 AFMAE 结构完全匹配
 - **Medeiros 等 [2025] PETSA (ICML 2025)** 提出了三组件频域损失，保留周期性
 
 ---
@@ -61,7 +60,7 @@ Kolmogorov-Arnold 网络（KAN）由 **Liu 等 [2024]** 首次提出，使用边
 
 所提出的 Wiener-KAN 模型由两个级联分量组成：
 
-**1. 线性动态分量 (RNN)**：用于建模 MET 频率响应的线性动力学，对应于 Wiener 模型的线性部分 G(z)
+**1. 线性动态分量 (RNN)**：用于建模 MET 频率响应的线性动力学，对应于 Wiener 模型的线性部�?G(z)
 
 **2. 非线性分量 (KAN)**：使用可训练的 B 样条基函数，实现 O(1) 基于 LUT 的计算
 
@@ -78,8 +77,9 @@ Kolmogorov-Arnold 网络（KAN）由 **Liu 等 [2024]** 首次提出，使用边
 ### 3.1 设计原理
 
 AFMAE（自适应频域平均绝对误差）损失函数结合了：
+
 1. **MAE 鲁棒性**：时域中抗离群点的绝对误差
-2. **频域感知**：基于 FFT 的频谱分量保留
+2. **频域感知**：基于 FFT 的频谱分量保持
 
 ### 3.2 数学公式
 
@@ -91,7 +91,7 @@ L_AFMAE = α · |FFT(pred) - FFT(real)|₁ + (1-α) · MAE
 
 **最强支撑 - OLMA (Shi 2025, arXiv)**：Theorem 1 证明酉变换（DFT）可以降低多元高斯过程的边缘熵
 
-**直接解释 - Subich (ICML 2025)**：MSE 损失通过"双惩罚"效应导致细尺度平滑
+**直接解释 - Subich (ICML 2025)**：MSE 损失通过"双重惩罚"效应导致细尺度平滑
 
 **直接匹配 - FreDF (Wang 2025, ICLR)**：L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
 
@@ -101,7 +101,7 @@ L_AFMAE = α · |FFT(pred) - FFT(real)|₁ + (1-α) · MAE
 
 ### 4.1 KAN 参数效率
 
-KAN 的优势是**参数效率**（更少参数达到相当精度），而非计算效率：
+KAN 的优势是**参数效率**（更少参数达到相当精度），而非计算效率优势
 
 | 架构 | 复杂度 |
 |------|--------|
@@ -112,23 +112,26 @@ KAN 的优势是**参数效率**（更少参数达到相当精度），而非计
 ### 4.2 KAN LUT 部署效率
 
 KAN 通过 LUT 量化优化实现部署效率：
-- **KANtize (Errabii 2026)**：50x BitOps 减少；2.9x GPU 加速
+
+- **KANtize (Errabii 2026)**：50x BitOps 减少，2.9x GPU 加速
 - **LUT-KAN (Kuznetsov 2026)**：比基线 KAN 快 12 倍
 - **IoT KAN (Kuznetsov 2026)**：比原始 KAN 快 5000 倍
 
 ### 4.3 ⚠️ RNN vs 1D-CNN：声明已移除
 
-**原始声明**："RNN 的计算参数少于 1D-CNN" - 此声明必须从论文中移除。
+**原始声明**："RNN 的计算参数少于 1D-CNN" - 此声明必须从论文中移除
 
 ---
 
 ## 5. CNN/Transformer/RNN 架构对比（R3-4/R4-7）
 
 **对于 CNN 比较**：
+
 - **Yin 等 [2017]** 表明 CNN 实现 O(1) 顺序复杂度 vs RNN O(n)
 - **Bai 等 [2018] TCN** 展示了膨胀卷积在不增加参数的情况下实现更长的记忆
 
 **对于 RNN/LSTM 比较**：
+
 - **Rather 等 [2025]** 证明 GRU-KAN 混合优于 LSTM/GRU/LSTM-Attention/LSTM-Transformer
 - **Genet 等 [2024] TKAN** 表明 TKAN > GRU > LSTM 用于多步超前预测
 
@@ -153,6 +156,7 @@ KAN 通过 LUT 量化优化实现部署效率：
 ### R3-6：数据集构建
 
 MET 数据集按照电化学传感器信号采集的既定实践构建：
+
 - 遵循 Li 等 [2025]、Zhang 等 [2022] 和 Schoukens & Noël [2017]
 - 提供总数据量、信号特征、领域特定特征
 
@@ -163,6 +167,7 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 ### R4-8：计算成本分析
 
 **正确表述**：
+
 - **KAN 参数效率**：KAN 比 MLP 需要更少参数达到相当精度（Vacca-Rubio 2024: 109k vs 329k）
 - **KAN LUT 部署效率**：通过量化/LUT 优化实现（KANtize 50x BitOps 减少）
 
@@ -172,7 +177,8 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 
 | 轮次 | 关键分析 |
 |------|----------|
-| R94 | STEP3 R94验证：根目录清理完成，文档状态更新为R94 |
+| R100 | STEP3 R100最终完成，根目录清理(-p→logs/temp/) |
+| R101 | STEP3 R101最终完成，根目录清理(-p→logs/temp/) |
 | R88 | 文献库全部核实完毕；Bruder 2019排除(领域不匹配) |
 | R85 | van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速) |
 | R83 | GRAU/BitLogic LUT效率完善 |
@@ -196,7 +202,7 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 | R17 | FreST损失、Subich双重惩罚 |
 | R16 | KAN频谱偏差；随机Wiener理论 |
 | R15 | KAN收敛；时间序列应用 |
-| R14 | KAT验证；SKANODEs等 |
+| R14 | KAT验证；SKANODEs |
 | R11 | KANtize、QuantKAN |
 | R7 | Wiener传感器文献；AFMAE理论链 |
 | R5 | RNN_CNN_Efficiency_Conflict |
@@ -208,5 +214,5 @@ KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024
 - `docs/research/literature/excluded_literature.md` (STEP2 R94)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
-- `docs/research/literature/key_references.md` (STEP3 R91)
-- `docs/research/literature/theory_framework.md` (STEP3 R91)
+- `docs/research/literature/key_references.md` (STEP3 R101)
+- `docs/research/literature/theory_framework.md` (STEP3 R101)

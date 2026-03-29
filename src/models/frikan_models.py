@@ -842,7 +842,6 @@ class CNNKAN(BaseModel):
                  disable_basis_activation=True,
                  inner_kan_units=6,
                  inner_kan_layers=6,
-                 use_fast_model=True,
                  cnn_filters=8,
                  cnn_kernel_size=3,
                  dropout_rate=0.2,
@@ -865,7 +864,6 @@ class CNNKAN(BaseModel):
             disable_basis_activation: 是否禁用基底激活
             inner_kan_units: 内部KAN单元数量
             inner_kan_layers: 内部KAN层数
-            use_fast_model: 是否使用快速模型
             cnn_filters: Conv1D 输出通道数 (h8 = 8)
             cnn_kernel_size: Conv1D 卷积核大小
             dropout_rate: Dropout比率
@@ -887,16 +885,6 @@ class CNNKAN(BaseModel):
             activation='linear',
             name='cnn_filter'
         )
-        
-        self.fast_cnn = tf.keras.layers.Conv1D(
-            filters=cnn_filters,
-            kernel_size=cnn_kernel_size,
-            strides=1,
-            padding='same',
-            activation='linear',
-            name='fast_cnn_filter'
-        )
-        self.fast_iir = self.fast_cnn
         
         self.kan = DenseKAN(
             units=1,
@@ -931,9 +919,9 @@ class CNNKAN(BaseModel):
             self.dropout_rate) if self.dropout_rate > 0.0 else None
         self.fs = fs
         self.features_num = cnn_filters
-        self.use_fast_model = use_fast_model
         self.dropout_position = 'input'
         self.save_each_epoch = save_each_epoch
+        self.use_fast_model = False
         self.init_checkpoint(checkpoint_dir)
         self.build_model()
 
@@ -948,35 +936,22 @@ class CNNKAN(BaseModel):
             input_drop_out = input_layer
 
         cnn_out = self.cnn(input_drop_out)
-        fast_input = tf.keras.layers.Input(
-            shape=(None, self.cnn_filters), name='fast_input')
-        fast_cnn_out = self.fast_cnn(fast_input)
 
         if self.dropout_layer is not None and self.dropout_position == 'cnn':
             cnn_drop_out = self.dropout_layer(cnn_out)
-            fast_cnn_drop_out = self.dropout_layer(fast_cnn_out)
         else:
             cnn_drop_out = cnn_out
-            fast_cnn_drop_out = fast_cnn_out
 
         kan_inner_output = self.build_kan_inner_layers(cnn_drop_out)
-        fast_kan_inner_output = self.build_kan_inner_layers(fast_cnn_drop_out)
 
         if self.dropout_layer is not None and self.dropout_position == 'output':
             kan_inner_output = self.dropout_layer(kan_inner_output)
-            fast_kan_inner_output = self.dropout_layer(fast_kan_inner_output)
 
         output = self.kan(kan_inner_output)
-        fast_output = self.kan(fast_kan_inner_output)
 
         self.model = tf.keras.Model(
             inputs=input_layer, outputs=output, name='CNNKAN')
         self.model.build(input_shape=(None, None, 1))
-        
-        if self.use_fast_model:
-            self.fast_model = tf.keras.Model(
-                inputs=fast_input, outputs=fast_output, name='fast_CNNKAN')
-            self.fast_model.build(input_shape=(None, None, self.cnn_filters))
 
     def build_kan_inner_layers(self, cnn_out):
         """
@@ -999,36 +974,24 @@ class CNNKAN(BaseModel):
     def evaluate(self, *args, **kwargs):
         """
         评估模型性能
-
-        对于 CNNKAN，直接使用完整模型评估，
-        因为 fast_model 期望的输入（CNN输出，8通道）与原始输入（1通道）不同
         """
         return self.model.evaluate(*args, **kwargs)
 
     def fit(self, *args, **kwargs):
         """
         训练模型
-
-        对于 CNNKAN，直接使用完整模型训练，
-        因为 fast_model 期望的输入（CNN输出，8通道）与原始输入（1通道）不同
         """
         return self.model.fit(*args, **kwargs)
 
     def save_weights(self, *args, **kwargs):
         """
         保存模型权重
-
-        对于 CNNKAN，直接保存完整模型权重，
-        因为 fast_model 的层结构与 model 不同，不能直接从 fast_model 复制权重
         """
         return self.model.save_weights(*args, **kwargs)
 
     def predict(self, x_input, batch_size=None, verbose=1, **kwargs):
         """
         预测
-
-        对于 CNNKAN，直接使用完整模型预测，
-        因为 fast_model 期望的输入（CNN输出，8通道）与原始输入（1通道）不同
         """
         kwargs.pop('use_scaler', None)
         return self.model.predict(x_input, batch_size=batch_size, verbose=verbose, **kwargs)
