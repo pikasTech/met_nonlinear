@@ -13,40 +13,11 @@
 - STEP1 没有评判权，也没有推荐权；只允许记录事实、来源和待核实方向
 - 鼓励使用子代理并行拓展不同方向、不同数据库或不同理论领域的文献检索
 
-## 输入
+## 输入文件
 
-| 输入文件 | 说明 |
-|---------|------|
-| `.loop/PRINCIPLE.md` | 包含11个GAP的定义和支撑目标 |
-| `docs/IDEA.md` | 论文核心思路 |
-| `docs/research/literature/literature_catalog.md` | 已有文献目录（如有） |
-| `docs/research/literature/raw_literature.md` | 已有文献线索（如有） |
-
-## 输出
-
-| 输出文件 | 说明 |
-|---------|------|
-| `docs/research/literature/literature_catalog.md` | 结构化文献目录 |
-| `docs/research/literature/raw_literature.md` | 原始文献线索表 |
-| `docs/research/literature/{YYYYMMDD}/survey_report.md` | 调研报告 |
-
-## GAP文献需求分析
-
-STEP1需为每个GAP识别所需文献类型，建立GAP→文献需求映射：
-
-| GAP编号 | GAP主题 | 所需文献类型 |
-|---------|---------|-------------|
-| GAP1 | 电化学地震检波器频响漂移（温度→非线性） | 温度漂移研究、非线性建模 |
-| GAP2 | 线性度测量范围偏窄 | 线性度标定方法，已有充分支撑 |
-| GAP3 | 频率漂移的震级因素 | 震级/幅值对频响影响研究 |
-| GAP4 | 线性模型缺乏非线性建模 | Wiener/Hammerstein非线性系统识别 |
-| GAP5 | 温度外未建模震级因素 | 幅值相关频响漂移研究 |
-| GAP6 | 力反馈量程限制 | 前馈vs反馈补偿架构对比 |
-| GAP7 | 前馈利用非线性提升量程 | 非线性区前馈补偿应用 |
-| GAP8 | 频率相关补偿精度优势 | 频率相关vs频率无关补偿方法 |
-| GAP9 | 频率相关补偿计算效率 | 频域补偿计算复杂度分析 |
-| GAP10 | AFMAE vs 纯MAE | 频域损失vs时域损失对比 |
-| GAP11 | AFMAE vs 其他频域损失 | AFMAE vs FreDF/FIRE/OLMA效率对比 |
+.loop/PRINCIPLE.md
+docs/research/literature/
+docs/IDEA.md
 
 ## 推荐检索方向
 
@@ -134,14 +105,11 @@ STEP1需为每个GAP识别所需文献类型，建立GAP→文献需求映射：
 - 允许记录"文献已定位"，但不允许写"重要文献""核心引用"之类结论
 - 若本轮还更新了 `literature_catalog.md`、`raw_literature.md` 等汇总文档，必须在文档中补充对应调研报告路径引用
 
-## GAP文献缺口识别
+## 输出文件
 
-在完成文献收集后，需识别每个GAP的文献支撑缺口：
-
-1. 读取 `docs/research/literature/verified_literature.md` 中已有文献
-2. 对照GAP文献需求表，检查每个GAP是否有足够文献支撑
-3. 将缺口记录到 `docs/research/literature/GAP文献缺口.md`
-4. 将缺口文献作为下一轮STEP1检索的重点方向
+- `docs/research/literature/literature_catalog.md`
+- `docs/research/literature/raw_literature.md`
+- `docs/research/literature/{YYYYMMDD}/` 下的调研报告
 
 ## 禁止行为
 

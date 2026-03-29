@@ -1,6 +1,6 @@
 ## 任务
 
-对 STEP1 收集的文献线索进行深度阅读、分析和理论提取，形成系统性的理论综述；验证文献对 GAP 的支撑能力。
+对 STEP1 收集的文献线索进行深度阅读、分析和理论提取，形成系统性的理论综述。
 
 ## 核心原则
 
@@ -13,25 +13,13 @@
 - STEP2 有评判权，但没有推荐权；职责是判定文献质量、理论可靠性和与论文的相关度
 - 鼓励使用子代理并行分析不同主题或不同理论方向的文献，但最终必须统一收敛为一份系统性分析报告
 
-## 输入
+## 输入文件
 
-| 输入文件 | 说明 |
-|---------|------|
-| `.loop/PRINCIPLE.md` | 包含11个GAP的定义和支撑目标 |
-| `docs/IDEA.md` | 论文核心思路 |
-| `docs/research/literature/literature_catalog.md` | 文献目录 |
-| `docs/research/literature/raw_literature.md` | 待分析文献线索 |
-| `docs/research/literature/verified_literature.md` | 已验证文献（如有） |
-| `docs/research/literature/GAP文献缺口.md` | GAP文献缺口分析（如有） |
-
-## 输出
-
-| 输出文件 | 说明 |
-|---------|------|
-| `docs/research/literature/verified_literature.md` | 已验证文献（含GAP支撑标注） |
-| `docs/research/literature/excluded_literature.md` | 排除文献及原因 |
-| `docs/research/literature/{YYYYMMDD}/analysis_report.md` | 分析报告 |
-| `docs/research/literature/GAP文献缺口.md` | 更新后的GAP文献缺口 |
+.loop/PRINCIPLE.md
+docs/research/literature/literature_catalog.md
+docs/research/literature/raw_literature.md
+docs/research/literature/verified_literature.md
+docs/IDEA.md
 
 ## 流程
 
@@ -60,56 +48,15 @@
   - 无法获取全文/理论不可靠/明显不相关 -> `docs/research/literature/excluded_literature.md`
   - 仍缺关键信息 -> 留在 `docs/research/literature/raw_literature.md` 并保留简短待办
 - 更新时优先改现有条目，不要把同一文献在三个文件里重复写成长篇全文
-- 对 `docs/research/literature/verified_literature.md` 中的文献，必须补齐以下字段：
-  - **下载链接**（DOI链接或可直接访问的PDF链接，**必填项**）
+- 对 `docs/research/literature/verified_literature.md` 中的文献，尽量补齐以下字段：
   - 核心贡献
   - 关键方法/理论
   - 主要结论
   - 与论文的相关点
   - 可引用的具体内容
-  - GAP支撑等级（强支撑/弱支撑）
-  - 支撑的GAP编号列表
 - 每个进入 `docs/research/literature/verified_literature.md` 的文献都必须有理论分析记录；没有分析记录就不能通过
 - 如果证据不足，只能维持 `pending` 或转入 `excluded`，不能为了推进节奏放行
 - 若本轮更新了 `verified_literature.md`、`excluded_literature.md`、`SUMMARY.md` 等汇总文档，必须补充对应分析报告路径引用
-
-## GAP文献支撑验证
-
-对每条进入 `verified_literature.md` 的文献，需明确标注其 GAP 支撑能力：
-
-### 标注格式
-
-在 `verified_literature.md` 的文献条目中增加 GAP 支撑字段：
-
-```
-GAP支撑: [GAP编号列表]
-支撑说明: [具体支撑内容]
-```
-
-### GAP支撑能力判定标准
-
-| 支撑等级 | 说明 | 条件 |
-|---------|------|------|
-| 强支撑 | 文献**直接证明**GAP声称 | 方法论相同或等价，且实验/理论验证充分 |
-| 弱支撑 | 文献提供**侧证或背景** | 同领域研究、类似方法、综述性内容 |
-
-### 强支撑判定条件（必须同时满足）
-1. 文献方法与GAP声称直接对应（如GAP8频率相关补偿，文献也研究频率相关补偿）
-2. 有具体的实验验证或理论证明
-3. 可提取出可直接引用的表述或数据
-
-### 弱支撑判定条件（满足任一即可）
-1. 文献研究领域相关但方法不同
-2. 提供背景知识但不能直接证明GAP声称
-3. 综述性论文或教科书级内容
-
-### GAP文献缺口更新
-
-分析完成后，更新 `docs/research/literature/GAP文献缺口.md`：
-
-1. 将已找到支撑的GAP移出缺口列表
-2. 记录新发现的支撑文献
-3. 保留仍无支撑的GAP并标记缺口等级
 
 ## 理论提取重点
 
@@ -156,6 +103,13 @@ GAP支撑: [GAP编号列表]
 - 前馈补偿 vs 反馈补偿的比较
 - 深度学习在传感器补偿中的应用
 - 补偿效果评估指标（谐波失真、信噪比等）
+
+## 输出文件
+
+- `docs/research/literature/verified_literature.md`
+- `docs/research/literature/excluded_literature.md`
+- `docs/research/literature/{YYYYMMDD}/` 下的分析报告
+- `docs/research/literature/SUMMARY.md`（如分析结果改变当前理论认知）
 
 ## 禁止行为
 
