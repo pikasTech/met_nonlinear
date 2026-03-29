@@ -1,210 +1,212 @@
-# Wiener Model Literature Search Report
+# Wiener模型文献检索报告
 
-Date: 2026-03-28
-Search Focus: Wiener model theory and nonlinear system identification
-Status: STEP3 - Systematic Search Completed
+日期：2026-03-28
+检索重点：Wiener模型理论与非线性系统辨识
+状态：STEP3 - 系统检索已完成
 
 ---
 
-## 1. Search Scope and Databases
+## 1. 检索范围和数据库
 
-Target Databases:
-- IEEE Xplore: Signal processing, control systems, circuit theory
-- ScienceDirect: Nonlinear dynamics, system identification
-- Google Scholar: General literature coverage
-- arXiv: Preprints on KAN, Wiener systems, time series
+目标数据库：
+- IEEE Xplore：信号处理、控制系统、电路理论
+- ScienceDirect：非线性动力学、系统辨识
+- Google Scholar：综合文献覆盖
+- arXiv：KAN、Wiener系统、时间序列预印本
 
-Search Keywords:
-- Wiener Model: Wiener system, Wiener model, Wiener-Hammerstein, nonlinear system identification
-- KAN Networks: Kolmogorov-Arnold, KAN, B-spline, neural network
-- Electrochemical: electrochemical sensing, sensor drift, E-nose
-- Seismic: seismic sensor, geophone, accelerometer
+检索关键词：
+- Wiener模型：Wiener系统、Wiener模型、Wiener-Hammerstein、非线性系统辨识
+- KAN网络：Kolmogorov-Arnold、KAN、B样条、神经网络
+- 电化学：电化学传感、传感器漂移、电子鼻
+- 地震：地震传感器、检波器、加速度计
 
-## 2. Wiener Model Fundamentals
+## 2. Wiener模型基础
 
-### 2.1 Historical Background
+### 2.1 历史背景
 
-Original Wiener Model (Norbert Wiener, 1958):
-- Reference: Wiener, N. (1958). Nonlinear Problems in Random Theory. MIT Press.
-- Status: NOT YET VERIFIED with full citation
-- Content: First systematic treatment of nonlinear system modeling using stochastic processes
+原始Wiener模型（Norbert Wiener, 1958）：
+- 参考文献：Wiener, N. (1958). Nonlinear Problems in Random Theory. MIT Press.
+- 状态：尚未完全验证引用信息
+- 内容：首次系统处理使用随机过程的非线性系统建模
 
-### 2.2 Wiener System Structure
+### 2.2 Wiener系统结构
 
-A Wiener system consists of:
-Input u(t) - Dynamic System L(D) - - Nonlinearity f(x) - y(t)
+Wiener系统由以下部分组成：
+输入u(t) - 动态系统L(D) - 非线性f(x) - 输出y(t)
 
-Mathematical Form:
-- Linear part: x(t) = G(q)u(t) where G(q) is a rational function in shift operator
-- Nonlinear part: y(t) = f(x(t)) where f is a memoryless nonlinearity
+数学形式：
+- 线性部分：x(t) = G(q)u(t)，其中G(q)是移位算子中的有理函数
+- 非线性部分：y(t) = f(x(t))，其中f是无记忆非线性
 
-### 2.3 Wiener-Hammerstein Model
+### 2.3 Wiener-Hammerstein模型
 
-Structure: Linear block - block - block
+结构：线性模块 - 模块 - 模块
 
-Applications:
-- RF power amplifier modeling
-- Electrochemical sensor dynamics
-- Seismic sensor compensation
+应用：
+- 射频功率放大器建模
+- 电化学传感器动力学
+- 地震传感器补偿
 
-## 3. Key Papers - Verification Status
+## 3. 关键论文 - 验证状态
 
-### 3.1 P0 - Core Wiener-KAN Connection
+### 3.1 P0 - 核心Wiener-KAN连接
 
-Cruz et al. - State-Space KAN for Wiener-Hammerstein (2025):
+Cruz等 - 用于Wiener-Hammerstein的状态空间KAN（2025）：
 - arXiv ID: 2506.16392
-- Status: VERIFIED - Direct Wiener-KAN foundation
-- Authors: Cruz, J.M.G.; San Martin, R.; Mores, H.; Rodriguez, D.
-- Key Contribution: SS-KAN = linear state-space + KAN nonlinearity for Wiener-Hammerstein
-- Relevance: DIRECT - Establishes theoretical connection between Wiener and KAN
+- 状态：已验证 - 直接Wiener-KAN基础
+- 作者：Cruzo, J.M.G.; San Martin, R.; Mores, H.; Rodriguez, D.
+- 关键贡献：SS-KAN = 线性状态空间 + KAN非线性，用于Wiener-Hammerstein
+- 相关性：直接 - 建立Wiener与KAN之间的理论联系
 
-Manavalan, Tronarp - Barron-Wiener-Laguerre (2026):
+Manavalan, Tronarp - Barron-Wiener-Laguerre（2026）：
 - arXiv ID: 2602.13098
-- Status: VERIFIED - Theoretical framework
-- Authors: Manavalan, S.; Tronarp, J.
-- Key Contribution: Barron space theory + Wiener model + Laguerre bases
-- Relevance: HIGH - Complete theoretical framework for Wiener-class models
+- 状态：已验证 - 理论框架
+- 作者：Manavalan, S.; Tronarp, J.
+- 关键贡献：Barron空间理论 + Wiener模型 + Laguerre基
+- 相关性：高 - Wiener类模型的完整理论框架
 
-Liu et al. - KAN: Kolmogorov-Arnold Networks (2024):
+Liu等 - KAN: Kolmogorov-Arnold网络（2024）：
 - arXiv ID: 2404.19756
-- Status: VERIFIED
-- Authors: Liu, Z.; Wang, Y.; Vahid, M.; Matusik, W.; Tegmark, M.
-- Venue: ICLR 2025
-- Key Contribution: First KAN based on Kolmogorov-Arnold theorem; B-spline on edges
-- Relevance: DIRECT - KAN replaces Wiener static nonlinearity
+- 状态：已验证
+- 作者：Liu, Z.; Wang, Y.; Vahid, M.; Matusik, W.; Tegmark, M.
+- 会议：ICLR 2025
+- 关键贡献：首个基于Kolmogorov-Arnold定理的KAN；边上的B样条
+- 相关性：直接 - KAN替代Wiener静态非线性
 
-### 3.2 P1 - Frequency Domain Loss
+### 3.2 P1 - 频域损失
 
-Jiang et al. - Focal Frequency Loss (2020/2021):
+Jiang等 - 聚焦频率损失（2020/2021）：
 - arXiv ID: 2012.12821
-- Status: VERIFIED - Theory basis for AFMAE
-- Venue: ICCV 2021
-- Note: AFMAE original source NOT FOUND; FFL provides theory basis
+- 状态：已验证 - AFMAE理论依据
+- 会议：ICCV 2021
+- 注：AFMAE原始来源未找到；FFL提供理论基础
 
-Wang et al. - SAMFre (2025):
+Wang等 - SAMFre（2025）：
 - arXiv ID: 2505.17532
-- Status: VERIFIED
-- Key Contribution: FFT + Sharpness-Aware Minimization for frequency domain
+- 状态：已验证
+- 关键贡献：FFT + 锐度感知最小化用于频域
 
-### 3.3 P2 - Applied Technology
+### 3.3 P2 - 应用技术
 
-Zhang et al. - TDACNN (2022):
+Zhang等 - TDACNN（2022）：
 - arXiv ID: 2110.07509
-- Status: VERIFIED
-- Key Contribution: Target-domain-free CNN for sensor drift compensation
+- 状态：已验证
+- 关键贡献：无需目标域的CNN用于传感器漂移补偿
 
-Lin, Zhan - Knowledge Distillation E-nose (2025):
+Lin, Zhan - 电子鼻知识蒸馏（2025）：
 - arXiv ID: 2507.17071
-- Status: VERIFIED
-- PDF Available: 2507.17071.pdf (7.26 MB in project root)
+- 状态：已验证
+- PDF可用：2507.17071.pdf（项目根目录7.26 MB）
 
-Yin et al. - CNN vs RNN Comparative Study (2017):
+Yin等 - CNN vs RNN比较研究（2017）：
 - arXiv ID: 1702.01923
-- Status: VERIFIED
-- Key Finding: CNNs achieve O(1) sequential complexity vs RNNs O(n)
+- 状态：已验证
+- 关键发现：CNN达到O(1)顺序复杂度 vs RNN的O(n)
 
-Xie, Zhang - Deep Filtering (2021):
+Xie, Zhang - 深度滤波（2021）：
 - arXiv ID: 2112.12616
-- Status: VERIFIED
-- Key Finding: 60-70pct computation reduction with depthwise separable convolutions
+- 状态：已验证
+- 关键发现：使用深度可分离卷积减少60-70%计算量
 
-## 4. Literature Gaps and Pending Verification
+## 4. 文献空白和待验证项目
 
-### 4.1 NOT FOUND - Requires Future Investigation
+### 4.1 未找到 - 需要未来调查
 
-Gap - Priority - Impact - Recommended Action
-AFMAE Original Source - HIGH - Cannot cite specific AFMAE paper - Use FFL (Jiang 2021) as theory basis
-Original Wiener Model (1958) - MEDIUM - Historical reference incomplete - Verify via MIT Press or IEEE libraries
-RVTDCNN PA Linearization - HIGH - R3-5 claim unsupported - Discontinue per IDEA.md
-Transformer for Time Series - MEDIUM - R3-4 comparison incomplete - Investigate Informer, Autoformer
-Dataset Construction Reference - MEDIUM - R3-6 must use internal description - Use internal data description
+| 空白 | 优先级 | 影响 | 建议行动 |
+|------|--------|------|----------|
+| AFMAE原始来源 | 高 | 无法引用特定AFMAE论文 | 使用FFL（Jiang 2021）作为理论基础 |
+| 原始Wiener模型（1958） | 中 | 历史参考文献不完整 | 通过MIT Press或IEEE图书馆验证 |
+| RVTDCNN PA线性化 | 高 | R3-5声明不支持 | 按IDEA.md停止 |
+| Transformer用于时间序列 | 中 | R3-4比较不完整 | 调查Informer、Autoformer |
+| 数据集构建参考 | 中 | R3-6必须使用内部描述 | 使用内部数据描述 |
 
-### 4.2 Suspected Duplicates
+### 4.2 疑似重复
 
-No duplicates identified among verified papers.
+已验证论文中未发现重复。
 
-### 4.3 Transformer Literature (R3-4 Gap)
+### 4.3 Transformer文献（R3-4空白）
 
-Authors - Year - Title - arXiv ID - Status
-Zhou et al. - 2021 - Informer - arXiv:2012.07436 - Pending
-Wu et al. - 2021 - Autoformer - arXiv:2111.14897 - Pending
-Zhou et al. - 2022 - FEDformer - arXiv:2202.07125 - Pending
-Wen et al. - 2022 - Survey - arXiv:2202.07125 - Pending
-Vaswani et al. - 2017 - Attention - arXiv:1706.03762 - Pending
+| 作者 | 年份 | 标题 | arXiv ID | 状态 |
+|------|------|------|----------|------|
+| Zhou等 | 2021 | Informer | arXiv:2012.07436 | 待验证 |
+| Wu等 | 2021 | Autoformer | arXiv:2111.14897 | 待验证 |
+| Zhou等 | 2022 | FEDformer | arXiv:2202.07125 | 待验证 |
+| Wen等 | 2022 | 综述 | arXiv:2202.07125 | 待验证 |
+| Vaswani等 | 2017 | Attention | arXiv:1706.03762 | 待验证 |
 
-## 5. Wiener Model Applications
+## 5. Wiener模型应用
 
-### 5.1 Electrochemical Sensing
+### 5.1 电化学传感
 
-Key References:
-- Zhang et al. 2022 (TDACNN) - Sensor drift domain adaptation
-- Lin, Zhan 2025 (KD E-nose) - Knowledge distillation for drift
+关键参考文献：
+- Zhang等 2022（TDACNN）- 传感器漂移域适应
+- Lin, Zhan 2025（电子鼻知识蒸馏）- 用于漂移的知识蒸馏
 
-Wiener Model Relevance:
-- Electrochemical sensors exhibit nonlinear dynamics
-- Wiener model captures linear dynamics + static nonlinearity
-- KAN as static nonlinearity may improve modeling accuracy
+Wiener模型相关性：
+- 电化学传感器呈现非线性动力学
+- Wiener模型捕捉线性动力学 + 静态非线性
+- KAN作为静态非线性可能提高建模精度
 
-### 5.2 Seismic Sensors
+### 5.2 地震传感器
 
-Key References:
-- NOT YET VERIFIED - Seismic sensor Wiener modeling papers
-- Recommended search: Wiener model seismic sensor, geophone nonlinear identification
+关键参考文献：
+- 尚未验证 - 地震传感器Wiener建模论文
+- 建议搜索：Wiener模型地震传感器、检波器非线性辨识
 
-## 6. Summary of Verified Citations
+## 6. 已验证引用摘要
 
-Complete Citation List (Verified):
+已验证引用完整列表：
 
-1. Liu et al. (2024) - KAN: Kolmogorov-Arnold Networks
+1. Liu等（2024）- KAN: Kolmogorov-Arnold网络
    - arXiv:2404.19756, ICLR 2025
 
-2. Cruz et al. (2025) - State-Space KAN for Wiener-Hammerstein
-   - arXiv:2506.16392, Direct Wiener-KAN foundation
+2. Cruz等（2025）- 用于Wiener-Hammerstein的状态空间KAN
+   - arXiv:2506.16392, 直接Wiener-KAN基础
 
-3. Manavalan, Tronarp (2026) - Barron-Wiener-Laguerre
-   - arXiv:2602.13098, Theoretical framework
+3. Manavalan, Tronarp（2026）- Barron-Wiener-Laguerre
+   - arXiv:2602.13098, 理论框架
 
-4. Jiang et al. (2021) - Focal Frequency Loss
-   - arXiv:2012.12821, ICCV 2021, AFMAE theory basis
+4. Jiang等（2021）- 聚焦频率损失
+   - arXiv:2012.12821, ICCV 2021, AFMAE理论基础
 
-5. Wang et al. (2025) - SAMFre
-   - arXiv:2505.17532, Frequency domain loss implementation
+5. Wang等（2025）- SAMFre
+   - arXiv:2505.17532, 频域损失实现
 
-6. Zhang et al. (2022) - TDACNN
-   - arXiv:2110.07509, Sensor drift compensation
+6. Zhang等（2022）- TDACNN
+   - arXiv:2110.07509, 传感器漂移补偿
 
-7. Lin, Zhan (2025) - Knowledge Distillation E-nose
-   - arXiv:2507.17071, Transfer learning for drift
+7. Lin, Zhan（2025）- 电子鼻知识蒸馏
+   - arXiv:2507.17071, 漂移迁移学习
 
-8. Yin et al. (2017) - CNN vs RNN
-   - arXiv:1702.01923, Architecture efficiency
+8. Yin等（2017）- CNN vs RNN
+   - arXiv:1702.01923, 架构效率
 
-9. Xie, Zhang (2021) - Deep Filtering
-   - arXiv:2112.12616, Computation reduction
+9. Xie, Zhang（2021）- 深度滤波
+   - arXiv:2112.12616, 计算减少
 
-## 7. Next Steps for Verification
+## 7. 未来验证步骤
 
-1. Verify Cruz et al. (2506.16392): Access full paper for Wiener-Hammerstein SS-KAN details
-2. Verify Manavalan, Tronarp (2602.13098): Access Barron-Wiener-Laguerre theory
-3. Search IEEE Xplore: Wiener model in electrochemical sensing
-4. Search seismic applications: Wiener-Hammerstein for geophones
+1. 验证Cruz等（2506.16392）：获取Wiener-Hammerstein SS-KAN细节的全文
+2. 验证Manavalan, Tronarp（2602.13098）：获取Barron-Wiener-Laguerre理论
+3. 搜索IEEE Xplore：电化学传感中的Wiener模型
+4. 搜索地震应用：用于检波器的Wiener-Hammerstein
 
-Database Access Required:
-- IEEE Xplore: For Wiener original (1958) and IEEE transactions
-- ScienceDirect: For nonlinear system identification methods
-- MIT Press: For Wiener 1958 original text
+需要的数据库访问：
+- IEEE Xplore：用于Wiener原始论文（1958）和IEEE汇刊
+- ScienceDirect：用于非线性系统辨识方法
+- MIT Press：用于Wiener 1958原始文本
 
-## 8. Document Information
+## 8. 文档信息
 
-Based on:
+基于：
 - key_references.md (STEP3)
 - verified_literature.md (STEP2)
 - literature_catalog.md
 - raw_literature.md
 - theory_framework.md
 
-Related Documents:
+相关文档：
 - docs/research/literature/SUMMARY.md
 - docs/research/literature/paper_draft_segments.md
 
-Last Updated: 2026-03-28
+最后更新：2026-03-28

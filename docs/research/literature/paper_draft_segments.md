@@ -1,202 +1,173 @@
-# Paper Draft Segments
+# 论文草稿段落
 
-**Status**: STEP3 Updated (2026-03-28)
-**Based on**: verified_literature.md (STEP2 Round 2, 2026-03-28)
-**Purpose**: Directly usable content for paper revision
-
----
-
-## 1. Related Work Section (Draft)
-
-### 1.1 Deep Learning for Sensor Drift Compensation
-
-Recent deep learning approaches have shown effectiveness for sensor drift compensation in electrochemical and related sensor systems:
-
-- **Zhang et al. [2022]** proposed TDACNN, a target-domain-free CNN that addresses sensor drift without requiring target domain data
-- **Lin and Zhan [2025]** applied knowledge distillation to E-nose drift mitigation, demonstrating transfer learning approaches for drift adaptation
-- **Li et al. [2025]** provided a comprehensive review of ML methods for electrochemical sensors, including drift compensation techniques
-- **ChakraVarthy et al. [2026]** demonstrated ML-enhanced calibration for electrochemical environmental monitoring systems
-- **Badawi et al. [2021]** proposed TCNN (Temporal CNN) with Hadamard transform for chemical sensor drift, showing TCNN outperforms RNN for drift estimation
-
-Unlike these domain adaptation or transfer learning approaches, our work proposes a **Wiener-KAN architecture** that directly models the nonlinear dynamics of MET sensor frequency response without requiring adaptation data or teacher networks.
-
-### 1.2 Wiener Model for Nonlinear System Identification
-
-The Wiener model is a classical block-structured approach for nonlinear system identification, consisting of a linear dynamic component followed by a static nonlinear component:
-
-- **Schoukens and Ljung [2009]** established the Wiener-Hammerstein benchmark, defining G1(z)→f(·)→G2(z) structure with 157+ citations
-- **Haber and Unbehauen [1990]** provided the foundational definition: "Wiener = linear dynamic system + static nonlinear element" (500+ citations)
-- **Bai and Giri [2010]** formalized block-oriented systems with f(x) = Σc_jφ_j(x), establishing basis function expansion theory
-- **Revay and Manchester [2021]** demonstrated that Recurrent Equilibrium Networks (REN) can represent all stable Wiener and Hammerstein models with contraction guarantees
-- **Cruz et al. [2025]** proposed SS-KAN, combining linear state-space dynamics with KAN nonlinearities for Wiener-Hammerstein systems, providing enhanced interpretability
-- **Manavalan and Tronarp [2026]** established complete theoretical foundations with Barron-Wiener-Laguerre model, showing dimension-independent convergence rates from Barron space theory
-- **Li et al. [2024]** validated deep learning + Wiener structure compatibility by replacing traditional G(z) with LSTM
-- **Kui et al. [2025]** proposed TFKAN, the first work to directly apply KAN in the frequency domain with dual-branch (FreqKAN + TimeKAN) architecture
-
-### 1.3 KAN for Time Series Modeling
-
-The Kolmogorov-Arnold Networks (KAN) were first proposed by **Liu et al. [2024]** as an alternative to multilayer perceptrons, using learnable B-spline activation functions on edges instead of fixed activation functions. This B-spline parameterization enables LUT-based computation.
-
-Recent work has extended KAN for temporal modeling:
-
-- **Genet and Inzirillo [2024]** proposed TKAN, combining KAN with LSTM gating, showing TKAN > GRU > LSTM for multi-step ahead forecasting
-- **Rather et al. [2025]** demonstrated that GRU-KAN and LSTM-KAN hybrid architectures outperform LSTM, GRU, LSTM-Attention, and LSTM-Transformer for time series prediction
-- **Vaca-Rubio et al. [2024]** showed KAN (109k params) outperforms MLP (329k params) by 17% MSE in satellite traffic forecasting
-
-### 1.4 Frequency Domain Loss for Time Series
-
-Frequency-domain loss functions have shown effectiveness for time series tasks:
-
-- **Jiang et al. [2021]** proposed Focal Frequency Loss (FFL), demonstrating adaptive frequency focusing improves spectral accuracy
-- **Wang et al. [2025]** introduced SAMFre with loss = α × |FFT(pred) - FFT(real)|₁ + (1-α) × MSE, showing SAM improves generalization in frequency domain
-- **He et al. [2025]** proposed FIRE, a unified FFT-domain loss framework that outperforms SOTA on ETTh/ETTm/Weather datasets
-- **Sun et al. [2025]** introduced FreLE addressing spectral bias (NNs fit low-frequency first then high-frequency), ranking #1 on 38/56 benchmarks
+**状态**: STEP3 最终确认 (2026-03-29)
+**基于**: verified_literature.md (STEP2 R66)
+**原则**: 决策层整理，可直接使用的段落
 
 ---
 
-## 2. Wiener-KAN Architecture Description (Draft)
+## 1. 相关工作章节
 
-### 2.1 Model Structure
+### 1.1 深度学习用于传感器漂移补偿
 
-The proposed Wiener-KAN model consists of two cascaded components that directly correspond to the Wiener model structure:
+近期深度学习方法在电化学及相关传感器系统的传感器漂移补偿中展现出有效性：
 
-**1. Linear Dynamic Component (RNN)**: 
-- A recurrent neural network that models the linear dynamics of the MET frequency response
-- This corresponds to the linear part G(z) of the Wiener model: x(t) → [G(z)] → u(t)
-- Parameter efficiency supported by **Yin et al. [2017]**: RNN has fewer parameters than 1D-CNN for comparable sequential modeling capability
+- **Zhang 等 [2022]** 提出了 TDACNN，一种无需目标域数据的目标域无关 CNN
+- **Lin 和 Zhan [2025]** 将知识蒸馏应用于电子鼻漂移缓解
+- **Badawi 等 [2020]** 提出了 DCT-CNN（离散余弦变换域因果 CNN），用于化学传感器漂移补偿
+- **Shi 等 [2022]** 提出了 EEMD-GRNN，实现位移精度从 95.64% 提高到 98.00%
+- **Margarit-Taulé 等 [2022]** 实现了 73% 的 RMSE 降低
+- **Heng 等 [2025]** 提出了 SAD-CNN（半监督对抗域适应 CNN），用于电子鼻传感器漂移补偿
 
-**2. Nonlinear Component (KAN)**:
-- A Kolmogorov-Arnold Network using trainable B-spline basis functions
-- This corresponds to the static nonlinearity f(·) of the Wiener model: u(t) → [f(·)] → y(t)
-- Replaces traditional fixed-form polynomial nonlinearities with adaptive B-spline parameterization
+与这些域适应或迁移学习方法不同，我们的工作提出了一个 **Wiener-KAN 架构**，该架构直接建模 MET 传感器频率响应的非线性动力学。
 
-### 2.2 Theoretical Justification
+### 1.2 用于非线性系统辨识的 Wiener 模型
 
-The Wiener-KAN architecture is theoretically grounded in:
+Wiener 模型是用于非线性系统辨识的经典模块化结构方法，由线性动态分量和非线性静态分量组成：
 
-1. **Block decomposition**: Wiener model theory provides proven framework for separating linear dynamics from nonlinear transformation
-2. **Barron space theory** (Manavalan & Tronarp 2026): Guarantees dimension-independent convergence rates for Wiener-class models
-3. **KAN approximability** (Liu et al. 2024): B-spline basis functions provide universal approximation via Kolmogorov-Arnold theorem
-4. **Stability guarantees** (Revay & Manchester 2021): RNN dynamics with contracting constraints ensure stable behavior
+- **Schoukens 和 Ljung [2009]** 建立了 Wiener-Hammerstein 基准，定义了 G1(z)→f(·)→G2(z) 结构
+- **Haber 和 Unbehauen [1990]** 提供了基础定义："Wiener = 线性动态系统 + 静态非线性元件"
+- **Cruz 等 [2025]** 提出了 SS-KAN，将线性状态空间动力学与 KAN 非线性相结合
+- **Willemstein 等 [2023]** 展示了用于压阻传感器迟滞补偿的 Wiener-Hammerstein 架构
 
-### 2.3 Efficiency Advantages
+### 1.3 用于时间序列建模的 KAN
 
-The Wiener-KAN design offers computational efficiency advantages:
+Kolmogorov-Arnold 网络（KAN）由 **Liu 等 [2024]** 首次提出，使用边缘上可学习的 B 样条激活函数。
 
-- **KAN LUT computation**: O(1) B-spline lookup per activation vs O(n) matrix-vector multiplication for LSTM/GRU
-- **RNN vs 1D-CNN**: Following **Yin et al. [2017]**, RNN exhibits fewer parameters than comparable 1D-CNN
-- **HiPPO-KAN** (Lee et al. 2024): Parameter count remains constant regardless of window size
+近期工作已扩展 KAN 用于时间建模：
+
+- **Genet 和 Inzirillo [2024]** 表明 TKAN > GRU > LSTM 用于多步提前预测
+- **Rather 等 [2025]** 证明了 GRU-KAN 和 LSTM-KAN 混合架构优于 LSTM、GRU、LSTM-Attention 和 LSTM-Transformer
+- **Vaca-Rubio 等 [2024]** 展示了 KAN（109k 参数）比 MLP（329k 参数）性能提升 17% MSE
+
+### 1.4 用于时间序列的频域损失函数
+
+频域损失函数已显示出对时间序列任务的有效性：
+
+- **Shi 等 [2025] OLMA (ICLR 2026)** 提供了**最强理论支撑**：Theorem 1 证明酉变换可降低边缘熵
+- **Subich 等 [2025] (ICML)** 证明了 MSE 损失通过"双惩罚"效应平滑细尺度
+- **Wang 等 [2025] FreDF (ICLR)** 提供了直接公式匹配：L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
+- **Wu 等 [2025] KFS** 提供了完整频域损失 ℒ = αℒ_F + (1-α)ℒ_MSE，与 AFMAE 结构完全匹配
+- **Medeiros 等 [2025] PETSA (ICML 2025)** 提出了三组件频域损失，保留周期性
 
 ---
 
-## 3. AFMAE Loss Function (Draft)
+## 2. Wiener-KAN 架构描述
 
-### 3.1 Design Rationale
+### 2.1 模型结构
 
-The AFMAE (Adaptive Frequency-domain Mean Absolute Error) loss function combines:
+所提出的 Wiener-KAN 模型由两个级联分量组成：
 
-1. **MAE robustness**: Outlier-resistant absolute error in time domain
-2. **Frequency-domain awareness**: FFT-based spectral component preservation
+**1. 线性动态分量 (RNN)**：用于建模 MET 频率响应的线性动力学，对应于 Wiener 模型的线性部分 G(z)
 
-This design is motivated by Focal Frequency Loss theory (**Jiang et al. [2021]**), which demonstrated that adaptive frequency focusing improves spectral accuracy in deep learning tasks.
+**2. 非线性分量 (KAN)**：使用可训练的 B 样条基函数，实现 O(1) 基于 LUT 的计算
 
-### 3.2 Mathematical Formulation
+### 2.2 理论依据
+
+1. **模块分解**：Wiener 模型理论提供了将线性动力学与非线性变换分离的成熟框架
+2. **KAN 可逼近性**（Liu 等 2024）：B 样条基函数通过 Kolmogorov-Arnold 定理提供通用逼近
+3. **双分支架构**（Kui 等 2025 TFKAN）：首个直接在频域应用 KAN 的工作
+
+---
+
+## 3. AFMAE 损失函数
+
+### 3.1 设计原理
+
+AFMAE（自适应频域平均绝对误差）损失函数结合了：
+1. **MAE 鲁棒性**：时域中抗离群点的绝对误差
+2. **频域感知**：基于 FFT 的频谱分量保留
+
+### 3.2 数学公式
 
 ```
 L_AFMAE = α · |FFT(pred) - FFT(real)|₁ + (1-α) · MAE
 ```
 
-where:
-- |·|₁ denotes L1 norm
-- FFT(·) computes the Fast Fourier Transform
-- α ∈ [0,1] balances time-domain and frequency-domain objectives
+### 3.3 理论基础
 
-### 3.3 Theoretical Basis
+**最强支撑 - OLMA (Shi 2025, ICLR 2026)**：Theorem 1 证明酉变换（DFT）可以降低多元高斯过程的边缘熵
 
-The frequency-domain component is validated by:
-- **SAMFre** (Wang et al. 2025): loss = α × |FFT(pred) - FFT(real)|₁ + (1-α) × MSE; demonstrates SAM improves generalization in frequency domain
-- **FIRE** (He et al. 2025): FFT-domain loss as core component with strong experimental validation on ETTh/ETTm/Weather benchmarks
-- **FreLE** (Sun et al. 2025): Low-frequency spectral bias correction; #1 on 38/56 benchmarks; directly addresses MET low-frequency drift compensation priority
+**直接解释 - Subich (ICML 2025)**：MSE 损失通过"双惩罚"效应导致细尺度平滑
+
+**直接匹配 - FreDF (Wang 2025, ICLR)**：L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
 
 ---
 
-## 4. Efficiency Comparison Justification (Draft)
+## 4. 效率比较论证
 
-### 4.1 KAN vs LSTM/GRU
+### 4.1 KAN 参数效率
 
-The KAN architecture enables O(1) LUT-based B-spline computation, avoiding the matrix-vector multiplication operations required by LSTM/GRU architectures:
+KAN 的优势是**参数效率**（更少参数达到相当精度），而非计算效率：
 
-| Architecture | Per-Step Complexity | Parameter Efficiency |
-|--------------|---------------------|---------------------|
-| LSTM/GRU | O(n) matrix-vector mult | Moderate |
-| KAN | O(1) LUT lookup | High (Vaca-Rubio: 109k vs 329k) |
-| KAN-GRU Hybrid | O(1) LUT + gating | **Best** (Rather 2025) |
+| 架构 | 复杂度 |
+|------|--------|
+| LSTM/GRU | O(n) 矩阵向量乘法 |
+| KAN | O(1) LUT 查找（但 B 样条计算占 98% 推理时间） |
+| KAN-GRU 混合 | O(1) LUT + 门控 |
 
-**Important note**: Pure KAN vs LSTM comparison shows mixed results (**Ali et al. [2025]** finds LSTM > KAN). However, **KAN-GRU hybrid** (**Rather et al. [2025]**) shows hybrid architectures outperform pure LSTM/GRU. Wiener-KAN combines both for optimal design.
+### 4.2 KAN LUT 部署效率
 
-### 4.2 RNN vs 1D-CNN
+KAN 通过 LUT 量化优化实现部署效率：
+- **KANtize (Errabii 2026)**：50x BitOps 减少；2.9x GPU 加速
+- **LUT-KAN (Kuznetsov 2026)**：比基线 KAN 快 12 倍
+- **IoT KAN (Kuznetsov 2026)**：比原始 KAN 快 5000 倍
 
-Following **Yin et al. [2017]** and **Bai et al. [2018]**:
+### 4.3 ⚠️ RNN vs 1D-CNN：声明已移除
 
-| Architecture | Sequential Complexity | Parameter Count |
-|--------------|----------------------|-----------------|
-| 1D-CNN | O(1) per step | Higher |
-| RNN | O(n) sequential dependency | **Lower** |
-
-The RNN-based linear component of Wiener-KAN provides parameter efficiency advantages for real-time MET signal processing.
+**原始声明**："RNN 的计算参数少于 1D-CNN" - 此声明必须从论文中移除。
 
 ---
 
-## 5. Response to Reviewers (Draft)
+## 5. CNN/Transformer/RNN 架构对比（R3-4/R4-7）
 
-### R3-4: Comparison with CNN, Transformer, RNN
+**对于 CNN 比较**：
+- **Yin 等 [2017]** 表明 CNN 实现 O(1) 顺序复杂度 vs RNN O(n)
+- **Bai 等 [2018] TCN** 展示了膨胀卷积在不增加参数的情况下实现更长的记忆
 
-We compared the proposed Wiener-KAN with representative RNN and LSTM architectures following established methodology:
-
-- **Yin et al. [2017]** provides comparative analysis of CNN vs RNN architectures for sequential data
-- **Genet et al. [2024]** and **Rather et al. [2025]** demonstrate KAN+RNN hybrid architectures outperform LSTM/GRU/LSTM-Attention/LSTM-Transformer
-
-The Transformer architecture is not included due to lack of appropriate comparison in relevant literature. However, the GRU-KAN hybrid (**Rather et al. [2025]**) has been shown to outperform LSTM-Transformer, providing a strong alternative comparison point.
-
-### R3-5: RVTDCNN for PA Linearization
-
-The RVTDCNN method for power amplifier linearization was not found in our comprehensive literature survey. We cannot provide comparative analysis with this specific method and recommend removing this claim from the revision.
-
-### R3-6: Dataset Construction
-
-The MET dataset was constructed following established practices for electrochemical sensor signal acquisition:
-
-- Following **Li et al. [2025]** and **Zhang et al. [2022]**, we provide detailed description including:
-  - Total data volume and signal characteristics
-  - Domain-specific features (frequency response characteristics)
-  - Train/validation/test split ratios
-  - Preprocessing steps
-
-Specific details are provided in Section X (Dataset Description) of the paper.
-
-### R4-1: Activation Function Comparison
-
-The KAN B-spline activation function is theoretically justified by:
-
-1. **Kolmogorov-Arnold theorem** (**Liu et al. [2024]**): Mathematical foundation for using trainable B-spline basis functions as universal function approximators
-2. **Vaca-Rubio et al. [2024]**: KAN (109k) outperforms MLP (329k) by 17% MSE with fewer parameters
-3. **HiPPO-KAN** (**Lee et al. [2024]**): Addresses KAN's lag problem at larger window sizes
-
-### R4-8: Computational Cost Analysis
-
-Following **Yin et al. [2017]**, **Miller et al. [2018]**, and **Qiu et al. [2024]**:
-
-- We evaluate computational efficiency using **parameter count** and **per-step complexity** as primary metrics
-- KAN LUT-based computation provides O(1) per activation vs O(n) for LSTM/GRU
-- RNN linear component provides fewer parameters than comparable 1D-CNN architectures
-
-The RNN-based linear component combined with KAN-based nonlinear component provides an efficient design for MET frequency response modeling.
+**对于 RNN/LSTM 比较**：
+- **Rather 等 [2025]** 证明 GRU-KAN 混合优于 LSTM/GRU/LSTM-Attention/LSTM-Transformer
+- **Genet 等 [2024] TKAN** 表明 TKAN > GRU > LSTM 用于多步超前预测
 
 ---
 
-## Documents Referenced
+## 6. 审稿人回复（草稿）
 
-- `docs/research/literature/verified_literature.md` (STEP2 Round 2, 2026-03-28)
-- `docs/research/literature/20260328/STEP2_Deep_Analysis.md` (detailed analysis)
-- `docs/IDEA.md` (second draft strategy)
+### R3-4/R4-7：与 CNN、Transformer、RNN 的比较
+
+我们遵循既定方法将所提出的 Wiener-KAN 与代表性架构进行比较：
+
+**对于 RNN/LSTM 比较**：Rather 等 [2025] 证明 GRU-KAN 混合优于 LSTM/GRU/LSTM-Attention/LSTM-Transformer
+
+**对于 CNN 比较**：Bai 等 [2018] TCN 展示了膨胀卷积在不增加参数的情况下实现更长的记忆
+
+**对于 Transformer 比较**：Rather 等 [2025] 证明了 GRU-KAN 优于 LSTM-Transformer
+
+### R3-5：RVTDCNN PA 线性化
+
+在我们的综合文献调查中未找到用于功率放大器线性化的 RVTDCNN 方法。建议从修订版中移除此声明。
+
+### R3-6：数据集构建
+
+MET 数据集按照电化学传感器信号采集的既定实践构建：
+- 遵循 Li 等 [2025]、Zhang 等 [2022] 和 Schoukens & Noël [2017]
+- 提供总数据量、信号特征、领域特定特征
+
+### R4-1：激活函数比较
+
+KAN B 样条激活函数在理论上由 Kolmogorov-Arnold 定理（Liu 等 [2024]）支撑。
+
+### R4-8：计算成本分析
+
+**正确表述**：
+- **KAN 参数效率**：KAN 比 MLP 需要更少参数达到相当精度（Vacca-Rubio 2024: 109k vs 329k）
+- **KAN LUT 部署效率**：通过量化/LUT 优化实现（KANtize 50x BitOps 减少）
+
+---
+
+## 引用文档
+
+- `docs/research/literature/verified_literature.md` (STEP2 R66)
+- `docs/research/literature/20260329/STEP2_Round66_Analysis.md`
+- `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`

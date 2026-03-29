@@ -4,6 +4,7 @@
 
 ## 核心原则
 
+- **所有 `docs/research/literature/` 目录下的文档必须使用中文编写**
 - 每轮都要主动拓展检索渠道，不能只重复浏览同一批关键词
 - 收集时优先找原始论文，尽量记录完整引用信息（作者、年份、标题、期刊/会议、DOI）
 - 发现疑似重复或高度相似的文献时先标记，交给后续步骤核对
@@ -61,6 +62,24 @@ docs/IDEA.md
 
 8. **LUT 实现相关**
    - 关键词：look-up table, LUT implementation, neural network acceleration
+
+### P2 可选扩展 - MEASUREMENT 与传感器非线性补偿
+
+9. **MEASUREMENT 实验测量方法**
+   - 关键词：MET measurement, experimental measurement methodology, sensor characterization, frequency response measurement, nonlinear calibration
+   - 检索数据库：IEEE Xplore, ScienceDirect, **Measurement 期刊**, Google Scholar
+   - **目标：找到 50 篇和当前传感器非线性问题研究相关的 MEASUREMENT 期刊论文，其中至少 40 篇是 2020 年后的**
+   - **当前进度**：已找到 2 篇（Xu&Wang 2008, Dutta 2018），需继续扩充
+
+10. **传感器非线性补偿**
+    - 关键词：sensor nonlinearity compensation, nonlinear calibration, temperature compensation, drift correction, electrochemical sensor, seismic sensor
+    - 检索数据库：IEEE Xplore, ScienceDirect, Google Scholar, MDPI Sensors
+    - 目标：找到传感器非线性建模与补偿的传统方法和深度学习方法
+
+11. **数据集构建与发布标准**
+    - 关键词：dataset publication, data acquisition methodology, sensor data standard, benchmark dataset release
+    - 检索数据库：IEEE Xplore, Google Scholar, Zenodo, Figshare
+    - 目标：找到数据集发布的参考论文，特别是电化学/地震信号领域
 
 ## 流程
 

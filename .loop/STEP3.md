@@ -4,6 +4,7 @@
 
 ## 核心原则
 
+- **所有 `docs/research/literature/` 目录下的文档必须使用中文编写**
 - 以"支撑论文修订声称、回应审稿意见"为目标做整理，而不是只做静态归档
 - 分类必须服务于论文修订决策，例如理论支撑、对比方法、审稿意见回应
 - 对已分析文献优先更新已有清单，而不是反复新建分散文档
@@ -57,8 +58,8 @@ docs/FRIKAN_REJECT.md
   - 对比方法的选择依据
   - 评估指标的参考来源
 - 如发现沉淀文档过长或重复严重，要做合并压缩和结构优化，但不得丢失关键信息
-- 维护根目录 `SUMMARY.md`，确保其简洁反映当前文献调研进展
-- 更新 `key_references.md`、`theory_framework.md`、`SUMMARY.md` 等综合文档时，必须引用所依据的分析报告路径
+- 维护 `docs/research/literature/SUMMARY.md`，确保其简洁反映当前文献调研进展
+- 更新 `key_references.md`、`theory_framework.md`、`docs/research/literature/SUMMARY.md` 等综合文档时，必须引用所依据的分析报告路径
 - 优先把经验沉淀为：
   - 可直接引用的文献列表
   - 支撑论文声称的理论框架
@@ -86,7 +87,7 @@ docs/FRIKAN_REJECT.md
 - `docs/research/literature/key_references.md`
 - `docs/research/literature/theory_framework.md`
 - `docs/research/literature/paper_draft_segments.md`
-- `SUMMARY.md`
+- `docs/research/literature/SUMMARY.md`
 
 ## 禁止行为
 

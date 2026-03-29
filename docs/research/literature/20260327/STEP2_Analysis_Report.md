@@ -1,68 +1,68 @@
-# STEP2 Analysis Report
+# STEP2 分析报告
 
-**Date**: 2026-03-27
-**Stage**: STEP2 - Deep Literature Analysis
+**日期**: 2026-03-27
+**阶段**: STEP2 - 深度文献分析
 
-## Analysis Coverage
+## 分析覆盖范围
 
-| Category | Papers Analyzed | Verified | Excluded |
-|----------|----------------|---------|----------|
-| KAN Network | 4 | 4 | 0 |
-| Wiener Model | 2 | 2 | 0 |
-| Frequency Domain Loss | 3 | 3 | 0 |
-| Drift Compensation | 3 | 2 | 1 |
-| Architecture Efficiency | 3 | 2 | 1 |
-| **Total** | **15** | **13** | **2** |
+| 类别 | 分析论文数 | 已验证 | 已排除 |
+|------|-----------|--------|--------|
+| KAN 网络 | 4 | 4 | 0 |
+| Wiener 模型 | 2 | 2 | 0 |
+| 频域损失 | 3 | 3 | 0 |
+| 漂移补偿 | 3 | 2 | 1 |
+| 架构效率 | 3 | 2 | 1 |
+| **总计** | **15** | **13** | **2** |
 
-## Key Findings
+## 关键发现
 
-### 1. KAN Theory (Liu et al., 2024)
+### 1. KAN 理论 (Liu et al., 2024)
 
-Kolmogorov-Arnold theorem provides theoretical foundation:
+Kolmogorov-Arnold 定理提供理论基础：
 - f(x) = sum Phi_q(sum phi_qp(x_p))
-- B-spline parameterization for learnable univariate functions
-- Edge-based activation (not node-based like MLP)
+- B样条参数化用于可学习的单变量函数
+- 基于边的激活（非像 MLP 那样基于节点）
 
-### 2. Wiener-KAN Connection (Cruz et al., 2025)
+### 2. Wiener-KAN 连接 (Cruz et al., 2025)
 
-CRITICAL PAPER for project:
-- State-space KAN for Wiener-Hammerstein systems
-- Architecture: SS-KAN = linear(A,B,C,D) + KAN_f + KAN_g
-- Shows KAN learns physical saturation nonlinearity
-- Trade-off: interpretability vs accuracy
+项目关键论文：
+- 用于 Wiener-Hammerstein 系统的状态空间 KAN
+- 架构：SS-KAN = 线性(A,B,C,D) + KAN_f + KAN_g
+- 表明 KAN 能学习物理饱和非线性
+- 权衡：可解释性 vs 准确性
 
-### 3. Frequency Domain Loss
+### 3. 频域损失
 
-AFMAE NOT FOUND - using Focal Frequency Loss instead:
-- FFL (Jiang et al., 2021): adaptive focusing on hard frequencies
-- SAMFre (Wang et al., 2025): FFT + Sharpness-Aware Minimization
-- Design principle: frequency-domain awareness + adaptive weighting
+未找到 AFMAE - 改用 Focal Frequency Loss：
+- FFL (Jiang et al., 2021)：自适应聚焦于困难频率
+- SAMFre (Wang et al., 2025)：FFT + 锐度感知最小化
+- 设计原则：频域感知 + 自适应加权
 
-### 4. Drift Compensation
+### 4. 漂移补偿
 
-Methods verified:
-- TDACNN: CNN-based domain adaptation (no target data needed)
-- KD E-nose: Knowledge distillation for drift mitigation
+已验证方法：
+- TDACNN：基于 CNN 的域适应（无需目标数据）
+- KD E-nose：用于漂移缓解的知识蒸馏
 
-## Literature Gaps Identified
+## 识别的文献空白
 
-| Gap | Action Required |
-|-----|-----------------|
-| AFMAE source | Use FFL as theory basis |
-| KAN vs LSTM/GRU efficiency | TKAN provides partial data |
-| Transformer for time series | Need if claiming |
-| RVTDCNN PA linearization | Need if comparing |
-| Dataset construction | Need for claims |
+| 空白 | 需采取的行动 |
+|------|-------------|
+| AFMAE 来源 | 使用 FFL 作为理论基础 |
+| KAN vs LSTM/GRU 效率 | TKAN 提供部分数据 |
+| 用于时间序列的 Transformer | 如需声明则需补充 |
+| RVTDCNN PA 线性化 | 如需比较则需补充 |
+| 数据集构建 | 如需声明则需补充 |
 
-## Updated Documents
+## 已更新的文档
 
-- verified_literature.md: 13 papers verified
-- excluded_literature.md: 2 papers excluded
-- SUMMARY.md: To be updated with new findings
+- verified_literature.md：已验证 13 篇论文
+- excluded_literature.md：已排除 2 篇论文
+- SUMMARY.md：待用新发现更新
 
-## Next Steps
+## 下一步
 
-1. Update SUMMARY.md with new theoretical findings
-2. Verify remaining pending papers (PowerMLP, KAN 2.0)
-3. Address literature gaps if paper claims require
-4. Consider searching for Transformer time series if needed
+1. 用新的理论发现更新 SUMMARY.md
+2. 验证待处理的论文（PowerMLP、KAN 2.0）
+3. 如论文声明需要则解决文献空白
+4. 如需要考虑搜索 Transformer 时间序列相关文献

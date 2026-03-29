@@ -1,129 +1,130 @@
-# Key References
+# 核心参考文献
 
-**Status**: STEP3 Updated (2026-03-28 Round 3)
-**Based on**: verified_literature.md (STEP2 Round 2 + Round 3, 2026-03-28)
-**Purpose**: Core literature supporting second draft claims per IDEA.md
-**Supersedes**: All previous versions
-
-### Round 3 Additions
-- TFKAN (Kui 2025) - First KAN in frequency domain
-- TimeKAN (Huang 2025) - KAN + frequency decomposition SOTA
-- KAN Survey (Somvanshi 2025) - validates KAN+RNN hybrid trend
-- Schoukens 2009 - Classical Wiener-Hammerstein benchmark
-- Haber 1990 - Wiener structure identification survey
-- Bai-Giri 2010 - Block-oriented nonlinear systems foundation
-- Li 2024 - LSTM-Wiener deep learning validation
-- Shi 2022 EEMD-GRNN - Complete drift compensation framework
-- Sun 2025 FreLE - Spectral bias correction, direct AFMAE support
+**状态**: STEP3 最终确认 (2026-03-29)
+**基于**: verified_literature.md (STEP2 R66)
+**原则**: 短而精，仅保留能直接支撑论文声称的核心文献
 
 ---
 
-## P0 - Wiener-KAN Architecture (Core Claim: Modeling & Compensation Unification)
+## 审稿意见回应映射
 
-| Priority | Paper | Key Contribution | For Paper Claim |
-|----------|-------|------------------|-----------------|
-| **P0** | Cruz et al. 2025 SS-KAN (arXiv:2506.16392) | SS-KAN = linear state-space + KAN nonlinearity | **Direct foundation**: Wiener linear part ↔ RNN, Wiener nonlinearity ↔ KAN |
-| **P0** | Manavalan, Tronarp 2026 Barron-Wiener-Laguerre (arXiv:2602.13098) | Barron space + linear dynamics + Laguerre bases | Convergence rates; dimension-independent bounds for Wiener-class |
-| **P0** | Liu et al. 2024 KAN (arXiv:2404.19756) | B-spline on edges, LUT-based computation | KAN replaces Wiener static nonlinearity; LUT enables efficient inference |
-| **P0** | Genet, Inzirillo 2024 TKAN (arXiv:2405.07344) | KAN + LSTM gating for memory | **Validates KAN+RNN combination**: TKAN > GRU > LSTM for multi-step ahead |
-| **P0** | Rather et al. 2025 KAN-GRU Hybrid (arXiv:2507.13685) | GRU-KAN/LSTM-KAN architectures | **Hybrid > LSTM/GRU/LSTM-Attention/LSTM-Transformer** |
-| **P0** | Kui et al. 2025 TFKAN (arXiv:2506.12696) | **First KAN in frequency domain**; dual-branch FreqKAN + TimeKAN | **Direct support**: Wiener linear(nonlinear separation via dual-branch architecture |
-| **P0** | Schoukens, Ljung 2009 WH Benchmark (diva-portal) | G1(z)→f(·)→G2(z) standard benchmark; 157+ citations | **Classical foundation**: establishes Wiener block decomposition formally |
-| **P0** | Haber, Unbehauen 1990 Structure Identification (Automatica) | "Wiener = linear dynamic system + static nonlinear element"; 500+ citations | **Core theoretical basis** |
-| **P0** | Bai, Giri 2010 Block-oriented Systems (Springer) | f(x) = Σc_jφ_j(x) with orthonormal basis | **Foundation**: KAN B-splines = learnable basis functions for f(·) |
-| **P0** | Li et al. 2024 LSTM-Wiener (MSSP) | LSTM replaces traditional G(z) in Wiener structure | **Direct support**: deep learning + Wiener structure compatibility |
-| **P0** | Huang et al. 2025 TimeKAN (arXiv:2502.06910) | KAN + cascade frequency decomposition; O(L log L) | SOTA on ETTh/ETTm/Weather; validates frequency-aware KAN |
+| 审稿意见 | 支撑文献 | 行动 |
+|----------|----------|------|
+| R3-4/R4-7 对比有限 | Yin 2017, Bai TCN, Rather 2025 | CNN/GRU-KAN/Transformer 架构对比 |
+| R3-5 RVTDCNN | **未找到** | **移除此主张** |
+| R3-6 数据集构建 | Xu&Wang 2008, Schoukens 2017 | 已支持 |
+| R4-1 激活函数 | Liu 2024 KAN, Dong 2024 | 已支持 |
+| R4-8 计算成本 | KANtize, LUT-KAN, IoT KAN | 已支持；移除 RNN vs CNN |
 
 ---
 
-## P0 - Frequency Domain Loss (Core Claim: AFMAE Training Method)
+## P0 - Wiener-KAN 架构
 
-| Priority | Paper | Key Contribution | For Paper Claim |
-|----------|-------|------------------|-----------------|
-| **P0** | Jiang et al. 2021 FFL (arXiv:2012.12821) | Focal Frequency Loss - adaptive frequency focusing | **Theory basis** for frequency-domain MAE; AFMAE conceptual predecessor |
-| **P0** | Wang et al. 2025 SAMFre (arXiv:2505.17532) | FFT loss + Sharpness-Aware Minimization | Formula: `α·|FFT(pred)-FFT(real)|₁ + (1-α)·MSE`; validates frequency-domain loss design |
-| **P0** | He et al. 2025 FIRE (arXiv:2510.10145) | Unified FFT-domain loss framework | `L_fft = (1/N_f)·Σ|FFT(X_true)-FFT(X_out)|`; outperforms SOTA on ETTh/ETTm/Weather |
-| **P0** | Sun et al. 2025 FreLE (arXiv:2510.25800) | Low-Frequency Spectral Bias correction | **Direct support**: addresses NN priority fitting low-freq first; #1 on 38/56 benchmarks |
-
----
-
-## P1 - KAN Efficiency (Supporting Claim: KAN LUT Efficiency)
-
-| Priority | Paper | Key Contribution | For Paper Claim |
-|----------|-------|------------------|-----------------|
-| **P1** | Qiu et al. 2024 PowerMLP (arXiv:2412.13571) | Efficient KAN alternative | KAN 10x slower than MLP; KAN FLOPs >10x PowerMLP (confirms KAN efficiency bottleneck) |
-| **P1** | Lee et al. 2024 HiPPO-KAN (arXiv:2410.14939) | Constant parameter efficiency | Parameter count constant regardless of window size; outperforms KAN at larger windows |
-| **P1** | Vaca-Rubio et al. 2024 KAN for Time Series (arXiv:2405.08790) | KAN vs MLP comparison | KAN (109k) outperforms MLP (329k) by 17% MSE; fewer parameters |
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| Cruz 2025 SS-KAN | 线性状态空间 + KAN 非线性 | **直接基础**: Wiener 线性 ↔ RNN，Wiener 非线性 ↔ KAN |
+| Liu 2024 KAN | B 样条激活，LUT 计算 | KAN 替换 Wiener 静态非线性 |
+| Kui 2025 TFKAN | 首个频域 KAN；双分支 FreqKAN + TimeKAN | **直接支持**: Wiener 线性↔非线性分离 |
+| Schoukens 2009 WH 基准 | G1(z)→f(·)→G2(z) | **经典基础** |
+| Haber 1990 结构识别 | "Wiener = 线性动态 + 静态非线性" | **核心理论** |
 
 ---
 
-## P1 - RNN vs CNN Efficiency (Supporting Claim: RNN > 1D-CNN)
+## P0 - KAN+RNN 混合有效性
 
-| Priority | Paper | Key Contribution | For Paper Claim |
-|----------|-------|------------------|-----------------|
-| **P1** | Yin et al. 2017 CNN vs RNN (arXiv:1702.01923) | Systematic comparison | CNN O(1) sequential complexity vs RNN O(n); RNN fewer params than 1D-CNN |
-| **P1** | Bai et al. 2018 TCN (arXiv:1803.01271) | CNN vs RNN on sequence benchmarks | CNN O(1) receptive field vs RNN O(n); CNN longer effective memory |
-| **P1** | Miller, Hardt 2018 Stable RNN (arXiv:1805.10369) | RNN stability theory | Theoretical foundation for stable RNN dynamics |
-
----
-
-## P1 - Drift Compensation (Supporting Related Work Chapter)
-
-| Priority | Paper | Key Contribution | For Paper Claim |
-|----------|-------|------------------|-----------------|
-| **P1** | Zhang et al. 2022 TDACNN (arXiv:2110.07509) | Target-domain-free CNN for sensor drift | Deep learning for sensor drift (related work) |
-| **P1** | Lin, Zhan 2025 KD E-nose (arXiv:2507.17071) | Knowledge distillation for drift | Transfer learning for drift compensation |
-| **P1** | Li et al. 2025 ML E-chem Review (TrAC) | Comprehensive ML for electrochemical sensors | **Direct coverage**: ML drift compensation for electrochemical sensors |
-| **P1** | ChakraVarthy et al. 2026 ML-enhanced ECG (DOI: 10.1080/00032719.2026.2618976) | ML for electrochemical monitoring drift | Electrochemical environmental monitoring drift |
-| **P1** | Badawi et al. 2021 Hadamard TCNN (IEEE 9442748) | TCNN for chemical sensor drift | TCNN outperforms RNN for sensor drift |
-| **P1** | Zhang, Zhang 2014 ELM E-nose (IEEE 6963383) | Domain adaptation ELM | 373 citations; foundational E-nose drift method |
-| **P1** | Shi et al. 2022 EEMD-GRNN (Sensors) | EEMD + GRNN for MEMS drift; displacement 95.64%→98.00% | Complete drift compensation framework (preprocessing + modeling) |
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| Rather 2025 KAN-GRU | GRU-KAN/LSTM-KAN 混合 | **混合 > LSTM/GRU/LSTM-Attention/LSTM-Transformer** |
+| Genet 2024 TKAN | KAN + LSTM 门控记忆 | TKAN > GRU > LSTM 多步预测 |
+| Somvanshi 2025 KAN 综述 | KAN+RNN 集成是增长趋势 | **验证 Wiener-KAN 方法** |
 
 ---
 
-## Reviewer Response Mapping
+## P0 - CNN/Transformer/RNN 架构对比（R3-4/R4-7）
 
-| Reviewer | Claim | Supporting Literature | Gap |
-|----------|-------|----------------------|-----|
-| R3-4 | CNN/Transformer/RNN comparison | Yin 2017 (CNN vs RNN), TKAN/GRU-KAN (KAN+RNN hybrid) | **Transformer NOT FOUND** - use KAN-GRU hybrid (Rather 2025) outperforms LSTM-Transformer as alternative |
-| R3-5 | RVTDCNN PA linearization | **NOT FOUND** | Cannot support; recommend removing claim |
-| R3-6 | Dataset construction | Li 2025 (E-chem dataset desc), Zhang 2022 (dataset details) | Use internal dataset description |
-| R4-1 | Activation function comparison | Liu 2024 (B-spline), Qiu 2024 (KAN bottleneck) | Supported |
-| R4-8 | Computational cost analysis | Yin 2017, Bai TCN, Qiu 2024, HiPPO-KAN (Lee 2024) | Supported |
-
-### R3-4 Transformer Response
-**Literature does not support direct Transformer comparison** for Wiener-KAN. However, Rather et al. [2025] demonstrates GRU-KAN hybrid outperforms LSTM-Attention and LSTM-Transformer, providing indirect validation that KAN-based approaches are competitive with Transformer-based methods.
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| Yin 2017 CNN vs RNN | CNN 实现 O(1) 顺序复杂度 vs RNN O(n) | **CNN 效率证据** |
+| Bai 2018 TCN | 膨胀卷积实现更长记忆；CNN 在音频合成上优于 LSTM | CNN 用于序列建模 |
+| Rather 2025 KAN-GRU | GRU-KAN > LSTM/GRU/LSTM-Attention/LSTM-Transformer | **KAN+GRU 混合优于 Transformer** |
 
 ---
 
-## Literature Gaps (Cannot Support)
+## P0 - AFMAE 频域损失
 
-| Gap | Status | Recommendation |
-|-----|--------|----------------|
-| AFMAE original source | NOT FOUND | Use FFL (Jiang 2021), SAMFre (Wang 2025), FIRE (He 2025), FreLE (Sun 2025) as theory basis |
-| Transformer for time series | NOT FOUND | Replace with KAN-GRU hybrid (Rather 2025) which outperforms LSTM-Transformer |
-| RVTDCNN PA linearization | NOT FOUND | Remove claim; not critical to paper contribution |
-| Beintema vs Cruz benchmark | POTENTIAL CONFLICT | Avoid direct benchmark comparison; focus on MET application |
-| KANet FLOPs paper | PAYWALLED (IEEE TIM) | Cannot verify; remove quantitative FLOPs claim |
-| KAN 2.0 | Different goal | Excluded per STEP2 analysis |
-
----
-
-## Discarded Claims (per IDEA.md Second Draft)
-
-- ~~PIKAN physical constraints~~ → Discontinued
-- ~~FRIRNN frequency injection~~ → Discontinued  
-- ~~Accuracy improvement vs LSTM/GRU~~ → Changed to efficiency focus
-- ~~Generalization/extrapolation~~ → Discontinued
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| **Shi 2025 OLMA (ICLR 2026)** | 熵减定理：酉变换降低边缘熵 | **最强 AFMAE 支撑** |
+| **Subich 2025 (ICML)** | MSE 导致"双惩罚"效应 | **直接解释时域 MSE 不足** |
+| Wang 2025 FreDF (ICLR) | L^α = α·\|F(Ŷ)-F(Y)\|₁ + (1-α)·MSE | **直接公式匹配 AFMAE** |
+| Wu 2025 KFS | ℒ = αℒ_F + (1-α)ℒ_MSE + Parseval 定理 | **完整频域损失匹配 AFMAE** |
+| **Medeiros 2025 PETSA (ICML)** | 频域项保持周期性 | **AFMAE 多角度验证** |
 
 ---
 
-## Documents Referenced
+## P0 - KAN LUT 效率（R4-8）
 
-- `docs/research/literature/verified_literature.md` (STEP2 Round 2 + Round 3, 2026-03-28)
-- `docs/research/literature/20260328/STEP2_Deep_Analysis.md` (Round 2 analysis)
-- `docs/research/literature/20260328/STEP2_Round3_Analysis.md` (Round 3 analysis)
-- `docs/FRIKAN_REJECT.md`
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| **Yu 2025 PolyKAN (R49)** | GPU加速1.2-10x推理、1.4-12x训练 | **LUT量化实际部署效率** |
+| **Pozdnyakov 2025 lmKAN (R49)** | **6.0x FLOPs减少**；H100 10x吞吐量 | **迄今最具体效率数据** |
+| Errabii 2026 KANtize | **50x BitOps 减少**；2.9x GPU 加速 | 量化 LUT 直接证据 |
+| Kuznetsov 2026 LUT-KAN | 分段 LUT 量化 | **比基线 KAN 快 12 倍** |
+| Kuznetsov 2026 IoT KAN | 边缘 LUT 编译 KAN | **比原始 KAN 快 5000 倍** |
+
+---
+
+## P1 - 漂移补偿
+
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| Zhang 2022 TDACNN | 目标域无关 CNN 传感器漂移 | 深度学习用于漂移补偿 |
+| Lin 2025 KD E-nose | 知识蒸馏用于漂移适应 | 迁移学习用于漂移 |
+| Badawi 2020 DCT-CNN | DCT 域因果 CNN 用于化学传感器漂移 | **直接支撑传感器漂移补偿** |
+| Shi 2022 EEMD-GRNN | EEMD + GRNN；95.64%→98.00% | 完整漂移补偿框架 |
+| Willemstein 2023 WH | Wiener-Hammerstein 用于压阻传感器 | **传感器补偿直接证据** |
+| Heng 2025 SAD-CNN | 半监督对抗域适应 CNN（电子鼻） | **电化学传感器漂移直接证据** |
+
+---
+
+## P2 - 测量方法论与数据集（R3-6）
+
+| 论文 | 核心贡献 | 支撑声称 |
+|------|----------|----------|
+| Xu 2008 Volterra/Wiener | 传感器块模型的 Volterra 级数 | **直接 MET 测量方法论** |
+| Schoukens 2017 三个基准 | 非线性系统辨识基准数据集 | 数据集构建标准 |
+| Champneys 2024 | 5 个非线性系统 ID 基准 + 10 种基线 | **MET 定位比较框架** |
+
+---
+
+## ⚠️ 必须删除的主张
+
+**RNN vs 1D-CNN 效率**：被以下文献**反驳**
+- Saha 2026：1D-CNN 比 LSTM 快 74 倍
+- Bian 2025：CNN 比 DeepConvLSTM 少 43.3x 参数
+
+**KAN 计算效率 vs LSTM/GRU**：无文献支撑
+- FEKAN 2026："KAN remains computationally demanding"
+- KANtize 2026："B-spline computation accounts for up to 98%"
+
+**正确表述**：KAN 的优势是**参数效率**（更少参数达到相当精度），而非计算效率。
+
+---
+
+## 第二稿已废弃主张
+
+| 声明 | 行动 |
+|------|------|
+| ~~PIKAN 物理约束~~ | 删除 |
+| ~~FRIRNN 频率注入~~ | 删除 |
+| ~~RNN vs 1D-CNN 效率~~ | **冲突，必须删除** |
+| ~~KAN 计算效率 vs LSTM/GRU~~ | **无支撑，必须删除** |
+
+---
+
+## 引用文档
+
+- `docs/research/literature/verified_literature.md` (STEP2 R66)
+- `docs/research/literature/20260329/STEP2_Round66_Analysis.md`
 - `docs/IDEA.md`
-
-**STEP3 Round 3 Decision**: Added 9 papers from Round 3 analysis (TFKAN, TimeKAN, KAN Survey, Schoukens 2009, Haber 1990, Bai-Giri 2010, Li 2024, Shi 2022, Sun 2025). Focus shifted to KAN-GRU hybrid (Rather 2025) instead of pure KAN to address Ali 2025 conflict. TFKAN provides direct support for Wiener dual-branch (linear/nonlinear separation) architecture.
+- `docs/FRIKAN_REJECT.md`

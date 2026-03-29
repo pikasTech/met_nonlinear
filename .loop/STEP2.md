@@ -4,6 +4,7 @@
 
 ## 核心原则
 
+- **所有 `docs/research/literature/` 目录下的文档必须使用中文编写**
 - 深度阅读优先于数量扩充，宁可少读几篇也要确保理解准确
 - 同一主题的文献，优先阅读经典论文和高引用论文
 - 对冲突理论或相反结论必须明确标注，不得静默合并
@@ -40,7 +41,7 @@ docs/IDEA.md
   - 神经网络架构效率对比
 - 提取可直接支撑论文声称的理论依据
 - 识别文献中的研究空白和机会
-- 如分析结果改变了整体判断，更新根目录 `SUMMARY.md`：补充新理论发现、修正原有理解、删除过时结论
+- 如分析结果改变了整体判断，更新 `docs/research/literature/SUMMARY.md`：补充新理论发现、修正原有理解、删除过时结论
 - 将条目按以下规则移动：
   - 全文已获取且理论内容已分析 -> `docs/research/literature/verified_literature.md`
   - 无法获取全文/理论不可靠/明显不相关 -> `docs/research/literature/excluded_literature.md`
@@ -86,12 +87,28 @@ docs/IDEA.md
 - 数据集构建方法
 - 研究空白分析
 
+### MEASUREMENT 实验测量
+
+- 传感器频率响应测量标准方法
+- 非线性校准的实验设计流程
+- 信号采集与预处理规范
+- 数据集划分策略（训练/验证/测试）
+- 测量不确定度分析
+
+### 传感器非线性补偿
+
+- 电化学传感器非线性建模方法
+- 温度漂移补偿的传统方法
+- 前馈补偿 vs 反馈补偿的比较
+- 深度学习在传感器补偿中的应用
+- 补偿效果评估指标（谐波失真、信噪比等）
+
 ## 输出文件
 
 - `docs/research/literature/verified_literature.md`
 - `docs/research/literature/excluded_literature.md`
 - `docs/research/literature/{YYYYMMDD}/` 下的分析报告
-- `SUMMARY.md`（如分析结果改变当前理论认知）
+- `docs/research/literature/SUMMARY.md`（如分析结果改变当前理论认知）
 
 ## 禁止行为
 
