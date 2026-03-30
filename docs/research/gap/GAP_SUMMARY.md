@@ -1,7 +1,7 @@
 # GAP 支撑汇总
 
-***状态***: STEP3 R154 完成 (2026-03-30)
-***R154更新***: PDF收集验证完成 - 72篇PDF + 71个Markdown文件，全部GAP文档PDF路径一致性确认
+***状态***: STEP3 R155 完成 (2026-03-30)
+***R155更新***: PDF路径修正 - GAP4/5和key_references.md中Lin 2020/Xu 2008/Iqbal 2024/Fasmin 2017实际PDF存在，修正错误标记
 ***R149更新***: 任务执行确认完成 - 根目录清洁性验证通过，68篇arXiv PDF + 71个Markdown文件存在性确认，GAP文档PDF路径一致性检查通过；所有GAP支撑文档状态确认
 ***R148更新***: PDF收集验证完成 - 68篇arXiv PDF + 71个Markdown文件，所有GAP文档PDF路径已确认存在；商业DOI论文正确标注为"无法下载（需机构订阅）"；GAP支撑文档状态确认
 ***R146更新***: PDF收集完成 - 68篇arXiv论文已下载并转换为Markdown，商业DOI论文无法下载（需要机构订阅）；GAP11 PDF路径已修正
@@ -125,6 +125,7 @@
 
 | 轮次 | 关键分析 |
 |------|---------|
+| R155 | STEP3 R155完成：PDF路径修正完成，GAP4/5和key_references.md中Lin 2020/Xu 2008/Iqbal 2024/Fasmin 2017实际PDF存在，修正错误标记 |
 | R149 | STEP3 R149完成：任务执行确认完成，根目录清洁性验证通过，68篇arXiv PDF + 71个Markdown文件存在性确认，GAP文档PDF路径一致性检查通过 |
 | R148 | STEP3 R148完成：GAP支撑文档状态确认，PDF收集完整性验证通过 |
 | R147 | STEP3 R147完成：PDF存在性验证通过，68篇arXiv PDF全部存在，GAP文档PDF路径一致性确认 |

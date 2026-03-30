@@ -15,7 +15,7 @@
 | 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
 |-----|---------|---------|---------|---------|
 | 1 | **Shen et al. 2026 (KAN-FIF)** | 物理约束建模，双向残差连接利用非线性区 | https://arxiv.org/abs/2602.12117 | docs/research/literature/pdfs/Shen_2026_KAN_FIF.pdf |
-| 2 | Fang et al. 2024, Measurement | 利用非线性而非抑制非线性实现灵敏度增强 | https://doi.org/10.1016/j.measurement.2024.116559 | 无法下载（需机构订阅） |
+| 2 | Fang et al. 2024, Measurement | 利用非线性而非抑制非线性实现灵敏度增强 | https://doi.org/10.1016/j.measurement.2024.116559 | docs\research\literature\pdfs\Fang_2024_exploiting_nonlinearity.pdf |
 
 ### 弱支撑（提供侧证或背景）
 

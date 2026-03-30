@@ -1,7 +1,7 @@
 # 核心参考文献
 
-**状态**: STEP3 R154 完成 (2026-03-30)
-**R154更新**: PDF收集验证完成 - 72篇PDF + 71个Markdown文件，所有GAP文档PDF路径一致性确认
+**状态**: STEP3 R155 完成 (2026-03-30)
+**R155更新**: PDF路径修正 - Lin 2020/Xu 2008/Iqbal 2024/Fasmin 2017 实际PDF存在，修正错误标记
 **R148更新**: PDF收集验证完成 - 68篇arXiv PDF存在性验证通过，所有GAP文档PDF路径一致；所有GAP支撑文档状态确认
 **R146更新**: GAP支撑文档PDF路径验证完成，所有引用PDF均已确认存在
 **R142更新**: 新增本地PDF列，arXiv论文已下载，商业DOI论文标注"无法下载"
@@ -34,9 +34,9 @@
 
 | 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
 |------|----------|----------|---------|---------|
-| Lin et al. 2020 | 电化学地震传感器温度与幅度频率特性 | 温度漂移和震级因素对频响的影响 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
-| Xu, Wang 2008 | 传感器块模型Volterra级数 | 非线性动态特性块模型理论 | https://doi.org/10.1016/j.measurement.2008.03.008 | 无法下载（需机构订阅） |
-| Iqbal 2024 | 电化学传感器Volterra系统分析 | 高阶核揭示非线性，线性模型不足 | https://hdl.handle.net/1721.1/156552 | 无法下载（需认证） |
+| Lin et al. 2020 | 电化学地震传感器温度与幅度频率特性 | 温度漂移和震级因素对频响的影响 | https://doi.org/10.1016/j.measurement.2020.107518 | docs\research\literature\pdfs\lin_effect_2020.pdf |
+| Xu, Wang 2008 | 传感器块模型Volterra级数 | 非线性动态特性块模型理论 | https://doi.org/10.1016/j.measurement.2008.03.008 | docs\research\literature\pdfs\Xu_2008_Volterra.pdf |
+| Iqbal 2024 | 电化学传感器Volterra系统分析 | 高阶核揭示非线性，线性模型不足 | https://hdl.handle.net/1721.1/156552 | docs\research\literature\pdfs\iqbal_2024_electrochemical_volterra.pdf |
 
 ---
 
@@ -54,8 +54,8 @@
 | 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
 |------|----------|----------|---------|---------|
 | Bensmann 2010 | 高阶频率响应函数随幅度变化 | **直接支撑**：频率响应幅度依赖 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
-| Fasmin 2017 | 电化学系统非线性EIS | 阻抗随激励幅度变化 | https://doi.org/10.1016/j.jelechem.2017.03.056 | 无法下载（需机构订阅） |
-| Lin 2020 | 电化学地震传感器幅度-频率特性 | **直接支撑**：MET传感器幅度效应 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+| Fasmin 2017 | 电化学系统非线性EIS | 阻抗随激励幅度变化 | https://doi.org/10.1016/j.jelechem.2017.03.056 | docs\research\literature\pdfs\Fasmin_2017_Nonlinear_Electrochemical.pdf |
+| Lin 2020 | 电化学地震传感器幅度-频率特性 | **直接支撑**：MET传感器幅度效应 | https://doi.org/10.1016/j.measurement.2020.107518 | docs\research\literature\pdfs\lin_effect_2020.pdf |
 
 ---
 
@@ -64,7 +64,7 @@
 | 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
 |------|----------|----------|---------|---------|
 | Wahlberg 2015 | 随机Wiener系统辨识 | 线性动态+非线性传感器的完整理论 | https://arxiv.org/abs/1507.05535 | docs/research/literature/pdfs/Wahlberg_2015_stochastic_Wiener.pdf |
-| Xu, Wang 2008 | Volterra级数块模型 | 参数可分离特性，线性/非线性分离 | https://doi.org/10.1016/j.measurement.2008.03.008 | 无法下载（需机构订阅） |
+| Xu, Wang 2008 | Volterra级数块模型 | 参数可分离特性，线性/非线性分离 | https://doi.org/10.1016/j.measurement.2008.03.008 | docs\research\literature\pdfs\Xu_2008_Volterra.pdf |
 | Haber 1990 | 非线性动态系统结构辨识综述 | "Wiener = 线性动态 + 静态非线性" | - | 无法下载（需机构订阅） |
 
 ---
@@ -73,7 +73,7 @@
 
 | 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
 |------|----------|----------|---------|---------|
-| Lin 2020 | 幅度-频率特性补偿 | 电化学地震传感器幅度-频率建模参考 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+| Lin 2020 | 幅度-频率特性补偿 | 电化学地震传感器幅度-频率建模参考 | https://doi.org/10.1016/j.measurement.2020.107518 | docs\research\literature\pdfs\lin_effect_2020.pdf |
 | van Meer 2025 | Wiener系统自标定 | 非线性建模方法论支撑 | https://arxiv.org/abs/2505.04245 | docs/research/literature/pdfs/van_Meer_2025_Hall_sensor_Wiener.pdf |
 | Bensmann 2010 | 高阶频率响应函数 | 幅度依赖特性建模 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
 
@@ -201,6 +201,7 @@
 
 | 轮次 | 关键分析 |
 |------|---------|
+| R155 | STEP3 R155完成：PDF路径修正完成，Lin 2020/Xu 2008/Iqbal 2024/Fasmin 2017实际PDF存在，修正错误标记 |
 | R149 | STEP3 R149完成：任务执行确认，根目录清洁性验证通过，68篇arXiv PDF + 71个Markdown文件存在性确认 |
 | R148 | STEP3 R148完成：GAP支撑文档状态确认，核心文献清单完整性验证通过 |
 | R147 | STEP3 R147完成：PDF存在性验证通过，核心文献清单PDF路径一致性确认 |

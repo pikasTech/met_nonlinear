@@ -14,12 +14,9 @@
 
 | 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
 |-----|---------|---------|---------|---------|
-| 1 | Fasmin & Srinivasan 2017, J. Electrochem. Soc. | 电化学系统非线性EIS，阻抗随激励幅度变化 | https://doi.org/10.1016/j.jelechem.2017.03.056 | 无法下载（需机构订阅） |
-| 2 | Bensmann et al. 2010, Electrochimica Acta | 高阶频率响应函数随幅度变化 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
-| 3 | Hernandez-Jaimes et al. 2015, Chem. Eng. Sci. | 大幅度激励下电化学系统非线性响应 | https://doi.org/10.1016/j.ces.2015.05.031 | 无法下载（需机构订阅） |
-| 4 | Lin et al. 2020, Measurement | 电化学地震传感器幅度-频率特性分析 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
-| 5 | Chikishev et al. 2019, IEEE Sensors | MET传感器幅度-频率响应温度依赖 | https://doi.org/10.1109/JSEN.2019.2925829 | 无法下载（需机构订阅） |
-| 6 | Levchenko et al. 2010 | 电化学地震计频率响应随幅度变化 | - | 无法获取 |
+| 1 | Fasmin & Srinivasan 2017, J. Electrochem. Soc. | 电化学系统非线性EIS，阻抗随激励幅度变化 | https://doi.org/10.1016/j.jelechem.2017.03.056 | docs\research\literature\pdfs\Fasmin_2017_Nonlinear_Electrochemical.pdf |
+| 3 | Lin et al. 2020, Measurement | 电化学地震传感器幅度-频率特性分析 | https://doi.org/10.1016/j.measurement.2020.107518 | docs\research\literature\pdfs\lin_effect_2020.pdf |
+| 4 | Chikishev et al. 2019, IEEE Sensors | MET传感器幅度-频率响应温度依赖 | https://doi.org/10.1109/JSEN.2019.2925829 | docs\research\literature\pdfs\Chikishev_2019_Temperature_Amplitude_Frequency.pdf |
 
 ## 支撑缺口
 
@@ -32,8 +29,6 @@
 
 ## 参考文献
 
-- Bensmann et al. 2010. Estimation of higher-order frequency response functions. Electrochimica Acta. DOI: 10.1016/j.electacta.2010.02.056
 - Fasmin, Srinivasan. 2017. Nonlinear electrochemical impedance spectroscopy. J. Electrochem. Soc. DOI: 10.1016/j.jelechem.2017.03.056
-- Hernandez-Jaimes et al. 2015. Large-amplitude harmonic analysis. Chem. Eng. Sci. DOI: 10.1016/j.ces.2015.05.031
 - Lin et al. 2020. Temperature performance of electrochemical seismic sensor. Measurement. DOI: 10.1016/j.measurement.2020.107518
 - Chikishev et al. 2019. Magnitude-frequency response of MET sensors. IEEE Sensors. DOI: 10.1109/JSEN.2019.2925829
