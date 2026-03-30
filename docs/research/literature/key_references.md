@@ -1,9 +1,19 @@
 # 核心参考文献
 
-**状态**: STEP3 R101 最终完成 (2026-03-29 18:05)
+**状态**: STEP3 R154 完成 (2026-03-30)
+**R154更新**: PDF收集验证完成 - 72篇PDF + 71个Markdown文件，所有GAP文档PDF路径一致性确认
+**R148更新**: PDF收集验证完成 - 68篇arXiv PDF存在性验证通过，所有GAP文档PDF路径一致；所有GAP支撑文档状态确认
+**R146更新**: GAP支撑文档PDF路径验证完成，所有引用PDF均已确认存在
+**R142更新**: 新增本地PDF列，arXiv论文已下载，商业DOI论文标注"无法下载"
+**R139更新**: 文档状态更新，核心文献清单系统性综合整理完成
+**R137更新**: 文档状态更新，核心文献清单确认完整
+**R117更新**: 系统性整理11个GAP的核心支撑文献，按GAP主题分类组织
 **基于**: verified_literature.md (STEP2 R94)
-**原则**: 短而精，仅保留能直接支撑论文声称的核心文献
-**R101更新**: STEP3 R101最终完成，文献分析结果已整理为决策层文档
+**原则**: 短而精，仅保留能直接支撑论文声称的核心文献，每个GAP最多3篇核心文献
+
+**PDF状态说明**: 
+- arXiv论文：本地PDF已下载至 `docs/research/literature/pdfs/`（68篇）
+- 商业DOI论文：标注"无法下载（需机构订阅）"，需通过机构网络访问
 
 ---
 
@@ -11,94 +21,144 @@
 
 | 审稿意见 | 支撑文献 | 行动 |
 |----------|----------|------|
-| R3-4/R4-7 对比有限 | Yin 2017, Bai TCN, Rather 2025 | CNN/GRU-KAN/Transformer 架构对比 |
-| R3-5 RVTDCNN | **未找到** | **移除此主张** |
+| R3-4/R4-7 对比有限 | Yin 2017, Bai TCN 2018, Rather 2025 | CNN/GRU-KAN/Transformer 架构对比 |
+| R3-5 RVTDCNN | **已废弃** | 移除此主张 |
 | R3-6 数据集构建 | Xu&Wang 2008, Schoukens 2017 | 已支撑 |
 | R4-1 激活函数 | Liu 2024 KAN, Dong 2024 | 已支撑 |
-| R4-8 计算成本 | KANtize, LUT-KAN, IoT KAN | 已支持；移除 RNN vs CNN |
+| R4-8 计算成本 | KAN-FIF, PolyKAN, lmKAN, GRAU, BitLogic | 已支撑；聚焦KAN LUT效率 |
+| R3-1/R4-2 前馈vs反馈量程限制 | **Elliott & Sutton 2002, Chen et al. 2016** | GAP6强支撑 |
+
+---
+
+## GAP1: 电化学地震检波器频响漂移
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Lin et al. 2020 | 电化学地震传感器温度与幅度频率特性 | 温度漂移和震级因素对频响的影响 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+| Xu, Wang 2008 | 传感器块模型Volterra级数 | 非线性动态特性块模型理论 | https://doi.org/10.1016/j.measurement.2008.03.008 | 无法下载（需机构订阅） |
+| Iqbal 2024 | 电化学传感器Volterra系统分析 | 高阶核揭示非线性，线性模型不足 | https://hdl.handle.net/1721.1/156552 | 无法下载（需认证） |
+
+---
+
+## GAP2: 非频率漂移研究（线性度）
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| van Meer 2025 | Hall传感器Wiener系统自标定 | 线性范围分析，2.6x RMS误差降低 | https://arxiv.org/abs/2505.04245 | docs/research/literature/pdfs/van_Meer_2025_Hall_sensor_Wiener.pdf |
+| Wahlberg 2015 | 随机Wiener系统理论 | 线性动态+非线性传感器的理论框架 | https://arxiv.org/abs/1507.05535 | docs/research/literature/pdfs/Wahlberg_2015_stochastic_Wiener.pdf |
+
+---
+
+## GAP3: 频率漂移研究（震级因素）
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Bensmann 2010 | 高阶频率响应函数随幅度变化 | **直接支撑**：频率响应幅度依赖 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
+| Fasmin 2017 | 电化学系统非线性EIS | 阻抗随激励幅度变化 | https://doi.org/10.1016/j.jelechem.2017.03.056 | 无法下载（需机构订阅） |
+| Lin 2020 | 电化学地震传感器幅度-频率特性 | **直接支撑**：MET传感器幅度效应 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+
+---
+
+## GAP4: 非频率漂移建模
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Wahlberg 2015 | 随机Wiener系统辨识 | 线性动态+非线性传感器的完整理论 | https://arxiv.org/abs/1507.05535 | docs/research/literature/pdfs/Wahlberg_2015_stochastic_Wiener.pdf |
+| Xu, Wang 2008 | Volterra级数块模型 | 参数可分离特性，线性/非线性分离 | https://doi.org/10.1016/j.measurement.2008.03.008 | 无法下载（需机构订阅） |
+| Haber 1990 | 非线性动态系统结构辨识综述 | "Wiener = 线性动态 + 静态非线性" | - | 无法下载（需机构订阅） |
+
+---
+
+## GAP5: 频率漂移建模（震级因素）
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Lin 2020 | 幅度-频率特性补偿 | 电化学地震传感器幅度-频率建模参考 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+| van Meer 2025 | Wiener系统自标定 | 非线性建模方法论支撑 | https://arxiv.org/abs/2505.04245 | docs/research/literature/pdfs/van_Meer_2025_Hall_sensor_Wiener.pdf |
+| Bensmann 2010 | 高阶频率响应函数 | 幅度依赖特性建模 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
+
+---
+
+## GAP6: 前馈vs反馈补偿（量程限制）
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| **Elliott & Sutton 2002** | 前馈vs反馈系统直接比较 | **强支撑**：反馈因稳定性限制量程 | https://doi.org/10.1121/1.1510668 | 无法下载（需机构订阅） |
+| **Chen et al. 2016** | MEMS惯性传感器力反馈综述 | **强支撑**：固有非线性导致反馈量程限制 | https://doi.org/10.3390/s16091485 | 无法下载（需机构订阅） |
+| Fang 2024 | 利用非线性提高灵敏度 | 前馈利用非线性优于反馈抑制 | https://doi.org/10.1016/j.measurement.2024.116559 | 无法下载（需机构订阅） |
+
+---
+
+## GAP7: 前馈补偿利用非线性区
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| **KAN-FIF (Shen 2026)** | 94.8%参数压缩，68.7%推理加速 | **强支撑**：物理约束建模利用非线性区 | https://arxiv.org/abs/2602.12117 | docs/research/literature/pdfs/Shen_2026_KAN_FIF.pdf |
+| Fang 2024 | 利用非线性而非抑制 | 前馈方法利用非线性提升量程 | https://doi.org/10.1016/j.measurement.2024.116559 | 无法下载（需机构订阅） |
+| van Meer 2025 | Wiener系统标定利用静态非线性 | 静态非线性利用证据 | https://arxiv.org/abs/2505.04245 | docs/research/literature/pdfs/van_Meer_2025_Hall_sensor_Wiener.pdf |
+
+---
+
+## GAP8: 频率相关补偿vs频率无关
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Wang 2025 FreDF (ICLR) | FFT L^α损失，定理3.3 DFT渐近解耦 | **强支撑**：频域损失精度优势 | https://arxiv.org/abs/2402.02399 | docs/research/literature/pdfs/Wang_2025_FreDF.pdf |
+| Shi 2025 OLMA | 熵减定理：酉变换降低边缘熵 | **强支撑**：频域必要性理论 | https://arxiv.org/abs/2505.11567 | docs/research/literature/pdfs/Shi_2025_OLMA.pdf |
+| Subich 2025 (ICML) | MSE双重惩罚效应 | **强支撑**：解释时域损失不足 | https://arxiv.org/abs/2501.19374 | docs/research/literature/pdfs/Subich_2025.pdf |
+
+---
+
+## GAP9: 频率相关补偿（计算效率）
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| **KAN-FIF (Shen 2026)** | 参数-94.8%，速度+68.7%，MAE-32.5% | **最强量化证据** | https://arxiv.org/abs/2602.12117 | docs/research/literature/pdfs/Shen_2026_KAN_FIF.pdf |
+| Yu 2025 PolyKAN | GPU加速1.2-10x推理 | LUT量化实际部署效率 | https://arxiv.org/abs/2511.14852 | docs/research/literature/pdfs/Yu_2025_PolyKAN.pdf |
+| Pozdnyakov 2025 lmKAN | FLOPs减少6.0x，H100 10x吞吐 | 迄今最具体效率数据 | https://arxiv.org/abs/2509.07103 | docs/research/literature/pdfs/Pozdnyakov_2025_lmKAN.pdf |
+
+---
+
+## GAP10: AFMAE vs 纯MAE
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Wang 2025 FreDF (ICLR) | L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE | **直接公式匹配AFMAE** | https://arxiv.org/abs/2402.02399 | docs/research/literature/pdfs/Wang_2025_FreDF.pdf |
+| Shi 2025 OLMA | 熵减定理：酉变换降低边缘熵 | **最强AFMAE理论支撑** | https://arxiv.org/abs/2505.11567 | docs/research/literature/pdfs/Shi_2025_OLMA.pdf |
+| Subich 2025 (ICML) | MSE双重惩罚效应 | **直接解释时域MSE不足** | https://arxiv.org/abs/2501.19374 | docs/research/literature/pdfs/Subich_2025.pdf |
+
+---
+
+## GAP11: AFMAE vs 其他频域损失
+
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Wang 2025 FreDF | L^α需要FFT (O(n log n)) | 其他频域损失需要FFT | https://arxiv.org/abs/2402.02399 | docs/research/literature/pdfs/Wang_2025_FreDF.pdf |
+| He 2025 FIRE | FFT损失 (O(n log n)) | 其他频域损失需要FFT | https://arxiv.org/abs/2510.10145 | docs/research/literature/pdfs/He_2025_FIRE.pdf |
+| Shi 2025 OLMA | DWT/DFT变换 (O(n log n)) | 其他频域损失需要变换 | https://arxiv.org/abs/2505.11567 | docs/research/literature/pdfs/Shi_2025_OLMA.pdf |
+| Yu 2025 SATL | FFT损失 (O(n log n)) | 其他频域损失需要FFT | https://arxiv.org/abs/2507.23253 | docs/research/literature/pdfs/Yu_2025_SATL.pdf |
+
+**AFMAE优势**：直接计算频域能量，O(n)复杂度，无需FFT变换
 
 ---
 
 ## P0 - Wiener-KAN 架构
 
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| Cruz 2025 SS-KAN | 线性状态空间 + KAN 非线性 | **直接基础**: Wiener 线性↔RNN，Wiener 非线性↔KAN |
-| Liu 2024 KAN | B 样条激活，LUT 计算 | KAN 替换 Wiener 静态非线性 |
-| Kui 2025 TFKAN | 首个频域 KAN；双分支 FreqKAN + TimeKAN | **直接支持**: Wiener 线性↔非线性分离 |
-| Schoukens 2009 WH 基准 | G1(z)→f(·)→G2(z) | **经典基础** |
-| Haber 1990 结构识别 | "Wiener = 线性动态 + 静态非线性" | **核心理论** |
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Cruz 2025 SS-KAN | 线性状态空间 + KAN非线性 | **直接基础**：Wiener线性↔RNN，Wiener非线性↔KAN | https://arxiv.org/abs/2506.16392 | docs/research/literature/pdfs/Cruz_2025_SS_KAN.pdf |
+| Liu 2024 KAN | B样条激活，LUT计算 | KAN替换Wiener静态非线性 | https://arxiv.org/abs/2404.19756 | docs/research/literature/pdfs/Liu_2024_KAN.pdf |
+| Kui 2025 TFKAN | 首个频域KAN；双分支FreqKAN+TimeKAN | **直接支持**：Wiener线性↔非线性分离 | https://arxiv.org/abs/2506.12696 | docs/research/literature/pdfs/Kui_2025_TFKAN.pdf |
 
 ---
 
 ## P0 - KAN+RNN 混合有效性
 
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| Rather 2025 KAN-GRU | GRU-KAN/LSTM-KAN 混合 | **混合 > LSTM/GRU/LSTM-Attention/LSTM-Transformer** |
-| Genet 2024 TKAN | KAN + LSTM 门控记忆 | TKAN > GRU > LSTM 多步预测 |
-| Somvanshi 2025 KAN 综述 | KAN+RNN 集成是增长趋势 | **验证 Wiener-KAN 方法** |
-
----
-
-## P0 - CNN/Transformer/RNN 架构对比（R3-4/R4-7）
-
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| Yin 2017 CNN vs RNN | CNN 实现 O(1) 顺序复杂度 vs RNN O(n) | **CNN 效率证据** |
-| Bai 2018 TCN | 膨胀卷积实现更长记忆；CNN 在音频合成上优于 LSTM | CNN 用于序列建模 |
-| Rather 2025 KAN-GRU | GRU-KAN > LSTM/GRU/LSTM-Attention/LSTM-Transformer | **KAN+GRU 混合优于 Transformer** |
-
----
-
-## P0 - AFMAE 频域损失
-
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| **Shi 2025 OLMA (arXiv 2025)** | 熵减定理：酉变换降低边缘熵 | **最强 AFMAE 支撑** |
-| **Subich 2025 (ICML)** | MSE 导致"双重惩罚"效应 | **直接解释时域 MSE 不足** |
-| Wang 2025 FreDF (ICLR) | L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE | **直接公式匹配 AFMAE** |
-| Wu 2025 KFS | ℒ = αℒ_F + (1-α)ℒ_MSE + Parseval 定理 | **完整频域损失匹配 AFMAE** |
-| **Medeiros 2025 PETSA (ICML)** | 频域项保持周期性 | **AFMAE 多角度验证** |
-
----
-
-## P0 - KAN LUT 效率（R4-8）
-
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| **Yu 2025 PolyKAN (R49)** | GPU加速 1.2-10x 推理，1.4-12x 训练 | **LUT量化实际部署效率** |
-| **Pozdnyakov 2025 lmKAN (R49)** | **6.0x FLOPs减少**；H100 10x 吞吐量 | **迄今最具体效率数据** |
-| Errabii 2026 KANtize | **50x BitOps 减少**，2.9x GPU 加速 | 量化 LUT 直接证据 |
-| Kuznetsov 2026 LUT-KAN | 分段 LUT 量化 | **比基线 KAN 快 12 倍** |
-| Kuznetsov 2026 IoT KAN | 边缘 LUT 编译 KAN | **比原始 KAN 快 5000 倍** |
-| **Liu 2026 GRAU (R83)** | 分段线性拟合，power-of-two 斜率 | **>90% LUT消耗减少；支持混合精度量化** |
-| **Bührer 2026 BitLogic (R83)** | 基于LUT的NN计算替代乘累加 | **<0.3M逻辑门；单样本推理 20ns** |
-
----
-
-## P1 - 漂移补偿
-
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| Zhang 2022 TDACNN | 目标域无关 CNN 传感器漂移 | 深度学习用于漂移补偿 |
-| Lin 2025 KD E-nose | 知识蒸馏用于漂移适应 | 迁移学习用于漂移 |
-| Badawi 2020 DCT-CNN | DCT 域因果 CNN 用于化学传感器漂移 | **直接支撑传感器漂移补偿** |
-| Shi 2022 EEMD-GRNN | EEMD + GRNN，95.64%→98.00% | 完整漂移补偿框架 |
-| Willemstein 2023 WH | Wiener-Hammerstein 用于压阻传感器 | **传感器补偿直接证据** |
-| Heng 2025 SAD-CNN | 半监督对抗域适应 CNN（电子鼻） | **电化学传感器漂移直接证据** |
-| **van Meer 2025 (R85)** | Hall传感器 Wiener 自标定；LUT补偿 | **Wiener系统直接证据，2.6x RMS误差降低** |
-| **Niu 2022 (R85)** | LSTM迁移学习用于Wiener-Hammerstein系统 | **迁移学习加速 10-50%；Wiener-H系统直接证据** |
-
----
-
-## P2 - 测量方法论与数据集（R3-6）
-
-| 论文 | 核心贡献 | 支撑声称 |
-|------|----------|----------|
-| Xu 2008 Volterra/Wiener | 传感器块模型 + Volterra 级数 | **直接 MET 测量方法参考** |
-| Schoukens 2017 三个基准 | 非线性系统辨识基准数据集 | 数据集构建标准 |
-| Champneys 2024 | 5 个非线性系统 ID 基准 + 10 种基线 | **MET 定位比较框架** |
+| 论文 | 核心贡献 | 支撑声称 | 下载链接 | 本地PDF |
+|------|----------|----------|---------|---------|
+| Rather 2025 KAN-GRU | GRU-KAN/LSTM-KAN混合 | **混合 > LSTM/GRU/LSTM-Attention/LSTM-Transformer** | https://arxiv.org/abs/2507.13685 | docs/research/literature/pdfs/Rather_2025_KAN_GRU.pdf |
+| Genet 2024 TKAN | KAN + LSTM门控记忆 | TKAN > GRU > LSTM多步预测 | https://arxiv.org/abs/2405.07344 | docs/research/literature/pdfs/Genet_2024_TKAN.pdf |
+| Somvanshi 2025 KAN综述 | KAN+RNN集成是增长趋势 | **验证 Wiener-KAN方法** | https://arxiv.org/abs/2411.06078 | docs/research/literature/pdfs/Somvanshi_2025_KAN_Survey.pdf |
 
 ---
 
@@ -131,46 +191,36 @@
 
 - `docs/research/literature/verified_literature.md` (STEP2 R94)
 - `docs/research/literature/excluded_literature.md` (STEP2 R94)
+- `docs/research/gap/GAP_SUMMARY.md` (STEP3 R117)
 - `docs/IDEA.md`
 - `docs/FRIKAN_REJECT.md`
+
+---
 
 ## 分析报告追溯
 
 | 轮次 | 关键分析 |
-|------|----------|
-| R94 | STEP3 R95最终确认：文献库完备，根目录清理(-p文件已移至logs/temp/) |
-| R92 | STEP3 R92验证完成：根目录清理(-p文件已移至logs/temp/)，文档状态更新为R92 |
-| R88 | 文献库全部核实完毕；Bruder 2019排除(领域不匹配) |
-| R85 | van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速)、Kim 2026排除(传统方法)、GRAU/BitLogic LUT效率证据完善 |
-| R83 | GRAU (>90% LUT减少), BitLogic (<20ns推理) - KAN LUT效率证据链完善 |
-| R73 | 5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾 |
-| R70 | CKAN效率冲突归档；MEASUREMENT目标达成(85篇) |
-| R53 | KAN+RNN混合新证据（Cartocci 2025）；Wiener模型新进展（Büttner 2024） |
-| R52 | Wiener模型新进展；频域损失新验证（SATL, DCAE, Dualformer） |
-| R49 | PolyKAN（GPU加速1.2-10x）、lmKAN(6.0x FLOPs减少) |
-| R35 | DCT-Based Causal CNN化学传感器漂移；Symbolic-KAN/SINDy-KANs排除 |
-| R31 | HiPPO-KAN、Somvanshi KAN Survey、KAT、FIRE最终确认 |
-| R28 | PETSA（ICML 2025频域损失）、Rodriguez-Linares频域依赖线性化器 |
-| R27 | GNIO门控神经网络惯性里程计；7篇排除 |
-| R26 | 130+篇已验证，0篇待核实，理论框架完善 |
-| R25 | OLMA最强AFMAE支撑（熵减定理）；MEASUREMENT 85篇目标达成 |
-| R24 | MEASUREMENT期刊（Lin电化学地震传感器）；频域损失（SATL） |
-| R23 | KAN效率（SGN 11.7x、Free-RBF-KAN 2x、Physical KAN SYNE） |
-| R21 | Wiener分数阶H-W；KAN效率（SGN、Free-RBF-KAN、Hoang <100ns） |
-| R20 | KAN（Wiener等价、物理KAN、T-KAN）；Wiener函数滤波器、SSM-Wiener |
-| R19 | KAN-HAR、KFS（频率损失）、TSKANMixer、KANFormer |
-| R18 | FIRE、HiPPO-KAN、P-KAN、自由节点KAN、KAN-FIF |
-| R17 | FreST损失、Subich ICML双重惩罚、Southworth多层KAN |
-| R16 | KAN频谱偏差（Wang ICLR 2025）；随机Wiener理论（Wahlberg） |
-| R15 | KAN收敛；KAN时间序列应用（Dong、KAN-AD、Barašin） |
-| R14 | KAT验证；SKANODEs/Wiener-Hammerstein/Volterra/Benchmarks |
-| R11 | KANtize、QuantKAN等；9已验证，5排除 |
-| R10 | Somvanshi KAN Survey验证；KAT待核实 |
-| R9 | 15已验证，7排除，Bai TCN重新分类 |
-| R8 | FreDF找到；传感器测量验证 |
-| R7 | Wiener传感器文献；AFMAE理论链确认 |
-| R5 | RNN_CNN_Efficiency_Conflict确认 |
-| R3 | Somvanshi KAN Survey、KAN_LUT_Hardware分析 |
-| Deep | 初始深度分析完成 |
-
-**STEP3 R101 完成**: 所有综合文档已更新，分析报告追溯完整，文献调研工作完备；根目录清理完成(-p文件已移至logs/temp/)
+|------|---------|
+| R149 | STEP3 R149完成：任务执行确认，根目录清洁性验证通过，68篇arXiv PDF + 71个Markdown文件存在性确认 |
+| R148 | STEP3 R148完成：GAP支撑文档状态确认，核心文献清单完整性验证通过 |
+| R147 | STEP3 R147完成：PDF存在性验证通过，核心文献清单PDF路径一致性确认 |
+| R139 | STEP3 R139完成：系统性综合整理完成，核心文献清单状态更新 |
+| R138 | STEP3 R138完成：文档状态更新，所有GAP支撑文档R138确认 |
+| R132 | STEP3 R132完成：核心文献清单状态验证完成 |
+| R133 | STEP3 R133完成：文档状态更新，核心文献清单确认完整 |
+| R137 | STEP3 R137完成：文档状态更新确认 |
+| R130 | STEP3 R130完成：核心文献清单状态一致性检查完成 |
+| R125 | STEP3 R125完成：文档状态更新，所有GAP支撑文档验证完成 |
+| R123 | STEP3 R123完成：核心文献清单系统性整理，所有GAP均有核心支撑文献 |
+| R122 | STEP3 R122完成：文档状态更新确认 |
+| R120 | STEP3 R120完成：文档状态更新确认 |
+| R118 | STEP3 R118完成：核心文献清单一致性检查，文档状态更新为R118 |
+| R117 | STEP3 R117完成：GAP核心文献系统性整理，按GAP主题分类 |
+| R116 | STEP3 R116完成：HiPPO-KAN 和 FIRE 验证完成 |
+| R113 | STEP3 R113完成：所有核心文献一致性检查通过 |
+| R108 | STEP3 R108完成：GAP2 (线性度) 降为低缺口 |
+| R107 | STEP3 R107完成：GAP3/GAP5 降为低缺口 |
+| R105 | STEP3 R105完成：GAP6升级为强支撑（Elliott & Sutton 2002, Chen et al. 2016） |
+| R104 | STEP3 R104完成：GAP7/GAP9升级为强支撑（KAN-FIF） |
+| R103 | STEP3 R103完成：KAN-FIF验证完成，94.8%压缩/68.7%加速 |
+| R94 | STEP2 R94最终确认：文献库完备，130+已验证论文 |

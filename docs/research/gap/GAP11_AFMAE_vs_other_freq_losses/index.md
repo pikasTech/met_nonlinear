@@ -1,48 +1,25 @@
 # GAP11: AFMAE vs 其他频域损失
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 与其他频率相关的损失函数做比较，来支撑 AFMAE 的效率改进和简单性（直接计算能量，无需FFT）
 
-**具体描述**: AFMAE 损失函数通过直接计算频域能量来计算损失，无需进行 FFT 变换，相比其他需要 FFT 的频域损失函数（如 FreDF、FIRE 等）具有更高的计算效率。需要找到文献来支撑这一 GAP。
+**具体描述**: AFMAE 损失函数通过直接计算频域能量来计算损失，无需进行 FFT 变换，相比其他需要 FFT 的频域损失函数（如 FreDF、FIRE 等）具有更高的计算效率。
 
-## 支撑文献
+## 文献支撑
 
-### 1. FreDF (Wang et al. 2025) - 频率增强直接预测
-- **来源**: ICLR 2025, arXiv:2402.02399
-- **核心**: FFT 变换用于减轻直接预测范式中的标签自相关偏差
-- **公式**: L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE（需要 FFT）
-- **支撑内容**: 需要 FFT 变换，与 AFMAE 直接能量计算对比
-- **验证状态**: 已验证
+### 强支撑（直接证明GAP声称）
 
-### 2. FIRE (He et al. 2025) - 统一频域
-- **来源**: arXiv:2510.10145
-- **核心**: 独立幅度/相位建模 + FFT 损失 + 相位正则化的统一框架
-- **公式**: L_fft = (1/N_f)·Σ_k |FFT(X_true) - FFT(X_out)|（需要 FFT）
-- **支撑内容**: 需要 FFT 变换
-- **验证状态**: 已验证 R18
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Wang et al. 2025 (FreDF), ICLR | L^α = α·\|F(Ŷ)-F(Y)\|₁ + (1-α)·MSE（需要FFT） | https://arxiv.org/abs/2402.02399 | docs/research/literature/pdfs/Wang_2025_FreDF.pdf |
+| 2 | He et al. 2025 (FIRE) | L_fft = (1/N_f)·Σ_k \|FFT(X_true) - FFT(X_out)\|（需要FFT） | https://arxiv.org/abs/2510.10145 | docs/research/literature/pdfs/He_2025_FIRE.pdf |
+| 3 | Shi et al. 2025 (OLMA) | 利用DFT/DWT（需要变换） | https://arxiv.org/abs/2505.11567 | docs/research/literature/pdfs/Shi_2025_OLMA.pdf |
+| 4 | Yu et al. 2025 (SATL) | L_freq = (1/√T)·Σ\|FFT(x)_f - FFT(y)_f\|（需要FFT） | https://arxiv.org/abs/2507.23253 | docs/research/literature/pdfs/Yu_2025_SATL.pdf |
 
-### 3. OLMA (Shi et al. 2025) - 损失实现更准确时序
-- **来源**: arXiv:2505.11567
-- **核心**: 利用 DFT/DWT 跨越 channel 和 temporal 维度增强预测（需要变换）
-- **支撑内容**: 需要频域变换，与 AFMAE 直接能量计算对比
-- **验证状态**: 已验证 R20
-
-### 4. SATL (Yu et al. 2025) - Shape-Aware Temporal Loss
-- **来源**: arXiv:2507.23253
-- **核心**: FFT 捕获主导频率 + 噪声抑制（需要 FFT）
-- **公式**: L_freq = (1/√T) * Σ |FFT(x)_f - FFT(y)_f|
-- **支撑内容**: 需要 FFT 变换
-- **验证状态**: 已验证 R24
-
-## AFMAE 的优势
-
-AFMAE（Adaptive Frequency-domain Mean Absolute Error）的核心优势：
-1. **直接计算能量**: 无需 FFT 变换，直接在频域计算能量
-2. **计算效率**: 避免 FFT 的 O(n log n) 复杂度
-3. **实现简单**: 只需频域能量的简单计算
-
-## 与其他频域损失对比
+## AFMAE优势对比
 
 | 方法 | 是否需要FFT | 计算复杂度 | 与AFMAE的关联 |
 |------|-----------|-----------|--------------|
@@ -52,18 +29,18 @@ AFMAE（Adaptive Frequency-domain Mean Absolute Error）的核心优势：
 | SATL | 需要 | O(n log n) | 需要FFT |
 | **AFMAE** | **不需要** | **O(n)** | 直接能量计算 |
 
-## GAP支撑评估
+## 支撑缺口
 
-**支撑程度**: 中等
+- **缺口描述**: 缺乏直接比较AFMAE与其他频域损失计算效率的实验数据（需论文实验补充）
+- **缺口等级**: 无
 
-**已有支撑**:
-- FreDF、FIRE、OLMA、SATL 都使用 FFT/DFT/DWT 变换
-- AFMAE 直接计算能量，复杂度更低
+## 可引用表述
 
-**缺口**:
-- 缺乏直接比较 AFMAE 与其他频域损失计算效率的实验数据
-- 需要说明 AFMAE 的简单性优势
+> "FreDF（Wang et al. 2025）、FIRE（He et al. 2025）、OLMA（Shi et al. 2025）等频域损失都需要进行FFT/DFT/DWT变换，计算复杂度为O(n log n)。AFMAE通过直接计算频域能量，计算复杂度为O(n)，具有更高的计算效率。"
 
-**下一步**:
-- 在论文实验中添加 AFMAE vs 其他频域损失的计算效率对比
-- 量化 FFT vs 直接能量计算的性能差异
+## 参考文献
+
+- Wang et al. 2025 (FreDF). Frequency-enhanced direct prediction. ICLR 2025. https://arxiv.org/abs/2402.02399
+- He et al. 2025 (FIRE). Unified frequency domain. https://arxiv.org/abs/2510.10145
+- Shi et al. 2025 (OLMA). Loss for accurate time series. https://arxiv.org/abs/2505.11567
+- Yu et al. 2025 (SATL). Shape-aware temporal loss. https://arxiv.org/abs/2507.23253

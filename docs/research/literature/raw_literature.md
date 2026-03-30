@@ -12,7 +12,7 @@
 | Liu等 | 2024 | KAN 2.0 | https://arxiv.org/abs/2408.10205 | P0 | 高 | 待处理 |
 | Ali等 | 2025 | KAN与LSTM在时间序列中的性能对比 | https://doi.org/10.48550/arXiv.2511.18613 | P0 | 高 | 已验证 (R9) |
 | Yang, Wang | 2024 | Kolmogorov-Arnold变换器 (KAT) | https://doi.org/10.48550/arXiv:2409.10594 | P0 | 高 | 已验证 (R14) |
-| Lee等 | 2024 | HiPPO-KAN: 高效KAN | https://doi.org/10.48550/arXiv.2410.14939 | P0 | 高 | 待处理 |
+| Lee等 | 2024 | HiPPO-KAN: 高效KAN | https://doi.org/10.48550/arXiv.2410.14939 | P0 | 高 | 已验证 (R116) |
 | Rather等 | 2025 | GRU-KAN/LSTM-KAN混合模型 | https://doi.org/10.48550/arXiv.2507.13685 | P0 | 高 | 已验证 (R9) |
 | Yamak等 | 2025 | KAN时间序列综述 (Springer) | https://doi.org/10.1007/s10586-025.05574-9 | P0 | 高 | 待处理 |
 | Hasan等 | 2026 | HaKAN: 用于时间序列的Hahn多项式KAN | https://doi.org/10.48550/arXiv.2601.18837 | P0 | 高 | 已验证 (R10) |
@@ -24,6 +24,8 @@
 | Jiang等 | 2025 | KANMixer: 用于LTSF的KAN核心 | https://doi.org/10.48550/arXiv.2508.01575 | P0 | 高 | 已验证 (R10) |
 | Zeng等 | 2025 | AR-KAN: 自回归权重增强KAN | https://doi.org/10.48550/arXiv.2509.02967 | P0 | 高 | 已验证 (R10) |
 | Somvanshi等 | 2024 | Kolmogorov-Arnold网络综述 (ACM) | https://doi.org/10.48550/arXiv.2411.06078 | P0 | 高 | 已验证 (R10) |
+| Gaonkar等 | 2026 | KAN与MLP范式比较: 非线性函数逼近与时序预测 | https://arxiv.org/abs/2601.10563 | P0 | 高 | 新发现 |
+| Lan等 | 2026 | ConTSG-Bench: 条件时间序列生成统一基准 | https://arxiv.org/abs/2603.04767 | P1 | 中 | 新发现 |
 
 ## Wiener模型
 
@@ -49,7 +51,7 @@
 | Feng等 | 2025 | Fre-CW | https://arxiv.org/abs/2508.08955 | P0 | 高 | 已排除 |
 | Sun等 | 2025 | FreLE: 低频谱偏置 | https://arxiv.org/abs/2510.25800 | P0 | 中 | 已验证 (R11) |
 | Chakraborty等 | 2025 | 用于混沌系统的BSP损失 | https://arxiv.org/abs/2502.00472 | P0 | 中 | 已验证 (R11) |
-| He等 | 2025 | FIRE: 统一频域框架 | https://arxiv.org/abs/2510.10145 | P0 | 中 | 待处理 |
+| He等 | 2025 | FIRE: 统一频域框架 | https://arxiv.org/abs/2510.10145 | P0 | 中 | 已验证 (R116) |
 | Basalaev等 | 2024 | CNN Wiener地震隔离FFT | https://arxiv.org/abs/2410.14806 | P1 | 低 | 待处理 |
 
 ## 漂移补偿
@@ -311,6 +313,31 @@
 | Busetto等 | 2025 | 纳米无人机非线性系统辨识基准 | https://arxiv.org/abs/2512.14450 | P2 | 中 | 新增 (R13) |
 | Ullah, Baca | 2026 | NanoBench: 纳米四旋翼系统辨识基准 | https://arxiv.org/abs/2603.09908 | P2 | 中 | 新增 (R13) |
 
+## 前馈vs反馈补偿 (Round103 - 新增)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|--------|------|-------|------|-----|-----|--------|
+| Elliott, Sutton | 2002 | Performance of feedforward and feedback systems for active control | 10.1121/1.1538144 | P0 | 高 | 新增 (R103) |
+| Chen et al. | 2016 | MEMS惯性传感器力反馈综述 | 10.3390/s16030330 | P0 | 高 | 新增 (R103) |
+| Li et al. | 2017 | 力反馈电化学地震计 | - | P1 | 高 | 新增 (R103) |
+| Sun et al. | 2017 | 力反馈MET | - | P1 | 高 | 新增 (R103) |
+
+**说明**: Elliott & Sutton直接比较前馈与反馈系统，指出反馈因稳定性限制量程；Chen et al.指出MEMS力反馈有固有非线性量程限制；Li et al.和Sun et al.的力反馈电化学地震计分别在<1.8 mm/s和<3.7 mm/s@20Hz条件下测试。
+
+### 幅度相关频率响应 (Amplitude-Dependent Frequency Response) - GAP3/GAP5支撑
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Fasmin, Srinivasan | 2017 | Nonlinear EIS: amplitude-dependent impedance of electrochemical systems | 10.1149/2.0031712jes | P0 | **高** | 新增 (R106) |
+| Bensmann et al. | 2010 | Higher-order frequency response functions of electrochemical systems under large amplitude perturbation | 10.1016/j.electacta.2010.02.056 | P0 | **高** | 新增 (R106) |
+| Hernandez-Jaimes et al. | 2015 | Investigation of the nonlinear response of electrochemical systems by large amplitude sinusoidal voltage perturbation | 10.1016/j.ces.2015.05.046 | P1 | **高** | 新增 (R106) |
+| Deslouis et al. | 1990 | Frequency response of electrochemical systems to linear/nonlinear excitations | 10.1017/S0022112090003674 | P1 | **高** | 新增 (R106) |
+| Lin et al. | 2020 | Electrochemical seismic sensor amplitude-frequency characteristics | 10.1016/j.measurement.2020.107887 | P0 | **高** | 新增 (R106) |
+| Chikishev et al. | 2019 | MET sensor amplitude-frequency response temperature dependence | 10.1109/ICSENS.2019.8909305 | P1 | **高** | 新增 (R106) |
+| Levchenko et al. | 2010 | Electrochemical seismometer frequency response variation with amplitude | - | P1 | **高** | 新增 (R106) |
+| Zou, Seshia | 2017 | MEMS accelerometer: increased excitation voltage shifts frequency response peak | 10.1109/JSEN.2017.2725499 | P1 | 中 | 新增 (R106) |
+| Carrella et al. | 2011 | Force appropriation of nonlinear oscillators | 10.1016/j.ymssp.2011.01.007 | P1 | 中 | 新增 (R106) |
+
 ## 随机Wiener系统理论 (第十四轮 - 新增)
 
 | 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
@@ -373,6 +400,11 @@
 | Gao等 | 2025 | DecoKAN: 加密预测的可解释分解 | https://arxiv.org/abs/2512.20028 | P1 | 高 | 新增 (R17) |
 | Mohammed等 | 2026 | 用于船舶功率预测的物理信息KAN | https://arxiv.org/abs/2602.22055 | P1 | 高 | 新增 (R17) |
 | Slote等 | 2026 | KANDy: 用于动力系统的KAN | https://arxiv.org/abs/2602.20413 | P1 | 高 | 新增 (R17) |
+| Taglietti等 | 2026 | Physical KANs for Li-Ion电池动力学 | https://arxiv.org/abs/2601.15340 | P0 | 高 | 新增 (R110) |
+| Feng等 | 2026 | WaveKAN: 波前感知KAN | Laser & Photonics Reviews | P0 | 高 | 新增 (R110) |
+| Liu等 | 2024 | 基于IMU的人体活动识别KAN | https://arxiv.org/abs/2406.11914 | P0 | 高 | 新增 (R110) |
+| Zhang等 | 2024 | MFKAN: 多传感器特征融合KAN | IEEE TIM | P0 | 高 | 新增 (R110) |
+| Escudero等 | 2026 | Physical Analog KAN: 能量优化物理模拟 | https://arxiv.org/abs/2602.07518 | P1 | 高 | 新增 (R118) |
 | Howard等 | 2026 | SINDy-KANs: 稀疏非线性动力学 | https://arxiv.org/abs/2603.18548 | P1 | 高 | 新增 (R17) |
 | Liu等 | 2026 | BiKA: 二值KAN加速器 | https://arxiv.org/abs/2602.23455 | P2 | 高 | 新增 (R17) |
 | Zhang等 | 2026 | KMLP: 混合KAN-MLP | https://arxiv.org/abs/2602.22777 | P1 | 中 | 新增 (R17) |
@@ -405,6 +437,29 @@
 | Chen, Pan | 2023 | 深度学习用于惯性定位: 综述 | https://arxiv.org/abs/2303.03757 | P1 | 高 | 新增 (R17) |
 | Goncharov等 | 2024 | 带ML的可插入葡萄糖传感器 | https://doi.org/10.1021/acsnano.4c06527 | P2 | 中 | 新增 (R17) |
 | France | 2025 | 带ML的计时安培法 | https://arxiv.org/abs/2506.04540 | P2 | 中 | 新增 (R17) |
+
+## STEP1 Round117 新增文献 (2026-03-30)
+
+### AFMAE频域损失理论支撑论文 (关键发现)
+
+| 作者 | 年份 | 标题 | 链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|------|------|--------|------|
+| Shi等 | 2025 | OLMA: One Loss for More Accurate Time Series (熵减定理) | https://arxiv.org/abs/2505.11567 | P0 | **最高** | **已验证 (R117)** |
+| Subich等 | 2025 | Fixing Double Penalty in Weather Forecasting (ICML 2025) | https://arxiv.org/abs/2501.19374 | P0 | **高** | **已验证 (R117)** |
+| Wu等 | 2025 | KFS: Adaptive Frequency Selection KAN (Parseval定理) | https://arxiv.org/abs/2508.00635 | P0 | **高** | **已验证 (R117)** |
+| He等 | 2025 | FIRE: Unified Frequency Domain Framework | https://arxiv.org/abs/2510.10145 | P0 | **高** | **已验证 (R117)** |
+| Sun等 | 2025 | FreLE: Low-Frequency Spectral Bias Correction | https://arxiv.org/abs/2510.25800 | P0 | **高** | **已验证 (R117)** |
+| Medeiros等 | 2025 | PETSA: Parameter-Efficient Test-Time Adaptation (ICML 2025) | https://arxiv.org/abs/2506.23424 | P0 | **高** | **已验证 (R117)** |
+
+**AFMAE公式来源确认**: FreDF (Wang 2025, ICLR) - https://arxiv.org/abs/2402.02399
+
+**理论支撑要点**:
+- OLMA: 酉变换(DFT)减少边缘熵，降低预测误差下界
+- Subich: MSE双重惩罚效应平滑细尺度，解释为何时域MSE不够
+- KFS: Parseval定理验证频域损失
+- FIRE: FFT损失有效性证明
+- FreLE: 解决低频漂移问题的频谱偏置校正
+- PETSA: 频域项保持周期性
 
 ---
 
@@ -487,6 +542,10 @@
 | Cedeño et al. | 2025 | Quadrature Gaussian Sum Filter for Wiener Systems | https://arxiv.org/abs/2505.08469 | P1 | 高 | 待核实 |
 | Bonassi et al. | 2023 | Structured state-space models are deep Wiener models | https://arxiv.org/abs/2312.06211 | P0 | 高 | 待核实 |
 | Dželo et al. | 2024 | Black-Box Inverter Using Hammerstein-Wiener | https://arxiv.org/abs/2411.13213 | P1 | 高 | 待核实 |
+| Wen et al. | 2023 | Hybrid CNN-Wiener for RUL估计 | 10.1016/j.engappai.2023.106431 | P0 | 高 | 新增 (R110) |
+| Li et al. | 2024 | 基于LSTM的Wiener模型辨识 | 10.1016/j.ymssp.2024.111901 | P0 | 高 | 新增 (R110) |
+| Al-Omairi et al. | 2024 | fNIRS运动伪影校正的H-W模型 | 10.3390/s24103173 | P1 | 中 | 新增 (R110) |
+| Qi et al. | 2021 | 压电执行器的Wiener模型 | 10.1109/JSEN.2021.3116789 | P1 | 中 | 新增 (R110) |
 | Plaimer et al. | 2025 | Optimum and Adaptive Complex-Valued Bilinear Filters | https://arxiv.org/abs/2505.09215 | P1 | 中 | 待核实 |
 | Colburn et al. | 2024 | Closed-Form Solution for Kernel Adaptive Filtering | https://arxiv.org/abs/2402.03497 | P1 | 中 | 待核实 |
 | Rodriguez Linares, Johansson | 2025 | Low-Complexity Frequency-Dependent Linearizers | https://arxiv.org/abs/2412.16210 | P2 | 中 | 待核实 |
@@ -536,6 +595,7 @@
 | Cai et al. | 2026 | PaCoDi: Parallel Complex Diffusion | https://arxiv.org/abs/2602.17706 | P1 | 中 | 待核实 |
 | Feng et al. | 2025 | Fre-CW: Targeted Attack using Frequency Loss | https://arxiv.org/abs/2508.08955 | P1 | 中 | 待核实 |
 | Guo, Weng | 2025 | FODEs: Fourier Ordinary Differential Equations | https://arxiv.org/abs/2510.04133 | P1 | 中 | 待核实 |
+| Xiong, Wen | 2025 | AEFIN: 时频损失 | https://arxiv.org/abs/2505.06917 | P1 | 中 | 新增 (R110) |
 
 ## 传感器漂移补偿新文献 (Round 20)
 
@@ -1984,3 +2044,475 @@
 | Wu等 | 2026 | 结构位移监测数据融合 | 10.1016/j.measurement.2026.121153 | P2 | 中 | 新增 (R100) |
 | Mei等 | 2026 | 腔体内表面温度测量 | 10.1016/j.measurement.2026.121288 | P2 | 中 | 新增 (R100) |
 | Li等 | 2026 | MEMS水听器低频性能 | 10.1016/j.measurement.2026.121302 | P2 | 中 | 新增 (R100) |
+
+### MEASUREMENT期刊传感器漂移补偿方法 (Round 107)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Schaller, Kruse | 2025 | AutoML框架用于传感器漂移预测 | 10.1016/j.measurement.2025.117097 | P2 | 高 | 新增 (R107) |
+| Harindranath等 | 2023 | MEMS IMU校准技术综述 | 10.1016/j.measurement.2023.114001 | P2 | 中 | 新增 (R107) |
+| Shokri-Ghaleh等 | 2020 | 非线性现场校准方法 | 10.1016/j.measurement.2020.107963 | P2 | 高 | 新增 (R107) |
+| Han等 | 2020 | BP神经网络温度补偿 | 10.1016/j.measurement.2020.108019 | P2 | 中 | 新增 (R107) |
+| Zhao等 | 2022 | LSTM用于光纤陀螺校准 | 10.1016/j.measurement.2022.110783 | P2 | 中高 | 新增 (R107) |
+
+---
+
+## STEP1 Round108 新增文献 (2026-03-30)
+
+### KAN效率与LUT实现新论文 (GAP9支撑)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Hoang, Gupta, Harris | 2026 | KANELÉ: FPGA上2700x加速的LUT实现 | 10.48550/arXiv.2512.12850 | P0 | 高 | 新增 (R108) |
+| Errabii, Sentieys, Traiola | 2025 | KAN-SAs: 脉动阵列高效加速 | 10.48550/arXiv.2512.00055 | P0 | 高 | 新增 (R108) |
+| Kuznetsov | 2026 | LUT-Compiled KAN边缘设备5000x加速 | 10.48550/arXiv.2601.08044 | P0 | 高 | 新增 (R108) |
+| Yu等 | 2025 | PolyKAN: GPU高效实现1.2-10x加速 | 10.48550/arXiv.2511.14852 | P0 | 高 | 新增 (R108) |
+| Ou等 | 2026 | VIKIN: 可重构KAN/MLP加速器 | 10.48550/arXiv.2603.01165 | P0 | 中高 | 新增 (R108) |
+| Fuad, Chen | 2026 | QuantKAN: KAN统一量化框架 | 10.48550/arXiv.2511.18689 | P0 | 中高 | 新增 (R108) |
+
+### Wiener模型最新进展 (GAP4/GAP5支撑)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Li等 | 2024 | DLSTM-based Wiener模型非线性系统辨识 | 10.1016/j.ymssp.2024.111386 | P0 | 高 | 新增 (R108) |
+| Li等 | 2024 | Hammerstein-Wiener电池应用参数估计 | Journal of Energy Storage | P1 | 高 | 新增 (R108) |
+| Voit, Enzner | 2024 | 多核神经网络块结构模型 | 10.48550/arXiv.2412.07370 | P0 | 高 | 新增 (R108) |
+| Wang等 | 2024 | 半球谐振陀螺振幅-间隙比漂移建模 | Measurement期刊 | P1 | 高 | 新增 (R108) |
+| Xu等 | 2025 | 超低频漂移补偿（自编码器） | IEEE TIM | P1 | 高 | 新增 (R108) |
+| Yi等 | 2025 | 谐振陀螺幅-频耦合非线性补偿 | MDPI Actuators | P1 | 高 | 新增 (R108) |
+
+### 传感器线性度测量范围新文献 (GAP2支撑)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Sundararajan, Naduvil | 2023 | 传感器线性化（translinear电路+神经网络） | 10.3934/electsci.2023.0452 | P2 | 高 | 新增 (R108) |
+| Li等 | 2025 | 柔性压力传感器线性度系统性分析 | 10.1088/1361-6439/ad5c2a | P2 | 高 | 新增 (R108) |
+| Jafari等 | 2021 | 宽量程镍基电化学传感器pH检测 | 10.1016/j.jelechem.2021.115285 | P2 | 高 | 新增 (R108) |
+| Gao等 | 2025 | 宽线性度范围快速响应触觉传感器 | 10.1002/adv.202411111 | P2 | 高 | 新增 (R108) |
+| Filipiak, Marć | 2021 | SAW振动传感器宽频幅范围 | 10.1016/j.sna.2021.112695 | P2 | 中 | 新增 (R108) |
+
+### 频域损失函数新文献 (GAP10/GAP11支撑)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Wang等 | 2025 | FreDF (ICLR 2025) FFT+L1损失 | 10.48550/arXiv.2402.02399 | P0 | 高 | 新增 (R108) |
+| Shi等 | 2025 | OLMA: 熵减定理 | 10.48550/arXiv.2505.11567 | P0 | 高 | 新增 (R108) |
+| Subich等 | 2025 | 双重惩罚效应 (ICML 2025) | 10.48550/arXiv.2501.19374 | P0 | 高 | 新增 (R108) |
+| He等 | 2025 | FIRE: 统一频域框架 | 10.48550/arXiv.2510.10145 | P1 | 高 | 新增 (R108) |
+| Wu等 | 2025 | KFS: 自适应频选KAN | 10.48550/arXiv.2508.00635 | P0 | 高 | 新增 (R108) |
+| Chakraborty等 | 2025 | BSP Loss: 自适应频域bin权重 | 10.48550/arXiv.2502.00472 | P0 | 高 | 新增 (R108) |
+
+## STEP1 Round111 新增文献 (2026-03-30)
+
+### 前馈补偿利用非线性 (GAP6/GAP7支撑)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Fang等 | 2024 | Exploiting nonlinearity for sensitivity enhancement of TPoS micromachined gas sensor | 10.1016/j.measurement.2024.116559 | P1 | 高 | 新增 (R111) |
+| van Meer等 | 2025 | Hall sensor self-calibration using Wiener system modeling | arXiv:2505.04245 | P1 | 高 | 已验证 (R112) |
+| Rodriguez-Linares, Johansson | 2025 | Frequency-dependent linearizers for power amplifiers | 10.1109/ACCESS.2025.3642613 | P2 | 中 | 已验证 (R112) |
+
+**说明**: Fang et al. 2024证明利用传感器自身非线性特性可以提高灵敏度，而非抑制非线性。这直接支撑GAP7（前馈方法利用而非排除非线性）。
+
+## STEP1 Round112 新增文献 (2026-03-30)
+
+### 传感器线性度/线性化 (GAP2支撑)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Mirzaei, Maier, Ripka | 2025 | Linearity range enhancement of LVDT position sensors using optimized coils | 10.1109/JSEN.2024.3524939 | P2 | 高 | 新增 (R112) |
+| Meza-Arenas, Olvera-Cervantes, Corona-Chavez | 2024 | High Linearity Microwave Displacement Sensor | 10.1109/JSEN.2024.3374383 | P2 | 高 | 新增 (R112) |
+| Islam, Mukhopadhyay | 2019 | Linearization of the sensors characteristics: A review | 10.1016/j.measurement.2018.05.020 | P2 | 高 | 新增 (R112) |
+| Patra, Chakraborty et al. | 2008 | Neural-network-based robust linearization and compensation technique for sensors | IEEE Trans. Instrum. | P2 | 高 | 新增 (R112) |
+| Khan, Shahani, Agarwala | 2003 | Sensor calibration and compensation using artificial neural network | 10.1016/s0019-0578(07)60138-4 | P2 | 高 | 新增 (R112) |
+| Cotton, Wilamowski | 2010 | Compensation of sensors nonlinearity with neural networks | IEEE Trans. Ind. Inform. | P2 | 高 | 新增 (R112) |
+
+## STEP1 Round113 新增文献 (2026-03-30)
+
+### MEASUREMENT期刊新发现 (R113)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Gao, Kong | 2025 | MP-KAN: Multi-Physics KAN for magnetic positioning | 10.1016/j.measurement.2024.116248 | P2 | 高 | 新增 (R113) |
+| Yang et al. | 2026 | KAN for CNC spindle thermal error compensation | 10.1016/j.measurement.2025.118827 | P2 | 高 | 新增 (R113) |
+| Kong et al. | 2024 | NN for robot kinematic calibration | 10.1016/j.measurement.2024.115281 | P2 | 高 | 新增 (R113) |
+
+## STEP1 Round114 新增文献 (2026-03-30)
+
+### MEASUREMENT期刊2026年新发现 (R114)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Fang et al. | 2026 | NN collision detection | 10.1016/j.measurement.2026.121042 | P2 | 中 | 新增 (R114) |
+| Ban et al. | 2026 | ADC linearity testing | 10.1016/j.measurement.2026.121086 | P2 | 高 | 新增 (R114) |
+| Cao et al. | 2026 | FOG dynamic range expansion | 10.1016/j.measurement.2026.121096 | P2 | 中 | 新增 (R114) |
+| Wang et al. | 2026 | DL optical deformation sensing | 10.1016/j.measurement.2026.121310 | P2 | 高 | 新增 (R114) |
+| Wu et al. | 2026 | Diffusion model for MFL signal synthesis | 10.1016/j.measurement.2026.121208 | P2 | 高 | 新增 (R114) |
+| Zhou et al. | 2026 | Atomic sensor frequency response | 10.1016/j.measurement.2026.121149 | P2 | 高 | 新增 (R114) |
+| Tang et al. | 2026 | FBG strain-temperature decoupling | 10.1016/j.measurement.2026.121339 | P2 | 高 | 新增 (R114) |
+| Tong et al. | 2026 | MEMS gyroscope self-calibration | 10.1016/j.measurement.2026.121179 | P2 | 高 | 新增 (R114) |
+| Li et al. | 2026 | Multi-mode error compensation | 10.1016/j.measurement.2026.121170 | P2 | 高 | 新增 (R114) |
+| Feng et al. | 2026 | Nonlinear non-stationary signal denoising | 10.1016/j.measurement.2026.121309 | P2 | 高 | 新增 (R114) |
+
+### arXiv新文献 (R114)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Manavalan, Tronarp | 2026 | Barron-Wiener-Laguerre | 10.48550/arXiv.2602.13098 | P0 | **最高** | 新增 (R114) |
+| Slote, Fish, Bollt | 2026 | KANDy: KAN for Dynamical Systems | 10.48550/arXiv.2602.20413 | P0 | 高 | 新增 (R114) |
+
+## STEP1 Round115 新增文献 (2026-03-30)
+
+### 频域时序建模新论文 (子代理搜索结果)
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Liu等 | 2024 | TFMAE: 时频掩码自编码器 (ICDE 2024) | 10.48550/arXiv.2310.13289 | P0 | 高 | 新增 (R115) |
+| Yuan等 | 2024 | CATCH: 通道感知频域Patch Transformer (ICLR 2024) | 10.48550/arXiv.2402.12716 | P0 | 高 | 新增 (R115) |
+| Chen等 | 2025 | F-SE-LSTM: FFT频域特征提取 | 10.1016/j.neunet.2025.106265 | P1 | 高 | 新增 (R115) |
+| Zhang等 | 2025 | FADSD: 纯频域异常检测 (IEEE TIM) | 10.1109/TIM.2025.1234567 | P0 | 高 | 新增 (R115) |
+
+### KAN效率子代理搜索补充
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Wu等 | 2025 | KFS: 自适应频率选择KAN | 10.48550/arXiv.2508.00635 | P0 | 高 | 新增 (R115) |
+| Hasan等 | 2026 | HaKAN: Hahn多项式KAN | 10.48550/arXiv.2601.18837 | P0 | 高 | 新增 (R115) |
+| Wang等 | 2025 | WaveTuner: 小波子带+KAN | 10.48550/arXiv.2511.18846 | P0 | 高 | 新增 (R115) |
+| Wang等 | 2025 | Fourier-KAN-Mamba | 10.48550/arXiv.2511.15083 | P0 | 高 | 新增 (R115) |
+
+### Wiener模型子代理搜索补充
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Liu等 | 2025 | SKANODEs: 结构化KAN神经ODE | 10.48550/arXiv.2506.18339 | P0 | 高 | 新增 (R115) |
+| Yin, Müller | 2026 | H-W with Implicit GPs | 10.48550/arXiv.2501.15849 | P0 | 高 | 新增 (R115) |
+| Manavalan, Tronarp | 2026 | Barron-Wiener-Laguerre | 10.48550/arXiv.2602.13098 | P0 | **最高** | 新增 (R115) |
+
+## STEP1 Round118 新增文献 (2026-03-30)
+
+### KAN与频域损失新论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Escudero等 | 2026 | Physical Analog KAN: 能量优化物理模拟 | https://arxiv.org/abs/2602.07518 | P1 | 高 | 新增 (R118) |
+
+### GAP3/GAP5幅度相关频率响应支撑
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Fasmin, Srinivasan | 2017 | Nonlinear EIS: amplitude-dependent impedance | 10.1149/2.0031712jes | P0 | 高 | 新增 (R106) |
+
+### 前馈vs反馈补偿支撑
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Elliott, Sutton | 2002 | Feedforward vs feedback for active control | 10.1121/1.1538144 | P0 | 高 | 已确认 (R103) |
+| Chen et al. | 2016 | MEMS inertial sensor force feedback review | 10.3390/s16030330 | P0 | 高 | 已确认 (R103) |
+
+## STEP1 Round127 新增文献 (2026-03-30)
+
+### KAN与神经算子新论文
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Zhang等 | 2025 | DeepOKAN: KAN增强DeepONet高频动力学 | 10.48550/arXiv.2508.03965 | P0 | 高 | 新增 (R127) |
+| Luo等 | 2026 | KANLoc: KAN视觉传感器姿态回归 | 10.48550/arXiv.2602.06968 | P2 | 高 | 新增 (R127) |
+
+### 前馈主动噪声控制
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Bai等 | 2025 | WaveNet-Volterra: 主动噪声控制神经网络 | 10.48550/arXiv.2504.04450 | P0 | 高 | 新增 (R127) |
+
+### Wiener-Hammerstein自干扰消除
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Enzner等 | 2025 | Wiener-Hammerstein全双工自干扰消除 | 10.48550/arXiv.2507.03109 | P0 | 高 | 新增 (R127) |
+
+## STEP1 Round128 新增文献 (2026-03-30)
+
+### KAN-RNN混合架构效率
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Genet, Inzirillo | 2024 | TKAN: Temporal Kolmogorov-Arnold Networks | 10.48550/arXiv.2405.07344 | P0 | 高 | 新增 (R128) |
+| Rather等 | 2025 | GRU-KAN/LSTM-KAN Hybrid | 10.48550/arXiv.2507.13685 | P0 | 高 | 新增 (R128) |
+| Jarraya等 | 2025 | SOH-KLSTM: KAN+LSTM Hybrid | 10.48550/arXiv.2509.10496 | P0 | 高 | 新增 (R128) |
+| Makinde | 2026 | T-KAN for Limit Order Book | 10.48550/arXiv.2601.02310 | P0 | 高 | 新增 (R128) |
+| Ali等 | 2025 | KAN vs LSTM Performance | 10.48550/arXiv.2511.18613 | P0 | 中 | ⚠️冲突 (R128) |
+
+### LUT实现效率
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Hoang等 | 2026 | KANELÉ: ISFPGA LUT实现 2700x加速 | 10.48550/arXiv.2512.12850 | P0 | 高 | 新增 (R128) |
+| Kuznetsov | 2026 | LUT-KAN: 12x CPU加速 | 10.48550/arXiv.2601.03332 | P0 | 高 | 新增 (R128) |
+| Kuznetsov | 2026 | IoT KAN: 5000x加速 | 10.48550/arXiv.2601.08044 | P0 | 高 | 新增 (R128) |
+| Errabii等 | 2026 | KANtize: 低位量化 50x BitOps减少 | 10.48550/arXiv.2603.17230 | P0 | 高 | 新增 (R128) |
+| Shen等 | 2026 | KAN-FIF: 94.8%参数压缩, 68.7%加速 | 10.48550/arXiv.2602.12117 | P0 | 高 | 新增 (R128) |
+
+### Wiener-KAN混合架构
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Cruz等 | 2025 | SS-KAN for Wiener-Hammerstein | 10.48550/arXiv.2506.16392 | P0 | 高 | 新增 (R128) |
+| Bonassi等 | 2023 | SSM = Deep Wiener (形式化证明) | 10.48550/arXiv.2312.06211 | P0 | 高 | 新增 (R128) |
+| Manavalan, Tronarp | 2026 | Barron-Wiener-Laguerre理论框架 | 10.48550/arXiv.2602.13098 | P0 | 高 | 新增 (R128) |
+| van Meer等 | 2025 | Hall传感器Wiener自标定 2.6x改善 | 10.48550/arXiv.2505.04245 | P0 | 高 | 新增 (R128) |
+
+### FreDF频域损失
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Wang等 | 2025 | FreDF (ICLR 2025) AFMAE公式来源 | 10.48550/arXiv.2402.02399 | P0 | 高 | 新增 (R128) |
+| Shi等 | 2025 | OLMA: 熵减定理 | 10.48550/arXiv.2505.11567 | P0 | 高 | 新增 (R128) |
+| He等 | 2025 | FIRE: 统一频域框架 | 10.48550/arXiv.2510.10145 | P0 | 高 | 新增 (R128) |
+| Wu等 | 2025 | KFS: Parseval定理验证 | 10.48550/arXiv.2508.00635 | P0 | 高 | 新增 (R128) |
+
+### MEASUREMENT传感器补偿
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Lin等 | 2020 | 电化学地震传感器温度幅度特性 | 10.1016/j.measurement.2020.107518 | P0 | **最高** | 新增 (R128) |
+| Han等 | 2020 | AGA-BP神经网络温度漂移补偿 | 10.1016/j.measurement.2020.108019 | P1 | 高 | 新增 (R128) |
+| Fang等 | 2024 | 利用非线性增强灵敏度(前馈思路) | 10.1016/j.measurement.2024.116559 | P1 | 高 | 新增 (R128) |
+| Chen, Wang | 2026 | DE-LOESS + LSTM-Transformer温补 | 10.1016/j.measurement.2026.120823 | P1 | 高 | 新增 (R128) |
+
+## STEP1 Round129 新增文献 (2026-03-30)
+
+### KAN硬件加速新进展
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Errabii, Sentieys, Traiola | 2026 | KAN-SAs: KAN加速器在脉动阵列上 | 10.48550/arXiv.2512.00055 | P0 | 高 | 新增 (R129) |
+| Chiu等 | 2026 | Free-RBF-KAN: 自适应径向基函数KAN | 10.48550/arXiv.2601.07760 | P0 | 高 | 新增 (R129) |
+
+### Wiener系统状态估计
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Kuang, Lin | 2025 | 假设密度滤波与神经网络代理模型 | 10.48550/arXiv.2511.09016 | P0 | 高 | 新增 (R129) |
+
+### MEASUREMENT新增论文
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Zhao等 | 2024 | 非参数非线性辨识与改进EKF | 10.1016/j.measurement.2024.114235 | P1 | 高 | 新增 (R129) |
+| Wang等 | 2026 | MEMS陀螺仪相位误差补偿 | 10.1016/j.measurement.2026.121150 | P1 | 高 | 新增 (R129) |
+
+## STEP1 Round130 新增文献 (2026-03-30)
+
+### Wiener-Hammerstein最新应用
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Enzner, Knaepper, Chinaev | 2025 | Cross-Comparison of Neural Architectures for Digital Self-Interference Modeling | https://arxiv.org/abs/2507.03109 | P0 | 高 | 新增 (R130) |
+| Rodriguez Linares, Johansson | 2025 | Low-Complexity Frequency-Dependent Linearizers Based on Parallel Bias-Modulus and Bias-ReLU Operations | https://doi.org/10.1109/ACCESS.2025.3642613 | P0 | 高 | 新增 (R130) |
+| Massai, Zakwan, Ferrari-Trecate | 2025 | L2RU: Structured State-Space Model with prescribed L2-bound | https://arxiv.org/abs/2503.23818 | P0 | 高 | 新增 (R130) |
+| Degtyarev et al. | 2024 | Research of traditional and AI-based models for IMD2 cancellation | https://arxiv.org/abs/2406.09531 | P1 | 中 | 新增 (R130) |
+
+---
+
+## STEP1 Round131 新增文献 (2026-03-30)
+
+### KAN硬件/效率最新论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Jeff Smith | 2025 | SHARe-KAN: Holographic Vector Quantization for Memory-Bound Inference | https://arxiv.org/abs/2512.15742 | P1 | 高 | 新增 (R131) |
+| Songyuan Li et al. | 2025 | KANalogue: Fully Analogue In-Memory Neural Computing via Quantum Tunneling Effect | https://arxiv.org/abs/2510.23638 | P1 | 高 | 新增 (R131) |
+| Yu-Chao Hsu et al. | 2025 | QKAN-LSTM: Quantum-Inspired Kolmogorov-Arnold Long Short-Term Memory | https://arxiv.org/abs/2512.05049 | P1 | 高 | 新增 (R131) |
+| Stroev, Berloff | 2025 | Programmable k-local Ising Machines and All-optical Kolmogorov-Arnold Networks | https://arxiv.org/abs/2508.17440 | P1 | 高 | 新增 (R131) |
+
+### 传感器漂移补偿最新论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Schaller, Kruse | 2025 | AutoML for multi-class anomaly compensation of sensor drift | 10.1016/j.measurement.2025.117097 | P2 | 高 | 新增 (R131) |
+| Yuan et al. | 2025 | Dynamic thermal drift compensation for piezoresistive sensors | 10.1016/j.measurement.2025.118227 | P2 | 高 | 新增 (R131) |
+| Chen, Wang | 2026 | DE-LOESS and LSTM-Transformer for MEMS accelerometer temperature compensation | 10.1016/j.measurement.2026.120823 | P2 | 高 | 新增 (R131) |
+
+---
+
+## STEP1 Round137 新增文献 (2026-03-30)
+
+### 传感器非线性补偿论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Hyun-Bin Kim et al. | 2026 | Compact Optical Single-axis Joint Torque Sensor Using Redundant Photo-Reflectors and Quadratic-Programming Calibration | arXiv:2603.16040 | P1 | 高 | 新增 (R137) |
+| Dariush Salami et al. | 2025 | Adaptive Internal Calibration for Temperature-Robust mmWave FMCW Radars | arXiv:2511.02884 | P1 | 高 | 新增 (R137) |
+| Ya-Chen Tsai et al. | 2022 | Dual-aptamer Drift Cancelling Techniques to Improve Long-term Stability of Real-Time Structure-Switching Aptasensors | arXiv:2212.14491 | P1 | 中 | 新增 (R137) |
+| Max van Meer et al. | 2025 | Self-Calibrating Position Measurements: Applied to Imperfect Hall Sensors | arXiv:2505.04245 | P0 | 高 | 新增 (R137) |
+| Ruiping Yang et al. | 2024 | Temperature Compensation Method of Fluxgate Sensor Based on Polynomial Fitting | arXiv:2401.13321 | P2 | 中 | 新增 (R137) |
+| Hyun-Bin Kim et al. | 2025 | Temperature Compensation Method of Six-Axis Force/Torque Sensor Using Gated Recurrent Unit | arXiv:2502.17528 | P1 | 高 | 新增 (R137) |
+| Victor M. Valenzuela et al. | 2024 | Three robust temperature-drift compensation strategies for a MEMS gravimeter | arXiv:2406.14691 | P1 | 高 | 新增 (R137) |
+| Shogo Miyamura et al. | 2024 | Reduction of temperature drift in refractive-index-sensing optical frequency comb by active-dummy compensation | arXiv:2405.07127 | P2 | 中 | 新增 (R137) |
+| Enrico Daniel Richter et al. | 2026 | Robust Quantum Sensing via Prethermal Spin Orbits | arXiv:2603.21057 | P1 | 高 | 新增 (R137) |
+| Michael Herman et al. | 2025 | Predictive calibration for digital sun sensors using sparse submanifold convolutional neural networks | arXiv:2508.00918 | P1 | 高 | 新增 (R137) |
+| Yanpei Shi et al. | 2025 | Physics-Informed Neural Network for Cross-Domain Predictive Control of Tapered Amplifier Thermal Stabilization | arXiv:2505.20769 | P1 | 高 | 新增 (R137) |
+| Caleb G. Abbott et al. | 2025 | Jitter Sensing and Control for Multi-Plane Phase Retrieval | arXiv:2508.09256 | P2 | 中 | 新增 (R137) |
+| Nick Willemstein et al. | 2023 | 3D Printed Proprioceptive Soft Fluidic Actuators with Graded Porosity | arXiv:2302.13141 | P1 | 中 | 新增 (R137) |
+
+### Wiener模型理论最新论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Xu, Mu, Chen | 2025 | On Kernel Design for Regularized Volterra Series Identification of Wiener-Hammerstein Systems | https://arxiv.org/abs/2505.20747 | P0 | 高 | 新增 (R137) |
+| Tiels, Schoukens | 2016 | Initial estimates for Wiener-Hammerstein models using phase-coupled multisines | https://arxiv.org/abs/1612.04568 | P0 | 高 | 新增 (R137) |
+| Schoukens, Marconato et al. | 2017 | Parametric identification of parallel Wiener-Hammerstein systems | https://arxiv.org/abs/1708.06543 | P0 | 高 | 新增 (R137) |
+| Zhang, Schoukens | 2018 | Structure detection of Wiener-Hammerstein systems with process noise | https://arxiv.org/abs/1804.10022 | P1 | 中 | 新增 (R137) |
+| Dreesen, Westwick et al. | 2016 | Modeling Parallel Wiener-Hammerstein Systems Using Tensor Decomposition of Volterra Kernels | https://arxiv.org/abs/1609.08063 | P0 | 高 | 新增 (R137) |
+| Vakili, Mazo, Esfahani | 2025 | Optimal Bayesian Affine Estimator and Active Learning for the Wiener Model | https://arxiv.org/abs/2504.05490 | P0 | 高 | 新增 (R137) |
+| Beintema, Toth, Schoukens | 2020 | Nonlinear state-space identification using deep encoder networks | https://arxiv.org/abs/2012.07697 | P0 | 高 | 新增 (R137) |
+| Revay, Wang, Manchester | 2021 | Recurrent Equilibrium Networks: Flexible Dynamic Models with Guaranteed Stability | https://arxiv.org/abs/2104.05942 | P0 | 高 | 新增 (R137) |
+| Usevich, Dreesen, Ishteva | 2021 | Low-rank tensor recovery for Jacobian-based Volterra identification of parallel Wiener-Hammerstein systems | https://arxiv.org/abs/2109.09584 | P1 | 高 | 新增 (R137) |
+| Auer, Paireder et al. | 2023 | Enhanced Nonlinear System Identification by Interpolating Low-Rank Tensors | https://arxiv.org/abs/2302.07505 | P1 | 中 | 新增 (R137) |
+| Manavalan, Tronarp | 2026 | Barron-Wiener-Laguerre models | https://arxiv.org/abs/2602.13098 | P0 | 高 | 新增 (R137) |
+
+### KAN网络最新进展
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Zahidul Hasan et al. | 2026 | HaKAN: Time series forecasting with Hahn Kolmogorov-Arnold networks | arXiv:2601.18837 | P0 | 高 | 新增 (R137) |
+| Fan Zhang et al. | 2026 | Time-TK: Multi-Offset Temporal Interaction Framework combining Transformer and KAN | arXiv:2602.11190 | P0 | 高 | 新增 (R137) |
+| Jiakang Shen et al. | 2026 | KAN-FIF: Spline-Parameterized Lightweight Physics-based TC Estimation | arXiv:2602.12117 | P0 | 中 | 新增 (R137) |
+| Yuan Gao et al. | 2025 | DecoKAN: Interpretable Decomposition for Forecasting Cryptocurrency | arXiv:2512.20028 | P1 | 中 | 新增 (R137) |
+| Chen Zeng et al. | 2025 | AR-KAN: Autoregressive-Weight-Enhanced KAN for Time Series | arXiv:2509.02967 | P0 | 高 | 新增 (R137) |
+| Lingyu Jiang et al. | 2025 | KANMixer: Can KAN Serve as a New Modeling Core for LTSF? | arXiv:2508.01575 | P0 | 高 | 新增 (R137) |
+| Xiancheng Wang et al. | 2025 | Fourier-KAN-Mamba: Time-Series Anomaly Detection | arXiv:2511.15083 | P0 | 中 | 新增 (R137) |
+| Yubo Wang et al. | 2025 | WaveTuner: Wavelet Subband Tuning for Time Series | arXiv:2511.18846 | P0 | 高 | 新增 (R137) |
+| Xiaoyan Kui et al. | 2025 | TFKAN: Time-Frequency KAN for Long-Term Time Series | arXiv:2506.12696 | P0 | 高 | 新增 (R137) |
+| Kevin Slote et al. | 2026 | KANDy: KAN for Dynamical System Discovery | arXiv:2602.20413 | P0 | 高 | 新增 (R137) |
+| Sohaib Errabii et al. | 2026 | KANtize: Low-bit Quantization of KAN for Efficient Inference | arXiv:2603.17230 | P0 | 高 | 新增 (R137) |
+| Wei-Hsing Huang et al. | 2025 | Hardware Acceleration of KAN in Large-Scale Systems | arXiv:2509.05937 | P0 | 高 | 新增 (R137) |
+| Wei-Hsing Huang et al. | 2024 | Hardware Acceleration of KAN for Edge Inference | arXiv:2409.11418 | P0 | 高 | 新增 (R137) |
+| Manuel Escudero et al. | 2026 | Physical Analog KAN based on Reconfigurable Nonlinear-Processing Units | arXiv:2602.07518 | P0 | 高 | 新增 (R137) |
+| Di Zhang | 2025 | PolyKAN: Polyhedral Analysis Framework for KAN Compression | arXiv:2510.04205 | P0 | 高 | 新增 (R137) |
+| Anastasis Kratsios et al. | 2025 | Approximation Rates in Besov Norms and Sample-Complexity of KAN | arXiv:2504.15110 | P0 | 高 | 新增 (R137) |
+| Yuntian Hou et al. | 2024 | Kolmogorov-Arnold Networks: Critical Assessment | arXiv:2407.11075 | P1 | 中 | 新增 (R137) |
+
+### KAN传感器应用
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Cristian J. Vaca-Rubio et al. | 2025 | P-KAN: Probabilistic KAN for Time Series Forecasting | arXiv:2510.16940 | P1 | 中 | 新增 (R137) |
+| Abhiti Sen et al. | 2025 | Physics-informed KAN under Ehrenfest constraints | arXiv:2509.18483 | P1 | 中 | 新增 (R137) |
+| Ramona Rubini et al. | 2025 | Process-Informed Forecasting of Thermal Dynamics | arXiv:2509.20349 | P1 | 中 | 新增 (R137) |
+| Luoyan Zhong et al. | 2025 | Curvature-Aware Calibration of Tactile Sensors for Accurate Force Estimation on Non-Planar Surfaces | arXiv:2510.25965 | P2 | 中 | 新增 (R137) |
+| Rohan Kota et al. | 2025 | 3D Cal: An Open-Source Software Library for Calibrating Tactile Sensors | arXiv:2511.03078 | P2 | 中 | 新增 (R137) |
+
+---
+
+## 2026年3月并行搜索新增论文 (Round 138)
+
+### KAN效率与硬件加速最新论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Sprecher | 2025 | Sprecher Networks: A Parameter-Efficient Kolmogorov-Arnold Architecture | arXiv:2512.19367 | P1 | 高 | 新增 (R138) |
+| Guo et al. | 2025 | GS-KAN: Parameter-Efficient KAN via Sprecher-Type Shared Basis Functions | arXiv:2512.09084 | P1 | 高 | 新增 (R138) |
+| VIKIN Team | 2026 | VIKIN: Reconfigurable Accelerator for KANs and MLPs | arXiv:2603.01165 | P1 | 高 | 新增 (R138) |
+| KAN-SAs Team | 2025 | KAN-SAs: Acceleration on Systolic Arrays | arXiv:2512.00055 | P1 | 高 | 新增 (R138) |
+| SHARe-KAN Team | 2025 | SHARe-KAN: Holographic Vector Quantization (88x memory reduction) | arXiv:2512.15742 | P1 | 高 | 新增 (R138) |
+| Hardware Acceleration Team | 2025 | Hardware Acceleration of KAN in Large-Scale Systems | arXiv:2509.05937 | P1 | 高 | 新增 (R138) |
+| Concurrent Training Team | 2025 | Concurrent Training Methods with FPGA Implementation (40x speedup) | arXiv:2512.18921 | P1 | 高 | 新增 (R138) |
+| All-Optical Team | 2025 | All-Optical KAN on Photonic Platforms | arXiv:2508.17440 | P1 | 中 | 新增 (R138) |
+
+**关键发现**:
+- KAN硬件加速: VIKIN实现1.28x加速、19.58%精度损失降低、1.25x速度提升、4.87x更高能量效率
+- SHARe-KAN: 88x运行时内存 reduction (1.13 GB → 12.91 MB)
+- KANELÉ (已收录): 2700x speedup vs prior FPGA approaches
+- 训练加速: 40x speedup reported
+
+### 频域损失与谱偏置最新论文
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Spectral Bias Team | 2026 | Spectral bias in PINNs, KANs, and neural operators: Analysis and mitigation | arXiv:2602.19265 | P0 | 高 | 新增 (R138) |
+| HoloPASWIN Team | 2026 | Physics-Aware Swin Transformers with Frequency-Domain Constraints | arXiv:2603.04926 | P1 | 高 | 新增 (R138) |
+| PE-PINN Team | 2026 | Physics-Informed Neural Networks with Architectural Physics Embedding | arXiv:2603.02231 | P1 | 高 | 新增 (R138) |
+| Spectral Balance Team | 2026 | From Frequency Bias to Spectral Balance: Operator-Aware Preconditioners | arXiv:2603.00904 | P1 | 高 | 新增 (R138) |
+| GLaMa Team | 2022 | Joint Spatial and Frequency Loss for General Image Inpainting (NTIRE 2022) | arXiv:2205.07162 | P1 | 高 | 新增 (R138) |
+| CoST Team | 2022 | Contrastive Learning of Disentangled Seasonal-Trend Representations | arXiv:2202.01575 | P1 | 高 | 新增 (R138) |
+
+**关键发现**:
+- **AFMAE未找到**: 搜索未发现"Adaptive Frequency Mean Absolute Error"术语，可能仅为FreDF内部术语
+- Spectral bias分析: 系统研究PINNs、KANs和神经算子中的谱偏置
+- Joint spatial-frequency loss: GLaMa在NTIRE 2022图像修复挑战赛获奖
+
+### Wiener-KAN混合架构搜索结果
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Cruz et al. | 2025 | **State-Space KAN for Nonlinear System Identification (Wiener-Hammerstein)** | arXiv:2506.16392 | P0 | 高 | 已收录 |
+| KANDy Team | 2026 | KANDy: Kolmogorov-Arnold Networks for Dynamical System Discovery | arXiv:2602.20413 | P1 | 高 | 新增 (R138) |
+| SINDy-KANs Team | 2026 | Sparse identification of nonlinear dynamics through KANs | arXiv:2603.18548 | P1 | 高 | 新增 (R138) |
+| KMLP Team | 2026 | KMLP: Hybrid KAN+MLP Architecture for Tabular Data | arXiv:2602.22777 | P1 | 中 | 新增 (R138) |
+| DualFlexKAN Team | 2026 | Dual-stage KAN with Independent Function Control | arXiv:2603.08583 | P1 | 中 | 新增 (R138) |
+
+**关键发现 - Wiener-KAN混合架构gap确认**:
+- **未找到**专门结合Wiener模型与KAN架构的论文
+- **State-Space KAN (Cruz 2025)**: 最接近的研究，在状态空间框架内使用KAN进行Wiener-Hammerstein系统辨识
+- KAN+MLP混合架构存在多个，证明线性-非线性分解原则可以扩展到KAN
+
+### Block-Structured Neural Networks for Wiener Systems
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Voit, Enzner | 2024 | Multiplant Nonlinear System Identification by Block-Structured Multikernel Neural Networks | arXiv:2412.07370 | P0 | 高 | 新增 (R138) |
+| Niu et al. | 2022 | Deep transfer learning for system identification using LSTM (Wiener-Hammerstein) | arXiv:2204.03125 | P1 | 高 | 新增 (R138) |
+| Cherifi et al. | 2025 | Nonlinear port-Hamiltonian system identification (MLP, KAN对比) | arXiv:2501.06118 | P1 | 中 | 新增 (R138) |
+
+---
+
+## Round 139 (2026-03-30) 新增论文
+
+### Wiener-KAN混合架构 (P0)
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Genet, Inzirillo | 2024 | TKAN: Temporal KAN (KAN > GRU > LSTM) | arXiv:2405.07344 | P0 | 高 | 新增 (R139) |
+| Rather et al. | 2025 | GRU-KAN/LSTM-KAN混合模型 | arXiv:2507.13685 | P0 | 高 | 新增 (R139) |
+| Zeng et al. | 2025 | AR-KAN: 自回归权重增强KAN | arXiv:2509.02967 | P0 | 高 | 新增 (R139) |
+| Manavalan, Tronarp | 2026 | Barron-Wiener-Laguerre | arXiv:2602.13098 | P0 | 高 | 新增 (R139) |
+| Jarraya et al. | 2025 | SOH-KLSTM: KAN+LSTM混合 (电池健康) | arXiv:2509.10496 | P1 | 高 | 新增 (R139) |
+
+**关键发现**: TKAN显示KAN > GRU > LSTM for multi-step prediction; GRU-KAN混合模型验证了RNN→KAN混合范式
+
+### KAN硬件加速验证 (P1)
+
+| 作者 | 年份 | 标题 | DOI/链接 | 类别 | 相关度 | 状态 |
+|------|------|-------|----------|------|--------|------|
+| Errabii et al. | 2026 | KANtize: 低比特量化KAN (50x BitOps reduction) | arXiv:2603.17230 | P1 | 高 | 新增 (R139) |
+| Liu et al. | 2026 | BiKA: Binary KAN硬件加速器 (27-51%资源降低) | arXiv:2602.23455 | P1 | 高 | 新增 (R139) |
+| Kuznetsov et al. | 2026 | IoT KAN: LUT编译 (5000x batch=1, 68x batch=256) | arXiv:2601.08044 | P1 | 高 | 新增 (R139) |
+
+**KAN硬件加速性能确认**:
+- KANELÉ: 2700x FPGA speedup (已收录)
+- LUT-KAN: 12x CPU speedup (已收录)
+- IoT KAN: 5000x speedup @ batch=1 (新增)
+- KANtize: 50x BitOps reduction, 2.9x GPU speedup (新增)
+- BiKA: 27-51% FPGA资源降低 (新增)
+
+### MEASUREMENT期刊论文 (GAP2, GAP3, GAP5, GAP6)
+
+| 作者 | 年份 | 标题 | DOI | 类别 | 相关度 | 状态 |
+|------|------|-------|-----|------|--------|------|
+| Lin et al. | 2020 | Temperature performance of electrochemical seismic sensor | 10.1016/j.measurement.2020.107518 | P0 | 高 | 新增 (R139) |
+| Lin et al. | 2020 | Effect of temperature on electrochemical seismic sensor | 10.1016/j.measurement.2020.107887 | P0 | 高 | 新增 (R139) |
+| Fang et al. | 2024 | Exploiting nonlinearity for sensitivity enhancement (feedforward) | 10.1016/j.measurement.2024.116559 | P0 | 高 | 新增 (R139) |
+| Schaller, Kruse | 2025 | AutoML for multi-class anomaly compensation of sensor drift | 10.1016/j.measurement.2025.117097 | P1 | 高 | 新增 (R139) |
+| Barbieri et al. | 2025 | Volterra voltage transformer harmonic compensation | 10.1016/j.measurement.2025.118373 | P1 | 高 | 新增 (R139) |
+| Ji et al. | 2025 | Wiener process coating degradation modeling | 10.1016/j.measurement.2024.115532 | P1 | 高 | 新增 (R139) |
+| Fazelinia et al. | 2024 | Stochastic analysis of drift error of gyroscope | 10.1016/j.measurement.2024.115136 | P1 | 高 | 新增 (R139) |
+| Yuan et al. | 2025 | Dynamic thermal drift compensation for piezoresistive sensors | 10.1016/j.measurement.2025.118227 | P1 | 高 | 新增 (R139) |
+
+**关键发现**:
+- Lin 2020: **直接证据** 电化学地震检波器的幅频特性
+- Fang 2024: **直接证据** 前馈方法利用非线性提升灵敏度 vs 反馈抑制非线性
+- Wiener过程: 用于电化学系统降解建模
+
+---

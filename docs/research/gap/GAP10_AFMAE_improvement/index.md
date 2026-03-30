@@ -1,54 +1,34 @@
 # GAP10: AFMAE vs 纯MAE
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 与纯MAE做比较，支撑AFMAE的改进
 
 **具体描述**: 纯MAE损失函数只考虑时域误差，无法捕获频率域的误差特性。AFMAE通过引入频域损失，可以更好地保持信号的频率特性，提高补偿精度。
 
-## 支撑文献
+## 文献支撑
 
-### 1. FreDF (Wang et al. 2025) - 频率增强直接预测
-- **来源**: ICLR 2025, arXiv:2402.02399
-- **核心**: FFT变换用于减轻直接预测范式中的标签自相关偏差
-- **公式**: L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
-- **关键**: 定理3.3证明DFT渐近解耦不同频率分量
-- **支撑内容**: AFMAE直接理论基础
-- **验证状态**: 已验证
+### 强支撑（直接证明GAP声称）
 
-### 2. OLMA (Shi et al. 2025) - 损失实现更准确时序
-- **来源**: arXiv:2505.11567
-- **核心**: 利用频域变换跨越channel和temporal维度增强预测
-- **理论依据**: 证明了存在酉变换可以降低多个相关高斯过程的边缘熵，从而减少预测误差下界
-- **支撑内容**: 频域损失的熵减原理
-- **验证状态**: 已验证 R20
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Wang et al. 2025 (FreDF), ICLR | `L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE`，直接公式匹配AFMAE | https://arxiv.org/abs/2402.02399 | docs/research/literature/pdfs/Wang_2025_FreDF.pdf |
+| 2 | Shi et al. 2025 (OLMA) | 熵减定理：酉变换降低边缘熵 | https://arxiv.org/abs/2505.11567 | docs/research/literature/pdfs/Shi_2025_OLMA.pdf |
+| 3 | Subich et al. 2025, ICML | MSE双重惩罚效应，解释纯MAE/MSE不足 | https://arxiv.org/abs/2501.19374 | docs/research/literature/pdfs/Subich_2025.pdf |
 
-### 3. Subich et al. 2025 - 修复双重惩罚
-- **来源**: ICML 2025, arXiv:2501.19374
-- **核心**: MSE损失通过"双重惩罚"效应平滑细尺度
-- **引文**: "MSE损失通过'双重惩罚'效应平滑细尺度"
-- **支撑内容**: 直接解释为什么时域MSE/MAE不够且需要频域损失
-- **验证状态**: 已验证 R17
+## 支撑缺口
 
-## 文献支撑关系
+- **缺口描述**: 缺乏AFMAE vs 纯MAE的直接实验对比（需论文实验补充）
+- **缺口等级**: 无
 
-| 文献 | 支撑角度 | 与GAP10的关联 |
-|------|---------|--------------|
-| FreDF 2025 | FFT损失理论 | AFMAE理论基础 |
-| OLMA 2025 | 频域损失熵减 | 频域必要性 |
-| Subich 2025 | 双重惩罚效应 | 纯MAE/MSE不足 |
+## 可引用表述
 
-## GAP支撑评估
+> "证明了存在酉变换可以降低多个相关高斯过程的边缘熵，从而减少预测误差下界（Shi et al. 2025）。MSE损失通过'双重惩罚'效应平滑细尺度（Subich et al. 2025），而频域损失可以避免这一问题。AFMAE公式L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE直接匹配FreDF的理论框架（Wang et al. 2025）。"
 
-**支撑程度**: 较强
+## 参考文献
 
-**已有支撑**:
-- FreDF提供AFMAE直接理论
-- OLMA提供频域损失必要性理论
-- Subich解释纯MAE的局限性
-
-**缺口**:
-- 缺乏AFMAE vs 纯MAE的直接实验对比
-
-**下一步**:
-- 在论文实验中添加AFMAE vs 纯MAE的对比
+- Wang et al. 2025 (FreDF). Frequency-enhanced direct prediction. ICLR 2025. https://arxiv.org/abs/2402.02399
+- Shi et al. 2025 (OLMA). Loss for accurate time series. https://arxiv.org/abs/2505.11567
+- Subich et al. 2025. Fixing the double penalty. ICML 2025. https://arxiv.org/abs/2501.19374

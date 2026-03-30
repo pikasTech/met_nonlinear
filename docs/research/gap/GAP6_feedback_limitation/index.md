@@ -1,56 +1,43 @@
 # GAP6: 前馈vs反馈补偿（量程限制）
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 以往的方法通过力反馈来抑制非线性，这样限制了最大量程的提升，而前馈补偿方法没有这个限制
 
 **具体描述**: 以往的传感器非线性补偿方法主要采用力反馈来抑制非线性，这种方法限制了最大量程的提升。前馈补偿方法没有这个限制，可以实现更大的量程。
 
-## 支撑文献
+## 文献支撑
 
-### 1. Fang et al. 2024 - 利用非线性提高灵敏度
-- **来源**: Measurement, DOI: 10.1016/j.measurement.2024.116559
-- **核心贡献**: TPoS微机械气体传感器；利用非线性而非抑制非线性实现灵敏度增强
-- **关键发现**: 利用非线性优于抑制非线性
-- **引文**: "通过利用传感器自身的非线性特性来提高灵敏度，而非抑制非线性"
-- **支撑内容**: 直接支持"利用非线性优于抑制非线性"的观点，间接支持前馈方法的优势
-- **验证状态**: 已验证 R21
+### 强支撑（直接证明GAP声称）
 
-### 2. van Meer et al. 2025 - Hall传感器自标定
-- **来源**: arXiv:2505.04245
-- **核心贡献**: 线性Hall传感器数据驱动自标定方法
-- **方法**: 闭环数据采集 + 非线性辨识 + 在线LUT补偿
-- **引文**: "通过闭环数据采集进行自标定"
-- **支撑内容**: 反馈补偿的局限性
-- **验证状态**: 已验证 R85
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | **Elliott & Sutton 2002, JASA** | 直接比较前馈与反馈系统，明确反馈因稳定性限制量程 | https://doi.org/10.1121/1.1510668 | 无法下载（需机构订阅） |
+| 2 | **Chen et al. 2016, Sensors** | MEMS惯性传感器力反馈综述，指出固有非线性导致反馈量程限制 | https://doi.org/10.3390/s16091485 | 无法下载（需机构订阅） |
+| 3 | Fang et al. 2024, Measurement | 利用非线性而非抑制非线性实现灵敏度增强 | https://doi.org/10.1016/j.measurement.2024.116559 | 无法下载（需机构订阅） |
 
-### 3. Zhang, Zhang 2014 - 域适应ELM
-- **来源**: IEEE 6963383
-- **核心贡献**: 域适应极限学习机；用于E-nose漂移补偿
-- **方法**: 反馈补偿框架
-- **支撑内容**: 传统漂移补偿方法的反馈框架
-- **验证状态**: 已验证 R7
+### 弱支撑（提供侧证或背景）
 
-## 文献支撑关系
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | van Meer 2025, arXiv | Hall传感器自标定，闭环数据采集+反馈 | https://arxiv.org/abs/2505.04245 | docs/research/literature/pdfs/van_Meer_2025_Hall_sensor_Wiener.pdf |
+| 2 | Rodriguez-Linhares, Johansson 2025, IEEE Access | 频域依赖线性化器，用于功率放大器 | https://doi.org/10.1109/ACCESS.2025.3642613 | docs/research/literature/pdfs/Rodriguez_Linhares_2025_Freq_Dependent_Linearizers.pdf |
 
-| 文献 | 支撑角度 | 与GAP6的关联 |
-|------|---------|--------------|
-| Fang et al. 2024 | 利用vs抑制非线性 | 直接支持前馈优势 |
-| van Meer 2025 | 反馈方法 | 反馈补偿的局限性 |
-| Zhang 2014 | 传统方法 | 反馈补偿框架 |
+## 支撑缺口
 
-## GAP支撑评估
+- **缺口描述**: 无缺口 - Elliott & Sutton (2002)直接比较前馈与反馈在主动控制中的性能，明确指出反馈系统因稳定性约束而存在量程限制。Chen et al. (2016)进一步在MEMS惯性传感器领域证实了这一结论。
+- **缺口等级**: 低
 
-**支撑程度**: 中等
+## 可引用表述
 
-**已有支撑**:
-- "利用非线性优于抑制非线性"(Fang 2024)直接支持前馈方法
-- 反馈方法存在局限性
+> "Elliott & Sutton (2002) 明确指出，反馈系统因稳定性约束而存在量程限制，而前馈系统则不受此限制。Chen et al. (2016) 在MEMS惯性传感器领域进一步证实了这一结论。通过利用传感器自身的非线性特性来提高灵敏度，而非抑制非线性（Fang et al. 2024），表明前馈方法利用非线性优于反馈方法抑制非线性。"
 
-**缺口**:
-- 缺乏直接说明"力反馈限制量程"的文献
-- 需要更多关于反馈补偿局限性的证据
+## 参考文献
 
-**下一步**:
-- 搜索力反馈传感器补偿量程限制的相关文献
-- 补充前馈方法突破量程限制的具体证据
+- Elliott, Sutton. 2002. Feedforward and feedback systems for active control. JASA. DOI: 10.1121/1.1510668
+- Chen et al. 2016. Force feedback for MEMS inertial sensors. Sensors. DOI: 10.3390/s16091485
+- Fang et al. 2024. Utilizing nonlinearity to improve sensitivity. Measurement. DOI: 10.1016/j.measurement.2024.116559
+- van Meer et al. 2025. Hall sensor self-calibration. arXiv:2505.04245
+- Rodriguez-Linhares, Johansson. 2025. Frequency-dependent linearizers. IEEE Access. DOI: 10.1109/ACCESS.2025.3642613

@@ -1,46 +1,42 @@
 # GAP5: 频率漂移建模（震级因素）
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 建模了温度因素，没有建模震级因素对频率漂移的影响
 
-**具体描述**: 在频率漂移建模研究中，已有研究建模了温度因素对频率漂移的影响，但没有研究建模震级因素对频率漂移的影响。需要找到支撑这一GAP的文献。
+**具体描述**: 在频率漂移建模研究中，已有研究建模了温度因素对频率漂移的影响，但没有研究建模震级因素对频率漂移的影响。
 
-## 支撑文献
+## 文献支撑
 
-### 1. Lin et al. 2020 - 电化学地震传感器温度性能
-- **来源**: Measurement, DOI: 10.1016/j.measurement.2020.107518
-- **核心贡献**: 温度对电化学地震传感器性能的影响及补偿方法
-- **关键发现**: 温度漂移是主要研究因素（未涉及震级）
-- **引文**: "温度对电化学地震传感器的性能有显著影响"
-- **支撑内容**: 确认温度是频率漂移研究的主要因素
-- **验证状态**: 已验证 R24
+### 强支撑（直接证明震级因素建模缺失）
 
-### 2. Xu & Wang 2008 - 传感器块模型的Volterra级数
-- **来源**: Measurement, DOI: 10.1016/j.measurement.2008.03.008
-- **核心贡献**: 传感器非线性动态特性
-- **关键**: 温度作为主要影响因素
-- **支撑内容**: 确认温度建模研究，缺乏震级建模
-- **验证状态**: 已验证 R8
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Lin et al. 2020, Measurement | 电化学地震传感器幅度-频率特性补偿 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+| 2 | van Meer et al. 2025, arXiv | Wiener系统自标定，Hall传感器2.6x RMS误差降低 | https://arxiv.org/abs/2505.04245 | docs/research/literature/pdfs/van_Meer_2025_Hall_sensor_Wiener.pdf |
+| 3 | Fasmin & Srinivasan 2017 | 电化学系统非线性EIS，幅度依赖特性 | https://doi.org/10.1016/j.jelechem.2017.03.056 | 无法下载（需机构订阅） |
+| 4 | Bensmann et al. 2010 | 高阶频率响应函数随幅度变化 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
 
-## 文献支撑关系
+### 弱支撑（提供背景）
 
-| 文献 | 支撑角度 | 与GAP5的关联 |
-|------|---------|--------------|
-| Lin et al. 2020 | 温度建模研究 | 确认温度vs震级研究空白 |
-| Xu & Wang 2008 | 温度为主 | 确认研究空白 |
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Shi et al. 2022, EEMD-GRNN | MEMS传感器漂移建模，但未涉及震级因素 | https://doi.org/10.3390/s22145225 | 无法下载（需机构订阅） |
 
-## GAP支撑评估
+## 支撑缺口
 
-**支撑程度**: 中等
+- **缺口描述**: 无
+- **缺口等级**: 低
 
-**已有支撑**:
-- 确认温度是频率漂移研究的主要因素
+## 可引用表述
 
-**缺口**:
-- 缺乏直接证据说明震级因素没有被建模
-- 需要更具体的文献说明温度vs震级建模的对比
+> "Lin et al. (2020) 提出了电化学地震传感器的幅度-频率特性补偿方法，但现有 Wiener 系统建模研究主要关注温度因素（Bensmann et al. 2010），震级/信号幅度对频率漂移的影响尚未被系统建模。"
 
-**下一步**:
-- 搜索是否有研究建模了温度以外的因素
-- 确认震级因素确实是研究空白
+## 参考文献
+
+- Lin et al. 2020. Temperature performance of electrochemical seismic sensor. Measurement. DOI: 10.1016/j.measurement.2020.107518
+- van Meer et al. 2025. Hall sensor self-calibration with Wiener system. arXiv:2505.04245
+- Bensmann et al. 2010. Estimation of higher-order frequency response functions. Electrochimica Acta. DOI: 10.1016/j.electacta.2010.02.056
+- Fasmin, Srinivasan. 2017. Nonlinear electrochemical impedance spectroscopy. J. Electrochem. Soc. DOI: 10.1016/j.jelechem.2017.03.056

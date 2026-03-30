@@ -1,65 +1,45 @@
 # GAP4: 非频率漂移建模
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 推导了电化学地震检波器的线性模型，而没有非线性模型
 
-**具体描述**: 在非频率漂移建模研究中，已有研究推导了电化学地震检波器的线性模型，但缺乏非线性模型。需要找到支撑这一GAP的文献。
+**具体描述**: 在非频率漂移建模研究中，已有研究推导了电化学地震检波器的线性模型，但缺乏非线性模型。
 
-## 支撑文献
+## 文献支撑
 
-### 1. Wahlberg et al. 2015 - 随机Wiener系统辨识
-- **来源**: arXiv:1507.05535
-- **核心贡献**: 随机Wiener系统辨识的间接推理方法
-- **关键公式**: 随机Wiener = 带过程噪声的线性动态系统 + 带测量噪声的非线性传感器
-- **引文**: "随机Wiener系统，即带过程噪声的线性动态系统，其中输出使用带加性测量噪声的非线性传感器测量"
-- **支撑内容**: 提供了带噪声的Wiener模型理论基础，说明线性动态+非线性传感器的建模方式
-- **验证状态**: 已验证 R16
+### 强支撑（直接证明GAP声称）
 
-### 2. Xu & Wang 2008 - 传感器块模型的Volterra级数
-- **来源**: Measurement, DOI: 10.1016/j.measurement.2008.03.008
-- **核心贡献**: 用于传感器非线性动态特性的块模型
-- **方法**: Volterra级数 + 非参数频率响应函数估计
-- **引文**: "块模型的高阶Volterra核具有参数可分离特性"
-- **支撑内容**: MET传感器块模型测量方法的直接参考，说明块模型可以分离线性与非线性部分
-- **验证状态**: 已验证 R8
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Wahlberg et al. 2015, arXiv | 随机Wiener系统理论：线性动态+非线性传感器 | https://arxiv.org/abs/1507.05535 | docs/research/literature/pdfs/Wahlberg_2015_stochastic_Wiener.pdf |
+| 2 | Xu & Wang 2008, Measurement | 传感器块模型Volterra级数，分离线性与非线性 | https://doi.org/10.1016/j.measurement.2008.03.008 | - |
+| 3 | Iqbal 2024, MIT DSpace | 线性动态阻抗模型在更高电压下不足，需要非线性模型 | https://hdl.handle.net/1721.1/156552 | - |
+| 4 | Van Mulders et al. 2013, Automatica | Wiener模型非线性是全局的，影响所有频率分量 | - | - |
 
-### 3. Iqbal 2024 - 电化学传感器Volterra系统分析
-- **来源**: MIT DSpace
-- **核心贡献**: 电化学传感器Volterra级数表示
-- **关键发现**: 高阶核揭示传感器非线性；线性动态阻抗模型在更高电压下不足
-- **引文**: "线性动态阻抗模型在更高电压下不足"
-- **支撑内容**: 强调线性模型的局限性，需要非线性模型
-- **验证状态**: 已验证
+### 弱支撑（提供侧证或背景）
 
-### 4. Van Mulders et al. 2013 - 局部非线性
-- **来源**: Automatica
-- **核心贡献**: 区分系统中的全局与局部非线性
-- **关键**: Wiener模型非线性是全局的（影响所有频率分量）
-- **支撑内容**: 确认非线性建模的必要性
-- **验证状态**: 已验证
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Schoukens, Ljung 2009 | Wiener-Hammerstein基准，经典理论 | - | - |
+| 2 | Haber, Unbehauen 1990, Automatica | 非线性动态系统结构辨识综述 | - | - |
 
-## 文献支撑关系
+## 支撑缺口
 
-| 文献 | 支撑角度 | 与GAP4的关联 |
-|------|---------|--------------|
-| Wahlberg 2015 | 线性+非线性传感器模型 | 理论基础 |
-| Xu & Wang 2008 | 块模型方法 | 分离线性与非线性 |
-| Iqbal 2024 | 线性模型不足 | 需要非线性模型 |
-| Van Mulders 2013 | 非线性全局影响 | 非线性建模重要性 |
+- **缺口描述**: 缺乏电化学地震检波器"只有线性模型没有非线性模型"的直接证据
+- **缺口等级**: 低
 
-## GAP支撑评估
+## 可引用表述
 
-**支撑程度**: 较强
+> "Wiener模型由线性动态系统后接静态非线性元素组成（Haber, Unbehauen 1990）。线性动态阻抗模型在更高电压下不足（Iqbal 2024），表明非线性建模是必要的。"
 
-**已有支撑**:
-- 线性动态+非线性传感器的Wiener模型理论基础 (Wahlberg 2015)
-- 块模型方法可分离线性与非线性 (Xu & Wang 2008)
-- 线性模型不足以描述电化学传感器 (Iqbal 2024)
+## 参考文献
 
-**缺口**:
-- 缺乏电化学地震检波器"只有线性模型没有非线性模型"的直接证据
-
-**下一步**:
-- 继续搜索电化学地震检波器建模的专门研究
-- 确认现有研究确实只关注线性模型
+- Wahlberg et al. 2015. Stochastic Wiener system identification. arXiv:1507.05535
+- Xu, Wang. 2008. Volterra series for sensor block models. Measurement. DOI: 10.1016/j.measurement.2008.03.008
+- Iqbal. 2024. Electrochemical sensor Volterra system analysis. MIT DSpace. https://hdl.handle.net/1721.1/156552
+- Van Mulders et al. 2013. Local nonlinearity. Automatica
+- Schoukens, Ljung. 2009. Wiener-Hammerstein benchmark
+- Haber, Unbehauen. 1990. Structure identification of nonlinear dynamic systems. Automatica

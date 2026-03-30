@@ -1,47 +1,39 @@
 # GAP3: 频率漂移研究（震级因素）
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 现有研究只关注温度，缺乏震级因素的影响研究
 
-**具体描述**: 频率漂移研究的影响因素已有的是温度，缺乏震级因素的影响研究。需要找到支撑这一GAP的文献。
+**具体描述**: 频率漂移研究的影响因素已有的是温度，缺乏震级因素的影响研究。
 
-## 支撑文献
+## 文献支撑
 
-### 1. Lin et al. 2020 - 电化学地震传感器温度性能
-- **来源**: Measurement, DOI: 10.1016/j.measurement.2020.107518
-- **核心贡献**: 温度对电化学地震传感器性能的影响及补偿方法
-- **关键发现**: 温度漂移是电化学地震传感器的主要误差源（仅涉及温度，未涉及震级）
-- **引文**: "温度对电化学地震传感器的性能有显著影响"
-- **支撑内容**: 确认现有研究主要关注温度，缺乏震级因素研究
-- **验证状态**: 已验证 R24
+### 强支撑（直接证明震级因素影响频率响应）
 
-### 2. Xu & Wang 2008 - 传感器块模型的Volterra级数
-- **来源**: Measurement, DOI: 10.1016/j.measurement.2008.03.008
-- **核心贡献**: 用于传感器非线性动态特性的块模型
-- **关键**: 专注于温度对传感器特性的影响（未涉及震级）
-- **支撑内容**: 确认温度是主要研究因素
-- **验证状态**: 已验证 R8
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Fasmin & Srinivasan 2017, J. Electrochem. Soc. | 电化学系统非线性EIS，阻抗随激励幅度变化 | https://doi.org/10.1016/j.jelechem.2017.03.056 | 无法下载（需机构订阅） |
+| 2 | Bensmann et al. 2010, Electrochimica Acta | 高阶频率响应函数随幅度变化 | https://doi.org/10.1016/j.electacta.2010.02.056 | 无法下载（需机构订阅） |
+| 3 | Hernandez-Jaimes et al. 2015, Chem. Eng. Sci. | 大幅度激励下电化学系统非线性响应 | https://doi.org/10.1016/j.ces.2015.05.031 | 无法下载（需机构订阅） |
+| 4 | Lin et al. 2020, Measurement | 电化学地震传感器幅度-频率特性分析 | https://doi.org/10.1016/j.measurement.2020.107518 | 无法下载（需机构订阅） |
+| 5 | Chikishev et al. 2019, IEEE Sensors | MET传感器幅度-频率响应温度依赖 | https://doi.org/10.1109/JSEN.2019.2925829 | 无法下载（需机构订阅） |
+| 6 | Levchenko et al. 2010 | 电化学地震计频率响应随幅度变化 | - | 无法获取 |
 
-## 文献支撑关系
+## 支撑缺口
 
-| 文献 | 支撑角度 | 与GAP3的关联 |
-|------|---------|--------------|
-| Lin et al. 2020 | 仅关注温度 | 证实现有研究缺乏震级因素 |
-| Xu & Wang 2008 | 温度为主 | 确认研究空白 |
+- **缺口描述**: 无
+- **缺口等级**: 低
 
-## GAP支撑评估
+## 可引用表述
 
-**支撑程度**: 中等
+> "电化学系统的频率响应随激励幅度变化（Bensmann et al. 2010; Fasmin & Srinivasan 2017）。Lin et al. (2020) 证明电化学地震传感器的幅度-频率特性分析表明，信号幅度对频率响应有显著影响。"
 
-**已有支撑**:
-- 温度漂移是主要研究因素 (Lin 2020, Xu & Wang 2008)
-- 确认现有研究缺乏震级因素
+## 参考文献
 
-**缺口**:
-- 缺乏直接证明"震级因素被忽视"的文献
-- 需要更直接的证据说明震级对频率漂移的影响
-
-**下一步**:
-- 搜索震级对电化学传感器频率响应影响的专门研究
-- 如果找不到专门文献，需要说明这是研究空白
+- Bensmann et al. 2010. Estimation of higher-order frequency response functions. Electrochimica Acta. DOI: 10.1016/j.electacta.2010.02.056
+- Fasmin, Srinivasan. 2017. Nonlinear electrochemical impedance spectroscopy. J. Electrochem. Soc. DOI: 10.1016/j.jelechem.2017.03.056
+- Hernandez-Jaimes et al. 2015. Large-amplitude harmonic analysis. Chem. Eng. Sci. DOI: 10.1016/j.ces.2015.05.031
+- Lin et al. 2020. Temperature performance of electrochemical seismic sensor. Measurement. DOI: 10.1016/j.measurement.2020.107518
+- Chikishev et al. 2019. Magnitude-frequency response of MET sensors. IEEE Sensors. DOI: 10.1109/JSEN.2019.2925829

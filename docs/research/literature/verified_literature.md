@@ -1,6 +1,6 @@
 # 已验证文献
-***状态***: STEP2 R94 最终确认完成 (2026-03-29)
-***说明***: R94最终确认：文献库完整(130+已验证)，理论框架就绪；raw_literature.md"待核实"标记为历史遗留
+***状态***: STEP3 R139 完成 (2026-03-30)
+***说明***: 所有GAP支撑文档状态已更新为R139
 
 ## P0 - 核心理论
 
@@ -1438,3 +1438,63 @@
 - docs/research/literature/20260329/STEP2_Round73_Analysis.md（第 73 轮） - R73 分析；5条目排除（RepKAN, PAKAN, Nuclear Mass, Geng限流氧传感器, Zheng光学定位）；文献库最终收尾
 - docs/research/literature/20260329/STEP2_Round83_Analysis.md（第 83 轮） - R83 分析；GRAU (>90% LUT减少)、BitLogic (<20ns推理) - KAN LUT效率证据链完善
 - docs/research/literature/20260329/STEP2_Round85_Analysis.md（第 85 轮） - R85 分析；van Meer Hall传感器Wiener自标定(2.6x改善)、Niu LSTM迁移学习(10-50%加速)、Kim 2026排除(传统方法)、GRAU/BitLogic状态更新
+
+---
+
+## 本地PDF收集 (2026-03-30)
+
+**状态**: STEP3 R142 完成
+**位置**: `docs/research/literature/pdfs/`
+**说明**: GAP支撑论文的本地PDF及Markdown转换文件
+
+### 频域损失核心论文 (GAP8/GAP10/GAP11)
+
+| 论文 | arXiv | 本地PDF | Markdown |
+|------|-------|---------|----------|
+| FreDF (Wang et al. ICLR 2025) | 2402.02399 | `Wang_2025_FreDF.pdf` | `Wang_2025_FreDF.md` |
+| SAMFre (Wang et al. 2025) | 2505.17532 | `Wang_2025_SAMFre.pdf` | `Wang_2025_SAMFre.md` |
+| OLMA (Shi et al. 2025) | 2505.11567 | `Shi_2025_OLMA.pdf` | `Shi_2025_OLMA.md` |
+| FIRE (He et al. 2025) | 2510.10145 | `He_2025_FIRE.pdf` | `He_2025_FIRE.md` |
+| KFS (Wu et al. 2025) | 2508.00635 | `Wu_2025_KFS.pdf` | `Wu_2025_KFS.md` |
+| FreLE (Sun et al. 2025) | 2510.25800 | `Sun_2025_FreLE.pdf` | `Sun_2025_FreLE.md` |
+| PETSA (Medeiros et al. ICML 2025) | 2506.23424 | `Medeiros_2025_PETSA_ICML.pdf` | `Medeiros_2025_PETSA_ICML.md` |
+| BSP Loss (Chakraborty et al. 2025) | 2502.00472 | `Chakraborty_2025_BSP.pdf` | `Chakraborty_2025_BSP.md` |
+| Subich (2025, ICML) | 2501.19374 | `Subich_2025.pdf` | `Subich_2025.md` |
+| SATL (Yu et al. 2025) | - | `Yu_2025_SATL.pdf` | `Yu_2025_SATL.md` |
+
+### KAN核心论文 (P0)
+
+| 论文 | arXiv | 本地PDF | Markdown |
+|------|-------|---------|----------|
+| KAN (Liu et al. 2024) | 2404.19756 | `Liu_2024_KAN.pdf` | `Liu_2024_KAN.md` |
+| SS-KAN (Cruz et al. 2025) | 2506.16392 | `Cruz_2025_SS_KAN.pdf` | `Cruz_2025_SS_KAN.md` |
+| TKAN (Genet et al. 2024) | 2405.07344 | `Genet_2024_TKAN.pdf` | `Genet_2024_TKAN.md` |
+| TFKAN (Kui et al. 2025) | 2506.12696 | `Kui_2025_TFKAN.pdf` | `Kui_2025_TFKAN.md` |
+| Barron-Wiener-Laguerre (2026) | 2602.13098 | `Kanavalan_2026_Barron_Wiener.pdf` | `Kanavalan_2026_Barron_Wiener.md` |
+| KAN-FIF (Shen et al. 2026) | 2602.12117 | `Shen_2026_KAN_FIF.pdf` | `Shen_2026_KAN_FIF.md` |
+
+### Wiener模型论文
+
+| 论文 | arXiv | 本地PDF | Markdown |
+|------|-------|---------|----------|
+| Wahlberg随机Wiener (2015) | 1507.05535 | `Wahlberg_2015_stochastic_Wiener.pdf` | `Wahlberg_2015_stochastic_Wiener.md` |
+| van Meer Hall传感器 (2025) | - | `van_Meer_2025_Hall_sensor_Wiener.pdf` | `van_Meer_2025_Hall_sensor_Wiener.md` |
+
+### KAN效率论文 (GAP9)
+
+| 论文 | arXiv | 本地PDF | Markdown |
+|------|-------|---------|----------|
+| PolyKAN (Yu et al. 2025) | - | `Yu_2025_PolyKAN.pdf` | `Yu_2025_PolyKAN.md` |
+| GRAU (Liu et al. 2026) | 2512.12850 | `Liu_2026_GRAU.pdf` | `Liu_2026_GRAU.md` |
+| BitLogic (Buhrer et al. 2026) | 2602.07400 | `Buhrer_2026_BitLogic.pdf` | `Buhrer_2026_BitLogic.md` |
+| lmKAN (Pozdnyakov 2025) | - | `Pozdnyakov_2025_lmKAN.pdf` | `Pozdnyakov_2025_lmKAN.md` |
+
+### 其他重要论文
+
+| 论文 | arXiv | 本地PDF | Markdown |
+|------|-------|---------|----------|
+| HaKAN (Hasan et al. 2026) | 2601.18837 | `Hasan_2026_HaKAN.pdf` | `Hasan_2026_HaKAN.md` |
+| KAN Survey (Somvanshi 2025) | 2411.06078 | `Somvanshi_2025_KAN_Survey.pdf` | `Somvanshi_2025_KAN_Survey.md` |
+| KAN+GRU (Rather 2025) | 2507.13685 | `Rather_2025_KAN_GRU.pdf` | `Rather_2025_KAN_GRU.md` |
+| ConTSG Benchmark (2026) | 2603.04767 | `ConTSG_2026_Bench.pdf` | `ConTSG_2026_Bench.md` |
+| KAN vs MLP (Gaonkar 2026) | 2601.10563 | `Gaonkar_2026_KAN_vs_MLP.pdf` | `Gaonkar_2026_KAN_vs_MLP.md` |

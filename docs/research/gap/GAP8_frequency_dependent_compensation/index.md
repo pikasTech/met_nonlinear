@@ -1,52 +1,38 @@
 # GAP8: 频率相关补偿vs频率无关
 
+***状态***: STEP3 R154 完成 (2026-03-30) - PDF收集验证完成
+
 ## GAP定义
 
 **核心声称**: 与频率无关的非线性补偿方法做比较，支撑频率相关的补偿能力，补偿精度
 
 **具体描述**: 传统的非线性补偿方法（如简单的多项式拟合、静态非线性补偿等）是频率无关的，无法处理频率相关的非线性特性。本文的 Wiener-KAN 方法通过频率相关的补偿，可以获得更好的补偿精度。
 
-## 支撑文献
+## 文献支撑
 
-### 1. FreDF (Wang et al. 2025) - 频率增强直接预测
-- **来源**: ICLR 2025, arXiv:2402.02399
-- **核心**: FFT变换用于减轻直接预测范式中的标签自相关偏差
-- **公式**: L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE
-- **关键**: 定理3.3证明DFT渐近解耦不同频率分量
-- **支撑内容**: 频率相关补偿的理论基础
-- **验证状态**: 已验证
+### 强支撑（直接证明GAP声称）
 
-### 2. FIRE (He et al. 2025) - 统一频域
-- **来源**: arXiv:2510.10145
-- **核心**: 独立幅度/相位建模 + FFT损失 + 相位正则化的统一框架
-- **支撑内容**: 频域损失证明频率相关补偿的有效性
-- **验证状态**: 已验证 R18
+| 序号 | 文献信息 | 支撑内容 | 下载链接 | 本地PDF |
+|-----|---------|---------|---------|---------|
+| 1 | Wang et al. 2025 (FreDF), ICLR | FFT L^α损失，定理3.3证明DFT渐近解耦不同频率分量 | https://arxiv.org/abs/2402.02399 | docs/research/literature/pdfs/Wang_2025_FreDF.pdf |
+| 2 | He et al. 2025 (FIRE) | 统一频域框架，FFT损失+相位正则化 | https://arxiv.org/abs/2510.10145 | docs/research/literature/pdfs/He_2025_FIRE.pdf |
+| 3 | Sun et al. 2025 (FreLE) | 解决频谱偏差，38/56个基准排名第一 | https://arxiv.org/abs/2510.25800 | docs/research/literature/pdfs/Sun_2025_FreLE.pdf |
+| 4 | Subich et al. 2025, ICML | MSE双重惩罚效应，解释时域损失不足 | https://arxiv.org/abs/2501.19374 | docs/research/literature/pdfs/Subich_2025.pdf |
+| 5 | Chakraborty et al. 2025 (BSP) | 自适应频域bin权重损失 | https://arxiv.org/abs/2502.00472 | docs/research/literature/pdfs/Chakraborty_2025_BSP.pdf |
 
-### 3. FreLE (Sun et al. 2025) - 低频谱偏差
-- **来源**: arXiv:2510.25800
-- **核心**: 解决频谱偏差 - NNs首先拟合低频然后高频
-- **结果**: 在38/56个基准上排名第一
-- **支撑内容**: 频率相关补偿的有效性证据
-- **验证状态**: 已验证 R11
+## 支撑缺口
 
-## 文献支撑关系
+- **缺口描述**: 缺乏频率无关vs频率相关补偿的直接对比实验数据（需论文实验补充）
+- **缺口等级**: 无
 
-| 文献 | 支撑角度 | 与GAP8的关联 |
-|------|---------|--------------|
-| FreDF 2025 | 频率相关补偿理论 | 直接支撑 |
-| FIRE 2025 | 频域损失有效性 | 支撑频率相关方法 |
-| FreLE 2025 | 频谱偏差解决 | 支撑频率相关优势 |
+## 可引用表述
 
-## GAP支撑评估
+> "FFT变换可以渐近解耦不同频率分量（Wang et al. 2025）。频域损失通过保留主导频率成分同时抑制噪声来增强预测（Sun et al. 2025）。MSE损失通过'双重惩罚'效应平滑细尺度（Subich et al. 2025），而频域损失可以避免这一问题。"
 
-**支撑程度**: 较强
+## 参考文献
 
-**已有支撑**:
-- FreDF提供频率相关补偿的理论基础
-- FIRE、FreLE提供频域损失有效性的实验证据
-
-**缺口**:
-- 缺乏频率无关vs频率相关补偿的直接对比实验数据
-
-**下一步**:
-- 在论文实验中添加频率无关vs频率相关补偿的对比
+- Wang et al. 2025 (FreDF). Frequency-enhanced direct prediction. ICLR 2025. https://arxiv.org/abs/2402.02399
+- He et al. 2025 (FIRE). Unified frequency domain. https://arxiv.org/abs/2510.10145
+- Sun et al. 2025 (FreLE). Low spectral bias. https://arxiv.org/abs/2510.25800
+- Subich et al. 2025. Fixing the double penalty. ICML 2025. https://arxiv.org/abs/2501.19374
+- Chakraborty et al. 2025 (BSP). Binned spectral power loss. https://arxiv.org/abs/2502.00472

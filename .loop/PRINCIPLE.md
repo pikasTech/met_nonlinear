@@ -1,6 +1,8 @@
 ## 总目标
 
-根据转投后的新主旨（`docs/IDEA.md` 第二稿策略），系统性地扩充文献调研和已有理论研究，为论文修订提供理论支撑和对比依据。
+下载 GAP 引用的文献 PDF 并转换为 Markdown 格式，收集到 docs/research/literature/pdfs/ 目录。
+
+**关键要求**：GAP 支撑文档（如 `docs/research/gap/GAP{n}_xxx/index.md`）中的文献条目，除了下载链接外，还必须包含对应的本地 PDF 文件路径（如 `docs/research/literature/pdfs/xxx.pdf`），确保可以离线访问原文。
 
 ## 转投后论文定位（核心参考）
 
@@ -32,7 +34,7 @@
 - Wiener-KAN 模型（替代原 FRIKAN）：
   - KAN 相对于 Wiener 传统非线性函数的可训练性改进
   - KAN 的 LUT 计算效率加速（相对 LSTM、GRU、TRANSFORMER）
-  - RNN 的计算参数少于 1D-CNN，效率更高
+  - ~~RNN 的计算参数少于 1D-CNN，效率更高~~ (R11冲突: Saha 2026实测1D-CNN快74x; Bian 2025 CNN参数少43.3x)
 - 训练方法：AFMAE 损失函数
 
 ### 明确废弃的声称（不需要为这些寻找文献支撑）

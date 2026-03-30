@@ -1,6 +1,8 @@
 ## 任务
 
-对 STEP1 收集的文献线索进行深度阅读、分析和理论提取，形成系统性的理论综述；验证文献对 GAP 的支撑能力。
+下载 GAP 引用的文献 PDF 并转换为 Markdown 格式，收集到 `docs/research/literature/pdfs/` 目录。
+
+**关键要求**：GAP 支撑文档（如 `docs/research/gap/GAP{n}_xxx/index.md`）中的文献条目，除了下载链接外，还必须包含对应的本地 PDF 文件路径（如 `docs/research/literature/pdfs/xxx.pdf`），确保可以离线访问原文。
 
 ## 核心原则
 
@@ -62,6 +64,7 @@
 - 更新时优先改现有条目，不要把同一文献在三个文件里重复写成长篇全文
 - 对 `docs/research/literature/verified_literature.md` 中的文献，必须补齐以下字段：
   - **下载链接**（DOI链接或可直接访问的PDF链接，**必填项**）
+  - **本地PDF地址**（如 `docs/research/literature/pdfs/xxx.pdf`，**必填项**）
   - 核心贡献
   - 关键方法/理论
   - 主要结论

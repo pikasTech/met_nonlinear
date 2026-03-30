@@ -1,0 +1,1196 @@
+# Howard_2026_SINDy_KANs
+
+SINDY-KANS: SPARSE IDENTIFICATION OF NON-LINEAR
+DYNAMICS THROUGH KOLMOGOROV-ARNOLD NETWORKS
+A PREPRINT
+Amanda A. Howard
+Pacific Northwest National Laboratory
+Richland, WA 99354
+amanda.howard@pnnl.gov
+Nicholas Zolman
+University of Washington
+Seattle, WA 98195
+nzolman@uw.edu
+Bruno Jacob
+Pacific Northwest National Laboratory
+Richland, WA 99354
+bruno.jacob@pnnl.gov
+Steven L. Brunton
+University of Washington
+Seattle, WA 98195
+sbrunton@uw.edu
+Panos Stinis
+Pacific Northwest National Laboratory
+Richland, WA 99354
+panagiotis.stinis@pnnl.gov
+ABSTRACT
+Kolmogorov-Arnold networks (KANs) have arisen as a potential way to enhance the interpretability
+of machine learning. However, solutions learned by KANs are not necessarily interpretable, in the
+sense of being sparse or parsimonious. Sparse identification of nonlinear dynamics (SINDy) is a
+complementary approach that allows for learning sparse equations for dynamical systems from data;
+however, learned equations are limited by the library. In this work, we present SINDy-KANs, which
+simultaneously train a KAN and a SINDy-like representation to increase interpretability of KAN
+representations with SINDy applied at the level of each activation function, while maintaining the
+function compositions possible through deep KANs. We apply our method to a number of symbolic
+regression tasks, including dynamical systems, to show accurate equation discovery across a range of
+systems.
+Keywords Kolmogorov-Arnold networks · SINDy · Symbolic regression
+1
+Introduction
+Kolmogorov-Arnold networks (KANs), which use the Kolmogorov-Arnold Theorem as inspiration, have recently been
+developed as an alternative to multilayer perceptrons (MLPs) [1, 2]. Unlike MLPs, which use fixed activation functions
+with trainable weights, KANs use trainable activation functions. This capability has been promoted as a way to develop
+interpretable machine learning models, by identifying the trained activation functions. Many variations of KANs have
+quickly become popular; e.g. physics-informed KANs (PIKANs) [3, 4, 5, 6], graph KANs [7, 8, 9], and deep operator
+KANs [10]. For physics-informed training in [3], modifications of KANs can have similar accuracy to physics-informed
+neural networks [11]. KANs have been applied to a wide variety of problems, including satellite image classification
+[12], time-series analysis [13], and fluid dynamics [14, 15, 16]. For a summary of advances in training KANs, we refer
+the reader to recent surveys, including [17, 18, 19].
+Much of the previous literature has applied KANs in a way similar to an MLP, without identifying or analyzing the
+functions through symbolic regression. Many papers discussing interpretability of KANs, such as [20], qualitatively
+analyze the learned activation functions, but do not connect them to a learned equation. When symbolic regression is
+performed with KANs, the learned equations are often quite complex, making interpretability difficult (although still
+certainly easier than weights and biases learned with MLPs, as noted by [21]). Significant pruning of the KAN during
+training before the symbolic regression has also been applied to reduce spurious terms in the learned equations, such as
+in [22]. Nevertheless, symbolic regression has been successful with KANs—such as for radio map predictions [23], for
+predicting the pressure and flow rate of flexible electrohydrodynamic pumps [24], and even providing interpretable
+arXiv:2603.18548v1  [cs.LG]  19 Mar 2026
+SINDy-KANs
+A PREPRINT
+predictions of cancer development [25]. However, these approaches can be limited; e.g., [25] only used a network with
+a single layer, so no interaction between the variables is possible beyond a linear combination. In [26], the authors
+performed symbolic regression for reservoir water temperatures, progressively increasing the number of input variables.
+When the number of variables was large the accuracy improved through nested nonlinearities, but this reduced the
+interpretability of the model. Recent work has extended the symbolic regression functionality of KANs by using a large
+language model to identify the target functions [27]. In a different approach, [28] improved symbolic regression with
+KANs by breaking the problem into smaller decompositions, which allows for iteratively training shallower (single
+layer) KANs.
+One issue with symbolic regression with KANs is that in [1], the activation functions are identified by comparing with a
+library of candidate functions. As noted in [29], the learned activation functions will not necessarily align with the
+candidate functions, even if it is known that the candidate functions can be composed to output the target function. This
+limits the applicability of symbolic regression as implemented in [1], and necessitates work that causes the activation
+functions to necessarily align with the candidate functions. For example, [29] uses a dictionary of symbolic and
+dense terms as the candidate function, with learnable gates that sparsify the representation. Here, we aim to make
+symbolic regression performed with KANs more interpretable by directly learning compositions of sparse equation
+representations thorough a SINDy-like approach.
+The sparse identification of nonlinear dynamics (SINDy) framework [30] is a widely adopted method for identifying
+sparse, interpretable models of dynamical systems from data. SINDy has been widely applied, including turbulence
+modeling [31, 32], network modeling [33], and model predictive control [34], and has been extended for reinforcement
+learning [35], extremely noisy data [36, 37, 38, 39, 40], and nonlinear dynamical systems [41], among many other
+extensions. One extension most similar to this work is ADAM-SINDy [42], where the SINDy coefficients are determined
+by the ADAM optimizer [43]. Compared with standard SINDy, ADAM-SINDy allows for parameterized libraries,
+enabling more customization for the candidate functions.
+In this work we present SINDy-KANs, which combine the sparse function identification of SINDy with the deep
+learning of KANs. Through KAN layers, SINDy-KANs allow for symbolic regression of function compositions not
+possible with SINDy. Additionally, SINDy-KANs enforce learning parsimonious, interpretable equations more directly
+than standard KANs. In a sense, SINDy-KANs can be thought of as a deep version of ADAM-SINDy [42], where the
+SINDy coefficients are directly learned. Both SINDy and KANs at the basic level learn basis function expansions, so
+combining the methods is especially harmonious. We present the methodology behind SINDy-KANs in Secs. 2 and 3
+and a series of experiments for both discovery of equations and dynamical systems from data in Sec. 4.
+2
+Background methodology
+2.1
+Kolmogorov-Arnold networks
+Kolmogorov-Arnold networks (KANs) [1] approximate a multivariate function f(x) by composition and addition of
+univariate functions. We consider a KAN with L layers and {nj}L
+j=0 nodes per layer (denoted [n0, n1, . . . , nL]). We
+denote the activation function that connects the (ℓ, i) and (ℓ+ 1, j) nodes by φℓ,j,i. Each KAN layer takes as univariate
+input x(ℓ) = {x(ℓ)
+1 , . . . , x(ℓ)
+nL}. The input to the KAN is x = x(0) Then, each KAN layer can be expressed as
+x(ℓ+1) =
+nL
+X
+i=0
+φℓ,j,i(x(ℓ)
+i ).
+(1)
+We denote the output of the KAN by K(x).The activation functions are represented (on a grid with g points) by a
+weighted combination of a basis function b(x) and a B-spline,
+φ(x) = wbb(x) + wsspline(x),
+(2)
+where
+b(x) =
+x
+1 + e−x ,
+and
+spline(x) =
+X
+i
+ciBi(x).
+Here, Bi(x) is a polynomial of degree k, typically chosen with k = 3 or 5 and fixed as k = 5 in this work. ci, wb, and
+ws are trainable parameters if not predetermined by the user. We refer the reader to [1] for details on training KANs.
+2
+SINDy-KANs
+A PREPRINT
+Data-driven KANs are trained by minimizing the loss function given by the difference between the KAN representation
+and provided data:
+LKAN = ||f(x) −K(x)||2
+2.
+(3)
+While KANs can represent products of the input functions through the sums of quadratics (e.g., xy = 1
+4(x + y)2 −
+1
+4(x −y)2), it is simpler and easier to interpret when KANs have multiplication nodes added. Multiple methods have
+been developed to do so, including MultKANs [2] and LeanKAN [44]. Both of these methods have advantages and
+disadvantages in terms of accuracy, trainable parameters, and computational complexity. For this work, we introduce
+multiplication-enabled KANs where some of the sums of activation functions in each layer are replaced by a product of
+the activation functions. Specifically, for a KAN layer with nj nodes, we designate nM
+j
+of the nodes as multiplication
+nodes, where the input activation functions for that node are multiplied together. This architecture allows for easier
+discovery of dynamical systems that contain products of the input variables.
+2.2
+Sparse identification of nonlinear dynamics
+Sparse identification of nonlinear dynamics (SINDy) [30] allows for sparse identification of systems of equations
+governing dynamical systems. We consider a dynamical system of the form
+d
+dtx(t) = f(x(t))
+(4)
+for x ∈Rn. Available data are sampled at times t1, t2, . . . , tm to create two matrices
+X =
+
+
+xT (t1)
+xT (t2)
+...
+xT (tm)
+
+=
+
+
+x1(t1)
+x2(t1)
+· · ·
+xn(t1)
+x1(t2)
+x2(t2)
+· · ·
+xn(t2)
+...
+...
+...
+...
+x1(tm)
+x2(tm)
+· · ·
+xn(tm)
+
+
+(5)
+and
+˙X =
+
+
+˙xT (t1)
+˙xT (t2)
+...
+˙xT (tm)
+
+=
+
+
+˙x1(t1)
+˙x2(t1)
+· · ·
+˙xn(t1)
+˙x1(t2)
+˙x2(t2)
+· · ·
+˙xn(t2)
+...
+...
+...
+...
+˙x1(tm)
+˙x2(tm)
+· · ·
+˙xn(tm)
+
+.
+(6)
+A library of candidate nonlinear functions is denoted by Θ(X), where each column of Θ(X) is given by a candidate
+function:
+Θ(X) =
+
+1
+X
+XP2
+· · ·
+sin(X)
+cos(X)
+
+,
+(7)
+where XP2 denotes the quadratic nonlinearities in the state variable x.
+The goal of SINDy is to solve a sparse regression problem for vectors of coefficients Ξ = [ξ1ξ2 · · · ξn] given by
+˙X = Θ(X)Ξ.
+(8)
+In practice, obtaining sparse coefficients Ξ is achieved by minimizing the SINDy loss function
+LSINDy = ∥˙X −Θ(X)Ξ∥+ ∥Ξ∥0,
+(9)
+where ∥· ∥0 counts the number of nonzero entries. This non-convex optimization problem is typically solved using
+sequentially-thresholded least squares regression, which also makes it possible to enforce known symmetries and other
+physical constraints on the model coefficients [45].
+While SINDy and its variants have been very effectively applied to a wide range of applications [46, 47, 48, 49, 50, 51,
+52, 53, 54, 31, 32], a disadvantage is that the candidate functions must be determined by the user. If the dynamical
+system consists of complex functions, such as compositions of functions, determining the proper library of candidate
+functions can be difficult and/or result in a very large library.
+3
+SINDy-KANs
+A PREPRINT
+Figure 1: Pictorial representation of a SINDy-KAN for a function f(x, y) = sin(x+y2). Each KAN activation function
+has an associated least squares regression as given in Eq. 13. The learned coefficients are then combined in Ξ.
+3
+SINDy-KANs
+In SINDy-KANs, we preform a SINDy-like sparse regression at each KAN activation function as the system is training.
+In particular, consider an activation function φℓ,j,i with input x(ℓ)
+i . We assume available data are sampled at times
+t1, t2, . . . , tm to create the matrices:
+X(ℓ)
+i
+=
+h
+x(ℓ)
+i (t1),
+x(ℓ)
+i (t2),
+· · ·
+x(ℓ)
+i (tm)
+i
+.
+(10)
+We construct a library of candidate functions
+Θℓ,i(X(ℓ)
+i ) =
+
+1
+X(ℓ)
+i
+X(ℓ)P2
+i
+· · ·
+sin(X(ℓ)
+i )
+cos(X(ℓ)
+i )
+
+.
+(11)
+We note that since KANs consist of univariate activation functions, Θℓ,i(X(ℓ)
+i ) is univariate with respect to the input.
+We also note that Θℓ,i(X(ℓ)
+i ) does not have to be the same for all ℓ. Depending on knowledge of the problem, different
+hidden layers in the SINDy-KAN can be represented by a different set of candidate functions.
+Then, we define a sparse vector of coefficients ξℓ,j,i and
+φℓ,j,i =
+
+
+φℓ,j,i(x(ℓ)
+i (t1))
+φℓ,j,i(x(ℓ)
+i (t2))
+...
+φℓ,j,i(x(ℓ)
+i (tm))
+
+
+(12)
+such that
+φℓ,j,i = Θℓ,i(X(ℓ)
+i )ξℓ,j,i.
+(13)
+We denote by ΞS = {ξ1,1,1ξ1,1,2 . . . ξL,j,i} to be the learned coefficients. Once the coefficients ΞS are found, the
+output of the SINDy-KAN can be determined through evaluating the SINDy-KAN representation. A diagram of a
+SINDy-KAN is given in Fig. 1. A labeled example of a trained SINDy-KAN is given in Fig. 2.
+4
+SINDy-KANs
+A PREPRINT
+Figure 2: Example of a trained SINDy-KAN for the system of equations f1(x, y) = sin(2x + x2), f2(x, y) =
+cos(x) + y −2x −x2.
+A well-trained SINDy-KAN has a few desirable features. The KAN should agree well with the data (the KAN loss
+defined in Eq. 3 should be small). Also, the SINDy-KAN representation denoted by KS(x) should agree well with the
+data, giving the error term
+LS = ||f(x) −KS(x)||2
+2.
+(14)
+The coefficients ΞS should be sparse, so ||ΞS||1 is minimized. However, SINDy-KANs are trained using standard
+neural network optimizers such as ADAM, which struggle with minimizing the L1 norm of ΞS. Instead, we introduce
+a shadow matrix Λ that consists of trainable entries that represent a sparse version of ΞS. Λ is trained to minimize
+λ||Λ||1 + ||Λ −ΞS||2
+2.
+We can introduce two additional loss terms. We denote by KΛ(x) the KAN evaluated with Λ. Then, we can also
+consider
+LΛ = ||f(x) −KΛ(x)||2
+2.
+(15)
+The general SINDy-KAN loss function takes the form:
+L = λKANLKAN + λSLS + λΛLΛ + λ1||Λ||1 + λ2||Λ −ΞS||2
+2.
+(16)
+Because ||Λ||1 should be O(1), we note that λ1 should be on the order of the expected loss LS. For the examples in
+this work we fix λKAN = 1.0.
+We compare our results with the pykan package, which also does equation discovery as implemented in [1]. In [1],
+each activation function is restricted to have the form a + bh(cx + d) for scalars a, b, c, and d and a function h found
+from a given library of functions. In particular, this formulation prevents linear combinations of the library functions,
+which limits the functions the method can identify. The functions are selected at the end of training, instead of during
+training, so there is no requirement that the learned activation functions should align with the functions in the library, as
+noted by [29]. pykan training involves a series of training and sparsification steps that must be managed by the user. In
+this work, we keep the pykan implementation as close to the implementation in [1] as possible.
+SINDy-KANs train a standard KAN and simultaneously find the coefficients ξℓ,j,i by solving Eq. 13 for each
+activation function using sparse regression. In other words, SINDy-KANs learn the sparse representation and the
+KAN representation simultaneously. Alternatively, one could train a SINDy-KAN to learn the coefficients ξℓ,j,i by
+minimizing Eq. 14. We call this method direct SINDy-KANs because the coefficients are learned directly. We discuss
+direct SINDy-KANs more in Appendix A. While direct SINDy-KANs can accurately train, we find that they are
+less robust than finding the coefficients ξℓ,j,i as presented above. They are, however, less expensive to train for large
+networks, because the computational work at each iteration is significantly lower without solving the sparse regression
+problems at each KAN node. We leave a further exploration of direct SINDy-KANs for future work.
+4
+Experiments
+We implemented the SINDy-KAN algorithm in jaxKAN [55]. jaxKAN offers several advances in KAN training aimed
+at increasing accuracy for scientific machine learning including advanced initialization, adaptive grid refinement
+[56, 57, 58], and additional KAN basis functions [59]. However, in this work we use the B-spline implementation
+closest to the original KAN formulation in [1] to try and provide direct comparisons with existing literature.
+Training parameters for all examples are given in Appendix C in table 4 and table 5.
+5
+SINDy-KANs
+A PREPRINT
+(a) The final trained SINDy-KAN.
+(b) Loss terms L, λ1||Λ||1, and λSLS.
+Figure 3: Results for Sec. 4.1. (a) The final trained SINDy-KAN correctly learns the target equation. (b) The loss terms
+show two plateaus for the L1 regularization term λ1||Λ||1.
+4.1
+Symbolic regression
+In this section we focus on learning symbolic equations directly from data for the equation
+f(x, y) = cos(x2 + y),
+(17)
+chosen because it contains a composition of functions (cos and x2 + y), something that would be difficult to know to
+include in a typical library of functions for standard SINDy. KANs are able to handle composition by increasing the
+depth of the network. We take (x, y) ∈[−2.5, 2.5] × [−2.5, 2.5] and use 1,000 randomly selected points as training
+data. We take the library of candidate functions Θℓ,j,i(x) as polynomials up to degree two plus sine and cosine,
+Θℓ,i =
+
+1
+X(ℓ)
+i
+X(ℓ)2
+i
+sin(X(ℓ)
+i )
+cos(X(ℓ)
+i )
+
+.
+(18)
+Hyperparameters used for training are given in Table 4.
+The SINDy-KAN learns the correct equation,
+KΛ = 0.9999 cos(1.0000x2 + 0.9999y),
+also shown in fig. 3a. pykan struggles to learn the composition of functions, resulting in
+Kpykan = 0.02002x −0.0275y −0.5642 sin(1.7946x −0.1641y + 3.4794).
+In particular, pykan misses the x2 term, resulting in larger errors overall.
+Examining the loss profiles gives some interesting insight into the SINDy-KAN training. In fig. 3b, we show the total
+loss L given by Eq. 16 and the L1 regularization term λ1||Λ||1. After the initial transient training period, ||Λ||1 has
+two plateaus. Examination of the learned equations at the plateaus shows that the first is at ||Λ||1 ≈3 + π/2, where
+the SINDy-KAN learns sin(x2 + y + π/2), which simplifies to the correct equation but is not the sparsest form of the
+equation. After additional training, the second plateau occurs at ||Λ||1 ≈3, representing the equation cos(x2 + y).
+4.2
+Differential equation discovery
+A common use case for SINDy is identifying dynamical systems of the form given in Eq. 4, where data is given in the
+form (t, x). To use SINDy on this data, it is necessary to take numerical derivatives to find dx
+dt . Finding this derivative
+can be difficult, particularly in the presence of noisy data [30]. Methods used in other work can certainly be used for
+SINDy-KANs, such finite differences which has successfully applied to SINDy before [30].
+4.2.1
+Linear ODE system
+We begin with the simplest class of dynamical systems to test SINDy-KANs. Even though these equations can be
+discovered by simpler methods, such as dynamic model discovery, it is useful to confirm that simple systems are also
+properly identified with the more general SINDy-KAN infrastructure.
+6
+SINDy-KANs
+A PREPRINT
+Figure 4: Trained SINDy-KAN for Sec. 4.2.1.
+Figure 5: Trained SINDy-KAN for Sec. 4.2.1. The SINDy-KAN results agree well with the data.
+We consider the 3D system of equations
+d
+dt
+"x
+y
+z
+#
+=
+"−0.1
+2
+0
+−2
+−0.1
+0
+0
+0
+−0.3
+# "x
+y
+z
+#
+.
+(19)
+We take the library of candidate functions Θℓ,j,i(x) as polynomials up to degree three,
+Θℓ,i =
+
+1
+X(ℓ)
+i
+X(ℓ)2
+i
+X(ℓ)3
+i
+
+.
+(20)
+The training data is generated with pysindy [60, 61, 62]. Data is generated at 200 evenly spaced points in the interval
+t ∈[0, 10].
+The SINDy-KAN learns the equation
+d
+dt
+"x
+y
+z
+#
+=
+"−0.0993
+1.9946
+0
+−1.9972
+−0.0995
+0
+0
+0
+−0.2811
+# "x
+y
+z
+#
+.
+(21)
+The trained SINDy-KAN is given in Fig. 4 and the results are shown in Fig. 5. We extend this case to consider training
+with noise in Appendix B.
+7
+SINDy-KANs
+A PREPRINT
+(a) Trained SINDy-KAN with one hidden layer.
+(b) Trained SINDy-KAN with two hidden layers.
+Figure 6: Trained SINDy-KANs for the pendulum in Sec. 4.2.2 with one (a) and two (b) hidden layers.
+4.2.2
+Damped pendulum
+We consider a damped pendulum with equation given by:
+dx
+dt
+=
+y
+(22)
+dy
+dt
+=
+−0.05y −9.81 sin(x)
+(23)
+and the library of candidate functions
+Θℓ,i =
+
+1
+X(ℓ)
+i
+X(ℓ)2
+i
+sin(X(ℓ)
+i )
+cos(X(ℓ)
+i )
+
+.
+(24)
+We can use this test to examine the performance of SINDy-KANs when the architecture is varied by considering
+SINDy-KANs with one and two hidden activation function layers. The training data is found by numerically solving
+Eqs. 22 and 23 at 1000 points in the time interval t ∈[0, 10].
+The SINDy-KAN with one hidden layer learns
+dx
+dt
+=
+0.9998y
+dy
+dt
+=
+−9.7877 sin(x) −0.0499y −0.0185x.
+The SINDy-KAN with two hidden layers learns
+dx
+dt
+=
+0.9997y
+dy
+dt
+=
+−9.7975 sin(x) −0.0499y.
+Plots of the trained SINDy-KAN are shown in fig. 6a, fig. 6b and fig. 7. The deeper SINDy-KAN is slightly more
+accurate due to the additional flexibility of the extra hidden layer. However, deeper KANs can also be harder to train in
+general [63], so there is a trade off between the additional flexibility, training time, and complexity of training.
+4.2.3
+ABC flow
+When dynamics of the problem are known they can be incorporated into the SINDy-KAN candidate functions to
+improve training. For an example, we consider the ABC flow example inspired by [42], given by
+dx
+dt
+=
+A sin(w1z) + C cos(w2y)
+(25)
+dy
+dt
+=
+B sin(w3x) + A cos(w4z)
+(26)
+dz
+dt
+=
+C sin(w5y) + B cos(w6x)
+(27)
+8
+SINDy-KANs
+A PREPRINT
+Figure 7: SINDy-KAN results for Sec. 4.2.2. (a-b) Results for the SINDy-KANs, compared with the numerical
+derivatives. (c) Loss for the SINDy-KAN.
+for A = 2, B = 3, C = 1, and w1 = π/4.0, w2 = π/3.0, w3 = π/2.0, w4 = π/5.0, w5 = π/4.5, w6 = π/2.8. We
+use this equation to highlight the selection of different candidate functions for each hidden layer in the KAN. If we know
+the equations are of the form P3
+i=1 ai sin(wixi)+bi cos(vixi) for i ∈{1, 2, 3} and unknown coefficients ai, bi, wi and
+vi, we can consider a two layer KAN, with the candidate functions for the first layer {x} and the candidate functions
+for the second layer {cos(x), sin(x)}. By keeping the first layer as a linear basis to learn the right coordinates/scaling,
+then feeding them into the nonlinear terms, we restrict the training space to allow for better training while capturing the
+dynamics of the problem. We emphasize that the frequencies wi are learned by the SINDy-KAN instead of prescribed
+by the user. The training data are found by numerically solving the system of equations at 20000 points in the time
+interval t ∈[0, 20].
+Eqns. 25-27 give approximately:
+dx
+dt
+=
+2 sin(0.7854z) + 1 cos(1.0472y)
+dy
+dt
+=
+3 sin(1.5708x) + 2 cos(0.6283z)
+dz
+dt
+=
+1 sin(0.6981y) + 3 cos(1.1210x).
+With the SINDy-KAN, we learn:
+dx
+dt
+=
+2.0072 sin(0.7849z) + 1.0000 cos(1.0470y)
+dy
+dt
+=
+2.9990 sin(1.5708x) + 1.9926 cos(0.6278z)
+dz
+dt
+=
+0.9996 sin(0.6976y) + 2.9983 cos(1.2221x).
+The trained SINDy-KAN is shown in Fig. 8 and the results from the SINDy-KAN are shown in Fig. 9. As in [42],
+SINDy-KANs are able to directly learn the frequencies accurately. This presents a strong advantage over standard
+SINDy, where the frequencies would need to be predetermined to be included in the library of candidate functions.
+9
+SINDy-KANs
+A PREPRINT
+Figure 8: The SINDy-KAN for ABC flow problem in Sec. 4.2.3. For clarity, only the non-zero activation functions are
+shown.
+4.2.4
+Lorenz
+We next consider the nonlinear Lorenz system
+dx
+dt = σ(y −x)
+(28)
+dy
+dt = x(ρ −z) −y
+(29)
+dz
+dt = xy −βz
+(30)
+for ρ = 28.0, σ = 10.0, and β = 8.0/3.0. ≈2.6667. This example highlights the use of multiplication SINDy-KANs.
+In particular, we use a KAN with one hidden layer with five nodes, and take two of the nodes as multiplication nodes
+(nm
+1 = 2). We take the library of candidate functions for the activation functions as polynomials up to degree one,
+Θℓ,i =
+
+1
+X(ℓ)
+i
+
+.
+(31)
+With the multiplication nodes, the multiplication KAN can represent second degree polynomials after the first layer,
+even though each activation function is univariate. In contrast, a standard KAN would take two hidden layers to
+represent second degree polynomials.
+We train the SINDy-KAN using data generated with the initial condition (−8, 8, 27). The training data is found by
+numerically solving the system of equations at 5000 points in the time interval t ∈[0, 10].
+The SINDy-KAN learns:
+dx
+dt = −10.00001x + 9.99999y
+(32)
+dy
+dt = x(28.00002 −1.00000z) −1.00000y
+(33)
+dz
+dt = 1.00000xy −2.66666z.
+(34)
+The results are plotted in Fig. 10 and the trained KAN is shown in Fig. 11.
+10
+SINDy-KANs
+A PREPRINT
+Figure 9: The SINDy-KAN learns the dynamics of the ABC flow problem in Sec. 4.2.3 well.
+Figure 10: The Lorenz system in Eqs. 28–30 and the system learned by the SINDy-KAN in Eqs. 32–34 for Sec. 4.2.4.
+Both the true system and the learned system are evaluated numerically. We note that only data from t ∈[0, 10] is used
+for training.
+4.2.5
+Kuramoto oscillator
+The Kuramoto oscillator is defined by
+dθi
+dt = ωi + 1
+N
+N
+X
+j=1
+Kij sin(θj −θi), i = 1, . . . N.
+(35)
+11
+SINDy-KANs
+A PREPRINT
+Figure 11: The trained SINDy-KAN for the Lorenz system in Sec. 4.2.4. Multiplication nodes are denoted by “×” and
+addition nodes are denoted by “+”.
+We consider N = 3 and ω1 = 16, ω2 = 5, and ω3 = 11 with Kij = 1 for all i, j. We consider a two layer KAN, with
+the candidate functions for the first layer {x} and the candidate functions for the second layer {1, sin(x)}. The training
+data is generated with [64] at 5000 points for t ∈[0, 5].
+The SINDy-KAN learns
+dθ1
+dt = −1.0002 sin(0.9988θ1 −0.9985θ3) −1.0001 sin(0.9994θ1 −0.9981θ2) + 15.9995
+(36)
+dθ2
+dt = 1.0000 sin(0.9994θ1 −0.9981θ2) −1.0002 sin(0.9988θ2 −0.9990θ3) + 5.0002
+(37)
+dθ3
+dt = 1.0001 sin(0.9988θ1 −0.9985θ3) + 1.0002 sin(0.9988θ2 −0.9990θ3) + 11.0003.
+(38)
+Examining the KAN structure in Fig. 12, the KAN uses only three of the six nodes in the hidden layer (the other nodes
+are zero.) This minimizes the ℓ1 penalty λ1||Λ||1 in the loss function by reusing the θi −θj terms in the final equations
+by recognizing the symmetry that sin(x) = −sin(x).
+5
+Conclusions
+We have shown SINDy-KANs train well and accurately discover equations for a variety of datasets, including chaotic
+dynamical systems. SINDy-KANs can learn compositions of functions that are difficult to learn with SINDy, where the
+exact needed composition may not be included in the function library. At the same time, SINDy-KANs more robustly
+learn parsimonious representations than standard KANs. This combination of function compositions and sparse function
+representations builds on the strengths of both KANs and SINDy in a harmonious way to offer increased symbolic
+regression. More broadly, SINDy-KANs contribute to the growing effort to develop interpretable and trustworthy
+machine learning methods for scientific discovery. By enforcing parsimony at the level of each activation function while
+retaining the expressiveness of deep networks, SINDy-KANs offer a principled framework for learning human-readable
+equations from data.
+Despite these strengths, several limitations remain. As the number of input variables grows, the interpretability of the
+discovered equations may diminish, a challenge shared with standard KAN-based symbolic regression. Additionally,
+12
+SINDy-KANs
+A PREPRINT
+Figure 12: The trained SINDy-KAN for the Kuramoto system in Sec. 4.2.5. Multiplication nodes are denoted by “×”
+and addition nodes are denoted by “+”. For clarity, only non-zero nodes are shown.
+discovering dynamical systems from data requires numerical differentiation, which can be sensitive to noise. While
+methods such as finite differences have been successfully applied in SINDy, further work is needed to evaluate the
+robustness of SINDy-KANs under noisy conditions.
+The examples in this work are all trained on a single Apple M3 Max Macbook Pro, generally in less than a few minutes
+per problem. Due to not needing to complete the sparse regression at each activation function for each iteration, the
+direct SINDy-KANs presented in Appendix A train significantly faster. However, SINDy-KANs do not represent a
+large computational burden. Due to the comparable accuracy between the two approaches, we suggest the faster training
+times are an argument to use direct SINDy-KANs when possible. However, direct SINDy-KANs assume that each
+activation function can be represented well by linear combinations of the library functions. In future work, we will
+consider cases where some activation functions can be kept as their B-spline representations, while others are fixed by
+their symbolic forms based on the error while training. This will allow for accuracy when the set of library functions is
+not sufficient to capture the system dynamics. For this approach, SINDy-KANs are necessary.
+One consideration when training SINDy-KANs is the network architecture. The depth of the network is the number
+of function compositions that can occur, and it is difficult to know the necessary number of layers in advance. While
+SINDy-KANs can learn the identity function for additional unneeded layers, multi-exit KANs could be combined with
+SINDy-KANs to simultaneously learn the best network architecture and symbolic representation [63]. Beyond those
+considered in this work, SINDy-KANs could be combined with many other KAN training schemes to increase accuracy
+[18], including domain decomposition if different equations are expected in different parts of the domain [65], adaptive
+weighting schemes [66], automatic grid updates [67], or improved optimizers [6]. Improved training of the underlying
+KAN improves the accuracy of the learned equations.
+6
+Acknowledgments
+This project was completed with support from the U.S. Department of Energy, Advanced Scientific Computing Research
+program, under the Scalable, Efficient and Accelerated Causal Reasoning Operators, Graphs and Spikes for Earth and
+Embedded Systems (SEA-CROGS) project (Project No. 80278). The computational work was performed using PNNL
+Institutional Computing at Pacific Northwest National Laboratory. Pacific Northwest National Laboratory (PNNL) is a
+multi-program national laboratory operated for the U.S. Department of Energy (DOE) by Battelle Memorial Institute
+under Contract No. DE-AC05-76RL01830. SLB and NZ acknowledge funding support from the National Science
+Foundation AI Institute in Dynamic Systems (grant number 2112085).
+13
+SINDy-KANs
+A PREPRINT
+7
+Data and code availability
+The examples in this work were developed using the jaxKAN package [68, 69]. Results were compared with symbolic
+regression using pykan [1]. Postprocessing of the learned equations was performed with sympy [70].
+All code and data will be released upon publication.
+References
+[1] Ziming Liu, Yixuan Wang, Sachin Vaidya, Fabian Ruehle, James Halverson, Marin Soljaˇci´c, Thomas Y Hou, and
+Max Tegmark. KAN: Kolmogorov-Arnold networks. arXiv preprint arXiv:2404.19756, 2024.
+[2] Ziming Liu, Pingchuan Ma, Yixuan Wang, Wojciech Matusik, and Max Tegmark. KAN 2.0: Kolmogorov-Arnold
+networks meet science. arXiv preprint arXiv:2408.10205, 2024.
+[3] Khemraj Shukla, Juan Diego Toscano, Zhicheng Wang, Zongren Zou, and George Em Karniadakis. A compre-
+hensive and FAIR comparison between MLP and KAN representations for differential equations and operator
+networks. Computer Methods in Applied Mechanics and Engineering, 431:117290, 2024.
+[4] Yizheng Wang, Jia Sun, Jinshuai Bai, Cosmin Anitescu, Mohammad Sadegh Eshaghi, Xiaoying Zhuang, Timon
+Rabczuk, and Yinghua Liu. Kolmogorov-Arnold-Informed neural network: A physics-informed deep learning
+framework for solving forward and inverse problems based on Kolmogorov-Arnold networks. Computer Methods
+in Applied Mechanics and Engineering, 433:117518, 2025.
+[5] Salah A Faroughi, Farinaz Mostajeran, Amin Hamed Mashhadzadeh, and Shirko Faroughi. Scientific machine
+learning with kolmogorov-arnold networks. arXiv preprint arXiv:2507.22959, 2025.
+[6] Elham Kiyani, Khemraj Shukla, Jorge F Urbán, Jérôme Darbon, and George Em Karniadakis. Which opti-
+mizer works best for physics-informed neural networks and kolmogorov-arnold networks?
+arXiv preprint
+arXiv:2501.16371, 2025.
+[7] Mehrdad Kiamari, Mohammad Kiamari, and Bhaskar Krishnamachari. GKAN: Graph Kolmogorov-Arnold
+Networks. arXiv preprint arXiv:2406.06470, 2024.
+[8] Gianluca De Carlo, Andrea Mastropietro, and Aris Anagnostopoulos. Kolmogorov-Arnold Graph Neural Networks.
+arXiv preprint arXiv:2406.18354, 2024.
+[9] Roman Bresson, Giannis Nikolentzos, George Panagopoulos, Michail Chatzianastasis, Jun Pang, and Michalis
+Vazirgiannis. KAGNNs: Kolmogorov-Arnold networks meet graph learning. Transactions on Machine Learning
+Research, 2025.
+[10] Diab W Abueidda, Panos Pantidis, and Mostafa E Mobasher. DeepOKAN: Deep operator network based on
+Kolmogorov-Arnold networks for mechanics problems. Computer Methods in Applied Mechanics and Engineering,
+436:117699, 2025.
+[11] Maziar Raissi, Paris Perdikaris, and George E Karniadakis. Physics-informed neural networks: A deep learning
+framework for solving forward and inverse problems involving nonlinear partial differential equations. Journal of
+Computational Physics, 378:686–707, 2019.
+[12] Minjong Cheon. Kolmogorov-Arnold Network for satellite image classification in remote sensing. arXiv preprint
+arXiv:2406.00600, 2024.
+[13] Cristian J Vaca-Rubio, Luis Blanco, Roberto Pereira, and Màrius Caus. Kolmogorov-Arnold networks (KANs)
+for time series analysis. arXiv preprint arXiv:2405.08790, 2024.
+[14] Juan Diego Toscano, Theo Käufer, Martin Maxey, Christian Cierpka, and George Em Karniadakis. Inferring
+turbulent velocity and temperature fields and their statistics from Lagrangian velocity measurements using
+physics-informed Kolmogorov-Arnold networks. arXiv preprint arXiv:2407.15727, 2024.
+[15] Ali Kashefi. Kolmogorov-Arnold PointNet: Deep learning for prediction of fluid fields on irregular geometries.
+Computer Methods in Applied Mechanics and Engineering, 439:117888, 2025.
+[16] Xiong Xiong, Kang Lu, Zhuo Zhang, Zheng Zeng, Sheng Zhou, Zichen Deng, and Rongchun Hu. J-pikan: A
+physics-informed kan network based on jacobi orthogonal polynomials for solving fluid dynamics. Communica-
+tions in Nonlinear Science and Numerical Simulation, page 109414, 2025.
+[17] Shriyank Somvanshi, Syed Aaqib Javed, Md Monzurul Islam, Diwas Pandit, and Subasish Das. A survey on
+kolmogorov-arnold network. ACM Computing Surveys, 58(2):1–35, 2025.
+[18] Amir Noorizadegan, Sifan Wang, and Leevan Ling. A practitioner’s guide to kolmogorov-arnold networks. arXiv
+preprint arXiv:2510.25781, 2025.
+14
+SINDy-KANs
+A PREPRINT
+[19] Juan Diego Toscano, Vivek Oommen, Alan John Varghese, Zongren Zou, Nazanin Ahmadi Daryakenari, Chenxi
+Wu, and George Em Karniadakis. From pinns to pikans: Recent advances in physics-informed machine learning.
+Machine Learning for Computational Science and Engineering, 1(1):15, 2025.
+[20] Irina Barašin, Blaž Bertalaniˇc, Mihael Mohorˇciˇc, and Carolina Fortuna. Exploring kolmogorov–arnold networks
+for interpretable time series classification. International Journal of Intelligent Systems, 2025(1):9553189, 2025.
+[21] Nataly R Panczyk, Omer F Erdem, and Majdi I Radaideh. Opening the black-box: Symbolic regression with
+kolmogorov-arnold networks for energy applications. arXiv preprint arXiv:2504.03913, 2025.
+[22] Hanyu Gao, Aoxue Wang, Zhenlin Ouyang, Zhaohui Li, and Xiaoliang Chen. Toward intrinsically interpretable ai
+in optical networks using kan-based symbolic regression. In 2024 IEEE Future Networks World Forum (FNWF),
+pages 26–31. IEEE, 2024.
+[23] Cunyi Liao, Xinyue Ge, Mingjian He, Yi Zheng, and Shouyin Liu. Kan based interpretable radio map prediction
+framework with symbolic data fusion. IEEE Transactions on Cognitive Communications and Networking, 2025.
+[24] Yanhong Peng, Yuxin Wang, Fangchao Hu, Miao He, Zebing Mao, Xia Huang, and Jun Ding. Predictive modeling
+of flexible ehd pumps using kolmogorov–arnold networks. Biomimetic Intelligence and Robotics, 4(4):100184,
+2024.
+[25] Kunhua Zhong, Yuwen Chen, Wenqiang Yang, Jingyu Chen, Peng Tang, Peng Wang, and Jiang Liu. Interpretable
+disease prediction based on kolmogorov-arnold networks. In 2024 IEEE International Conference on Medical
+Artificial Intelligence (MedAI), pages 645–650. IEEE, 2024.
+[26] Isabela Suaza-Sierra, Hernan A Moreno, Luis A De la Fuente, and Thomas M Neeson. Interpretable machine
+learning for reservoir water temperatures in the us red river basin of the south. arXiv preprint arXiv:2511.01837,
+2025.
+[27] Thomas R Harvey, Fabian Ruehle, Kit Fraser-Taliente, and James Halverson. Symbolic regression with multimodal
+large language models and kolmogorov arnold networks. arXiv preprint arXiv:2505.07956, 2025.
+[28] Marco Andrea Bühler and Gonzalo Guillén-Gosálbez. Kan-sr: A kolmogorov-arnold network guided symbolic
+regression framework. arXiv preprint arXiv:2509.10089, 2025.
+[29] James Bagrow and Josh Bongard.
+Softly symbolifying kolmogorov-arnold networks.
+arXiv preprint
+arXiv:2512.07875, 2025.
+[30] Steven L Brunton, Joshua L Proctor, and J Nathan Kutz. Discovering governing equations from data by sparse
+identification of nonlinear dynamical systems. Proceedings of the national academy of sciences, 113(15):3932–
+3937, 2016.
+[31] Sarah Beetham and Jesse Capecelatro. Formulating turbulence closures using sparse regression with embedded
+form invariance. Physical Review Fluids, 5(8):084611, 2020.
+[32] Sarah Beetham, Rodney O Fox, and Jesse Capecelatro. Sparse identification of multiphase turbulence closures for
+coupled fluid–particle flows. Journal of Fluid Mechanics, 914:A11, 2021.
+[33] Niall M Mangan, Steven L Brunton, Joshua L Proctor, and J Nathan Kutz. Inferring biological networks by
+sparse identification of nonlinear dynamics. IEEE Transactions on Molecular, Biological, and Multi-Scale
+Communications, 2(1):52–63, 2017.
+[34] Eurika Kaiser, J Nathan Kutz, and Steven L Brunton. Sparse identification of nonlinear dynamics for model
+predictive control in the low-data limit. Proceedings of the Royal Society A, 474(2219):20180335, 2018.
+[35] Nicholas Zolman, Christian Lagemann, Urban Fasel, J Nathan Kutz, and Steven L Brunton. Sindy-rl for
+interpretable and efficient model-based reinforcement learning. Nature Communications, 16(1):10714, 2025.
+[36] Urban Fasel, J Nathan Kutz, Bingni W Brunton, and Steven L Brunton. Ensemble-sindy: Robust sparse model
+discovery in the low-data, high-noise limit, with active learning and control. Proceedings of the Royal Society A,
+478(2260):20210904, 2022.
+[37] Hayden Schaeffer and Scott G McCalla.
+Sparse model selection via integral terms.
+Physical Review E,
+96(2):023302, 2017.
+[38] Patrick AK Reinbold, Daniel R Gurevich, and Roman O Grigoriev. Using noisy or incomplete data to discover
+models of spatiotemporal dynamics. Physical Review E, 101(1):010203, 2020.
+[39] Daniel A Messenger and David M Bortz. Weak SINDy for partial differential equations. Journal of Computational
+Physics, 443:110525, 2021.
+[40] Daniel A Messenger and David M Bortz. Weak SINDy: Galerkin-based data-driven model selection. Multiscale
+Modeling & Simulation, 19(3):1474–1497, 2021.
+15
+SINDy-KANs
+A PREPRINT
+[41] Pawan Goyal and Peter Benner. Discovery of nonlinear dynamical systems using a runge–kutta inspired dictionary-
+based sparse regression approach. Proceedings of the Royal Society A, 478(2262):20210883, 2022.
+[42] Siva Viknesh, Younes Tatari, Chase Christenson, and Amirhossein Arzani. Adam-sindy: An efficient optimization
+framework for parameterized nonlinear dynamical system identification. Physical Review Research, 8(1):013040,
+2026.
+[43] Diederik P Kingma. Adam: A method for stochastic optimization. arXiv preprint arXiv:1412.6980, 2014.
+[44] Benjamin C Koenig, Suyong Kim, and Sili Deng. Leankan: A parameter-lean kolmogorov-arnold network layer
+with improved memory efficiency and convergence behavior. arXiv preprint arXiv:2502.17844, 2025.
+[45] J.-C. Loiseau and S. L. Brunton. Constrained sparse Galerkin regression. Journal of Fluid Mechanics, 838:42–67,
+2018.
+[46] Alan A Kaptanoglu, Kyle D Morgan, Chris J Hansen, and Steven L Brunton. Physics-constrained, low-dimensional
+models for mhd: First-principles and data-driven approaches. Physical Review E, 104(015206), 2021.
+[47] Jared L Callaham, J-C Loiseau, Georgios Rigas, and Steven L Brunton. Nonlinear stochastic modelling with
+Langevin regression. Proceedings of the Royal Society A, 477(2250):20210092, 2021.
+[48] Yifei Guan, Steven L Brunton, and Igor Novosselov. Sparse nonlinear models of chaotic electroconvection. Royal
+Society Open Science, 8(8):202367, 2021.
+[49] Jean-Christophe Loiseau. Data-driven modeling of the chaotic thermal convection in an annular thermosyphon.
+Theoretical and Computational Fluid Dynamics, 34, 2020.
+[50] Nan Deng, Bernd R Noack, Marek Morzy´nski, and Luc R Pastur. Galerkin force model for transient and
+post-transient dynamics of the fluidic pinball. Journal of Fluid Mechanics, 918, 2021.
+[51] Jared L Callaham, Steven L Brunton, and Jean-Christophe Loiseau. On the role of nonlinear correlations in
+reduced-order modeling. Journal of Fluid Mechanics, 938(A1), 2022.
+[52] Jared L Callaham, Georgios Rigas, Jean-Christophe Loiseau, and Steven L Brunton. An empirical mean-field
+model of symmetry-breaking in a turbulent wake. Science Advances, 8(eabm4786), 2022.
+[53] Laure Zanna and Thomas Bolton. Data-driven equation discovery of ocean mesoscale closures. Geophysical
+Research Letters, 47(17):e2020GL088376, 2020.
+[54] Martin Schmelzer, Richard P Dwight, and Paola Cinnella. Discovery of algebraic Reynolds-stress models using
+sparse symbolic regression. Flow, Turbulence and Combustion, 104(2):579–603, 2020.
+[55] Spyros Rigas and Michalis Papachristou. jaxkan: A unified jax framework for kolmogorov-arnold networks.
+Journal of Open Source Software, 10(108):7830, 2025.
+[56] Spyros Rigas, Dhruv Verma, Georgios Alexandridis, and Yixuan Wang. Initialization schemes for kolmogorov-
+arnold networks: An empirical study. arXiv preprint arXiv:2509.03417, 2025.
+[57] Spyros Rigas, Michalis Papachristou, Theofilos Papadopoulos, Fotios Anagnostopoulos, and Georgios Alexan-
+dridis. Adaptive training of grid-dependent physics-informed Kolmogorov-Arnold networks. IEEE Access,
+2024.
+[58] Spyros Rigas, Fotios Anagnostopoulos, Michalis Papachristou, and Georgios Alexandridis. Towards deep
+physics-informed kolmogorov-arnold networks. arXiv preprint arXiv:2510.23501, 2025.
+[59] Sidharth SS, Keerthana AR, Gokul R, and Anas KP. Chebyshev polynomial-based Kolmogorov-Arnold networks:
+An efficient architecture for nonlinear function approximation. arXiv preprint arXiv:2405.07200, 2024.
+[60] Brian de Silva, Kathleen Champion, Markus Quade, Jean-Christophe Loiseau, J. Kutz, and Steven Brunton.
+Pysindy: A python package for the sparse identification of nonlinear dynamical systems from data. Journal of
+Open Source Software, 5(49):2104, 2020.
+[61] Alan A. Kaptanoglu, Brian M. de Silva, Urban Fasel, Kadierdan Kaheman, Andy J. Goldschmidt, Jared Callaham,
+Charles B. Delahunt, Zachary G. Nicolaou, Kathleen Champion, Jean-Christophe Loiseau, J. Nathan Kutz, and
+Steven L. Brunton. Pysindy: A comprehensive python package for robust sparse system identification. Journal of
+Open Source Software, 7(69):3994, 2022.
+[62] Alan Kaptanoglu, Jacob Stevens-Haas, Kathleen Champion, Brian de Silva, and Markus Quade. pysindy.
+[63] James Bagrow and Josh Bongard. Multi-exit kolmogorov–arnold networks: enhancing accuracy and parsimony.
+Machine Learning: Science and Technology, 6(3):035037, August 2025.
+[64] D. Laszuk. Python implementation of kuramoto systems. http://www.laszukdawid.com/codes, 2017.
+16
+SINDy-KANs
+A PREPRINT
+[65] Amanda A. Howard, Bruno Jacob, Sarah Helfert, Alexander Heinlein, and Panos Stinis. Finite basis kolmogorov-
+arnold networks: domain decomposition for data-driven and physics-informed problems.
+arXiv preprint
+arXiv:2406.19662, 2025.
+[66] Sokratis J Anagnostopoulos, Juan Diego Toscano, Nikolaos Stergiopulos, and George Em Karniadakis. Residual-
+based attention in physics-informed neural networks. Computer Methods in Applied Mechanics and Engineering,
+421:116805, 2024.
+[67] Jamison Moody and James Usevitch. Automatic grid updates for kolmogorov-arnold networks using layer
+histograms. arXiv preprint arXiv:2511.08570, 2025.
+[68] Spyros Rigas and Michalis Papachristou. jaxKAN: A JAX-based implementation of Kolmogorov-Arnold Networks,
+May 2024.
+[69] Spyros Rigas and Michalis Papachristou. jaxKAN: A unified JAX framework for Kolmogorov-Arnold networks.
+Journal of Open Source Software, 10(108):7830, 2025.
+[70] Aaron Meurer, Christopher P. Smith, Mateusz Paprocki, Ondˇrej ˇCertík, Sergey B. Kirpichev, Matthew Rocklin,
+Amit Kumar, Sergiu Ivanov, Jason K. Moore, Sartaj Singh, Thilina Rathnayake, Sean Vig, Brian E. Granger,
+Richard P. Muller, Francesco Bonazzi, Harsh Gupta, Shivam Vats, Fredrik Johansson, Fabian Pedregosa, Matthew J.
+Curry, Andy R. Terrel, Štˇepán Rouˇcka, Ashutosh Saboo, Isuru Fernando, Sumith Kulal, Robert Cimrman, and
+Anthony Scopatz. Sympy: symbolic computing in python. PeerJ Computer Science, 3:e103, January 2017.
+17
+SINDy-KANs
+A PREPRINT
+Kdirect
+Λ
+KΛ (From Sec. 4.1)
+Exact eq. f(x, y) = cos(x2 + y)
+0.99986 cos(0.99996x2 + 0.99995y)
+0.99990 cos(1.00001x2 + 0.99994y)
+Training time (s)
+145
+215
+Table 1: Comparison of SINDy-KANs and direct SINDy-KANs.
+Kdirect
+Λ
+KΛ (From Sec. 4.2.1)
+B =
+"−0.1
+2
+0
+−2
+−0.1
+0
+0
+0
+−0.3
+#
+"−0.0989
+1.9941
+0
+−1.9967
+−0.0989
+0
+0
+0
+−0.2964
+#
+"−0.0993
+1.9946
+0
+−1.9972
+−0.0995
+0
+0
+0
+−0.2811
+#
+Table 2: Comparison of SINDy-KANs and direct SINDy-KANs for the ODE problem in Sec. 4.2.1.
+A
+Direct SINDy-KANs
+In direct SINDy-KANs, the coefficients ΞS are taken as trainable parameters and learned directly (the underlying
+KAN is not trained.) Direct SINDy-KANs can be thought of as a deep version of ADAM-SINDy [42], where instead
+of learning one set of coefficients, the coefficients for each activation function in a KAN are learned through the
+ADAM optimizer. Alternatively, direct SINDy-KANs are directly equivalent to Softly Symbolified Kolmogorov-Arnold
+Networks (S2KANs), with a different method of enforcing sparsity.
+In direct SINDy-KANs, eq. (16) is modified to
+Ldirect = λSLS + λΛLΛ + λ1||Λ||1 + λ2||Λ −ΞS||2
+2
+(39)
+where the term LKAN is removed, since there is no longer an underlying KAN to optimize.
+Direct SINDy-KANs can be significantly faster than indirect SINDy-KANs because the method does not require solving
+a least squares problem at each activation function during each iteration. From Table 1, this corresponds to about a 33%
+reduction in the computational cost for training for the example problem from Sec. 4.1. However, in our tests, direct
+SINDy-KANs can be more challenging to train than SINDy-KANs as presented above. For this reason, we present
+some results with direct SINDy-KANs here, and leave further exploration of the stability and convergence of training
+direct SINDy-KANs for future work.
+We can also consider the ODE case from Sec. 4.2.1, given by
+d
+dt
+"x
+y
+z
+#
+= B
+"x
+y
+z
+#
+(40)
+where
+B =
+"−0.1
+2
+0
+−2
+−0.1
+0
+0
+0
+−0.3
+#
+.
+(41)
+From Table 2, the SINDy-KANs and direct SINDy-KANs have comparable performance.
+18
+SINDy-KANs
+A PREPRINT
+Forward KAN
+
+
+˙x(t)
+
+
+
+˙y(t)
+
+
+
+˙z(t)
+
+Autodiff.
+SINDy-KAN
+
+
+Ξ
+
+
+Figure 13: An illustration of SINDy-KANs for dynamical systems. When training with data, the derivatives can either
+come from a pre-trained “forward KAN” or be found through finite differences or other methods.
+Data X relative noise
+K(X) error
+˙K(X) error
+Learned equation
+0%
+5.688e-08
+–
+dx
+dt = −0.0997x + 2.00044y
+dy
+dt = −2.00017x −0.09963y
+dz
+dt = −0.29567z
+6.27%
+1.255e-05
+0.00014
+dx
+dt = −0.10575x + 1.99087y
+dy
+dt = −2.00280x −0.10184y
+dz
+dt = −0.26376z
+31.37%
+0.00043
+0.0101
+dx
+dt = −0.12326x + 0.10216y3 + 1.93752y + 0.0897z3
+dy
+dt = −2.00878x −0.12078y
+dz
+dt = −0.09579z3 −0.16220z
+Table 3: Relative errors and learned equations for the ODE case from section 4.2.1 with noise added to the training data.
+Errors are computed by the relative mean squared error (MSE).
+B
+SINDy-KANs with noise
+We consider the extension of SINDy-KANs to noisy data in this section using the test case from section 4.2.1. We
+progressively add more noise to the training data for X, which increases the error in prediction of K(X). The accuracy
+of the learned equation depends directly on the derivative. To take the derivative, we first train a KAN to learn the map
+x →X, denoted by K(X) (we call this the “forward KAN”). We then numerically take the derivative of the KAN
+prediction ˙K(X) using the autodifferentiation feature in JAX. An illustration of this process is given in Fig. 13.
+We find that the SINDy-KANs are relatively robust up to 30% relative noise for this problem. At high noise level, higher
+order terms ((·)3) are erroneously learned, which could be alleviated by restricting the space of candidate functions
+for the SINDy-KANs. Alternatively, other methods for approximating the derivative ˙X could be used as have been
+successfully pursued in previous work with SINDy. Results for the case with the most noise are given in fig. 14.
+19
+SINDy-KANs
+A PREPRINT
+Figure 14: Results for the test case from section 4.2.1 with 31.37% relative noise added to the training data (a-c).
+Although the derivatives used to train the SINDy-KAN are noisy (d-f), the SINDy-KAN is able to recover most of the
+equation.
+20
+SINDy-KANs
+A PREPRINT
+C
+Training parameters
+Parameter
+Sec. 4.1
+KAN architecture
+[2, 2, 1]
+g
+[3, 6]
+Learning rate scales
+[1, 0.6]
+Boundaries
+[0, 40k]
+k
+5
+ADAM learning rate
+1e-3
+ADAM iterations
+210k
+λS
+1
+λΛ
+1
+λ1
+0.0001
+λ2
+0.0001
+Table 4: Hyperparameters used for training the results in section 4.1. g is the number of grid points used in the KANs.
+The grid is refined at the schedule denoted by the boundaries, and the learning rate is scaled at the same boundaries. k
+is the polynomial degree for the B-splines.
+21
+SINDy-KANs
+A PREPRINT
+Parameter
+Sec. 4.2.1
+Sec. 4.2.2
+Sec. 4.2.3
+Sec. 4.2.4
+Sec. 4.2.5
+KAN architecture
+[3, 3]
+[2, 2]
+[3, 6, 3]
+[3, 5, 3]
+[3, 6, 3]
+g
+[3]
+[5, 10]
+[5, 7]
+[5, 7, 10]
+[5, 7, 10, 15]
+Learning rate scales
+[1]
+[1, .6]
+[1, .6]
+[1, .6, .6]
+[1, .6, .6, .1]
+Boundaries
+[0]
+[0, 50k]
+[0, 30k]
+[0, 30k, 60k]
+[0, 30k, 60k, 300k]
+k
+5
+5
+5
+5
+5
+ADAM learning rate
+1e-3
+1e-3
+5e-3
+5e-3
+1e-2
+ADAM iterations
+20k
+150k
+50k
+100k
+500k
+λS
+1
+1
+10
+10
+0.1
+λΛ
+1
+1
+10
+100
+10
+λ1
+0.0001
+0.0001
+0.001
+0.001
+0.0001
+λ2
+0.001
+0.001
+0.001
+0.001
+0.0001
+Table 5: Hyperparameters used for training the results in section 4.2. g is the number of grid points used. The grid
+is refined at the schedule denoted by the boundaries, and the learning rate is scaled at the same boundaries. k is the
+polynomial degree for the B-splines used.
+22
