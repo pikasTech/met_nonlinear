@@ -9,15 +9,15 @@
 | 文件 | 说明 |
 |------|------|
 | `.loop/PRINCIPLE.md` | 总目标、GAP定义、任务规范 |
-| `docs/STAGE.md` | 当前阶段状态和管理 |
-| `docs/IDEA.md` | 论文核心思路 |
+| `docs\research\literature\analyze\STAGE.md` | 当前阶段状态和管理 |
+| `docs\IDEA.md` | 论文核心思路 |
 
 ## 必须加载的 skill
   - mdissue
 
 ## 流程
 
-1. **读取 docs/STAGE.md** - 了解当前阶段目标和待处理 mdissue
+1. **读取 docs\research\literature\analyze\STAGE.md** - 了解当前阶段目标和待处理 mdissue
 2. **读取 mdissue** - 从规划者处接收任务，了解具体要求
 3. **执行任务** - 按照 mdissue 描述和 PRINCIPLE.md 中的任务要求执行
 4. **回复 mdissue** - 在 mdissue 中回复执行进度和结果（禁止关闭）
@@ -28,4 +28,4 @@
 
 - 禁止关闭 mdissue
 - 禁止修改 `.loop/` 下的任何文件
-- 禁止修改 `docs/STAGE.md`
+- 禁止修改 `docs\research\literature\analyze\STAGE.md`

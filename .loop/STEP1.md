@@ -9,18 +9,18 @@
 | 文件 | 说明 |
 |------|------|
 | `.loop/PRINCIPLE.md` | 总目标、GAP定义、任务规范 |
-| `docs/STAGE.md` | 当前阶段状态和管理 |
+| `docs\research\literature\analyze\STAGE.md` | 当前阶段状态和管理 |
 
 ## 必须加载的 skill
   - mdissue
 
 ## 流程
 
-1. **更新 `docs/STAGE.md`** - 制定当前阶段目标，指定处理哪些 mdissue
+1. **更新 `docs\research\literature\analyze\STAGE.md`** - 制定当前阶段目标，指定处理哪些 mdissue
 2. **开启 mdissue** - 为每个任务开启 mdissue
 3. **审查回复** - 审查执行者和审查者在 mdissue 中的多轮回复
 4. **关闭 mdissue** - 当审查轮次足够且结果满意时关闭
-5. **继续规划** - 更新 `docs/STAGE.md` 进入下一阶段
+5. **继续规划** - 更新 `docs\research\literature\analyze\STAGE.md` 进入下一阶段
 
 ## 禁止行为
 
