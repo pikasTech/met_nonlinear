@@ -20,6 +20,7 @@
 
 - 输入要求
   - `docs\research\literature\markdown\xxx.md` 论文 markdown 文件
+    - 必须分析**全部的71**个markdown文件，均要生成 `xxx_analyze.md` 分析报告，不得遗漏
 
 - 输出要求
   - 分析结果输出到 `docs\research\literature\analyze` 目录下
@@ -35,3 +36,4 @@
   - 禁止修改 `docs\research\literature\markdown\xxx.md` 的原文
   - 禁止模糊引用，必须精确到行号和段落
   - 禁止无根据的关联分析，必须有明确的论文内容支撑分析
+  - 禁止跳过 `docs\research\literature\markdown\xxx.md` 里面的论文，必须全部分析

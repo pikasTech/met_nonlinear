@@ -2,189 +2,298 @@
 
 ## 当前阶段目标
 
-为 `docs/IDEA.md` 中 "第二稿声称的贡献 3月29修订" 的 11 个 GAP 寻找文献支撑。
+**文献分析阶段复查完成** ✅
 
-## GAP 列表
+根据 PRINCIPLE.md 第32条持续复查已关闭 mdissue，发现新问题：
 
-| GAP | 描述 | 优先级 | 当前覆盖状态 |
-|-----|------|--------|-------------|
-| GAP1 | 机理分析 - 电化学地震检波器温度漂移到非线性漂移 | 高 | ✅ Chikishev(强), Fasmin(弱) |
-| GAP2 | 线性度测量范围偏窄 | 高 | ✅ Chen(中), Schaller(中) |
-| GAP3 | 频率漂移研究 - 温度因素有，震级因素缺乏 | 高 | ✅ Chikishev(强) |
-| GAP4 | 非频率漂移 - 线性模型有，非线性模型没有 | 中 | ✅ Wahlberg(强), Fasmin(中), vanMeer(强) |
-| GAP5 | 频率漂移建模 - 温度因素有，震级因素没有 | 中 | ✅ Wahlberg(弱), vanMeer(弱) |
-| GAP6 | 力反馈限制最大量程，前馈补偿无此限制 | 高 | ⚠️ Fang(有限参考-领域不匹配) |
-| GAP7 | 前馈补偿利用非线性区而非排除 | 高 | ⚠️ Fang(有限参考-领域不匹配) |
-| GAP8 | 频率无关方法 → 频率相关补偿能力 | 中 | ⚠️ Rodriguez(有限参考-领域不匹配) |
-| GAP9 | 频率相关补偿方法 → 计算效率提升 | 中 | ⚠️ Rodriguez(有限参考-领域不匹配) |
-| GAP10 | AFMAE vs 纯 MAE 改进支撑 | 中 | ⚠️ OLMA(有限间接参考), FreDF(有限间接参考) |
-| GAP11 | AFMAE vs 其他频率相关损失函数效率 | 低 | ⚠️ FreDF(有限间接参考), Subich(有限间接参考) |
+| Issue | 文件 | 问题 | 状态 |
+|-------|------|------|------|
+| 038 | Wahlberg_2015_analyze.md | 行号引用错误（第43行：91-95应为107） | 🔄 处理中 |
+| 039 | Schoukens_2017_benchmakrs_analyze.md | 3处P0错误（第97-100行、235-237行、139-141行引用章节标题/错误内容） | 🔄 待分配 |
+| 040 | KFS_Wu_2025_analyze.md | 2处P0错误（第11行引用作者单位、第139-144行Theorem编号错误） | 🔄 待分配 |
+| 041 | Wang_2025_WaveTuner_analyze.md | 2处P0错误（第29-31行偏移10行、第285-291行偏移） | 🔄 待分配 |
+| 042 | PETSA_Medeiros_2025_ICML_analyze.md | 1处P0错误（第139-141行MSE局限性引用） | 🔄 待分配 |
+| 043 | Kuznetsov_2026_LUT_Compiled_KAN_analyze.md | 1处P0错误（第42行第1行vs第9行） | 🔄 待分配 |
+| 044 | Revay_2021_Recurrent_Equilibrium_analyze.md | 1处P0错误（第41行注2应为第317行，偏差276行） | 🔄 待分配 |
+| 045 | Rodriguez_Linhares_2025_Freq_Dependent_Linearizers_analyze.md | 1处P0错误（第53行vs第54行） | 🔄 待分配 |
+| 046 | Willemstein_2023_WH_Piezoresistive_analyze.md | 1处P0错误（第187-188行应为第191-193行） | 🔄 待分配 |
 
-## 已关闭的 mdissue (第一轮)
+**复查进度**：33 篇分析文件中，已复查 33 篇（100%）
 
-| Issue ID | 论文 | 状态 | 支撑 GAP |
-|----------|------|------|----------|
-| 001 | Wahlberg_2015_stochastic_Wiener.md | closed | GAP4, GAP5 |
-| 002 | Chikishev_2019_Temperature_Amplitude_Frequency.md | closed | GAP1, GAP3 |
-| 003 | Fasmin_2017_Nonlinear_Electrochemical.md | closed | GAP1, GAP4 |
-| 004 | Chen_2025_DELOESS_LSTM_Measurement.md | closed | GAP2 |
-| 005 | Schaller_2025_AutoML_Measurement.md | closed | GAP2 |
-| 006 | vanMeer_2025_Hall_sensor_Wiener.md | closed | GAP4, GAP5 |
+### 复查结果汇总
 
-## 已关闭的 mdissue (第二轮)
+| 状态 | 数量 | 文件 |
+|------|------|------|
+| ✅ 准确 | 18 | Chikishev, van_Meer, Fasmin, Lin_effect, iqbal, Voit, Chen, FIRE_He, Yu, Yang, Li_2024, Schaller_2025, Chao_2025, Hoekstra_2026, Cruz_2025_SS_KAN, Subich_2025, OLMA_Shi_2025, Fang_2024 |
+| ⚠️ 轻微不精确 | 7 | Xu_2008, Khodakarami, SAMFre, FreLE, Chakraborty, KFS_Wu(P1), PETSA(P1), Kuznetsov(P1), FreDF_Wang(P1), Hoekstra(P1x2) |
+| ❌ P0 错误 | 8 | Wahlberg(Issue 038), Schoukens(3), KFS_Wu(2), Wang_2025(2), PETSA(1), Kuznetsov(1), Revay(1), Rodriguez(1), Willemstein(1) |
 
-| Issue ID | 论文 | 状态 | 审查轮次 | 主要问题 |
-|----------|------|------|----------|----------|
-| 007 | Rodriguez_Linhares_2025_Freq_Dependent_Linearizers.md | closed | 审查3通过 | 领域不匹配：ADC线性化 ≠ 地震传感器频率漂移，结论为"有限参考" |
-| 008 | Fang_2024_exploiting_nonlinearity.md | closed | 审查3通过 | 领域不匹配：MEMS气体传感器 ≠ 力反馈/馈通控制，结论为"无关联" |
-| 009 | FreDF_Wang_2025_ICLR.md | closed | 审查3通过 | 领域不匹配：标签自相关 ≠ 频率响应漂移，结论为"有限间接参考" |
-| 010 | OLMA_Shi_2025.md | closed | 审查3通过 | 领域不匹配：标签噪声熵减 ≠ 传感器漂移补偿，结论为"有限间接参考" |
-| 011 | Subich_2025.md | closed | 审查3通过 | 领域不匹配：气象球谐AMSE ≠ 地震传感器频域分析，结论为"有限间接参考" |
+### 复查完成列表
 
-## 执行记录
+- [x] Wahlberg_2015_analyze.md - ❌ P0（Issue 038）
+- [x] Chikishev_2019_analyze.md - ✅ 准确
+- [x] van_Meer_2025_Hall_sensor_Wiener_analyze.md - ✅ 准确
+- [x] Xu_2008_Volterra_analyze.md - ⚠️ 轻微不精确
+- [x] Fasmin_2017_Nonlinear_Electrochemical_analyze.md - ✅ 准确
+- [x] Lin_effect_2020_analyze.md - ✅ 准确
+- [x] iqbal_2024_electrochemical_volterra_analyze.md - ✅ 准确
+- [x] Voit_2024_Multikernel_NN_analyze.md - ✅ 准确
+- [x] Chen_2025_DE-LOESS_LSTM_Measurement_analyze.md - ✅ 准确
+- [x] FIRE_He_2025_analyze.md - ✅ 准确
+- [x] Khodakarami_2026_Spectral_Bias_analyze.md - ⚠️ 轻微不精确
+- [x] SAMFre_Wang_2025_analyze.md - ⚠️ 轻微不精确
+- [x] Yu_2025_SATL_analyze.md - ✅ 准确
+- [x] FreLE_Sun_2025_analyze.md - ⚠️ 轻微不精确
+- [x] Chakraborty_2025_BSP_analyze.md - ⚠️ 轻微不精确
+- [x] Yang_2023_Floss_analyze.md - ✅ 准确
+- [x] Li_2024_FTMixer_analyze.md - ✅ 准确
+- [x] Schaller_2025_AutoML_Measurement_analyze.md - ✅ 准确
+- [x] Chao_2025_Dynamic_Measurement_analyze.md - ✅ 准确
+- [x] Schoukens_2017_benchmakrs_analyze.md - ❌ P0（3处，Issue 039）
+- [x] KFS_Wu_2025_analyze.md - ❌ P0（2处，Issue 040）
+- [x] Wang_2025_WaveTuner_analyze.md - ❌ P0（2处，Issue 041）
+- [x] Hoekstra_2026_LFR_Learning_analyze.md - ✅ 准确
+- [x] Cruz_2025_SS_KAN_analyze.md - ✅ 准确
+- [x] PETSA_Medeiros_2025_ICML_analyze.md - ❌ P0（1处，Issue 042）
+- [x] Kuznetsov_2026_LUT_Compiled_KAN_analyze.md - ❌ P0（1处，Issue 043）
+- [x] Revay_2021_Recurrent_Equilibrium_analyze.md - ❌ P0（1处，Issue 044）
+- [x] Subich_2025_analyze.md - ✅ 准确
+- [x] OLMA_Shi_2025_analyze.md - ✅ 准确
+- [x] FreDF_Wang_2025_ICLR_analyze.md - ⚠️ 轻微不精确
+- [x] Fang_2024_exploiting_nonlinearity_analyze.md - ✅ 准确
+- [x] Rodriguez_Linhares_2025_Freq_Dependent_Linearizers_analyze.md - ❌ P0（1处，Issue 045）
+- [x] Willemstein_2023_WH_Piezoresistive_analyze.md - ❌ P0（1处，Issue 046）
 
-### 2026-03-31 第一轮完成
+## 已完成总览
 
-- 关闭 6 个 mdissue (001-006)
-- 第一轮分析完成：Wahlberg, Chikishev, Fasmin, Chen, Schaller, vanMeer
-- GAP1-5 已覆盖，GAP6-11 仍有缺口
+**分析论文总数**: 33 篇  
+**mdissue 状态**: 37 个已关闭，1 个处理中（Issue 038）
 
-### 2026-03-31 第二轮审查意见已发送
+## 第十八阶段结果 (2026-03-31 18:54)
 
-- Issue 007-011 初稿分析已完成，但审查发现严重问题
-- **007 Rodriguez**: 引文完全虚造；论文主题(ADC线性化)与GAP8/9(地震传感器)不匹配
-- **008 Fang**: 引文完全虚造；论文主题(MEMS气体传感器)与GAP6/7(控制理论)不匹配
-- **009 FreDF**: 论文贡献描述错误(GAP10/11)；引文错位
-- **010 OLMA**: 虚造引文(CIFAR-10)；与地震检波器主题关联性不足
-- **011 Subich**: venue存疑；分析深度不足；球谐方法领域适用性不足
-- 所有审查意见(r002)已转发给执行者(r003/r004)
-- **执行者完成重新分析(r005)**
+### Issue 038 创建：复查发现 Wahlberg_2015_analyze.md 行号错误
 
-### 2026-03-31 第二轮审查完成 (r006)
+| 字段 | 内容 |
+|------|------|
+| Issue ID | 038 |
+| 发现时间 | 2026-03-31 18:54 |
+| 严重级别 | P0 |
+| 问题 | 第43行行号引用错误：声称第91-95行，实际在第107行 |
 
-- 审查者对执行者的 r005 分析进行了第二轮审查
-- **共同问题**：所有分析仍缺少精确的行号引文和原文摘录
-- 方向判断基本正确（论文与GAP不匹配），但论证缺乏原文支撑
-- 结论：Issue 007-011 **继续修改** - 提供行号引文或重新寻找相关文献
+**错误详情**：
+- 分析原文：第91-95行描述系统识别任务时，假设非线性函数 f(·) 是已知的
+- 实际情况：第91-95行描述的是任务定义，假设已知在第107行
 
-### 2026-03-31 第三轮审查完成 (r008/r009) - 所有issue已关闭
+**复查进度**：
+- [x] Wahlberg_2015_analyze.md - ❌ 发现 P0 错误
+- [x] Chikishev_2019_analyze.md - ✅ 准确
+- [ ] van_Meer_2025_Hall_sensor_Wiener_analyze.md - 待复查
+- [ ] Xu_2008_Volterra_analyze.md - 待复查
+- [ ] ... (共 33 篇)
 
-- Issue 007 (Rodriguez): 审查通过 ✓ - ADC线性化与地震传感器频率漂移无关
-- Issue 008 (Fang): 审查通过 ✓ - MEMS气体传感器与力反馈/馈通控制无关
-- Issue 009 (FreDF): 审查通过 ✓ - 标签自相关与频率响应漂移无关
-- Issue 010 (OLMA): 审查通过 ✓ - 标签噪声熵减与传感器漂移补偿无关
-- Issue 011 (Subich): 审查通过 ✓ - 气象球谐AMSE与地震传感器频域分析无关
-- 所有issue已关闭（审查轮次：3轮）
-- **关键发现**：这5篇论文分配给GAP6-GAP11存在领域根本性不匹配
+---
 
-## 已关闭的 mdissue (第三轮)
+## 第十七阶段结果 (2026-03-31 18:44)
 
-| Issue ID | 论文 | 审查轮次 | 主要问题 |
-|----------|------|----------|----------|
-| 012 | Revay_2021_Recurrent_Equilibrium.md | r005确认关闭 | 稳定性 ≠ 量程限制；无关联 |
-| 013 | Willemstein_2023_WH_Piezoresistive.md | r005确认关闭 | 温度补偿 ≠ 频率响应补偿；无关联 |
-| 014 | Kuznetsov_2026_LUT_Compiled_KAN.md | r005确认关闭 | LUT编译 ≠ 频率相关补偿效率；无关联 |
-| 015 | PETSA_Medeiros_2025_ICML.md | r005确认关闭 | GAP8无关联；GAP10/11有限参考 |
-| 016 | Hoekstra_2026_LFR_Learning.md | r005确认关闭 | 模型增强 ≠ 力反馈量程限制；无关联 |
-| 017 | Cruz_2025_SS_KAN.md | r005确认关闭 | SS-KAN非线性建模 ≠ 前馈补偿；无关联 |
-| 018 | KFS_Wu_2025.md | r005确认关闭 | 时间序列预测 ≠ 传感器补偿；无关联 |
-| 019 | Wang_2025_WaveTuner.md | r005确认关闭 | 时间序列预测框架 ≠ 传感器补偿；无关联 |
+### Issue 036/037 审查确认完成
 
-## 执行记录
+| Issue | 结论 | 状态 |
+|-------|------|------|
+| Issue 036 | 复查确认分析质量准确，弱覆盖为领域限制 | ✅ 已关闭 |
+| Issue 037 | 搜索 39 篇未分析论文，0 篇相关，GAP5/GAP6-7/GAP8-9 确无文献支撑 | ✅ 已关闭 |
 
-### 2026-03-31 第一轮完成
+### GAP 覆盖最终确认
 
-- 关闭 6 个 mdissue (001-006)
-- 第一轮分析完成：Wahlberg, Chikishev, Fasmin, Chen, Schaller, vanMeer
-- GAP1-5 已覆盖，GAP6-11 仍有缺口
+| GAP | 状态 | 支撑论文 |
+|-----|------|---------|
+| GAP1-4 | ✅ 充分覆盖 | Chikishev, Fasmin, Lin_effect, Wahlberg, vanMeer, Iqbal, Xu_Volterra |
+| GAP5 | ⚠️ 弱覆盖（领域限制） | Wahlberg(弱), vanMeer(弱) |
+| GAP6-7 | ⚠️ 有限参考（领域限制） | Voit_2024(有限参考) |
+| GAP8-9 | ⚠️ 有限参考（领域限制） | Voit_2024(有限参考) |
+| GAP10-11 | ⚠️ 间接到直接 | Li, Khodakarami, FIRE, SAMFre, BSP, Yang, Yu, FreLE |
 
-### 2026-03-31 第二轮审查意见已发送
+### arXiv 搜索执行
 
-- Issue 007-011 初稿分析已完成，但审查发现严重问题
-- **007 Rodriguez**: 引文完全虚造；论文主题(ADC线性化)与GAP8/9(地震传感器)不匹配
-- **008 Fang**: 引文完全虚造；论文主题(MEMS气体传感器)与GAP6/7(控制理论)不匹配
-- **009 FreDF**: 论文贡献描述错误(GAP10/11)；引文错位
-- **010 OLMA**: 虚造引文(CIFAR-10)；与地震检波器主题关联性不足
-- **011 Subich**: venue存疑；分析深度不足；球谐方法领域适用性不足
-- 所有审查意见(r002)已转发给执行者(r003/r004)
-- **执行者完成重新分析(r005)**
+**规划者自主执行 arXiv 搜索**，验证是否可通过外部补充 GAP5/GAP6-7/GAP8-9 相关论文：
 
-### 2026-03-31 第二轮审查完成 (r006)
+| 搜索关键词 | 结果 | 相关论文 |
+|-----------|------|---------|
+| "electrochemical seismic sensor frequency drift amplitude" | 0 | - |
+| "geophone frequency drift magnitude" | 0 | - |
+| "seismic sensor amplitude frequency response" | 0 | - |
+| "KAN frequency domain compensation" | 0 | - |
+| "Wiener system identification neural network" | 5 | Voit(已分析), Revay(已分析), Niu, Beintema, Bruder |
 
-- 审查者对执行者的 r005 分析进行了第二轮审查
-- **共同问题**：所有分析仍缺少精确的行号引文和原文摘录
-- 方向判断基本正确（论文与GAP不匹配），但论证缺乏原文支撑
-- 结论：Issue 007-011 **继续修改** - 提供行号引文或重新寻找相关文献
+**arXiv 搜索结论**：
+- GAP5/GAP6-7/GAP8-9 在 arXiv 中**无直接相关论文**
+- 搜索到的 5 篇 Wiener 系统识别论文中，Voit 和 Revay 已分析，Niu/Beintema/Bruder 领域不匹配
 
-### 2026-03-31 第三轮审查完成 (r008/r009) - 所有issue已关闭
+### 最终决策
 
-- Issue 007 (Rodriguez): 审查通过 ✓ - ADC线性化与地震传感器频率漂移无关
-- Issue 008 (Fang): 审查通过 ✓ - MEMS气体传感器与力反馈/馈通控制无关
-- Issue 009 (FreDF): 审查通过 ✓ - 标签自相关与频率响应漂移无关
-- Issue 010 (OLMA): 审查通过 ✓ - 标签噪声熵减与传感器漂移补偿无关
-- Issue 011 (Subich): 审查通过 ✓ - 气象球谐AMSE与地震传感器频域分析无关
-- 所有issue已关闭（审查轮次：3轮）
-- **关键发现**：这5篇论文分配给GAP6-GAP11存在领域根本性不匹配
+**选择方案B：接受当前弱覆盖现状**
 
-### 2026-03-31 第三轮 (Issue 012-019) 完成
+理由：
+1. markdown 目录 + arXiv 双重搜索确认 GAP5/GAP6-7/GAP8-9 领域文献极度稀缺
+2. 弱覆盖是**领域限制**而非分析质量问题，已通过 Issue 036/037 充分验证
+3. 继续等待/搜索新论文的边际收益极低
 
-- Issue 012-019 完成 r002 审查（第二轮审查）
-- **审查发现与 007-011 类似问题**：领域根本性不匹配
-- r003 已发送给执行者
-- 执行者 r004 确认无关联结论
-- 审查者 r005 确认关闭（8个issue全部关闭）
+### Issue 037 完成
 
-### 2026-03-31 第三轮审查总结
+| 轮次 | 内容 | 状态 |
+|------|------|------|
+| r001-r004 | 执行者完成全量39篇论文检查 | ✅ |
+| r005 | 审查者初步通过 | ✅ |
+| r006 | 规划者发现遗漏5篇 | ⚠️ |
+| r007-r008 | 执行者补充检查5篇遗漏论文 | ✅ |
+| r009 | 规划者最终审查通过 | ✅ |
+| **Issue 037** | **已关闭** | ✅ |
 
-**Issue 012-019 审查结论**：
+### 最终结论
 
-| Issue | 论文 | GAP | 结论 |
-|-------|------|-----|------|
-| 012 | Revay_2021 | GAP6 | 无关联（稳定性 ≠ 量程限制）|
-| 013 | Willemstein_2023 | GAP7 | 无关联（温度补偿 ≠ 频率响应补偿）|
-| 014 | Kuznetsov_2026 | GAP9 | 无关联（LUT优化 ≠ 频率补偿效率）|
-| 015 | PETSA_Medeiros_2025 | GAP8/10/11 | GAP8无关联；GAP10/11有限参考 |
-| 016 | Hoekstra_2026 | GAP6 | 无关联（模型增强 ≠ 力反馈量程）|
-| 017 | Cruz_2025_SS_KAN | GAP7 | 无关联（系统辨识 ≠ 前馈补偿）|
-| 018 | KFS_Wu_2025 | GAP8/9/10 | 无关联（时间序列预测 ≠ 传感器补偿）|
-| 019 | Wang_2025_WaveTuner | GAP8/9 | 无关联（时间序列预测 ≠ 传感器补偿）|
+**GAP5/GAP6-7/GAP8-9 搜索结果**：
+- 共检查 **39 篇**未分析论文
+- **0 篇**发现与 GAP5/GAP6-7/GAP8-9 相关
+- 结论：**markdown 目录中无相关论文支撑 GAP5/GAP6-7/GAP8-9**
 
-**关键发现**：Issue 012-019 与 GAP6-GAP11 存在**领域根本性不匹配**
+**领域限制确认**：
+- MET 电化学地震检波器幅值依赖频率漂移文献在 markdown 库中极度稀缺
+- 建议后续通过 arXiv 新论文补充，或接受弱覆盖现状
 
-## 下一步
+---
 
-1. **GAP6-GAP11 文献重新寻找**
-   - Issue 007-019 共13篇论文均确认"无关联"，GAP6-11 仍无文献支撑
-   - 需要重新寻找真正相关的文献：
-     - **GAP6/GAP7（力反馈/前馈补偿）** ← 需要控制理论论文，讨论力反馈量程限制或前馈补偿架构
-     - **GAP8/GAP9（频率相关补偿）** ← 需要地震仪器领域论文，讨论频率响应漂移补偿
-     - **GAP10/GAP11（AFMAE频域损失）** ← 需要传感器信号处理论文，讨论频域损失函数设计
+## 第十六阶段 (2026-03-31 18:37) - 已压缩
 
-2. **已关闭论文归档参考**
-   - Rodriguez: 仅作为"非线性补偿思路"泛化参考
-   - Fang: 仅作为"非线性物理机制"泛化参考
-   - PETSA/OLMA/Subich: 仅作为"频域损失函数设计思路"有限参考
+详见 git 历史记录。
 
-## 第四轮 (2026-03-31)
+---
 
-### 2026-03-31 14:20 开启新 mdissue
+## 第十五阶段 (2026-03-31 18:23) - 已压缩
 
-发现以下论文可能与 GAP 相关，开启 mdissue 进行分析：
+### Issue 037 审查轮次
 
-| Issue ID | 论文 | 可能支撑 GAP | 原因 |
-|----------|------|-------------|------|
-| 020 | Lin_effect_2020.md | GAP1, GAP2, GAP3 | 温度对电化学地震传感器性能的影响；灵敏度温度漂移模型；补偿后灵敏度变化率从45%降至7% |
-| 021 | iqbal_2024_electrochemical_volterra.md | GAP4 | 电化学传感器的 Volterra 系统分析；非线性系统建模 |
+| 轮次 | 内容 | 状态 |
+|------|------|------|
+| r001 | 执行者报告：检查4篇候选论文，全部无关 | ✅ |
+| r002 | 审查者：搜索范围不足，只检查4篇/39篇未分析 | ⚠️ 成立 |
+| r003 | 规划者指令：要求逐一检查39篇未分析论文 | ⏳ 执行中 |
 
-### 待分析论文
+### 审查意见摘要
 
-尚未分析的论文（按相关性排序）：
+**r002 审查者指出**：
+- 执行者只检查了 4 篇论文，但有 39 篇未分析
+- 缺乏完整的搜索过程记录
+- 缺乏对候选论文选择依据的说明
 
-| 论文 | 可能关联 GAP | 原因 |
-|------|-------------|------|
-| Lin_effect_2020.md | GAP1,2,3 | 电化学地震传感器温度漂移 |
-| iqbal_2024_electrochemical_volterra.md | GAP4 | Volterra 非线性系统建模 |
-| Chao_2025_Dynamic_Measurement.md | GAP1(有限) | 压阻式传感器温度补偿（非电化学）|
-| Xu_2008_Volterra.md | GAP4 | Volterra 级数与非线性系统 |
-| Schoukens_2017_benchmakrs.md | GAP4 | 非线性系统辨识基准 |
-| Gong_2026_SWAN_Seismic.md | GAP8,9(无关联) | 地震数据处理（非传感器补偿）|
+**r003 规划者指令**：
+- 逐一检查 39 篇未分析论文
+- 按 GAP5/GAP6-7/GAP8-9 相关性给出判断
+- 如发现相关论文直接创建新 mdissue
+- 如全部无关，列出完整论文列表和判断理由
+
+### 待执行
+
+1. 执行者完成 39 篇论文的逐一检查
+2. 审查者验证搜索完整性
+3. 如发现相关论文，创建新 mdissue 进行分析
+
+### Issue 037 创建
+
+| 字段 | 内容 |
+|------|------|
+| **Issue ID** | 037 |
+| **标题** | 搜索未分析论文支撑 GAP5/GAP6-9 |
+| **状态** | open |
+| **创建时间** | 2026-03-31 18:13 |
+
+### Issue 037 任务
+
+系统搜索 markdown 目录中尚未分析的论文，寻找可能支撑 GAP5、GAP6、GAP7、GAP8、GAP9 的文献。
+
+**候选论文列表**：
+- Gong_2026_SWAN_Seismic（地震领域 → GAP5）
+- Iacob_2025_Koopman_Schoukens（非线性系统识别 → GAP6-7）
+- Southworth_2026_Multi-layer_KAN（KAN 相关 → GAP8-9）
+- Shuai_2024_PIKAN（PI架构 → GAP5）
+
+### 待执行
+
+1. 搜索 markdown 目录中的未分析论文
+2. 对可能相关的论文进行相关性判断
+3. 如需分析，创建新 mdissue 并执行分析
+
+---
+
+## 第十四阶段结果 (2026-03-31 17:56)
+
+### Issue 036 复查执行
+
+| 文件 | 复查结果 | 执行操作 |
+|------|---------|---------|
+| Wahlberg_2015 | ✅ 分析准确 | 无需修改 |
+| van_Meer_2025 | ✅ 分析准确 | 无需修改 |
+| Xu_2008 | ⚠️ GAP5标注不准确 | ✅ 已修正 index.md（批判→无关） |
+| Voit_2024 | ✅ 有限参考标注合理 | 无需修改 |
+
+### 关键发现
+
+1. **GAP5**: Xu_2008 论文领域不匹配（传感器非线性动态建模 vs 频率漂移研究），原"批判"标注不准确
+2. **GAP6-9**: Voit_2024 "有限参考"标注合理，问题在于论文领域（声学回声消除）与应用场景（地震传感器）的差距
+3. **结论**: 分析质量问题不存在，弱覆盖是领域限制，需要补充更相关的论文
+
+### 弱覆盖分析
+
+| GAP | 弱覆盖原因 | 是否需要新论文 |
+|-----|-----------|--------------|
+| GAP5 | Wahlberg/vanMeer 只建模温度因素，无震级因素 | 可在 markdown 中搜索 |
+| GAP6 | 力反馈限制问题只在地震检波器领域 | 可能无相关论文 |
+| GAP7 | 利用非线性区问题只在地震检波器领域 | 可检查 Fang_2024 |
+| GAP8-9 | 频域方法在地震检波器领域应用有限 | 需具体分析 |
+
+### 待分析新论文
+
+markdown 目录中可能相关的未分析论文：
+- [VIP]Fang_2024_exploiting_nonlinearity（标题暗示利用非线性，可能支撑 GAP7）
+- 其他温度/非线性补偿相关论文
+
+### Issue 036 状态
+
+- **Issue 036**: ✅ 已关闭
+
+## 第十三轮状态 (2026-03-31 17:39)
+
+### 复查发现 P0 问题
+
+**Issue 034**：审查发现 index.md 与实际分析文件 GAP 评估不一致
+
+**Issue 035**：FIRE_He_2025_analyze.md 第40行行号引用错误（749→747）
+
+### 修正执行
+
+| 文件 | 错误 | 正确 | 状态 |
+|------|------|------|------|
+| FIRE_He_2025_analyze.md L40 | Line 749 | Line 747 | ✅ 已修正 |
+| index.md Chakraborty_2025_BSP | GAP10(强), GAP11(强) | GAP10(间接-中), GAP11(间接-低) | ✅ 已修正 |
+| index.md Yu_2025_SATL | GAP10(弱), GAP11(弱) | GAP10(直接-中), GAP11(间接-低) | ✅ 已修正 |
+| index.md FreLE_Sun_2025 | GAP10(中), GAP11(弱) | GAP10(直接-强), GAP11(间接-低) | ✅ 已修正 |
+| index.md SAMFre_Wang_2025 | GAP10(强), GAP11(弱) | GAP10(直接-中), GAP11(间接-低) | ✅ 已修正 |
+| index.md GAP映射表 L56 | SAMFre(强), FreLE(直接-中) | SAMFre(直接-中), FreLE(直接-强) | ✅ 已修正 |
+
+### mdissue 状态
+
+- **Issue 034**: ✅ 已关闭
+- **Issue 035**: ✅ 已关闭
+- **mdissue状态**: 全部 35 个已关闭
+
+### 本轮完成
+
+- Issue 034: ✅ index.md GAP标注修正，关闭
+- Issue 035: ✅ FIRE_He_2025行号修正，关闭
+- **关键发现**：issue描述中存在部分错误（Yu_2025_SATL应标注为直接而非间接），已根据实际conclusion table修正
+
+---
+
+## 历史阶段（已压缩）
+
+### 第十二轮及之前
+
+详见 git 历史记录。

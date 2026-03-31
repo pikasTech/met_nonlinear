@@ -56,7 +56,6 @@
 #### 直接支持
 
 **频域损失 vs MAE的优势**:
-- 第139-141行: "MSE loss is not sufficient for reaching the best performance values in terms of test MSE" (MSE损失不足以在测试MSE方面达到最佳性能值)
 - 第404-406行消融实验: "MSE loss is not sufficient for reaching the best performance values in terms of test MSE, similar to what occurs with only Huber loss"
 - 证明了纯时域损失(MSE/MAE)的局限性，频域损失的加入是必要的
 

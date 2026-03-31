@@ -39,7 +39,7 @@
 #### 直接支持
 
 **计算效率证据**:
-- 第1行: "achieving 99.0% accuracy on the CICIDS2017 DoS dataset"
+- 第9行: "achieving 99.0% accuracy on the CICIDS2017 DoS dataset"
 - 第9行: "achieving 68× speedup at batch size 256 and over 5000× speedup at batch size 1"
 - 第50-51行: "在批量大小为256时实现68×的加速，在批量大小为1时实现超过5000×的加速，且准确率损失最小"
 

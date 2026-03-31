@@ -41,7 +41,7 @@
 **计算效率证据**:
 - 第37-39行: KAN使用可学习激活函数，通过调整基函数控制拟合能力，比MLP更高效
 - 第259-261行: Group-Rational KAN使用有理函数基，比传统B样条更高效
-- 第11行: 实现了出色的预测精度与效率平衡
+- 第9行: 实现了出色的预测精度与效率平衡
 
 **KAN效率特性**:
 - 第93-95行: "KAN...offers learnable activation functions...positioning KAN as a promising alternative to MLPs"
@@ -57,7 +57,7 @@
 - 频域项帮助保留周期性模式，减少估计偏差
 
 **关键引文**:
-> **第139-144行**: Theorem 2表明通过过滤主导频带可以降低噪声比例，提高时间序列质量
+> **第139-144行**: Theorem 1 (Parseval's Theorem) 表明时间序列的总能量在频域和时域中等效
 
 > **第365-367行**: "L_F = (1/K)Σ||F{ỹ(t)}_i - F{y(t)}_i||" (频域对齐损失)
 

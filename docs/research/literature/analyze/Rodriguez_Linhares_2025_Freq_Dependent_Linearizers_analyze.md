@@ -58,7 +58,7 @@
 
 ### 2.3 与地震传感器频率漂移的本质差异
 
-> 来源文件第53行：
+> 来源文件第54行：
 > "For the Hammerstein linearizers (used as the benchmark in this paper, see below) and proposed linearizers, the number of multiplications required is about an order of magnitude lower"
 >
 > 中文翻译：对于哈默斯坦线性化器（在本文中用作基准）和所提出的线性化器，所需的乘法次数大约低一个数量级。

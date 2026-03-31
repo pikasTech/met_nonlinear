@@ -17,6 +17,7 @@
 ## 流程
 
 1. **更新 `docs\research\literature\analyze\STAGE.md`** - 制定当前阶段目标，指定处理哪些 mdissue
+  - STAGE.md 如果超过 200 行要压缩旧的阶段信息，重点在当前阶段
 2. **开启 mdissue** - 为每个任务开启 mdissue
 3. **审查回复** - 审查执行者和审查者在 mdissue 中的多轮回复
 4. **关闭 mdissue** - 当审查轮次足够且结果满意时关闭

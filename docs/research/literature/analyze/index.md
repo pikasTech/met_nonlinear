@@ -6,39 +6,52 @@
 
 | 论文 | 分析文件 | GAP支撑 | 分析日期 |
 |------|---------|---------|---------|
-| Wahlberg_2015_stochastic_Wiener | [Wahlberg_2015_stochastic_Wiener_analyze.md](Wahlberg_2015_stochastic_Wiener_analyze.md) | GAP4, GAP5, Wiener-KAN架构 | 2026-03-31 |
-| Chikishev_2019_Temperature_Amplitude_Frequency | [Chikishev_2019_Temperature_Amplitude_Frequency_analyze.md](Chikishev_2019_Temperature_Amplitude_Frequency_analyze.md) | GAP1, GAP3 | 2026-03-31 |
-| Fasmin_2017_Nonlinear_Electrochemical | [Fasmin_2017_Nonlinear_Electrochemical_analyze.md](Fasmin_2017_Nonlinear_Electrochemical_analyze.md) | GAP1, GAP4 | 2026-03-31 |
-| Chen_2025_DE-LOESS_LSTM_Measurement | [Chen_2025_DE-LOESS_LSTM_Measurement_analyze.md](Chen_2025_DE-LOESS_LSTM_Measurement_analyze.md) | GAP2 | 2026-03-31 |
-| Schaller_2025_AutoML_Measurement | [Schaller_2025_AutoML_Measurement_analyze.md](Schaller_2025_AutoML_Measurement_analyze.md) | GAP2 | 2026-03-31 |
-| van_Meer_2025_Hall_sensor_Wiener | [van_Meer_2025_Hall_sensor_Wiener_analyze.md](van_Meer_2025_Hall_sensor_Wiener_analyze.md) | GAP4, GAP5 | 2026-03-31 |
-| Rodriguez_Linhares_2025_Freq_Dependent_Linearizers | [Rodriguez_Linhares_2025_Freq_Dependent_Linearizers_analyze.md](Rodriguez_Linhares_2025_Freq_Dependent_Linearizers_analyze.md) | GAP8, GAP9 | 2026-03-31 |
-| Fang_2024_exploiting_nonlinearity | [Fang_2024_exploiting_nonlinearity_analyze.md](Fang_2024_exploiting_nonlinearity_analyze.md) | GAP6, GAP7 | 2026-03-31 |
-| FreDF_Wang_2025_ICLR | [FreDF_Wang_2025_ICLR_analyze.md](FreDF_Wang_2025_ICLR_analyze.md) | GAP10, GAP11 | 2026-03-31 |
-| OLMA_Shi_2025 | [OLMA_Shi_2025_analyze.md](OLMA_Shi_2025_analyze.md) | GAP10 | 2026-03-31 |
-| Subich_2025 | [Subich_2025_analyze.md](Subich_2025_analyze.md) | GAP11 | 2026-03-31 |
-| Revay_2021_Recurrent_Equilibrium | [Revay_2021_Recurrent_Equilibrium_analyze.md](Revay_2021_Recurrent_Equilibrium_analyze.md) | GAP6 | 2026-03-31 |
-| Willemstein_2023_WH_Piezoresistive | [Willemstein_2023_WH_Piezoresistive_analyze.md](Willemstein_2023_WH_Piezoresistive_analyze.md) | GAP7 | 2026-03-31 |
-| Kuznetsov_2026_LUT_Compiled_KAN | [Kuznetsov_2026_LUT_Compiled_KAN_analyze.md](Kuznetsov_2026_LUT_Compiled_KAN_analyze.md) | GAP9 | 2026-03-31 |
-| PETSA_Medeiros_2025_ICML | [PETSA_Medeiros_2025_ICML_analyze.md](PETSA_Medeiros_2025_ICML_analyze.md) | GAP8, GAP10, GAP11 | 2026-03-31 |
-| Hoekstra_2026_LFR_Learning | [Hoekstra_2026_LFR_Learning_analyze.md](Hoekstra_2026_LFR_Learning_analyze.md) | GAP6 | 2026-03-31 |
-| Cruz_2025_SS_KAN | [Cruz_2025_SS_KAN_analyze.md](Cruz_2025_SS_KAN_analyze.md) | GAP7 | 2026-03-31 |
-| KFS_Wu_2025 | [KFS_Wu_2025_analyze.md](KFS_Wu_2025_analyze.md) | GAP8, GAP9, GAP10 | 2026-03-31 |
-| Wang_2025_WaveTuner | [Wang_2025_WaveTuner_analyze.md](Wang_2025_WaveTuner_analyze.md) | GAP8, GAP9 | 2026-03-31 |
+| Wahlberg_2015_stochastic_Wiener | [Wahlberg_2015_stochastic_Wiener_analyze.md](Wahlberg_2015_stochastic_Wiener_analyze.md) | GAP4(强), GAP5(弱) | 2026-03-31 |
+| Chikishev_2019_Temperature_Amplitude_Frequency | [Chikishev_2019_Temperature_Amplitude_Frequency_analyze.md](Chikishev_2019_Temperature_Amplitude_Frequency_analyze.md) | GAP1(强), GAP3(强) | 2026-03-31 |
+| Fasmin_2017_Nonlinear_Electrochemical | [Fasmin_2017_Nonlinear_Electrochemical_analyze.md](Fasmin_2017_Nonlinear_Electrochemical_analyze.md) | GAP1(弱), GAP4(中) | 2026-03-31 |
+| Chen_2025_DE-LOESS_LSTM_Measurement | [Chen_2025_DE-LOESS_LSTM_Measurement_analyze.md](Chen_2025_DE-LOESS_LSTM_Measurement_analyze.md) | GAP2(中) | 2026-03-31 |
+| Schaller_2025_AutoML_Measurement | [Schaller_2025_AutoML_Measurement_analyze.md](Schaller_2025_AutoML_Measurement_analyze.md) | GAP2(中) | 2026-03-31 |
+| van_Meer_2025_Hall_sensor_Wiener | [van_Meer_2025_Hall_sensor_Wiener_analyze.md](van_Meer_2025_Hall_sensor_Wiener_analyze.md) | GAP4(强), GAP5(弱) | 2026-03-31 |
+| Lin_effect_2020 | [Lin_effect_2020_analyze.md](Lin_effect_2020_analyze.md) | GAP1(强), GAP2(中), GAP3(批判) | 2026-03-31 |
+| iqbal_2024_electrochemical_volterra | [iqbal_2024_electrochemical_volterra_analyze.md](iqbal_2024_electrochemical_volterra_analyze.md) | GAP4(强) | 2026-03-31 |
+| Xu_2008_Volterra | [Xu_2008_Volterra_analyze.md](Xu_2008_Volterra_analyze.md) | GAP4(强), GAP5(无关) | 2026-03-31 |
+| Rodriguez_Linhares_2025_Freq_Dependent_Linearizers | [Rodriguez_Linhares_2025_Freq_Dependent_Linearizers_analyze.md](Rodriguez_Linhares_2025_Freq_Dependent_Linearizers_analyze.md) | 无关联 | 2026-03-31 |
+| Fang_2024_exploiting_nonlinearity | [Fang_2024_exploiting_nonlinearity_analyze.md](Fang_2024_exploiting_nonlinearity_analyze.md) | 无关联 | 2026-03-31 |
+| FreDF_Wang_2025_ICLR | [FreDF_Wang_2025_ICLR_analyze.md](FreDF_Wang_2025_ICLR_analyze.md) | 无关联 | 2026-03-31 |
+| OLMA_Shi_2025 | [OLMA_Shi_2025_analyze.md](OLMA_Shi_2025_analyze.md) | 无关联 | 2026-03-31 |
+| Subich_2025 | [Subich_2025_analyze.md](Subich_2025_analyze.md) | 无关联 | 2026-03-31 |
+| Revay_2021_Recurrent_Equilibrium | [Revay_2021_Recurrent_Equilibrium_analyze.md](Revay_2021_Recurrent_Equilibrium_analyze.md) | 无关联 | 2026-03-31 |
+| Willemstein_2023_WH_Piezoresistive | [Willemstein_2023_WH_Piezoresistive_analyze.md](Willemstein_2023_WH_Piezoresistive_analyze.md) | 无关联 | 2026-03-31 |
+| Kuznetsov_2026_LUT_Compiled_KAN | [Kuznetsov_2026_LUT_Compiled_KAN_analyze.md](Kuznetsov_2026_LUT_Compiled_KAN_analyze.md) | 无关联 | 2026-03-31 |
+| PETSA_Medeiros_2025_ICML | [PETSA_Medeiros_2025_ICML_analyze.md](PETSA_Medeiros_2025_ICML_analyze.md) | 无关联 | 2026-03-31 |
+| Hoekstra_2026_LFR_Learning | [Hoekstra_2026_LFR_Learning_analyze.md](Hoekstra_2026_LFR_Learning_analyze.md) | 无关联 | 2026-03-31 |
+| Cruz_2025_SS_KAN | [Cruz_2025_SS_KAN_analyze.md](Cruz_2025_SS_KAN_analyze.md) | 无关联 | 2026-03-31 |
+| KFS_Wu_2025 | [KFS_Wu_2025_analyze.md](KFS_Wu_2025_analyze.md) | 无关联 | 2026-03-31 |
+| Wang_2025_WaveTuner | [Wang_2025_WaveTuner_analyze.md](Wang_2025_WaveTuner_analyze.md) | 无关联 | 2026-03-31 |
+| Chao_2025_Dynamic_Measurement | [Chao_2025_Dynamic_Measurement_analyze.md](Chao_2025_Dynamic_Measurement_analyze.md) | 无关联 | 2026-03-31 |
+| Schoukens_2017_benchmakrs | [Schoukens_2017_benchmakrs_analyze.md](Schoukens_2017_benchmakrs_analyze.md) | 无关联 | 2026-03-31 |
+| Voit_2024_Multikernel_NN | [Voit_2024_Multikernel_NN_analyze.md](Voit_2024_Multikernel_NN_analyze.md) | GAP6(有限参考), GAP7(有限参考), GAP8(有限参考), GAP9(有限参考) | 2026-03-31 |
+| Li_2024_FTMixer | [Li_2024_FTMixer_analyze.md](Li_2024_FTMixer_analyze.md) | GAP10(中), GAP11(中) | 2026-03-31 |
+| Khodakarami_2026_Spectral_Bias | [Khodakarami_2026_Spectral_Bias_analyze.md](Khodakarami_2026_Spectral_Bias_analyze.md) | GAP10(间接-中), GAP11(间接-低) | 2026-03-31 |
+| FIRE_He_2025 | [FIRE_He_2025_analyze.md](FIRE_He_2025_analyze.md) | GAP10(中), GAP11(弱) | 2026-03-31 |
+| SAMFre_Wang_2025 | [SAMFre_Wang_2025_analyze.md](SAMFre_Wang_2025_analyze.md) | GAP10(直接-中), GAP11(间接-低) | 2026-03-31 |
+| Chakraborty_2025_BSP | [Chakraborty_2025_BSP_analyze.md](Chakraborty_2025_BSP_analyze.md) | GAP10(间接-中), GAP11(间接-低) | 2026-03-31 |
+| Yang_2023_Floss | [Yang_2023_Floss_analyze.md](Yang_2023_Floss_analyze.md) | GAP10(弱), GAP11(弱) | 2026-03-31 |
+| Yu_2025_SATL | [Yu_2025_SATL_analyze.md](Yu_2025_SATL_analyze.md) | GAP10(直接-中), GAP11(间接-低) | 2026-03-31 |
+| FreLE_Sun_2025 | [FreLE_Sun_2025_analyze.md](FreLE_Sun_2025_analyze.md) | GAP10(直接-强), GAP11(间接-低) | 2026-03-31 |
 
 ## GAP 映射
 
-| GAP | 相关论文 |
-|-----|---------|
-| GAP1 (温度漂移到非线性漂移) | Chikishev_2019_Temperature_Amplitude_Frequency, Fasmin_2017_Nonlinear_Electrochemical |
-| GAP2 (线性度测量范围偏窄) | Chen_2025_DE-LOESS_LSTM_Measurement, Schaller_2025_AutoML_Measurement |
-| GAP3 (温度因素有，震级因素缺乏) | Chikishev_2019_Temperature_Amplitude_Frequency, Wahlberg_2015_stochastic_Wiener |
-| GAP4 (线性模型有，非线性模型没有) | Wahlberg_2015_stochastic_Wiener, Fasmin_2017_Nonlinear_Electrochemical, van_Meer_2025_Hall_sensor_Wiener |
-| GAP5 (温度建模，无震级建模) | Wahlberg_2015_stochastic_Wiener, van_Meer_2025_Hall_sensor_Wiener |
-| GAP6 (力反馈限制最大范围，馈通无限制) | Fang_2024_exploiting_nonlinearity, Revay_2021_Recurrent_Equilibrium, Hoekstra_2026_LFR_Learning |
-| GAP7 (馈通利用非线性区域而非避免) | Fang_2024_exploiting_nonlinearity, Willemstein_2023_WH_Piezoresistive, Cruz_2025_SS_KAN |
-| GAP8 (频率独立→频率依赖补偿) | Rodriguez_Linhares_2025_Freq_Dependent_Linearizers, PETSA_Medeiros_2025_ICML, KFS_Wu_2025, Wang_2025_WaveTuner |
-| GAP9 (频率依赖补偿→计算效率) | Rodriguez_Linhares_2025_Freq_Dependent_Linearizers, Kuznetsov_2026_LUT_Compiled_KAN, KFS_Wu_2025, Wang_2025_WaveTuner |
-| GAP10 (AFMAE vs 纯MAE改进) | FreDF_Wang_2025_ICLR, OLMA_Shi_2025, PETSA_Medeiros_2025_ICML, KFS_Wu_2025 |
-| GAP11 (AFMAE vs 其他频域损失函数) | FreDF_Wang_2025_ICLR, Subich_2025, PETSA_Medeiros_2025_ICML |
-| Wiener-KAN架构选择 | Wahlberg_2015_stochastic_Wiener |
+| GAP | 相关论文 | 状态 |
+|-----|---------|------|
+| GAP1 (温度漂移到非线性漂移) | Chikishev(强), Fasmin(弱), Lin_effect(强) | ✅ 充分覆盖 |
+| GAP2 (线性度测量范围偏窄) | Chen(中), Schaller(中), Lin_effect(中) | ✅ 充分覆盖 |
+| GAP3 (温度因素有，震级因素缺乏) | Chikishev(强), Lin_effect(批判) | ✅ 充分覆盖 |
+| GAP4 (线性模型有，非线性模型没有) | Wahlberg(强), Fasmin(中), vanMeer(强), Iqbal(强), Xu_Volterra(强) | ✅ 充分覆盖 |
+| GAP5 (温度建模，无震级建模) | Wahlberg(弱), vanMeer(弱) | ⚠️ 弱覆盖（Xu_Volterra与频率漂移领域无关） |
+| GAP6 (力反馈限制最大范围) | Voit(有限参考) | ⚠️ 有限参考 |
+| GAP7 (馈通利用非线性区域) | Voit(有限参考) | ⚠️ 有限参考 |
+| GAP8 (频率独立→频率依赖补偿) | Voit(有限参考) | ⚠️ 有限参考 |
+| GAP9 (频率依赖补偿→计算效率) | Voit(有限参考) | ⚠️ 有限参考 |
+| GAP10 (AFMAE vs 纯MAE改进) | Li(中), Khodakarami(间接-中), FIRE(中), SAMFre(直接-中), BSP(间接-中), Yang(间接-低), Yu(直接-中), FreLE(直接-强) | ⚠️ 间接到直接覆盖 |
+| GAP11 (AFMAE vs 其他频域损失函数) | Li(中), Khodakarami(间接-低), FIRE(弱), SAMFre(弱), BSP(间接-低), Yang(间接-低), Yu(间接-低), FreLE(间接-低) | ⚠️ 均为间接或弱支撑 |
