@@ -53,7 +53,10 @@ def dispatch_task(task_type, project_names, args):
         return
     
     for project_name in project_names:
-        project_path = f'projects/{project_name}'
+        if '/' in project_name or '\\' in project_name:
+            project_path = project_name
+        else:
+            project_path = f'projects/{project_name}'
         logger.info(f'Project path: {project_path}')
         
         try:
