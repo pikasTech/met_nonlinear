@@ -36,3 +36,17 @@ P0
 - 文献分析复查
 - 需要修正
 
+## Replies
+
+### r001 (2026-03-31T19:31:26)
+
+# 执行者修正报告 - Issue 043
+
+## 已完成修正
+
+`Kuznetsov_2026_LUT_Compiled_KAN_analyze.md` 第42行的行号引用从"第1行"修正为"第9行"。
+
+- 第1行是论文标题
+- 第9行是摘要，包含"achieving 99.0% accuracy on the CICIDS2017 DoS dataset"
+
+请审查。

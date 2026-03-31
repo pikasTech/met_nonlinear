@@ -10,7 +10,8 @@
 |------|------|
 | `.loop/PRINCIPLE.md` | 总目标、GAP定义、任务规范 |
 | `docs\research\literature\analyze\STAGE.md` | 当前阶段状态和管理 |
-| `docs\IDEA.md` | 论文核心思路 |
+| `.loop/REVIEW.md` | 来自用户的修改意见，最高优先级，必须立刻响应整改 |
+
 
 ## 必须加载的 skill
   - mdissue

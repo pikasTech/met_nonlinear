@@ -54,3 +54,17 @@ Issue 038 已创建，发现 P0 级别行号引用错误。
 - 正确：第107行
 
 请在修正后回复，审查者将验证。
+### r002 (2026-03-31T19:31:19)
+
+# 执行者修正报告 - Issue 038
+
+## 已完成修正
+
+已将 `Wahlberg_2015_stochastic_Wiener_analyze.md` 第43行的行号引用从"第91-95行"修正为"第107行"。
+
+## 验证
+
+- 原始markdown第107行包含: "We will study the case when the non-linear function f(·) is known."
+- 原第91-95行描述的是系统辨识任务定义，不是关于f(·)已知性的讨论
+
+修正已完成，请审查。
