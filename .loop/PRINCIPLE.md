@@ -1,8 +1,11 @@
 ## 总目标
 
-下载 GAP 引用的文献 PDF 并转换为 Markdown 格式，收集到 docs/research/literature/pdfs/ 目录。
+严格审查和修改已收集的 PDF 文献对 GAP 的支撑准确性，纠正错误和不当引用。
 
-**关键要求**：GAP 支撑文档（如 `docs/research/gap/GAP{n}_xxx/index.md`）中的文献条目，除了下载链接外，还必须包含对应的本地 PDF 文件路径（如 `docs/research/literature/pdfs/xxx.pdf`），确保可以离线访问原文。
+**关键要求**：
+1. 所有 PDF 对 GAP 的支撑必须有原文出处（精确到页码、段落或具体数据）
+2. GAP 支撑文档（如 `docs/research/gap/GAP{n}_xxx/index.md`）中的文献条目，除了下载链接外，还必须包含对应的本地 PDF 文件路径（如 `docs/research/literature/pdfs/xxx.pdf`），确保可以离线访问原文
+3. 每项 GAP 声称必须有对应的原文证据，禁止空洞或模糊的支撑
 
 ## 转投后论文定位（核心参考）
 

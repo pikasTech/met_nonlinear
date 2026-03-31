@@ -60,6 +60,19 @@ Wiener-KAN模型和时序信号处理相关文献。
 | New (R110) | MFKAN: Multi-sensor Feature Fusion KAN | Zhang et al. | 2024 | IEEE TIM | 10.1109/TIM.2024.10816210 | High |
 | New (R140) | KAN vs MLP Comparative Study | Gaonkar et al. | 2026 | arXiv | https://arxiv.org/abs/2601.10563 | High |
 | New (R140) | ConTSG-Bench: Conditional Time Series Generation Benchmark | Lan et al. | 2026 | arXiv | https://arxiv.org/abs/2603.04767 | Medium |
+| New (R168) | lmKAN: Lookup Table Multivariate KAN for Efficient Inference | Pozdnyakov, Schwaller | 2025 | arXiv | https://arxiv.org/abs/2509.07103 | High |
+| New (R168) | PolyKAN: GPU-Accelerated Polynomial KAN with CUDA | Yu et al. | 2025 | arXiv | https://arxiv.org/abs/2511.14852 | High |
+| New (R168) | Spectral Gating Networks: Drop-in Spectral Reparameterization | Zhang et al. | 2026 | arXiv | https://arxiv.org/abs/2602.07679 | High |
+| New (R168) | Multi-layer Training of KAN with Grid Interpolation | Southworth, Benner et al. | 2026 | arXiv | https://arxiv.org/abs/2603.04827 | High |
+| New (R168) | GRAU: Generic Reconfigurable Activation Unit for NN Accelerators | Liu et al. | 2026 | arXiv | https://arxiv.org/abs/2602.22352 | High |
+| New (R168) | Physical Analog KAN with Reconfigurable Nonlinear-Processing Units | Escudero et al. | 2026 | arXiv | https://arxiv.org/abs/2602.07518 | High |
+| New (R168) | TruKAN: Truncated Power Functions for Efficient KAN | Bayeh et al. | 2026 | arXiv | https://arxiv.org/abs/2602.03879 | Medium |
+| New (R174) | FEKAN: Feature-Enriched KAN | Menon, Jagtap | 2026 | arXiv | https://arxiv.org/abs/2602.16530 | High |
+| New (R174) | DualFlexKAN: Dual-stage KAN with Independent Function Control | Ortiz et al. | 2026 | arXiv | https://arxiv.org/abs/2603.08583 | High |
+| New (R174) | KAN-AE with Non-Linearity Score for Energy-Efficient Channel Coding | Perre et al. | 2026 | arXiv | https://arxiv.org/abs/2601.01598 | High |
+| New (R174) | KAN-Koopman Based Rapid Detection Of Battery Thermal Anomalies | Ghosh, Roy | 2026 | arXiv | https://arxiv.org/abs/2602.21155 | High |
+| New (R174) | Physics-informed KAN under Ehrenfest constraints | Sen et al. | 2025 | arXiv | https://arxiv.org/abs/2509.18483 | High |
+| New (R174) | Symbolic-KAN: Kolmogorov-Arnold Networks with Discrete Symbolic Structure | Faroughi et al. | 2026 | arXiv | https://arxiv.org/abs/2603.23854 | High |
 
 ## Wiener模型
 
@@ -79,6 +92,20 @@ Wiener-KAN模型和时序信号处理相关文献。
 | New (R130) | Cross-Comparison Neural Architectures for Digital Self-Interference | Enzner, Knaepper, Chinaev | 2025 | arXiv | https://arxiv.org/abs/2507.03109 | High |
 | New (R130) | Low-Complexity Frequency-Dependent Linearizers | Rodriguez Linares, Johansson | 2025 | IEEE Access | https://doi.org/10.1109/ACCESS.2025.3642613 | High |
 | New (R130) | L2RU: Structured SSM with L2-bound | Massai, Zakwan, Ferrari-Trecate | 2025 | arXiv | https://arxiv.org/abs/2503.23818 | High |
+| New (R168) | Wiener System Identification with GOBFs | Tiels, Schoukens | 2014 | Automatica | https://doi.org/10.1016/j.automatica.2014.10.010 | High |
+| New (R168) | Stochastic Wiener System Identification CRLB | Wahlberg, Ljung | 2018 | arXiv | https://arxiv.org/abs/1805.09102 | Medium |
+| New (R168) | Wiener Filtering for Calorimetric Sensor Event Recognition | Alpert et al. | 2016 | J Low Temp Phys | 10.1007/s10909-015-1402-y | Medium |
+| New (R168) | Assumed Density Filtering with Neural Surrogate Models | Kuang, Lin | 2025 | arXiv | https://arxiv.org/abs/2511.09016 | Medium |
+| New (R168) | WaveNet-Volterra ANC: Wiener baseline comparison | Bai et al. | 2025 | arXiv | https://arxiv.org/abs/2504.04450 | Medium |
+
+### Wiener模型传感器应用 (Round 150)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R150) | Soft insoles: 3D printed foam sensors + Wiener-Hammerstein GRF estimation | Willemstein et al. | 2024 | arXiv | https://arxiv.org/abs/2303.04719 | High |
+| New (R174) | Resolvent-based estimation of a turbulent wake | Jung, Towne | 2025 | arXiv | https://arxiv.org/abs/2507.18837 | High |
+| New (R174) | Data-Driven Probabilistic FDI via Density Flow Matching | Ibrahim et al. | 2026 | arXiv | https://arxiv.org/abs/2603.25982 | High |
+| New (R174) | DA-SHRED: Data assimilation and discrepancy modeling | Bao, Kutz | 2025 | arXiv | https://arxiv.org/abs/2512.01170 | High |
 
 ## 频域损失
 
@@ -98,6 +125,48 @@ Wiener-KAN模型和时序信号处理相关文献。
 | New (R60) | AEFIN: Fourier Analysis with Time-Frequency Loss | Xiong, Wen | 2025 | arXiv | https://arxiv.org/abs/2505.06917 | Medium |
 | New (R110) | KFS: Adaptive Frequency Selection KAN | Wu et al. | 2025 | arXiv | https://arxiv.org/abs/2508.00635 | High |
 | New (R110) | FreDN: Spectral Disentanglement | An et al. | 2025 | arXiv | https://arxiv.org/abs/2511.11817 | High |
+| New (R168) | Neural Spectral Methods: Self-supervised spectral domain learning | Du et al. | 2024 | ICLR 2024 | https://arxiv.org/abs/2312.05225 | High |
+| New (R168) | STFT Spectral Loss for Neural Speech Waveform | Takaki et al. | 2018 | ICASSP 2019 | https://arxiv.org/abs/1810.11945 | High |
+| New (R168) | PNP Loss: Perceptual-Neural-Physical Sound Matching | Han et al. | 2023 | arXiv | https://arxiv.org/abs/2301.02886 | High |
+| New (R168) | High Fidelity Neural Audio Compression | Défossez et al. | 2022 | Meta Research | https://arxiv.org/abs/2210.13438 | High |
+| New (R168) | TF-TransUNet1D: Dual-domain loss for ECG denoising | Wang, Li | 2025 | MICCAI DT4H | https://arxiv.org/abs/2508.20398 | High |
+| New (R168) | S3: Spectral-Spatial Structure Loss for Pan-Sharpening | Choi et al. | 2019 | IEEE GRSL | https://arxiv.org/abs/1906.05480 | Medium |
+| New (R168) | AMRConvNet: Time-Frequency joint loss for speech enhancement | Jose | 2020 | IEEE SMC | https://arxiv.org/abs/2008.10233 | Medium |
+| New (R168) | Spectral Operator Learning for parametric PDEs | Choi et al. | 2023 | arXiv | https://arxiv.org/abs/2310.02013 | High |
+| New (R168) | SPECTRA: Spectral-Informed Neural Network for HAR | Gurung et al. | 2026 | arXiv | https://arxiv.org/abs/2603.26482 | Medium |
+
+## 传感器线性度 (Round 173 - GAP2新增)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R173) | Highly-linear transduction via differential architecture | Greco et al. | 2026 | arXiv | https://arxiv.org/abs/2602.24075 | High |
+| New (R173) | Hall sensor self-calibration via Wiener system | van Meer et al. | 2025 | arXiv | https://arxiv.org/abs/2505.04245 | High |
+| New (R173) | LVDT sensor linearity optimization | Kukkadapu et al. | 2026 | arXiv | Pending | High |
+| New (R173) | Rational function fitting for torque sensors | Chen et al. | 2025 | IEEE Sensors | Pending | Medium |
+
+## 前馈vs反馈补偿 (Round 173 - GAP6新增)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R173) | Performance of feedforward and feedback systems for active control | Elliott, Sutton | 1996 | IEEE Trans. Speech Audio | https://doi.org/10.1109/89.496217 | High |
+| New (R173) | Force feedback limitations in MEMS inertial sensors | Deng, Chen | 2014 | IEEE JMEMS | https://doi.org/10.1109/jmems.2013.2292833 | High |
+| New (R173) | Feedforward with force feedback electrochemical seismometer (Open Access) | Li et al. | 2017 | Sensors | https://doi.org/10.3390/s17092103 | High |
+| New (R173) | Quantitative comparison: feedforward exploits nonlinearity | Fang et al. | 2024 | Measurement | https://doi.org/10.1016/j.measurement.2024.117923 | High |
+| New (R173) | Software-based feedforward achieves 10x improvement | Umeda, Kodera | 2025 | arXiv | https://arxiv.org/abs/2512.18252 | High |
+| New (R173) | FRIKAN: Feedforward architecture avoids stability risks | Li et al. | 2025 | IEEE TIM | TIM-25-06440 | High |
+| New (R191) | Feedforward Hysteresis Compensation by Pneumatic Physical Reservoir Computing | Shen et al. | 2024 | arXiv | https://arxiv.org/abs/2409.06961 | High |
+| New (R191) | Deep Learning for Nonlinear Distortions in Parametric Array Loudspeakers | Li et al. | 2024 | arXiv | https://arxiv.org/abs/2412.01092 | High |
+
+## AFMAE频域损失理论 (Round 173 - GAP10/GAP11新增)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| Verified | FreDF: Frequency-enhanced Direct Forecast (ICLR 2025) | Wang et al. | 2025 | ICLR | https://arxiv.org/abs/2402.02399 | High |
+| New (R173) | OLMA: Entropy reduction via DFT | Shi et al. | 2025 | arXiv | https://arxiv.org/abs/2505.11567 | High |
+| New (R173) | Fixing Double Penalty in Weather Forecasting (ICML 2025) | Subich et al. | 2025 | ICML | https://arxiv.org/abs/2501.19374 | High |
+| Verified | FIRE: Unified Frequency Domain Framework | He et al. | 2025 | arXiv | https://arxiv.org/abs/2510.10145 | High |
+| Verified | KFS: Adaptive Frequency Selection KAN | Wu et al. | 2025 | arXiv | https://arxiv.org/abs/2508.00635 | High |
+| Verified | FreLE: Low-Frequency Spectral Bias Correction | Sun et al. | 2025 | arXiv | https://arxiv.org/abs/2510.25800 | High |
 
 ## 漂移补偿
 
@@ -128,6 +197,14 @@ Wiener-KAN模型和时序信号处理相关文献。
 | New (R131) | AutoML for multi-class anomaly compensation of sensor drift | Schaller, Kruse | 2025 | Measurement | https://doi.org/10.1016/j.measurement.2025.117097 | High |
 | New (R131) | Dynamic thermal drift compensation for piezoresistive sensors | Yuan et al. | 2025 | Measurement | https://doi.org/10.1016/j.measurement.2025.118227 | High |
 | New (R131) | DE-LOESS and LSTM-Transformer for MEMS accelerometer temperature compensation | Chen, Wang | 2026 | Measurement | https://doi.org/10.1016/j.measurement.2026.120823 | High |
+
+### 传感器漂移补偿最新论文 (Round 191 - GAP1/3/5)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R191) | Electrochemical seismic sensor temperature characteristics and compensation | Lin et al. | 2020 | Measurement | https://doi.org/10.1016/j.measurement.2020.107887 | High |
+| New (R191) | MET sensor amplitude-frequency response with temperature dependence | Chikishev et al. | 2019 | IEEE Sensors | https://doi.org/10.1109/ICSENS.2019.8909305 | High |
+| New (R191) | FRIKAN: Frequency response based feedforward architecture | Li et al. | 2025 | IEEE TIM | TIM-25-06440 | High |
 
 ## 架构效率
 
@@ -185,6 +262,13 @@ Wiener-KAN模型和时序信号处理相关文献。
 | New (R131) | KANalogue: Fully Analogue In-Memory Neural Computing via Quantum Tunneling | Songyuan Li et al. | 2025 | arXiv | https://arxiv.org/abs/2510.23638 | High |
 | New (R131) | QKAN-LSTM: Quantum-Inspired Kolmogorov-Arnold Long Short-Term Memory | Yu-Chao Hsu et al. | 2025 | arXiv | https://arxiv.org/abs/2512.05049 | High |
 | New (R131) | All-optical Kolmogorov-Arnold Networks | Stroev, Berloff | 2025 | arXiv | https://arxiv.org/abs/2508.17440 | High |
+
+### KAN效率/压缩最新论文 (Round 150)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R150) | SaKAN: Share-activation KAN for Medical Image Segmentation | Qiu et al. | 2026 | arXiv | https://arxiv.org/abs/2602.03156 | High |
+| New (R150) | MetaCluster: Deep Compression of KAN (80x parameter reduction) | Raffel et al. | 2025 | arXiv | https://arxiv.org/abs/2510.19105 | High |
 
 ## 综述报告索引
 
@@ -254,10 +338,24 @@ Wiener-KAN模型和时序信号处理相关文献。
 | 2026-03-30 | docs/research/literature/20260330/STEP1_Round134_Research_Report.md |
 | 2026-03-30 | docs/research/literature/20260330/STEP1_Round135_Research_Report.md |
 | 2026-03-30 | docs/research/literature/20260330/STEP1_Round136_Research_Report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round139_Research_Report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round140_Research_Report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round141_Research_Report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round142_Research_Report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round143_Research_Report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round149_survey_report.md |
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round150_survey_report.md |
 | 2026-03-30 | docs/research/literature/20260330/survey_report.md |
 | 2026-03-30 | docs/research/literature/20260330/analysis_report.md |
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round182_Survey_Report.md |
+| 2026-03-31 | docs/research/literature/20260331/survey_report.md |
+| 2026-03-31 | docs/research/literature/20260331/analysis_report.md |
+| 2026-03-31 | docs/research/literature/20260331/STEP2_Round187_Analysis.md |
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round190_Survey_Report.md |
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round191_Survey_Report.md |
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round192_Survey_Report.md |
 
-  最后更新: 2026-03-30 (第136轮 - 状态确认：文献数据库完整，所有GAP已验证，600+文献覆盖)
+  最后更新: 2026-03-31 (R192 - Round191新发现核实完成，所有论文已收录)
 
 ---
 
@@ -2012,7 +2110,40 @@ Last Updated: 2026-03-28 (Round 22 - KAN效率新论文、频域损失新论文)
 |------|------|----------|
 | 2026-03-30 | docs/research/literature/20260330/STEP1_Round137_Research_Report.md | R137轮次新增文献汇总 |
 
-最后更新: 2026-03-30 (Round 139 - Wiener-KAN混合架构、KAN硬件加速、MEASUREMENT期刊论文补充完成)
+最后更新: 2026-03-30 (Round 165 - 前馈补偿、MEASUREMENT期刊补充调研完成)
+
+---
+
+## STEP1 Round165 新增文献 (2026-03-30)
+
+### 前馈补偿新增论文 (GAP6, GAP7)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| Verified (R165) | Feedforward Compensation of Piezo Nonlinearity for High-Precision AFM | Umeda, Kodera | 2025 | arXiv:2512.18252 | https://arxiv.org/abs/2512.18252 | **High** |
+| New (R165) | Unifying Model-Based and Neural Network Feedforward | Kon et al. | 2022 | IEEE CDC | 10.1109/CDC51059.2022.9992511 | High |
+| New (R165) | Learning for Precision Motion: PGNN Feedforward Control | Kon et al. | 2023 | arXiv | https://arxiv.org/abs/2303.07994 | High |
+| New (R165) | Deep Learning for Nonlinear Distortions in Parametric Array Loudspeakers | Li et al. | 2024 | IEEE SPL | 10.1109/LSP.2025.3553434 | High |
+| New (R165) | Physics-Guided Neural Network Feedforward | Bruijnen et al. | 2022 | arXiv | https://arxiv.org/abs/2209.12489 | High |
+| New (R165) | Run-to-Run Adaptive Nonlinear Feedforward Control | Moya-Lasheras et al. | 2023 | IFAC-PapersOnLine | 10.1016/j.ifacol.2023.10.181 | Medium |
+
+**关键发现**: Umeda & Kodera 2025 直接验证前馈补偿压电非线性，实现亚纳米级精度 (✅已验证，PDF已下载: pdfs/Umeda_2025_Feedforward_Piezo_Nonlinearity.pdf)
+
+### MEASUREMENT期刊补充 (GAP1, GAP4, GAP7)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| Verified (R165) | Utilizing nonlinearity to improve sensitivity | Fang et al. | 2024 | Measurement | 10.1016/j.measurement.2024.116559 | High |
+| New (R165) | AGA-BP neural network temperature compensation | Han et al. | 2020 | Measurement | 10.1016/j.measurement.2020.108019 | High |
+| New (R165) | Sub-pixel shift compensation for temperature-induced drift | Zheng et al. | 2026 | Measurement | 10.1016/j.measurement.2025.119097 | High |
+| New (R165) | Limiting current calculation for oxygen sensor | Geng et al. | 2025 | Measurement | 10.1016/j.measurement.2025.116665 | Medium |
+
+### 第165轮调研报告索引
+
+| 日期 | 路径 | 主要内容 |
+|------|------|----------|
+| 2026-03-30 | docs/research/literature/20260330/STEP1_Round165_Survey_Report.md | 前馈补偿、MEASUREMENT期刊补充调研 |
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round166_Survey_Report.md | Umeda 2025 PDF验证与GAP文档更新 |
 
 ---
 
@@ -2069,4 +2200,74 @@ Last Updated: 2026-03-28 (Round 22 - KAN效率新论文、频域损失新论文)
 |------|------|----------|
 | 2026-03-30 | docs/research/literature/20260330/STEP1_Round139_Research_Report.md | Wiener-KAN混合架构gap确认、KAN硬件加速验证、MEASUREMENT期刊论文 |
 
-最后更新: 2026-03-30 (Round 139 - Wiener-KAN混合架构、KAN硬件加速、MEASUREMENT期刊论文补充完成)
+---
+
+## STEP1 Round 174 新增文献 (2026-03-31)
+
+### KAN 2026最新进展 (P0)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R174) | FEKAN: Feature-Enriched Kolmogorov-Arnold Networks | Menon, Jagtap | 2026 | arXiv | https://arxiv.org/abs/2602.16530 | High |
+| New (R174) | DualFlexKAN: Dual-stage KAN with Independent Function Control | Ortiz et al. | 2026 | arXiv | https://arxiv.org/abs/2603.08583 | High |
+| New (R174) | KAN-AE with Non-Linearity Score for Energy-Efficient Channel Coding | Perre et al. | 2026 | arXiv | https://arxiv.org/abs/2601.01598 | High |
+| New (R174) | Physics-informed KAN under Ehrenfest constraints | Sen et al. | 2025 | arXiv | https://arxiv.org/abs/2509.18483 | High |
+| New (R174) | Symbolic-KAN: Kolmogorov-Arnold Networks with Discrete Symbolic Structure | Faroughi et al. | 2026 | arXiv | https://arxiv.org/abs/2603.23854 | High |
+
+### KAN应用新进展 (P1)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R174) | KAN-Koopman Based Rapid Detection Of Battery Thermal Anomalies | Ghosh, Roy | 2026 | arXiv | https://arxiv.org/abs/2602.21155 | High |
+
+### Wiener模型传感器应用 (P1)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R174) | Resolvent-based estimation of a turbulent wake | Jung, Towne | 2025 | arXiv | https://arxiv.org/abs/2507.18837 | High |
+| New (R174) | Data-Driven Probabilistic FDI via Density Flow Matching | Ibrahim et al. | 2026 | arXiv | https://arxiv.org/abs/2603.25982 | High |
+| New (R174) | DA-SHRED: Data assimilation and discrepancy modeling | Bao, Kutz | 2025 | arXiv | https://arxiv.org/abs/2512.01170 | High |
+
+### MEASUREMENT期刊新文献 (GAP2, GAP3, GAP5)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R174) | ML-enhanced ECG drift calibration | ChakraVarthy et al. | 2026 | Measurement | 10.1080/00032719.2026.2618976 | High |
+| New (R174) | DE-LOESS and LSTM-Transformer for MEMS temperature compensation | Chen, Wang | 2026 | Measurement | 10.1016/j.measurement.2026.120823 | High |
+
+**关键发现**:
+- FEKAN: 特征富化KAN，在PDE和函数逼近任务上优于FastKAN、WavKAN、ReLUKAN等
+- DualFlexKAN: 双阶段KAN，参数量比标准KAN少1-2个数量级
+- KAN-Koopman: KAN用于电池热异常检测
+- Barbieri 2025: Volterra电压互感器谐波补偿，直接关联Wiener/Volterra块模型
+- Lin 2020: 电化学地震传感器温度和幅度频率特性，是MET传感器的直接论文
+
+### 第174轮调研报告索引
+
+| 日期 | 路径 | 主要内容 |
+|------|------|----------|
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round174_Survey_Report.md | KAN 2026最新进展、Wiener传感器应用、MEASUREMENT期刊 |
+
+---
+
+## STEP1 Round 180 新增论文 (2026-03-31)
+
+### PI-KAN物理信息KAN (GAP4, GAP7)
+
+| 状态 | 标题 | 作者 | 年份 | 出版物 | 链接 | 相关性 |
+|------|------|------|------|--------|------|--------|
+| New (R180) | PI-KAN: Vessel Shaft Power and Fuel Consumption Prediction | Mohammed, Marijan, Maressa | 2026 | arXiv | https://arxiv.org/abs/2602.22055 | High |
+
+**PI-KAN关键信息**:
+- 海事船舶应用物理信息KAN，轴功率和燃油消耗预测
+- 不同于Shuai/Li 2024 PIKAN(电力系统)，本论文为海事应用
+- 物理信息KAN整合可解释单变量特征变换与物理信息损失函数
+- 可参考其KAN+物理约束混合架构设计用于GAP4/GAP7
+
+### 第180轮调研报告索引
+
+| 日期 | 路径 | 主要内容 |
+|------|------|----------|
+| 2026-03-31 | docs/research/literature/20260331/STEP1_Round180_Survey_Report.md | Round 178候选论文二次验证、PI-KAN新增 |
+
+最后更新: 2026-03-31 (Round 180 - Round 178候选论文验证完成，PI-KAN新增)

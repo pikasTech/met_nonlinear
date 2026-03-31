@@ -1,8 +1,6 @@
 ## 任务
 
-下载 GAP 引用的文献 PDF 并转换为 Markdown 格式，收集到 `docs/research/literature/pdfs/` 目录。
-
-**关键要求**：GAP 支撑文档（如 `docs/research/gap/GAP{n}_xxx/index.md`）中的文献条目，除了下载链接外，还必须包含对应的本地 PDF 文件路径（如 `docs/research/literature/pdfs/xxx.pdf`），确保可以离线访问原文。
+参见 [.loop/PRINCIPLE.md](./PRINCIPLE.md) 的总目标。
 
 ## 核心原则
 
