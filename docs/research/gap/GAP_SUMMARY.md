@@ -1,6 +1,7 @@
 # GAP 支撑汇总
 
-***状态***: STEP3 R201 完成 (2026-03-31)
+***状态***: STEP3 R202 审查完成 (2026-03-31) - 第二轮分析(007-011)审查发现严重质量问题
+***R202审查更新***: 第二轮5篇论文分析审查完成 - Rodriguez(007):引文虚造; Fang(008):论文主题与GAP6/7完全不匹配; FreDF(009):贡献描述根本错误; OLMA(010):标签噪声主题偏离; Subich(011):venue存疑/深度不足。GAP6/7/8/9/10/11的文献支撑质量存疑，建议重新核实。
 ***R201更新***: STEP3 R201自主运行验证完成，根目录清洁性验证通过，GAP总体支撑矩阵更新为R201
 ***R200更新***: STEP3 自主运行验证完成，根目录清洁性验证通过（-p目录已清理），GAP总体支撑矩阵更新为R200
 ***R198更新***: STEP3 自主运行验证完成，根目录清洁性验证通过，GAP总体支撑矩阵更新为R198
@@ -30,19 +31,19 @@
 
 ## GAP支撑矩阵
 
-| GAP编号 | GAP主题 | 强支撑数 | 弱支撑数 | 缺口等级 | 核心文献 |
-|---------|---------|---------|---------|---------|---------|
-| GAP1 | 电化学地震检波器频响漂移 | 3 | 2 | 低 | Lin 2020, Xu&Wang 2008, Iqbal 2024 |
-| GAP2 | 非频率漂移研究（线性度） | 0 | 2 | 低 | van Meer 2025, Wahlberg 2015 |
-| GAP3 | 频率漂移研究（震级因素） | 6 | 0 | 低 | Bensmann 2010, Fasmin 2017, Lin 2020, Chikishev 2019 |
-| GAP4 | 非频率漂移建模 | 4 | 2 | 低 | Wahlberg 2015, Xu&Wang 2008, Iqbal 2024, Van Mulders 2013 |
-| GAP5 | 频率漂移建模（震级因素） | 4 | 1 | 低 | Lin 2020, van Meer 2025, Bensmann 2010, Fasmin 2017 |
-| GAP6 | 前馈vs反馈补偿（量程限制） | 3 | 2 | 低 | Elliott & Sutton 1996, Li et al. 2017, Deng & Chen 2014 |
-| GAP7 | 前馈补偿利用非线性区 | 2 | 1 | 无 | KAN-FIF (Shen 2026), Fang 2024, van Meer 2025 |
-| GAP8 | 频率相关补偿vs频率无关 | 5 | 0 | 无 | Wang(FreDF) 2025, He(FIRE) 2025, Sun(FreLE) 2025, Subich 2025, Chakraborty 2025 |
-| GAP9 | 频率相关补偿（计算效率） | 5 | 0 | 无 | KAN-FIF (Shen 2026), PolyKAN, lmKAN, GRAU, BitLogic |
-| GAP10 | AFMAE vs 纯MAE | 3 | 0 | 无 | Wang(FreDF) 2025, Shi(OLMA) 2025, Subich 2025 |
-| GAP11 | AFMAE vs 其他频域损失 | 4 | 0 | 无 | Wang(FreDF) 2025, He(FIRE) 2025, Shi(OLMA) 2025, Yu(SATL) 2025 |
+| GAP编号 | GAP主题 | 强支撑数 | 弱支撑数 | 缺口等级 | 核心文献 | 质量评估 |
+|---------|---------|---------|---------|---------|---------|---------|
+| GAP1 | 电化学地震检波器频响漂移 | 3 | 2 | 低 | Lin 2020, Xu&Wang 2008, Iqbal 2024 | ✅ 第一轮通过 |
+| GAP2 | 非频率漂移研究（线性度） | 0 | 2 | 低 | van Meer 2025, Wahlberg 2015 | ✅ 第一轮通过 |
+| GAP3 | 频率漂移研究（震级因素） | 6 | 0 | 低 | Bensmann 2010, Fasmin 2017, Lin 2020, Chikishev 2019 | ✅ 第一轮通过 |
+| GAP4 | 非频率漂移建模 | 4 | 2 | 低 | Wahlberg 2015, Xu&Wang 2008, Iqbal 2024, Van Mulders 2013 | ✅ 第一轮通过 |
+| GAP5 | 频率漂移建模（震级因素） | 4 | 1 | 低 | Lin 2020, van Meer 2025, Bensmann 2010, Fasmin 2017 | ✅ 第一轮通过 |
+| GAP6 | 前馈vs反馈补偿（量程限制） | 3 | 2 | 低→中 | Elliott & Sutton 1996, Li et al. 2017, Deng & Chen 2014, Fang 2024 | ⚠️ Fang分析引文虚造，主题不匹配 |
+| GAP7 | 前馈补偿利用非线性区 | 2 | 1 | 无→低 | KAN-FIF (Shen 2026), Fang 2024, van Meer 2025 | ⚠️ Fang分析引文虚造，主题不匹配 |
+| GAP8 | 频率相关补偿vs频率无关 | 5 | 0 | 无→低 | Wang(FreDF) 2025, He(FIRE) 2025, Sun(FreLE) 2025, Subich 2025, Chakraborty 2025 | ⚠️ Rodriguez分析引文虚造/错位 |
+| GAP9 | 频率相关补偿（计算效率） | 5 | 0 | 无→低 | KAN-FIF (Shen 2026), PolyKAN, lmKAN, GRAU, BitLogic, Rodriguez 2025 | ⚠️ Rodriguez分析引文虚造/错位 |
+| GAP10 | AFMAE vs 纯MAE | 3 | 0 | 无→低 | Wang(FreDF) 2025, Shi(OLMA) 2025, Subich 2025 | ⚠️ FreDF/OLMA贡献描述错误/主题偏离 |
+| GAP11 | AFMAE vs 其他频域损失 | 4 | 0 | 无→低 | Wang(FreDF) 2025, He(FIRE) 2025, Shi(OLMA) 2025, Yu(SATL) 2025 | ⚠️ FreDF/OLMA贡献描述错误；Subich venue存疑/深度不足 |
 
 ---
 
@@ -50,10 +51,12 @@
 
 | 缺口等级 | GAP数量 | 说明 |
 |----------|--------|------|
-| 无缺口 | **5** | **GAP7, GAP8, GAP9**, GAP10, GAP11 |
-| 低缺口 | **6** | GAP1, GAP4, **GAP6**, **GAP3, GAP5 (震级因素)**, **GAP2 (线性度)** |
-| 中缺口 | 0 | ~~GAP2~~ |
-| 高缺口 | 0 | ~~GAP3, GAP5~~ |
+| 无缺口 | **0** | ~~GAP7, GAP8, GAP9, GAP10, GAP11~~ - R202审查后全部降级 |
+| 低缺口 | **6** | GAP1, GAP2, GAP3, GAP4, GAP5 |
+| 中缺口 | **5** | **GAP6, GAP7, GAP8, GAP9, GAP10, GAP11** - R202审查发现文献支撑质量问题 |
+| 高缺口 | 0 | |
+
+> **R202审查说明**: 第二轮5篇论文分析(007-011)审查发现严重质量问题。Rodriguez(007)引文虚造；Fang(008)论文主题与GAP6/7完全不匹配；FreDF(009)贡献描述根本错误；OLMA(010)主题偏离；Subich(011)venue存疑/深度不足。原"无缺口"GAP7/8/9/10/11全部降级，需重新核实。
 
 ---
 
@@ -85,44 +88,53 @@
 **支撑内容**: 幅度-频率特性建模已有参考，但震级/信号幅度对频率漂移的系统建模尚未被研究
 
 ### GAP6: 前馈vs反馈补偿（量程限制）
-**状态**: 低缺口 - Elliott & Sutton (1996)和Deng & Chen (2014)直接证据
-**核心文献**: **Elliott & Sutton 1996** (DOI: 10.1109/89.496217), **Li et al. 2017** (DOI: 10.3390/s17092103), **Deng & Chen 2014** (DOI: 10.1109/jmems.2013.2292833)
+**状态**: 中缺口 - ⚠️ Fang分析引文虚造，需重新核实
+**核心文献**: Elliott & Sutton 1996 (DOI), Li et al. 2017 (DOI), Deng & Chen 2014 (DOI), Fang 2024
 **支撑内容**: 反馈系统因稳定性约束而存在量程限制，前馈系统则不受此限制
+**质量问题**: Fang论文是MEMS气体传感器物理特性研究，与"力反馈vs前馈控制"理论框架完全不匹配；分析引文（第23-31行等）完全虚造
 
 ### GAP7: 前馈补偿利用非线性区
-**状态**: **无缺口** - KAN-FIF验证完成
-**核心文献**: **KAN-FIF (Shen 2026)** (94.8%参数压缩，68.7%推理加速), Fang 2024, van Meer 2025
-**关键数据**: KAN-FIF通过物理约束建模明确利用非线性区，为前馈补偿利用非线性提供直接证据
+**状态**: 中缺口 - ⚠️ Fang分析引文虚造，需重新核实
+**核心文献**: KAN-FIF (Shen 2026), Fang 2024, van Meer 2025
+**关键数据**: KAN-FIF通过物理约束建模明确利用非线性区
+**质量问题**: Fang论文从未讨论"force feedback"或"feedforward control architecture"；分析引文虚造，论文主题与GAP控制理论概念完全脱节
 
 ### GAP8: 频率相关补偿vs频率无关
-**状态**: **无缺口** - 频域损失理论完整
-**核心文献**: Wang(FreDF) 2025, He(FIRE) 2025, Sun(FreLE) 2025, Subich 2025 (ICML), Chakraborty 2025
-**关键数据**: FFT变换渐近解耦不同频率分量；频域损失避免MSE双重惩罚效应
+**状态**: 中缺口 - ⚠️ Rodriguez分析引文虚造/错位
+**核心文献**: Rodriguez 2025, He(FIRE) 2025, Sun(FreLE) 2025, Subich 2025, Chakraborty 2025
+**质量问题**: Rodriguez分析引用"第45-52行"描述频率独立方法局限，但实际内容为公式注释；"第112-120行"为TABLE 1符号定义，无复杂度分析
 
 ### GAP9: 频率相关补偿（计算效率）
-**状态**: **无缺口** - KAN-FIF提供具体量化数据
-**核心文献**: **KAN-FIF (Shen 2026)** (参数-94.8%, 速度+68.7%), PolyKAN, lmKAN, GRAU, BitLogic
-**关键数据**: KAN-FIF提供94.8%参数压缩和68.7%推理加速的具体量化数据
+**状态**: 中缺口 - ⚠️ Rodriguez分析引文虚造/错位
+**核心文献**: KAN-FIF (Shen 2026), Rodriguez 2025, PolyKAN, lmKAN, GRAU, BitLogic
+**质量问题**: O(n²)→O(n)复杂度claim缺乏严格证明；Rodriguez论文仅比较multiplications per sample，未证明算法复杂度类别的改变
 
 ### GAP10: AFMAE vs 纯MAE
-**状态**: **无缺口** - 理论框架完整
-**核心文献**: Wang(FreDF) 2025, Shi(OLMA) 2025, Subich 2025 (ICML)
-**关键数据**: AFMAE公式L^α = α·|F(Ŷ)-F(Y)|₁ + (1-α)·MSE直接匹配FreDF的理论框架
+**状态**: 中缺口 - ⚠️ FreDF/OLMA贡献描述根本错误
+**核心文献**: Wang(FreDF) 2025, Shi(OLMA) 2025, Subich 2025
+**质量问题**: 
+- FreDF核心贡献是"标签自相关偏差"，不是"MAE平等主义"问题；分析引文"第12-20行"内容为label autocorrelation
+- OLMA核心贡献是"标签噪声适应"，不是频率漂移补偿；与地震检波器频率漂移主题关联性存疑
 
 ### GAP11: AFMAE vs 其他频域损失
-**状态**: **无缺口** - AFMAE简单性已有充分支撑
+**状态**: 中缺口 - ⚠️ FreDF/OLMA贡献描述错误；Subich venue存疑/深度不足
 **核心文献**: Wang(FreDF) 2025, He(FIRE) 2025, Shi(OLMA) 2025, Yu(SATL) 2025
-**关键数据**: 其他频域损失均需要FFT/DFT/DWT变换，AFMAE直接计算能量O(n)复杂度更低
+**质量问题**:
+- FreDF论文贡献方向与GAP11关切断裂（标签自相关 vs 频率漂移）
+- Subich论文venue存疑（标注ICML 2025 vs JMLR）；球谐分解方法对地震检波器的适用性未论证
 
 ---
 
 ## 关键行动项
 
-1. **GAP3/GAP5 (震级因素)** - **已解决** - Bensmann 2010, Fasmin 2017, Lin 2020, Chikishev 2019等9篇文献直接支撑
-2. **GAP6 (前馈vs反馈)** - **已解决** - Elliott & Sutton 1996, Li et al. 2017, Deng & Chen 2014提供直接证据
-3. **GAP7/GAP9 (计算效率)** - **已解决** - KAN-FIF (Shen 2026) 提供强支撑和具体量化数据
-4. **GAP8/GAP10/GAP11 (频域损失)** - **已解决** - 理论框架完整
-5. **GAP2 (线性度)** - **已解决** - 低缺口，新增Sundararajan 2023, Li et al. 2025支撑
+1. **GAP3/GAP5 (震级因素)** - ✅ 第一轮通过 - Bensmann 2010, Fasmin 2017, Lin 2020, Chikishev 2019等9篇文献直接支撑
+2. **GAP6 (前馈vs反馈)** - ⚠️ **待重新核实** - Fang 2024分析引文虚造，需寻找真正支撑"力反馈量程限制vs前馈无限制"的文献或重新撰写符合论文实际内容的分析
+3. **GAP7 (前馈利用非线性)** - ⚠️ **待重新核实** - Fang 2024分析引文虚造，论文主题与GAP控制理论框架完全不匹配
+4. **GAP8 (频率相关补偿)** - ⚠️ **待重新核实** - Rodriguez 2025分析引文虚造/错位，需重新核实引文准确性
+5. **GAP9 (计算效率)** - ⚠️ **待重新核实** - Rodriguez 2025分析引文虚造/错位，O(n²)→O(n) claim缺乏严格证明
+6. **GAP10 (AFMAE vs 纯MAE)** - ⚠️ **待重新核实** - FreDF/OLMA贡献描述错误，需重新论证与地震检波器频率漂移的关联性
+7. **GAP11 (AFMAE vs 其他频域损失)** - ⚠️ **待重新核实** - FreDF/OLMA贡献描述错误；Subich venue存疑；球谐分解领域适用性未论证
+8. **GAP2 (线性度)** - ✅ 第一轮通过 - 低缺口，Sundararajan 2023, Li et al. 2025支撑
 
 ---
 
@@ -139,6 +151,7 @@
 
 | 轮次 | 关键分析 |
 |------|---------|
+| R202 | STEP3 R202审查完成：5篇第二轮论文分析(007-011)审查发现严重质量问题。Rodriguez(007):引文虚造；Fang(008):论文主题与GAP6/7完全不匹配；FreDF(009):贡献描述根本错误；OLMA(010):标签噪声主题偏离；Subich(011):venue存疑/深度不足。GAP6/7/8/9/10/11降级为中缺口，GAP_SUMMARY.md质量评估列更新 |
 | R200 | STEP3 R200完成：所有GAP文档状态更新为R200，根目录清洁性验证通过（-p目录已清理） |
 | R198 | STEP3 R198完成：所有GAP文档状态更新为R198，根目录清洁性验证通过 |
 | R197 | STEP3 R197完成：所有GAP文档状态更新为R197，根目录清洁性验证通过 |

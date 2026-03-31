@@ -51,3 +51,4 @@ cache/
 src/inference/results/
 .playwright-cli
 tmp/
+tmp_**
