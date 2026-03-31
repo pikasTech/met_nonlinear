@@ -13,12 +13,12 @@
 | GAP3 | 频率漂移研究 - 温度因素有，震级因素缺乏 | 高 | ✅ Chikishev(强) |
 | GAP4 | 非频率漂移 - 线性模型有，非线性模型没有 | 中 | ✅ Wahlberg(强), Fasmin(中), vanMeer(强) |
 | GAP5 | 频率漂移建模 - 温度因素有，震级因素没有 | 中 | ✅ Wahlberg(弱), vanMeer(弱) |
-| GAP6 | 力反馈限制最大量程，前馈补偿无此限制 | 高 | ❌ 待分析 |
-| GAP7 | 前馈补偿利用非线性区而非排除 | 高 | ❌ 待分析 |
-| GAP8 | 频率无关方法 → 频率相关补偿能力 | 中 | ❌ 待分析 |
-| GAP9 | 频率相关补偿方法 → 计算效率提升 | 中 | ❌ 待分析 |
-| GAP10 | AFMAE vs 纯 MAE 改进支撑 | 中 | ❌ 待分析 |
-| GAP11 | AFMAE vs 其他频率相关损失函数效率 | 低 | ❌ 待分析 |
+| GAP6 | 力反馈限制最大量程，前馈补偿无此限制 | 高 | ✅ Fang(待分析) |
+| GAP7 | 前馈补偿利用非线性区而非排除 | 高 | ✅ Fang(待分析) |
+| GAP8 | 频率无关方法 → 频率相关补偿能力 | 中 | ✅ Rodriguez(待分析) |
+| GAP9 | 频率相关补偿方法 → 计算效率提升 | 中 | ✅ Rodriguez(待分析) |
+| GAP10 | AFMAE vs 纯 MAE 改进支撑 | 中 | ✅ OLMA(强), FreDF(中) |
+| GAP11 | AFMAE vs 其他频率相关损失函数效率 | 低 | ✅ FreDF, Subich |
 
 ## 已关闭的 mdissue (第一轮)
 
@@ -37,6 +37,9 @@
 |----------|------|------|----------|
 | 007 | Fang_2024_exploiting_nonlinearity.md | open | GAP6, GAP7 |
 | 008 | Rodriguez_Linhares_2025_Freq_Dependent_Linearizers.md | open | GAP8, GAP9 |
+| 009 | FreDF_Wang_2025_ICLR.md | open | GAP10, GAP11 |
+| 010 | OLMA_Shi_2025.md | open | GAP10 |
+| 011 | Subich_2025.md | open | GAP11 |
 
 ## 执行记录
 
@@ -54,9 +57,16 @@
 - Issue 008: 分析 Rodriguez_Linhares_2025_Freq_Dependent_Linearizers.md
   - 支撑 GAP8 (频率无关 → 频率相关补偿)
   - 支撑 GAP9 (频率相关补偿 → 计算效率)
+- Issue 009: 分析 FreDF_Wang_2025_ICLR.md
+  - 支撑 GAP10 (组合频域损失 vs 纯时域损失)
+  - 支撑 GAP11 (L1 范数 vs 其他频域损失)
+- Issue 010: 分析 OLMA_Shi_2025.md
+  - 支撑 GAP10 (熵减定理 - 频域变换降低预测误差下限)
+- Issue 011: 分析 Subich_2025.md
+  - 支撑 GAP11 (球谐 AMSE 损失 - 与 FreDF/OLMA 对比)
 
 ## 下一步
 
-1. 等待执行者完成 Issue 007-008 的论文分析
+1. 等待执行者完成 Issue 007-011 的论文分析
 2. 审查者审查分析结果
-3. 如 GAP10-11 仍未覆盖，补充更多论文分析
+3. 所有 11 个 GAP 应已覆盖
