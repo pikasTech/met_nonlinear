@@ -2,76 +2,97 @@
 
 ## 论文基本信息
 
-- **标题**: PIKAN: Phase-Interpolated KAN for Fast and Accurate Frequency Response Modeling（PIKAN：用于快速准确频率响应建模的相位插值KAN）
-- **作者**: Shuai D., Zhang Y., Chen W.
-- **机构**: 未知
+- **标题**: Physics-Informed Kolmogorov-Arnold Networks for Power System Dynamics（用于电力系统动力学的物理信息Kolmogorov-Arnold网络）
+- **作者**: Hang Shuai, Fangxing Li
+- **机构**: University of Tennessee, Knoxville, USA (美国田纳西大学)
 - **发表时间**: 2024年
-- **会议/期刊**: arXiv preprint
+- **会议/期刊**: IEEE
 
 ## 核心内容摘要
 
-本文提出了PIKAN（相位插值KAN），一种用于频率响应建模的KAN变体。主要贡献包括：
-1. 提出相位插值机制来增强KAN在频率域的表达能力
-2. 设计了针对频率响应建模优化的KAN架构
-3. 在合成数据和真实频率响应数据上验证了方法
+本文首次提出了将KAN（Kolmogorov-Arnold Networks）应用于电力系统问题的框架——PIKAN（Physics-Informed KAN）。利用电力系统摇摆方程（swing equation）作为物理约束，设计了一种新型物理信息神经网络用于电力系统动态特性学习和参数辨识。
+
+**主要贡献**：
+1. **首次将KAN应用于电力系统**：提出PIKAN框架，将KAN与PINN架构结合用于电力系统应用
+2. **物理信息学习**：利用swing方程作为物理约束，减少对训练数据的依赖
+3. **参数辨识能力**：能够同时识别电力系统的不确定惯性和阻尼系数
 
 **主要发现**：
-- PIKAN在频率响应建模任务上优于标准KAN和MLP
-- 相位插值机制显著提高了频率域的插值精度
-- PIKAN在保持较高准确率的同时具有较快的推理速度
+- PIKAN在单机无穷大（SMIB）系统和四节点两发电机系统上验证了有效性
+- 比传统基于MLP的PINN使用更少的可学习参数达到更高精度
+- 能够准确识别系统惯性和阻尼系数
 
 ## GAP 关联分析
 
 ### 批判性支持
 
 **论文做了什么**：
-- 本文提出了针对频率响应建模的PIKAN架构
-- 论文设计了相位插值机制来增强KAN的频率域表达能力
-- 论文在频率响应建模任务上验证了方法的有效性
+- 提出了PIKAN用于电力系统动态特性预测
+- 利用swing方程（电力系统基本方程）作为物理约束
+- 验证了KAN替代MLP进行物理信息学习的可行性
+- 展示了参数辨识（惯性、阻尼系数）能力
 
 **论文没有做什么/做好什么**：
-- 本文未涉及**传感器漂移补偿**或**非线性补偿**
-- 本文未讨论**Wiener系统**或**震级相关建模**
-- 本文未验证方法在**电化学地震检波器**数据上的性能
-- 论文未与FRIKAN/Wiener-KAN进行对比实验
+- 本文聚焦于**电力系统动态**，未涉及传感器频率响应补偿
+- 本文验证的是**转子角度和频率预测**，与地震检波器的频率响应漂移任务不同
+- 本文未讨论**Wiener系统**或**电化学检波器的非线性特性**
+- 本文未涉及**震级相关的频率漂移建模**
 
 ### 直接支持
 
 **论文证明了什么**：
-- PIKAN在频率响应建模上优于标准KAN（原文第15-18行）："PIKAN demonstrates superior performance over standard KAN in frequency response modeling tasks"
-- 相位插值机制提高了频率域插值精度（原文第20-23行）："The phase interpolation mechanism significantly improves interpolation accuracy in the frequency domain"
+- KAN可以有效替代MLP进行物理信息学习（原文第31-33行）："KANs...could reach more accurate learning results at the same time...significantly outperforming MLPs"
+- 物理信息框架可以减少对训练数据的依赖（原文第315-317行）："reduce dependency on training data and enhance the accuracy of the learned model"
+- PIKAN以更小的网络规模达到更高精度（原文第57-59行）："PIKANs achieve higher accuracy in solving the DAEs of power systems with smaller neural network size compared to traditional MLP-based PINNs"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
-- 本文的相位插值机制为FRIKAN/Wiener-KAN的频率域建模提供了参考
-- 论文证明了KAN可以有效应用于频率响应建模，这与IDEA中Wiener-KAN用于频率补偿的目标一致
+- 本文证明了KAN可以替代MLP进行物理信息建模，为FRIKAN/Wiener-KAN的架构选择提供了支持
+- 物理约束结合KAN的思路可用于设计具有物理先验的地震检波器补偿模型
+- 参数辨识能力启发我们可能通过学习识别传感器的非线性参数
 
 ## 精确行号引用
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第15-18行 | PIKAN demonstrates superior performance over standard KAN in frequency response modeling tasks |
-| 第20-23行 | The phase interpolation mechanism significantly improves interpolation accuracy in the frequency domain |
-| 第45-50行 | PIKAN architecture with phase interpolation layers |
-| 第80-85行 | Frequency response modeling results comparison |
+| 第1-3行 | 论文标题：Physics-Informed Kolmogorov-Arnold Networks for Power System Dynamics |
+| 第9-11行 | 摘要：首次提出KAN用于电力系统应用，PIKAN用于电力系统动态学习 |
+| 第29-31行 | 现有PINN的局限性：相对L2误差2.37%，参数识别误差约50% |
+| 第31-33行 | KAN优势：可学习激活函数在边上，比MLP更准确 |
+| 第57-59行 | PIKAN优势：更小网络规模达到更高精度 |
+| 第69-71行 | Swing方程描述电力系统动态 |
+| 第315-317行 | PIKAN设计目标：减少数据依赖，提高学习准确性 |
 
 ## 关键原文段落摘录
 
-### 段落1（关于性能优势）
+### 段落1（KAN优势）
 
-> "PIKAN demonstrates superior performance over standard KAN in frequency response modeling tasks, achieving both faster inference and higher accuracy."
-> （第15-18行）
+> "KANs [12], promising alternatives to MLPs, also feature fully-connected network structures. Unlike MLPs, KANs place learnable activation functions on the edges, which usually allow much smaller computation graphs than MLPs and could reach more accurate learning results at the same time."
+> （第31-33行）
 
-### 段落2（关于相位插值）
+### 段落2（PIKAN目标）
 
-> "The phase interpolation mechanism significantly improves interpolation accuracy in the frequency domain, enabling more precise frequency response predictions."
-> （第20-23行）
+> "To reduce the dependency on training data and enhance the accuracy of the learned model in the PINNs-based power system dynamic model, we designed the PIKAN...increased model learning accuracy, and reduced network size without sacrificing accuracy."
+> （第315-317行）
+
+### 段落3（Swing方程）
+
+> "Power system dynamics are described by swing equations. By assuming the bus voltage magnitudes to be 1 per unit (p.u.), and neglecting the reactive power flows, the frequency dynamics of each generator i can be described by..."
+> （第69-71行）
 
 ## 分析结论
 
-**GAP支撑评估**：GAP8（频率相关补偿）- 中等支撑
+**GAP支撑评估**：GAP8（频率相关补偿）- 弱支撑
 
-**理由**：本文提出了针对频率响应建模的PIKAN架构，与IDEA中频率补偿的核心目标高度相关。论文证明了KAN在频率响应建模上的有效性，为FRIKAN/Wiener-KAN的设计提供了直接的技术参考。
+**理由**：
+1. 本文证明了KAN可以有效替代MLP进行物理信息学习，为KAN用于非线性建模提供了参考
+2. 但本文聚焦于电力系统动态，与电化学地震检波器的频率响应补偿任务不同
+3. 本文未涉及Wiener系统或震级相关的频率漂移建模
 
-**对IDEA的总体参考价值**：较高
+**对IDEA的总体参考价值**：中等
 
-本文主要价值在于证明了KAN可以有效应用于频率响应建模任务，并提供了相位插值机制这一技术方案。这与IDEA中Wiener-KAN用于频率补偿的核心目标一致，具有较高的参考价值。
+本文主要价值在于：
+1. 证明了KAN可替代MLP进行物理约束建模
+2. 提供了KAN+物理约束的框架参考
+3. 展示了参数辨识能力，可能用于传感器参数识别
+
+但与FRIKAN/Wiener-KAN在地震检波器频率补偿上的直接关联有限。

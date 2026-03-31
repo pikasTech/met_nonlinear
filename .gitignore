@@ -52,3 +52,6 @@ src/inference/results/
 .playwright-cli
 tmp/
 tmp_**
+temp_**
+.tmp_**
+.temp_**

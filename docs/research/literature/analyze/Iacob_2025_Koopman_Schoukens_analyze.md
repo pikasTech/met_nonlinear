@@ -24,7 +24,7 @@
 **方法论参考**：
 
 - Koopman模型将非线性系统表示为"线性提升状态+非线性可观测量"的组合，这与Wiener模型"线性部分+非线性部分"的结构有概念上的相似性
-- 第143行公式(2.6)展示提升状态 z_{k+1} = A z_k，表明提升后的动力学是线性的
+- 第150-151行公式(2.6)展示提升状态 z_{k+1} = A z_k，表明提升后的动力学是线性的
 
 ### GAP8/GAP9: 频率相关补偿
 
@@ -45,11 +45,11 @@
 
 > "The Koopman framework uses observable functions φ ∈ F to lift the system to a higher dimensional space with linear dynamics."（第91行）
 
-> "the Koopman operator K : F → F associated with (2.1) is defined through: Kφ = φ ○ f"（第97-98行）
+> "the Koopman operator K : F → F associated with (2.1) is defined through: Kφ = φ ○ f"（第98行）
 
 > "The main challenge of the Koopman framework is the selection of the observables, including their number, to obtain a suitable approximation in terms of an appropriate norm (or an exact embedding) of the nonlinear system."（第153行）
 
-> "a linear system whose dynamics are governed by the Koopman matrix A is only equivalent in terms of behavior... if explicit nonlinear constraints are imposed on the initial condition of the lifted state"（第155行）
+> "a linear system whose dynamics are governed by the Koopman matrix A is only equivalent in terms of behavior... if explicit nonlinear constraints are imposed on the initial condition of the lifted state"（第153行）
 
 > "multiple-shooting formulation where, on subsections of the data, multi-step prediction errors can be calculated in parallel. This allows for efficient batch optimization of the network parameters"（第9行，摘要）
 

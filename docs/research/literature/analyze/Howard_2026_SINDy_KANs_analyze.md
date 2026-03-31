@@ -67,7 +67,7 @@ No frequency domain analysis or operations.
 > "The coefficients Ξ_S should be sparse, so ||Ξ_S||_1 is minimized." (Line 297)
 
 ### On comparison with pykan
-> "pykan struggles to learn the composition of functions...pykan misses the x² term, resulting in larger errors overall." (Lines 381-389)
+> "pykan struggles to learn the composition of functions...pykan misses the x² term, resulting in larger errors overall." (Lines 379-389)
 
 ## 5. GAP6 Evidence Strength Assessment
 

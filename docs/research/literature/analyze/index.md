@@ -31,7 +31,7 @@
 | Chao_2025_Dynamic_Measurement | [Chao_2025_Dynamic_Measurement_analyze.md](Chao_2025_Dynamic_Measurement_analyze.md) | 无关联 | 2026-03-31 |
 | Schoukens_2017_benchmakrs | [Schoukens_2017_benchmakrs_analyze.md](Schoukens_2017_benchmakrs_analyze.md) | 无关联 | 2026-03-31 |
 | Voit_2024_Multikernel_NN | [Voit_2024_Multikernel_NN_analyze.md](Voit_2024_Multikernel_NN_analyze.md) | GAP6(有限参考), GAP7(有限参考), GAP8(有限参考), GAP9(有限参考) | 2026-03-31 |
-| Li_2024_FTMixer | [Li_2024_FTMixer_analyze.md](Li_2024_FTMixer_analyze.md) | GAP10(中), GAP11(中) | 2026-03-31 |
+| Li_2024_FTMixer | [Li_2024_FTMixer_analyze.md](Li_2024_FTMixer_analyze.md) | GAP10(方法论-中), GAP11(方法论-低) | 2026-03-31 |
 | Khodakarami_2026_Spectral_Bias | [Khodakarami_2026_Spectral_Bias_analyze.md](Khodakarami_2026_Spectral_Bias_analyze.md) | GAP10(间接-中), GAP11(间接-低) | 2026-03-31 |
 | FIRE_He_2025 | [FIRE_He_2025_analyze.md](FIRE_He_2025_analyze.md) | GAP10(中), GAP11(弱) | 2026-03-31 |
 | SAMFre_Wang_2025 | [SAMFre_Wang_2025_analyze.md](SAMFre_Wang_2025_analyze.md) | GAP10(直接-中), GAP11(间接-低) | 2026-03-31 |
@@ -89,5 +89,5 @@
 | GAP7 (馈通利用非线性区域) | Voit(有限参考), KAN-AD(中), TFKAN(中), KANMixer(中), KANELE(中), Howard-SINDy(中-架构) | ⚠️ 有限参考→中覆盖 |
 | GAP8 (频率独立→频率依赖补偿) | Voit(有限参考), KAN-AD(弱), TFKAN(强-频域KAN) | ⚠️ 有限参考→强证据 |
 | GAP9 (频率依赖补偿→计算效率) | Voit(有限参考), KAN-AD(强-参数<1000,推理加速50%), KANMixer(中-参数效率), KANELE(强-2700x加速,4000x资源减少) | ✅ 充分覆盖 |
-| GAP10 (AFMAE vs 纯MAE改进) | Li(中), Khodakarami(间接-中), FIRE(中), SAMFre(直接-中), BSP(间接-中), Yang(间接-低), Yu(直接-中), FreLE(直接-强) | ⚠️ 间接到直接覆盖 |
-| GAP11 (AFMAE vs 其他频域损失函数) | Li(中), Khodakarami(间接-低), FIRE(弱), SAMFre(弱), BSP(间接-低), Yang(间接-低), Yu(间接-低), FreLE(间接-低) | ⚠️ 均为间接或弱支撑 |
+| GAP10 (AFMAE vs 纯MAE改进) | Li(方法论-中), Khodakarami(间接-中), FIRE(中), SAMFre(直接-中), BSP(间接-中), Yang(间接-低), Yu(直接-中), FreLE(直接-强) | ⚠️ 间接到直接覆盖 |
+| GAP11 (AFMAE vs 其他频域损失函数) | Li(方法论-低), Khodakarami(间接-低), FIRE(弱), SAMFre(弱), BSP(间接-低), Yang(间接-低), Yu(间接-低), FreLE(间接-低) | ⚠️ 均为间接或弱支撑 |

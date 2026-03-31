@@ -22,7 +22,7 @@ The frequency domain loss uses FFT to capture dominant periodic patterns and sup
 
 **Critical Support**: Moderate direct support
 
-- **Lines 365-367 (Equation 8)**: Frequency domain loss definition.
+- **Line 366 (Equation 8)**: Frequency domain loss definition.
   > "L_freq = (1/sqrt(T)) (L_dom + L_noise)"
 
 - **Lines 333-335**: FFT is used to capture periodic patterns.
@@ -54,13 +54,13 @@ The paper compares SATL (which includes FFT-based loss) with other loss function
 1. **Lines 333-335**: FFT for frequency transformation.
    > "The transformation to the frequency domain is performed using the Fast Fourier Transform (FFT)... we select the top-k frequencies from FFT(y), where k is proportional to the sequence length."
 
-2. **Lines 343-345 (Equation 6)**: Dominant frequency loss.
+2. **Line 344 (Equation 6)**: Dominant frequency loss.
    > "L_dom = sum_{f in F_dom} |FFT(x)_f - FFT(y)_f|"
 
-3. **Lines 357-359 (Equation 7)**: Noise suppression loss.
+3. **Line 358 (Equation 7)**: Noise suppression loss.
    > "L_noise = sum_{f not in F_dom} |FFT(x)_f|"
 
-4. **Lines 365-367 (Equation 8)**: Combined frequency loss.
+4. **Line 366 (Equation 8)**: Combined frequency loss.
    > "L_freq = (1/sqrt(T)) (L_dom + L_noise)"
 
 5. **Lines 501-503**: SATL outperforms MSE.

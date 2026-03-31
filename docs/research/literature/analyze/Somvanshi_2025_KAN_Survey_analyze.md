@@ -39,8 +39,7 @@
 ### 直接支持
 
 **论文证明了什么**：
-- KAN在可解释性方面优于MLP（原文第25-28行）："KAN provides better interpretability compared to traditional MLPs through its node-wise activation functions"
-- KAN在时间序列任务上表现出色（原文第45-48行）："KAN has shown promising results in time series analysis tasks"
+- KAN在时间序列预测方面有应用（原文第391-393行）："T-KAN专为单变量时间序列数据设计，利用可学习的单变量激活函数动态适应非线性关系并捕捉复杂的时间模式"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的综述为理解KAN的优势和局限性提供了全面视角
@@ -50,22 +49,17 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第25-28行 | KAN provides better interpretability compared to traditional MLPs |
-| 第45-48行 | KAN has shown promising results in time series analysis tasks |
-| 第60-65行 | Comparison of KAN variants: Efficient KAN, Chebyshev KAN, Wav-KAN |
-| 第120-125行 | KAN applications in medical diagnosis |
+| 第71行 | KAN通过采用可学习的样条参数化函数而非固定激活函数，实现灵活可解释的高维函数表示 |
+| 第391-393行 | T-KAN专为时间序列设计，利用可学习激活函数捕捉时间模式 |
+| 第95-97行 | KAN通过基于边缘的激活增强模块化和可解释性 |
+| 第647-649行 | KAN在时间序列预测中以更少参数优于传统模型 |
 
 ## 关键原文段落摘录
 
-### 段落1（关于可解释性）
+### 段落1（关于时间序列应用）
 
-> "KAN provides better interpretability compared to traditional MLPs through its node-wise activation functions, enabling clearer understanding of the learned representations."
-> （第25-28行）
-
-### 段落2（关于时间序列应用）
-
-> "KAN has shown promising results in time series analysis tasks, demonstrating competitive performance against state-of-the-art methods."
-> （第45-48行）
+> "T-KAN, designed for univariate time series data, utilizes learnable univariate activation functions that dynamically adapt to nonlinear relationships and capture complex temporal patterns, allowing it to effectively handle variations across time."
+> （第391-393行）
 
 ## 分析结论
 

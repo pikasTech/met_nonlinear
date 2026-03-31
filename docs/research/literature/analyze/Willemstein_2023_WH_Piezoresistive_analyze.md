@@ -38,14 +38,14 @@
 
 **方法论支撑**:
 - 第153-155行: "使用Wiener-Hammerstein模型(WH模型)来补偿传感致动器的非线性滞后现象"
-- 第191-193行: "线性和非线性函数的组合使WH模型能够捕捉电阻变化和应变之间固有的非线性耦合，同时也考虑变形历史(以补偿滞后现象)"
+- 第153行: "线性和非线性函数的组合使WH模型能够捕捉电阻变化和应变之间固有的非线性耦合，同时也考虑变形历史(以补偿滞后现象)"
 - WH模型结构: 输入→线性系统H1→静态非线性g(.)→线性系统H2→输出，恰好对应Wiener结构
 
 **关键引文**:
 > **第153-155行**: "a system identification approach is used to identify a model that can estimate the strain of the actuator based on the resistance change over time. Specifically, the usage of a Wiener-Hammerstein model (WH model)"
 > (使用系统识别方法来识别一个可以根据电阻随时间变化估计致动器应变的模型。具体来说，研究了维纳-哈默斯坦模型(WH模型)的使用。)
 
-> **第187-188行**: "The combination of linear and nonlinear functions allows the WH model to capture the inherent nonlinear couplings between resistance change and strain but also take the deformation history into account (to compensate for hysteresis)."
+> **第153行**: "The combination of linear and nonlinear functions allows the WH model to capture the inherent nonlinear couplings between resistance change and strain but also take the deformation history into account (to compensate for hysteresis)."
 > (线性和非线性函数的组合使WH模型能够捕捉电阻变化和应变之间固有的非线性耦合，同时也考虑变形历史(以补偿滞后现象)。)
 
 > **第67-69行摘要**: "identified Wiener-Hammerstein (WH) models estimate the strain by compensating the nonlinear hysteresis of the sensorized actuator."
@@ -66,3 +66,9 @@
 - 架构差异：系统辨识/后验估计 vs 前馈补偿
 
 **GAP7结论**: 可作为方法论参考，支撑"Wiener-Hammerstein结构可以有效利用非线性"的论点，但需配合地震检波器领域文献使用。
+
+---
+
+## 统一结论
+
+**方法论相关** - 论文的方法论(Wiener-Hammerstein模型利用非线性滞后)与GAP7直接相关，为前馈补偿架构设计提供方法论参考。

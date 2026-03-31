@@ -20,6 +20,10 @@
   
 - 规划要求
   - 每个论文对应一个 mdissue
+  - 保持打开的 mdissue 在 8 个左右
+    - 如果少于 8 个，应该积极发现新的问题和任务，已经分析的论文也可以复查
+      - 复查任务必须重新打开已经关闭的 issue 或者创建新的 issue
+    - 如果多于 8 个，则不开启新的 issue，集中解决当前的 issue，但是也不能为了减少数量而草率关闭 issue，必须等审查者完全满意才关闭
 
 - 输入要求
   - `docs\research\literature\markdown\xxx.md` 论文 markdown 文件

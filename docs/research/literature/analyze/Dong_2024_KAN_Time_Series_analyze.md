@@ -9,7 +9,7 @@
 
 ## 核心内容摘要
 
-本文在128个UCR单变量时间序列数据集上对KAN、MLP及其混合结构进行了公平比较。研究发现：(1) KAN能达到与MLP相当甚至略好的性能；(2) 消融研究表明输出主要由基函数(base)而非B样条函数决定；(3) KAN由于较低的李普希茨常数(Lipschitz constant)表现出更优的对抗鲁棒性；(4) 较大网格尺寸的KAN虽然有更大的利普希茨常数，但也表现出更强的鲁棒性。
+本文在128个UCR单变量时间序列数据集上对KAN、MLP及其混合结构进行了公平比较。研究发现：(1) KAN能达到与MLP相当甚至略好的性能；(2) 消融研究表明输出主要由基函数(base)而非B样条函数决定；(3) KAN和MLP_KAN在对抗攻击中表现出显著鲁棒性优势，其利普希茨常数较小（第301-303行），低网格尺寸的KAN因平滑平坦特性使输入微小变化难以导致输出显著变化；(4) 较大网格尺寸的KAN虽然有更大的利普希茨常数，但也表现出更强的鲁棒性（第311-313行）。
 
 ## GAP 关联分析
 
@@ -34,7 +34,7 @@
 
 **直接支持**：
 
-- **非线性建模证据**：第285-291行分析表明B样条能够捕捉Duffing振子的三次刚度非线性，证明KAN可以有效建模非线性动态。
+- **非线性建模观察**：第283-285行讨论了B样条函数输出值相对较小且集中于零附近的现象，第285-291行进一步分析了网格尺寸对优化难度的影响。这些发现表明，B样条函数对最终决策的贡献小于基函数，过大的网格尺寸会导致优化困难。这与Wiener模型中非线性部分需要合理设计的观点相呼应。
 - **结构类比**：KAN的可学习边激活函数与Wiener模型的结构化非线性函数组件在概念上相似，支撑"保留线性结构+KAN建模非线性"的组合方法。
 
 ### GAP8: 频率无关 vs 频率相关补偿方法
@@ -65,17 +65,22 @@
 
 > "KAN use 3rd-order B-spline (k=3) functions for fitting, which allows learning sophisticated activation function by controlling the weight of each basis."（第139-140行）
 
-> "Our findings revealed that KAN exhibited superior adversarial robustness due to its lower Lipschitz constant."（第291-292行）
+> "KAN demonstrate better robustness compared to MLP."（第291-292行）
 
-> "This indicates that the fitting capability of KAN largely comes from the simple activation functions, suggesting that complex B-spline combinations may lead to optimization difficulties."（第273-274行）
+> "excessively large grid size leads to performance degradation, regardless of whether it is in the complete KAN or without the base function."（第273-274行）
 
 ## GAP支撑结论
 
-**GAP6/GAP7支撑评估**: 中等相关性
+**GAP6/GAP7支撑评估**: 弱相关性
+
+**关键区分**：
+- GAP6/GAP7是**关于传感器/执行器补偿架构**的讨论，核心概念是：力反馈会饱和（限制量程），而前馈补偿可以进入非线性区工作从而扩展量程
+- 该论文是**时间序列分类**任务，未讨论：力反馈vs前馈架构、量程限制问题、非线性区域利用vs排除的补偿策略
+- KAN展示的非线性函数建模能力（通过B样条/基函数组合）与"前馈补偿利用非线性区域"是**两个不同层面的概念**
 
 **支撑内容**:
 1. 证明了KAN可以通过可学习激活函数有效建模非线性动态
-2. 展示了B样条函数能够捕捉三次刚度等非线性特征
+2. 展示了B样条函数的非线性变换能力（公式5，第139-145行）
 3. 为Wiener-KAN架构组合"线性结构+KAN非线性"提供方法论支撑
 
 **局限性**:

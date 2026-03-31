@@ -26,9 +26,9 @@ The paper focuses on **how optimization methods and loss functions** affect spec
 
 - **Lines 49-51**: Discusses that "spectral bias also plays a central role in the performance of neural operators" and mentions that spectral-aware loss formulations can effectively mitigate spectral bias without increasing inference cost.
   
-- **Lines 121-123**: Through Parseval's theorem, shows that L² neural training loss relates to Fourier coefficients, explaining why low-frequency modes have larger energies and contribute more to total loss. This theoretical foundation explains **why frequency-domain losses would improve over pure MAE**.
+- **Lines 121-123 / Line 113**: Through Parseval's theorem (Line 113), shows that L² neural training loss relates to Fourier coefficients, explaining why low-frequency modes have larger energies and contribute more to total loss. This theoretical foundation explains **why frequency-domain losses would improve over pure MAE**.
 
-- **Lines 53-55**: Mentions that spectral bias mitigation strategies include "spectral-aware loss formulations" for operator learning.
+- **Line 17**: Mentions that spectral bias mitigation strategies include "spectral-aware loss formulations" for operator learning.
 
 **Direct Support**: Limited
 
@@ -44,7 +44,7 @@ The paper provides theoretical support for why frequency-domain losses would be 
 
 - **Line 85**: Mentions "different loss functions (e.g., MSE and **binned spectral loss [26]**)" for neural operators in solving high-frequency problems.
 
-- **Lines 177-186** (Section 2.3): Describes spectral bias metrics and the binned spectral loss approach. The binned spectral loss is a form of frequency-domain loss that groups frequencies into bins.
+- **Line 317** (Section 2.3): Describes spectral bias metrics and the binned spectral loss approach. The binned spectral loss is a form of frequency-domain loss that groups frequencies into bins.
 
 - The paper discusses theoretical analysis showing frequency-dependent convergence rates under first-order optimization (lines 245-251), providing rationale for frequency-aware losses.
 
@@ -56,11 +56,11 @@ The paper does not provide direct comparisons between different frequency domain
 
 1. **Line 17**: "...spectral bias is not simply representational but fundamentally dynamical...spectral-aware loss formulations without increasing the inference cost."
 
-2. **Line 53-55**: "For neural operators, we further show that spectral bias is dependent on the neural operator architecture and can also be effectively mitigated through **spectral-aware loss formulations** without increasing the inference cost."
+2. **Line 17**: "For neural operators, we further show that spectral bias is dependent on the neural operator architecture and can also be effectively mitigated through **spectral-aware loss formulations** without increasing the inference cost."
 
 3. **Line 85**: "...different loss functions (e.g., MSE and **binned spectral loss** [26])..."
 
-4. **Line 121-123**: "Since for most physical systems |ê_k| > |ê_{k*}| if k < k* at the start of the training, then the **low-frequency modes have larger energies and contribute more to the total L² loss**. Therefore, the optimizer of the neural network tends to learn low-frequency modes first..."
+4. **Lines 113, 121-123**: "Since for most physical systems |ê_k| > |ê_{k*}| if k < k* at the start of the training, then the **low-frequency modes have larger energies and contribute more to the total L² loss**. Therefore, the optimizer of the neural network tends to learn low-frequency modes first..." (Parseval's theorem at Line 113)
 
 ## Conclusion Table
 

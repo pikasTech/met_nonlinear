@@ -4,7 +4,7 @@ title: 分析 Chikishev_2019_Temperature_Amplitude_Frequency.md
 status: closed
 tags: chikishev, temperature, amplitude, frequency, gap1, gap3
 created_at: 2026-03-31T11:50:42
-updated_at: 2026-03-31T12:12:36
+updated_at: 2026-04-01T00:13:42
 ---
 
 # Issue: Chikishev_2019_Temperature_Amplitude_Frequency.md 分析

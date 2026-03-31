@@ -18,12 +18,12 @@
 
 **批判性支持**：
 
-- **论文做了什么**：第53-55行指出"KAN在边('权重')上放置可学习的激活函数"，这展示了"利用"非线性的架构设计哲学。
+- **论文做了什么**：第29行指出"KAN在边('权重')上放置可学习的激活函数"，这展示了"利用"非线性的架构设计哲学。
 - **理论依据**：第95-98行Kolmogorov-Arnold定理表明任何多元连续函数可分解为单变量函数叠加，意味着非线性可以被显式建模而非被"排除"。
 
 **直接支撑**：
 
-- **方法论参考**：第121行公式(2.1)展示了Kolmogorov-Arnold表示将多元函数分解为单变量函数的叠加，这是KAN和Wiener模型共同的理论基础。
+- **方法论参考**：第100行公式(2.1)展示了Kolmogorov-Arnold表示将多元函数分解为单变量函数的叠加，这是KAN和Wiener模型共同的理论基础。
 - **非线性建模能力**：第61-71行表明KAN能学习组合结构和单变量函数，对非线性关系建模有效。
 
 ### GAP7: 前馈补偿利用非线性区而非排除
@@ -69,7 +69,7 @@
 
 ## 关键原文摘录
 
-> "KANs have learnable activation functions on edges ('weights'). KANs have no linear weights at all - every weight parameter is replaced by a univariate function parametrized as a spline."（第53-55行）
+> "KANs have learnable activation functions on edges ('weights'). KANs have no linear weights at all - every weight parameter is replaced by a univariate function parametrized as a spline."（第29行）
 
 > "The Kolmogorov-Arnold Representation Theorem states that any multivariate continuous function f defined on a bounded domain can be expressed as a finite sum of compositions of continuous univariate functions and addition."（第95-98行）
 

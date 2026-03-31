@@ -19,11 +19,7 @@ The paper demonstrates Floss on time series classification, forecasting, and ano
 
 **Critical Support**: Indirect support (limited)
 
-- **Lines 257-258**: The paper discusses the benefit of projecting labels into frequency domain.
-
-  > "if different labels are projected into the frequency domain, unrelated feature can be obtained in the frequency domain so that the model based on this idea can obtain better results than the traditional MSE loss when calculating loss."
-
-- **Lines 365-367**: Experimental results show Floss enhances performance of various models.
+- **Line 365**: Experimental results show Floss enhances performance of various models.
 
   > "Firstly, the inclusion of Floss enhances the overall performance of all three representative models. This demonstrates that Floss effectively utilizes informative features within the frequency domain, leading to improved forecasting performance."
 
@@ -35,9 +31,9 @@ The paper does NOT directly compare frequency-domain MAE vs pure MAE in isolatio
 
 **Critical Support**: Indirect support
 
-- **Lines 171-173**: Mentions DCT can be used for spectral density calculation.
+- **Line 171**: Mentions DCT can be used for spectral density calculation.
 
-  > "other transformations, such as discrete cosine transform (DCT) and wavelet transform, can also be used to calculate the spectral density."
+   > "other transformations, such as discrete cosine transform (DCT) and wavelet transform, can also be used to calculate the spectral density."
 
 - **Lines 337-339**: States that estimated periodicity and frequency loss are computed using DCT.
 
@@ -49,20 +45,17 @@ The paper mentions that DCT and wavelet transform "can also be used" for spectra
 
 ## Key Quotes with Line Numbers
 
-1. **Lines 257-258**: About frequency domain projection benefit.
-   > "if different labels are projected into the frequency domain, unrelated feature can be obtained in the frequency domain so that the model based on this idea can obtain better results than the traditional MSE loss when calculating loss."
+1. **Line 365**: Floss improves model performance.
+   > "Firstly, the inclusion of Floss enhances the overall performance of all three representative models. This demonstrates that Floss effectively utilizes informative features within the frequency domain, leading to improved forecasting performance."
 
-2. **Lines 171-173**: DCT and wavelet can be used.
+2. **Line 171**: DCT and wavelet can be used.
    > "other transformations, such as discrete cosine transform (DCT) and wavelet transform, can also be used to calculate the spectral density."
 
-3. **Lines 246-247 (Equation 4)**: Floss loss definition.
+3. **Line 246 (Equation 4)**: Floss loss definition.
    > "L_f = (1/N'F') || Phi_Y - Phi_Yhat ||_1"
 
 4. **Lines 337-339**: DCT is used for periodicity estimation.
    > "The estimated periodicity and frequency loss are computed using discrete cosine transformation (DCT)."
-
-5. **Lines 365-367**: Floss improves model performance.
-   > "Firstly, the inclusion of Floss enhances the overall performance of all three representative models. This demonstrates that Floss effectively utilizes informative features within the frequency domain, leading to improved forecasting performance."
 
 ## Conclusion Table
 

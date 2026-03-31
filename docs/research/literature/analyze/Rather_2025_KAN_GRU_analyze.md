@@ -2,23 +2,18 @@
 
 ## 论文基本信息
 
-- **标题**: KAN-GRU: A Novel Neural Network for Time Series Forecasting（KAN-GRU：用于时间序列预测的新型神经网络）
+- **标题**: KAN-GRU / LSTM-KAN: GRU和LSTM与KAN的混合架构用于时间序列异常检测
 - **作者**: Rather A.H., M. Hassan B.
-- **机构**: Indian Institute of Technology
+- **机构**: Indian Institute of Technology (中国宁波诺丁汉大学)
 - **发表时间**: 2025年
 - **会议/期刊**: IEEE
 
 ## 核心内容摘要
 
-本文提出了KAN-GRU，一种结合KAN和GRU的时间序列预测网络。主要贡献包括：
-1. 将KAN的激活函数与GRU结合
-2. 设计了混合架构来兼顾KAN的表达能力和GRU的时序建模能力
-3. 在多个时间序列数据集上验证了方法
-
-**主要发现**：
-- KAN-GRU在时间序列预测上优于单独使用KAN或GRU
-- 混合架构有效结合了两种网络的优势
-- KAN的激活函数在时序任务上具有优势
+本文提出了GRU-KAN和LSTM-KAN两种混合架构的时间序列预测网络，将KAN与RNN类架构相结合。主要贡献包括：
+1. 将KAN的激活函数与GRU/LSTM结合
+2. 设计了混合架构来兼顾KAN的表达能力和RNN的时序建模能力
+3. 在贷款违约预测数据集上验证了方法
 
 ## GAP 关联分析
 
@@ -38,8 +33,7 @@
 ### 直接支持
 
 **论文证明了什么**：
-- KAN-GRU优于单独使用KAN或GRU（原文第18-22行）："KAN-GRU outperforms both standalone KAN and GRU in time series forecasting tasks"
-- KAN激活函数在时序任务上具有优势（原文第25-28行）："KAN activation functions demonstrate advantages in time series tasks"
+- GRU-KAN和LSTM-KAN在贷款违约预测任务上验证了混合架构的有效性（第53行）："To introduce innovative KAN-based GRU and LSTM models that flexibly optimize activation functions for adaptable modeling of complex nonlinear relationships in time series data."
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的KAN-GRU混合架构为FRIKAN/Wiener-KAN的设计提供了参考
@@ -49,21 +43,20 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第18-22行 | KAN-GRU outperforms both standalone KAN and GRU in time series forecasting tasks |
-| 第25-28行 | KAN activation functions demonstrate advantages in time series tasks |
-| 第45-50行 | KAN-GRU architecture with GRU cell modification |
+| 第45行 | 本文创新点：提出LSTM-KAN和GRU-KAN两种基于KAN的模型 |
+| 第53行 | 引入基于KAN的GRU和LSTM模型，灵活优化激活函数以建模时序非线性关系 |
 
 ## 关键原文段落摘录
 
 ### 段落1（关于性能）
 
-> "KAN-GRU outperforms both standalone KAN and GRU in time series forecasting tasks, demonstrating the effectiveness of the hybrid approach."
-> （第18-22行）
+> "The results demonstrate that the proposed model achieves a prediction accuracy of over 92% three months in advance and over 88% eight months in advance, significantly outperforming existing baselines."
+> （第25行）
 
-### 段落2（关于KAN激活）
+### 段落2（关于创新点）
 
-> "KAN activation functions demonstrate advantages in time series tasks, providing better non-linear mapping capabilities compared to traditional activations."
-> （第25-28行）
+> "To introduce innovative KAN-based GRU and LSTM models that flexibly optimize activation functions for adaptable modeling of complex nonlinear relationships in time series data."
+> （第53行）
 
 ## 分析结论
 

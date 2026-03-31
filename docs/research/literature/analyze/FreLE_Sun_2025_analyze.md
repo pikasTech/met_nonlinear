@@ -21,7 +21,7 @@ The explicit regularization adds frequency-domain MAE to the optimization object
 
 **Critical Support**: Strong direct support
 
-- **Lines 281-287 (Equation 7)**: Explicit frequency regularization definition.
+- **Line 286 (Equation 7)**: Explicit frequency regularization definition.
   > "L^f = (1/n) sum_{i=1}^{N} || F(X_i) - F_theta(X_hat_i) ||"
 
   This is explicitly an MAE computation in the frequency domain using Fourier transform.
@@ -45,7 +45,7 @@ This provides direct evidence that frequency-domain MAE outperforms pure time-do
 
 **Critical Support**: Indirect support
 
-- **Lines 281-287 (Equation 7)**: Uses FFT for frequency transformation.
+- **Line 286 (Equation 7)**: Uses FFT for frequency transformation.
   > The explicit frequency regularization uses Fourier transform to compute MAE in frequency domain.
 
 - **Lines 253-259**: Describes FreLE framework.
@@ -57,10 +57,10 @@ The paper does NOT compare FFT-MAE with DCT-MAE, wavelet-MAE, or other frequency
 
 ## Key Quotes with Line Numbers
 
-1. **Lines 269-275 (Equation 6)**: Time-domain MAE baseline.
+1. **Line 274 (Equation 6)**: Time-domain MAE baseline.
    > "L_theta^t = (1/n) sum_{i=1}^{n} || X_i - X_hat_i ||"
 
-2. **Lines 281-287 (Equation 7)**: Frequency-domain MAE.
+2. **Line 286 (Equation 7)**: Frequency-domain MAE.
    > "L^f = (1/n) sum_{i=1}^{N} || F(X_i) - F_theta(X_hat_i) ||"
 
 3. **Lines 282-284**: Combined objective.
@@ -72,7 +72,7 @@ The paper does NOT compare FFT-MAE with DCT-MAE, wavelet-MAE, or other frequency
 5. **Lines 461-463**: delta=1 (pure frequency) also works well.
    > "directly setting delta = 1 without hyperparameter tuning also yields good experimental performance."
 
-6. **Lines 271-275**: Ablation study results showing FreLE (EFR+IFR) outperforms EFR alone.
+6. **Line 453 (Table 4)**: Ablation study results showing FreLE (EFR+IFR) outperforms EFR alone.
    > Table 4 shows EFR-IFR (0.386) vs EFR (0.411) on ETTm1 MSE.
 
 ## Conclusion Table

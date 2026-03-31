@@ -38,8 +38,8 @@
 ### 直接支持
 
 **论文证明了什么**：
-- KAN激活函数在图数据上具有优势（原文第18-22行）："KAN activation functions demonstrate advantages in learning on graph structured data"
-- KA-GNN优于传统GNN（原文第25-28行）："KA-GNN outperforms traditional GNN methods in graph learning tasks"
+- KA-GNN将KAN应用于图神经网络的三个层面（节点嵌入、消息传递、读出）（原文第59行）："we utilizes KAN to optimize GNN architectures at three major levels, including node embedding, message passing, and readout"
+- KA-GNN在分子性质预测任务上优于传统GNN（原文第25-28行）："KA-GNN outperforms traditional GNN methods in graph learning tasks"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的KAN激活函数应用方式为FRIKAN/Wiener-KAN的设计提供了参考
@@ -49,16 +49,15 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第18-22行 | KAN activation functions demonstrate advantages in learning on graph structured data |
+| 第59行 | 利用KAN优化GNN架构的三个层面（节点嵌入、消息传递、读出） |
 | 第25-28行 | KA-GNN outperforms traditional GNN methods in graph learning tasks |
-| 第45-50行 | KA-GNN architecture with KAN activations |
 
 ## 关键原文段落摘录
 
-### 段落1（关于KAN优势）
+### 段落1（关于KA-GNN架构）
 
-> "KAN activation functions demonstrate advantages in learning on graph structured data, providing better expressivity compared to traditional activations."
-> （第18-22行）
+> "In this paper, we introduce the first non-trivial Kolmogorov-Arnold Network-based Graph Neural Networks (KA-GNNs)... we utilizes KAN to optimize GNN architectures at three major levels, including node embedding, message passing, and readout."
+> （第59行）
 
 ### 段落2（关于性能）
 

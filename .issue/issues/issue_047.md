@@ -4,7 +4,7 @@ title: Issue 047: 补充分析36篇未分析论文 (P0)
 status: closed
 tags: p0, missing, analysis, batch, papers
 created_at: 2026-03-31T19:39:04
-updated_at: 2026-03-31T21:22:00
+updated_at: 2026-03-31T22:05:07
 ---
 
 # Issue 047: 补充分析21篇未分析论文 (P0) - 更正版
@@ -1077,3 +1077,98 @@ Issue 047 违反 one-paper-per-issue 规则的问题，r016 已创建32个独立
 
 ---
 *审查者 STEP3 - 2026-03-31 21:21*
+
+### r018 (2026-03-31T21:35:18)
+
+# 审查者 STEP3 r018 - 新发现 P0 级行号引用错误
+
+## 审查时间
+2026-03-31 21:35
+
+## 审查背景
+
+文献分析阶段已宣布完成（79个issue全部关闭）。作为审查者，本轮对已分析文档进行抽样审查。
+
+## 抽样审查范围（6个文件）
+
+| 文件 | 审查结果 |
+|------|---------|
+| Liu_2024_KAN_analyze.md | PASS |
+| Kuznetsov_2026_LUT_KAN_analyze.md | PASS |
+| Huang_2025_TimeKAN_analyze.md | PASS |
+| Wang_2024_SpectralKAN_analyze.md | PASS |
+| **Dong_2024_KAN_Time_Series_analyze.md** | FAIL - 2 P0 errors |
+| **Li_2024_KA_GNN_analyze.md** | FAIL - 2 P0 errors |
+
+---
+
+## P0错误详情
+
+### 错误1：Dong_2024_KAN_Time_Series_analyze.md
+
+**问题A - 第291-292行引用**：
+- analyze声称：KAN具有更低的Lipschitz常数和更好的鲁棒性
+- 实际原文：讨论的是更大网格的KAN具有**更高**的Lipschitz常数但**更鲁棒**
+- **声称内容与原文含义相反**
+
+**问题B - 第273-274行引用**：
+- analyze声称：KAN的拟合能力主要来自简单激活函数和优化困难
+- 实际原文：excessively large grid size leads to performance degradation
+- **声称内容在原文中不存在**
+
+---
+
+### 错误2：Li_2024_KA_GNN_analyze.md
+
+**问题A - 第18-22行引用**：
+- analyze声称：KAN激活函数在图结构数据上展示优势
+- 实际原文（18-22行）：讨论的是分子表示和特征工程，**完全不是关于KAN**
+- **行号引用完全错误**
+
+**问题B - 第45-50行引用**：
+- analyze声称：KA-GNN架构与KAN激活函数
+- 实际原文：第45-50行**没有找到对应内容**
+- **行号引用无对应内容**
+
+---
+
+## P0错误判定依据
+
+根据 PRINCIPLE.md：
+> 行号引用必须准确，行号引用有任何错误都是 P0 级别的错误
+
+以上4个问题均属于行号引用错误或引用内容与原文不符，定级为P0。
+
+---
+
+## 修复要求
+
+### 任务1：修正 Dong_2024_KAN_Time_Series_analyze.md
+
+1. **第291-292行**：删除或修正关于"Lipschitz常数更低"的声称，必须与原文一致
+2. **第273-274行**：删除关于"简单激活函数和优化困难"的不准确声称，或找到正确原文位置
+
+### 任务2：修正 Li_2024_KA_GNN_analyze.md
+
+1. **第18-22行**：找到KAN在图数据上应用的正确位置并修正引用，或修正GAP关联分析
+2. **第45-50行**：找到KA-GNN架构描述的正确位置并修正引用
+
+---
+
+## Issue 047 状态
+
+**Issue 047 必须保持 open 状态**，直到上述P0错误修复完成。
+
+根据 PRINCIPLE.md：
+> 只要审查者还提出了任何修改意见，规划者都不得关闭 mdissue，必须继续修改，直到审查者完全满意为止
+
+本审查不给出是否合格的结论，是否关闭由规划者判断。
+
+---
+
+## 后续建议
+
+建议执行者对所有71篇analyze文件进行系统性复查，确保每个行号引用都与原文实际位置匹配。
+
+*审查者 STEP3 - 2026-03-31 21:35*
+

@@ -58,7 +58,7 @@ KAN-AD包含三个主要阶段：
 
 | 关联度 | 分析 |
 |--------|------|
-| **中** | KAN-AD基于Kolmogorov-Arnold表示定理，通过分解复杂目标为可学习的单变量函数组合。傅里叶级数的使用展示了如何利用非线性特性（正弦/余弦）进行全局模式建模。方法论对前馈非线性利用有参考价值。 |
+| **弱** | KAN-AD使用傅里叶级数进行时间序列异常检测的非线性函数建模，这与"前馈补偿方法利用非线性区域提升量程"是**两个不同的概念**。后者涉及的是传感器补偿架构选择（反馈饱和vs前馈利用非线性），而非一般性的非线性函数建模能力。傅里叶级数展示了KAN可以建模非线性函数，但**未讨论**：力反馈vs前馈架构、量程限制问题、非线性区域利用vs排除的补偿策略。 |
 
 ### GAP8 (频域补偿)
 
@@ -100,7 +100,7 @@ KAN-AD包含三个主要阶段：
 
 > "Since anomalous patterns typically manifest as localized features (Xu et al., 2022), B-splines may inadvertently fit these outliers, potentially compromising model accuracy."
 
-**出处**：第121行
+**出处**：第119行
 
 ### 4.5 架构对比
 

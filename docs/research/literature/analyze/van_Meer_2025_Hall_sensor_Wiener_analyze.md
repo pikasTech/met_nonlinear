@@ -54,10 +54,10 @@
    - 论文讨论了高阶谐波对测量精度的影响
 
 2. **论文没有做XXX（批判凸显 IDEA 的 GAP）：**
-   - 论文**明确忽略了温度对测量的影响**：第123行 "Neglecting dependence on temperature"
+   - 论文**明确忽略了温度对测量的影响**：第121行（英文）/ 第123行（中文） "Neglecting dependence on temperature"
    - 论文没有建模震级(magnitude)对频率响应的影响
    - 论文关注的是位置相关的周期性误差，而非频率相关的漂移
-   - 关键引用（第123行）："Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density" —— 明确忽略了温度依赖性
+   - 关键引用（第121行英文/第123行中文）："Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density" —— 明确忽略了温度依赖性
 
 ---
 
@@ -67,7 +67,7 @@
 
 > "The series connection of linear system G(s) and nonlinear functions g_h(y0) is recognized as a single-input multi-output Wiener system in literature (Westwick and Verhaegen, 1996)."
 
-### 关于忽略温度依赖性（第123行）
+### 关于忽略温度依赖性（第121行英文/第123行中文）
 
 > "Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density..."
 
@@ -83,7 +83,7 @@
 
 **GAP4 支撑**：van_Meer_2025 论文直接展示了Wiener系统结构（线性G(s) + 非线性g(y0)）在传感器建模中的应用，为MET传感器的Wiener建模提供了直接参考。论文明确指出这是Wiener系统，并且提供了完整的建模和识别方法。
 
-**GAP5 支撑**：论文明确指出"忽略温度依赖性"（第123行），且没有讨论震级对频率漂移的影响。这支持了GAP5的观点：需要建模震级因素对频率漂移的影响。
+**GAP5 支撑**：论文明确指出"忽略温度依赖性"（第121行英文/第123行中文），且没有讨论震级对频率漂移的影响。这支持了GAP5的观点：需要建模震级因素对频率漂移的影响。
 
 **综合评估**：van_Meer_2025 是一篇关于霍尔传感器自校准的方法论文，提供了Wiener系统建模的具体实例和完整方法。论文明确忽略了温度对测量的影响，且没有讨论震级因素，这对GAP5的支撑有重要意义。
 
