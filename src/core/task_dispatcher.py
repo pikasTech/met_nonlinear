@@ -84,6 +84,8 @@ def dispatch_task(task_type, project_names, args):
                 _handle_standardize_resistance_task(project_path, project_name, args)
             elif task_type == 'waveform_vis':
                 _handle_waveform_vis_task(project_path, project_name, args)
+            elif task_type == 'loss_plot':
+                _handle_loss_plot_task(project_path, project_name, args)
             else:
                 logger.error(f"未知的任务类型: {task_type}")
                 continue
@@ -420,3 +422,57 @@ def _handle_freq_response_compare_task(project_names, args):
         import traceback
         traceback.print_exc()
         raise
+
+
+def _handle_loss_plot_task(project_path, project_name, args):
+    """处理loss曲线绘制任务"""
+    from core.training_log import TrainingLogger
+    import numpy as np
+
+    if project_path.startswith('projects/'):
+        checkpoint_dir = f'{project_path}/data'
+    else:
+        checkpoint_dir = f'projects/{project_path}/data'
+    training_logger = TrainingLogger(checkpoint_dir)
+    log_data = training_logger.load()
+
+    if 'epoch' not in log_data or len(log_data['epoch']) == 0:
+        logger.error(f"项目 {project_name} 没有训练日志数据")
+        return
+
+    epochs = np.array(log_data['epoch'])
+    loss = np.array(log_data.get('loss', []))
+    val_loss = np.array(log_data.get('val_loss', []))
+    lr = np.array(log_data.get('lr', []))
+
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    if len(loss) > 0:
+        ax1.semilogy(epochs, loss, label='Loss', color='blue', linestyle='-', linewidth=1)
+    if len(val_loss) > 0:
+        ax1.semilogy(epochs, val_loss, label='Validation Loss', color='orange', linestyle='--', linewidth=1)
+    ax1.set_xlabel('Epoch')
+    ax1.set_ylabel('Loss (Log Scale)')
+    ax1.set_yscale('log')
+    ax1.grid(True, alpha=0.3)
+
+    if len(lr) > 0:
+        ax2 = ax1.twinx()
+        ax2.plot(epochs, lr, label='Learning Rate', color='red', linestyle='-', linewidth=0.8, alpha=0.7)
+        ax2.set_ylabel('Learning Rate', color='red')
+        ax2.tick_params(axis='y', labelcolor='red')
+
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    if len(lr) > 0:
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines1 + lines2, labels1 + labels2, loc='best')
+    else:
+        ax1.legend(loc='best')
+
+    project_name_short = project_name.split('/')[-1]
+    ax1.set_title(f'Training Loss Curves - {project_name_short}')
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(checkpoint_dir, 'loss_curve.png'), dpi=150)
+    logger.info(f"Loss曲线已保存: {checkpoint_dir}/loss_curve.png")
+    plt.close(fig)
