@@ -111,6 +111,8 @@ def create_external_template(ep_path: ExternalPath) -> None:
         template = _create_waveform_analysis_template(ep_path)
     elif ep_path.task_type == 'wnet5-circuit-validation':
         template = _create_wnet5_circuit_validation_template(ep_path)
+    elif ep_path.task_type == 'ablation-study':
+        template = _create_ablation_study_template(ep_path)
     else:
         template = _create_generic_template(ep_path)
     
@@ -162,6 +164,46 @@ def _create_wnet5_circuit_validation_template(ep_path: ExternalPath) -> dict:
         "frequency_range": {
             "start_freq": 0.1,
             "stop_freq": 1000
+        }
+    }
+
+
+def _create_ablation_study_template(ep_path: ExternalPath) -> dict:
+    """创建消融实验对比配置模板"""
+    return {
+        "task_info": {
+            "task_type": "ablation-study",
+            "description": "MAE vs AFMAE 消融实验对比"
+        },
+        "projects": [
+            {
+                "name": "LSTMu16_base",
+                "label": "Base (MAE)",
+                "path": "00_MAE_VS_AFMAE/LSTMu16_base"
+            },
+            {
+                "name": "FRIKANh8u6l6_pureafmae",
+                "label": "AFMAE",
+                "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
+            }
+        ],
+        "metrics": {
+            "natural_frequency_drift": {
+                "enabled": True,
+                "reference": "LSTMu16_base"
+            },
+            "sensitivity_drift": {
+                "enabled": True,
+                "reference": "LSTMu16_base",
+                "frequency_hz": 100
+            },
+            "linearity": {
+                "enabled": True
+            }
+        },
+        "output": {
+            "format": ["json", "markdown"],
+            "output_dir": "ex_projects/compare/mae_vs_afmae/results"
         }
     }
 
@@ -264,6 +306,8 @@ def _execute_task(ep_path: ExternalPath) -> bool:
             return _execute_waveform_analysis_task(ep_path, validated_config)
         elif ep_path.task_type == 'wnet5-circuit-validation':
             return _execute_wnet5_circuit_validation_task(ep_path, validated_config)
+        elif ep_path.task_type in ('ablation-study', 'compare'):
+            return _execute_ablation_study_task(ep_path, validated_config)
         else:
             logger.error(f"不支持的任务类型: {ep_path.task_type}")
             return False
@@ -300,6 +344,12 @@ def _load_config(config_path: Path) -> dict:
 def _validate_config(config: dict, task_type: str) -> dict:
     """验证配置文件格式（使用严格验证器）"""
     from .config_validator import validate_visualization_config_data, ConfigValidationError
+
+    # 跳过验证的任务类型（使用自定义配置格式）
+    skip_validation_types = {'ablation-study', 'compare'}
+    if task_type in skip_validation_types:
+        logger.info(f"跳过配置验证 (自定义格式): {task_type}")
+        return config
     
     try:
         # 使用严格的配置验证器
@@ -581,6 +631,29 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
         return False
     except Exception as e:
         logger.error(f"WNET5电路验证任务执行失败: {e}")
+        return False
+
+
+def _execute_ablation_study_task(ep_path: ExternalPath, config: dict) -> bool:
+    """执行消融实验对比任务"""
+    try:
+        from visualization.ablation_study import AblationStudyAnalyzer
+
+        logger.info(f"执行消融实验对比任务: {ep_path.task_name}")
+
+        analyzer = AblationStudyAnalyzer(config, ep_path.output_path)
+        results = analyzer.run_analysis()
+        analyzer.save_results()
+
+        logger.info(f"✅ 消融实验任务完成: {ep_path.output_path}")
+        _save_task_metadata(ep_path, config, str(ep_path.output_path))
+        return True
+
+    except ImportError as e:
+        logger.error(f"无法导入消融实验模块: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"消融实验任务执行失败: {e}")
         return False
 
 

@@ -1,0 +1,56 @@
+{
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "MAE vs AFMAE 消融实验对比"
+  },
+  "projects": [
+    {
+      "name": "LSTMu16_base",
+      "label": "Base (MAE)",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base"
+    },
+    {
+      "name": "LSTMu16_base_pureafmae",
+      "label": "LSTMu16 AFMAE",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6_pureafmae",
+      "label": "AFMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
+    },
+    {
+      "name": "LSTMu16_base_puremae",
+      "label": "Pure MAE",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_puremae",
+      "label": "FRIKAN Pure MAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_base",
+      "label": "FRIKAN Base",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "enabled": true,
+      "reference": "LSTMu16_base"
+    },
+    "sensitivity_drift": {
+      "enabled": true,
+      "reference": "LSTMu16_base",
+      "frequency_hz": 100
+    },
+    "linearity": {
+      "enabled": true
+    }
+  },
+  "output": {
+    "format": ["json", "markdown"],
+    "output_dir": "ex_projects/compare/mae_vs_afmae/results"
+  }
+}

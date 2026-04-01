@@ -1,0 +1,173 @@
+{
+  "timestamp": "20260401_202938",
+  "projects": [
+    {
+      "name": "LSTMu16_base",
+      "label": "Base (MAE)",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base"
+    },
+    {
+      "name": "LSTMu16_base_pureafmae",
+      "label": "LSTMu16 AFMAE",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6_pureafmae",
+      "label": "AFMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
+    },
+    {
+      "name": "LSTMu16_base_puremae",
+      "label": "Pure MAE",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_puremae",
+      "label": "FRIKAN Pure MAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_base",
+      "label": "FRIKAN Base",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "LSTMu16_base": {
+        "drift": 3.0348734786108125,
+        "unit": "Hz",
+        "min": 31.97880893976678,
+        "max": 37.104746481824634,
+        "median": 34.06987300321382
+      },
+      "LSTMu16_base_pureafmae": {
+        "drift": 1.4443679833322136,
+        "unit": "Hz",
+        "min": 33.02161674826841,
+        "max": 35.12849240357418,
+        "median": 33.684124420241965,
+        "suppression": 52.40763763261192
+      },
+      "FRIKANh8u6l6_pureafmae": {
+        "drift": 85.06558045057767,
+        "unit": "Hz",
+        "min": 50.2848837779133,
+        "max": 208.22589912299048,
+        "median": 123.16031867241281,
+        "suppression": -2702.9366314643107
+      },
+      "LSTMu16_base_puremae": {
+        "drift": 1.333432623602043,
+        "unit": "Hz",
+        "min": 33.17216899785109,
+        "max": 35.3606084905942,
+        "median": 34.50560162145313,
+        "suppression": 56.062991324026775
+      },
+      "FRIKANh8u6l6_puremae": {
+        "drift": 626964.7168997793,
+        "unit": "Hz",
+        "min": 84.57974273080399,
+        "max": 627141.1395432724,
+        "median": 176.4226434931181,
+        "suppression": -20658577.2502545
+      },
+      "FRIKANh8u6l6_base": {
+        "drift": 3.676943618432162,
+        "unit": "Hz",
+        "min": 29.681545783708273,
+        "max": 35.72061613462257,
+        "median": 33.358489402140435,
+        "suppression": -21.156405509044536
+      }
+    },
+    "sensitivity_drift": {
+      "LSTMu16_base": {
+        "drift": 6.711241661380129,
+        "unit": "%",
+        "min": 57.39859217567604,
+        "max": 68.24316686798767,
+        "median": 64.10983383705617
+      },
+      "LSTMu16_base_pureafmae": {
+        "drift": 8.095180906301863,
+        "unit": "%",
+        "min": 58.8267142175227,
+        "max": 71.49182749587193,
+        "median": 63.39664658957007,
+        "suppression": -20.62121012398673
+      },
+      "FRIKANh8u6l6_pureafmae": {
+        "drift": 52.19423857019479,
+        "unit": "%",
+        "min": 0.0,
+        "max": 59.38241918801509,
+        "median": 7.188180617820303,
+        "suppression": -677.7135916673479
+      },
+      "LSTMu16_base_puremae": {
+        "drift": 8.485270072469696,
+        "unit": "%",
+        "min": 56.46735773928885,
+        "max": 67.6839439943158,
+        "median": 64.95262781175855,
+        "suppression": -26.433683967874703
+      },
+      "FRIKANh8u6l6_puremae": {
+        "drift": 5.432075719397894,
+        "unit": "%",
+        "min": 0.06919440585369362,
+        "max": 5.878415507639177,
+        "median": 0.4463397882412831,
+        "suppression": 19.060048892937363
+      },
+      "FRIKANh8u6l6_base": {
+        "drift": 18.127041447722164,
+        "unit": "%",
+        "min": 44.22967661685843,
+        "max": 70.23029513787755,
+        "median": 62.35671806458059,
+        "suppression": -170.09966802468622
+      }
+    },
+    "linearity": {
+      "LSTMu16_base": {
+        "mean": 0.5593120438680861,
+        "max": 2.8431134944407965,
+        "min": 0.10267560758597805,
+        "unit": "%"
+      },
+      "LSTMu16_base_pureafmae": {
+        "mean": 0.3834057908123031,
+        "max": 0.8828706169584644,
+        "min": 0.10874417284875149,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_pureafmae": {
+        "mean": 85.20255737019366,
+        "max": 99.95044963887206,
+        "min": 59.05007424759391,
+        "unit": "%"
+      },
+      "LSTMu16_base_puremae": {
+        "mean": 0.42594669061077184,
+        "max": 1.5199874904686883,
+        "min": 0.09767484635991863,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_puremae": {
+        "mean": 73.72563920014068,
+        "max": 99.89976020208752,
+        "min": 24.348978349369055,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_base": {
+        "mean": 0.5043891310472511,
+        "max": 1.4892882697370768,
+        "min": 0.09959341996536031,
+        "unit": "%"
+      }
+    }
+  }
+}

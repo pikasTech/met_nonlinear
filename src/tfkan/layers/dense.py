@@ -25,6 +25,9 @@ class DenseKAN(Layer, LayerKAN):
         disable_basis_activation: bool = False,
         kan_log_grid=False,
         grid_expand=True,
+        only_positive: bool = True,
+        use_even: bool = False,
+        use_symmetry: bool = True,
         **kwargs
     ):
         super(DenseKAN, self).__init__(dtype=dtype, **kwargs)
@@ -36,10 +39,12 @@ class DenseKAN(Layer, LayerKAN):
         self.use_bias = use_bias
         self.kan_log_grid = kan_log_grid
         self.grid_expand = grid_expand
-        # Initialize parameters
         self.spline_initialize_stddev = spline_initialize_stddev
         self.fix_scale_factor = fix_scale_factor
         self.disable_basis_activation = disable_basis_activation
+        self.only_positive = only_positive
+        self.use_even = use_even
+        self.use_symmetry = use_symmetry
         self.built = False
 
     def assign_weights(self, spline_kernel, scale_factor=None, bias=None):
@@ -311,7 +316,10 @@ class DenseKAN(Layer, LayerKAN):
             "spline_initialize_stddev": self.spline_initialize_stddev,
             "basis_activation": tf.keras.activations.serialize(self.basis_activation),
             "fix_scale_factor": self.fix_scale_factor,
-            "disable_basis_activation": self.disable_basis_activation
+            "disable_basis_activation": self.disable_basis_activation,
+            "only_positive": self.only_positive,
+            "use_even": self.use_even,
+            "use_symmetry": self.use_symmetry
         })
 
         return config
