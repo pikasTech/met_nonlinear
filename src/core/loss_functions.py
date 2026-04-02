@@ -207,3 +207,8 @@ def af_mse_loss(y_true, y_pred, group_points=4000, use_debug=False):
 
     loss_power_log = tf.square(power_true_log - power_pred_log)
     return tf.reduce_mean(loss_power_log)
+
+
+def pure_mae_metric(y_true, y_pred):
+    """纯MAE指标，用于评估时分离MAE和AFMAE"""
+    return tf.reduce_mean(tf.abs(y_true - y_pred))

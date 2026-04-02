@@ -10,6 +10,7 @@ import os
 import traceback
 import sys
 import shutil
+from analysis.model_compute_analysis import save_model_compute_analysis
 from models.base_models import ModelEvent, ModelEventType
 from calibration_analyzer import exam_class
 from config import Config
@@ -157,12 +158,24 @@ class ProjectManager:
                 traceback.print_exc()
         if self.config.use_best_val_weights:
             model_engine.load_val_best_weights()
-        loss, metrics, val_loss, val_metrics = model_engine.evaluate_loss()
+        compute_analysis_path = os.path.join(
+            self.checkpoint_dir,
+            'compute_analysis.json'
+        )
+        save_model_compute_analysis(
+            model_engine.model_comp,
+            compute_analysis_path,
+            model_type=self.config.use_model,
+            cost_model=getattr(self.config, 'compute_cost_model', None),
+        )
+        loss, mae, afmae, val_loss, val_mae, val_afmae = model_engine.evaluate_loss()
         self.run_prediction(model_engine)
         logger.info(f'训练集 loss: {loss:.4f}')
         logger.info(f'验证集 loss: {val_loss:.4f}')
-        logger.info(f'训练集 power log loss: {metrics:.4f}')
-        logger.info(f'验证集 power log loss: {val_metrics:.4f}')
+        logger.info(f'训练集 MAE: {mae:.4f}')
+        logger.info(f'训练集 AFMAE: {afmae:.4f}')
+        logger.info(f'验证集 MAE: {val_mae:.4f}')
+        logger.info(f'验证集 AFMAE: {val_afmae:.4f}')
         logger.info(f'评估完成，结果保存在 {self.checkpoint_dir} 中。')
 
     def lut(self):
@@ -195,6 +208,16 @@ class ProjectManager:
         model_engine.prepare_systems()
         model_engine.build_model()
         model_engine.dump_model_info(output_folder=self.checkpoint_dir)
+        compute_analysis_path = os.path.join(
+            self.checkpoint_dir,
+            'compute_analysis.json'
+        )
+        save_model_compute_analysis(
+            model_engine.model_comp,
+            compute_analysis_path,
+            model_type=self.config.use_model,
+            cost_model=getattr(self.config, 'compute_cost_model', None),
+        )
         model_engine.evaluate_training_info()
         logger.info(f'模型信息保存在 {self.checkpoint_dir} 中。')
 

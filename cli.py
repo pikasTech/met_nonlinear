@@ -5,6 +5,13 @@ cli.py - CLI 接口，仅作为内部功能的代理
 
 import sys
 import os
+
+os.system('chcp 65001 > nul')
+
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
 import subprocess
 import time
 

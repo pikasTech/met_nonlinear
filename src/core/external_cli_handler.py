@@ -32,13 +32,13 @@ def handle_ep_command(args: CLIArgs) -> None:
         args: CLI参数对象
     """
     try:
-        logger.info(f"🎯 开始处理外部项目: {args.ep_project_path}")
+        logger.info(f"[EP] 开始处理外部项目: {args.ep_project_path}")
         # 解析路径
         parser = ExternalPathParser()
         ep_project_path = args.ep_project_path or ""
         ep_path = parser.parse(ep_project_path)
 
-        logger.info(f"📂 项目信息:")
+        logger.info(f"[INFO] 项目信息:")
         logger.info(f"   项目名称: {ep_path.project_name}")
         logger.info(f"   任务类型: {ep_path.task_type}")
         logger.info(f"   任务名称: {ep_path.task_name}")
@@ -48,7 +48,7 @@ def handle_ep_command(args: CLIArgs) -> None:
         # 智能执行：检查配置文件，不存在则创建，然后执行任务
         execute_external_task_auto(ep_path)
     except Exception as e:
-        logger.error(f"❌ ep命令执行失败: {e}")
+        logger.error(f"[ERROR] ep命令执行失败: {e}")
         _show_ep_help()
         sys.exit(1)
 
@@ -64,26 +64,26 @@ def execute_external_task_auto(ep_path: ExternalPath) -> None:
     Args:
         ep_path: 外部项目路径对象
     """
-    logger.info(f"📊 开始处理外部项目任务: {ep_path.task_name}")
+    logger.info(f"[TASK] 开始处理外部项目任务: {ep_path.task_name}")
     
     # 检查配置文件是否存在
     if not ep_path.config_path.exists():
         logger.info(f"📝 配置文件不存在，创建模板: {ep_path.config_path}")
         create_external_template(ep_path)
-        logger.info("✅ 配置模板已创建")
+        logger.info("[OK] 配置模板已创建")
         logger.info("📋 请编辑配置文件后重新运行相同命令")
         logger.info(f"   配置文件位置: {ep_path.config_path}")
         return
     
     # 执行任务
-    logger.info(f"🚀 执行外部项目任务...")
+    logger.info(f"[RUN] 执行外部项目任务...")
     result = _execute_task(ep_path)
     
     if result:
-        logger.info(f"✅ 任务执行完成")
+        logger.info(f"[OK] 任务执行完成")
         logger.info(f"   输出目录: {ep_path.output_path}")
     else:
-        logger.error(f"❌ 任务执行失败")
+        logger.error(f"[ERROR] 任务执行失败")
         sys.exit(1)
 
 
@@ -354,13 +354,13 @@ def _validate_config(config: dict, task_type: str) -> dict:
     try:
         # 使用严格的配置验证器
         validated_config = validate_visualization_config_data(config, task_type)
-        logger.info(f"✅ 配置验证通过: {task_type}")
+        logger.info(f"[OK] 配置验证通过: {task_type}")
         return validated_config
     except ConfigValidationError as e:
-        logger.error(f"❌ 配置验证失败: {e}")
+        logger.error(f"[ERROR] 配置验证失败: {e}")
         raise ValueError(f"配置验证失败: {e}")
     except Exception as e:
-        logger.error(f"❌ 配置验证过程出错: {e}")
+        logger.error(f"[ERROR] 配置验证过程出错: {e}")
         raise ValueError(f"配置验证过程出错: {e}")
 
 
@@ -622,7 +622,7 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
         result = validator.execute_validation()
         
         if result:
-            logger.info(f"✅ WNET5电路验证任务完成: {ep_path.output_path}")
+            logger.info(f"[OK] WNET5电路验证任务完成: {ep_path.output_path}")
         
         return result
         
@@ -645,7 +645,7 @@ def _execute_ablation_study_task(ep_path: ExternalPath, config: dict) -> bool:
         results = analyzer.run_analysis()
         analyzer.save_results()
 
-        logger.info(f"✅ 消融实验任务完成: {ep_path.output_path}")
+        logger.info(f"[OK] 消融实验任务完成: {ep_path.output_path}")
         _save_task_metadata(ep_path, config, str(ep_path.output_path))
         return True
 

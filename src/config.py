@@ -129,6 +129,13 @@ class Config:
                 'bias_divider_low': 10000
             }
         }
+        self.compute_cost_model = {
+            'platform': 'stm32f405',
+            'unit': 'add_equivalent',
+            'add_weight': 1.0,
+            'mul_weight': 1.0,
+            'map_weight': 6.0,
+        }
 
         logger = logging.getLogger(__name__)
         logger.info(f"base_data_path: {self.data_base_path}")

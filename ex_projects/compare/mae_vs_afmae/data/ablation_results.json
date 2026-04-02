@@ -1,35 +1,65 @@
 {
-  "timestamp": "20260401_202938",
+  "timestamp": "20260402_171746",
   "projects": [
     {
       "name": "LSTMu16_base",
-      "label": "Base (MAE)",
+      "label": "LSTMu16 Base (MAE)",
       "path": "00_MAE_VS_AFMAE/LSTMu16_base"
     },
     {
-      "name": "LSTMu16_base_pureafmae",
-      "label": "LSTMu16 AFMAE",
-      "path": "00_MAE_VS_AFMAE/LSTMu16_base_pureafmae"
-    },
-    {
-      "name": "FRIKANh8u6l6_pureafmae",
-      "label": "AFMAE",
-      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
-    },
-    {
-      "name": "LSTMu16_base_puremae",
-      "label": "Pure MAE",
-      "path": "00_MAE_VS_AFMAE/LSTMu16_base_puremae"
-    },
-    {
-      "name": "FRIKANh8u6l6_puremae",
-      "label": "FRIKAN Pure MAE",
-      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_puremae"
+      "name": "LSTMu12_puremae",
+      "label": "LSTMu12 PureMAE",
+      "path": "00_MAE_VS_AFMAE/LSTMu12_puremae"
     },
     {
       "name": "FRIKANh8u6l6_base",
-      "label": "FRIKAN Base",
+      "label": "FRIKAN Base (MAE)",
       "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+    },
+    {
+      "name": "FRIKANh8u6l6_puremae",
+      "label": "FRIKAN PureMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_pureafmae",
+      "label": "FRIKAN PureAFMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6_nosym",
+      "label": "FRIKAN NoSym (MAE)",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_nosym"
+    },
+    {
+      "name": "FRIKANh8u6l6_nosym_puremae",
+      "label": "FRIKAN NoSym PureMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_nosym_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_nosym_pureafmae",
+      "label": "FRIKAN NoSym PureAFMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_nosym_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6",
+      "label": "FRIKANh8u6l6 (MAE)",
+      "path": "FRIKANh8u6l6"
+    },
+    {
+      "name": "FRIKANh8u6l6_4",
+      "label": "FRIKANh8u6l6_4 (MAE)",
+      "path": "FRIKANh8u6l6_4"
+    },
+    {
+      "name": "FRIKANh8u6l6_5",
+      "label": "FRIKANh8u6l6_5 (MAE)",
+      "path": "FRIKANh8u6l6_5"
+    },
+    {
+      "name": "FRIKANh8u6l6_6",
+      "label": "FRIKANh8u6l6_6 (MAE)",
+      "path": "FRIKANh8u6l6_6"
     }
   ],
   "metrics": {
@@ -41,29 +71,21 @@
         "max": 37.104746481824634,
         "median": 34.06987300321382
       },
-      "LSTMu16_base_pureafmae": {
-        "drift": 1.4443679833322136,
+      "LSTMu12_puremae": {
+        "drift": 2.050749296069881,
         "unit": "Hz",
-        "min": 33.02161674826841,
-        "max": 35.12849240357418,
-        "median": 33.684124420241965,
-        "suppression": 52.40763763261192
+        "min": 32.50823069005403,
+        "max": 35.83325982386032,
+        "median": 34.55897998612391,
+        "suppression": 32.42718978161177
       },
-      "FRIKANh8u6l6_pureafmae": {
-        "drift": 85.06558045057767,
+      "FRIKANh8u6l6_base": {
+        "drift": 3.676943618432162,
         "unit": "Hz",
-        "min": 50.2848837779133,
-        "max": 208.22589912299048,
-        "median": 123.16031867241281,
-        "suppression": -2702.9366314643107
-      },
-      "LSTMu16_base_puremae": {
-        "drift": 1.333432623602043,
-        "unit": "Hz",
-        "min": 33.17216899785109,
-        "max": 35.3606084905942,
-        "median": 34.50560162145313,
-        "suppression": 56.062991324026775
+        "min": 29.681545783708273,
+        "max": 35.72061613462257,
+        "median": 33.358489402140435,
+        "suppression": -21.156405509044536
       },
       "FRIKANh8u6l6_puremae": {
         "drift": 626964.7168997793,
@@ -73,13 +95,69 @@
         "median": 176.4226434931181,
         "suppression": -20658577.2502545
       },
-      "FRIKANh8u6l6_base": {
-        "drift": 3.676943618432162,
+      "FRIKANh8u6l6_pureafmae": {
+        "drift": 85.06558045057767,
         "unit": "Hz",
-        "min": 29.681545783708273,
-        "max": 35.72061613462257,
-        "median": 33.358489402140435,
-        "suppression": -21.156405509044536
+        "min": 50.2848837779133,
+        "max": 208.22589912299048,
+        "median": 123.16031867241281,
+        "suppression": -2702.9366314643107
+      },
+      "FRIKANh8u6l6_nosym": {
+        "drift": 2.47081973140682,
+        "unit": "Hz",
+        "min": 31.374633675503823,
+        "max": 35.82180153558132,
+        "median": 33.84545340691064,
+        "suppression": 18.585741750993297
+      },
+      "FRIKANh8u6l6_nosym_puremae": {
+        "drift": 196339.02069373097,
+        "unit": "Hz",
+        "min": 17.666714776556393,
+        "max": 196370.54497205987,
+        "median": 31.52427832891279,
+        "suppression": -6469330.178143818
+      },
+      "FRIKANh8u6l6_nosym_pureafmae": {
+        "drift": 645.8287218777698,
+        "unit": "Hz",
+        "min": 19.615985062503178,
+        "max": 742.443073370982,
+        "median": 96.61435149321217,
+        "suppression": -21180.25192580326
+      },
+      "FRIKANh8u6l6": {
+        "drift": 1.1996261388807667,
+        "unit": "Hz",
+        "min": 32.83509565328052,
+        "max": 35.09438096377036,
+        "median": 34.034721792161285,
+        "suppression": 60.471955508672956
+      },
+      "FRIKANh8u6l6_4": {
+        "drift": 1.1454381426975146,
+        "unit": "Hz",
+        "min": 32.87051405345456,
+        "max": 35.10731121419292,
+        "median": 34.01595219615208,
+        "suppression": 62.25746638960945
+      },
+      "FRIKANh8u6l6_5": {
+        "drift": 1.357593434687331,
+        "unit": "Hz",
+        "min": 32.864175115653346,
+        "max": 35.15858079299066,
+        "median": 34.22176855034068,
+        "suppression": 55.26688528350915
+      },
+      "FRIKANh8u6l6_6": {
+        "drift": 1.2411531945108365,
+        "unit": "Hz",
+        "min": 32.84028420952387,
+        "max": 34.96819482434995,
+        "median": 34.08143740403471,
+        "suppression": 59.10362645236322
       }
     },
     "sensitivity_drift": {
@@ -90,29 +168,21 @@
         "max": 68.24316686798767,
         "median": 64.10983383705617
       },
-      "LSTMu16_base_pureafmae": {
-        "drift": 8.095180906301863,
+      "LSTMu12_puremae": {
+        "drift": 12.657898485913314,
         "unit": "%",
-        "min": 58.8267142175227,
-        "max": 71.49182749587193,
-        "median": 63.39664658957007,
-        "suppression": -20.62121012398673
+        "min": 53.12173272453996,
+        "max": 68.26714890495929,
+        "median": 65.77963121045327,
+        "suppression": -88.60740120197504
       },
-      "FRIKANh8u6l6_pureafmae": {
-        "drift": 52.19423857019479,
+      "FRIKANh8u6l6_base": {
+        "drift": 18.127041447722164,
         "unit": "%",
-        "min": 0.0,
-        "max": 59.38241918801509,
-        "median": 7.188180617820303,
-        "suppression": -677.7135916673479
-      },
-      "LSTMu16_base_puremae": {
-        "drift": 8.485270072469696,
-        "unit": "%",
-        "min": 56.46735773928885,
-        "max": 67.6839439943158,
-        "median": 64.95262781175855,
-        "suppression": -26.433683967874703
+        "min": 44.22967661685843,
+        "max": 70.23029513787755,
+        "median": 62.35671806458059,
+        "suppression": -170.09966802468622
       },
       "FRIKANh8u6l6_puremae": {
         "drift": 5.432075719397894,
@@ -122,13 +192,69 @@
         "median": 0.4463397882412831,
         "suppression": 19.060048892937363
       },
-      "FRIKANh8u6l6_base": {
-        "drift": 18.127041447722164,
+      "FRIKANh8u6l6_pureafmae": {
+        "drift": 52.19423857019479,
         "unit": "%",
-        "min": 44.22967661685843,
-        "max": 70.23029513787755,
-        "median": 62.35671806458059,
-        "suppression": -170.09966802468622
+        "min": 0.0,
+        "max": 59.38241918801509,
+        "median": 7.188180617820303,
+        "suppression": -677.7135916673479
+      },
+      "FRIKANh8u6l6_nosym": {
+        "drift": 10.36395965508494,
+        "unit": "%",
+        "min": 50.258427697691744,
+        "max": 70.07654992045353,
+        "median": 60.622387352776684,
+        "suppression": -54.42685836697544
+      },
+      "FRIKANh8u6l6_nosym_puremae": {
+        "drift": 58.37219339062124,
+        "unit": "%",
+        "min": 0.0,
+        "max": 58.37219339062124,
+        "median": 0.0,
+        "suppression": -769.767419142784
+      },
+      "FRIKANh8u6l6_nosym_pureafmae": {
+        "drift": 352.80432570924324,
+        "unit": "%",
+        "min": 0.0,
+        "max": 381.9933629821959,
+        "median": 29.189037272952646,
+        "suppression": -5156.915836296842
+      },
+      "FRIKANh8u6l6": {
+        "drift": 5.573166600412634,
+        "unit": "%",
+        "min": 59.59149464906678,
+        "max": 69.69628803775151,
+        "median": 64.12312143733888,
+        "suppression": 16.957742224014268
+      },
+      "FRIKANh8u6l6_4": {
+        "drift": 7.120075384394212,
+        "unit": "%",
+        "min": 59.50222350236981,
+        "max": 70.48179950415573,
+        "median": 63.36172411976152,
+        "suppression": -6.0917747213115465
+      },
+      "FRIKANh8u6l6_5": {
+        "drift": 5.600093287711431,
+        "unit": "%",
+        "min": 58.969185980814935,
+        "max": 69.58970319516682,
+        "median": 63.98960990745539,
+        "suppression": 16.556524555847933
+      },
+      "FRIKANh8u6l6_6": {
+        "drift": 8.675284746385557,
+        "unit": "%",
+        "min": 58.86054101175299,
+        "max": 72.93668682374869,
+        "median": 64.26140207736313,
+        "suppression": -29.26497337009221
       }
     },
     "linearity": {
@@ -138,22 +264,16 @@
         "min": 0.10267560758597805,
         "unit": "%"
       },
-      "LSTMu16_base_pureafmae": {
-        "mean": 0.3834057908123031,
-        "max": 0.8828706169584644,
-        "min": 0.10874417284875149,
+      "LSTMu12_puremae": {
+        "mean": 0.32983370523905686,
+        "max": 0.8107028978029729,
+        "min": 0.12401830075009501,
         "unit": "%"
       },
-      "FRIKANh8u6l6_pureafmae": {
-        "mean": 85.20255737019366,
-        "max": 99.95044963887206,
-        "min": 59.05007424759391,
-        "unit": "%"
-      },
-      "LSTMu16_base_puremae": {
-        "mean": 0.42594669061077184,
-        "max": 1.5199874904686883,
-        "min": 0.09767484635991863,
+      "FRIKANh8u6l6_base": {
+        "mean": 0.5043891310472511,
+        "max": 1.4892882697370768,
+        "min": 0.09959341996536031,
         "unit": "%"
       },
       "FRIKANh8u6l6_puremae": {
@@ -162,10 +282,52 @@
         "min": 24.348978349369055,
         "unit": "%"
       },
-      "FRIKANh8u6l6_base": {
-        "mean": 0.5043891310472511,
-        "max": 1.4892882697370768,
-        "min": 0.09959341996536031,
+      "FRIKANh8u6l6_pureafmae": {
+        "mean": 85.20255737019366,
+        "max": 99.95044963887206,
+        "min": 59.05007424759391,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_nosym": {
+        "mean": 0.6696652501706217,
+        "max": 1.479450253740433,
+        "min": 0.2632291054262881,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_nosym_puremae": {
+        "mean": 40.03921564241398,
+        "max": 99.84091864875538,
+        "min": 9.24534004305202,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_nosym_pureafmae": {
+        "mean": 78.90026864231831,
+        "max": 99.29048973974169,
+        "min": 38.7266507644896,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6": {
+        "mean": 0.4973163046336644,
+        "max": 1.3997825235619765,
+        "min": 0.07015495134641281,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_4": {
+        "mean": 0.49960246214082615,
+        "max": 1.5491621033223657,
+        "min": 0.07477191237785785,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_5": {
+        "mean": 0.48562512021381254,
+        "max": 1.342505765681823,
+        "min": 0.06848587960959218,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_6": {
+        "mean": 0.5371693555920503,
+        "max": 1.2566481106395466,
+        "min": 0.12606630447411504,
         "unit": "%"
       }
     }

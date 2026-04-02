@@ -106,8 +106,6 @@ def _handle_evaluate_task(project_path, project_names, args):
     """处理评估任务"""
     project = ProjectManager(project_path)
     project.evaluate()
-    if len(project_names) == 1:
-        plt.show()
 
 
 def _handle_clean_task(project_path, project_name):

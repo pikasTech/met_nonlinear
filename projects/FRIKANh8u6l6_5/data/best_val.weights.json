@@ -576,7 +576,7 @@
         ]
     },
     {
-        "name": "dense_kan_159/spline_kernel:0",
+        "name": "dense_kan_1/spline_kernel:0",
         "shape": [
             8,
             10,
@@ -1251,7 +1251,7 @@
         ]
     },
     {
-        "name": "dense_kan_159/bias:0",
+        "name": "dense_kan_1/bias:0",
         "shape": [
             6
         ],
@@ -1274,7 +1274,7 @@
         ]
     },
     {
-        "name": "dense_kan_160/spline_kernel:0",
+        "name": "dense_kan_2/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -1785,7 +1785,7 @@
         ]
     },
     {
-        "name": "dense_kan_160/bias:0",
+        "name": "dense_kan_2/bias:0",
         "shape": [
             6
         ],
@@ -1808,7 +1808,7 @@
         ]
     },
     {
-        "name": "dense_kan_161/spline_kernel:0",
+        "name": "dense_kan_3/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -2319,7 +2319,7 @@
         ]
     },
     {
-        "name": "dense_kan_161/bias:0",
+        "name": "dense_kan_3/bias:0",
         "shape": [
             6
         ],
@@ -2342,7 +2342,7 @@
         ]
     },
     {
-        "name": "dense_kan_162/spline_kernel:0",
+        "name": "dense_kan_4/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -2853,7 +2853,7 @@
         ]
     },
     {
-        "name": "dense_kan_162/bias:0",
+        "name": "dense_kan_4/bias:0",
         "shape": [
             6
         ],
@@ -2876,7 +2876,7 @@
         ]
     },
     {
-        "name": "dense_kan_163/spline_kernel:0",
+        "name": "dense_kan_5/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -3387,7 +3387,7 @@
         ]
     },
     {
-        "name": "dense_kan_163/bias:0",
+        "name": "dense_kan_5/bias:0",
         "shape": [
             6
         ],
@@ -3410,7 +3410,7 @@
         ]
     },
     {
-        "name": "dense_kan_164/spline_kernel:0",
+        "name": "dense_kan_6/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -3921,7 +3921,7 @@
         ]
     },
     {
-        "name": "dense_kan_164/bias:0",
+        "name": "dense_kan_6/bias:0",
         "shape": [
             6
         ],
@@ -3944,7 +3944,7 @@
         ]
     },
     {
-        "name": "dense_kan_158/spline_kernel:0",
+        "name": "dense_kan/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -4155,7 +4155,7 @@
         ]
     },
     {
-        "name": "dense_kan_158/bias:0",
+        "name": "dense_kan/bias:0",
         "shape": [
             1
         ],

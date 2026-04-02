@@ -28,7 +28,7 @@
             "num_params": 0
         },
         {
-            "name": "dropout_25",
+            "name": "dropout",
             "type": "Dropout",
             "output_shape": [
                 null,
@@ -39,7 +39,7 @@
             "num_params": 0
         },
         {
-            "name": "simoiir_25",
+            "name": "simoiir",
             "type": "SIMOIIR",
             "output_shape": [
                 null,
@@ -50,7 +50,7 @@
             "num_params": 192
         },
         {
-            "name": "dense_kan_126",
+            "name": "dense_kan_1",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -61,7 +61,7 @@
             "num_params": 486
         },
         {
-            "name": "dense_kan_127",
+            "name": "dense_kan_2",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -72,7 +72,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_128",
+            "name": "dense_kan_3",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -83,7 +83,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_129",
+            "name": "dense_kan_4",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -94,7 +94,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_125",
+            "name": "dense_kan",
             "type": "DenseKAN",
             "output_shape": [
                 null,

@@ -1,0 +1,327 @@
+{
+    "analysis_type": "single_timestep_inference_compute",
+    "analysis_method": "Counts are derived from TensorFlow/Keras layer classes, actual weight tensor shapes, and layer parameter counts.",
+    "model_type": "FRIKAN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 2569,
+    "trainable_params": 2377,
+    "non_trainable_params": 192,
+    "assumptions": {
+        "batch_size": 1,
+        "time_steps": 1,
+        "dropout_active": false,
+        "maps_definition": "Each nonlinear activation evaluation counts as one MAP."
+    },
+    "totals": {
+        "additions": 0,
+        "multiplications": 0,
+        "maps": 0,
+        "total": 0
+    },
+    "layers": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "trainable": true,
+            "input_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "input_layer"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Input layer does not perform arithmetic operations."
+        },
+        {
+            "name": "dropout",
+            "type": "Dropout",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                1
+            ],
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "simoiir",
+            "type": "SIMOIIR",
+            "trainable": false,
+            "input_shape": [
+                null,
+                null,
+                1
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 192,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan_1",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 486,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan_2",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 366,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan_3",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 366,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan_4",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 366,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan_5",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 366,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan_6",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 366,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        },
+        {
+            "name": "dense_kan",
+            "type": "DenseKAN",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "num_params": 61,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet."
+        }
+    ],
+    "unsupported_layers": [
+        "dropout",
+        "simoiir",
+        "dense_kan_1",
+        "dense_kan_2",
+        "dense_kan_3",
+        "dense_kan_4",
+        "dense_kan_5",
+        "dense_kan_6",
+        "dense_kan"
+    ]
+}

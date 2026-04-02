@@ -1,0 +1,20 @@
+{
+  "completed_epoch": 1000,
+  "min_loss": 0.006129985675215721,
+  "min_val_loss": 0.006129823625087738,
+  "current_epoch": 1000,
+  "model_name": "LSTM",
+  "training_alive": false,
+  "timestamp": "20260402142438.0",
+  "best_weights_file": "projects\\00_MAE_VS_AFMAE\\LSTMu12_puremae/data\\projects\\00_MAE_VS_AFMAE\\LSTMu12_puremae_best_weights.h5",
+  "best_val_weights_file": "projects\\00_MAE_VS_AFMAE\\LSTMu12_puremae/data\\projects\\00_MAE_VS_AFMAE\\LSTMu12_puremae_best_val_weights.h5",
+  "loss": 0.006129908375442028,
+  "val_loss": 0.006129745859652758,
+  "val_power_log_loss": 0.043854862451553345,
+  "power_log_loss": 0.04319547489285469,
+  "lr": 0.0001619999820832163,
+  "elapsed_time": 1785.555006980896,
+  "remaining_time": 1.776687789048706,
+  "expected_finish_time": "2026-04-02 14:24:39",
+  "smoothed_speed": 2026.242326980562
+}
