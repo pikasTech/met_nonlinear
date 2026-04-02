@@ -21,7 +21,7 @@ TimeCF proposes a time series forecasting model combining:
 
 **Support Type**: Direct with Ablation Evidence
 
-- **Lines 259-261 (Equation 10)**: FFT-L1 loss is explicitly defined:
+- **Line 260 (Equation 10)**: FFT-L1 loss is explicitly defined:
 ```
 loss = α × |FFT(pred) - FFT(real)|_1 + (1-α) × MSE
 ```
@@ -50,7 +50,7 @@ This ablation demonstrates that SAMFre (FFT-L1 component) contributes positively
 1. **Lines 255-257**: SAMFre rationale:
 > "SAMFre projects the model's prediction results and the actual label values into the frequency domain through Fourier transform, then calculates the loss using the L1 norm, and finally adds it to the original MSE loss to get the complete loss"
 
-2. **Lines 259-261 (Equation 10)**: Loss definition:
+2. **Line 260 (Equation 10)**: Loss definition:
 > "loss = α × |FFT(pred) - FFT(real)|_1 + (1-α) × MSE"
 
 3. **Line 327**: Ablation evidence:

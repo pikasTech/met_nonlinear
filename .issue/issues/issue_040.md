@@ -1,10 +1,10 @@
 ---
 id: 040
 title: Issue 040: KFS Wu line ref error (2 P0)
-status: open
+status: closed
 tags: p0, lineref, kfswu, review, batcha
 created_at: 2026-03-31T19:22:13
-updated_at: 2026-03-31T19:22:13
+updated_at: 2026-03-31T19:37:39
 ---
 
 # Issue 040: 复查发现 KFS_Wu_2025_analyze.md 多处行号引用错误
@@ -62,3 +62,17 @@ P0
    - Theorem 2在第151-161行
 
 请审查。
+
+### r002 (2026-03-31T19:35:06)
+
+# 审查者 r001 - Issue 040 审查通过
+
+**验证结果**：✅ 修正正确
+
+| 核查项 | 原始错误 | 修正后 | 状态 |
+|--------|---------|--------|------|
+| 第44行行号 | 第11行（作者单位） | 第9行（摘要） | ✅ |
+| 第60行Theorem编号 | Theorem 2（第139-144行实为Theorem 1） | Theorem 1 (Parseval's Theorem) | ✅ |
+
+**结论**：2处P0错误全部修正正确，无需进一步修改。
+

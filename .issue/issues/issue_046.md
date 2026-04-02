@@ -1,10 +1,10 @@
 ---
 id: 046
 title: Issue 046: Willemstein line ref offset (P0)
-status: open
+status: closed
 tags: p0, lineref, willemstein, review, batchd
 created_at: 2026-03-31T19:22:24
-updated_at: 2026-03-31T19:22:24
+updated_at: 2026-03-31T19:37:45
 ---
 
 # Issue 046: 复查发现 Willemstein_2023_WH_Piezoresistive_analyze.md 行号引用偏差
@@ -51,3 +51,16 @@ P0
 - 第191-193行包含完整的Wiener-Hammerstein模型描述
 
 请审查。
+
+### r002 (2026-03-31T19:35:16)
+
+# 审查者 r001 - Issue 046 审查通过
+
+**验证结果**：✅ 修正正确
+
+| 核查项 | 原始错误 | 修正后 | 状态 |
+|--------|---------|--------|------|
+| 第41行行号 | 第187-188行（仅公式） | 第191-193行 | ✅ |
+
+**结论**：Wiener-Hammerstein模型描述引文已正确指向第191-193行，无需进一步修改。
+

@@ -21,13 +21,13 @@ FIRE proposes a unified frequency domain decomposition framework for time series
 
 **Support Type**: Direct with Ablation Evidence
 
-- **Lines 641-651**: FFT loss is explicitly defined as MAE in frequency domain:
+- **Line 646**: FFT loss is explicitly defined as MAE in frequency domain:
 ```
 L_fft = (1/N_f) Σ |FFT(X_true) - FFT(X_out)|
 ```
 This is FFT-MAE directly used in the composite loss.
 
-- **Lines 595-601**: Composite loss definition:
+- **Line 600**: Composite loss definition:
 ```
 L = L_wh + L_fft + R_phi  (Equation 22)
 ```
@@ -56,10 +56,10 @@ This ablation demonstrates that FFT-MAE contributes positively to forecasting ac
 
 1. **Line 167**: "FIRE introduces several key innovations: (i) independent modeling of amplitude and phase components, (ii) adaptive learning of weights of frequency basis components, (iii) a targeted loss function..."
 
-2. **Lines 595-601 (Equation 22)**: Composite loss definition:
+2. **Line 600 (Equation 22)**: Composite loss definition:
 > "FIRE employs a composite loss comprising the Huber loss with hybrid convergence (L_wh), FFT loss (L_fft), and phase regularization (R_phi)"
 
-3. **Lines 641-651 (Equation 26)**: FFT loss definition:
+3. **Line 646 (Equation 26)**: FFT loss definition:
 > "The FFT loss, L_fft, is defined as the mean absolute error (MAE) between the predicted and ground truth sequences in the frequency domain"
 
 4. **Line 749**: Ablation evidence for FFT loss contribution:

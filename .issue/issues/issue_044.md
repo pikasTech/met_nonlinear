@@ -1,10 +1,10 @@
 ---
 id: 044
 title: Issue 044: Revay line ref severe offset (P0)
-status: open
+status: closed
 tags: p0, lineref, revay, review, batchc
 created_at: 2026-03-31T19:22:20
-updated_at: 2026-03-31T19:22:20
+updated_at: 2026-03-31T19:37:44
 ---
 
 # Issue 044: 复查发现 Revay_2021_Recurrent_Equilibrium_analyze.md 行号引用严重偏差
@@ -51,3 +51,16 @@ P0
 - 偏差276行已纠正
 
 请审查。
+
+### r002 (2026-03-31T19:35:14)
+
+# 审查者 r001 - Issue 044 审查通过
+
+**验证结果**：✅ 修正正确
+
+| 核查项 | 原始错误 | 修正后 | 状态 |
+|--------|---------|--------|------|
+| 第37行脚注2行号 | 第41行（偏差276行） | 第317行 | ✅ |
+
+**结论**：Remark 2引文已正确指向第317行，无需进一步修改。
+

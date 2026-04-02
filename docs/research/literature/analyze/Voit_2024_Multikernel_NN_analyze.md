@@ -62,7 +62,7 @@
 - 第301-348行: "Frequency-Domain FIR-Block Representation"
 - 第305-307行: "Based on the success story of frequency-domain representations for adaptive online learning of FIR filters... this method is here adopted with the hypothesis of potentially advanced learning"
 - 第367-369行: 描述频域实现的计算效率优势
-- 第487-489行: "With speech input into the plants... merely the frequency-domain FIR block successfully attains the former -70dB NMSE. The self-correlation property of speech signals supposedly hinders efficient modelling in the time domain, but the frequency-domain ultimately rescues the training"
+- 第487-494行: "With speech input into the plants... merely the frequency-domain FIR block successfully attains the former -70dB NMSE. The self-correlation property of speech signals supposedly hinders efficient modelling in the time domain, but the frequency-domain ultimately rescues the training"
 
 **关键发现**: 频域方法对语音信号(自相关特性)能实现时域无法达到的-70dB NMSE
 

@@ -17,10 +17,17 @@
   - 引用要求
     - 必须精确引用到论文 markdown 的行号
     - 必须摘录关键的原文段落
+  
+- 规划要求
+  - 每个论文对应一个 mdissue
+  - 保持打开的 mdissue 在 8 个左右
+    - 如果少于 8 个，应该积极发现新的问题和任务，已经分析的论文也可以复查
+      - 复查任务必须重新打开已经关闭的 issue 或者创建新的 issue
+    - 如果多于 8 个，则不开启新的 issue，集中解决当前的 issue，但是也不能为了减少数量而草率关闭 issue，必须等审查者完全满意才关闭
 
 - 输入要求
   - `docs\research\literature\markdown\xxx.md` 论文 markdown 文件
-    - 必须分析**全部的71**个markdown文件，均要生成 `xxx_analyze.md` 分析报告，不得遗漏
+    - 必须分析**全部的**个markdown文件，均要生成 `xxx_analyze.md` 分析报告，不得遗漏
 
 - 输出要求
   - 分析结果输出到 `docs\research\literature\analyze` 目录下
@@ -37,3 +44,4 @@
   - 禁止模糊引用，必须精确到行号和段落
   - 禁止无根据的关联分析，必须有明确的论文内容支撑分析
   - 禁止跳过 `docs\research\literature\markdown\xxx.md` 里面的论文，必须全部分析
+  - 禁止在一个 mdissue 中分析多篇论文，避免注意力分散

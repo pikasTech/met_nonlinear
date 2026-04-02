@@ -21,7 +21,7 @@
 
 ### 2.1 摘要明确讨论标签自相关问题
 
-> 来源文件第37-43行（摘要）：
+> 来源文件第41-43行（摘要第41行起，正文内容）：
 > "Time series modeling presents unique challenges due to **autocorrelation in both historical data and future sequences**. While current research predominantly addresses autocorrelation within historical data, the correlations among future labels are often overlooked. Specifically, modern forecasting models primarily adhere to the Direct Forecast (DF) paradigm, generating multi-step forecasts independently and disregarding **label autocorrelation** over time. In this work, we demonstrate that the learning objective of DF is **biased** in the presence of label autocorrelation."
 >
 > 中文翻译：由于历史数据和未来序列中都存在自相关性，时间序列建模面临着独特的挑战。虽然当前的研究主要关注历史数据中的自相关性，但未来标签之间的相关性往往被忽视。具体而言，现代预测模型主要遵循直接预测(DF)范式，独立生成多步预测，而忽略了标签随时间推移的自相关性。在这项工作中，我们证明了在存在标签自相关性的情况下，DF的学习目标存在偏差。
