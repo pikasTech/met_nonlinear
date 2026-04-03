@@ -1,0 +1,59 @@
+{
+  "overall": {
+    "record_count": 1,
+    "sample_count": 400,
+    "mae": 0.018072909110343788,
+    "max_abs_error": 0.5630744782543182,
+    "c_output_stats": {
+      "min": 2.8e-05,
+      "max": 0.281485,
+      "mean": 0.011815085000000001,
+      "energy": 0.49503338256799995
+    },
+    "tf_output_stats": {
+      "min": -0.28158947825431824,
+      "max": 0.009693564847111702,
+      "mean": -0.00625782411034379,
+      "energy": 0.49513696734643714
+    },
+    "diff_stats": {
+      "min": 0.0004433813390582798,
+      "max": 0.5630744782543182,
+      "mean": 0.018072909110343788,
+      "energy": 1.9487314636471664
+    }
+  },
+  "per_record": [
+    {
+      "record_id": "mag0.24_freq10",
+      "magnitude": 0.24,
+      "frequency": 10.0,
+      "mae": 0.018072909110343788,
+      "max_abs_error": 0.5630744782543182,
+      "c_output_stats": {
+        "min": 2.8e-05,
+        "max": 0.281485,
+        "mean": 0.011815085000000001,
+        "energy": 0.49503338256799995
+      },
+      "tf_output_stats": {
+        "min": -0.28158947825431824,
+        "max": 0.009693564847111702,
+        "mean": -0.00625782411034379,
+        "energy": 0.49513696734643714
+      },
+      "diff_stats": {
+        "min": 0.0004433813390582798,
+        "max": 0.5630744782543182,
+        "mean": 0.018072909110343788,
+        "energy": 1.9487314636471664
+      }
+    }
+  ],
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/target_output.wave",
+    "c_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output.wave"
+  }
+}

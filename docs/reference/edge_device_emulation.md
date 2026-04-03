@@ -63,7 +63,37 @@ python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 python cli.py ep ex_projects/inference/qemu-c-inference/lstm_u16_base
 ```
 
-该命令会在对应 EP 目录下生成 `qemu_project/`，随后调用现有 `cli.py qemu` 工作流进行构建与运行，并把结果写入 `data/benchmark_summary.json`。
+如果当前默认 `python` 不是 TensorFlow 2.6 环境，应改为显式使用 `tf26` 的解释器运行，例如：
+
+```powershell
+& 'C:\Users\liang\.conda\envs\tf26\python.exe' cli.py ep ex_projects/inference/qemu-c-inference/lstm_u16_base
+```
+
+这里的绝对路径只是实例，不应硬编码到自动化脚本里。更稳妥的规则是：先定位名为 `tf26` 的 Conda 环境，再使用该环境下的 `python.exe`。
+
+常见路径规律：
+
+- `C:\Users\<用户名>\.conda\envs\tf26\python.exe`
+- `C:\Users\<用户名>\MiniConda3\envs\tf26\python.exe`
+- `C:\Users\<用户名>\miniconda3\envs\tf26\python.exe`
+
+推荐定位命令：
+
+```powershell
+conda env list
+where conda
+Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\MiniConda3\envs\tf26\python.exe","$env:USERPROFILE\miniconda3\envs\tf26\python.exe" -ErrorAction SilentlyContinue
+```
+
+该命令会读取 `validation_config` 中指定的 MET 数据集和筛选条件，先在 Python/TensorFlow 侧生成参考输出，再在对应 EP 目录下生成 `qemu_project/` 并调用现有 `cli.py qemu` 工作流进行构建与运行。
+
+默认流程包括：
+
+1. 从 `best_val.weights.json` 和对应 `.h5` 权重加载 LSTM。
+2. 按 `magnitudes`、`frequencies`、`start_time_s`、`end_time_s` 选择 MET 数据集子集。
+3. 导出 C 端所需的模型参数、缩放参数和验证输入序列到 `qemu_project/model_data.h`。
+4. 运行 QEMU，捕获逐样本 `validation_record_*` 输出。
+5. 生成 `data/benchmark_summary.json`、`data/validation_comparison.json` 和 `data/waves/*.wave`。
 
 该入口在 EP 索引中归类为 `qemu-c-inference` 任务，路径格式与模板生成规则见 [ep 子命令说明](ep.md)。
 
@@ -72,12 +102,35 @@ python cli.py ep ex_projects/inference/qemu-c-inference/lstm_u16_base
 预期输出中应包含类似：
 
 ```text
-LSTM_QEMU_BENCHMARK
+LSTM_QEMU_VALIDATION
 dwt_supported=0
 timer_source=host_elapsed
-measurement_unit=seconds
-measurement_per_iter=...
+validation_record_0=...
+validation_complete=1
 ```
+
+### 验证输出说明
+
+执行完成后，重点看以下产物：
+
+| 文件 | 作用 |
+|------|------|
+| `data/benchmark_summary.json` | 记录 QEMU build/run 结果、计时字段和汇总后的对比指标 |
+| `data/validation_comparison.json` | 记录每条波形的 MAE、最大绝对误差、最大值、最小值、均值、能量等统计 |
+| `data/waves/origin_input.wave` | 输入波形 |
+| `data/waves/target_output.wave` | 目标输出波形 |
+| `data/waves/tf_output.wave` | TF26 参考输出波形 |
+| `data/waves/c_output.wave` | QEMU C 推理输出波形 |
+
+当前实现里，`benchmark_summary.json` 和 `validation_comparison.json` 都会汇总以下指标：
+
+- `mae`
+- `max_abs_error`
+- `c_output_stats.min/max/mean/energy`
+- `tf_output_stats.min/max/mean/energy`
+- `diff_stats.min/max/mean/energy`
+
+如果 `c_output` 与 `tf_output` 偏差明显，说明当前 C 侧实现与 TensorFlow 参考实现仍存在数值不一致，通常应优先排查激活函数近似、gate 顺序和缩放参数处理。
 
 ## 本机工具链
 

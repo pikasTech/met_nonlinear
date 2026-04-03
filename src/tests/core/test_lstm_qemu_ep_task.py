@@ -73,18 +73,52 @@ class TestQemuCInferenceTemplate:
         template = _create_qemu_c_inference_template(ep_path)
         assert template['task_info']['task_type'] == 'qemu-c-inference'
         assert template['model_project_name'] == '00_MAE_VS_AFMAE/LSTMu16_base'
+        assert template['validation_config']['dataset']['dataset_type'] == 'MET'
         assert template['qemu_config']['action'] == 'build-run'
 
 
 class TestExecuteLstmQemuInferenceTask:
     @patch('core.lstm_qemu_ep_task.execute_qemu_workflow')
-    def test_execute_build_run_success(self, mock_execute_qemu_workflow, tmp_path, monkeypatch):
+    @patch('core.lstm_qemu_ep_task._prepare_validation_artifacts')
+    def test_execute_build_run_success(self, mock_prepare_validation_artifacts, mock_execute_qemu_workflow, tmp_path, monkeypatch):
         from core.external_path_parser import ExternalPath
         import core.lstm_qemu_ep_task as task_module
 
         actual_template_dir = task_module.QEMU_HELLO_TEMPLATE_DIR
         monkeypatch.setattr(task_module, 'REPO_ROOT', tmp_path)
         monkeypatch.setattr(task_module, 'QEMU_HELLO_TEMPLATE_DIR', actual_template_dir)
+
+        mock_prepare_validation_artifacts.return_value = task_module.ValidationArtifacts(
+            dataset_type='MET',
+            full_data_path='data/M50',
+            sample_rate=2000.0,
+            time_window={
+                'start_time_s': 0.0,
+                'end_time_s': 0.003,
+                'sample_count': 3,
+            },
+            input_data_range=2.0,
+            output_data_range=4.0,
+            loaded_weights_path=tmp_path / 'projects' / 'demo_project' / 'data' / 'best_val.weights.h5',
+            records=[
+                task_module.ValidationRecord(
+                    record_id='mag0.4_freq10',
+                    magnitude=0.4,
+                    frequency=10.0,
+                    input_sequence=[[0.1], [0.2], [0.3]],
+                    target_sequence=[0.5, 0.6, 0.7],
+                    tf_output_sequence=[0.11, 0.22, 0.33],
+                ),
+                task_module.ValidationRecord(
+                    record_id='mag0.4_freq20',
+                    magnitude=0.4,
+                    frequency=20.0,
+                    input_sequence=[[0.4], [0.5], [0.6]],
+                    target_sequence=[0.8, 0.9, 1.0],
+                    tf_output_sequence=[0.44, 0.55, 0.66],
+                ),
+            ],
+        )
 
         model_dir = tmp_path / 'projects' / 'demo_project' / 'data'
         model_dir.mkdir(parents=True)
@@ -111,9 +145,19 @@ class TestExecuteLstmQemuInferenceTask:
                 'exit_code': 0,
                 'run': {
                     'elapsed_seconds': 0.34,
-                    'stdout': 'iterations=100\ndwt_supported=0\ntimer_source=systick\nmeasurement_unit=ticks\nmeasurement_per_iter=321\noutput=0.125000\n',
+                    'stdout': (
+                        'iterations=100\n'
+                        'dwt_supported=0\n'
+                        'timer_source=host_elapsed\n'
+                        'measurement_unit=seconds\n'
+                        'measurement_per_iter=0.0034\n'
+                        'output=0.330000\n'
+                        'validation_record_0=0.110000,0.220000,0.330000\n'
+                        'validation_record_1=0.440000,0.550000,0.660000\n'
+                        'validation_complete=1\n'
+                    ),
                     'stderr': '',
-                    'timed_out': True,
+                    'timed_out': False,
                 },
             },
             {
@@ -121,9 +165,19 @@ class TestExecuteLstmQemuInferenceTask:
                 'exit_code': 0,
                 'run': {
                     'elapsed_seconds': 0.36,
-                    'stdout': 'iterations=100\ndwt_supported=0\ntimer_source=systick\nmeasurement_unit=ticks\nmeasurement_per_iter=323\noutput=0.126000\n',
+                    'stdout': (
+                        'iterations=100\n'
+                        'dwt_supported=0\n'
+                        'timer_source=host_elapsed\n'
+                        'measurement_unit=seconds\n'
+                        'measurement_per_iter=0.0036\n'
+                        'output=0.330000\n'
+                        'validation_record_0=0.110000,0.220000,0.330000\n'
+                        'validation_record_1=0.440000,0.550000,0.660000\n'
+                        'validation_complete=1\n'
+                    ),
                     'stderr': '',
-                    'timed_out': True,
+                    'timed_out': False,
                 },
             },
         ]
@@ -135,9 +189,26 @@ class TestExecuteLstmQemuInferenceTask:
             'model_project_name': 'demo_project',
             'benchmark_config': {
                 'iterations': 100,
-                'input_sequence': [0.1, 0.2],
                 'reset_state_each_run': True,
                 'repeat_runs': 2,
+            },
+            'validation_config': {
+                'dataset': {
+                    'dataset_type': 'MET',
+                    'data_path': 'data/M50',
+                    'sample_rate': 2000,
+                    'time_clipped_s': 4.0,
+                    'target_sweep': 2,
+                },
+                'selection': {
+                    'magnitudes': [0.4],
+                    'frequencies': [10.0, 20.0],
+                    'start_time_s': 0.0,
+                    'end_time_s': 0.003,
+                },
+                'wave_output': {
+                    'compress': True,
+                },
             },
             'generation_config': {
                 'project_dir': 'qemu_project',
@@ -164,7 +235,9 @@ class TestExecuteLstmQemuInferenceTask:
             summary = json.load(file_obj)
 
         assert summary['aggregated']['run_count'] == 2
-        assert summary['aggregated']['avg_measurement_per_iter'] == 322.0
-        assert summary['aggregated']['measurement_sources'] == ['systick']
+        assert summary['aggregated']['avg_measurement_per_iter'] == pytest.approx(0.0035)
+        assert summary['aggregated']['measurement_sources'] == ['host_elapsed']
         assert summary['aggregated']['avg_host_elapsed_seconds'] == pytest.approx(0.35)
+        assert summary['comparison']['mae'] == pytest.approx(0.0)
+        assert 'c_output_wave' in summary['wave_paths']
         assert mock_execute_qemu_workflow.call_count == 3

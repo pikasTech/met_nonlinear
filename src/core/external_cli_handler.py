@@ -175,7 +175,7 @@ def _create_qemu_c_inference_template(ep_path: ExternalPath) -> dict:
     return {
         "task_info": {
             "task_type": "qemu-c-inference",
-            "description": "从 LSTM 项目权重生成裸机 QEMU C 工程，并执行推理耗时测试"
+            "description": "使用 MET 数据集子集执行 LSTM 的 C/TF26 波形一致性验证"
         },
         "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
         "weights_file": "best_val.weights.json",
@@ -184,10 +184,31 @@ def _create_qemu_c_inference_template(ep_path: ExternalPath) -> dict:
             "overwrite": True
         },
         "benchmark_config": {
-            "iterations": 1000,
-            "input_sequence": [0.1],
+            "iterations": 10,
             "reset_state_each_run": True,
             "repeat_runs": 1
+        },
+        "validation_config": {
+            "dataset": {
+                "source_project_config": "projects/LSTMu16/config.json",
+                "dataset_type": "MET",
+                "data_path": "data/M50",
+                "sample_rate": 2000,
+                "time_clipped_s": 4.0,
+                "target_sweep": 2,
+                "feature_range": [-1, 1],
+                "use_scale": True,
+                "use_cache_features": True
+            },
+            "selection": {
+                "magnitudes": [0.24],
+                "frequencies": [10.0],
+                "start_time_s": 0.0,
+                "end_time_s": 0.2
+            },
+            "wave_output": {
+                "compress": True
+            }
         },
         "qemu_config": {
             "action": "build-run",

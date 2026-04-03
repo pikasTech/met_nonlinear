@@ -507,7 +507,7 @@ class VisualizationConfigValidator:
 
     QEMU_C_INFERENCE_SCHEMA = {
         "type": "object",
-        "required": ["task_info", "model_project_name", "benchmark_config", "qemu_config"],
+        "required": ["task_info", "model_project_name", "benchmark_config", "validation_config", "qemu_config"],
         "additionalProperties": False,
         "properties": {
             "task_info": {
@@ -553,11 +553,6 @@ class VisualizationConfigValidator:
                         "minimum": 1,
                         "maximum": 100000000
                     },
-                    "input_sequence": {
-                        "type": "array",
-                        "minItems": 1,
-                        "maxItems": 4096
-                    },
                     "reset_state_each_run": {
                         "type": "boolean"
                     },
@@ -565,6 +560,93 @@ class VisualizationConfigValidator:
                         "type": "integer",
                         "minimum": 1,
                         "maximum": 1000
+                    }
+                }
+            },
+            "validation_config": {
+                "type": "object",
+                "required": ["dataset", "selection"],
+                "additionalProperties": False,
+                "properties": {
+                    "dataset": {
+                        "type": "object",
+                        "required": ["dataset_type", "data_path", "sample_rate", "time_clipped_s", "target_sweep"],
+                        "additionalProperties": False,
+                        "properties": {
+                            "source_project_config": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "dataset_type": {
+                                "type": "string",
+                                "enum": ["MET", "Alias", "PE", "AliasSimu"]
+                            },
+                            "data_path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "data_base_path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sample_rate": {
+                                "type": "number",
+                                "minimum": 1
+                            },
+                            "time_clipped_s": {
+                                "type": "number",
+                                "minimum": 0.000001
+                            },
+                            "target_sweep": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "feature_range": {
+                                "type": "array",
+                                "minItems": 2,
+                                "maxItems": 2,
+                                "items": {"type": "number"}
+                            },
+                            "use_scale": {
+                                "type": "boolean"
+                            },
+                            "use_cache_features": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "selection": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "magnitudes": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {"type": "number"}
+                            },
+                            "frequencies": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {"type": "number"}
+                            },
+                            "start_time_s": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "end_time_s": {
+                                "type": "number",
+                                "minimum": 0
+                            }
+                        }
+                    },
+                    "wave_output": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "compress": {
+                                "type": "boolean"
+                            }
+                        }
                     }
                 }
             },
@@ -859,9 +941,19 @@ class VisualizationConfigValidator:
     def _validate_qemu_c_inference_logic(self, config: Dict[str, Any]) -> None:
         """QEMU C 推理任务的特殊验证"""
         benchmark_config = config.get("benchmark_config", {})
-        input_sequence = benchmark_config.get("input_sequence", [])
-        if not input_sequence:
-            raise ConfigValidationError("qemu-c-inference 任务要求 benchmark_config.input_sequence 非空")
+        if int(benchmark_config.get("iterations", 0)) <= 0:
+            raise ConfigValidationError("qemu-c-inference 任务要求 benchmark_config.iterations 大于 0")
+
+        validation_config = config.get("validation_config", {})
+        dataset_config = validation_config.get("dataset", {})
+        if dataset_config.get("dataset_type") != "MET":
+            raise ConfigValidationError("当前 qemu-c-inference 波形校验仅支持 MET 数据集")
+
+        selection_config = validation_config.get("selection", {})
+        start_time_s = float(selection_config.get("start_time_s", 0.0) or 0.0)
+        end_time_s = selection_config.get("end_time_s")
+        if end_time_s is not None and float(end_time_s) <= start_time_s:
+            raise ConfigValidationError("validation_config.selection.end_time_s 必须大于 start_time_s")
 
         qemu_config = config.get("qemu_config", {})
         action = qemu_config.get("action")

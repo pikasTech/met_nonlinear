@@ -15,6 +15,8 @@
 - 2026-04-03: `qemu-c-inference` 应直接从 `best_val.weights.json` 生成专用 bare-metal C 工程，不要复用桌面版 `src/inference/cimpl/lstm.c`；后者依赖 `printf/math.h`，在 `-nostdlib` 的 QEMU 构建里不稳
 - 2026-04-03: 生成 C 源码模板时若包含 `\n`/`\r`/`\0`，优先用原始字符串保留转义；但 `#include "..."` 不能保留反斜杠，否则会生成非法源码
 - 2026-04-03: QEMU 的 Cortex-M4 场景下不要把 `DWT_CYCCNT` 当成可靠 benchmark 来源；应先探测 DWT 是否真正递增，当前仓库在 DWT 不可用时以 host-side elapsed time 作为回退计时，避免在 guest 内伪造 cycle/tick 指标
+- 2026-04-03: 当前机器可用的 tf26 解释器是 `C:\Users\liang\.conda\envs\tf26\python.exe`，不要照抄 CLAUDE.md 里的旧绝对路径
+- 2026-04-03: `src/calibration_analyzer/datastruct.py` 与根目录同名文件里对 `exam_class` 的反向导入是无用且会触发循环导入；遇到 `DataRecord from partially initialized module` 先检查这行
 
 ## Patterns That Don't Work
 - Trying to remove the corrupted `-p` directory in root (encoding issues make it inaccessible) - KNOWN ISSUE, documented in napkin
@@ -325,3 +327,21 @@
 - 所有引用经验证与markdown源文件一致
 - 已通过mdissue CLI发送回复(r004)
 - 建议全部关闭（await审查者确认）
+
+## 2026-04-03 R214 规划完成
+### 审查结果
+- 928 Howard_2026_SINDy_KANs: 审查通过✅
+- 929 Iacob_2025_Koopman_Schoukens: 审查通过✅
+- 922-927: 审查发现P0/P1问题需执行者修正
+
+### 续审Issue (922-927)
+- 922: FIRE_He_2025 P0数据错误(P0: FIRE_base 0/7→1/7) + P1行号偏差
+- 923: Fang_2024 P0概念误读(Allan deviation≠噪声抑制)
+- 924: Fasmin_2017 P1温度依赖性过度解读
+- 925: Gaonkar_2026 P1第44行Table引用位置错误
+- 926: Genet_2024 引用准确但GAP评估过于保守
+- 927: Hoekstra_2026 P1第188行应为187-188行
+
+### 新开Issue (930-931)
+- 930: Willemstein_2023_WH_Piezoresistive (R199后~14轮)
+- 931: Wahlberg_2015_stochastic_Wiener (R191后~22轮)

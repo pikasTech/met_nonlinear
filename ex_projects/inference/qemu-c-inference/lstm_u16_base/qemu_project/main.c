@@ -21,6 +21,8 @@
 #define DEMCR_TRCENA (1u << 24)
 #define DWT_CTRL_CYCCNTENA (1u << 0)
 
+static port_float validation_output[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN];
+
 static void uart_init(void)
 {
     RCC_APB2ENR |= RCC_APB2ENR_USART1EN;
@@ -124,11 +126,6 @@ static uint32_t dwt_is_counting(void)
     return after > before ? 1u : 0u;
 }
 
-static port_float abs_approx(port_float value)
-{
-    return value < 0.0f ? -value : value;
-}
-
 static port_float tanh_approx(port_float value)
 {
     port_float squared;
@@ -168,58 +165,17 @@ static void zero_buffer(port_float *buffer, uint32_t length)
     }
 }
 
-static void lstm_forward(const port_float sequence[BENCHMARK_SEQ_LEN][LSTM_INPUT_DIM],
-                         port_float hidden_state[LSTM_UNITS],
-                         port_float cell_state[LSTM_UNITS])
+static port_float scale_input(port_float value)
 {
-    uint32_t step;
-    port_float previous_hidden[LSTM_UNITS];
-    port_float previous_cell[LSTM_UNITS];
-
-    for (step = 0u; step < BENCHMARK_SEQ_LEN; ++step) {
-        uint32_t unit;
-        for (unit = 0u; unit < LSTM_UNITS; ++unit) {
-            previous_hidden[unit] = hidden_state[unit];
-            previous_cell[unit] = cell_state[unit];
-        }
-
-        for (unit = 0u; unit < LSTM_UNITS; ++unit) {
-            uint32_t input_index;
-            uint32_t hidden_index;
-            port_float input_gate_acc = lstm_bias[unit + LSTM_UNITS * 0u];
-            port_float forget_gate_acc = lstm_bias[unit + LSTM_UNITS * 1u];
-            port_float candidate_acc = lstm_bias[unit + LSTM_UNITS * 2u];
-            port_float output_gate_acc = lstm_bias[unit + LSTM_UNITS * 3u];
-
-            for (input_index = 0u; input_index < LSTM_INPUT_DIM; ++input_index) {
-                port_float input_value = sequence[step][input_index];
-                input_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 0u];
-                forget_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 1u];
-                candidate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 2u];
-                output_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 3u];
-            }
-
-            for (hidden_index = 0u; hidden_index < LSTM_UNITS; ++hidden_index) {
-                port_float hidden_value = previous_hidden[hidden_index];
-                input_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 0u];
-                forget_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 1u];
-                candidate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 2u];
-                output_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 3u];
-            }
-
-            {
-                port_float input_gate = sigmoid_approx(input_gate_acc);
-                port_float forget_gate = sigmoid_approx(forget_gate_acc);
-                port_float candidate = tanh_approx(candidate_acc);
-                port_float output_gate = sigmoid_approx(output_gate_acc);
-                port_float cell_value = forget_gate * previous_cell[unit] + input_gate * candidate;
-                port_float hidden_value = output_gate * tanh_approx(cell_value);
-
-                cell_state[unit] = cell_value;
-                hidden_state[unit] = hidden_value;
-            }
-        }
+    if (SCALER_INPUT_DATA_RANGE == 0.0f) {
+        return value;
     }
+    return value / SCALER_INPUT_DATA_RANGE;
+}
+
+static port_float inverse_scale_output(port_float value)
+{
+    return value * SCALER_OUTPUT_DATA_RANGE;
 }
 
 static void dense_forward_relu(const port_float input[LSTM_UNITS],
@@ -246,13 +202,87 @@ static port_float output_forward_linear(const port_float input[DENSE_UNITS])
     return sum;
 }
 
+static void lstm_forward_step(const port_float input_step[LSTM_INPUT_DIM],
+                              port_float hidden_state[LSTM_UNITS],
+                              port_float cell_state[LSTM_UNITS],
+                              port_float *output_value)
+{
+    uint32_t unit;
+    port_float previous_hidden[LSTM_UNITS];
+    port_float previous_cell[LSTM_UNITS];
+    port_float dense_output[DENSE_UNITS];
+
+    for (unit = 0u; unit < LSTM_UNITS; ++unit) {
+        previous_hidden[unit] = hidden_state[unit];
+        previous_cell[unit] = cell_state[unit];
+    }
+
+    for (unit = 0u; unit < LSTM_UNITS; ++unit) {
+        uint32_t input_index;
+        uint32_t hidden_index;
+        port_float input_gate_acc = lstm_bias[unit + LSTM_UNITS * 0u];
+        port_float forget_gate_acc = lstm_bias[unit + LSTM_UNITS * 1u];
+        port_float candidate_acc = lstm_bias[unit + LSTM_UNITS * 2u];
+        port_float output_gate_acc = lstm_bias[unit + LSTM_UNITS * 3u];
+
+        for (input_index = 0u; input_index < LSTM_INPUT_DIM; ++input_index) {
+            port_float input_value = scale_input(input_step[input_index]);
+            input_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 0u];
+            forget_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 1u];
+            candidate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 2u];
+            output_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 3u];
+        }
+
+        for (hidden_index = 0u; hidden_index < LSTM_UNITS; ++hidden_index) {
+            port_float hidden_value = previous_hidden[hidden_index];
+            input_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 0u];
+            forget_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 1u];
+            candidate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 2u];
+            output_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 3u];
+        }
+
+        {
+            port_float input_gate = sigmoid_approx(input_gate_acc);
+            port_float forget_gate = sigmoid_approx(forget_gate_acc);
+            port_float candidate = tanh_approx(candidate_acc);
+            port_float output_gate = sigmoid_approx(output_gate_acc);
+            port_float cell_value = forget_gate * previous_cell[unit] + input_gate * candidate;
+            port_float hidden_value = output_gate * tanh_approx(cell_value);
+
+            cell_state[unit] = cell_value;
+            hidden_state[unit] = hidden_value;
+        }
+    }
+
+    dense_forward_relu(hidden_state, dense_output);
+    *output_value = inverse_scale_output(output_forward_linear(dense_output));
+}
+
+static void run_validation_record(const port_float sequence[VALIDATION_SEQ_LEN][LSTM_INPUT_DIM],
+                                  port_float output_sequence[VALIDATION_SEQ_LEN],
+                                  uint32_t reset_state_each_run,
+                                  port_float hidden_state[LSTM_UNITS],
+                                  port_float cell_state[LSTM_UNITS])
+{
+    uint32_t step;
+    if (reset_state_each_run != 0u) {
+        zero_buffer(hidden_state, LSTM_UNITS);
+        zero_buffer(cell_state, LSTM_UNITS);
+    }
+
+    for (step = 0u; step < VALIDATION_SEQ_LEN; ++step) {
+        lstm_forward_step(sequence[step], hidden_state, cell_state, &output_sequence[step]);
+    }
+}
+
 int main(void)
 {
     uint32_t iteration;
+    uint32_t record_index;
+    uint32_t step_index;
     uint32_t dwt_supported;
     port_float hidden_state[LSTM_UNITS];
     port_float cell_state[LSTM_UNITS];
-    port_float dense_output[DENSE_UNITS];
     port_float output_value = 0.0f;
     uint32_t start_cycles;
     uint32_t end_cycles;
@@ -268,14 +298,16 @@ int main(void)
     }
 
     for (iteration = 0u; iteration < BENCHMARK_ITERATIONS; ++iteration) {
-        if (BENCHMARK_RESET_STATE_EACH_RUN != 0u) {
-            zero_buffer(hidden_state, LSTM_UNITS);
-            zero_buffer(cell_state, LSTM_UNITS);
+        for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+            run_validation_record(
+                validation_input[record_index],
+                validation_output[record_index],
+                BENCHMARK_RESET_STATE_EACH_RUN,
+                hidden_state,
+                cell_state
+            );
+            output_value = validation_output[record_index][VALIDATION_SEQ_LEN - 1u];
         }
-
-        lstm_forward(benchmark_input, hidden_state, cell_state);
-        dense_forward_relu(hidden_state, dense_output);
-        output_value = output_forward_linear(dense_output);
     }
 
     if (dwt_supported != 0u) {
@@ -283,11 +315,25 @@ int main(void)
         total_cycles = end_cycles - start_cycles;
     }
 
-    uart_puts("LSTM_QEMU_BENCHMARK\n");
+    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+        zero_buffer(hidden_state, LSTM_UNITS);
+        zero_buffer(cell_state, LSTM_UNITS);
+        run_validation_record(
+            validation_input[record_index],
+            validation_output[record_index],
+            0u,
+            hidden_state,
+            cell_state
+        );
+    }
+
+    uart_puts("LSTM_QEMU_VALIDATION\n");
     uart_puts("iterations=");
     uart_put_u32(BENCHMARK_ITERATIONS);
+    uart_puts("\nrecord_count=");
+    uart_put_u32(VALIDATION_RECORD_COUNT);
     uart_puts("\nseq_len=");
-    uart_put_u32(BENCHMARK_SEQ_LEN);
+    uart_put_u32(VALIDATION_SEQ_LEN);
     uart_puts("\ninput_dim=");
     uart_put_u32(LSTM_INPUT_DIM);
     uart_puts("\nlstm_units=");
@@ -313,6 +359,20 @@ int main(void)
     uart_puts("\noutput=");
     uart_put_fixed6(output_value);
     uart_puts("\n");
+
+    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+        uart_puts("validation_record_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {
+            if (step_index > 0u) {
+                uart_putc(',');
+            }
+            uart_put_fixed6(validation_output[record_index][step_index]);
+        }
+        uart_puts("\n");
+    }
+    uart_puts("validation_complete=1\n");
 
     while (1) {
     }

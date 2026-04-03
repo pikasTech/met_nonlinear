@@ -2,8 +2,20 @@
 
 ## 环境配置
 
-- 训练环境：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
-- CLI训练命令：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe cli.py -t PROJECT_NAME`
+- 训练环境：使用名为 `tf26` 的 Conda 环境 Python，而不是硬编码某台机器的绝对路径。
+- 常见路径规律：
+	- `C:\Users\<用户名>\.conda\envs\tf26\python.exe`
+	- `C:\Users\<用户名>\MiniConda3\envs\tf26\python.exe`
+	- `C:\Users\<用户名>\miniconda3\envs\tf26\python.exe`
+- 当前主机实例：`C:\Users\liang\.conda\envs\tf26\python.exe`
+- CLI训练命令：`<TF26_PYTHON> cli.py -t PROJECT_NAME`
+
+> **定位规律**：先找 `tf26` 这个环境名，再拼接到对应的 Conda 根目录，不要先假设用户名或 Conda 安装目录固定。
+
+> **推荐定位命令**：
+> - `conda env list`
+> - `where conda`
+> - `Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\MiniConda3\envs\tf26\python.exe","$env:USERPROFILE\miniconda3\envs\tf26\python.exe" -ErrorAction SilentlyContinue`
 
 > **PROJECT_NAME 路径格式**：主命令（`-t`、`-e`、`-m` 等）传入相对路径，格式为 `projects/项目路径`，如 `projects\01_EPOCH1000\FRIKANh6u6l6_e1k_1` 或 `projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base`。
 
@@ -81,8 +93,8 @@
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"`
-	- LSTM QEMU 推理：从 `best_val.weights.json` 生成裸机 C 工程并执行推理 benchmark，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
-	- 输出产物：生成 `qemu_project/` 与 `data/benchmark_summary.json`，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+	- LSTM QEMU 校验：基于 MET 数据集子集生成裸机 C 工程，并执行 C/TF26 双路径波形一致性验证，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+	- 输出产物：生成 `qemu_project/`、`data/benchmark_summary.json`、`data/validation_comparison.json` 与 `data/waves/*.wave`，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `python cli.py ep "compare/lr_test_1k_epoch"`

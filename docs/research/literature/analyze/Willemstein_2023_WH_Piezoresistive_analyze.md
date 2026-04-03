@@ -39,7 +39,7 @@
 **方法论支撑**:
 - 第153-155行: "使用Wiener-Hammerstein模型(WH模型)来补偿传感致动器的非线性滞后现象"
 - 第153行: "线性和非线性函数的组合使WH模型能够捕捉电阻变化和应变之间固有的非线性耦合，同时也考虑变形历史(以补偿滞后现象)"
-- WH模型结构: 输入→线性系统H1→静态非线性g(.)→线性系统H2→输出，与Wiener结构形式相似但多了一段线性系统（H2）；Wiener结构为输入→线性系统→静态非线性→输出，而WH结构额外包含输出端的线性系统H2
+- WH模型结构: 输入→线性系统H1→静态非线性g(.)→线性系统H2→输出，与Wiener结构形式相似但多了一段线性系统（H2）（第153行描述WH模型由"两个线性系统和一个中间静态非线性组成"，第168行公式中使用了H1(q)标记输入线性系统）；Wiener结构为输入→线性系统→静态非线性→输出，而WH结构额外包含输出端的线性系统H2
 
 **关键引文**:
 > **第153-155行**: "a system identification approach is used to identify a model that can estimate the strain of the actuator based on the resistance change over time. Specifically, the usage of a Wiener-Hammerstein model (WH model)"

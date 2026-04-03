@@ -91,7 +91,7 @@
 #### 计算效率改进（IDEA第102-104行）
 
 - 论文第83行（贡献列表）的原文为："The computations for the indirect inference method are just a fraction of the ones for calculating the maximum-likelihood estimate."，中文翻译为"间接推理方法的计算量只是计算最大似然估计量的一小部分"。原文仅表示"一小部分"，未给出具体数值比例
-- 这支撑了Wiener-KAN中IIR相对1D-CNN/RNN/LSTM的计算效率改进声称
+- 该发现表明基于模型辨识的方法（间接推理）比纯统计方法（最大似然估计）计算量更少，这对Wiener-KAN架构选择轻量级线性核（IIR）而非重型核（1D-CNN/RNN/LSTM）的设计思路具有间接参考价值
 
 ## 引用原文摘录
 

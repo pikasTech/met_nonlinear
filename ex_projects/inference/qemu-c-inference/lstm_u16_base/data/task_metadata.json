@@ -1,11 +1,16 @@
 {
   "task_info": {
     "task_type": "qemu-c-inference",
-    "description": "使用 LSTMu16_base 生成裸机 QEMU C 工程并执行推理耗时测试"
+    "description": "使用 MET 数据集子集执行 LSTMu16_base 的 C/TF26 波形一致性验证"
   },
   "output_files": [
     "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/benchmark_summary.json",
-    "ex_projects/inference/qemu-c-inference/lstm_u16_base/qemu_project"
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/qemu_project",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output.wave"
   ],
   "action": "build-run"
 }

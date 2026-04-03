@@ -82,7 +82,7 @@
 | 5 | 第167行 | 基线模型与学习组件在组合模型结构中相结合 | ✅ |
 | 6 | 第172行 | 通用模型增强结构公式(3a): x_{b,k+1} = (f_base ⋆ f_aug)(...) | ✅ |
 | 7 | 第183行 | 算子⋆表示两个函数之间的互连（静态并行、静态串联等） | ✅ |
-| 8 | 第188行 | 需要对算子⋆进行参数化以实现通用增强结构 | ✅ |
+| 8 | 第187-188行 | 需要对算子⋆进行参数化以实现通用增强结构 | ✅ |
 | 9 | 第215行 | 在本节中，我们在基于LFR的增强结构中对(3)进行通用表示 | ✅ (新增) |
 | 10 | 第223行 | 提出基于LFR的统一结构，可以表示所有的增强安排 | ✅ (新增) |
 
@@ -110,7 +110,7 @@
 > **第183行**: "The operator ⋆ represents an interconnection between two functions."
 > (算子⋆表示两个函数之间的互连。)
 
-> **第188行**: "a general augmentation structure is desired...a parameterisation of the operator ⋆ is required"
+> **第187-188行**: "a general augmentation structure is desired...a parameterisation of the operator ⋆ is required"
 > (需要一种通用的增强结构...需要对运算符⋆进行参数化)
 
 > **第215行**: "In this section, we formulate a general representation of (3) in an LFR-based augmentation structure."
