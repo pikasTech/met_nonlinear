@@ -82,12 +82,12 @@ class RealTimeTrainingCallback(Callback):
             remaining_time = 0
             expected_finish_time = datetime.now()
 
-        loss = logs.get('loss')
-        val_loss = logs.get('val_loss')
-        mae = logs.get('mae')
-        val_mae = logs.get('val_mae')
-        power_log_loss = logs.get('power_log_loss')
-        val_power_log_loss = logs.get('val_power_log_loss')
+        loss = logs.get('loss') or 0.0
+        val_loss = logs.get('val_loss') or 0.0
+        mae = logs.get('mae') or 0.0
+        val_mae = logs.get('val_mae') or 0.0
+        power_log_loss = logs.get('power_log_loss') or 0.0
+        val_power_log_loss = logs.get('val_power_log_loss') or 0.0
 
         opt = self.model.optimizer
         lr = opt.learning_rate
@@ -424,7 +424,7 @@ def plot_loss(project):
                     if data == 'STOP':  # Signal to stop the plotting process
                         plt.ioff()
                         print("Plotting stopped.")
-                        plt.show()
+                        plt.close('all')
                         return
 
                     # Process list of data points

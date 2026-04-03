@@ -1,0 +1,209 @@
+{
+  "timestamp": "20260403_134623",
+  "projects": [
+    {
+      "name": "FRIKANh8u6l6_base",
+      "label": "Base (MAE)",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_1",
+      "label": "LR=0.01",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_1"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_2",
+      "label": "LR=0.002",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_2"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_3",
+      "label": "LR=0.001",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_3"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "FRIKANh8u6l6_base": {
+        "drift": 3.698161990642948,
+        "unit": "Hz",
+        "min": 29.646212079808297,
+        "max": 35.474718398886026,
+        "median": 33.344374070451245
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "drift": 3.4561064899754967,
+        "unit": "Hz",
+        "min": 29.716082143100884,
+        "max": 35.99559209738415,
+        "median": 33.17218863307638,
+        "suppression": 6.545291993154913
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "drift": 3.0944465230579716,
+        "unit": "Hz",
+        "min": 30.676018664476867,
+        "max": 35.99133732379848,
+        "median": 33.77046518753484,
+        "suppression": 16.32474372708635
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "drift": 3.6169673620813576,
+        "unit": "Hz",
+        "min": 29.509952942347173,
+        "max": 35.94264558349833,
+        "median": 33.12692030442853,
+        "suppression": 2.195540075503132
+      }
+    },
+    "sensitivity_drift": {
+      "FRIKANh8u6l6_base": {
+        "drift": 18.300057961331362,
+        "unit": "%",
+        "min": 44.03324245611505,
+        "max": 70.20531335990076,
+        "median": 62.33330041744641
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "drift": 15.632595328655498,
+        "unit": "%",
+        "min": 46.50949935998696,
+        "max": 71.50197525042363,
+        "median": 62.14209468864246,
+        "suppression": 14.576252372054244
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "drift": 15.645729818469732,
+        "unit": "%",
+        "min": 46.30649298228112,
+        "max": 70.8736094754371,
+        "median": 61.95222280075085,
+        "suppression": 14.50447943099587
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "drift": 17.409194863871484,
+        "unit": "%",
+        "min": 44.932020992984654,
+        "max": 71.70650083946715,
+        "median": 62.34121585685614,
+        "suppression": 4.868088939074957
+      }
+    },
+    "linearity": {
+      "FRIKANh8u6l6_base": {
+        "mean": 0.5038005625728948,
+        "max": 1.489805198857319,
+        "min": 0.10064729993585209,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "mean": 0.5544557905184077,
+        "max": 1.2470877742196684,
+        "min": 0.12738754880972092,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "mean": 0.7136619869097249,
+        "max": 2.4435662552487525,
+        "min": 0.08849050242527579,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "mean": 0.8157592193319605,
+        "max": 2.2168994051340096,
+        "min": 0.08573327124371533,
+        "unit": "%"
+      }
+    },
+    "compute_cost": {
+      "FRIKANh8u6l6_base": {
+        "total_params": 2569,
+        "additions": 266,
+        "multiplications": 40,
+        "maps": 234,
+        "total_ops": 540,
+        "weighted_total": 1710.0,
+        "weighted_additions": 266.0,
+        "weighted_multiplications": 40.0,
+        "weighted_maps": 1404.0
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "total_params": 2401,
+        "additions": 246,
+        "multiplications": 30,
+        "maps": 222,
+        "total_ops": 498,
+        "weighted_total": 1608.0,
+        "weighted_additions": 246.0,
+        "weighted_multiplications": 30.0,
+        "weighted_maps": 1332.0
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "total_params": 2401,
+        "additions": 246,
+        "multiplications": 30,
+        "maps": 222,
+        "total_ops": 498,
+        "weighted_total": 1608.0,
+        "weighted_additions": 246.0,
+        "weighted_multiplications": 30.0,
+        "weighted_maps": 1332.0
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "total_params": 2401,
+        "additions": 246,
+        "multiplications": 30,
+        "maps": 222,
+        "total_ops": 498,
+        "weighted_total": 1608.0,
+        "weighted_additions": 246.0,
+        "weighted_multiplications": 30.0,
+        "weighted_maps": 1332.0
+      }
+    },
+    "mae_afmae": {
+      "FRIKANh8u6l6_base": {
+        "val_mae": 0.016601886600255966,
+        "val_afmae": 0.03490104153752327
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "val_mae": 0.019152969121932983,
+        "val_afmae": 0.05256755277514458
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "val_mae": 0.019213130697607994,
+        "val_afmae": 0.042818572372198105
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "val_mae": 0.019823353737592697,
+        "val_afmae": 0.045903634279966354
+      }
+    },
+    "natural_frequency_drift_origin": {
+      "FRIKANh8u6l6_base": {
+        "drift": 34.49763932122577,
+        "unit": "Hz",
+        "min": 34.24511188160566,
+        "max": 93.39109038646993,
+        "median": 58.89345106524416
+      }
+    },
+    "sensitivity_drift_origin": {
+      "FRIKANh8u6l6_base": {
+        "drift": 84.56089929076546,
+        "unit": "%",
+        "min": 60.001934754356135,
+        "max": 203.37127543336493,
+        "median": 144.5628340451216
+      }
+    },
+    "linearity_origin": {
+      "FRIKANh8u6l6_base": {
+        "mean": 2.5499568401843997,
+        "max": 6.418887454843169,
+        "min": 0.359242046082775,
+        "unit": "%"
+      }
+    }
+  }
+}

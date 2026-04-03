@@ -1,0 +1,58 @@
+{
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "Learning Rate 消融实验对比 (1k epochs)"
+  },
+  "projects": [
+    {
+      "name": "FRIKANh8u6l6_base",
+      "label": "Base (MAE)",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_1",
+      "label": "LR=0.01",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_1"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_2",
+      "label": "LR=0.002",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_2"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_3",
+      "label": "LR=0.001",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_3"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_4",
+      "label": "LR=0.003",
+      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_4"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "enabled": true,
+      "reference": "FRIKANh8u6l6_base"
+    },
+    "sensitivity_drift": {
+      "enabled": true,
+      "reference": "FRIKANh8u6l6_base",
+      "frequency_hz": 100
+    },
+    "linearity": {
+      "enabled": true
+    },
+    "compute_cost": {
+      "enabled": true,
+      "show_details": true
+    },
+    "mae_afmae": {
+      "enabled": true
+    }
+  },
+  "output": {
+    "format": ["json", "markdown"],
+    "output_dir": "ex_projects/compare/lr_test_1k_epoch/results"
+  }
+}
