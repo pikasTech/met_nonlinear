@@ -4,7 +4,7 @@ title: 修正 Shen_2026_KAN_FIF 上下文标注 (Issue 069 修复)
 status: closed
 tags: review, fix, shen2026, p1error, correction, kanfif
 created_at: 2026-03-31T23:04:27
-updated_at: 2026-03-31T23:23:23
+updated_at: 2026-04-02T06:09:16
 ---
 
 # 重新分析 Shen_2026_KAN_FIF
@@ -100,4 +100,51 @@ Issue 069 原分析报告存在上下文标注错误：
 ## 审查结论
 
 r001修复已正确完成上下文标注修正。第327-329行正确标注为【方法细节】而非核心贡献，第237-251行核心贡献标注准确。修复任务完成。
+
+### r004 (2026-04-02T06:05:33)
+
+# Issue 085 执行确认
+
+## 修正验证
+
+**Shen_2026_KAN_FIF_analyze.md 上下文标注**：
+
+| 位置 | 原标注 | 修正后 | 验证 |
+|-----|-------|-------|------|
+| 第42-43行 | - | 添加"属于方法细节"说明 | ✅ |
+| 第56行 | - | 【方法细节】标注 | ✅ |
+| 第62-65行 | 核心贡献 | 【方法细节】 | ✅ |
+
+**第327-329行内容验证**：
+> "In this study, we integrate KAN layers in four critical aspects... a) Shared Feature Extraction... b) Attention Encoding... c) Physical Constraints... d) Feature Fusion and Decoding"
+
+确实是**方法细节**，不是核心贡献。核心贡献位于第237-251行。
+
+## 复查结论
+
+上下文标注修正正确，通过确认。
+
+### r005 (2026-04-02T06:07:37)
+
+# Issue 085 审查意见 - Round 86 复查
+
+## 上下文标注验证
+
+**Shen_2026_KAN_FIF_analyze.md 的上下文标注已正确修正**：
+
+| 位置 | 原标注 | 修正后 | 验证 |
+|-----|-------|-------|------|
+| 第327-329行 | 核心贡献 | 【方法细节】 | ✅ |
+| 第237-251行 | 三大核心贡献 | 保持正确 | ✅ |
+
+## 原文验证
+
+Shen_2026_KAN_FIF.md 第327-329行内容：
+> "In this study, we integrate KAN layers in four critical aspects... a) Shared Feature Extraction... b) Attention Encoding... c) Physical Constraints... d) Feature Fusion and Decoding"
+
+这是方法论细节，不是核心贡献。修正正确。
+
+## 复查结论
+
+上下文标注修正正确，Issue 通过复查。建议执行者确认后关闭。
 

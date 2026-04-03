@@ -1,0 +1,10 @@
+h rely on sequen-
+tial LUT indexing, making every LUT entangled with the next
+and thus nearly impossible to prune without breaking the model—
+KANELÉexploits the inherently additive structure of KANs, where
+each LUT contributes independently to a summation. This inde-
+pendence makes pruning both mathematically natural and directly
+compatible with FPGA hardware. The original KAN paper empha-
+sizes efficient pruning as a key advantage of KAN’s edge-centric
+architecture, and we extend this insight to demonstrate a distinct
+advantage over node-based

@@ -14,67 +14,48 @@
 
 ## GAP 关联分析
 
-### GAP6: 前馈补偿利用非线性区而非排除
-
-**批判性支持**：
-
-- **论文做了什么**：第31行指出KAN"学习激活函数而非边的权重"，受Kolmogorov-Arnold定理启发的表示能力保证。
-- **论文没有做什么**：未讨论前馈补偿架构或频率响应漂移问题。
-
-**直接支撑**：
-
-- **无直接支撑**：本文聚焦于时间序列预测，与GAP6无直接关联。
-
-### GAP7: 前馈补偿利用非线性区而非排除
-
-**批判性支持**：
-
-- **论文做了什么**：第59-61行指出KAN通过基于样条的自适应激活函数处理非线性，HiPPO-KAN保留了KAN的函数逼近能力。
-- **方法论参考**：第49-50行指出HiPPO理论"通过在状态空间转换方程中使用特殊初始条件进行在线函数逼近，有效地捕获了长程依赖性"。
-
-**直接支撑**：
-
-- **方法论参考**：HiPPO-KAN展示了在固定维度系数空间中建模非线性变换的能力，这与Wiener模型在线性核中嵌入非线性结构的思路有相似性。
-- **参数效率证据**：第21行摘要指出"在不增加参数数量的情况下实现卓越性能"，表明非线性建模可以高效实现。
-
-### GAP8: 频率无关 vs 频率相关补偿方法
-
-**批判性支持**：
-
-- **论文做了什么**：第429-447行使用MSE作为损失函数进行时域预测，完全是时域分析。
-- **论文没有做什么**：未涉及频率域或频域损失函数设计。
-
-**直接支撑**：
-
-- **无直接支撑**：本文未涉及频率响应或频域分析。
-
 ### GAP9: 频率相关补偿的计算效率
 
 **批判性支持**：
 
-- **论文做了什么**：第21行摘要指出HiPPO-KAN"在不增加参数数量的情况下实现卓越性能"，这隐含了计算效率优势。
+- **论文做了什么**：HiPPO-KAN在单变量时间序列预测中实现卓越参数效率，系数向量维度固定不随输入序列长度增加（参数数量恒定）。
 - **关键贡献**：参数数量恒定（不随窗口大小增加），而传统KAN参数随窗口线性增长。
 
-**直接支撑**：
-
-- **计算效率证据**：
-  - 参数数量恒定 vs 线性增长：第21行指出"maintains a constant parameter count while varying window sizes and prediction horizons"
-  - 隐藏状态维度N与序列长度L解耦：第273-275行
+- **直接支撑**：
+  - 隐藏状态维度N与序列长度L解耦：第269行
   - HiPPO编码将长度L的时间序列映射为维度N的系数向量，与L无关
+
+> "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."（第317-318行）
 
 ### GAP10/GAP11: AFMAE vs MAE/频域损失
 
 **无关联**：本文使用MSE损失进行时域预测，未涉及频域损失函数设计。
 
+### GAP6: 前馈补偿利用非线性区而非排除
+
+**无直接关联**：本文聚焦于KAN的参数效率和时间序列预测，未直接涉及控制架构设计或前馈补偿架构。
+
+### GAP8: 频率无关 vs 频率相关补偿方法
+
+**无关联**：本文使用MSE作为损失函数进行时域预测（第429-447行），完全是时域分析，未涉及频率域或频域损失函数设计。
+
+### 论文贡献与GAP对应关系
+
+| 贡献 | 正文引用 | 对应GAP | 关联理由 |
+|------|---------|---------|----------|
+| 参数效率：系数向量维度固定，与序列长度L无关 | 第269行（HiPPO映射）、第317-318行（系数空间R^N与L解耦） | GAP9 | 参数恒定性直接支撑计算效率优势 |
+| 长期预测性能优于传统KAN | 无直接对应正文 | 无直接对应 | 时间序列预测任务与频率补偿任务不同 |
+| HiPPO系数提供简洁可解释的状态表示 | 无直接对应正文 | 无直接对应 | 可解释性是独立特性，与前馈非线性利用（GAP7）无直接关联 |
+
+**说明**：贡献3（HiPPO理论与KAN的新颖集成）提供的是时间序列系统的可解释性状态表示，与前馈非线性利用（GAP7）无直接关联。前馈非线性利用涉及如何在补偿架构中捕获和利用系统非线性，而可解释性涉及模型内部表示的透明度，两者属于不同维度。
+
 ## 关键原文摘录
 
-> "HiPPO-KAN achieves superior performance on long sequence data without increasing parameter count... HiPPO-KAN maintains a constant parameter count while varying window sizes and prediction horizons, in contrast to KAN, whose parameter count increases linearly with window size."（第21行）
+第21行摘要指出HiPPO-KAN'在不增加参数数量的情况下实现卓越性能'
 
-> "The HiPPO transformation maps this time series into a coefficient vector c^(L) ∈ R^N via the mapping... where N is the dimension of the hidden state."（第273-275行）
+> "The HiPPO transformation maps this time series into a coefficient vector c^(L) ∈ R^N via the mapping"（第269行）
 
 > "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."（第317-318行）
-
-> "The use of HiPPO coefficients provides a concise and interpretable state representation of the time series system. When combined with KAN's transparent architecture, this allows for better understanding and interpretability of the model's internal workings."（第71-73行）
 
 ## 技术细节
 
@@ -85,17 +66,17 @@
 
 ## GAP支撑结论
 
-**GAP7支撑评估**: 中等相关性（方法论参考）
 **GAP9支撑评估**: 中等相关性
 
 **支撑内容**:
 1. 提供了KAN在参数效率上的直接证据（参数数量恒定 vs 线性增长）
-2. 展示了在固定维度空间中高效建模非线性变换的方法论
-3. HiPPO域损失函数设计思路对频域损失设计有参考价值
+2. HiPPO编码使参数数量与序列长度解耦，展示了固定维度空间中高效建模非线性变换的方法论
+
+**GAP6/GAP8支撑评估**: 无直接关联
 
 **局限性**:
 - 领域差异：加密货币价格预测 vs 地震检波器频率漂移补偿
 - 任务差异：时间序列预测 vs 频率响应补偿
-- 未涉及频域损失函数或AFMAE设计
+- HiPPO的系数域表示与频域表示在数学上存在根本差异：HiPPO使用正交多项式基展开（如Legendre多项式），频域使用傅里叶基。正交多项式基更适合建模多项式型非线性，而傅里叶基更适合建模周期型非线性。地震检波器的频率响应特性本质上是周期性的（谐振频率），因此频域表示可能比HiPPO系数域更适合
 
-**总体评估**: 可作为KAN参数效率优势的方法论参考，HiPPO域处理思路对频域损失函数设计有间接参考价值。
+**总体评估**: 可作为KAN参数效率优势的方法论参考。HiPPO的系数域处理思路对频域损失函数设计有间接参考价值，但需注意两者数学基础的根本差异。

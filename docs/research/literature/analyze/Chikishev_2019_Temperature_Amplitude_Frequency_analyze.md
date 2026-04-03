@@ -74,9 +74,11 @@
 
 > "It is clearly seen that the amplitude frequency response of the MET devices changes significantly with increasing temperature, and the nature of the changes is not linear, both in the frequency and temperature range."
 
-### 关于模型验证（第413-414行）
+### 关于模型验证（第411行）
 
 > "the activation energies coincide well with each other for each approximation parameter, which is a good verification of the correctness of the chosen mathematical model of the temperature behavior of the MET sensors in the 0.1 - 483 Hz frequency band."
+
+**注**：源文件摘要第9行写"0.1-443 Hz"，而第411行写"0.1 - 483 Hz"，此处以第411行为准。
 
 ## 总结
 
@@ -90,13 +92,17 @@
 |---------|---------|
 | 第70行 | W = W_mech × W_el-ch 传递函数公式 (Equation 1) |
 | 第73行 | 传递函数分解的说明（where W_mech, W_el-ch denote...） |
+| 第65-67行 | MET转换的两步过程：加速度→液体流动→电流 |
+| 第185行 | 近似参数：A₀, ω_mech,1, ω_mech,2, ω_el-ch, ω_D, α |
 | 第193-215行 | 温度对粘度和扩散系数的影响机制 |
 | 第198行 | v = A·exp(Ea/kT) 粘度公式 |
-| 第210行 | D = kT/(6πrν) 扩散系数公式 |
+| 第210行 | D = kT/(6πrν) = (ω₀σ²/6)exp(-Ea/kT) 扩散系数公式（完整形式） |
+| 第253-255行 | 两种电解质(KI和LiI)的实验设置 |
 | 第277-279行 | 温度对幅频响应影响（非线性特性） |
+| 第303-304行 | 高频下传递函数具有恒定温度依赖性 |
 | 第308行 | W = W₀·exp(α/T) 温度-频率依赖关系 |
-| 第311行 | 高频结果与[16]验证一致 |
-| 第413-414行 | 活化能验证正确性 |
+| 第411行 | 活化能验证正确性 |
+| 第415-417行 | 0.1-483 Hz频段的实验验证结果 |
 
 ## 引用信息
 

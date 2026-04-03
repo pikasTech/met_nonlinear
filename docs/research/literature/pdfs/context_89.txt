@@ -1,0 +1,18 @@
+﻿84: and rich structure [ 31]. At its core, the framework co-
+85: optimizes quantization, pruning, and mapping of KAN func-
+86: tions onto learned LUTs and additions, thereby minimizing
+87: memory and logic overhead. From a KAN research perspec-
+88: [unicode error]
+89: nating BRAM/DSP usage, reducing latency by up to2700 ×,
+90: and cutting resource usage by over4000 ×compared to prior
+91: designs [41].
+92: (2)High-Performance Realizations:Unlike conventional
+93: LUT-based neural networks, where sequential LUT indexing
+94: makes pruning fundamentally incompatible with the model
+95: [unicode error]
+96: KANs to make pruning both natural and hardware efficient.
+97: [unicode error]
+98: mentations that match or surpass other LUT-based neural de-
+99: signs, particularly for tasks well-suited to symbolic mapping.
+100: It sustains clock frequencies above 800 MHz across most
+101: benchmarks while achieving a state-of-the-art Area ×Delay

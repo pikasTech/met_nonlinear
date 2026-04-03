@@ -43,6 +43,13 @@
 - KAN比MLP慢约10倍（原文第95行）："KAN variants typically suffer from 10× slower runtimes than MLPs with comparable model and parameter sizes"
 - LUT插值可有效替代运行时函数调用（原文第317-319行）："Lookup Table (LUT) with Interpolation... eliminating expensive trigonometric evaluations or recurrence formulations"
 - GPU优化技术可显著提升KAN效率（原文第69行）："PolyKAN delivers 1.2-10× faster inference and 1.4-12× faster training"
+- KAN已成功扩展用于重构各种神经网络模块（原文第91行）："KANs have been successfully extended to reconstruct various neural network modules, including convolutional, graph architectures, even Transformer and large language models"
+- PolyKAN是首个KAN开源通用GPU算子库（原文第15行）："PolyKAN which is the first general open-source implementation of KAN and its variants"
+- Chebyshev KAN利用三角恒等式避免重复sin/cos求值（原文第169行）："exploiting the trigonometric identity... propagating between successive orders without invoking sin(kx) or cos(kx) for every k"
+- 2D Tiling改善数据访问空间局部性（原文第321-323行）："improves data access spatial locality, which enhances cache reuse and enables fine-grained parallelism"
+- Two-Stage Reduction减少原子争用（原文第325-327行）："reducing atomic contention and write-conflict overhead"
+- Coefficient Layout Reordering实现连续内存访问（原文第329-331行）："enabling contiguous memory accesses and higher bandwidth utilization"
+- PolyKAN在消费级GPU和高端GPU上精度相同（原文第69行）："with identical accuracy on speech, audio-enhancement, and tabular-regression workloads on both highend GPU and consumer-grade GPU"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的瓶颈分析支撑IDEA中关于KAN计算效率挑战的声称（GAP9）
@@ -52,9 +59,15 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第69行 | PolyKAN性能提升："1.2-10× faster inference and 1.4-12× faster training" |
-| 第95行 | KAN效率问题："KAN variants typically suffer from 10× slower runtimes than MLPs" |
-| 第317-319行 | LUT插值方法描述 |
+| 第69行 | PolyKAN是首个KAN开源通用GPU算子库 |
+| 第69行 | PolyKAN性能提升：1.2-10×推理加速，1.4-12×训练加速 |
+| 第91行 | KAN已成功扩展用于重构各种神经网络模块 |
+| 第95行 | KAN效率问题：比MLP慢约10倍 |
+| 第169行 | Chebyshev多项式利用三角恒等式避免重复sin/cos求值 |
+| 第317-319行 | LUT插值方法：离线预计算+运行时线性插值 |
+| 第321-323行 | 2D Tiling：改善数据访问空间局部性，增强缓存重用 |
+| 第325-327行 | Two-Stage Reduction：减少原子争用和写冲突开销 |
+| 第329-331行 | Coefficient Layout Reordering：实现连续内存访问和更高带宽利用率 |
 | 第343-345行 | 多项式基函数的通用属性 |
 
 ## 关键原文段落摘录

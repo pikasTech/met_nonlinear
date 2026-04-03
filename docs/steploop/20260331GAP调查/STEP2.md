@@ -165,3 +165,5 @@ GAP支撑: [GAP编号列表]
 - 禁止把"可能相关"但未深度阅读的文献直接升级为高相关度
 - 禁止修改 `docs/research/literature/raw_literature.md`
 - 禁止输出"建议优先引用""必须引用"等推荐建议
+- **禁止使用 `echo`、`printf`、`cat` 等命令通过重定向创建或编辑文件，这极易产生乱码**
+  - 应当使用 `edit`、`patch`、`write` 等专用文件编辑工具

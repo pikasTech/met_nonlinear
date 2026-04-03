@@ -18,8 +18,8 @@
 5. **实验验证**: 应用于热膜式质量空气流量(MAF)传感器的非线性动态建模
 
 关键公式：
-- 线性传递函数识别: `H(f) = Y₁(f)/X₀(f)` (行309-310)
-- 非线性系数: `rᵢ = yᵢ/yᵢₛ` (行334-343)
+- 线性传递函数识别: `H(f) = Y₁(f)/X₀(f)` (原文第310行，公式9)
+- 非线性系数: `rᵢ = yᵢ/yᵢₛ` (原文第342行，公式10)
 
 ## 与 GAP4 的关联分析（批判性支持）
 
@@ -29,13 +29,13 @@
 
 1. **建立了非线性动态模型**:
    - 论文不仅推导了线性动态子系统（传递函数 h(t)），还识别了非线性静态子系统的多项式系数 N(·) = z(t) + r₂z²(t) + r₃z³(t) + ...
-   - **引用**: 第121行：`"the main task of modeling focuses on identifying parameters of the linear dynamic part and nonlinear static part r = {r₁, r₂, ..., rₙ}"`
-   - **引用**: 第146行：`y(t) = N[z(t)] = z(t) + r₂z²(t) + r₃z³(t) + ...`
+- **引用**: 第121行：`"the main task of modeling focuses on identifying parameters of the linear dynamic part and nonlinear static part r = {r₁, r₂, ..., rₙ}"`
+- **引用**: 第146行（公式3）：`y(t) = N[z(t)] = z(t) + r₂z²(t) + r₃z³(t) + ...`
 
 2. **验证了非线性建模的必要性**:
    - 论文对热膜式MAF传感器进行了实验验证，静态校准结果表明热膜/热线MAF传感器是非线性器件
-   - **引用**: 第661行：`"The results of static calibration show the hot-film/wire MAF sensors are the nonlinear devices [21]."`
-   - **引用**: 第661行：`"Furthermore the dynamic experiments indicate that there is also the dynamic non-linearity in their responses, which affects their measurement accuracy."`
+- **引用**: 第661行（静态校准结果）：`"The results of static calibration show the hot-film/wire MAF sensors are the nonlinear devices [21]."`
+- **引用**: 第661行：`"Furthermore the dynamic experiments indicate that there is also the dynamic non-linearity in their responses, which affects their measurement accuracy."`
 
 3. **提出了完整的非线性模型参数识别流程**:
    - 使用 Volterra 核的参数可分离性，通过多级输入信号分离提取各阶输出
@@ -50,7 +50,7 @@
 
 2. **没有考虑温度/震级等因素对模型参数的影响**:
    - 论文将非线性系数 r 视为固定常数，没有考虑环境因素（温度）或操作条件（震级）对非线性特性和线性动态特性的影响
-   - **引用**: 第146行：`N(·) = z(t) + r₂z²(t) + r₃z³(t) + ...` — 系数 r 是常数
+   - **引用**: 第146行（公式3）：`N(·) = z(t) + r₂z²(t) + r₃z³(t) + ...` — 系数 r 被建模为常数
    - 这与 IDEA 中提到的"频率漂移研究：建模了温度因素，没有建模震级因素对频率漂移的影响"形成对比，说明 Xu 2008 既没有建模温度也没有建模震级
 
 3. **模型适用范围有限**:
@@ -82,7 +82,7 @@
 
 3. **实验条件过于简化**:
    - 论文的动态校准实验在相对稳定的环境条件下进行
-   - **引用**: 第669-679行：实验装置描述中没有提到任何环境控制或监测设备
+   - **引用**: 第675行：实验装置描述完整内容为"气泵15kW、气罐2m³、直径60mm直管、热膜MAF传感器、层流流量计等"，未提及环境控制或监测设备
 
 ### 对 GAP5 的支撑关系
 
@@ -109,7 +109,7 @@ Xu 2008 这篇论文与 GAP5 呈现**间接批判关系**：
 ### 块模型结构（支撑 GAP4）
 > "The Wiener model is given by the cascade connection of a linear dynamic block followed by a nonlinear static subsystem... N(·) = z(t) + r₂z²(t) + r₃z³(t) + ... is the approximate expression of the nonlinear static subsystem."
 > （Wiener模型由一个线性动态块后跟一个非线性静态子系统的级联组成... N(·) = z(t) + r₂z²(t) + r₃z³(t) + ... 是非线性静态子系统的近似表达式。）
-> — 第89行, 第121行
+> — 第89行和第121行
 
 ### 参数可分离性（支撑 GAP4）
 > "Eqs. (7a)-(7c) indicate that the higher-order Volterra kernels are of parameter separable."

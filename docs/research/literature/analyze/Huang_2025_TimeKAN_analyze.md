@@ -37,7 +37,7 @@
 
 - **非线性建模证据**：第196行公式(6)定义Chebyshev多项式 T_n(x) = cos(n arccos(x))，这是高度非线性的函数
 - **多阶设计证明**：第211-216行说明从低频到高频采用递增阶数，因为"高频成分呈现出越来越复杂的时间动态"，证明KAN能够适应不同复杂度的非线性模式
-- **消融实验验证**：第309-311行表3显示Multi-order KANs优于固定低阶/固定高阶KANs，验证了动态调整非线性建模能力的重要性
+- **消融实验验证**：第309-310行表3显示Multi-order KANs优于固定低阶/固定高阶KANs，验证了动态调整非线性建模能力的重要性
 
 ### GAP8: 频率独立 vs 频率依赖补偿
 
@@ -73,11 +73,11 @@
 
 > "the information density of patterns varies across different frequencies, and employing a uniform modeling approach for different frequency components can lead to inaccurate characterizations, resulting in sub-optimal results."（第49行）
 
-> "Compared with MLP, KAN offers optional kernels and allows for the adjustment of kernel order to control its fitting capacity."（第51行）
+> "Compared with MLP, KAN offers optional kernels and allows for the adjustment of kernel order to control its fitting capacity."（第50行）
 
-> "Multi-order KANs achieved the best performance. Compared to MLPs, Multi-order KANs perform significantly better, demonstrating that well-designed KANs possess stronger representation capabilities than MLPs."（第309-310行）
+> "Multi-order KANs achieved the best performance. Compared to MLPs, Multi-order KANs perform significantly better, demonstrating that well-designed KANs possess stronger representation capabilities than MLPs."（第309行）
 
-> "TimeKAN requires only 20.05% of the parameters needed by TimeMixer and only 36.14% of the MACs."（第343行）
+> "TimeKAN requires only 20.05% of the parameters needed by TimeMixer and only 36.14% of the MACs."（第341-342行）
 
 > "the frequency components within the time series exhibit increasingly complex temporal dynamics as the frequency increases, necessitating a network with stronger representation capabilities to learn these characteristics."（第211行）
 

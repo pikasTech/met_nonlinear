@@ -40,9 +40,9 @@
 ### 直接支持
 
 **论文证明了什么**：
-- 文本条件提供最丰富的表达能力但方差最大（原文第229行）："text conditioning offers the highest performance ceiling but also the largest variance"
-- 良好的生成保真度不能保证条件遵循（原文第229行）："good generation fidelity does not guarantee condition adherence"
-- 跨数据集稳健性仍是主要挑战（原文第229行）："cross-dataset robustness remains a major challenge"
+- 文本条件提供最丰富的表达能力但方差最大（原文第229行）："文本条件提供了最高的性能上限，但也有最大的方差"
+- 良好的生成保真度不能保证条件遵循（原文第229行）："良好的生成保真度并不能保证条件遵循"
+- 跨数据集稳健性仍是主要挑战（原文第229行）："跨数据集的稳健性仍然是一个重大挑战"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的评估框架为时间序列模型的评估提供了方法论参考
@@ -52,23 +52,23 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第13行 | 条件时间序列生成：解决数据稀缺和因果分析 |
-| 第21-23行 | 应用领域：医疗、气候、因果推断、隐私保护数据合成 |
-| 第119-126行 | 条件生成任务形式化定义 |
-| 第139-142行 | RQ1：总体基准测试 |
+| 第15行 | 条件时间序列生成：解决数据稀缺和因果分析 |
+| 第23行 | 应用领域：医疗、气候、因果推断、隐私保护数据合成 |
+| 第119,121行 | 条件生成任务形式化定义 |
+| 第139,141行 | RQ1：总体基准测试 |
 | 第229行 | 关键发现：文本条件最高上限但最大方差 |
 
 ## 关键原文段落摘录
 
 ### 段落1（研究动机）
 
-> "Conditional time series generation (ConTSG) has emerged as a transformative capability for scientific and industrial advancement. Its application spans from realistic data simulation for healthcare and climate applications to causal inference and privacy-preserving data synthesis."
-> （第21-23行）
+> "条件时间序列生成(ConTSG)已成为科学和工业进步的一项变革性能力。其应用涵盖从医疗和气候应用的现实数据模拟到因果推理和隐私保护数据合成。"
+> （第21行，中文翻译）
 
 ### 段落2（关键发现）
 
-> "First, good generation fidelity does not guarantee condition adherence... Second, text conditioning offers the highest performance ceiling but also the largest variance... Third, cross-dataset robustness remains a major challenge."
-> （第229行）
+> "首先，良好的生成保真度并不能保证条件遵循。其次，文本条件提供了最高的性能上限，但也有最大的方差。第三，跨数据集的稳健性仍然是一个重大挑战。"
+> （第231行）
 
 ## 分析结论
 

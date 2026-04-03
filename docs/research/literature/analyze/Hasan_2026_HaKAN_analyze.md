@@ -14,7 +14,7 @@
 
 ### 2.1 研究问题
 
-长期时间序列预测需要有效捕获复杂时间模式和长程依赖，同时保持计算效率。Transformer受限于二次复杂度，MLP存在频谱偏差(bias towards low frequencies)问题。
+长期时间序列预测需要有效捕获复杂时间模式和长程依赖，同时保持计算效率。然而，这一任务面临重大挑战：Transformer受限于二次复杂度，且其排列等变注意力(permutation-equivariant attention)与时间序列数据的因果性质相矛盾；MLP存在频谱偏差(bias towards low frequencies)问题，且因依赖线性变换而难以捕获非线性时间动态。
 
 ### 2.2 核心发现与创新
 
@@ -75,7 +75,7 @@ HaKAN包含：
 
 | 关联度 | 分析 |
 |--------|------|
-| **强** | **直接相关**：哈恩多项式替代B样条将复杂度从$\mathcal{O}(d_{in} \cdot d_{out} \cdot G^2)$降至$\mathcal{O}(d_{in} \cdot d_{out} \cdot d)$，参数量显著减少。复杂度与MLP相当($\mathcal{O}(d_{in} \cdot d_{out})$)但保留了KAN的灵活性。这为GAP9提供了强有力的证据支持。 |
+| **中** | **理论支撑**：哈恩多项式替代B样条将复杂度从$\mathcal{O}(d_{in} \cdot d_{out} \cdot G^2)$降至$\mathcal{O}(d_{in} \cdot d_{out} \cdot d)$，参数量显著减少。复杂度与MLP相当($\mathcal{O}(d_{in} \cdot d_{out})$)但保留了KAN的灵活性。这为GAP9提供了理论层面的支撑。<br><br>**局限性**：论文的复杂度优化是理论性的，未在硬件/FPGA上实际验证。哈恩多项式替代B样条的效率优势是否适用于频率补偿场景，尤其是Wiener-KAN架构中的实际计算效率，尚需进一步验证。论文验证场景为时间序列预测（ETT、电力、天气等数据集），与地震检波器频率响应补偿的实际任务存在差距。 |
 
 ## 4. 关键原文摘录
 
@@ -83,19 +83,19 @@ HaKAN包含：
 
 > "Unlike standard KANs, our proposed Hahn polynomial-based KANs offer superior computation and parameter efficiency. First, Hahn polynomials eliminate the need for grid discretization, removing the dependency on grid size G, a key factor in the complexity of standard KANs."
 
-**出处**：第175-177行
+**出处**：第175行（Hahn多项式介绍段落，公式在其中）
 
 ### 4.2 复杂度对比
 
 > "While standard KANs incur a time complexity of $\mathcal{O}(d_{in} \cdot d_{out}[9d(G+1.5d) + 2G-2.5d+3])$, our Hahn KANs achieve a simplified complexity of $\mathcal{O}(d_{in} \cdot d_{out} \cdot d)$, where $d$ is the Hahn polynomial degree (typically $d=3$). This is comparable to the $\mathcal{O}(d_{in} \cdot d_{out})$ complexity of MLPs."
 
-**出处**：第175-177行
+**出处**：第175-176行（该段落在原markdown中跨175-176行）
 
 ### 4.3 参数量减少
 
 > "Third, Hahn KANs require only $(d_{in} \cdot d_{out}(d+1))$ parameters, significantly fewer than the $(d_{in} \cdot d_{out}(G+d+3) + d_{out})$ parameters of standard KANs."
 
-**出处**：第177行
+**出处**：第175-176行（参数量减少的具体讨论）
 
 ### 4.4 频谱偏差缓解
 
@@ -107,7 +107,7 @@ HaKAN包含：
 
 > "The inter-patch layer focuses on cross-patch relationships to capture global temporal patterns across the entire look-back window, while the intra-patch layer refines the features by focusing on local patterns within each patch."
 
-**出处**：第167-169行
+**出处**：第167-169行（同一段落）
 
 ## 5. 方法论总结
 

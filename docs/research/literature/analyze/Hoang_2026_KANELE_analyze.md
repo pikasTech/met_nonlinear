@@ -30,7 +30,7 @@
 
 **创新点二：性能突破**
 - 与先前KAN-on-FPGA设计相比，延迟降低高达2700倍
-- 资源使用减少超过4000倍
+- 资源使用减少超过数个数量级（Contribution 1给出具体数值超过4000×）
 - 保持800MHz以上时钟频率
 - 在符号/物理公式任务上匹配或超越其他LUT-based架构
 
@@ -89,41 +89,39 @@
 
 > "Our results demonstrate up to a 2700x speedup and orders of magnitude resource savings compared to prior KAN-on-FPGA approaches."
 
-**出处**：第57行（摘要）
+**出处**：第113行
+
+> "KANELÉ is the first FPGA-tailored formulation, eliminating BRAM/DSP usage, reducing latency by up to 2700x, and cutting resource usage by over 4000× compared to prior designs."
+
+**出处**：第113行（贡献1详述）
 
 > "From a KAN research perspective, KANELÉ is the first FPGA-tailored formulation, eliminating BRAM/DSP usage, reducing latency by up to 2700x, and cutting resource usage by over 4000× compared to prior designs."
 
-**出处**：第113-115行
+**出处**：第113行
 
 ### 4.2 控制系统中的参数效率
 
 > "A quantized KAN policy with ~5× fewer parameters than an MLP baseline policy achieves higher rewards, underscoring its suitability for resource-constrained, real-time control systems."
 
-**出处**：第125-127行
+**出处**：第125-127行（贡献4详述）
 
-### 4.3 KAN与LUT的自然适配
+### 4.3 2700x延迟降低与4000x资源节省
+
+> "KANELÉ is the first FPGA-tailored formulation, eliminating BRAM/DSP usage, reducing latency by up to 2700x, and cutting resource usage by over 4000× compared to prior designs."
+
+**出处**：第113行（贡献1详述）
+
+### 4.4 时钟频率
+
+> "It sustains clock frequencies above 800 MHz across most benchmarks while achieving a state-of-the-art Area × Delay product."
+
+**出处**：第117-119行
+
+### 4.5 KAN与LUT的自然适配
 
 > "KANs employ learnable one-dimensional splines with fixed domains as edge activations, a structure naturally suited to discretization and efficient LUT mapping."
 
 **出处**：第57行（摘要）
-
-### 4.4 加法独立性的优势
-
-> "Unlike conventional LUT-based neural networks—which rely on sequential LUT indexing, making every LUT entangled with the next and thus nearly impossible to prune without breaking the model—KANELÉ exploits the inherently additive structure of KANs, where each LUT contributes independently to a summation."
-
-**出处**：第299-301行
-
-### 4.5 时钟频率
-
-> "It sustains clock frequencies above 800 MHz across most benchmarks while achieving a state-of-the-art Area × Delay product."
-
-**出处**：第119行
-
-### 4.6 精度与资源权衡
-
-> "In practice, balancing model performance with hardware efficiency centers on tuning three key parameters: the layer dimensions (dl), bitwidth (nl), and pruning threshold (T). These directly control the model's capacity, numerical precision, and sparsity."
-
-**出处**：第495-497行
 
 ## 5. 方法论总结
 

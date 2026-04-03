@@ -28,13 +28,13 @@
 
 **1. 论文做了什么（和 IDEA 的研究内容相关）：**
 
-- **明确指出了现有研究的空白**：论文第341行指出："Several versions of such a sensor have been built and used to acquire data for: milk, water, soy milk, salt solutions and an experimental bioreactor, using Wiener system analysis and the Randles equivalent circuit [1] [2]. However, the full dynamic modelling of the media proves to be a complicated challenge, **due to the nonlinear nature of the impedance response of the solution when excited with a large stochastic voltage**." —— 直接点明线性建模的局限性。
+- **明确指出了现有研究的空白**：论文第341-345行指出："Several versions of such a sensor have been built and used to acquire data for: milk, water, soy milk, salt solutions and an experimental bioreactor, using Wiener system analysis and the Randles equivalent circuit [1] [2]. However, the full dynamic modelling of the media proves to be a complicated challenge, **due to the nonlinear nature of the impedance response of the solution when excited with a large stochastic voltage**." —— 直接点明线性建模的局限性。
 
 - **建立了非线性模型**：论文使用Volterra级数对电化学传感器进行非线性建模（第493-513行），定义了h₀（常数偏置）、h₁（线性脉冲响应）、h₂（二次响应）三个核函数，并使用梯度下降和Adam优化器识别这些核。
 
 - **讨论了Wiener模型的局限性**：第485-487行指出："Both the Wiener and Hammerstein models are capable of representing nonlinear systems and are computationally efficient in comparison to other methods. However, these representations and even NLN or LNL models, which are simply combinations of Wiener and Hammerstein models, **are unable to model dynamic nonlinearities**, which can incorporate non-linear effects at time lags."
 
-- **验证了非线性建模的必要性**：论文第85行摘要中明确："Linear dynamic impedance models have previously been explored for this. However, **the ability to capture the nonlinear effects observed at higher voltages can provide greater insights into the liquid's properties**."
+- **验证了非线性建模的必要性**：论文第85-87行摘要中明确："Linear dynamic impedance models have previously been explored for this. However, **the ability to capture the nonlinear effects observed at higher voltages can provide greater insights into the liquid's properties**."
 
 **2. 论文没有做什么/没有做好什么（批判凸显 GAP）：**
 
@@ -44,7 +44,7 @@
 
 - **非线性模型没有用于频率漂移补偿**：论文建立的非线性模型仅用于液体分类和细菌生长监测，**没有用于频率响应的漂移补偿**。这与IDEA中"非线性模型没有"这一GAP的核心诉求——即没有用于补偿频率漂移的非线性模型——存在差距。
 
-- **实验验证不完整**：牛奶实验因高电压导致过早变质（第1033-1043行），糖溶液实验因继电器不兼容（1213-1215）和电极涂层问题（1217），以及pH变化问题（1221）导致数据无效，两个主要应用场景的实验均未达到预期效果。
+- **实验验证不完整**：牛奶实验因高电压导致过早变质（第1033-1043行），糖溶液实验因继电器不兼容（约1213行）和电极涂层问题（约1217行），以及pH变化问题导致数据无效，两个主要应用场景的实验均未达到预期效果。
 
 ---
 
@@ -60,7 +60,7 @@
 
 ### GAP1/GAP2/GAP3 的间接支撑
 
-- **GAP1（温度漂移到非线性漂移）**：论文指出温度对电化学传感器阻抗有高度影响（第555行："the impedance of the medium is highly temperature dependent"），但没有建立温度-非线性漂移的直接联系。
+- **GAP1（温度漂移到非线性漂移）**：论文指出温度对电化学传感器阻抗有高度影响（第553行："the impedance of the medium is highly temperature dependent"），但没有建立温度-非线性漂移的直接联系。
 
 - **GAP2（非频率漂移/线性度测量范围）**：论文讨论了高电压导致非线性和牛奶凝结的问题，间接说明线性模型适用的电压范围有限。
 
@@ -70,7 +70,7 @@
 
 ## 关键原文摘录
 
-### 关于线性模型的局限性（第85行，摘要）
+### 关于线性模型的局限性（第85-87行，摘要）
 
 > "Linear dynamic impedance models have previously been explored for this. However, the ability to capture the nonlinear effects observed at higher voltages can provide greater insights into the liquid's properties."
 
@@ -78,7 +78,9 @@
 
 > "Both the Wiener and Hammerstein models are capable of representing nonlinear systems and are computationally efficient in comparison to other methods. However, these representations and even NLN or LNL models, which are simply combinations of Wiener and Hammerstein models, **are unable to model dynamic nonlinearities**, which can incorporate non-linear effects at time lags."
 
-### 关于Volterra系列的优势（第511-513行）
+### 关于Volterra系列的优势（第511行/第513行）
+
+**注**：源文件为中英双语markdown，第511行为英文版、第513行为对应中文翻译版，两行共同构成完整的Volterra优势描述。
 
 > "The Volterra series is an extremely powerful tool for modelling nonlinear systems. Not only is it able to model dynamic nonlinearities, it also imposes no restrictions on the probability distribution of the input signal into the system. This is not the case for Hammerstein and Wiener systems, which require Gaussian input signals to leverage Bussgang's theorem, for the initial identification of the system."
 
@@ -86,7 +88,7 @@
 
 > "Despite this, the Volterra series model of a system is not without flaws. As the complexity of the system being modelled increases, higher order kernels and longer memory are required to model the system's dynamics."
 
-### 关于牛奶实验的非预期结果（第1033-1035行）
+### 关于牛奶实验的非预期结果（第1033-1043行）
 
 > "These results appear to provide little information about the milk. This may be due to a few reasons. The first, is due to the high voltages used, to access the nonlinear electrochemical behaviour of the milk. By having a higher voltage across the electrodes, the current density within the milk increases, leading to PH changes in the liquid. This can result in the milk beginning to prematurely spoil."
 

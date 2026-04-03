@@ -39,8 +39,9 @@
 >
 > 中文翻译：本文介绍了用于抑制模数接口中非线性失真的低复杂度频率相关(有记忆)线性化器。
 
-> 来源文件第33行：
-> "This paper focuses on **ADIs**."
+> 来源文件第33行（段落末尾）：
+> "...This paper focuses on **ADIs**."
+> （注：第33行为完整段落，以上为段落末尾一句）
 >
 > 中文翻译：本文重点关注ADIs（模数接口）。
 
@@ -58,10 +59,35 @@
 
 ### 2.3 与地震传感器频率漂移的本质差异
 
-> 来源文件第54行：
+> 来源文件第53行：
 > "For the Hammerstein linearizers (used as the benchmark in this paper, see below) and proposed linearizers, the number of multiplications required is about an order of magnitude lower"
 >
 > 中文翻译：对于哈默斯坦线性化器（在本文中用作基准）和所提出的线性化器，所需的乘法次数大约低一个数量级。
+
+> 来源文件第65行：
+> "the nonlinearity terms v^p(n) in the Hammerstein linearizer are replaced by the simpler nonlinearities |v(n)| or max{0, v(n)} [rectified linear unit (ReLU)]"
+>
+> 中文翻译：哈默斯坦线性化器中的非线性项v^p(n)被更简单的非线性项|v(n)|或max{0, v(n)}[整流线性单元(ReLU)]所取代。
+
+> 来源文件第67行：
+> "Our simulations show SNDR improvements up to about 20-30 dB for a wide range of wideband signals"
+>
+> 中文翻译：我们的仿真表明，对于覆盖大部分奈奎斯特频段的各种宽带信号，SNDR提高高达约20-30 dB。
+
+> 来源文件第69-71行：
+> "the use of a memoryless linearizer is typically sufficient for narrow to medium bandwidths and resolutions. To reach higher resolutions over wider frequency bands, one needs to incorporate memory (filters) in the modeling and linearization which is in focus here"
+>
+> 中文翻译：对于窄到中等带宽和分辨率，使用无记忆线性化器通常就足够了。为了在更宽的频带上达到更高的分辨率，需要在建模和线性化中纳入记忆(滤波器)。
+
+> 来源文件第73行：
+> "it is often assumed that the ADI nonlinearity distortion can be modeled as occurring after sampling. If the nonlinearity distortion is incurred before sampling, problems arise"
+>
+> 中文翻译：通常假设ADI非线性失真可以建模为在采样之后发生。如果非线性失真在采样之前发生，则会出现问题。
+
+> 来源文件第65行：
+> "a design procedure is proposed in which the parameters (filter coefficients) are obtained through matrix inversion"
+>
+> 中文翻译：提出了一种设计过程，其中通过矩阵求逆获得参数(滤波器系数)。
 
 论文讨论的是ADC接口中由电子电路产生的非线性失真（谐波失真、互调失真），而非地震传感器中由温度变化、机械应力引起的频率响应漂移。
 

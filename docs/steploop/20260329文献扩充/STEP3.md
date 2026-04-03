@@ -61,3 +61,5 @@ docs/research/literature/verified_literature.md（已验证文献清单）
 - 禁止尝试破解付费期刊或版权受限的内容
 - 禁止修改原始 PDF 文件
 - 禁止在转换过程中添加个人解读或评论
+- **禁止使用 `echo`、`printf`、`cat` 等命令通过重定向创建或编辑文件，这极易产生乱码**
+  - 应当使用 `edit`、`patch`、`write` 等专用文件编辑工具

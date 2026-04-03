@@ -43,19 +43,30 @@
 - WKAN可显著减少参数数量和FLOPs（原文第309行）："a single WKAN layer has approximately n times fewer NP and FLOPs compared to a single KAN layer"
 - MTSF可进一步减少计算量（原文第339行）："The MTSF reduces the NP and FLOPs to approximately (1/b + 1/hw) of those in WKANs"
 - KAN在低维数据上具有效率优势（原文第61行）："KANs require fewer layers to achieve superior feature extraction for low-dimensional data"
+- SpectralKAN在Farmland数据集上OA达到0.9801，Kappa达到0.9514（原文第49行）
+- SpectralKAN仅使用8k参数、0.07M FLOPs、911MB内存（原文第49行）
+- 训练时间13.26秒，测试时间2.52秒（原文第49行）
+- WKAN通过加权激活分布减少冗余信息提取（原文第105-107行）："reduce the number of activation functions per node, use weights to control their size, and distribute activation values to different output nodes"
+- KAN在高维数据处理时参数和FLOPs大幅增加（原文第83行）："KANs utilize a mechanism that involves multiple activations of one input node, leading to a substantial increase in NP and FLOPs for high-dimensional data"
+- WKANs的激活机制允许在不影响准确性的情况下减少参数（原文第309行）："The activation mechanism in WKANs allows them to reduce the NP without compromising accuracy"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
-- 本文的WKAN设计对FRIKAN/Wiener-KAN的参数优化有参考价值
-- 论文的方法论对高维数据处理有参考意义
+- 本文的WKAN设计对FRIKAN/Wiener-KAN的参数优化有参考价值：WKAN通过加权激活分布机制减少NP和FLOPs，其设计思想可用于优化Wiener-KAN的计算效率
+- 论文的MTSF框架证明了通过分解高维数据来提高计算效率的方法论，对FRIKAN/Wiener-KAN处理多频率成分的效率优化有参考意义
+- WKAN的激活机制证明了KAN可以在保持准确性的同时减少参数量，为KAN在实时补偿场景下的可行性提供了证据
 
 ## 精确行号引用
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
+| 第49行 | Farmland数据集性能：OA 0.9801, Kappa 0.9514, 8k参数, 0.07M FLOPs, 911MB内存, 13.26s训练, 2.52s测试 |
 | 第61行 | KAN在低维数据上的效率优势 |
-| 第309行 | WKAN减少参数数量和FLOPs |
-| 第339行 | MTSF进一步减少计算量 |
-| 第105-107行 | WKAN的主要贡献 |
+| 第83行 | KAN在高维数据上NP和FLOPs大幅增加 |
+| 第101行 | SpectralKAN在准确性和效率上优于最先进方法 |
+| 第105-107行 | WKAN减少激活函数数量，使用权重控制大小 |
+| 第109-111行 | MTSF通过沿不同维度分离张量来解决结构信息丢失 |
+| 第309行 | WKAN减少NP和FLOPs约n倍 |
+| 第339行 | MTSF将NP和FLOPs减少到WKANs的约(1/b + 1/hw) |
 
 ## 关键原文段落摘录
 
@@ -81,9 +92,9 @@
 
 ## 分析结论
 
-**GAP支撑评估**：无直接GAP支撑
+**GAP支撑评估**：GAP9（计算效率）- 中等支撑
 
-**理由**：本文提出SpectralKAN用于高光谱图像变化检测，与MET非线性问题的频率漂移补偿领域关联有限。论文虽然涉及KAN的效率优化，但聚焦于图像处理任务，未讨论频率响应补偿问题。
+**理由**：本文提出SpectralKAN用于高光谱图像变化检测，其WKAN设计和MTSF框架在计算效率优化方面提供了重要证据。论文证明了KAN可以通过加权激活分布机制在保持准确性的同时显著减少NP和FLOPs，MTSF通过张量分解进一步提高了效率。这些发现与GAP9（计算效率提升）相关，为KAN在实时补偿场景下的可行性提供了支撑。然而，论文聚焦于图像处理任务，未直接涉及频率响应漂移补偿问题。
 
 **对IDEA的总体参考价值**：较低
 

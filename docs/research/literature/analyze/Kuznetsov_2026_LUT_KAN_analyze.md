@@ -14,33 +14,11 @@
 
 ## GAP 关联分析
 
-### GAP6: 前馈补偿利用非线性区而非排除
-
-**批判性支持**：
-
-- **论文做了什么**：本文聚焦于KAN推理效率优化，未直接涉及前馈补偿或传感器漂移问题。
-- **论文没有做什么**：未讨论频率响应补偿、非线性区域利用或量程设计问题。
-
-**直接支撑**：
-
-- **无直接支撑**：本论文是工程优化论文，与GAP6无直接关联。
-
-### GAP7: 前馈补偿利用非线性区而非排除
-
-**批判性支持**：
-
-- **论文做了什么**：讨论了KAN中样条分支的动态范围特性，指出样条分支的动态范围通常比完整的φ(x)更窄。
-- **论文没有做什么**：未涉及前馈架构设计或非线性区域利用策略。
-
-**直接支撑**：
-
-- **无直接支撑**：本文是推理优化论文，与GAP7无直接关联。
-
 ### GAP9: 频率相关补偿的计算效率
 
 **批判性支持**：
 
-- **论文做了什么**：第33行明确报告"12倍CPU推理延迟降低（NumPy）和10倍降低（Numba）"。这是关于KAN推理效率的直接证据。
+- **论文做了什么**：第33行（摘要/背景）介绍KAN用可学习单变量函数取代标量权重，B样条实现准确且可解释，但CPU推理昂贵。第35行（中文翻译）报告"在NumPy后端下将稳态CPU推理延迟降低了${12}\mathrm{x}$，在Numba后端下降低了${10}\mathrm{x}$"。这是关于KAN推理效率的直接证据。
 - **关键发现**：第1361-1363行确认LUT加速是"真实的表示效果"而非软件栈差异：NumPy 12.3±1.2倍加速，Numba 10.5±0.6倍加速。
 
 **直接支撑**：
@@ -57,7 +35,7 @@
 
 ## 关键原文摘录
 
-> "KAN replace scalar weights by learnable univariate functions, often implemented with B-splines. This design can be accurate and interpretable, but it makes inference expensive on CPU because each layer requires many spline evaluations."（第33行）
+> "KAN replace scalar weights by learnable univariate functions, often implemented with B-splines. This design can be accurate and interpretable, but it makes inference expensive on CPU because each layer requires many spline evaluations."（第33行，摘要）
 
 > "NumPy speedup is 12.3 ± 1.2× (range: 11.4-14.0×), and the Numba speedup is 10.5 ± 0.6× (range: 9.5-11.1×). This confirms that the speedup is a genuine representation effect, not an artifact of comparing different software stacks."（第1361-1363行）
 

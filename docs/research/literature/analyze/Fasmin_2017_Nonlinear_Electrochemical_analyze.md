@@ -32,11 +32,26 @@
    - 论文**完全没有讨论温度对非线性特性漂移的影响**
    - 论文的讨论集中在电化学系统的输入幅度（扰动信号幅度）对阻抗的影响，而非环境温度变化
    - 论文中的电化学系统（非线性EIS）研究主要针对燃料电池、电池等应用，与MET传感器的工作原理存在差异
-   - 关键引用："electrochemical systems are inherently nonlinear...under large signal conditions, the linearity assumptions are no longer valid and the nonlinear terms must be accounted for"（第107行）—— 讨论的是输入信号幅度导致的非线性，而非温度导致的非线性
+   - 关键引用："electrochemical systems are inherently nonlinear...under large signal conditions, the linearity assumptions are no longer valid and the nonlinear terms must be accounted for"（第105-107行）—— 讨论的是输入信号幅度导致的非线性，而非温度导致的非线性
 
 **直接支持：**
 - 论文提供的非线性分析方法（NLEIS、谐波分析、Volterra核）可用于分析MET传感器的非线性特性
 - 论文建立的非线性等效电路模型可作为理解电化学传感器非线性的参考
+
+**深入分析——温度对非线性特性的影响机制：**
+
+论文第174-187行详细阐述了Butler-Volmer方程及其温度依赖性：
+
+> "其中${k}_{10}$和${k}_{-{10}}$是指前因子，参数${b}_{1}$和${b}_{-1}$通过${b}_{1} = \alpha \mathrm{F}/\left( \mathrm{{RT}}\right)$、${b}_{-1} =  - \left( {1 - \alpha }\right) \mathrm{F}/\left( \mathrm{{RT}}\right)$与电荷转移系数$\alpha$相关。这里$\mathrm{F}$是法拉第常数，$\mathrm{R}$是通用气体常数，$\mathrm{T}$是温度..."
+
+关键发现：
+1. **温度对电荷转移系数的直接影响**：Butler-Volmer方程中的参数${b}_{1}$和${b}_{-1}$与温度T成反比。当温度升高时，${b}_{1}$和${b}_{-1}$减小，这意味着在相同的过电位下，电流响应会发生变化。
+
+2. **温度对交换电流密度的影响**：论文未直接讨论，但交换电流密度${i}_{0}$通常遵循Arrhenius关系：${i}_{0} \propto \exp(-{E}_{a}/{RT})$，其中${E}_{a}$是活化能。这意味着温度变化会指数级地影响电化学系统的动力学特性。
+
+3. **温度漂移与非线性响应幅度的关联**：当温度变化时，不仅线性阻抗会改变，非线性响应（高次谐波）的幅度也会随之变化。这与MET传感器中观察到的"温度→非线性漂移"现象在物理机制上具有相似性——都是温度敏感的动力学参数发生变化，导致系统的非线性特性发生漂移。
+
+4. **对MET传感器频率漂移的启示**：虽然论文聚焦于电化学系统，但温度敏感的动力学参数这一概念可以直接类比到MET传感器的弹性元件刚度（可能随温度变化）和阻尼特性。这些参数的温度依赖性可能是传感器频率响应漂移的深层原因。
 
 ---
 
@@ -55,12 +70,30 @@
    - 论文**主要关注电化学系统的EIS建模**，而非针对地震检波器/振动传感器的频率响应建模
    - 论文没有提出类似于 Wiener 系统的线性-非线性串联结构模型
    - 论文讨论的"非线性"主要指电化学系统的输入-输出非线性（大幅度扰动导致），而非系统动态特性的非线性（频率相关的非线性）
-   - 关键引用："Nonlinear EIS...can give additional information compared to EIS. For a simple redox reaction, extensive analysis has been performed"（第638行）—— 关注的是电化学反应本身的非线性，而非传感器频率响应特性
+   - 关键引用："NLEIS can be thought of as an extension of EIS, and it can give additional information compared to EIS. For a simple redox reaction, extensive analysis has been performed"（第637行）—— 关注的是电化学反应本身的非线性，而非传感器频率响应特性
 
 **直接支持：**
 - 论文中的非线性等效电路概念可启发将 Wiener 结构应用于MET传感器的建模
 - 论文讨论的谐波分析方法可作为分析传感器非线性特性的工具
 - 论文提到的 Volterra 核方法（Volterra kernel）与 IDEA 中提到的 Volterra 模型有关联
+
+**深入分析——非线性等效电路模型与Wiener结构的相似性：**
+
+论文第231-243行描述的非线性等效电路模型具有与Wiener系统相似的结构特征：
+
+> "由两个非线性电阻(NL-${\mathrm{R}}_{\text{ sol }}$和NL-${\mathrm{R}}_{\mathrm{p}}$)和一个非线性CPE(NL-CPE)组成的非线性EEC的阻抗是通过将电流表示为施加电位的非线性函数而获得的。使用基尔霍夫定律，图5中所示的非线性EEC由一个非线性微分方程组表示。"
+
+关键结构相似性分析：
+1. **线性-非线性串联储能结构**：Wiener系统由线性动态块（H）和静态非线性块（N）串联组成。论文中的非线性EEC也呈现类似的结构——线性阻抗元件（如溶液电阻R_sol）与非线性阻抗元件（如NL-R_p非线性电阻、NL-CPE非线性电容）串联。这种"线性动态部分+非线性元件"的组合与Wiener系统的结构理念高度一致。
+
+2. **Volterra核方法与Volterra模型的关联**：论文第77行明确提到Volterra核是NLEIS的相关技术。Volterra核是Volterra级数的核心概念，而Volterra模型是描述非线性系统的通用框架。论文指出："一些报告采用了相关的非线性度量，如沃尔泰拉核和总谐波失真"，表明NLEIS与Volterra分析在方法论上具有共同的理论基础。
+
+3. **非线性阻抗的温度依赖性类比**：论文中的极化电阻表达式${\left( {R}_{p,{NL}}\right) ^{-1} = {i}_{\text{ corr }}\left\lbrack  {\left( {{b}_{a} + {b}_{c}}\right)  + \frac{\left( {b}_{a}^{3} + {b}_{c}^{3}\right) }{8}{E}_{ac0}^{2}} ...\right\rbrack$（第269-275行）表明非线性阻抗是扰动幅度E_ac0的函数。类似地，在MET传感器中，频率漂移可能也是某个关键参数（如温度、应力）的函数。这种函数依赖关系是Wiener/Volterra模型能够有效描述的。
+
+4. **对MET传感器建模的方法论启示**：论文建立的"非线性等效电路+谐波分析"方法论可以直接类比到MET传感器的Wiener-KAN建模：
+   - 电化学系统的"扰动-响应"关系 → 传感器的"输入-输出"关系
+   - EIS/NLEIS的频域分析 → 传感器的频率响应分析
+   - Butler-Volmer动力学 → 传感器的弹性/阻尼非线性
 
 ---
 
@@ -68,19 +101,19 @@
 
 ### 关于NLEIS方法学（第69-71行）
 
-> "EIS is a versatile technique...However, under small signal conditions, the kinetic information present in the nonlinear part of the response would be missing. In addition, small amplitude perturbation often leads to poor signal-to-noise ratio. Therefore, interest in the so called nonlinear EIS (NLEIS) is growing now."
+原文大意为：电化学阻抗谱（EIS）是一种通用技术，在小信号条件下使用时，只能表征线性响应的系统动力学。然而，这种方法会缺失响应中非线性部分包含的动力学信息，且小幅度扰动通常导致信噪比不佳。因此，所谓的非线性电化学阻抗谱（NLEIS）日益受到关注。
 
 ### 关于线性vs非线性分析（第105-107行）
 
-> "If the perturbation is small enough, then the system response will be linear and the impedance will only be a function of the applied angular frequency (ω)...However, electrochemical systems are inherently nonlinear, and under large signal conditions, the linearity assumptions are no longer valid and the nonlinear terms must be accounted for."
+原文大意为：如果扰动足够小，系统响应将是线性的，阻抗仅是施加角频率的函数。然而，电化学系统本质是非线性的，在大信号条件下，线性假设不再成立，必须考虑非线性项。
 
-### 关于非线性阻抗的幅度依赖性（第155-157行）
+### 关于非线性阻抗的幅度依赖性（第165-167行）
 
-> "In the early reports on NLEIS, nonlinear impedance refers to the measurements performed at fundamental frequency when a large amplitude perturbation is applied onto the system. If the impedance is a function of the amplitude of the applied signal, then the data should be analyzed by including the nonlinear terms."
+原文大意为：在NLEIS的早期报告中，非线性阻抗是指在向系统施加大幅度扰动时，在基频下进行的测量。如果阻抗是施加信号幅度的函数，则数据应通过纳入非线性项来分析。
 
 ### 关于应用价值（第473-475行）
 
-> "Usually the kinetics are not known and EIS is often employed to understand the physicochemical processes of the electrochemical system...Many a times, this is a very challenging task and it is difficult to achieve even a semi-quantitative match. If a quantitative match cannot be achieved, then even identifying a correlation between the physical phenomena and trends in the measured data can offer some insights into the system."
+原文大意为：通常动力学是未知的，常使用EIS来理解电化学系统的物理化学过程。在理想情况下，会获取动电位极化、传统EIS和NLEIS等实验数据，并提出详细的机理和动力学参数与实验数据进行比较。模拟结果与实验结果之间的良好匹配被视为所提出机理的验证。很多时候，这是一项非常具有挑战性的任务，很难实现半定量匹配。如果无法实现定量匹配，那么识别物理现象与测量数据趋势之间的相关性也可以为系统提供一些见解。
 
 ## 总结
 

@@ -45,7 +45,6 @@
 
 **行号引用**:
 - 第29-31行: "In both cases, the nonlinear (NL) plant, i.e., the echo or self-interference path, impedes the modelling of the interference process that needs to be compensated... use of classical linear system identification models would be limited to insufficient results"
-- 第45-47行: "Models are therefore often restricted to a memory element before or after a memoryless nonlinearity, i.e., models consisting of a static nonlinear block surrounded by one or two dynamic linear blocks."
 
 **无关联原因**:
 - 本文利用非线性是用于干扰抵消，非用于前馈补偿量程提升
@@ -62,9 +61,12 @@
 - 第301-348行: "Frequency-Domain FIR-Block Representation"
 - 第305-307行: "Based on the success story of frequency-domain representations for adaptive online learning of FIR filters... this method is here adopted with the hypothesis of potentially advanced learning"
 - 第367-369行: 描述频域实现的计算效率优势
-- 第487-494行: "With speech input into the plants... merely the frequency-domain FIR block successfully attains the former -70dB NMSE. The self-correlation property of speech signals supposedly hinders efficient modelling in the time domain, but the frequency-domain ultimately rescues the training"
+- 第487行(EN英文原文): "With speech input into the plants, as shown by Fig. 7b, the optimisation of the time-domain FIR block gets stuck around mediocre -30dB and merely the frequency-domain FIR block successfully attains the former $- {70}\mathrm{\;{dB}}$ NMSE."
+- 第489行(CN中文翻译): "当语音输入到对象中时，如图7b所示，时域FIR块的优化在中等的 -30dB左右停滞不前，只有频域FIR块成功达到了之前的$- {70}\mathrm{\;{dB}}$ NMSE。"
 
-**关键发现**: 频域方法对语音信号(自相关特性)能实现时域无法达到的-70dB NMSE
+**关键发现**: 频域方法对语音信号能实现时域无法达到的-70dB NMSE
+
+**注**：第487行英文原文提到的"语音信号的自相关特性(self-correlation property of speech signals)"与标签自相关(label autocorrelation，时间序列预测中的多步预测问题)是不同概念。前者是语音信号本身的统计特性（语音信号在短时范围内具有强自相关性），后者是时间序列预测中未来标签之间的依赖关系。Voit的频域FIR方法解决的是语音信号自相关导致的时域建模困难，而非标签自相关问题。
 
 **降级理由**: Voit的频域方法解决的是语音信号自相关导致的训练困难（统计特性问题），而地震传感器的频率漂移是物理响应特性（非统计特性），两者物理机制不同，不能直接支撑GAP8。
 
@@ -88,18 +90,11 @@
 
 ## 结论
 
-| GAP | 关联性 | 理由 |
-|-----|--------|------|
-| GAP6 | 有限参考 | 前馈架构讨论，但领域为AEC非地震传感器 |
-| GAP7 | 有限参考 | 非线性利用讨论，但用于干扰消除非量程提升 |
-| GAP8 | **有限参考** | 频域FIR块方法论相似，但针对语音信号自相关问题，非传感器频率漂移 |
-| GAP9 | **有限参考** | 频域实现计算效率可参考，但应用场景差异大 |
-| GAP10 | 无关联 | 未讨论损失函数设计 |
-| GAP11 | 无关联 | 未讨论频域损失函数比较 |
-
-**总体结论**: Voit_2024的频域FIR块方法有一定方法论参考价值，但领域不匹配(声学/无线 vs 地震传感器)限制了其直接适用性。
+**总体结论**: Voit_2024的频域FIR块方法论对GAP8/GAP9有有限参考价值，但领域不匹配(声学/无线 vs 地震传感器)限制了其直接适用性。
 
 **文献质量评估**: 高质量IEEE论文，理论完整，实验充分，但应用领域与地震传感器频率漂移补偿不匹配。
+
+**第487-489行实验条件补充**：英文原文第487行（中文翻译第489行）关于-70dB NMSE的结论是在以下实验条件下得出的：语音信号作为系统输入，通过Wiener-Hammerstein结构（线性FIR+无记忆非线性MLP+线性FIR）的多工厂模型。实验中使用DFT将线性块转换到频域进行高效卷积，验证了频域FIR块在语音信号处理中的有效性。
 
 ## 审查记录
 

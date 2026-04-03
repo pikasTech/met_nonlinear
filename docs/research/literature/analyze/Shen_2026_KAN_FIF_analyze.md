@@ -72,13 +72,13 @@
 ### 段落3（边缘部署）
 
 > "The edge-device deployment achieved a per-sample inference latency of 14.41ms, validating the promising potential for operational tropical cyclone monitoring."
-> （第633-635行）
+> （第633行）
 
 ## 分析结论
 
-**GAP支撑评估**：GAP8（频率相关补偿）- 弱支撑
+**GAP支撑评估**：无直接GAP对应（仅KAN层替换方法论参考）
 
-**理由**：本文证明了KAN可有效替代CNN/LSTM进行特征提取和物理约束建模，为KAN用于非线性部分建模提供了间接支持。然而本文聚焦于气象预测任务，与频率响应补偿的直接关联有限。
+**理由**：GAP8定义"频率无关的非线性补偿方法"，本文是气象预测（热带气旋估计）论文，与频率域补偿毫无逻辑关联。"弱支撑"的结论缺乏任何合理依据。本文价值在于验证了KAN层可有效替代CNN/LSTM进行特征提取，为KAN架构设计提供方法论参考。
 
 **对IDEA的总体参考价值**：中等
 

@@ -76,31 +76,51 @@ KANMixer包含三个主要模块：
 |--------|------|
 | **中** | **关键发现**：KAN在三层(KAN-3L)时以更窄的模型宽度实现最佳性能，相比MLP需要更少的参数。B样条基函数始终优于其他基函数(傅里叶、小波)。这为KAN在参数效率方面的优势提供了证据。 |
 
+**具体数值支撑（第287-289行 + 第299-300行表2）**：
+- KAN-3L vs MLP-3L在ETTh1数据集：MSE 0.419 vs 0.449（KAN优6.7%）
+- KAN-3L vs MLP-3L在ETTm1数据集：MSE 0.377 vs 0.478（KAN优21.1%）
+- KAN-3L vs MLP-3L在Weather数据集：MSE 0.244 vs 0.255（KAN优4.3%）
+- 论文明确指出KAN以"更窄的模型宽度"实现上述性能，表明KAN的参数效率优于MLP
+
 ## 4. 关键原文摘录
 
 ### 4.1 KAN vs MLP性能对比
 
-> "KAN achieves its optimal performance at three layers (KAN-3L) with a narrower model width compared to MLP. Stacking of KAN layers provides no additional gains and causes training instability."
+> "We observe that KAN achieves its optimal performance at three layers (KAN-3L) with a narrower model width compared to MLP. Stacking of KAN layers provides no additional gains and causes training instability."
 
-**出处**：第287-289行
+**出处**：第287-288行
 
 ### 4.2 KAN预测头的重要性
 
-> "The KAN-based prediction head emerges as the single most critical driver of performance. Removing the KAN-based prediction head leads to the most significant performance degradation."
+> "the KAN-based prediction head emerges as the single most critical driver of performance. Removing the KAN-based prediction head leads to the most significant performance degradation"
 
-**出处**：第295-297行
+**出处**：第295-296行
 
 ### 4.3 KAN自适应基函数的作用
 
+> "enabling fine-grained local modulation of nonlinearities"
+
+**出处**：第59-61行
+
 > "We attribute this profound impact to the adaptive plasticity of KAN's learnable basis functions, a property that is maximally exploited at the final, most complex stage of forecasting."
 
-**出处**：第311-313行
+**出处**：第311-312行
 
 ### 4.4 B样条基函数的优越性
 
 > "Under the KANMixer architecture, only the B-spline function consistently maintains superior performance across different forecast lengths."
 
 **出处**：第323行
+
+> "adaptive B-spline consistently outperforming others due to its inherent flexibility"
+
+**出处**：第323行
+
+**B样条优越性与Wiener-KAN设计的关联**：
+- KANMixer的实验证明，在KAN架构中，B样条基函数始终优于其他基函数（切比雪夫、傅里叶、小波）
+- Wiener-KAN采用B样条参数化激活函数，这一选择与KANMixer的实验结论一致
+- 第323行明确指出："adaptive B-spline consistently outperforming others due to its inherent flexibility"（自适应B样条由于其固有灵活性始终优于其他）
+- 这支撑了Wiener-KAN使用B样条激活函数的设计决策
 
 ### 4.5 基函数比较
 
@@ -112,7 +132,7 @@ KANMixer包含三个主要模块：
 
 > "KANMixer's concise architecture is noticeably more streamlined than more complex models like WPMixer and TimeMixer."
 
-**出处**：第67-69行
+**出处**：第67行
 
 ## 5. 方法论总结
 

@@ -45,19 +45,21 @@
 
 ### GAP5: 频率漂移的研究 - 建模了温度因素，没有建模震级因素
 
-**支撑程度：弱**
+**支撑程度：无直接支撑（领域不匹配）**
 
 **批判性支持（GAP 支持）：**
 
-1. **论文做了XXX（和 IDEA 的研究内容相关）：**
+1. **论文做了什么（和IDEA研究内容的关联有限）：**
    - 论文考虑了传感器的不完美特性（制造公差、磁化不均匀、传感器未对准）导致的非线性误差
    - 论文讨论了高阶谐波对测量精度的影响
 
-2. **论文没有做XXX（批判凸显 IDEA 的 GAP）：**
-   - 论文**明确忽略了温度对测量的影响**：第121行（英文）/ 第123行（中文） "Neglecting dependence on temperature"
-   - 论文没有建模震级(magnitude)对频率响应的影响
-   - 论文关注的是位置相关的周期性误差，而非频率相关的漂移
-   - 关键引用（第121行英文/第123行中文）："Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density" —— 明确忽略了温度依赖性
+2. **论文没有做什么/领域根本不匹配（批判凸显GAP）：**
+   - 论文**明确忽略了温度对测量的影响**（第121行）："Neglecting dependence on temperature"
+   - 论文研究的是**霍尔传感器位置测量校准**，而非地震检波器的**频率响应漂移**
+   - 论文的"magnet pole frequency"是**空间频率**（磁极间距），不是地震传感器的**时域频率响应**
+   - 两者是**完全不同的领域**：电化学地震检波器 vs 霍尔传感器
+   - 论文关注的是位置相关的周期性误差，而非频率随温度/震级的漂移
+   - 关键引用（第121行）："Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density" —— 明确忽略了温度依赖性，但忽略的是位置测量误差的温度依赖，而非频率响应的温度漂移
 
 ---
 
@@ -67,7 +69,7 @@
 
 > "The series connection of linear system G(s) and nonlinear functions g_h(y0) is recognized as a single-input multi-output Wiener system in literature (Westwick and Verhaegen, 1996)."
 
-### 关于忽略温度依赖性（第121行英文/第123行中文）
+### 关于忽略温度依赖性（第121行）
 
 > "Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density..."
 
@@ -83,9 +85,9 @@
 
 **GAP4 支撑**：van_Meer_2025 论文直接展示了Wiener系统结构（线性G(s) + 非线性g(y0)）在传感器建模中的应用，为MET传感器的Wiener建模提供了直接参考。论文明确指出这是Wiener系统，并且提供了完整的建模和识别方法。
 
-**GAP5 支撑**：论文明确指出"忽略温度依赖性"（第121行英文/第123行中文），且没有讨论震级对频率漂移的影响。这支持了GAP5的观点：需要建模震级因素对频率漂移的影响。
+**GAP5 支撑**：无直接支撑。论文研究霍尔传感器位置测量校准，与地震检波器频率漂移补偿是**不同领域**。论文明确忽略了温度对测量的影响，但其关注点是位置误差的温度依赖，而非频率响应的温度漂移。
 
-**综合评估**：van_Meer_2025 是一篇关于霍尔传感器自校准的方法论文，提供了Wiener系统建模的具体实例和完整方法。论文明确忽略了温度对测量的影响，且没有讨论震级因素，这对GAP5的支撑有重要意义。
+**综合评估**：van_Meer_2025 是一篇关于霍尔传感器自校准的方法论文，提供了Wiener系统建模的具体实例和完整方法，对**GAP4有直接支撑**。但该论文属于测量科学领域，与MET地震检波器的频率漂移研究领域不匹配，不应将其作为GAP5的支撑文献。
 
 ## 引用信息
 
