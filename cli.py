@@ -73,6 +73,14 @@ def _run_ep_subcommand(args) -> None:
     handle_ep_command(args)
 
 
+def _run_qemu_subcommand(args) -> None:
+    """处理 QEMU 子命令，避免加载重型依赖。"""
+    from core.qemu_cli import handle_qemu_command
+
+    exit_code = handle_qemu_command(args)
+    sys.exit(exit_code)
+
+
 def _run_main_commands(args) -> None:
     """处理非 ep 的主命令，按原顺序加载重型依赖。"""
     # 第二阶段：环境检查（在重型依赖导入前）
@@ -117,6 +125,10 @@ if __name__ == '__main__':
     # 子命令优先，若是 ep 则不导入任何重型模块
     if getattr(args, 'command', None) == 'ep':
         _run_ep_subcommand(args)
+        sys.exit(0)
+
+    if getattr(args, 'command', None) == 'qemu':
+        _run_qemu_subcommand(args)
         sys.exit(0)
 
     # 测试命令（不加载重型依赖）

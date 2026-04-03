@@ -64,6 +64,14 @@ class CLIArgs:
     # 子命令支持（简化设计）
     command: Optional[str] = None
     ep_project_path: Optional[str] = None
+    qemu_action: Optional[str] = None
+    qemu_project_dir: Optional[str] = None
+    qemu_machine: str = 'mps2-an386'
+    qemu_timeout: int = 5
+    qemu_output_path: Optional[str] = None
+    qemu_qemu_path: Optional[str] = None
+    qemu_gcc_path: Optional[str] = None
+    qemu_linker_script: Optional[str] = None
 
     # 测试相关参数
     test_path: Optional[str] = None
@@ -208,21 +216,63 @@ def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
     return parser
 
 
-def _create_ep_parser(config: CLIConfig) -> argparse.ArgumentParser:
-    """创建 ep 子命令解析器"""
+def _add_qemu_common_arguments(parser: argparse.ArgumentParser) -> None:
+    """添加 QEMU 子命令的通用参数。"""
+    parser.add_argument('qemu_project_dir', nargs='?',
+                        help='QEMU 工程目录，例如 test_qemu')
+    parser.add_argument('--machine', default='mps2-an386',
+                        help='QEMU 机器型号，默认: mps2-an386')
+    parser.add_argument('--timeout', type=int, default=5,
+                        help='运行超时时间（秒），0 表示不设超时，默认: 5')
+    parser.add_argument('--output', dest='qemu_output_path',
+                        help='ELF 输出文件名或路径')
+    parser.add_argument('--qemu-path', dest='qemu_qemu_path',
+                        help='qemu-system-arm.exe 的绝对路径')
+    parser.add_argument('--gcc-path', dest='qemu_gcc_path',
+                        help='arm-none-eabi-gcc.exe 的绝对路径')
+    parser.add_argument('--linker-script', dest='qemu_linker_script',
+                        help='链接脚本文件名或路径，默认自动检测工程目录中的 .ld 文件')
+
+
+def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
+    """创建轻量子命令解析器。"""
     parser = argparse.ArgumentParser(
-        description='MET Nonlinear External Project CLI',
+        description='MET Nonlinear Lightweight Subcommands',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例用法：
   python cli.py ep project/freq-response-compare/task-name
   python cli.py ep LSTMu32al_rs300/freq-response-compare/test
+  python cli.py qemu list
+  python cli.py qemu build test_qemu
+  python cli.py qemu run test_qemu --timeout 5
+  python cli.py qemu build-run test_qemu
         """
     )
     subparsers = parser.add_subparsers(dest='command', help='可用命令')
+
     ep_parser = subparsers.add_parser('ep', help='外部项目管理 (External Project)')
     ep_parser.add_argument('ep_project_path',
                             help='外部项目路径，格式: project/task-type/task-name 或 project/task-name')
+
+    qemu_parser = subparsers.add_parser('qemu', help='QEMU 边缘设备仿真工具')
+    qemu_subparsers = qemu_parser.add_subparsers(dest='qemu_action', help='QEMU 操作')
+
+    qemu_list_parser = qemu_subparsers.add_parser('list', help='列出可用的 QEMU 工程目录')
+    qemu_list_parser.add_argument('--qemu-path', dest='qemu_qemu_path',
+                                  help='qemu-system-arm.exe 的绝对路径')
+    qemu_list_parser.add_argument('--gcc-path', dest='qemu_gcc_path',
+                                  help='arm-none-eabi-gcc.exe 的绝对路径')
+
+    qemu_build_parser = qemu_subparsers.add_parser('build', help='编译指定 QEMU 工程')
+    _add_qemu_common_arguments(qemu_build_parser)
+
+    qemu_run_parser = qemu_subparsers.add_parser('run', help='运行指定 QEMU 工程的 ELF')
+    _add_qemu_common_arguments(qemu_run_parser)
+
+    qemu_build_run_parser = qemu_subparsers.add_parser('build-run', help='编译并运行指定 QEMU 工程')
+    _add_qemu_common_arguments(qemu_build_run_parser)
+
     return parser
 
 
@@ -405,12 +455,12 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
         import sys
         argv = sys.argv[1:]  # 跳过脚本名称
 
-    # 预处理：检测是否为 ep 子命令
-    is_ep_command = len(argv) > 0 and argv[0] == 'ep'
+    # 预处理：检测是否为轻量子命令
+    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu'}
 
-    # 根据是否为 ep 命令选择不同的解析器
-    if is_ep_command:
-        parser = _create_ep_parser(config)
+    # 根据是否为轻量子命令选择不同的解析器
+    if is_lightweight_subcommand:
+        parser = _create_subcommand_parser(config)
     else:
         parser = _create_main_parser_only(config)
 
@@ -419,6 +469,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
 
         # 检查是否为 ep 子命令
         is_ep_subcommand = getattr(args, 'command', None) == 'ep'
+        is_qemu_subcommand = getattr(args, 'command', None) == 'qemu'
 
         # 如果是 ep 子命令，跳过主命令的验证逻辑
         if is_ep_subcommand:
@@ -427,6 +478,21 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 project_names=[],
                 command='ep',
                 ep_project_path=getattr(args, 'ep_project_path', None)
+            )
+
+        if is_qemu_subcommand:
+            return CLIArgs(
+                task_type=TaskType.INFERENCE,  # 子命令实际不会用到
+                project_names=[],
+                command='qemu',
+                qemu_action=getattr(args, 'qemu_action', None),
+                qemu_project_dir=getattr(args, 'qemu_project_dir', None),
+                qemu_machine=getattr(args, 'machine', 'mps2-an386'),
+                qemu_timeout=getattr(args, 'timeout', 5),
+                qemu_output_path=getattr(args, 'qemu_output_path', None),
+                qemu_qemu_path=getattr(args, 'qemu_qemu_path', None),
+                qemu_gcc_path=getattr(args, 'qemu_gcc_path', None),
+                qemu_linker_script=getattr(args, 'qemu_linker_script', None)
             )
 
         # 检查是否为测试任务
@@ -487,6 +553,14 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             bom_standardize=args.bom_standardize if hasattr(args, 'bom_standardize') else None,
             command=getattr(args, 'command', None),
             ep_project_path=getattr(args, 'ep_project_path', None),
+            qemu_action=getattr(args, 'qemu_action', None),
+            qemu_project_dir=getattr(args, 'qemu_project_dir', None),
+            qemu_machine=getattr(args, 'machine', 'mps2-an386'),
+            qemu_timeout=getattr(args, 'timeout', 5),
+            qemu_output_path=getattr(args, 'qemu_output_path', None),
+            qemu_qemu_path=getattr(args, 'qemu_qemu_path', None),
+            qemu_gcc_path=getattr(args, 'qemu_gcc_path', None),
+            qemu_linker_script=getattr(args, 'qemu_linker_script', None),
             test_path=getattr(args, 'test_path', None),
             test_workers=getattr(args, 'test_workers', 4),
             test_timeout=getattr(args, 'test_timeout', 300),

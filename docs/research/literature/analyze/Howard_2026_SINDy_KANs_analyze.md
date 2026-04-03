@@ -59,7 +59,7 @@ Key innovation: Rather than post-hoc symbolic regression, SINDy-KANs enforce tha
 > "The coefficients Ξ_S should be sparse, so ||Ξ_S||_1 is minimized." (第297行)
 
 ### 与pykan对比
-> "pykan struggles to learn the composition of functions...pykan misses the x² term, resulting in larger errors overall." (第379行)
+> "pykan struggles to learn the composition of functions...pykan misses the x² term, resulting in larger errors overall." (第379、387行)
 
 ### KAN与MLP对比（背景）
 > "Unlike MLPs, which use fixed activation functions with trainable weights, KANs use trainable activation functions." (第95行)

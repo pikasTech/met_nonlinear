@@ -131,7 +131,7 @@
 
 | 引用位置 | 原文引用 |
 |---------|---------|
-| 第21行 | 摘要：Efficient KAN在性能和训练时间上均优于MLP |
+| 第22行 | 摘要：Efficient KAN在性能和训练时间上均优于MLP |
 | 第65行 | "Efficient KAN's superior stability across grid sizes, depths, and layer configurations" |
 | 第85行 | KAN在符号公式表示方面保持明显优势，因其使用B样条激活函数 |
 | 第279-287行 | KAN与MLP架构对比：激活函数位置不同（边vs节点），SiLU+B-spline vs ReLU |

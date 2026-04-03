@@ -3,6 +3,7 @@
 ## Corrections
 | Date | Source | What Went Wrong | What To Do Instead |
 |------|--------|----------------|-------------------|
+| 2026-04-03 | user | 在 QEMU 问题上先开始本地复现，没先做外部资料调研 | 这类工具链/仿真器卡点先做广泛联网调研，再回仓库落地 |
 
 ## User Preferences
 - (none recorded)
@@ -17,6 +18,9 @@
 
 ## Domain Notes
 - MET非线性项目: Wiener-KAN用于频率响应漂移补偿
+- 2026-04-03: Windows 上 QEMU/ARM GCC 已安装但未进 PATH；边缘仿真文档需同时给出绝对路径或提醒先配 PATH
+- 2026-04-03: QEMU Cortex-M4 Hello World 优先用 `mps2-an386 + CMSDK UART0(0x40004000)`，不要把最小冒烟验证建立在 `b-l475e-iot01a + semihosting` 上
+- 2026-04-03: `cli.py qemu run` 必须默认带超时并在超时后终止 QEMU，否则裸机固件无限循环会造成 CLI 长时阻塞
 - 2026-04-03: 若 nvidia-smi 报某块卡 `GPU is lost`，Windows 的 WMI `Status: OK` 仍可能误导；以 nvidia-smi 为准
 - 2026-04-03: 当前机器在 3090 lost、2080 正常时，可在 TensorFlow 导入前设置 `CUDA_VISIBLE_DEVICES=1` 继续训练；设备级 `pnputil /restart-device` 需要管理员权限
 - 2026-04-03: 多卡默认优先级改为 `RTX 2080 Ti > RTX 3090 > 其他 GPU`，逻辑在 `src/utils/cuda_preflight.py`
@@ -283,3 +287,20 @@
 - r002误读：将第29行 `## I. INTRODUCTION` 标题误认为第33行
 - 实际：第33行是英文正文段落（以"This paper focuses on ADIs."结尾）
 - 结论：无需修正，已回复r003核实结果
+
+## 2026-04-03 R206 执行完成 (STEP2)
+### 6个Issue复查执行 (881-886)
+- 881 iqbal_2024_electrochemical_volterra: 6处引用全部验证准确✅
+- 882 Lin_effect_2020: 12处引用全部验证准确✅
+- 883 Fang_2024_exploiting_nonlinearity: 6处引用全部验证准确✅
+- 884 Schaller_2025_AutoML_Measurement: 6处引用全部验证准确✅
+- 885 Chen_2025_DE-LOESS_LSTM_Measurement: 6处引用全部验证准确✅
+- 886 Howard_2026_SINDy_KANs: 9处引用实质准确(第379行标注偏移至387)✅
+
+### 执行修正记录
+- 所有analyze文件无需修正
+- 轻微标注差异(Howard第379→387)不影响实质内容
+
+### 注意事项
+- 使用write工具创建mdissue回复文件，避免bash heredoc编码问题
+- 执行者不得修改原文markdown文件名，只修正分析文件内容

@@ -36,7 +36,7 @@
 
 **方法论参考**：
 
-- **非线性建模观察**：第283行讨论了B样条函数输出值相对较小且集中于零附近的现象，第285行进一步分析了网格尺寸对优化难度的影响。这些发现可为Wiener-KAN中非线性部分的设计提供参考，但与"前馈补偿"无直接关联。
+- **非线性建模观察**：第283行原文直接引用："We observed two phenomena across both the training and testing sets: First, the output values of the spline are relatively smaller and more concentrated compared to those of the base configuration. This indicates that the spline's contribution to the final decision is less significant than that of the base, suggesting that the base configuration plays a more critical role in decision-making." 这证明基函数在决策中起主导作用，而非线性的B样条函数贡献较小。第285行进一步分析了网格尺寸对优化难度的影响。这些发现可为Wiener-KAN中非线性部分的设计提供参考，但与"前馈补偿"无直接关联。
 - **⚠️ 明确声明**：KAN展示的非线性函数建模能力（通过B样条/基函数组合）与"前馈补偿利用非线性区域"是两个不同层面的概念，不能直接支撑GAP7的前馈补偿论点。
 
 ### GAP8: 频率无关 vs 频率相关补偿方法
