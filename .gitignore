@@ -51,17 +51,14 @@ cache/
 src/inference/results/
 .playwright-cli
 tmp/
-<<<<<<< HEAD
 tmp_**
 temp_**
 .tmp_**
 .temp_**
 .pytest_cache/
 results/
-=======
 temp/
 tmp**
 temp**
 .tmp**
 .temp**
->>>>>>> 7dc12811f05a82fc46b8f3eac7b4f3b7c8876b61
