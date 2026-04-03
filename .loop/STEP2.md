@@ -33,3 +33,5 @@
 - 禁止关闭 mdissue
 - 禁止修改 `.loop/` 下的任何文件
 - 禁止修改 `docs\research\literature\analyze\STAGE.md`
+- **禁止使用 `echo`、`printf`、`cat` 等命令通过重定向创建或编辑文件，这极易产生乱码**
+  - 应当使用 `edit`、`patch`、`write` 等专用文件编辑工具

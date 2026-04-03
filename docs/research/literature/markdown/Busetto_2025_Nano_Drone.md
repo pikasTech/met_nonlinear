@@ -50,7 +50,7 @@ Despite these challenges and the growing scientific interest in such platforms, 
 
 尽管存在这些挑战，且科学界对此类平台的兴趣日益浓厚，但目前尚无公开可用的基准测试，能为纳米无人机提供真实飞行数据以及适合系统识别和控制的明确评估协议。现有的小型飞行器数据集要么范围有限，要么针对不同任务，要么缺乏系统算法比较所需的结构[12]。结果，研究人员常常必须自行收集轨迹数据，而这些数据通常仅限于简单机动或狭窄的实验条件，从而阻碍了可重复性并减缓了研究进展。
 
-In this work, we introduce a benchmark specifically designed to address this gap. The benchmark is built around the Crazyflie 2.1 Brushless nano-quadrotor, a commercially available, open-source hardware and software/firmware platform that has recently gained traction in robotics and control research [13, 14, 10]. Despite its small size, the Crazyflie exhibits complex non-linear dynamics, as it is a multi-input multi-output system that is inherently open-loop unstable, displaying strongly nonlinear behavior when operated in aggressive conditions. These characteristics make it an appealing and challenging testbed for nonlinear system identification and model-based control.
+在这项工作中，我们引入了一个专门设计来填补这一空白的基准测试。该基准测试围绕Crazyflie 2.1无刷纳米四旋翼飞行器构建，它是一个商业可用的开源硬件和软件/固件平台，最近在机器人和控制研究中受到关注[13, 14, 10]。尽管体积小，但Crazyflie表现出复杂的非线性动力学，因为它是一个多输入多输出系统，本质上是开环不稳定的，在激进条件下运行时表现出强烈的非线性行为。这些特性使其成为非线性系统识别和基于模型控制的一个有吸引力且具有挑战性的测试平台。
 
 在这项工作中，我们引入了一个专门设计来填补这一空白的基准测试。该基准测试围绕Crazyflie 2.1无刷纳米四旋翼飞行器构建，它是一个商业可用的开源硬件和软件/固件平台，最近在机器人和控制研究中受到关注[13, 14, 10]。尽管体积小，但Crazyflie表现出复杂的非线性动力学，因为它是一个多输入多输出系统，本质上是开环不稳定的，在激进条件下运行时表现出强烈的非线性行为。这些特性使其成为非线性系统识别和基于模型控制的一个有吸引力且具有挑战性的测试平台。
 

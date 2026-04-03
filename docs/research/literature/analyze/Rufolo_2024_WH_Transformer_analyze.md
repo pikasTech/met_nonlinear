@@ -41,7 +41,7 @@
 - 元模型能够生成多步预测而不需要为特定系统估计模型（原文第105-107行）："the trained meta-model will be able to generate multi-step-ahead predictions for a new system S given an input/output sequence"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
-- 本文的元建模框架为FRIKAN/Wiener-KAN的线性-非线性分离架构提供了间接参考
+- 本文的元建模框架为FRIKAN/Wiener-KAN的线性-非线性分离架构提供了架构思想参考（非方法论直接支撑）
 - 循环修补思想可用于处理长频率序列
 - 概率输出框架可用于建模不确定性
 
@@ -79,8 +79,8 @@
 **GAP支撑评估**：GAP8（频率相关补偿）- 弱支撑
 
 **理由**：
-1. 本文证明了基于Transformer的元建模可以学习系统动态特性，为Wiener-KAN的线性-非线性分离建模提供了概念上的参考
-2. 但本文未涉及KAN架构，也未针对传感器频率响应补偿任务
+1. 本文证明了基于Transformer的元建模可以学习系统动态特性，为Wiener-KAN的线性-非线性分离建模提供了架构思想参考（非直接方法论支撑）
+2. 本文是方法论参考（通用动态系统元建模），而非直接支撑（频率补偿能力）
 3. 本文的Wiener-Hammerstein系统类与电化学地震检波器的非线性机制不同
 
 **对IDEA的总体参考价值**：较低

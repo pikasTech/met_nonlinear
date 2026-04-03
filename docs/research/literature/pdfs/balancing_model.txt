@@ -1,0 +1,9 @@
+ do not impact hardware re-
+sources.
+In practice, balancing model performance with hardware effi-
+ciency centers on tuning three key parameters: the layer dimensions
+(𝑑𝑙), bitwidth (𝑛𝑙), and pruning threshold ( 𝑇). These directly control
+the model’s capacity, numerical precision, and sparsity. As demon-
+strated in Table 2, this allows the quantized and pruned KANs to
+achieve competitive accuracy—even outperforming floating-point
+versions on datas

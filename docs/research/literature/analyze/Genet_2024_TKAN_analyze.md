@@ -43,7 +43,7 @@
 **论文证明了什么**：
 - KAN可以与LSTM结合用于时间序列预测（原文第113行）："The integration of an LSTM cell combined with the RKAN enables the capture of complex nonlinearities with learnable activation functions of RKAN"
 - TKAN在长时间步预测上具有优势（原文第331行）："TKAN stands out with longer time steps, with an R-squared value at least 25% higher than that of GRU"
-- TKAN具有更好的训练稳定性（原文第357行）："This stability in the TKAN model's learning process, evident in the closer alignment of its learning and validation loss curves"
+- TKAN具有更好的训练稳定性（原文第357行段落靠后部分）："This stability in the TKAN model's learning process, evident in the closer alignment of its learning and validation loss curves"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的RKAN结构为FRIKAN/Wiener-KAN的线性部分选择RNN/IIR结构提供了参考
@@ -54,18 +54,18 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第113行 | "The integration of an LSTM cell combined with the RKAN enables the capture of complex nonlinearities with learnable activation functions of RKAN" |
-| 第134-136行 | RNN隐藏状态更新公式 |
+| 第113行（段落） | "The integration of an LSTM cell combined with the RKAN enables the capture of complex nonlinearities with learnable activation functions of RKAN" |
+| 第134-135行 | RNN隐藏状态更新公式 |
 | 第142-143行 | RKAN输入组合公式：s_{l,t} = W_{l,tilde{x}}x_t + W_{l,tilde{h}}tilde{h}_{l,t-1} |
 | 第331行 | "TKAN stands out with longer time steps, with an R-squared value at least 25% higher than that of GRU" |
-| 第357行 | "This stability in the TKAN model's learning process" |
+| 第357行（段落靠后部分） | "This stability in the TKAN model's learning process" |
 
 ## 关键原文段落摘录
 
 ### 段落1（关于TKAN架构创新）
 
 > "The integration of an LSTM cell combined with the RKAN enables the capture of complex nonlinearities with learnable activation functions of RKAN, but also the maintenance of a memory of past events over long periods with the LSTM cell architecture."
-> （第113行）
+> （第113行所在段落）
 
 ### 段落2（关于RKAN记忆机制）
 

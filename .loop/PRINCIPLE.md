@@ -17,7 +17,9 @@
   - 引用要求
     - 必须精确引用到论文 markdown 的行号
     - 必须摘录关键的原文段落
-  
+  - 更新 `xxx_analyze.md` 文件后，要同步更新 `docs\research\literature\analyze\index.md` 中的汇总信息、摘要和链接索引
+  - 所有文件均要用中文编写，发现非中文内容必须翻译成中文
+
 - 规划要求
   - 每个论文对应一个 mdissue
   - 保持打开的 mdissue 在 8 个左右
@@ -45,3 +47,8 @@
   - 禁止无根据的关联分析，必须有明确的论文内容支撑分析
   - 禁止跳过 `docs\research\literature\markdown\xxx.md` 里面的论文，必须全部分析
   - 禁止在一个 mdissue 中分析多篇论文，避免注意力分散
+  - 禁止使用 `bash` 或者 `shell` 等工具编辑文件，这极易造成编码错误
+    - 禁止使用 `echo`、`printf`、`cat` 等命令通过重定向 (`>` / `>>`) 创建或编辑文件
+      - 这些命令创建的文件编码不可控，极易产生乱码
+      - 应当使用 `edit`、`patch`、`write` 等专用的文件编辑工具
+    - 发现乱码的文件则全量 `read` 后直接 `write` 全文进行恢复

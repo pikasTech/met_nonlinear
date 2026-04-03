@@ -1,0 +1,8 @@
+ the multiplicative terms inherent
+to PolyLUT, it yields linear scaling with input dimension and an
+additive structure that is naturally amenable to pruning. While this
+formulation doesn’t explicitly represent pure multiplicative terms,
+in practice, compositions of low-order ( ≤3) splines approximate
+such interactions effectively. Moreover, DWN’s full binarization of
+inputs and LUTs hinders generalization beyond classification, while
+KANELÉ supports higher-precision arithmetic for tasks such as 

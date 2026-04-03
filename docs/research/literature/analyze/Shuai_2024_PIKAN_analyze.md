@@ -41,7 +41,7 @@
 ### 直接支持
 
 **论文证明了什么**：
-- KAN可以有效替代MLP进行物理信息学习（原文第31-33行）："KANs...could reach more accurate learning results at the same time...significantly outperforming MLPs"
+- KAN可以有效替代MLP进行物理信息学习（原文第33行）："KANs...could reach more accurate learning results at the same time...significantly outperforming MLPs"
 - 物理信息框架可以减少对训练数据的依赖（原文第315-317行）："reduce dependency on training data and enhance the accuracy of the learned model"
 - PIKAN以更小的网络规模达到更高精度（原文第57-59行）："PIKANs achieve higher accuracy in solving the DAEs of power systems with smaller neural network size compared to traditional MLP-based PINNs"
 
@@ -57,8 +57,10 @@
 | 第1-3行 | 论文标题：Physics-Informed Kolmogorov-Arnold Networks for Power System Dynamics |
 | 第9-11行 | 摘要：首次提出KAN用于电力系统应用，PIKAN用于电力系统动态学习 |
 | 第29-31行 | 现有PINN的局限性：相对L2误差2.37%，参数识别误差约50% |
-| 第31-33行 | KAN优势：可学习激活函数在边上，比MLP更准确 |
-| 第57-59行 | PIKAN优势：更小网络规模达到更高精度 |
+| 第33-34行 | KAN优势：可学习激活函数在边上，比MLP更准确 |
+| 第447行 | PIKAN性能验证：在SMIB和4节点系统上验证了PIKAN的有效性 |
+| 第553-555行 | PIKAN优势：更小网络规模达到更高精度（41%/58%网络规模） |
+| 第557-559行 | PIKAN以更少参数实现相当或更高精度 |
 | 第69-71行 | Swing方程描述电力系统动态 |
 | 第315-317行 | PIKAN设计目标：减少数据依赖，提高学习准确性 |
 
@@ -67,7 +69,7 @@
 ### 段落1（KAN优势）
 
 > "KANs [12], promising alternatives to MLPs, also feature fully-connected network structures. Unlike MLPs, KANs place learnable activation functions on the edges, which usually allow much smaller computation graphs than MLPs and could reach more accurate learning results at the same time."
-> （第31-33行）
+> （第33行）
 
 ### 段落2（PIKAN目标）
 

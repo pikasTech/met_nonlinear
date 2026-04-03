@@ -1,0 +1,22 @@
+﻿108: at: https://github.com/Duchstf/KANELE
+109: [unicode error]
+110: learning to continuous control, showing on the HalfCheetah
+111: benchmark from OpenAI Gym [ 40] that a quantized KAN
+112: [unicode error]
+113: policy achieves higher rewards, underscoring its suitability
+114: for resource-constrained, real-time control systems.
+115: 2 Background & Related Works
+116: This section reviews Kolmogorov–Arnold Networks (KANs) and
+117: prior work on LUT-based neural network inference.
+118: 2.1 Kolmogorov–Arnold Networks
+119: Kolmogorov–Arnold Networks (KANs) replace the fixed activation
+120: functions and matrix multiplications of MLPs with learnable spline-
+121: based functions on network edges [ 28]. This activation-centric for-
+122: mulation improves expressiveness and interpretability, often achiev-
+123: ing comparable accuracy with fewer parameters and operations.Since their introduction, KANs have inspired extensive follow-up
+124: work, including theoretical analyses [ 45,48], architectural exten-
+125: sions (e.g., convolutional [9, 15], temporal [18], and Fourier-based
+126: variants [ 21,49]), and applications across scientific modeling and
+127: data-driven tasks [13, 19, 25, 46].
+128: Despite this rapid progress, recent surveys identify computa-
+129: tional efficiency and hardware implementation as key open chal-

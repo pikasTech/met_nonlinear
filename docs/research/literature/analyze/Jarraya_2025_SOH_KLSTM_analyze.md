@@ -26,9 +26,12 @@
 **批判性支持**：
 
 **论文做了什么**：
-- 第115-117行提出了SOH-KLSTM混合方法，将LSTM与KAN集成以提高SOH预测准确性
-- 第119-121行用KAN自适应函数替代LSTM固定权重变换："KAN-Enhanced Candidate Cell State: Conventional LSTM models calculate the potential cell state employing a transformation with fixed weights. Our model replaced this transformation with a KAN-oriented adaptive function that learns non-linear relationships in sequential data dynamically."
-- 第123-125行使用B样条变换检测电池退化中的突变和渐变："B-Spline Augmented Feature Space: ... our approach uses B-spline transformations along with the candidate cell state calculation. This approach allows for the detection of both abrupt and gradual changes in battery degradation trends."
+- 第115行提出了SOH-KLSTM混合方法，将LSTM与KAN集成以提高SOH预测准确性
+- 第119行用KAN自适应函数替代LSTM固定权重变换："KAN-Enhanced Candidate Cell State: Conventional LSTM models calculate the potential cell state employing a transformation with fixed weights. Our model replaced this transformation with a KAN-oriented adaptive function that learns non-linear relationships in sequential data dynamically."
+- 第123行使用B样条变换检测电池退化中的突变和渐变："B-Spline Augmented Feature Space: ... our approach uses B-spline transformations along with the candidate cell state calculation. This approach allows for the detection of both abrupt and gradual changes in battery degradation trends."
+- 第127行通过KAN动态学习激活函数替代预定义的sigmoid/tanh/ReLU函数
+- 第203行证明KAN擅长捕捉锂电池的非线性退化行为，LSTM擅长建模时间序列
+- 第215行介绍电池健康状态估计对优化储能投资、降低维护成本和确保可靠运行的重要性
 
 **直接支撑**：
 - 证明了KAN与RNN类架构结合的有效性
@@ -47,27 +50,48 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第115-117行 | SOH-KLSTM混合方法介绍 |
-| 第119-121行 | KAN增强候选单元状态 |
-| 第123-125行 | B样条增强特征空间 |
-| 第53-54行 | 摘要：RMSE 0.001682，精度提升35倍 |
+| 第53行 | 摘要：RMSE 0.001682，精度提升35倍 |
+| 第115行 | SOH-KLSTM混合方法介绍 |
+| 第119行 | KAN增强候选单元状态 |
+| 第123行 | B样条增强特征空间 |
+| 第127行 | 自学习激活函数：KAN动态学习替代预定义函数 |
+| 第139行 | 贡献1：SOH-KLSTM模型引入KAN到LSTM架构 |
+| 第143行 | 贡献2：KAN增强候选单元状态计算 |
+| 第147行 | 贡献3：NASA PCoE数据集验证 |
+| 第203行 | LSTM与KAN融合，KAN的非线性逼近能力 |
+| 第215行 | 电池健康估计方法论介绍 |
 
 ## 关键原文段落摘录
 
 ### 段落1（KAN-LSTM混合方法）
 
 > "To address these limitations, we introduce a novel hybrid approach, the SOH-KLSTM Model, which integrates LSTM networks with the Kolmogorov-Arnold Networks (KAN) to improve the accuracy of SOH prediction."
-> （第115-117行）
+> （第115行）
 
 ### 段落2（KAN增强候选单元状态）
 
 > "KAN-Enhanced Candidate Cell State: Conventional LSTM models calculate the potential cell state employing a transformation with fixed weights. Our model replaced this transformation with a KAN-oriented adaptive function that learns non-linear relationships in sequential data dynamically."
-> （第119-121行）
+> （第119行）
 
 ### 段落3（B样条增强特征空间）
 
 > "B-Spline Augmented Feature Space: Unlike conventional LSTM models that rely just on weight matrices, our approach uses B-spline transformations along with the candidate cell state calculation. This approach allows for the detection of both abrupt and gradual changes in battery degradation trends."
-> （第123-125行）
+> （第123行）
+
+### 段落4（自学习激活函数）
+
+> "Self-Learned Activation Functions: Conventional LSTMs limit adaptability by using predefined activation functions such as sigmoid, tanh, or ReLU. In contrast, our model adapts to the changing dynamics of battery health by dynamically learning activation functions through KAN, which allows us to strengthen the stability of gradient flow."
+> （第127行）
+
+### 段落5（LSTM与KAN融合）
+
+> "One of the main contributions in this paper is the fusion of LSTM networks with KANs. KAN excels in capturing the non-linear degradation behaviors of Li batteries, while LSTM is proficient in modeling temporal sequences of battery usage."
+> （第203行）
+
+### 段落6（电池健康估计方法论）
+
+> "The health of Li batteries is an important factor in optimizing energy storage investments, reducing maintenance costs, and ensuring reliable operation. Accurate SOH estimation is essential to effectively manage battery performance."
+> （第215行）
 
 ## 分析结论
 

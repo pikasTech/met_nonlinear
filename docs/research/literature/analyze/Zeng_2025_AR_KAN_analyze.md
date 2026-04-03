@@ -41,21 +41,33 @@
 
 **论文证明了什么**：
 - KAN缺乏低频偏差（原文第177行）："Unlike MLPs, KANs do not exhibit a low-frequency spectral bias"
+- KAN比MLP在捕捉高频振荡方面更有效（原文第177行）："This enables them to capture high-frequency and oscillatory components more effectively, making them well suited for modeling time series with rich spectral structures"
 - AR-KAN在准周期函数上与ARIMA性能相当（原文第429行）："the AR-KAN achieves excellent performance comparable to ARIMA"
-- AR记忆模块可自适应确定权重（原文第305行）："the filter weights are not fixed parameters, but are derived from the underlying data through statistical estimation"
+- AR记忆模块可自适应确定权重（原文第305-306行）："the filter weights are not fixed parameters, but are derived from the underlying data through statistical estimation"
+- 时间序列预测是信号处理基本任务（原文第21行）："Time series forecasting is a fundamental task in signal processing"
+- KAN能够对广泛频率行为进行建模（原文第197行）："KANs' ability to model a broad spectrum of frequency behaviors often leads to better performance compared to MLPs"
+- AR-KAN在72%的R数据集上取得最佳性能（原文第57行）："it outperforms baselines on 72% of tasks"
+- Universal Myopic Mapping Theorem支持两级架构（原文第213-216行）：线性滤波器组+静态非线性映射
+- AR-KAN设计受通用近视映射定理启发（原文第245行）："we design the AR-KAN as a two-stage architecture composed of a data-driven memory module and a static nonlinear mapping"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
-- 本文的AR-KAN架构为FRIKAN/Wiener-KAN的线性-非线性分离设计提供了参考
-- 论文关于KAN缺乏频谱偏差的讨论对频率相关补偿有参考价值
+- 本文的AR-KAN架构为FRIKAN/Wiener-KAN的线性-非线性分离设计提供了形式上的相似性参考：AR记忆模块（时域线性滤波器组）+ KAN（非线性）与Wiener结构的（线性系统+非线性+线性系统）在架构形式上存在相似性，但需注意AR记忆是时域自回归，Wiener的线性系统是频域特性，本质不同
+- 论文关于KAN缺乏频谱偏差的讨论对理解KAN频率特性有参考价值，但与Wiener-KAN的频率补偿能力关系有限
+- Universal Myopic Mapping Theorem证明了"线性滤波器组+静态非线性映射"范式的有效性，可作为Wiener-KAN架构的理论支撑参考，但需注意该定理针对近视映射而非专门针对频率补偿
 
 ## 精确行号引用
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第177行 | "Unlike MLPs, KANs do not exhibit a low-frequency spectral bias" |
-| 第305行 | AR记忆模块权重自适应确定："the filter weights are not fixed parameters, but are derived from the underlying data through statistical estimation" |
-| 第429行 | "the AR-KAN achieves excellent performance comparable to ARIMA" |
-| 第213-216行 | 通用近视映射定理说明 |
+| 第21行 | 时间序列预测是信号处理基本任务 |
+| 第57行 | AR-KAN在72%的R数据集上取得最佳性能 |
+| 第145行 | KAN基于Kolmogorov-Arnold表示定理 |
+| 第177行 | KAN缺乏低频偏差，适合捕捉高频振荡 |
+| 第197行 | KAN能够对广泛频率行为进行建模 |
+| 第213-216行 | Universal Myopic Mapping Theorem：线性滤波器组+静态非线性映射 |
+| 第245行 | AR-KAN两级架构设计：数据驱动记忆模块+静态非线性映射 |
+| 第305-307行 | AR记忆模块权重自适应确定 |
+| 第429行 | AR-KAN在准周期函数上与ARIMA性能相当 |
 
 ## 关键原文段落摘录
 
@@ -81,9 +93,9 @@
 
 ## 分析结论
 
-**GAP支撑评估**：无直接GAP支撑
+**GAP支撑评估**：GAP7（有限支撑）- AR-KAN的线性-非线性分离架构与Wiener-KAN的Wiener结构存在形式上的相似性（非直接关联）
 
-**理由**：本文提出AR-KAN用于时间序列预测，与MET非线性问题的频率漂移补偿领域关联有限。论文虽然讨论了频谱分析相关话题，但主要聚焦于时间序列预测的准确性，未涉及频率响应漂移的补偿问题。
+**理由**：本文提出AR-KAN用于时间序列预测。AR-KAN的AR记忆模块（时域线性滤波器组）+ KAN（非线性）的两级架构与Wiener-KAN的Wiener结构（线性系统+非线性+线性系统）在架构形式上存在相似性，但AR记忆是时域自回归机制，Wiener的线性系统是频域特性，两者本质不同。Universal Myopic Mapping Theorem证明了这种"线性滤波器组+静态非线性映射"范式的有效性，可作为Wiener-KAN架构的理论参考，但该定理针对近视映射而非专门针对频率补偿。论文主要聚焦于时间序列预测的准确性，未直接涉及频率响应漂移的补偿问题。
 
 **对IDEA的总体参考价值**：较低
 

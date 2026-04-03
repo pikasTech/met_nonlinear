@@ -1,74 +1,74 @@
-# SAMFre_Wang_2025 Analysis
+# SAMFre_Wang_2025 分析
 
-## Paper Basic Info
+## 论文基本信息
 
-| Field | Value |
-|-------|-------|
-| Title | TimeCF: A TimeMixer-Based Model with adaptive Convolution and Sharpness-Aware Minimization Frequency Domain Loss for long-term time series forecasting |
-| Authors | Bin Wang, Heming Yang, Jinfang Sheng |
-| Institution | Central South University |
-| Year | 2025 |
+| 字段 | 内容 |
+|------|------|
+| 标题 | TimeCF: A TimeMixer-Based Model with adaptive Convolution and Sharpness-Aware Minimization Frequency Domain Loss for long-term time series forecasting |
+| 作者 | Bin Wang, Heming Yang, Jinfang Sheng |
+| 机构 | Central South University |
+| 年份 | 2025 |
 
-## Core Content Summary
+## 核心内容摘要
 
-TimeCF proposes a time series forecasting model combining:
-1. Multi-scale decomposition via TimeMixer architecture
-2. Adaptive convolution for multi-scale information aggregation (PDMC module)
-3. SAMFre (Sharpness-Aware Minimization Frequency Domain Loss) for decoupling label autocorrelation
-4. Composite loss: α × FFT-L1 + (1-α) × MSE
+TimeCF提出了一个时间序列预测模型，结合了：
+1. 通过TimeMixer架构进行多尺度分解
+2. 用于多尺度信息聚合的自适应卷积（PDMC模块）
+3. SAMFre（锐度感知最小化频域损失）用于解耦标签自相关
+4. 复合损失：α × FFT-L1 + (1-α) × MSE
 
-## GAP10 Association Analysis (AFMAE vs Pure MAE Improvement)
+## GAP10 关联分析（AFMAE vs 纯MAE改进）
 
-**Support Type**: Direct with Ablation Evidence
+**支持类型**：具有消融证据的直接支持
 
-- **Line 260 (Equation 10)**: FFT-L1 loss is explicitly defined:
+- **第260行（公式10）**：明确给出FFT-L1损失定义：
 ```
 loss = α × |FFT(pred) - FFT(real)|_1 + (1-α) × MSE
 ```
 
-- **Lines 323-339 (Table 2)**: Ablation study comparing TimeCF variants:
-  - TimeCF w/o SAMFre: MSE=0.466, MAE=0.452 (ETT h1)
-  - TimeCF (full): MSE=0.417, MAE=0.427 (ETT h1)
-  - TimeMixer (baseline): MSE=0.469, MAE=0.449
+- **第323-339行（表2）**：比较TimeCF变体的消融研究：
+  - TimeCF不含SAMFre：MSE=0.466，MAE=0.452（ETT h1）
+  - TimeCF（完整）：MSE=0.417，MAE=0.427（ETT h1）
+  - TimeMixer（基线）：MSE=0.469，MAE=0.449
 
-**Key Evidence (Line 327)**:
+**关键证据（第327行）**：
 > "TimeCF without complete modules has a certain improvement over the baseline model in the experiment, but the improvement is not significant... the complete TimeCF shows that... by using SAMFre, the autocorrelation within this part of information can be properly decoupled, which is reflected in the results that it exceeds the baseline model in terms of evaluation indicators."
 
-This ablation demonstrates that SAMFre (FFT-L1 component) contributes positively to forecasting accuracy.
+此消融研究表明SAMFre（FFT-L1组件）对预测准确性有积极贡献。
 
-## GAP11 Association Analysis (AFMAE vs Other Frequency Domain Loss Efficiency)
+## GAP11 关联分析（AFMAE与其他频域损失效率）
 
-**Support Type**: Indirect - Limited Transform Comparison
+**支持类型**：间接——有限的变换比较
 
-- **Lines 255-261**: SAMFre uses FFT exclusively; no comparison with DCT, wavelet, or other frequency transforms
-- The paper focuses on combining SAM (sharpness-aware minimization) with FreDF (frequency domain forecasting) rather than comparing different frequency domain losses
+- **第255-261行**：SAMFre仅使用FFT；没有与DCT、小波或其他频率变换的比较
+- 本文专注于将SAM（锐度感知最小化）与FreDF（频域预测）相结合，而非比较不同频域损失
 
-**Conclusion**: The paper does not evaluate efficiency of FFT-L1 loss relative to other frequency transforms.
+**结论**：本文没有评估FFT-L1损失相对于其他频率变换的效率。
 
-## Key Quotes with Line Numbers
+## 关键引文与行号
 
-1. **Lines 255-257**: SAMFre rationale:
-> "SAMFre projects the model's prediction results and the actual label values into the frequency domain through Fourier transform, then calculates the loss using the L1 norm, and finally adds it to the original MSE loss to get the complete loss"
+1. **第255-257行**：SAMFre原理：
+> "SAMFre通过傅里叶变换将模型预测结果和实际标签值投影到频域，然后使用L1范数计算损失，最后将其添加到原始MSE损失中得到完整损失"
 
-2. **Line 260 (Equation 10)**: Loss definition:
+2. **第260行（公式10）**：损失定义：
 > "loss = α × |FFT(pred) - FFT(real)|_1 + (1-α) × MSE"
 
-3. **Line 327**: Ablation evidence:
+3. **第327行**：消融证据：
 > "TimeCF without complete modules has a certain improvement over the baseline model in the experiment, but the improvement is not significant... the complete TimeCF shows that by using SAMFre, the autocorrelation within this part of information can be properly decoupled"
 
-## Conclusion Table
+## 结论表
 
-| GAP | Support Type | Support Strength | Key Evidence |
-|-----|--------------|------------------|--------------|
-| GAP10 (AFMAE vs pure MAE) | Direct | Moderate | FFT-L1 loss defined (Eq 10), ablation shows removing SAMFre hurts performance (Table 2) |
-| GAP11 (AFMAE vs other frequency losses) | Indirect | Low | FFT used exclusively; no comparison with DCT/wavelet |
+| GAP | 支持类型 | 支持强度 | 关键证据 |
+|-----|----------|----------|----------|
+| GAP10（AFMAE vs 纯MAE） | 直接 | 中等 | 定义了FFT-L1损失（公式10），消融研究表明移除SAMFre会损害性能（表2） |
+| GAP11（AFMAE与其他频域损失） | 间接 | 弱 | 仅使用FFT；没有与DCT/小波的比较 |
 
-## Summary
+## 总结
 
-**SAMFre (Wang 2025)** provides moderate support for GAP10 through:
-1. Clear definition of FFT-L1 loss combined with MSE
-2. Ablation study demonstrating SAMFre component contributes to model performance
+**SAMFre（Wang 2025）**通过以下方面为GAP10提供中等支持：
+1. 明确给出FFT-L1损失与MSE结合的定义
+2. 消融研究表明SAMFre组件对模型性能有贡献
 
-For **GAP11**, the paper does not compare FFT-L1 against DCT-L1 or other frequency domain losses. The paper focuses on combining sharpness-aware minimization with frequency domain loss rather than comparing different frequency transforms.
+对于**GAP11**，本文没有将FFT-L1与DCT-L1或其他频域损失进行比较。本文专注于将锐度感知最小化与频域损失相结合，而非比较不同频率变换。
 
-**Domain Note**: TimeCF is designed for general time series forecasting, not specifically for seismic sensor frequency response drift compensation.
+**领域说明**：TimeCF专为通用时间序列预测设计，并非专门针对地震传感器频率响应漂移补偿。

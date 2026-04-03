@@ -1,0 +1,1323 @@
+Volterra System Analysis for an Electrochemical Sensor
+by
+Billal Iqbal
+B.S. Mechanical Engineering and Electrical Engineering and Computer Science,
+Massachusetts Institute of Technology, 2024
+Submitted to the Department of Electrical Engineering and Computer Science
+in partial fulfillment of the requirements for the degree of
+MASTER OF ENGINEERING IN ELECTRICAL ENGINEERING AND COMPUTER
+SCIENCE
+at the
+MASSACHUSETTS INSTITUTE OF TECHNOLOGY
+May 2024
+©2024 Billal Iqbal. This work is licensed under a CC BY-NC-ND 4.0 license.
+The author hereby grants to MIT a nonexclusive, worldwide, irrevocable, royalty-free
+license to exercise any and all rights under copyright, including to reproduce, preserve,
+distribute and publicly display copies of the thesis, or release the thesis under an
+open-access license.
+Authored by: Billal Iqbal
+Department of Electrical Engineering and Computer Science
+May 22, 2024
+Certified by: Ian W. Hunter
+George N. Hatsopoulos Professor in Thermodynamics, Thesis Supervisor
+Accepted by: Katrina LaCurts
+Chair, Master of Engineering Thesis Committee
+---PAGE BREAK---
+2
+---PAGE BREAK---
+Volterra System Analysis for an Electrochemical Sensor
+by
+Billal Iqbal
+Submitted to the Department of Electrical Engineering and Computer Science
+on May 22, 2024 in partial fulfillment of the requirements for the degree of
+MASTER OF ENGINEERING IN ELECTRICAL ENGINEERING AND COMPUTER
+SCIENCE
+ABSTRACT
+Current biological methods for quantifying bacterial and fungal populations are time and
+labour intensive, whilst remaining expensive to automate. A potential solution to this prob-
+lem is an electrochemical sensor, which applies a stochastic voltage across a liquid medium
+and measures the resultant current flow. This data can then be used to model the liquid’s
+electrochemical interactions and monitor it for bacterial growth and spoilage. Linear dy-
+namic impedance models have previously been explored for this. However, the ability to
+capture the nonlinear effects observed at higher voltages can provide greater insights into
+the liquid’s properties. This is extremely difficult with neural networks which offer accurate
+predictive capabilities without much insight into the system. A different strategy is to model
+the liquid using a Volterra series representation. This work will document the integration of
+Volterra system identification capabilities within the sensor and its performance when mod-
+elling different liquid media as well as modifications made to the sensor for the applications
+tested.
+Thesis supervisor: Ian W. Hunter
+Title: George N. Hatsopoulos Professor in Thermodynamics
+3
+---PAGE BREAK---
+4
+---PAGE BREAK---
+Acknowledgments
+Iwouldliketothankmyfamilyfortheirendlesssupportthroughoutmystudiesandresearch.
+Their love and support has provided me with the determination to tackle the challenges I
+have faced head on and constantly strive to improve myself both academically and as a per-
+son.
+I would also like to thank Michael Aling for his help and mentorship throughout my re-
+search. His patience, knowledge and advice have made my research an amazingly rewarding
+experience and I would not have progressed as far with my work without him.
+Moreover, I want to thank Prof. Ian Hunter, Dr. Cathy Hogan and Winn Gatewood,
+for their work in maintaining the Bio-instrumentation lab and fostering a collaborative en-
+vironment, as well as their help conducting and analysing experiment results.
+I would also like to acknowledge ChatGPT for helping proofread my final thesis draft and
+identifying grammatical errors.
+5
+---PAGE BREAK---
+6
+---PAGE BREAK---
+Contents
+Title page 1
+Abstract 3
+Acknowledgments 5
+List of Figures 9
+1 Introduction 11
+1.0.1 Project Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2 Background 13
+2.1 System Identification . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+2.1.1 Linear System Identification . . . . . . . . . . . . . . . . . . . . . . . 14
+2.1.2 Nonlinear System Identification . . . . . . . . . . . . . . . . . . . . . 15
+2.2 Electrochemical Sensor . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+2.2.1 Sensor Applications . . . . . . . . . . . . . . . . . . . . . . . . . . . . 20
+3 Volterra Series for Electrochemical System Analysis 23
+3.0.1 Tensor Approach . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 23
+3.0.2 Multi-Layer Perceptron Volterra Approach . . . . . . . . . . . . . . . 29
+3.0.3 Software Testing - Tungsten Filament Experiment . . . . . . . . . . . 31
+4 Milk Impedance Analysis 35
+4.0.1 Experimental Procedure . . . . . . . . . . . . . . . . . . . . . . . . . 35
+4.0.2 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+5 Sugar Solution Impedance Analysis 39
+5.0.1 Well Plate Sensor Design . . . . . . . . . . . . . . . . . . . . . . . . . 39
+5.0.2 Portable Computation Platform . . . . . . . . . . . . . . . . . . . . . 41
+5.0.3 Experimental Procedure . . . . . . . . . . . . . . . . . . . . . . . . . 42
+5.0.4 Results . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 44
+5.0.5 Improvements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 47
+6 Future Work 49
+7
+---PAGE BREAK---
+7 Conclusion 51
+Bibliography 53
+8
+---PAGE BREAK---
+List of Figures
+2.1 Block diagram representation of a Wiener system . . . . . . . . . . . . . . . 15
+2.2 Block diagram representation of a Hammerstein system . . . . . . . . . . . . 16
+2.3 Visual example showing the size of the Volterra kernels for a memory length
+of 4 samples. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 17
+2.4 A CAD rendering of the sensor + monitoring station (left) and a rendering
+of the sample container (right) – Reproduced with permission from [1] (left)
+and [3] (right). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 19
+3.1 A visualisation of xT2’s structure. Here it can be seen that the memory length
+being used for both time lags is 3, and that there are 4 windows. This will
+enable the prediction of four data points. . . . . . . . . . . . . . . . . . . . . 25
+3.2 Shows the training time vs memory length for the program, both when the
+GPU is used and when the CPU is being used exclusively. . . . . . . . . . . 27
+3.3 Two Layer Perceptron Model. By convention the input layer is known as layer
+0. Image taken from Medium AI [28]. . . . . . . . . . . . . . . . . . . . . . . 29
+3.4 Theleftfigureshowstheprobabilitydistributionofthegeneratedinputsignal.
+The right figure shows the power spectrum of the generated input. . . . . . . 31
+3.5 Plot showing the actual output vs the predicted output of the system, when
+using the model found with the MLP-Volterra code. . . . . . . . . . . . . . . 31
+3.6 The left plot shows the predicted impulse response of the system. The second
+plot shows the predicted second order kernel. These are for the MLP-Volterra
+approach. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 32
+3.7 Plot showing the actual output vs the predicted output of the system, when
+using the model found with the Tensor based approach. . . . . . . . . . . . . 32
+3.8 The left plot shows the predicted impulse response of the system. The second
+plot shows the predicted second order kernel. These are for the Tensor approach. 33
+3.9 Bode plot of the transfer function generated from the impulse response of the
+tensor approach code’s output model. . . . . . . . . . . . . . . . . . . . . . . 33
+4.1 The difference between a given h2 kernel and the initial (0thdataset kernel)
+has been computed for a series of kernels spaced apart by 20 datasets (10
+minutes). The kernels used for the subtraction were found using the ‘Tensor’
+approach. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 36
+9
+---PAGE BREAK---
+5.1 Image of the well plate used for the experiments. The image is taken from
+the supplier website [30]. . . . . . . . . . . . . . . . . . . . . . . . . . . . . 39
+5.2 Impedance measurement PCB. Connects to a reference resistor and an off-
+board voltage generator using SMA connectors. . . . . . . . . . . . . . . . . 40
+5.3 Isometric view of the portable computation platform (left). Side view of the
+portable computation platform (right). . . . . . . . . . . . . . . . . . . . . . 41
+5.4 Image of the revised experimental set up. This was placed on top of a small
+table and placed within the incubator. . . . . . . . . . . . . . . . . . . . . . 43
+5.5 Image of the final set up. Here the computation platform is simplified due
+to no longer requiring the Raspberry Pi 5 and the hard drive. The set up is
+attached to the side of the incubator walls to allow for other samples to fit
+within the incubator. The devices connect to a desktop situated external to,
+but beside the incubator (not shown). . . . . . . . . . . . . . . . . . . . . . 43
+5.6 Layout of sugar solutions used in the experiment. . . . . . . . . . . . . . . . 44
+5.7 Well plate showing the sugar-bacteria solutions after the experiment. . . . . 45
+5.8 Discolouration and accumulation on the electrodes on the PCB after running
+the experiment. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 45
+5.9 3D printed piece that clamps and aligns the well plate and PCB together for
+more reliable impedance data for future experiments. . . . . . . . . . . . . . 47
+5.10 Future experiment set up. The PCB is clamped with washers to stay in place. 47
+10
+---PAGE BREAK---
+Chapter 1
+Introduction
+Monitoring bacterial and fungal growth is a necessary task for many industries. From
+wastewater management, to milk production and biological research, it is crucial to de-
+tect the presence of unwanted bacteria, or the purposeful growth of microbes in a controlled
+environment. This a time-intensive process which requires researchers to repeatedly remove
+plates containing bacteria from an incubator, sample the plates, and then use some form of
+automatic counting device to identify the bacteria count. One common approach is to use
+a spectrophotometer, which provides a measure of the density of the bacteria, which can be
+converted to a count by utilising a standard curve. This is tedious and there exists cases
+where the use of a spectrophotometer is not possible.
+A potential solution to this problem is the use of an electrochemical sensor which can
+continuously monitor a solution and model its electrochemical behaviour. This sensor can be
+used to assess bacterial growth and infer properties of the medium. Several versions of such
+a sensor have been built and used to acquire data for: milk, water, soy milk, salt solutions
+and an experimental bioreactor, using Wiener system analysis and the Randles equivalent
+circuit [1] [2]. However, the full dynamic modelling of the media proves to be a complicated
+challenge, duetothenonlinearnatureoftheimpedanceresponseofthesolutionwhenexcited
+with a large stochastic voltage. The use of a black box Volterra series model to represent the
+liquid shows promise due to its ability to capture the nonlinearities exhibited by the liquid
+and the ability to infer key information from the Volterra kernels of the model, since they
+encapsulate the idle state of the liquid, its impulse response and its nonlinear dynamics.
+Once the Volterra series representation of a system and its variation over time is found,
+the kernels can be used as a template for evaluating the condition of different liquids in
+industrial or research settings.
+1.0.1 Project Scope
+The goal of this project is to develop a sensor that can model the electrochemical behaviour
+ofaliquidmediumusingaVolterraseriesrepresentation. Thisrepresentationanditschanges
+over time can be verified in a laboratory setting to determine a library of template kernels
+which can later be used in comparison to real time modelling completed on liquid samples
+in an industrial or research setting.
+The devices used in real-time industrial applications will differ from the devices built to
+11
+---PAGE BREAK---
+extract the initial/baseline set of kernels. This is due to cost, size and other constraints that
+may be placed on the device, highly dependant on the application for which it is being used
+[1] [3]. The primary objective of this project is the nonlinear modeling required to extract
+the template kernels. Additionally, this project includes studying the efficacy of the sensor
+for monitoring bacterial growth in milk and designing a version of the sensor to monitor the
+growth rate of bacteria ( K. Xylinus ) when fed various sugars, using Volterra kernels as well
+as linear models.
+12
+---PAGE BREAK---
+Chapter 2
+Background
+2.1 System Identification
+System identification is the process of modelling a system from a set of data input to the
+system and the corresponding output data. The use of statistical methods allow the compu-
+tation of a general representation of the system which allows the simulation of the system’s
+response to arbitrary inputs.
+There are many characteristics of a system, which determine the methods used to model
+them. For example, a static(otherwise known as memoryless ) system is one whose output
+responseisentirelydeterminedbytheinput. Anexampleofsuchasystemisapurelyresistive
+circuit. If the input to the circuit is the current and the observed output is the voltage drop
+across the circuit, the system will obey Ohm’s law: V=IR, where R is the total equivalent
+resistance of the system, I is the total current through the circuit, and V is the voltage drop.
+Assuming negligible parasitic capacitances and changes in resistance due to temperature, the
+system will always output the same voltage drop for a given input current, with no influence
+from past or future values on the input current [4].
+Conversely, a dynamic system is the opposite. Here, the output of a system not only
+depends on the present input into it, but also on past or future inputs into the system. For
+example, a circuit containing a capacitor exhibits dynamic properties. The displacement
+current ‘through’ a capacitor can be described as I(t) =CdV(t)
+dt, where C is the capacitance
+and V is the voltage drop across the capacitor. If the current is the input into the system,
+and the voltage drop across the capacitor is the output, the relationship can be described
+by:V(t) =1
+CRt
+−∞I(τ)dτ. Here it can be seen that the voltage drop is a function of the
+input current for all time less than or equal to the current moment, t. Dynamic systems can
+also incorporate a delayed time effect, whereas static models will respond instantaneously to
+any change in the input.
+Another property of a system to consider is whether or not it is time-invariant . A
+time-invariant system is one which satisfies the requirement that: ∀δ:f(x(t+δ)) =y(t+δ),
+where x(t) describes the input to a system at time t, y(t) is the output of the system at time
+t and f is a function mapping the input of the system to the output. This means that there
+is no explicit time dependence in the system’s function f, except the time dependence of x(t).
+This means that the start time at which the system is excited is not important. Whether
+13
+---PAGE BREAK---
+the system is perturbed in the morning or at night, there is no change in its behaviour.
+By extension, a time-varying system is one where the starting time of an input affects
+the response of the system. An example of these are systems which are strongly affected
+by environmental conditions. For example, dropping a near mass-less object from high
+altitude and measuring its horizontal trajectory is likely to be affected by the wind, and other
+atmospheric conditions not just related to the altitude at which the object is dropped, hence
+the time at which the drop occurs is important and must be encapsulated into the system
+model. Note that the use of a near mass-less object is simply to convey that the environment
+strongly affects the outcome of dropping the mass. In most cases if the conditions provide
+very little/negligible effect on the output of the system, the system is assumed as time-
+invariant for simplicity.
+It is also important to understand if a system is linear. Linear systems scale in well-
+defined ways that make the analysis of these systems notably simpler than the modelling of
+nonlinear systems. Linear systems are common place and the methodology used to identify
+these are extremely powerful. However, not all systems can be adequately modelled as such
+and it is therefore required to switch to more nuanced methods of system identification. The
+following section aims to describe the common approaches for linear and nonlinear system
+identification and will serve to motivate the use of the Volterra series representation for
+modelling within this project.
+2.1.1 Linear System Identification
+A system is linear if and only if it satisfies the superposition principle. This means that for
+a function H, which maps the input of a system to the output of the system (within the time
+domain), H(x(t)) =y(t), scaling the input signal by a constant simply results in the scaling
+of the system response, by the same constant: H(kx(t)) = ky(t). It also means that for a
+linear combination of input signals into the system, the output of the system is simply the
+same linear combination of the individual responses for each of the inputs. This is expressed
+as:H(ax1(t) +bx2(t)) =ay1(t) +by2(t)where H(x1(t)) =y1(t)andH(x2(t)) =y2(t).
+Due to this fact, modelling a linear system is relatively simple. By supplying a Dirac
+delta function as input to a linear system, the observed output of the system can be found.
+This output is known as the ‘impulse response’ of the system h(t). This response is all
+that is needed to model a system. By performing the convolution of an input signal x(t)
+with the impulse response, the output of the system y(t) can be found. The continuous
+convolution operation is defined as follows: (x∗h)(t) =R∞
+−∞x(τ)h(t−τ)dτ. Whilst this can
+be generalised for time varying systems, the focus of the next paragraph is to explain how
+the impulse response for a linear time-invariant (LTI) fully describes the system to build
+intuition.
+For this, we recognise that each value of the signal x(t)can simply be treated as a
+time shifted and scaled version of the Dirac delta function. Every value within the input
+signal x(t) is now a function, that spans infinite time. For example, x1(t)is the function
+which represents the contribution of the first sample to the input across all time. From this
+it can be seen that x1(t)is 0 for all times not equal to t1, the time at which the first sample
+is applied to the system in x(t). This extends to the rest of the input samples, where the
+contribution of xncan be modelled as a function of value 0 for all time t, not equal to tn.
+14
+---PAGE BREAK---
+Therefore, Xn(t) =xn∗δ(t−tn), where Xnis the contribution function of the nthsample
+in the input signal x(t), xnis the value of the nthinput sample, and tnis the time at which
+this nthsample occurs. By adding up these functions, the original input signal x(t) is made.
+Since superposition states that the output of a sum of inputs is simply the sum of
+the outputs for each particular input, the output of the model can therefore be described
+by the sum of the outputs due to each of these shifted and scaled Dirac delta functions,
+which represent the input sample values. This means that the output of the entire signal x
+is simply the sums of the impulse response functions for all of the values within x.
+By summing these individual outputs, we observe that the system’s output is simply the
+convolution between x(t) and the impulse response.
+Another option is to use a step function as input to the system.The relationship between
+this and the impulse response is well known and so a step response can also be used to
+represent systems. However, these signals, whilst intuitive, are difficult to replicate in the
+real world and other input signals are typically preferred for modelling physical systems.
+An example of this is the use of a swept sine waves as input into a complicated physical
+system. For an input such as this, the analysis is also completed in the frequency domain
+(via Laplace transforms) [5].
+From this, it can be seen that the path to identifying a linear system is well defined
+and is a computationally tractable problem. It is advantageous to model systems as linear
+time-invariant (LTI) when possible. However, it is not uncommon for real world systems
+to stray from linear behaviour. In this case, to accurately model the system, nonlinearities
+must be accounted for.
+2.1.2 Nonlinear System Identification
+Wiener Model Analysis
+One approach to modelling nonlinear systems is to split the system into two components:
+a linear dynamic sub-system which has an impulse response h( τ) and a static nonlinear
+component n(t) [6].
+A signal x(t) which is inputted into the system is modified by the linear impulse response
+h(τ) before being ‘passed into’ the static nonlinearity as an internal signal u(t). This type
+of system is also referred to as an LN system, since it is composed of a linear sub-system
+followed by a nonlinear one.
+Figure 2.1: Block diagram representation of a Wiener system
+To identify a system using this representation, h( τ) and n(u) need to be found.
+15
+---PAGE BREAK---
+To do this, Bussgang’s Theorem is utilised [7] [8]. This theorem states, that for a
+zero-mean Gaussian input signal x(t), the output signal of the system y(t) and an arbitrary
+Gaussian signal z(t), the following is true:
+Cxz(τ) =kCyz(τ), (2.1)
+where Cxz(τ)is the cross-correlation function between x(t)and the arbitrary function z(t),
+Cyz(τ)is the cross-correlation between y(t)andz(t)andkis a constant.
+Note that the system in question must be static and nonlinear. This result will be used to
+show how h(τ)andn(u)can be computed. As can be seen from Figure 2.1, the input to
+the nonlinear block is a signal u(t). Therefore u∗n=y, where the ∗operator represents
+convolution. From Bussgang’s theorem we also know that Cux=αCyx. Here the ‘arbitrary
+Gaussian signal’ used is the input to the system. We also know that x∗h=uand therefore
+Cxx∗h=Cux, which holds true for linear systems. Since Cxx∗h=Cux=αCyxwe now
+have a relationship between the auto-correlation of the known input to the system and the
+cross-correlation between the system’s input and output, both of which are known. As a
+result, the impulse response function h( τ) can be found to be h(τ) =Cxx×αCyxwhere the
+×operator represents deconvolution. Whilst the value of αis unknown a value can be
+imposed and the nonlinear block can be modified to account for this constant scaling. Now
+that h( τ) is known, u can be found by convolving h( τ) with x(t) and this result can then be
+deconvolved with y(t) to find the static nonlinearity n. An iterative least squares regression
+algorithm can then be used to parameterise h and n. The system has now been identified.
+Hammerstein Model Analysis
+Another approach for modelling nonlinear systems is with the Hammerstein representation.
+This is similar to the Wiener system model since it splits the system into a dynamic linear
+component and a static nonlinear component. However, in this model, the input of the
+system first passes through the static nonlinearity before this result is passed into the
+linear sub-system [9]. This type of system is also referred to as an NL system, since it is
+composed of a nonlinear sub-system followed by a linear one.
+Figure 2.2: Block diagram representation of a Hammerstein system
+To identify a system, by solving for n(x) and h(u), Bussgang’s Theorem can be used again.
+In this case we can see that Cxx=αCux, where the arbitrary signal being used is also x(t).
+It can also be seen that Y=h∗u(* again represents convolution), and since we are
+describing the linear component: Cxy=h∗Cxu. Combining this with the previous equation
+16
+---PAGE BREAK---
+we see that Cxy=h∗1
+αCxx. By assume a value for alpha, and by performing the
+deconvolution between the auto-correlation of x(t) and the cross-correlation between x(t)
+and y(t), h( τ) is found. This can be deconvolved with y(t) to find u(t), and then u(t) can
+be deconvolved with x(t) to find n(x). After parameterising n(x) and h( τ), the system has
+been identified.
+Both the Wiener and Hammerstein models are capable of representing nonlinear
+systems and are computationally efficient in comparison to other methods. However, these
+representations and even NLN or LNL models, which are simply combinations of Wiener
+and Hammerstein models, are unable to model dynamic nonlinearities, which can
+incorporate non-linear effects at time lags. This makes them poorly suited for the purposes
+of this project due to the dynamic nonlinear behaviour exhibited by the media used [2] [1].
+Volterra Model Analysis
+The Volterra series is an expansion that is used to approximate functions, similar to the
+Taylor series [10] [11]. However, one key difference is that the Volterra series is able to
+approximate systems with memory, where the output at a given time t, can depend on the
+system’s output at all times less than t [12]. It is a non-parametric model which can model
+nonlinear systems of arbitrary polynomial order. The formula for the discrete time Volterra
+Series approximation of a system is:
+y[n] =h0+MX
+m1=0h1[m1]x[n−m1] +MX
+m2=0MX
+m1=0h2[m1, m 2]x[n−m1]x[n−m2] +. . . .
+This shows the expansion up to the second order. The variables h0toh2are the first three
+Volterra kernels which represent the system. The zeroth order kernel h0, represents the
+constant bias in the system, h1represents the linear impulse response of the system and h2
+represents the quadratic response of the system. For the purposes of the sensor, only these
+three kernels need to be identified to model the liquid. Here M refers to the memory of the
+system, which specifies the number of previous input data points used to predict the
+current output sample. The size of M directly affects the size of the kernels. The figure
+below illustrates this:
+Figure 2.3: Visual example showing the size of the Volterra kernels for a memory length of
+4 samples.
+17
+---PAGE BREAK---
+Here, h0is a single value, h1is a column vector of length M and h2is aM×Mmatrix.
+The grey boxes represent non-zero values, whilst the white boxes represent zeros. When
+calculating the second order kernel, the sum of hijandhjiwill approach some constant k.
+It is therefore equivalent to set one of these to k and force the other element to be 0. This
+reduces the number of parameters used by the model.
+The Volterra series is an extremely powerful tool for modelling nonlinear systems. Not
+only is it able to model dynamic nonlinearities, it also imposes no restrictions on the
+probability distribution of the input signal into the system. This is not the case for
+Hammerstein and Wiener systems, which require Gaussian input signals to leverage
+Bussgang’s theorem, for the initial identification of the system. It is therefore the choice of
+nonlinear model used in this project.
+Despite this, the Volterra series model of a system is not without flaws. As the
+complexity of the system being modelled increases, higher order kernels and longer memory
+are required to model the system’s dynamics. This results in a polynomial growth in the
+number of parameters used to represent the system, which in turn requires longer input
+data, to prevent over-fitting. This results in extremely long memory and computationally
+intensive procedures required to identify the Volterra kernels, usually limiting the series
+expansion to the first non-trivial nonlinear kernel, which is typically the second or third
+order kernel, depending on the system. This phenomena is also known as the curse of
+dimensionality [13].
+Evaluating Models
+The Variance Accounted For (VAF) metric is a commonly used measure to evaluate the
+performance of a dynamic system model by comparing the predicted output of the model
+to the actual output of the system. It is defined as the percentage of the output variance
+that is explained by the model. A higher VAF value indicates a better model fit. The VAF
+is calculated using the following formula:
+VAF =
+1−Var(y−ˆy)
+Var(y)
+×100% ,
+where yis the actual output, ˆyis the predicted output, and Var (·)denotes the statistical
+variance. The VAF value ranges up to a maximal 100%, which indicates a perfect fit. This
+metric will be used to evaluate the performance of the Volterra series models.
+18
+---PAGE BREAK---
+2.2 Electrochemical Sensor
+The Electrochemical sensor of this project works by applying a stochastic voltage between
+two electrodes, submerged in the medium of study. This results in current flow through the
+medium, between the electrodes. By observing the current output due to the stochastic
+voltage signal, the impedance of the medium and how it changes over time can be
+identified. Conversely, as is done within this project, by treating the current as the input of
+the system and the voltage across the medium as the output, the admittance of the
+medium is observed and modelled. Since the impedance and admittance are reciprocals of
+each other, the information captured by monitoring these is equivalent.
+An existing electrochemical sensor and monitoring station have been built by my
+project advisor, Michael Aling.
+Figure 2.4: A CAD rendering of the sensor + monitoring station (left) and a rendering of
+the sample container (right) – Reproduced with permission from [1] (left) and [3] (right).
+The monitoring station refers to the sensor alongside the other components needed to
+maintain a constant temperature for experiments. This station in Figure 2.4 has nine
+containers which are filled with the medium(s) being studied. The electrodes protrude from
+the base of the containers and are connected to the function generator and oscilloscope
+instruments at their base. Since the impedance of the medium is highly temperature
+dependent, radiators and a thermoelectric system have been integrated into the monitoring
+station to regulate the temperature for experiments.
+This sensor configuration has been built and used to collect data on a series of liquids
+and was used to gather data on milk (described in greater detail in chapter 4) . Whilst the
+sensor is able to gather data which can be passed into the Volterra Series identification
+software for this project, the configuration remains large, making it difficult to carry and
+move. This is because it has incorporated temperature control. However, the end-use
+sensors are designed to be handheld and will not require this [2]. The form factor of the
+sensor will depend on the application for its intended use.
+19
+---PAGE BREAK---
+2.2.1 Sensor Applications
+Milk Analysis
+One of the wide range of applications for the sensor is modeling and monitoring the
+electrochemical properties of milk. By understanding the electrochemical behavior of milk,
+we can form a ‘standard’ template that reflects the expected behavior of clean, safe milk.
+The sensor can then be used in a production or packaging environment to monitor milk
+and compare its properties to the standard results. This allows for the identification of
+bulk composition changes and biofilm formation, which can indicate spoilage or
+contamination [14] [15] [16].
+Additionally, by monitoring the change in impedance of the milk, it is possible to
+attribute deviations from the expected Volterra kernels to the presence of bacteria within
+the milk. Milk can contain various bacteria, such as Salmonella, Escherichia coli (E. coli),
+Staphylococcus aureus , andListeria [17] [18]. The presence of these bacteria can lead to
+significant health risks if not detected and subsequently ingested.
+One common cause of bacterial contamination in milk is the health of the cows,
+specifically the presence of subclinical mastitis. Subclinical mastitis is an infection of a
+cow’s udder. Unlike clinical mastitis which shows clear signs such as raw, swollen udders
+and clots in the milk, there are no visual symptoms for subclinical mastitis. With the lack
+of visual symptoms and the fact that the infection can be up to twenty times more
+prevalent than clinical mastitis, it is imperative that effective measures are put in place to
+identify and cure the infection as fast as possible [19] [20] [21].
+Currently, one method to detect subclinical mastitis is by measuring the somatic cell
+count (SCC) of the milk. A higher SCC indicates a higher likelihood of infection, but this
+method is not foolproof and often requires additional culture tests to confirm the presence
+of bacteria [22] [23]. This process is time-consuming and expensive.
+After the full development of the sensor, it should be able to be placed in a container of
+milk and provide rapid detection of infection due to changes in the biochemical
+composition of the milk. This rapid detection can be used to prevent cross-contamination
+of the milk and therefore reduces the amount that has to be discarded. It can also help
+save money and reduce the risk of supplying contaminated milk, thereby increasing
+consumer safety. Additionally, it enables the rapid treatment of cows, reducing the
+duration of their suffering before a diagnosis is made.
+Well Plate Bacteria Monitoring
+Another promising application of the sensor is in studying the doubling rate of bacteria
+when fed different sugars. Typically, glucose is used in bacterial growth experiments.
+However, there are more cost-effective sugars available that could result in similar growth
+curves to that of Glucose based solutions, but at a fraction of the price. This has been an
+area of research for Dr. Cathy Hogan of the MIT BioInstrumentation Lab, who proposed
+this application for the electrochemical sensor.
+When determining the doubling rate of bacteria (for a given solution), the bacteria is
+placed in a sugar solution and left to incubate at 29 °C. After a set duration of time, a
+researcher has to remove the plate holding the bacteria from the incubator, take an aliquot
+20
+---PAGE BREAK---
+of the sample and then use a device such as a spectrophotometer, to determine a metric
+which can then be used to identify the population of bacteria given some standard curves.
+The sample can then be returned to the incubator and this process is repeated. By
+tracking the population repeatedly after set intervals, this can be plotted to ascertain the
+doubling rate of the bacteria within the used solution. This is inherently laborious and is a
+method that does not always work.
+For example, with K. Xylinus , a particular strain of bacteria, when it grows in the
+presence of sugar, a solid pellicle forms on the surface of the solution. This means that a
+spectrophotometer cannot be used to identify the population of the bacteria. Furthermore,
+this strain of bacteria is aerobic, meaning that the bacteria require oxygen. For this reason,
+the bacteria remain on top of the pellicle. By attempting to take a sample of the solution
+and disturbing the pellicle layer, the sample would be rendered useless and another sample
+would have to be used. This poses a problem for researchers and is an example of where
+the electrochemical sensor can be used.
+By modifying the sensor to fit into a 6x4 well plate, it can be used to monitor the
+impedance of the solution and from the changes in this, infer the growth of bacteria. It
+may therefore be able to estimate the doubling rate of bacteria within the wells. This
+modification automates the process, eliminating the need for researcher intervention during
+the incubation period and by passes the need for plate counting methods. The pellicle can
+grow around the sensor’s electrodes, allowing continuous monitoring without discarding
+samples. With this, it could therefore be possible to monitor the doubling rate of the
+bacteria, even with the presence of the pellicles and the sensor could then be used to
+identify alternative sugars to Glucose that lead to rapid bacterial growth. One such
+potential alternative is ‘corn steep liquor’. This is a by-product of the wet-milling of corn,
+and is extremely cheap. If a sugar such as this, where to provide fruitful results, the cost of
+running experiments could be significantly decreased, and another use could be found for,
+what is considered a waste product.
+A key aspect of this project has been the initial development of the well-plate sensor’s
+form factor, as well as preliminary experimentation to determine the viability of this
+concept.
+21
+---PAGE BREAK---
+22
+---PAGE BREAK---
+Chapter 3
+Volterra Series for Electrochemical
+System Analysis
+There are a variety of ways in which the Volterra kernels of a system can be determined
+[24] [25]. For this research, two different algorithms were developed for this task. One
+approach represents the data as a matrix and a tensor for optimised data prediction,
+whereas the second approach transforms a neural network into the Volterra kernels,
+leveraging existing optimisations for machine learning libraries.
+3.0.1 Tensor Approach
+The Tensor approach starts with a randomly initialised set of kernels: A single random
+value for h0, a random vector of length M for h1and a random lower triangular (M×M)
+matrix for h2. Here and through the rest of the paper, M will refer to the memory length
+being utilised. The kernels are then used to predict the output of the system. This
+predicted output is then compared with the actual system output, using a Mean Square
+Error (MSE) loss function and the program utilises gradient descent to modify each value
+within the kernels to minimise this loss function. The Adamoptimiser is used to compute
+adaptive learning rates for each parameter. In addition to this, L2 regularisation is used to
+encourage the kernel values to spread out more evenly. Other details, such as early exiting,
+detecting early convergence of the gradient descent etc, can be seen in the code, added to
+the appendix.
+To predict the output of the system from a set of Volterra Kernels, the following
+formula can be utilised:
+y[n] =h0+MX
+m1=0h1[m1]x[n−m1] +MX
+m2=0MX
+m1=0h2[m1, m 2]x[n−m1]x[n−m2] +. . . .
+This predicts the nthoutput data point. This must be computed for each output data
+point and must be performed during every iteration of the algorithm, to pass into the loss
+function and optimise. This is a complicated calculation which must be performed millions
+of times per execution of the program. To speed up the execution of the algorithm, matrix
+and tensor operations, which have been optimised for rapid computation, can be used. The
+23
+---PAGE BREAK---
+tensors are therefore structures that have been created to allow the rapid computation of
+the predicted output during each iteration of the gradient descent.
+For this approach, we consider the predicted output from each kernel individually and
+sum their contribution at the end to generate the predicted output. Since h0is a constant
+it is simply added to each output data point to shift them. In practice this should be 0 for
+the systems being dealt with, although due to the numerical computation this may drift
+from this value slightly. When focusing on the linear response of the system, this can be
+found by focusing on the predicted output when using h1. To do this we can consider a
+small example.
+Consider an input data tensor xT1, where each row represents a window of the input
+signal with a specified memory length. Each row holds M points of the input signal, and
+each row is simply a shifted version of the previous row. The rows also get reversed. This is
+an implementation choice to keep in line with Hunter and Spanbauer [26]. The first-order
+kernel h1is a vector containing the weights associated with each memory sample.
+LetxT1be a tensor of shape [n, M ], where nis the number of windows and Mis the
+memory length. The kernel h1is a vector of length M. The goal is to compute the
+contribution of the first-order kernel to the output,
+xT1 =
+x11x12··· x1M
+x21x22··· x2M
+............
+xN1xN2···xNM
+,h1=
+h1
+h2
+...
+hM
+. (3.1)
+First, perform the element-wise multiplication between each row of xT1and the vector h1.
+This yields another tensor of the same shape as xT1, which is:
+xT1⊙h1=
+x11h1x12h2··· x1MhM
+x21h1x22h2··· x2MhM
+............
+xN1h1xN2h2···xNMhM
+. (3.2)
+Next, by summing each row to obtain a single value per row, the resultant vector y1of
+length n, is the sum of the products for the corresponding window,
+y1=
+PM
+j=1x1jhjPM
+j=1x2jhj
+...PM
+j=1xNjhj
+. (3.3)
+In the context of the Volterra model, y1represents the contribution of the first order
+kernel to the output. From this it can be see that the use of a matrix xT1can allow for
+the linear prediction for the entire signal at once.
+24
+---PAGE BREAK---
+For a given input signal of length N, the predicted output is of length n=N−M+ 1.
+This is because M previous samples are needed to generate each output data point. This
+notation will be re-used throughout the paper.
+Similar to this, a tensor xT2can be used to compute the contribution of the second
+order kernel to the output. The computation of this contribution involves two separate
+time lags, alongside the h2matrix. To represent this in a way that allows the prediction of
+the entire output signal at once, a tensor can be used. This tensor xT2hasnlayers, each
+of size M×M. The elements of the tensor are denoted as xijkwhere iandjare the row
+and column indices of each matrix, and kis the layer index.
+Figure 3.1: A visualisation of xT2’s structure. Here it can be seen that the memory length
+being used for both time lags is 3, and that there are 4 windows. This will enable the
+prediction of four data points.
+Each layer of xT2is a lower triangular matrix. The elements of each layer are formed by
+the outer products of the lagged input values (the same windows used to generate xT1).
+Once the the outer product is found, the rows of the matrix and reversed and then the
+columns of the matrix are reversed (keeping in line with Hunter and Spanbauer’s work).
+The contribution of the second-order kernel to the output is computed by first
+performing the element-wise multiplication of h2with each layer of xT2. Each element of
+the layer can then be summed to collapse the layer into a scalar value, entirely analogous
+to the use of xT1. This then results in a column vector of length n of the form:
+y2 =
+PM
+i=1PM
+j=1x1ix1jhijPM
+i=1PM
+j=1x2ix2jhij
+...PM
+i=1PM
+j=1xNixNjhij
+.
+Now that the contributions due to each kernel are known, the vectors can be added to give
+the predicted output and the algorithm can work as previously described.
+25
+---PAGE BREAK---
+Memory Averaging and Stepping
+As described in 2.1.2, the Volterra series representation of a system suffers from the curse
+of dimensionality. To represent complicated systems, larger memory lengths must be
+used.This is because the lowest frequency identifiable by the model is determined by the
+length of the impulse response which corresponds to the memory length being used. A
+higher memory length is needed to model a broader frequency spectrum.
+However, for a system utilising the first 3 kernels, the number of parameters used by
+the model is1
+2M2+3
+2M+ 1. Increasing the memory length can rapidly result in
+over-parametrisation and can lead to a set of kernels from which realistic electrochemical
+properties cannot be inferred. To prevent this it is good to ensure that the number of
+parameters used by the model remains strictly less than 10% of the input signal length.
+For this to be true, the program requires extremely long input signals which does not suit
+the tensor approach. xT1 and xT2 have dimensions [(N−M+ 1)×M]and
+[M×M×(N−M+ 1)]respectively. A polynomial increase in the number of parameters
+in the model results in a required polynomial increase in the length of the input signal,
+with respect to the memory length used. This then results in extremely large xT1 and xT2
+structures, making it difficult to run the program on systems with low/moderate memory.
+The required memory length to identify a specific minimum frequency is:
+M=Sampling Frequency
+Minimum Identifiable Frequency.
+However, this implictly assumes that when generating ‘windows’ of previous data points,
+these data points are consecutive in the signal. However, by spacing out the points used to
+represent the system memory, for the same number of points, a larger amount of time can
+be represented by the system memory. This way lower frequencies can be observed by the
+model by simply increasing the spacing between memory points as opposed to increasing
+the length of the memory. The formula for the minimum memory length required would
+therefore become:
+M=Sampling Frequency
+Minimum Identifiable Frequency×1
+S.
+S is the spacing factor, which corresponds to the number of data points in between the
+points used by the memory. If every 5th point is used for the memory, the memory length
+can decrease by a factor of 5, or for the same memory length, the minimum identifiable
+frequency decreases by a factor of 5.
+To allow the skipped input values to still influence the memory window, an averaging
+effect was incorporated into the program. This means that the data point included in
+memory is averaged with the ones that get skipped after it. Suppose we have an input
+signal and decide to use a memory length M= 5with a step size of 2. This means that
+each memory window will include 5 data points, but spans the same amount of time as 10
+points in the original input signal. The step size of 2 implies that we select every second
+data point to include in the memory window. For example, with a step size of 1, a regular
+memory window would be [x1, x2, x3, x4, x5]. However, with a step size of 2, the memory
+26
+---PAGE BREAK---
+window would be [x1, x3, x5, x7, x9], where xirepresents the ithdata point in the input
+signal x.
+To ensure that the data points excluded by the step size still influence the memory
+window, an averaging effect can be applied. This means that each included data point in
+the memory window is an average of the skipped data points and the preceding value in
+the memory window. For instance, with a step size of 2 and averaging, the resulting
+memory window becomes:
+x1+x2
+2,x3+x4
+2,x5+x6
+2,x7+x8
+2,x9+x10
+2
+.
+This approach allows the use of spacing to avoid having to increase the memory length
+by drastic amounts, whilst still enabling skipped values to influence the memory window.
+GPU utilisation
+To enhance the performance of the program, particularly in terms of execution speed, the
+incorporation of GPU acceleration was explored. By leveraging the parallel processing
+capabilities of GPUs, a significant reduction in training time was achieved. This
+improvement is crucial for handling large input signals, which is a requirement for the
+complex systems being studied.
+To test the difference in speed between the CPU and GPU, the time taken for the
+program to find a set of kernels was monitored. The program was given a 10,000 sample
+input signal and was ran for a range of memory lengths varying from 2 to 32 samples. This
+was repeated and averaged over 5 trials. The CPU based code took a total of 400 minutes
+to execute. This is an extremely long time, especially considering that when testing the
+code on real experiment data, the input will be much larger than 10,000 samples. Faster
+execution is therefore needed. By modifying the code to utilise the GPU, the execution
+time drastically dropped by a factor of 11 to 35 minutes. The GPU used is an NVIDIA
+GeForce RTX 4060 and the CPU used is an intel i7-12700H.
+Figure 3.2: Shows the training time vs memory length for the program, both when the GPU
+is used and when the CPU is being used exclusively.
+27
+---PAGE BREAK---
+From the graph it can be seen that the training time for the code utilising the GPU
+remains relatively constant as memory length increases, whilst the CPU based code is
+rapidly increasing, meaning that an even bigger speed increase can be expected for a larger
+input signal and higher memory length.
+Batch Processing
+Due to the drastic increase in input signal length required for a small change in memory
+length, the step and averaging feature was introduced into the program. However, there is
+a noticeable decline in the VAF of the Volterra model as the step size increases. Whilst the
+step size feature can help reduce the number of parameters required by the program,
+iteration must be done when modelling a system to establish a trade off between the
+number of parameters used and the final VAF. It is therefore still important to use a long
+input signal for the program. Because of this, batch processing capabilities were
+incorporated into the kernel identification software. As opposed to storing the entirety of
+xT1 and xT2 on the GPU, the program is able to dynamically check the available GPU
+memory, and determine the largest possible batch of the tensors that can be stored on the
+GPU. A generator is then used to return the batches, allowing the program to remove and
+add these batches to the GPU sequentially. This allows segments of the output to be
+computed, and these segments can then be combined to form the entire output.
+Since GPUs are expensive and are often lower in memory than the CPU on the same
+computer, this has the benefit of leveraging the memory on the CPU and having that be
+the limiting factor with regards to the size of the tensors, as opposed to the smaller GPU
+memory.
+Whilst, this works, the repeated transfer of data to and from the GPU as well as the
+process of combining the segments of the output together results in a significant increase in
+the execution time of the program. It therefore remains a recommendation to run this
+program on computers that have GPUs with a minimum memory of 24 GB. This allows
+the use of input signals approximately 150,000 samples long with a memory length of 200.
+28
+---PAGE BREAK---
+3.0.2 Multi-Layer Perceptron Volterra Approach
+The Multi-Layer Perceptron Volterra (MLP-Volterra) approach to determining the Volterra
+kernels leverages the power and flexibility of deep learning techniques. By using
+pre-existing optimisations and transformations commonly used in neural networks, this
+method aims to efficiently and accurately identify the Volterra kernels.
+In 1994 it was found that the use of a two layer Perceptron network was equivalent to
+the Volterra series [27]. It is therefore possible to utilise this network to map an input
+signal to an output signal and transform the weights of the neurons within the network
+into a set of Volterra kernels.
+Figure 3.3: Two Layer Perceptron Model. By convention the input layer is known as layer
+0. Image taken from Medium AI [28].
+To model the Volterra series using an MLP, the input data must be parsed into a suitable
+format. This involves creating overlapping windows of the input signal, each of length M.
+Each window is then used to predict the corresponding output. This approach ensures that
+the network can capture the influence of past inputs on the current output.
+Given an input signal {x1, x2, x3, . . . , x N}and a memory length M:
+•The first window is [x1, x2, x3, . . . , x M]and the network predicts yM.
+•The second window is [x2, x3, x4, . . . , x M+1]and the network predicts yM+1.
+This means that the input layer consists of M neurons. The activation function for these
+neurons is the linear function which simply returns the input.
+The data points are then passed into the hidden layer. Here the hidden layer performs the
+following operation:
+opi=σi 
+bi+NX
+j=0wjiu(t−j)!
+, (3.4)
+where opiis the output of the ithneuron in the layer, σiis the activation function applied
+to the ithneuron, biis the bias term for the ithneuron,PN
+j=0is the summation over the
+29
+---PAGE BREAK---
+pastNtime steps, wjiis the weight associated with the connection between the jthinput
+and the ithneuron and u(t−j)is the input signal at time (t−j).
+The activation function used in the program was the tanhfunction. This is due to this
+function being used and documented to accurately help identify Volterra kernels [27].
+However, other activation functions can be used and may be worth investigating.
+Once the model is trained, the Multi-Layer Perceptron (MLP) parameters can be
+transformed into a set of kernels. These are given by:
+h0=LX
+i=1cia0i, (3.5)
+h1(j) =LX
+i=1cia1iwji, (3.6)
+h2(j, k) =LX
+i=1cia2iwjiwki, (3.7)
+where ciis the weight of the connection between the i-th hidden layer neuron and the
+single output neuron, a0i, a1i, a2iare the transform coefficients relating to the activation
+function used, wji, wkiare the weights of the connections between the j-th and k-th inputs
+and the i-th hidden layer neuron and Lis the number of neurons in the hidden layer. This
+can be changed and tested to give a good model.
+By considering the Taylors series equivalent of the activation function, a polynomial
+representation of the output function can be found. This means that the output of each
+hidden neuron is a polynomial in terms of the input time series data. The coefficients of
+these outputs are the transform coefficients.
+To find the transform coefficients, the Taylor series expansion of tanh(x) , around the
+node’s bias value can be found. This yields the result:
+aji=1
+jtanh(j)(bi), (3.8)
+where tanh(j)(x)is the jthderivative of tanh( x).
+This is similar in principle to the tensor approach. A windowed representation of the data
+is needed (xT1), gradient descent is implemented to optimise model parameters alongside
+an Adam optimiser and an MSE loss function. However, the critical difference is that the
+parameters are initially in the form of weights for a MLP model and later transformed to
+the Volterra kernels. This allows faster execution of the program and prevents the need
+to create an xT2 tensor, which posed a significant memory overhead that was unreasonable
+for most computers. This version of the program has been shown to run approximately 4
+times faster than the Tensor generation approach, across a wide range of tests.
+30
+---PAGE BREAK---
+3.0.3 Software Testing - Tungsten Filament Experiment
+To validate the two programs, they were used to model a system previously analysed with
+a Volterra model. This system is a tungsten filament lamp, where the
+Voltage-Luminescence characteristics were analysed [26]. To do this, a stochastic voltage
+signal is applied to a filament bulb. A photo-diode is placed 5mm away from the bulb and
+the voltage across this is measured as the output of the system.
+As is similar to the experiment completed in Span and Hunter’s ‘Coarse-Grained
+Nonlinear System Identification’, a stochastic signal with a Gaussian distribution is used as
+input to the system. This signal has a maximum frequency of 10Hz. A sampling frequency
+of 750 Hz is used for recording data. A signal meeting these criteria was generated.
+Figure 3.4: The left figure shows the probability distribution of the generated input signal.
+The right figure shows the power spectrum of the generated input.
+The signal is designed to have a mean of 0.85V to remain within the 0V - 1.7V input
+voltage region which prevents saturation of the filament. The signal was also filtered using
+a 5thorder low-pass Butterworth filter, to remove frequencies beyond 10 Hz.
+For this experiment, the input signal was 210,000 samples long, covering a span of 280
+seconds. When analysing the system with the MLP-Volterra approach, the identified
+kernels were able to model the system with a VAF of 97.7%. This is with a memory length
+of 200 samples and 1500 neurons in the hidden node.
+Figure 3.5: Plot showing the actual output vs the predicted output of the system, when
+using the model found with the MLP-Volterra code.
+31
+---PAGE BREAK---
+Figure 3.6: The left plot shows the predicted impulse response of the system. The second
+plot shows the predicted second order kernel. These are for the MLP-Volterra approach.
+From the figure it can be seen that the second order kernel has a concentration of high
+values corresponding to low lags in the upper left corner of the figure. There is a decrease
+in the values of the kernel as the lags increase from zero. This is expected and indicates
+that the code works as expected.
+For the Tensor code, similar parameters were used. The same 210,000 sample input
+signal is used and a memory length of 200 samples is also used. However, since this
+program has the ability to incorporate steps, a step size of 4 is chosen. This allows the
+lowest identifiable frequency in the generated model to reach 1 Hz, whereas the
+MLP-Volterra code shown above, only accounted for frequencies at or above 3.75 Hz.
+Figure 3.7: Plot showing the actual output vs the predicted output of the system, when
+using the model found with the Tensor based approach.
+32
+---PAGE BREAK---
+Figure 3.8: The left plot shows the predicted impulse response of the system. The second
+plot shows the predicted second order kernel. These are for the Tensor approach.
+The tensor approached achieved a 96.5% VAF. This is slightly lower than the VAF of the
+MLP-Volterra code’s model. However, the second order kernel shows a much stronger
+response than the MLP-Volterra model. This second order kernel also shows a strong
+concentration of values at small lags (upper left corner of the kernel). However, this kernel
+shows a regular striped pattern, which was not as present in the MLP-Volterra second
+order kernel. This could be because the tensor code was able to account for frequencies as
+low as 1 Hz, whereas the MLP-Volterra code’s minimum identifiable frequency was 3.75
+Hz, which is a significant difference given that the input signal was purposefully filtered to
+remove frequencies above 10 Hz.
+One potential issue is the appearance of the impulse response. This appears to show
+irregular behaviour where the amplitude of oscillations will increase, then decrease and so
+on. This impulse response can be explored further by converting it into a transfer function.
+Figure 3.9: Bode plot of the transfer function generated from the impulse response of the
+tensor approach code’s output model.
+33
+---PAGE BREAK---
+For the frequency range pertinent to the system (0 to 10 Hz), the bode plot looks as
+expected. It therefore may not be the case that the impulse response is physically
+unrealisable. However, it is worth noting the difference in the outputs of both programs.
+Whilst the generated kernels appear to model the system, it is very easy for the
+program to generate a set of kernels which do not accurately represent the physical system
+being modelled. Both programs are extremely sensitive to the parameters used and can
+produce vastly different results with slight changes to their values. It is therefore necessary
+to trial a series of parameter combinations to find the best model for the system under
+analysis. If there is prior knowledge about the system, the initial parameters can be
+estimated and incremental modifications can be made to improve the model. However, for
+systems with little known prior information, it may be necessary to perform a grid search
+over the parameter space to identify the best combination of values.
+34
+---PAGE BREAK---
+Chapter 4
+Milk Impedance Analysis
+By monitoring the change in electrochemical behaviour of the milk for an extended period
+of time, it is possible to learn how the impedance of the milk varies as the milk spoils. This
+will provide a template against which other milk samples can be compared. This not only
+allows for a more accurate prediction as to when the milk will spoil, but can also be used
+to infer the existence of hazardous bacteria within the milk. Identifying the change in
+impedance due to unwanted bacteria within the milk is a future goal of the project. The
+initial set of experiments set out to benchmark the behaviour of standard store bought
+milk which is safe for consumption.
+4.0.1 Experimental Procedure
+To perform the experiment, the sensor and monitoring station developed by Michael Aling,
+shown in Figure 2.4, was used. This setup has an Analog Discovery Digilent 2 used for each
+container [29]. This is used to generate the stochastic voltage signal across the electrodes.
+A thermocouple was also placed within each container to monitor the temperature of each
+container as the experiment was running. The experiment procedure went as follows:
+1. Sanitise the equipment with soap and water.
+2. Perform a short leak test by ensuring there are no leaks with the liquid cooling and
+via the holes in the containers, through which the electrodes protrude.
+3. Sterlise the equipment further with a 70% ethanol solution, taking extra care to clean
+ridges and the electrodes.
+4. Fill the containers with 80g of milk. To do this, a sterilised beaker was filled with 30g
+of milk and this was emptied into a container. Each container was first filled to 30g,
+then this was repeated to ensure that all containers held 60g of the plain milk, before
+finally adding the final 20g of milk to each container. After every 3 fills of the
+containers, the milk carton was vigorously shaken to ensure a uniform mixing of the
+milk, which tends to stratify over time.
+5. Establish connections between the thermocouples, Digilent Discovery 2 devices and
+the computer. And verify that the code is running as intended.
+35
+---PAGE BREAK---
+6. Sterilise the thermocouples with alcohol and place in each container, making sure to
+stay above the milk.
+7. Seal the containers with the designed lids and let the experiment run.
+The experiment was designed to run at 35◦C, since it is good for rapid bacterial growth.
+Whilst the experiment can be conducted within the temperature range of -5◦C to 70◦C,
+operating at the extremities of this range would test the propagation of heat or cold
+tolerant bacteria specifically, which is not the purpose of this experiment. The station’s
+thermoelectric coolers were utilised to maintain the 35◦C temperature for all of the
+containers for the duration of the experiment.
+4.0.2 Results
+After running the experiment, for each of the nine containers in the sensor and monitoring
+station, there were multiple datasets, each spanning a fixed duration of time. For the
+results, one container was considered. Here the evolution of the kernels between the 0th
+dataset up until the 100thdata set was monitored. Each dataset’s results were due to a
+stochastic signal sampled at 100 Hz. The input signal for each dataset spanned 30 seconds,
+resulting in an input length of 30000 samples. A subset of the results have been shown
+below:
+Figure 4.1: The difference between a given h2 kernel and the initial (0thdataset kernel) has
+been computed for a series of kernels spaced apart by 20 datasets (10 minutes). The kernels
+used for the subtraction were found using the ‘Tensor’ approach.
+The impulse response has not been shown since it stays the same throughout the
+experiment. The only noticeable difference in the models over time is observed in the
+36
+---PAGE BREAK---
+second order kernel. From this it can be seen that there is a change in the kernels over
+time. However, these changes are small in scale. There are local regions within the kernels
+which remain having high values across the samples, and there is a faint pattern of the
+kernel showing positive values along lines, parallel to the diagonal of the kernel.
+Interpretation
+These results appear to provide little information about the milk. This may be due to a
+few reasons. The first, is due to the high voltages used, to access the nonlinear
+electrochemical behaviour of the milk. By having a higher voltage across the electrodes,
+the current density within the milk increases, leading to PH changes in the liquid. This can
+result in the milk beginning to prematurely spoil.
+The use of high voltages can also result in the milk curdling and the formation of
+bubbles. These bubbles completely transform the expected impedance behaviour of the
+system and can lead to results which are not reflective of the milk.
+It therefore appears that, since curdling was observed, that the voltage signal used to
+excite the milk had peak values which were too high, resulting in the tainting of the data.
+To improve this further experimentation is needed. By determining the optimal signal
+to supply to the milk that allows the system to exhibit nonlinear behaviour which can be
+modelled, whilst avoiding the issues experienced at high voltages, more reliable data can be
+extracted from the system for use with the kernel identification software.
+37
+---PAGE BREAK---
+38
+---PAGE BREAK---
+Chapter 5
+Sugar Solution Impedance Analysis
+To monitor the growth of bacteria in the presence of different sugar solutions, a new form
+factor for the sensor is needed. In this application, the sugar solution is placed in the wells
+of a standard well plate, used in microbiological research, before the bacteria is introduced
+and the plate is incubated for approximately 7 days. The new sensor design must therefore
+be compact and must mate with the well plate, to allow it to be placed within the
+incubator and continuously capture data.
+5.0.1 Well Plate Sensor Design
+The well plates used for experiments featured 24 wells and were arranged to have 4 rows of
+6 wells.
+Figure 5.1: Image of the well plate used for the experiments. The image is taken from the
+supplier website [30].
+The chosen design for the sensor was in the form factor of a PCB that can be placed on top
+of the well plate. The PCB would contain electrodes which would align with the centers of
+39
+---PAGE BREAK---
+the wells. The electrodes would have an applied potential difference across them due to the
+other components on the PCB. Fortunately, a PCB designed to fit with the well plates had
+already been created by Professor Ian Hunter and Dr. Serge Lafontaine, of the MIT
+BioInstrumentation Laboratory. This PCB is shown below:
+(a) Top view of the PCB
+ (b) Bottom view of the PCB
+Figure 5.2: Impedance measurement PCB. Connects to a reference resistor and an offboard
+voltage generator using SMA connectors.
+Quad relays are used to sequentially apply the voltage across a specific electrode pair. This
+ensures that the impedance analysis can be performed on one well at a time, before the
+stochastic voltage is iterated through the rest of the electrode pairs.
+The left electrode of each pair (from the top view) is connected to the relays, which are
+connected to the 8 x 2 holes along the border of the PCB. The rightmost electrode for each
+electrode pair is connected to a reference resistor, which is connected to ground. This
+reference resistor is connected on the top right of the PCB. The three groups of three gold
+strips on the right of the board are populated with SMA connector heads, to plug to the
+voltage generation device.
+40
+---PAGE BREAK---
+5.0.2 Portable Computation Platform
+To perform the experiment, it is necessary to build a portable computation platform that:
+supplies the PCB with the stochastic voltage, sequences through the electrode pairs and
+saves the data to some external storage. This platform is shown below:
+Figure 5.3: Isometric view of the portable computation platform (left). Side view of the
+portable computation platform (right).
+This platform contains the necessary equipment for the experiment. The components were
+screwed into acrylic platforms which were then stacked on top of the PCB to minimise the
+space occupied by the experiment within the incubator, due to the incubator also being
+used for other experiments.
+The platform includes a Raspberry Pi 5 for computation, a Digilent Discovery 2 device
+for waveform generation and signal acquisition, a Tinkerforge bricklet stack for temperature
+measurement and relay control, a thermocouple and a powered USB hub. The Raspberry
+Pi was responsible for interfacing between the components. It ran the code responsible for
+tracking and saving the impedance data to the hard drive. The Digilent Discovery 2 device
+is able to generate stochastic voltages. This was used to provide the voltage signal to the
+electrodes via SMA cables. The Tinkerforge stack is a series of Tinkerforge components.
+This particular stack features two ‘Master Bricks’ which connect to quad relays and the
+thermocouple reader, managing digital communication. These relays are the
+aforementioned relays responsible for toggling on and off to select the electrode pair to
+excite with the voltage signal. The Master Bricks interface between the Raspberry Pi and
+the Relays. The stack also contains a Tinkerforge thermocouple bricklet. This allows for
+the use of a thermocouple, for the purposes of temperature monitoring. Since the bacteria
+are incubating, it is imperative that they remain at a constant temperature of 29◦C.
+41
+---PAGE BREAK---
+5.0.3 Experimental Procedure
+To determine the viability of the sensor for this use case, experiments were performed to
+trial the sensor and monitor any adverse or previously unknown effects. For this, the K.
+Xylinusbacteria solutions first had to be prepared. The process of preparing the bacteria
+samples was performed by senior researcher Dr. Cathy Hogan. The bacteria is purchased
+as frozen stock. The bacteria is then treated to begin the growth process. After an
+approximate duration of 10 days, the bacteria will have reached the point where they begin
+to form a pellicle layer in the solution used to treat them. When this is the case, the
+bacteria can be transferred to the sugar solutions at which point the experiment can be
+performed. The experimental procedure is as follows:
+1. Place the PCB into an Autoclave to sterilise.
+2. Take off the pre-populated well plate lid and place the PCB on top of the well plate
+so that the electrodes are submerged by the media. This is done underneath a
+biosafety cabinet to reduce contamination of the samples with external bacteria.
+3. Screw the portable computation platform onto the PCB and establish all connections
+between peripherals and the PCB.
+4. Run all of the necessary programs to start the experiment. Place the set up into the
+incubator, taking special care to not perturb the samples within the well plate.
+5. Remotely monitor the experiment set up to ensure all of the code is running, the
+thermocouple output shows a consistent temperature etc.
+6. After a period of approximately 7 days, remove the set up from the incubator and
+observe the samples and the data from the hard drive.
+During this procedure it was found that the software would throw errors after a random
+duration of time. It was determined that the Raspberry Pi was likely the issue. Therefore,
+it was decided to forgo the device and use a laptop instead. For this to fit within the
+incubator, the portable computation platform now needed to be modified. Instead of
+stacking on top of the PCB, it was decided to place these platforms alongside the PCB.
+This is because the experimental set up now had to be raised, since a laptop now had to fit
+within the incubator and there were other samples to avoid.
+42
+---PAGE BREAK---
+Figure 5.4: Image of the revised experimental set up. This was placed on top of a small
+table and placed within the incubator.
+However, this set up also led to issues. The heat from the laptop would interfere with the
+temperature regulation of the incubator, and resulted in the overall incubator temperature
+reaching as high as 45◦C, which is outside of the acceptable temperature range for the
+bacteria.
+A third set up was then determined. Here, the platform and PCB remained within the
+incubator, but connections were made to an external desktop computer as opposed to an
+internal laptop. This allows the use of arbitrarily powerful computers, since size is no
+longer an issue, and also removes the need for a hard drive. This also eliminates the need
+to worry about the heat generation of the system since the computer is out of the
+incubator. A worry with this set up was the partial opening left in the incubator to allow
+the external connection to the desktop. However, upon monitoring the temperature of the
+incubator, it was observed that the internal temperature stayed between 29◦C and 30◦C,
+which is acceptable for the experiment.
+43
+---PAGE BREAK---
+Figure 5.5: Image of the final set up. Here the computation platform is simplified due to no
+longer requiring the Raspberry Pi 5 and the hard drive. The set up is attached to the side
+of the incubator walls to allow for other samples to fit within the incubator. The devices
+connect to a desktop situated external to, but beside the incubator (not shown).
+5.0.4 Results
+The well plate was configured to hold a series of different sugar solutions so that the
+growth curves associated with these different solutions could be addressed.
+Figure 5.6: Layout of sugar solutions used in the experiment.
+For this experiment 5 different sugars were used: Glucose, Lactose, Sucrose, Corn Steep
+Liquor and Starch (not technically a sugar but consists of many sugar molecules joined
+together). From the figure it can be seen that Glucose, Lactose and Sucrose based solutions
+were placed on their own row. Corn Steep Liquor and Starch occupied three wells within
+the same row.
+After the experiment, it was expected to see a solid pellicle layer form at the top of
+each of the solutions. However, this was not the case. The well plate after having ran the
+experiment looked like so:
+44
+---PAGE BREAK---
+Figure 5.7: Well plate showing the sugar-bacteria solutions after the experiment.
+From this it can be seen that the solutions have become discoloured. There were some
+transparent gel-like pellicles, but these dissolved upon retrieval. This is not expected and
+suggests that something was wrong with the experiment, and so the data from the
+experiment will not be helpful in identifying growth curves.
+Alongside the changes in the solution, the electrodes were also left with an accumulation on
+their surface and were left permanently discoloured.
+Figure 5.8: Discolouration and accumulation on the electrodes on the PCB after running
+the experiment.
+45
+---PAGE BREAK---
+Interpretation
+One of the issues leading to the asymmetry in the colour of the solutions can be attributed
+to hardware. Due to the available hardware within the laboratory, TinkerForge 2.0 Quad
+Relay Bricklets were utilised for the purposes of multiplexing the electrodes. Since six relay
+boards are required and there were only three relays, and additional three were purchased.
+However, due to the fact that production has ceased for the 2.0 bricklets, the newer version
+(TinkerForge 2.1 Quad Relay Bricklets) were purchased. After some investigation, it
+appears that the newer bricklets were not working as intended during the experiment. It
+seems as if they are not compatible with the experiment and so the 2.0 version of the relays
+should be used in the future. However, since these are no longer being produced, sourcing
+these is difficult and so alternative relays may need to be used. This should lead to a
+consistency of results between wells containing the same sugar sample.
+For the issue of the solutions being discoloured, the reason for this could be due to the
+coating of the electrodes. The electrodes used are the pins found in D-sub connectors.
+These are copper and have a gold coating applied to them. This works for the purposes of
+the experiment due to gold being nonreactive. However, since the pins were not designed
+for this application, the gold coating may have imperfections, due to the thickness of the
+coating, the porosity of gold etc. This means that copper is exposed to the solutions and
+can interfere with the electrochemical reactions within the solution, as is observed in
+electrolysis.
+As a voltage is applied across the electrodes, a pH shift is experienced in the solution.
+This shift can result in the solution experiencing transient periods when it is alkaline vs
+transient periods when it is more acidic. During acidic transients, the copper at the
+electrode surfaces releases Cu2+ ions into the solution. During an alkaline transient,
+Copper (II) Hydroxide ( Cu(OH)2) forms at the electrode surface. These are both blue in
+colour and can account for the unexpected discolourisation of the solutions.
+This, coupled with the wiring scheme of the PCB can also explain the reason why for a
+given electrode pair, one electrode has an accumulation of blue deposit on its surface,
+whilst the other has an accumulation of some orange deposit. This is because the right
+most electrode for an electrode pair is connected through a resistor to ground, whereas the
+left most electrode is exposed to the input stochastic voltage (directions are referenced
+from Figure 5.2 a).
+From this experiment it seems pertinent to source electrodes with thicker coating and
+to resolve the issue with the quad relays before an assumption can be made as to the
+viability of the sensor for this application.
+46
+---PAGE BREAK---
+5.0.5 Improvements
+From the initial experiment it was observed that the electrodes were not centered within
+the wells. Whilst this has no effect on the bacteria and is not attributable to the lack of
+results from the experiment, it can affect the electric field generated by the electrodes and
+affect the impedance data. I therefore created a fixture that can be used to both clamp the
+PCB to the well plate (eliminating any air gaps and preventing slipping) and align the
+electrodes to fit in the center of each of the wells.
+Figure 5.9: 3D printed piece that clamps and aligns the well plate and PCB together for
+more reliable impedance data for future experiments.
+This piece take approximately 3 hours to print and so it can be easily produced and used
+on the day of an experiment. Since the piece is 3D printed, it cannot be put in an
+Autoclave and must therefore be sterilised with a 70% alcohol solution before use.
+The well plate fits into the base and is held in place by the small ledge observable in the
+figure. The PCB is then placed on top of the well plate and is constrained at the corners
+by the piece. This forces the electrodes to align with the center of the wells. The corners
+have been used to minimise material use and allow a clear view of the side profiles of the
+well plate, so that visual checks on the experiment can be made without disturbing the
+samples. At the corners, there are holes which have been tapped to fit M4 screws. These
+are used to clamp the PCB to the well plate.
+Figure 5.10: Future experiment set up. The PCB is clamped with washers to stay in place.
+47
+---PAGE BREAK---
+48
+---PAGE BREAK---
+Chapter 6
+Future Work
+Throughout this project, several modifications have been made to improve the performance
+of the two kernel identification programs, in terms of speed, memory usage and accuracy of
+the calculated model. Both programs show promise, but are very difficult to set up in a
+way that provides a high VAF model, with a set of kernels which provide insight into the
+electrochemical interactions occuring within the system.
+A part of this issue lies with the lack of knowledge on the systems being studied. For
+example, the use of high voltages and a low 100 Hz sampling frequency led to curdling of
+the milk, which severely impacted the quality of the impedance data. Similarly, within the
+well plate experiment, the use of high voltages (4.5 V) lead to exacerbated pH shifts
+observed by the solutions and increased the ion transfer from the electrode surfaces,
+resulting in discoloured samples whose results were of no use. Given the sensitivity of the
+systems to the conditions of the input signal and given the sensitivity of both programs to
+the hyper parameters used, the next steps for this project involve repeating the
+experiments and improving the quality of the impedance data that is used to generate the
+Volterra kernels.
+One way of doing this is to utilise the alignment and clamp piece that was printed, for
+the next well-plate experiment, and to modify the input signal characteristics.
+In addition, a modified well plate sensor can be designed. This can utilise a smaller
+spacing between the electrodes, and feature removable electrodes at the PCB interface.
+This would allow corroded electrodes to simply be swapped out without having to create a
+new PCB for every experiment. This, alongside the aforementioned tasks of finding new
+compatible relays and having the electrodes re-coated with a thicker coat of Gold, should
+provide a clear pathway for the development of the well plate sensor.
+It will also be useful to incorporate the step size and averaging feature from the
+‘Tensor’ kernel identification program, into the MLP-Volterra program. This will enable
+the use of the MLP-Volterra program as the main software for analysis since it has been
+shown to run significantly faster than the Tensor approach whilst relying on less memory.
+Finally, it may be useful to source a more powerful computer, with higher than 24 Gb
+of memory on the GPU for extremely long input signals, which will provide the best chance
+of extracting an accurate set of Volterra kernels, especially given the current knowledge of
+the systems being studied and how there is not enough information to make simplifying
+assumptions to the kernels to reduce the number of parameters used by the model.
+49
+---PAGE BREAK---
+50
+---PAGE BREAK---
+Chapter 7
+Conclusion
+Through the course of this research, two separate algorithms have been developed to
+identify the Volterra kernels representing a system. These have been optimised and
+bench-marked with promising results with the ‘Tungsten Filament’ experiment detailed in
+Section 3.0.3.
+Alongside this further experimentation has been conducted to model the impedance
+behaviour of milk and the electrochemical interactions within sugar solutions when
+incubated and housing K. Xylinus bacteria. Through these experiments, several failure
+modes and sub-optimal approaches have been discovered, enabling the further
+improvement of the next iteration of experiments. This should hopefully lead to the point
+where extremely clean data can be extracted from the systems and can be used to generate
+a set of realistic Volterra kernels.
+51
+---PAGE BREAK---
+52
+---PAGE BREAK---
+Bibliography
+[1] M. Aling, An electrochemical sensor development platform , 2022.
+[2] M. Aling, B. Iqbal, K. Cheng, and I. Hunter, Nonlinear electrochemical sensor for
+monitoring microbial growth in liquids , Provisional application for US patent
+63/567.528 (20 Mar. 2024).
+[3] M. Aling, K. Cheng, and I. Hunter. “A fast nonlinear electrochemical sensor:
+Monitoring microbial growth,” MIT Bioinstrumentation Laboratory. (Jan. 2023).
+[4] M. K. Saini. “Signals and systems: Static and dynamic system.” (Nov. 2021), url:
+https://www.tutorialspoint.com/signals-and-systems-static-and-dynamic-system
+(visited on 05/15/2024).
+[5] A. Farina, “Simultaneous measurement of impulse response and distortion with a
+swept-sine technique,” Nov. 2000.
+[6] G. Mzyk, Wiener System . Springer International Publishing, 2014. url:
+https://doi.org/10.1007/978-3-319-03596-3_3.
+[7] O. T. Demir and E. Bjornson, “The bussgang decomposition of nonlinear systems:
+Basic theory and mimo extensions [lecture notes],” IEEE Signal Processing Magazine ,
+vol. 38, no. 1, pp. 131–136, 2021. doi: 10.1109/MSP.2020.3025538.
+[8] J. Bussgang, L. Ehrman, and J. Graham, “Analysis of nonlinear systems with
+multiple inputs,” Proceedings of the IEEE , vol. 62, no. 8, pp. 1088–1119, 1974. doi:
+10.1109/PROC.1974.9572.
+[9] E. Eşkinat, S. Johnson, and W. Luyben, “Use of Hammerstein models in
+identification of nonlinear systems,” AIChE Journal , vol. 37, pp. 255–268, Feb. 1991.
+doi: 10.1002/aic.690370211.
+[10] V. Volterra, “Sopra le funzioni che dipendono da altre funzioni,” vol. III, pp. 97–105,
+1887.
+[11] V. Volterra, Theory of Functionals and of Integrals and Integro-Differential
+Equations . New York: Dover Publications, 1927, Original work published in Spanish,
+translated version reprinted in 1959.
+[12] “Volterra series’.” (Dec. 2023), url:
+https://en.wikipedia.org/w/index.php?title=Volterra_series&oldid=1191616586
+(visited on 02/08/2024).
+[13] E. Keogh and A. Mueen, Curse of Dimensionality . Springer US, 2017. url:
+https://doi.org/10.1007/978-1-4899-7687-1_192.
+53
+---PAGE BREAK---
+[14] A. Poghossian, H. Geissler, and M. Schöning, “Rapid methods and sensors for milk
+quality monitoring and spoilage detection,” Biosensors Bioelectronics , vol. 140,
+p. 111272, Apr. 2019. doi: 10.1016/j.bios.2019.04.040.
+[15] G. Durante, W. Beccaro, F. Lima, and H. Peres, “Electrical impedance sensor for
+real-time detection of bovine milk adulteration,” IEEE Sensors Journal , vol. 16,
+pp. 1–1, Jan. 2015. doi: 10.1109/JSEN.2015.2494624.
+[16] R. Gómez-Sjöberg, D. Morisette, and R. Bashir, “Impedance microbiology-on-a-chip:
+Microfluidic bioprocessor for rapid detection of bacterial metabolism,” English (US),
+Journal of Microelectromechanical Systems , vol. 14, no. 4, pp. 829–838, Aug. 2005,
+issn: 1057-7157. doi: 10.1109/JMEMS.2005.845444.
+[17] “The dangers of drinking raw milk.” (May 2024), url:
+https://www.health.ny.gov/diseases/communicable/raw_milk_related/dangers_of_
+drinking_raw_milk.htm#:~:text=What%20kinds%20of%20harmful%20germs,with%
+20H5N1%20avian%20influenza%20virus. (visited on 05/19/2024).
+[18] A. Bevilacqua, M. R. Corbo, and M. Sinigaglia, “Spoilage of milk and dairy
+products,” in The Microbiological Quality of Food . Elsevier, 2017.
+[19] S. Potts. “Subclinical mastitis: The stealthy intruder.” (Mar. 2022), url:
+https://extension.umd.edu/resource/subclinical-mastitis-stealthy-intruder/ (visited
+on 05/19/2024).
+[20] J. Gonçalves, C. Kamphuis, J. Vernooij, J. Araújo, R. Grenfell, L. Juliano,
+K. Anderson, H. Hogeveen, and M. Santos, “Pathogen effects on milk yield and
+composition in chronic subclinical mastitis in dairy cows,” The Veterinary Journal ,
+vol. 262, p. 105473, May 2020. doi: 10.1016/j.tvjl.2020.105473.
+[21] C. Viguier, S. Arora, N. Gilmartin, K. Welbeck, and R. O’Kennedy, “Mastitis
+detection: Current trends and future perspectives,” Trends in Biotechnology , vol. 27,
+pp. 486–493, Aug. 2009.
+[22] “Herbal and probiotic supplements for addressing mastitis and improving udder
+health in dairy.” (Mar. 2022), url: https://vinayakingredients.com/herbal-and-
+probiotic-supplements-for-addressing-mastitis-and-improving-udder-health-in-dairy/
+(visited on 05/19/2024).
+[23] P. Ruegg, “A 100-year review: Mastitis detection, management, and prevention,”
+Journal of Dairy Science , vol. 100, pp. 10381–10397, Dec. 2017. doi:
+10.3168/jds.2017-13023.
+[24] M. Korenberg and I. Hunter, “The identification of nonlinear biological systems:
+Volterra kernel approaches,” Annals of Biomedical Engineering , 1996.
+[25] W. J. Rugh, Nonlinear System Theory: The Volterra–Wiener Approach . Baltimore:
+Johns Hopkins University Press, 1981. url:
+http://rfic.eecs.berkeley.edu/~niknejad/ee242/pdf/volterra_book.pdf.
+[26] S. Spanbauer and I. Hunter, “Coarse-grained nonlinear system identification,” ArXiv,
+vol. abs/2010.06830, 2020. url:
+https://api.semanticscholar.org/CorpusID:222341628.
+54
+---PAGE BREAK---
+[27] “Calculation of the volterra kernels of non-linear dynamic systems using an artificial
+neural network.” (Jul. 1994), url: https://doi.org/10.1007/BF00202758 (visited on
+05/19/2024).
+[28] “Neural networks from scratch: 2-layers perceptron — part 2.” (Jun. 2022), url:
+https://pub.towardsai.net/neural-networks-from-scratch-2-layers-perceptron-part-2-
+d1e14546a7d4 (visited on 05/20/2024).
+[29]Analog discovery 2: 100ms/s usb oscilloscope, logic analyzer, and variable power
+supply, Accessed: 2024-05-22. url: https://digilent.com/shop/analog-discovery-2-
+100ms-s-usb-oscilloscope-logic-analyzer-and-variable-power-supply/.
+[30] “Falcon 24-well clear flat bottom tc-treated multiwell cell culture plate, with lid,
+sterile, 50/case.” (), url: https://ecatalog.corning.com/life-sciences/b2c/US/en/Cell-
+Culture/Cell-Culture-Vessels/Multiwell-Plates/Falcon%C2%AE-Plates/p/353047
+(visited on 05/20/2024).
+55
+---PAGE BREAK---

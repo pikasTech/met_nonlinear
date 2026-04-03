@@ -1,4 +1,4 @@
-# Schaller_2025_AutoML_Measurement 分析报告
+﻿# Schaller_2025_AutoML_Measurement 分析报告
 
 ## 论文基本信息
 
@@ -21,7 +21,7 @@
 
 ### GAP2: 非频率漂移 - 线性度的测量范围都偏窄
 
-**支撑程度：中等**
+**支撑程度：弱**
 
 **批判性支持（GAP 支持）：**
 
@@ -29,18 +29,17 @@
    - 论文研究了传感器漂移补偿问题，证明了传统交叉验证方法因对漂移考虑不足而高估了性能（第49-51行）
    - 论文指出传感器漂移会导致机器学习模型性能逐渐下降（第49行）
    - 论文讨论了漂移来源：传感器老化、中毒、环境变化、机械磨损等（第57行）
-   - 论文对比了多种漂移补偿方法：组件校正、自适应方法、传感器信号预处理、调整方法和机器学习方法（第129行）
+   - 论文对比了多种漂移补偿方法：组件校正、自适应方法、传感器信号预处理、调整方法和机器学习方法（第127行(英文)，第129行(中文)）
 
 2. **论文没有做XXX（批判凸显 IDEA 的 GAP）：**
    - 论文**没有讨论震级(magnitude)对测量范围/线性度的影响**
    - 论文主要关注的是**时间漂移**(temporal drift)，而非频率相关的漂移
    - 论文的数据集是气体传感器阵列（金属氧化物半导体气体传感器），与MET电化学地震检波器原理不同
-   - 论文指出："the temperature range used for modeling was based on environmental measurements" - 但这是在讨论温度，不是震级
-   - 关键引用（第295行）："no benchmark model achieved an F1 score exceeding 60% for our proposed drift compensation setting" —— 说明现有方法的测量范围/性能有限
+   - 关键引用（第295行）："no benchmark model achieved an F1 score exceeding 60% for our proposed drift compensation setting" —— 说明漂移补偿方法的局限性，而非传感器测量范围有限
 
 **直接支持：**
 - 论文提供的AutoML方法可用于传感器漂移补偿，为MET传感器的漂移补偿提供参考
-- 论文的漂移线性测试方法（第329-339行）可用于分析线性和非线性漂移分量
+- 论文的漂移线性测试方法（第329-339行）使用SVM线性核与RBF核对比，用于评估漂移数据是否需要非线性模型处理，这是模型复杂度选择方法
 - 论文的集成学习方法展示了如何有效组合多种模型来处理复杂的漂移模式
 
 ---
@@ -59,15 +58,17 @@
 
 > "Sensor drift is prevalent in industry, autonomous driving, and intelligent systems with integrated sensors...This phenomenon occurs due to factors such as poisoning or environmental changes, sensor aging, and mechanical wear, leading to progressively inaccurate sensor readings."
 
-### 关于线性与非线性漂移分量（第337-339行）
+### 关于SVM核函数选择（第337行）
 
 > "The effectiveness of the linear kernel with an Accuracy of 0.97 implies that a significant portion of the sensor drift can be explained by linear relationships between features and classes. On the other hand, the slightly better performance of the RBF kernel with an Accuracy of 0.98 indicates that there are also additional non-linearities in the data."
 
+**说明**：此处的"linear"和"non-linear"指的是SVM核函数类型，用于评估漂移补偿任务是否需要非线性分类器，而非讨论传感器本身的线性测量范围。
+
 ## 总结
 
-**GAP2 支撑**：Schaller_2025 论文研究了传感器漂移补偿问题，证明了传统方法的局限性（没有基准模型F1分数超过60%），这支持了GAP2关于"线性度的测量范围都偏窄"的论点。论文没有讨论震级对测量范围的影响，主要关注的是时间漂移问题。
+**GAP2 支撑重新评估**：Schaller_2025 论文研究了传感器漂移补偿问题，证明了传统方法的局限性（没有基准模型F1分数超过60%），但该论文研究的是时间漂移(temporal drift)补偿，不是测量范围/线性度问题。GAP2关联性被高估，应评为弱支撑。
 
-**综合评估**：Schaller_2025 是一篇关于传感器漂移补偿的方法论文，提供了有效的AutoML补偿框架，但对测量范围和线性度的讨论主要关注时间漂移因素，未涉及震级因素对测量性能的潜在影响。
+**综合评估**：Schaller_2025 是一篇关于传感器漂移补偿的方法论文，提供了有效的AutoML补偿框架，但对测量范围和线性度的讨论主要关注时间漂移因素，未涉及震级因素对测量性能的潜在影响。论文中第337-339行讨论的linearity是关于SVM核函数(线性核 vs RBF核)的选择，不是传感器测量范围或输出线性度。
 
 ## 引用信息
 

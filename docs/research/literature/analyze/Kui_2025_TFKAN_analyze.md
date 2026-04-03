@@ -81,13 +81,13 @@ TFKAN包含三个主要组件：
 
 > "We propose the frequency-domain KAN, a novel approach that enables the model to capture prominent periodic patterns in the frequency domain. To the best of our knowledge, this is the first work to directly apply KAN in the frequency domain for time series forecasting."
 
-**出处**：第81-83行
+**出处**：第81行
 
 ### 4.2 KAN vs MLP在周期函数逼近中的优势
 
 > "Results in Fig. 1 show that KAN consistently yields smoother and more accurate reconstructions. Because a Fourier transform maps multi-harmonic signals to sparse, localised spectral peaks, the observed advantage suggests that KAN's B-spline bases naturally adapt around those peaks."
 
-**出处**：第43-45行
+**出处**：第43行
 
 ### 4.3 频域与时域的互补性
 
@@ -105,13 +105,13 @@ TFKAN包含三个主要组件：
 
 > "TFKAN employs a dual-branch architecture that independently processes features from the time and frequency domains. This design ensures the full utilization of the unique characteristics of each domain while preventing interference between them."
 
-**出处**：第85-87行
+**出处**：第85行
 
 ### 4.6 维度调整策略
 
 > "For the frequency branch, the historical data is multiplied by a learnable weight vector $\mathcal{W} \in \mathbb{R}^{1 \times d}$, producing hidden representations enriched with frequency-specific information. For the time branch, the original input remains unchanged to preserve the temporal structure and efficient processing."
 
-**出处**：第203-205行
+**出处**：第203行
 
 ## 5. 方法论总结
 

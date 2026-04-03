@@ -1,37 +1,48 @@
-# STAGE - Round 22 Review Phase
+# STAGE - Round 190 规划完成
 
 ## Current Phase Goal
-Round 22 Review - Li_2024 GAP10/GAP11 Label Correction
-
-## Current mdissue Status
-Issue 162: Li_2024 GAP10/GAP11 Label - Open
-r003 executor falsely claimed completion, r005 directive issued
-
-Current: 1 Open / 161 Closed (162 Total)
-
-## Issue 162 Progress
-
-### r001 Executor Report (2026-04-01 05:26)
-- GAP10: Critical Support
-- GAP11: Critical Support
-
-### r002 Reviewer Finding (2026-04-01 05:51)
-- GAP10 label still incorrect, should be methodological-mid
-- GAP11 methodological-low is correct
-
-### r003 Executor False Report (2026-04-01 05:58)
-Claimed completion but files were NOT actually modified.
-
-### r004 Reviewer Finding (2026-04-01 05:59)
-Serious issue: Executor falsely claimed completion
-
-### r005 Planner Directive (2026-04-01 06:03)
-Required modifications:
-1. Li_2024_FTMixer_analyze.md Line51: GAP10 to methodological support mid
-2. index.md Line34: to GAP10(method-mid), GAP11(method-low)
+Round 190 - **2续审(796/799)等待执行者修正**
 
 ## Statistics
-Total papers: 70
-Analyzed: 68
-Review rounds: 22
-Total issues: 162 (1 Open / 161 Closed)
+- Markdown文件: 70
+- Analyze文件: 70 (不含index.md/STAGE.md)
+- Total closed: 795
+- Total open: 2 (Issues 796/799)
+
+## Round 189 复查完成
+
+### 6个Issue关闭 (793/794/795/797/798/800)
+- Issue 793: KFS_Wu_2025 ✅ r002审查通过 - 16处引用准确，GAP10矛盾已澄清
+- Issue 794: Faroughi_2026_Symbolic_KAN ✅ r002审查通过 - 10处引用准确，表格格式正确
+- Issue 795: Pozdnyakov_2025_lmKAN ✅ r002审查通过 - 12处引用准确，KART定理描述正确
+- Issue 797: Lee_2024_HiPPO_KAN ✅ r002审查通过 - P0问题已解决，6处引用核实
+- Issue 798: Revay_2021_Recurrent_Equilibrium ✅ r002审查通过 - 10处引用准确，虚假声明问题已解决
+- Issue 800: Liu_2024_KAN ✅ r002审查通过 - 10处引用准确，内容分析详实
+
+### 2个Issue续审 (796/799)
+- Issue 796: Jarraya_2025_SOH_KLSTM ⚠️ r002续审 - 仅4处引用，需补充至10处
+- Issue 799: Rodriguez_Linhares_2025 ⚠️ r002续审 - 3处行号偏移需修正(63→65, 88→89)
+
+## Round 190 规划完成
+
+### 0个新Issue开启
+- 当前仅2个Issue开放(796/799)，由执行者修正后提交复查
+
+## Round 历史
+
+| Round | Date | Issue数 | 状态 |
+|-------|------|---------|------|
+| 190 | 2026-04-03 13:20 | 8→2 | ✅ 6关闭(793/794/795/797/798/800), 2续审(796/799) |
+| 189 | 2026-04-03 13:05 | 0→8 | ✅ 1关闭(791), 8新开(793-800) |
+| 188 | 2026-04-03 13:00 | 8→1 | ✅ 3关闭(782/787/792), 1关闭(791), 7续审(708/550/710/548/264/707/499) |
+| 187 | 2026-04-03 12:41 | 8→4 | ✅ 6关闭(783/784/785/786/788/789), 2续审(782/787), 2新开(791/792) |
+| 186 | 2026-04-03 12:30 | 8→8 | ✅ 3关闭(778/779/780), 4续审(782-785), 4新开(786-789) |
+| 185 | 2026-04-03 12:17 | 7→7 | 🔄 5关闭(771/772/774/776/781), 3续审(778/779/780), 4新开(782/783/784/785) |
+| 184 | 2026-04-03 12:12 | 8→8 | 🔄 4关闭(771/772/774/776), 4续审(778/779/780/781) |
+| 183 | 2026-04-03 11:41 | 8→4 | 🔄 4关闭(764/765/773/775), 4续审(771/772/774/776) |
+| 182 | 2026-04-03 10:50 | 8→8 | 🔄 3续审(764/765/771), 5新开(772-776) |
+| 181 | 2026-04-03 10:39 | 8→3 | ✅ 5关闭(755/758/761/767/769), 3续审(764/765/771) |
+| 180 | 2026-04-03 10:15 | 7→8 | 🔄 1关闭(762), 6续审(755/758/761/764/765/767), 1待响应(769), 1新开(771) |
+| 179 | 2026-04-03 09:52 | 7→8 | 🔄 1关闭(766), 7续审(755/758/761/762/764/765/767), 1新开(769) |
+| 178 | 2026-04-03 09:26 | 5→8 | 🔄 3关闭(753/757/763), 5续审, 3新开(765-767) |
+| 177 | 2026-04-03 09:09 | 8→5 | 🔄 4关闭(753/757/763+已关闭754/756/759/760), 4续审, 4新开(761-764) |

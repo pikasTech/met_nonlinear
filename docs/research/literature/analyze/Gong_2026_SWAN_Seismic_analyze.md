@@ -41,28 +41,74 @@
 ### 直接支持
 
 **论文证明了什么**：
-- 大规模多样化数据集对深度学习模型的跨领域泛化至关重要（原文第331行）："This diversity allows the learning model to acquire a statistically stable prior that captures essential kinematic and dynamic properties"
-- 标准化预处理流程对跨测量泛化有重要影响（原文第339行）："These procedures eliminate survey-specific preprocessing variations that often hinder cross-survey learning"
+- 大规模多样化数据集对深度学习模型的跨领域泛化至关重要（原文第331行，英文段落与标题同行）："This diversity allows the learning model to acquire a statistically stable prior that captures essential kinematic and dynamic properties"
+- 标准化预处理流程对跨测量泛化有重要影响（原文第339行）："These procedures eliminate survey-specific preprocessing variations that often hinder cross-survey learning in seismic applications"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
-- 本文的标准化数据集构建方法对MET非线性问题的实验测量和数据集划分有参考价值
-- 论文的评估框架对FRIKAN/Wiener-KAN的实验设计有参考意义
+
+### 1. 数据集构建方法的具体参考价值
+
+本文的标准化数据集构建方法对MET非线性问题的实验测量有参考价值，具体体现在：
+
+**数据预处理标准化**：
+- SWAN采用统一的128×128补丁大小、步长128样本的滑动窗口提取方法
+- 使用最大绝对振幅归一化（值域[-1,1]），消除了特定勘探数据的缩放需求
+- MET传感器实验测量可借鉴这种标准化流程，确保不同测量条件下的数据可比性
+
+**元数据记录规范**：
+- SWAN为每个补丁记录采集几何、归一化因子、空间上下文、质量指标等元数据
+- 这种详细的元数据记录方式可应用于MET传感器的温度、震级等实验条件记录
+
+**质量控制规则**：
+- SWAN自动过滤超过90%零值的补丁
+- 可为MET数据集提供类似的质量控制标准，确保有效信号保留
+
+### 2. 扩散模型与Wiener-KAN方法的可比性分析
+
+**核心差异**：
+| 方面 | RGDM扩散模型 | Wiener-KAN方法 |
+|------|-------------|---------------|
+| 问题类型 | 地震数据重建（空间插值） | 频率响应漂移补偿（时间序列） |
+| 目标 | 恢复缺失的空间采样点 | 跟踪和补偿随时间变化的频率响应 |
+| 数学框架 | 扩散概率模型 | Wiener非线性系统辨识 |
+| 处理域 | 空间域（2D图像） | 频率域/时间域 |
+
+**潜在启发**：
+- RGDM的"残差引导"思想可用于Wiener-KAN的误差校正机制
+- 扩散模型的多步渐进式修正思路可为Wiener-KAN的迭代补偿提供参考
+- 但两者问题本质不同，直接应用难度较大
+
+### 3. 地震数据处理与MET频率漂移补偿的本质差异
+
+**信号类型差异**：
+- 地震数据：空间采样的波场图像（2D/3D），关注空间连续性和事件几何
+- MET频率响应：时变的幅度和相位响应，关注时间跟踪和补偿
+
+**误差来源差异**：
+- 地震数据处理误差：采样不完整、噪声污染、采集不规则
+- MET频率漂移误差：温度变化、震级依赖性、元器件老化
+
+**评价指标差异**：
+- 地震数据：信噪比(SNR)、结构相似性(SSIM)
+- MET频率响应：幅度误差、相位误差、补偿后的预测精度
+
+论文的评估框架对FRIKAN/Wiener-KAN的实验设计有参考意义，但具体方法需针对MET问题特性进行适配。
 
 ## 精确行号引用
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
 | 第41行 | SWAN数据集规模：537,373个128×128补丁 |
-| 第331行 | "This diversity allows the learning model to acquire a statistically stable prior" |
-| 第339行 | "These procedures eliminate survey-specific preprocessing variations" |
-| 第343-345行 | RGDM的残差引导扩散机制说明 |
+| 第331行（英文段落，与标题同行） | "This diversity allows the learning model to acquire a statistically stable prior" |
+| 第339行 | "These procedures eliminate survey-specific preprocessing variations that often hinder cross-survey learning in seismic applications" |
+| 第343-345行（残差引导扩散机制） | RGDM的残差引导扩散机制说明（残差引导机制在第343-345行详细阐述，对比经典扩散模型） |
 
 ## 关键原文段落摘录
 
 ### 段落1（关于数据集多样性）
 
 > "This diversity allows the learning model to acquire a statistically stable prior that captures essential kinematic and dynamic properties of seismic reflections."
-> （第331行）
+> （第331行，与英文小节标题"5.1. Generalization Enabled by SWAN."同行）
 
 ### 段落2（关于标准化流程）
 

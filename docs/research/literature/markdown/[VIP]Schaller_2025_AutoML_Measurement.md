@@ -402,9 +402,9 @@ The performance metrics of our proposed AutoML-Drift Compensation (AutoML-DC) mo
 
 表1列出了我们提出的用于漂移补偿设置的自动机器学习漂移补偿(AutoML-DC)模型在准确率、精确率、召回率和F1分数方面的性能指标。每个模型对学习到的集成贡献一定的权重。我们使用元学习技术、自动特征预处理技术以及早期停止和自动集成学习方法。为了了解这些技术的影响，我们将在以下小节中进行消融研究。
 
-The simultaneous usage of all AutoML techniques in the AutoML-CD model delivers a 76% score, which is a performance improvement of 16% compared to the other benchmarking models.
+The simultaneous usage of all AutoML techniques in the AutoML-DC model delivers a 76% score, which is a performance improvement of 16% compared to the other benchmarking models.
 
-在AutoML-CD模型中同时使用所有自动机器学习技术可获得高达76%的分数，与其他基准模型相比，性能提高了16%。
+在AutoML-DC模型中同时使用所有自动机器学习技术可获得高达76%的分数，与其他基准模型相比，性能提高了16%。
 
 The AutoML-DC model for the drift compensation setting consists of eight models composed through automated ensemble learning. These eight models comprise five variations of Random Forest models, constituting 85% of the overall ensemble. Additionally, there are two variants of Multi-Layer Perceptron (MLP) models with early stopping and Tanh activation function, contributing 10% in total, and one Passive Aggressive algorithm accounting for 50% of the entire ensemble. This composition indicates that the ensemble is strongly dominated by Random Forests with different regularization strengths, enabling the model to effectively learn and capture both local and global trends in the data. The possibility of AutoML techniques to combine different regularizations of the Random Forest is the most obvious advantage to capture the sensor drift pattern.
 

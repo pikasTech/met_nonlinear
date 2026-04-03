@@ -1,0 +1,6402 @@
+[
+  {
+    "page": 1,
+    "line": 1,
+    "text": "Nonlinear System Identification Nano-drone Benchmark"
+  },
+  {
+    "page": 1,
+    "line": 2,
+    "text": "RiccardoBusetto*1,EliaCereda*1,MarcoForgione1,GabrieleMaroni1,DarioPiga1,andDaniele"
+  },
+  {
+    "page": 1,
+    "line": 3,
+    "text": "Palossi1,2"
+  },
+  {
+    "page": 1,
+    "line": 4,
+    "text": "1DalleMolleInstituteforArtificialIntelligence(IDSIA),USI-SUPSI,Lugano,Switzerland"
+  },
+  {
+    "page": 1,
+    "line": 5,
+    "text": "name.surname@supsi.ch"
+  },
+  {
+    "page": 1,
+    "line": 6,
+    "text": "2IntegratedSystemsLaboratory(IIS),ETHZürich,Switzerland"
+  },
+  {
+    "page": 1,
+    "line": 7,
+    "text": "dpalossi@iis.ee.ethz.ch"
+  },
+  {
+    "page": 1,
+    "line": 8,
+    "text": "Abstract"
+  },
+  {
+    "page": 1,
+    "line": 9,
+    "text": "ited. While public datasets exist, they typically focus on"
+  },
+  {
+    "page": 1,
+    "line": 10,
+    "text": "perception-centrictaskssuchasvisual-inertialodometryor"
+  },
+  {
+    "page": 1,
+    "line": 11,
+    "text": "Weintroduceabenchmarkforsystemidentificationbased SimultaneousLocalizationandMapping(SLAM)[6,7,8],"
+  },
+  {
+    "page": 1,
+    "line": 12,
+    "text": "on75kreal-worldsamplesfromtheCrazyflie2.1Brushless rather than dynamical modeling or system identification."
+  },
+  {
+    "page": 1,
+    "line": 13,
+    "text": "nano-quadrotor, a sub-50g aerial vehicle widely adopted Evenwhenhigh-qualityflightdataisavailablefromaggres-"
+  },
+  {
+    "page": 1,
+    "line": 14,
+    "text": "in robotics research. The platform presents a challenging siveflightsequencesasin[9],itistypicallyprovidedasa"
+  },
+  {
+    "page": 1,
+    "line": 15,
+    "text": "testbedduetoitsmulti-input,multi-outputnature,open-loop resourcetosupportaspecificmethod,ratherthanasastruc-"
+  },
+  {
+    "page": 1,
+    "line": 16,
+    "text": "instability,andnonlineardynamicsunderagilemaneuvers. turedbenchmarkwithunifiedevaluationmetricsanddiverse"
+  },
+  {
+    "page": 1,
+    "line": 17,
+    "text": "Thedatasetcomprisesfouraggressivetrajectorieswithsyn- baselines. This leaves a gap for researchers who wish to"
+  },
+  {
+    "page": 1,
+    "line": 18,
+    "text": "chronized4-dimensionalmotorinputsand13-dimensional rapidlytestandcomparenewidentificationalgorithmswith-"
+  },
+  {
+    "page": 1,
+    "line": 19,
+    "text": "output measurements. To enable fair comparison of outtheburdenofdesigningtheirownevaluationprotocols"
+  },
+  {
+    "page": 1,
+    "line": 20,
+    "text": "identification methods, the benchmark includes a suite orreferenceimplementations."
+  },
+  {
+    "page": 1,
+    "line": 21,
+    "text": "of multi-horizon prediction metrics for evaluating both"
+  },
+  {
+    "page": 1,
+    "line": 22,
+    "text": "This gap is critical for miniaturized platforms, such as"
+  },
+  {
+    "page": 1,
+    "line": 23,
+    "text": "one-stepandmulti-steperrorpropagation. Inadditiontothe"
+  },
+  {
+    "page": 1,
+    "line": 24,
+    "text": "nano-drones(quadrotorswithamassbelow50gandadi-"
+  },
+  {
+    "page": 1,
+    "line": 25,
+    "text": "data,weprovideadetaileddescriptionoftheplatformand"
+  },
+  {
+    "page": 1,
+    "line": 26,
+    "text": "ameterbelow10cm),whoseadoptionhasskyrocketeddue"
+  },
+  {
+    "page": 1,
+    "line": 27,
+    "text": "experimentalsetup,aswellasbaselinemodelshighlighting"
+  },
+  {
+    "page": 1,
+    "line": 28,
+    "text": "to their low cost and suitability for safe indoor operation"
+  },
+  {
+    "page": 1,
+    "line": 29,
+    "text": "the challenge of accurate prediction under real-world ([10,11]). Yetnano-dronesoperateinauniquelychalleng-"
+  },
+  {
+    "page": 1,
+    "line": 30,
+    "text": "noise and actuation nonlinearities. All data, scripts, and"
+  },
+  {
+    "page": 1,
+    "line": 31,
+    "text": "ingdynamicalregime: theirextremelylowmassandcom-"
+  },
+  {
+    "page": 1,
+    "line": 32,
+    "text": "reference implementations are released as open-source"
+  },
+  {
+    "page": 1,
+    "line": 33,
+    "text": "pactgeometrylimitthethrustandtorquegeneratedbytheir"
+  },
+  {
+    "page": 1,
+    "line": 34,
+    "text": "at https://github.com/idsia-robotics/"
+  },
+  {
+    "page": 1,
+    "line": 35,
+    "text": "motorsandpropellers.Consequently,theyaremoresensitive"
+  },
+  {
+    "page": 1,
+    "line": 36,
+    "text": "nanodrone-sysid-benchmarktofacilitatetranspar-"
+  },
+  {
+    "page": 1,
+    "line": 37,
+    "text": "todisturbancesandlesscapableofrapidcorrectiveaction,"
+  },
+  {
+    "page": 1,
+    "line": 38,
+    "text": "entcomparisonofalgorithmsandsupportresearchonagile,"
+  },
+  {
+    "page": 1,
+    "line": 39,
+    "text": "makingthemsignificantlymorechallengingtomodeland"
+  },
+  {
+    "page": 1,
+    "line": 40,
+    "text": "miniaturizedaerialrobotics."
+  },
+  {
+    "page": 1,
+    "line": 41,
+    "text": "controlduringagileflightcomparedtostandard-sizedvehi-"
+  },
+  {
+    "page": 1,
+    "line": 42,
+    "text": "cles. Therefore,thisemergingroboticplatformrepresents"
+  },
+  {
+    "page": 1,
+    "line": 43,
+    "text": "Keywords: Nonlinearsystemidentification,Benchmarks,"
+  },
+  {
+    "page": 1,
+    "line": 44,
+    "text": "acompellingcandidateforournovelsystemidentification"
+  },
+  {
+    "page": 1,
+    "line": 45,
+    "text": "Quadrotor"
+  },
+  {
+    "page": 1,
+    "line": 46,
+    "text": "benchmark."
+  },
+  {
+    "page": 1,
+    "line": 47,
+    "text": "Despitethesechallengesandthegrowingscientificinter-"
+  },
+  {
+    "page": 1,
+    "line": 48,
+    "text": "1 Introduction estinsuchplatforms,thereiscurrentlynopubliclyavailable"
+  },
+  {
+    "page": 1,
+    "line": 49,
+    "text": "benchmark that provides real flight data for nano-drones,"
+  },
+  {
+    "page": 1,
+    "line": 50,
+    "text": "Standardizedbenchmarksplayacentralroleinaccelerating togetherwithawell-definedevaluationprotocolsuitablefor"
+  },
+  {
+    "page": 1,
+    "line": 51,
+    "text": "scientificprogressbyenablingfaircomparison,reproducibil- systemidentificationandcontrol. Existingdatasetsforsmall"
+  },
+  {
+    "page": 1,
+    "line": 52,
+    "text": "ity,andrapidtestingofnewalgorithms. Theirimpacthas aerial vehicles either offer limited scope, target different"
+  },
+  {
+    "page": 1,
+    "line": 53,
+    "text": "beenparticularlyevidentinmachinelearninganddeeplearn- tasks,orlackthestructurerequiredforsystematicalgorith-"
+  },
+  {
+    "page": 1,
+    "line": 54,
+    "text": "ing, where well-defined datasets and evaluation protocols mic comparison [12]. As a result, researchers must often"
+  },
+  {
+    "page": 1,
+    "line": 55,
+    "text": "havecatalyzedmajor breakthroughs[1, 2, 3]. Inthefield collecttheirowntrajectorydata,whichistypicallyrestricted"
+  },
+  {
+    "page": 1,
+    "line": 56,
+    "text": "of system identification, the Nonlinear Benchmark Initia- to simple maneuvers or narrow experimental conditions,"
+  },
+  {
+    "page": 1,
+    "line": 57,
+    "text": "tive [4, 5]1 serves a similar purpose by promoting repro- therebypreventingreproducibilityandslowingprogress."
+  },
+  {
+    "page": 1,
+    "line": 58,
+    "text": "ducible and comparable research efforts, highlighting the Inthiswork,weintroduceabenchmarkspecificallyde-"
+  },
+  {
+    "page": 1,
+    "line": 59,
+    "text": "importanceofhigh-qualitydatasetsandreferencemethods signedtoaddressthisgap. Thebenchmarkisbuiltaround"
+  },
+  {
+    "page": 1,
+    "line": 60,
+    "text": "forrigorousandcomparableevaluation. theCrazyflie2.1Brushlessnano-quadrotor,acommercially"
+  },
+  {
+    "page": 1,
+    "line": 61,
+    "text": "However, within the domain of aerial robotics, the available,open-sourcehardwareandsoftware/firmwareplat-"
+  },
+  {
+    "page": 1,
+    "line": 62,
+    "text": "availabilityofsuchstandardizedbenchmarksremainslim- formthathasrecentlygainedtractioninroboticsandcontrol"
+  },
+  {
+    "page": 1,
+    "line": 63,
+    "text": "research[13,14,10]. Despiteitssmallsize,theCrazyflie"
+  },
+  {
+    "page": 1,
+    "line": 64,
+    "text": "*Equal contribution. Corresponding author:"
+  },
+  {
+    "page": 1,
+    "line": 65,
+    "text": "name.surname@supsi.ch exhibitscomplexnon-lineardynamics,asitisamulti-input"
+  },
+  {
+    "page": 1,
+    "line": 66,
+    "text": "1availableathttps://www.nonlinearbenchmark.org/ multi-output systemthatisinherentlyopen-loopunstable,"
+  },
+  {
+    "page": 1,
+    "line": 67,
+    "text": "1"
+  },
+  {
+    "page": 1,
+    "line": 68,
+    "text": "5202"
+  },
+  {
+    "page": 1,
+    "line": 69,
+    "text": "ceD"
+  },
+  {
+    "page": 1,
+    "line": 70,
+    "text": "61"
+  },
+  {
+    "page": 1,
+    "line": 71,
+    "text": "]YS.ssee["
+  },
+  {
+    "page": 1,
+    "line": 72,
+    "text": "1v05441.2152:viXra"
+  },
+  {
+    "page": 2,
+    "line": 1,
+    "text": "displaying strongly nonlinear behavior when operated in"
+  },
+  {
+    "page": 2,
+    "line": 2,
+    "text": "aggressiveconditions. Thesecharacteristicsmakeitanap-"
+  },
+  {
+    "page": 2,
+    "line": 3,
+    "text": "pealingandchallengingtestbedfornonlinearsystemidenti-"
+  },
+  {
+    "page": 2,
+    "line": 4,
+    "text": "ficationandmodel-basedcontrol."
+  },
+  {
+    "page": 2,
+    "line": 5,
+    "text": "Theprimarycontributionofthisworkisaready-to-use,"
+  },
+  {
+    "page": 2,
+    "line": 6,
+    "text": "high-qualitybenchmarkthat,tothebestofourknowledge,"
+  },
+  {
+    "page": 2,
+    "line": 7,
+    "text": "constitutesthefirstpubliclyavailabledatasetofrealflighttra-"
+  },
+  {
+    "page": 2,
+    "line": 8,
+    "text": "jectoriescollectedonanano-drone. Importantly,thedataset"
+  },
+  {
+    "page": 2,
+    "line": 9,
+    "text": "not only covers favorable or quasi-static motion, but also"
+  },
+  {
+    "page": 2,
+    "line": 10,
+    "text": "includesaggressivemaneuversthatchallengethedynamics"
+  },
+  {
+    "page": 2,
+    "line": 11,
+    "text": "ofsuchasmallplatformandexposethedifficultyofachiev-"
+  },
+  {
+    "page": 2,
+    "line": 12,
+    "text": "ingaccuratemulti-steppredictiononhighlyagilenano-scale"
+  },
+  {
+    "page": 2,
+    "line": 13,
+    "text": "vehicles. Specifically,thebenchmarkprovides:"
+  },
+  {
+    "page": 2,
+    "line": 14,
+    "text": "Figure1: Crazyflie2.1Brushlessnano-drone."
+  },
+  {
+    "page": 2,
+    "line": 15,
+    "text": "1. Athoroughly-collecteddatasetofrealflighttrajecto-"
+  },
+  {
+    "page": 2,
+    "line": 16,
+    "text": "riesrecordedusingsynchronizedonboardsensingand Table1: Aerialdronestaxonomybyvehicleclass-size."
+  },
+  {
+    "page": 2,
+    "line": 17,
+    "text": "motion-capturegroundtruth,specificallydesignedto"
+  },
+  {
+    "page": 2,
+    "line": 18,
+    "text": "excitethesystemacrossabroaddynamicrange. The Vehicleclass Diameter Weight Power Device"
+  },
+  {
+    "page": 2,
+    "line": 19,
+    "text": "datasetallowsforanasisuse,withoutrequiringaccess"
+  },
+  {
+    "page": 2,
+    "line": 20,
+    "text": "standard-size ≥50cm ≥1kg ≥100W GPU"
+  },
+  {
+    "page": 2,
+    "line": 21,
+    "text": "tocostlyhardwareormotion-captureinfrastructure. micro-size ∼25cm ∼500g ∼50W CPU"
+  },
+  {
+    "page": 2,
+    "line": 22,
+    "text": "nano-size ∼10cm ∼50g ∼5W MCU"
+  },
+  {
+    "page": 2,
+    "line": 23,
+    "text": "2. Afullyspecifiedevaluationprotocolbasedonmulti-"
+  },
+  {
+    "page": 2,
+    "line": 24,
+    "text": "pico-size ≤2cm ≤5g ≤0.1W ULP"
+  },
+  {
+    "page": 2,
+    "line": 25,
+    "text": "step-aheadprediction,enablingconsistentandtranspar-"
+  },
+  {
+    "page": 2,
+    "line": 26,
+    "text": "entcomparisonofidentificationmethods."
+  },
+  {
+    "page": 2,
+    "line": 27,
+    "text": "collectionmethodologies. InTable1,wereportataxonomy"
+  },
+  {
+    "page": 2,
+    "line": 28,
+    "text": "3. Reference baseline models, including a nominal"
+  },
+  {
+    "page": 2,
+    "line": 29,
+    "text": "onaerialvehicles,commonlyusedintheroboticscommu-"
+  },
+  {
+    "page": 2,
+    "line": 30,
+    "text": "physicsmodel,ahybridphysics–learningarchitecture,"
+  },
+  {
+    "page": 2,
+    "line": 31,
+    "text": "nity. Ourtaxonomyreportsthediameter,weight,totalpower"
+  },
+  {
+    "page": 2,
+    "line": 32,
+    "text": "andpurelydata-drivenmodels,illustratingtheintrinsic"
+  },
+  {
+    "page": 2,
+    "line": 33,
+    "text": "consumption (both motors and electronics), and onboard"
+  },
+  {
+    "page": 2,
+    "line": 34,
+    "text": "difficultyofthetaskandprovidingstartingpointsfor"
+  },
+  {
+    "page": 2,
+    "line": 35,
+    "text": "processing device of the platforms. The class of devices"
+  },
+  {
+    "page": 2,
+    "line": 36,
+    "text": "futureresearch."
+  },
+  {
+    "page": 2,
+    "line": 37,
+    "text": "availableonboardisadirectconsequenceofthetotalpower"
+  },
+  {
+    "page": 2,
+    "line": 38,
+    "text": "4. Open-sourcedataandcode,loweringthebarrierto envelopeavailable,asonly∼15%ofthistotalcanbespent"
+  },
+  {
+    "page": 2,
+    "line": 39,
+    "text": "entryforsystemidentificationandcontrolstudieson ontheelectronics(bothsensingandcomputing),see[15]."
+  },
+  {
+    "page": 2,
+    "line": 40,
+    "text": "agile,miniaturizedaerialplatforms. Standard-sized drones have a diameter of more than"
+  },
+  {
+    "page": 2,
+    "line": 41,
+    "text": "50cm, a total power envelope of more than 100W, and"
+  },
+  {
+    "page": 2,
+    "line": 42,
+    "text": "5. A calibrated motor-speed mapping, extending the a payload that allows them to afford powerful CPUs and"
+  },
+  {
+    "page": 2,
+    "line": 43,
+    "text": "off-the-shelf drone’s firmware with the bidirectional GPUs[16]. Micro-sizeddronesareslightlysmallerinsize,"
+  },
+  {
+    "page": 2,
+    "line": 44,
+    "text": "DSHOTprotocolforaccuratetelemetryofthemotor but with a lower total power envelope of approximately"
+  },
+  {
+    "page": 2,
+    "line": 45,
+    "text": "speeds(RPM). 50W, they can still host powerful embedded CPUs, such"
+  },
+  {
+    "page": 2,
+    "line": 46,
+    "text": "asNVIDIAJetson/Xavierdevices. Nano-sizeddrones,with"
+  },
+  {
+    "page": 2,
+    "line": 47,
+    "text": "Theremainderofthepaperisorganizedasfollows. Sec-"
+  },
+  {
+    "page": 2,
+    "line": 48,
+    "text": "theirsub-50gweightandafew100smWforonboardpro-"
+  },
+  {
+    "page": 2,
+    "line": 49,
+    "text": "tion 2 surveys the relevant literature, identifies the main"
+  },
+  {
+    "page": 2,
+    "line": 50,
+    "text": "cessing, can only afford resource-constrained MicroCon-"
+  },
+  {
+    "page": 2,
+    "line": 51,
+    "text": "shortcomings of existing datasets and identification stud-"
+  },
+  {
+    "page": 2,
+    "line": 52,
+    "text": "trollerUnits(MCUs),featuringafew100skBon-chipmem-"
+  },
+  {
+    "page": 2,
+    "line": 53,
+    "text": "ies,andfurthermotivatesthecontributionspresentedinthis"
+  },
+  {
+    "page": 2,
+    "line": 54,
+    "text": "ories. Finally,thesmallerclassofvehiclesisrepresentedby"
+  },
+  {
+    "page": 2,
+    "line": 55,
+    "text": "work. Section3providesadetaileddescriptionofquadrotor"
+  },
+  {
+    "page": 2,
+    "line": 56,
+    "text": "pico-sizedUAVs,whichareassmallasacoinbutremain"
+  },
+  {
+    "page": 2,
+    "line": 57,
+    "text": "operation, introducing the notation, conventions, and the"
+  },
+  {
+    "page": 2,
+    "line": 58,
+    "text": "outofreachforwidespreadadoption[15]andwouldrequire"
+  },
+  {
+    "page": 2,
+    "line": 59,
+    "text": "fundamentaldynamicmodel. Section4presentsthespecific"
+  },
+  {
+    "page": 2,
+    "line": 60,
+    "text": "Ultra-LowPower(ULP)chips,consumingonlyafewtens"
+  },
+  {
+    "page": 2,
+    "line": 61,
+    "text": "Crazyflie platform and the experimental setup employed"
+  },
+  {
+    "page": 2,
+    "line": 62,
+    "text": "ofmW."
+  },
+  {
+    "page": 2,
+    "line": 63,
+    "text": "for data acquisition. In Section 5, we describe in detail"
+  },
+  {
+    "page": 2,
+    "line": 64,
+    "text": "Inthiscontext,themajorityofpubliclyavailabledatasets"
+  },
+  {
+    "page": 2,
+    "line": 65,
+    "text": "theexecutedtrajectoriesandtheresultingdataset,including"
+  },
+  {
+    "page": 2,
+    "line": 66,
+    "text": "havebeendevelopedeitherforstandard-sizedmultirotors"
+  },
+  {
+    "page": 2,
+    "line": 67,
+    "text": "preprocessingandtheproposedevaluationstrategyforthis"
+  },
+  {
+    "page": 2,
+    "line": 68,
+    "text": "orforperception-focusedtasks,withonlylimitedattention"
+  },
+  {
+    "page": 2,
+    "line": 69,
+    "text": "benchmark. Section6introducesseveralbaselinemodels,"
+  },
+  {
+    "page": 2,
+    "line": 70,
+    "text": "giventodynamicalmodelingofnano-scalevehicles. This"
+  },
+  {
+    "page": 2,
+    "line": 71,
+    "text": "rangingfromapurelyphysics-basedformulationtoblack-"
+  },
+  {
+    "page": 2,
+    "line": 72,
+    "text": "sectionreviewsthemostrelevanteffortsandhighlightsthe"
+  },
+  {
+    "page": 2,
+    "line": 73,
+    "text": "boxapproaches,forperformingN-step-aheadpredictions."
+  },
+  {
+    "page": 2,
+    "line": 74,
+    "text": "absenceofbenchmarkstailoredtonano-quadrotorsystem"
+  },
+  {
+    "page": 2,
+    "line": 75,
+    "text": "Finally,Section7concludesthepaperbyhighlightingthe"
+  },
+  {
+    "page": 2,
+    "line": 76,
+    "text": "identification."
+  },
+  {
+    "page": 2,
+    "line": 77,
+    "text": "mainchallengesandoutliningpotentialdirectionsforfuture"
+  },
+  {
+    "page": 2,
+    "line": 78,
+    "text": "research."
+  },
+  {
+    "page": 2,
+    "line": 79,
+    "text": "Aggressivenessoftrajectories Intheaerialroboticsliter-"
+  },
+  {
+    "page": 2,
+    "line": 80,
+    "text": "ature,atrajectoryistypicallyconsideredasaggressivewhen"
+  },
+  {
+    "page": 2,
+    "line": 81,
+    "text": "2 Related Work itdrivesthevehiclethroughfasttranslationalorrotational"
+  },
+  {
+    "page": 2,
+    "line": 82,
+    "text": "motions relative to its actuation capabilities. Concretely,"
+  },
+  {
+    "page": 2,
+    "line": 83,
+    "text": "Researchonquadrotorsystemidentificationencompasses aggressiveflightischaracterizedby(i)translationalspeeds"
+  },
+  {
+    "page": 2,
+    "line": 84,
+    "text": "a wide range of platforms, modeling objectives, and data exceeding2–3m/sfornano-scaleplatforms(and>10m/s"
+  },
+  {
+    "page": 2,
+    "line": 85,
+    "text": "2"
+  },
+  {
+    "page": 3,
+    "line": 1,
+    "text": "forlargermultirotors),(ii)angularratesabove400–600◦/s, the need for a dedicated nano-drone benchmark, as intro-"
+  },
+  {
+    "page": 3,
+    "line": 2,
+    "text": "or (iii) linear accelerations approaching or exceeding 1–2 ducedinthiswork. Indeed, tothebestofourknowledge,"
+  },
+  {
+    "page": 3,
+    "line": 3,
+    "text": "timesgravity. Suchtrajectoriesinduceactuatorsaturation, nopubliclyavailablebenchmarkprovidesreal,aggressive"
+  },
+  {
+    "page": 3,
+    "line": 4,
+    "text": "strongaxiscouplings,andaerodynamiceffectsfarfromnear- flightdataforanano-quadrotortogetherwithastandardized"
+  },
+  {
+    "page": 3,
+    "line": 5,
+    "text": "hoverconditions, allofwhichareessentialforevaluating system-identification protocol and baseline models. The"
+  },
+  {
+    "page": 3,
+    "line": 6,
+    "text": "nonlinearsystem-identificationalgorithms. presentworkfillsthisgapbyreleasingacompletebench-"
+  },
+  {
+    "page": 3,
+    "line": 7,
+    "text": "marktailoredforcontrolandsystemidentification."
+  },
+  {
+    "page": 3,
+    "line": 8,
+    "text": "2.1 SystemIdentificationonLargerQuadro-"
+  },
+  {
+    "page": 3,
+    "line": 9,
+    "text": "tors"
+  },
+  {
+    "page": 3,
+    "line": 10,
+    "text": "Severalhigh-fidelityidentificationstudiestargetcustomor 3 Quadrotor Model"
+  },
+  {
+    "page": 3,
+    "line": 11,
+    "text": "commercialmultirotorsequippedwithspecializedsensing."
+  },
+  {
+    "page": 3,
+    "line": 12,
+    "text": "Sunetal.[17]performgray-boxidentificationofastandard-"
+  },
+  {
+    "page": 3,
+    "line": 13,
+    "text": "3.1 Notation"
+  },
+  {
+    "page": 3,
+    "line": 14,
+    "text": "sizedquadrotorusinghigh-speedflightdatarecordedinthe"
+  },
+  {
+    "page": 3,
+    "line": 15,
+    "text": "OpenJetFacilitywindtunnel,revealingstrongaerodynamic"
+  },
+  {
+    "page": 3,
+    "line": 16,
+    "text": "Throughoutthispaper,scalarsaredenotedbyregularletters"
+  },
+  {
+    "page": 3,
+    "line": 17,
+    "text": "interactions at high speed. Bauersfeld et al. [9] propose"
+  },
+  {
+    "page": 3,
+    "line": 18,
+    "text": "s,S,vectorsbylowercaseboldsymbolsv,andmatricesby"
+  },
+  {
+    "page": 3,
+    "line": 19,
+    "text": "the NeuroBEM hybrid aerodynamic model for a custom"
+  },
+  {
+    "page": 3,
+    "line": 20,
+    "text": "uppercase bold symbols M. The quadrotor dynamics are"
+  },
+  {
+    "page": 3,
+    "line": 21,
+    "text": "quadrotor,usingaggressivefree-flighttrajectoriescollected"
+  },
+  {
+    "page": 3,
+    "line": 22,
+    "text": "formulated using two right-handed reference frames: the"
+  },
+  {
+    "page": 3,
+    "line": 23,
+    "text": "inside a large 25×25×8m motion-capture arena. While"
+  },
+  {
+    "page": 3,
+    "line": 24,
+    "text": "inertialworldframeW,withaxes{x ,y ,z },fixedto"
+  },
+  {
+    "page": 3,
+    "line": 25,
+    "text": "these datasets provide rich aerodynamic information, the W W W"
+  },
+  {
+    "page": 3,
+    "line": 26,
+    "text": "thegroundandorientedsuchthatz pointsupward;andthe"
+  },
+  {
+    "page": 3,
+    "line": 27,
+    "text": "platformsaresignificantlylargerthannano-quadrotorsand W"
+  },
+  {
+    "page": 3,
+    "line": 28,
+    "text": "bodyframeB,attachedtothevehicle,withoriginatthecen-"
+  },
+  {
+    "page": 3,
+    "line": 29,
+    "text": "relyonexpensive,non-standardinfrastructure."
+  },
+  {
+    "page": 3,
+    "line": 30,
+    "text": "terofmass,andequippedwithaxes{x ,y ,z }oriented"
+  },
+  {
+    "page": 3,
+    "line": 31,
+    "text": "TheDronePropAdataset[18]focusesonfaultdetectionin B B B"
+  },
+  {
+    "page": 3,
+    "line": 32,
+    "text": "asshowninFig.2. TheorientationofBwithrespecttoW"
+  },
+  {
+    "page": 3,
+    "line": 33,
+    "text": "astandard-sized1.5kgquadrotorandincludes130flightse-"
+  },
+  {
+    "page": 3,
+    "line": 34,
+    "text": "isrepresentedbyaunitHamiltonquaternionq∈Hfollow-"
+  },
+  {
+    "page": 3,
+    "line": 35,
+    "text": "quenceswithvariouspropellerdefects. Althoughextensive,"
+  },
+  {
+    "page": 3,
+    "line": 36,
+    "text": "ing the scalar-last convention, i.e., q = [q , q , q , q ]⊤"
+  },
+  {
+    "page": 3,
+    "line": 37,
+    "text": "ittargetshealthmonitoringratherthanpredictivemodeling, x y z w"
+  },
+  {
+    "page": 3,
+    "line": 38,
+    "text": "with ∥q∥ = 1. The set of all unit quaternions forms the"
+  },
+  {
+    "page": 3,
+    "line": 39,
+    "text": "andtheplatformsizeplacesitfarfromthedynamicalregime"
+  },
+  {
+    "page": 3,
+    "line": 40,
+    "text": "three-dimensional sphere S3 = {q ∈ H | ∥q∥ = 1}."
+  },
+  {
+    "page": 3,
+    "line": 41,
+    "text": "ofsub-50gnano-scalevehicles."
+  },
+  {
+    "page": 3,
+    "line": 42,
+    "text": "Each unit quaternion q ∈ S3 is associated with a rota-"
+  },
+  {
+    "page": 3,
+    "line": 43,
+    "text": "tion matrix R(q) ∈ SO(3) through a smooth mapping"
+  },
+  {
+    "page": 3,
+    "line": 44,
+    "text": "2.2 Nano-QuadrotorIdentification R : S3 → SO(3). Finally, theoperator⊗denotesquater-"
+  },
+  {
+    "page": 3,
+    "line": 45,
+    "text": "nionmultiplication."
+  },
+  {
+    "page": 3,
+    "line": 46,
+    "text": "Onlyalimitednumberofworksconsidernano-scaleplat-"
+  },
+  {
+    "page": 3,
+    "line": 47,
+    "text": "forms. Szécsietal.[12]studydeep-learning-basedidenti- Unlessotherwisespecified,vectorsareexpressedinworld"
+  },
+  {
+    "page": 3,
+    "line": 48,
+    "text": "fication of a Crazyflie 2.1 using simulation data, without coordinates;e.g.,pdenotesthepositionofthedrone’scenter"
+  },
+  {
+    "page": 3,
+    "line": 49,
+    "text": "releasingreal-flightmeasurementsorstandardizedevalua- ofmasswithrespecttoW expressedinworldcoordinates."
+  },
+  {
+    "page": 3,
+    "line": 50,
+    "text": "tion protocols. Förster [19] provides an early characteri- Tostressthatavectorisexpressedinaparticularreference"
+  },
+  {
+    "page": 3,
+    "line": 51,
+    "text": "zationoftheCrazyflie2.0,identifyinginertialparameters, frame,weattachtheframenameasasubscript.Forexample,"
+  },
+  {
+    "page": 3,
+    "line": 52,
+    "text": "thrustcurves,andmotordynamicsusingseparatestaticand f B denotestheforcesactingonthedroneexpressedinthe"
+  },
+  {
+    "page": 3,
+    "line": 53,
+    "text": "dynamic tests. Their work provides valuable physical in- bodyframe."
+  },
+  {
+    "page": 3,
+    "line": 54,
+    "text": "sights, but (i) does not include aggressive flight trajecto-"
+  },
+  {
+    "page": 3,
+    "line": 55,
+    "text": "ries, (ii) does not release a public dataset, and (iii) does"
+  },
+  {
+    "page": 3,
+    "line": 56,
+    "text": "notprovideanevaluationprotocolformulti-step-aheadpre-"
+  },
+  {
+    "page": 3,
+    "line": 57,
+    "text": "3.2 Quadrotorandpropellerdynamics"
+  },
+  {
+    "page": 3,
+    "line": 58,
+    "text": "diction. Beyondthesestudies,severalperception-oriented"
+  },
+  {
+    "page": 3,
+    "line": 59,
+    "text": "datasets(e.g.,VIO/SLAM-focusedmicro-UAVdatasets)in-"
+  },
+  {
+    "page": 3,
+    "line": 60,
+    "text": "cludenano-scaleplatforms. Still, theydonotprovidethe"
+  },
+  {
+    "page": 3,
+    "line": 61,
+    "text": "Thestatex∈R13ofthequadrotorisdefinedas:"
+  },
+  {
+    "page": 3,
+    "line": 62,
+    "text": "state,actuation,andground-truthsignalsrequiredforsystem"
+  },
+  {
+    "page": 3,
+    "line": 63,
+    "text": "identificationorcontroldesign."
+  },
+  {
+    "page": 3,
+    "line": 64,
+    "text": "x="
+  },
+  {
+    "page": 3,
+    "line": 65,
+    "text": "(cid:2) p⊤v⊤q⊤ω⊤(cid:3)⊤"
+  },
+  {
+    "page": 3,
+    "line": 66,
+    "text": ", (1)"
+  },
+  {
+    "page": 3,
+    "line": 67,
+    "text": "2.3 PositioningoftheContribution"
+  },
+  {
+    "page": 3,
+    "line": 68,
+    "text": "where p = [p , p , p ]⊤ ∈ R3 [m] is the position of the"
+  },
+  {
+    "page": 3,
+    "line": 69,
+    "text": "x y z"
+  },
+  {
+    "page": 3,
+    "line": 70,
+    "text": "vehicle’s center of mass expressed in the world frame W,"
+  },
+  {
+    "page": 3,
+    "line": 71,
+    "text": "Existingresourcessufferfromatleastoneofthefollowing"
+  },
+  {
+    "page": 3,
+    "line": 72,
+    "text": "and v = [v , v , v ]⊤ ∈ R3 [m/s] is the corresponding"
+  },
+  {
+    "page": 3,
+    "line": 73,
+    "text": "limitations: (i)platformsaremedium-orlarge-scale[17,9, x y z"
+  },
+  {
+    "page": 3,
+    "line": 74,
+    "text": "linear velocity, also expressed in W. The unit quaternion"
+  },
+  {
+    "page": 3,
+    "line": 75,
+    "text": "18];(ii)datasetstargetperceptionorfaultdetectionrather"
+  },
+  {
+    "page": 3,
+    "line": 76,
+    "text": "q = [q , q , q , q ]⊤ represents the orientation of the"
+  },
+  {
+    "page": 3,
+    "line": 77,
+    "text": "thandynamicalmodeling;(iii)dataarenotpubliclyavailable, x y z w"
+  },
+  {
+    "page": 3,
+    "line": 78,
+    "text": "bodyframeBwithrespecttotheworldframeW. Finally,"
+  },
+  {
+    "page": 3,
+    "line": 79,
+    "text": "simulation-only,ornotsuitableformulti-stepprediction;or"
+  },
+  {
+    "page": 3,
+    "line": 80,
+    "text": "ω = [ω , ω , ω ]⊤ ∈ R3 [rad/s] denotes the angular ve-"
+  },
+  {
+    "page": 3,
+    "line": 81,
+    "text": "(iv)nounifiedevaluationprotocolisgiven. x y z"
+  },
+  {
+    "page": 3,
+    "line": 82,
+    "text": "locityofthebodyrelativetotheworld,expressedinbody"
+  },
+  {
+    "page": 3,
+    "line": 83,
+    "text": "Table2providesaconsolidatedcomparisonofexisting"
+  },
+  {
+    "page": 3,
+    "line": 84,
+    "text": "coordinatesB. Thecomponentsω ,ω ,andω correspond"
+  },
+  {
+    "page": 3,
+    "line": 85,
+    "text": "datasets and system-identification studies on quadrotors, x y z"
+  },
+  {
+    "page": 3,
+    "line": 86,
+    "text": "torotationratesaroundthebodyaxesx ,y ,andz ,re-"
+  },
+  {
+    "page": 3,
+    "line": 87,
+    "text": "highlightingtheirlimitationsintermsofplatformsize,data B B B"
+  },
+  {
+    "page": 3,
+    "line": 88,
+    "text": "spectively."
+  },
+  {
+    "page": 3,
+    "line": 89,
+    "text": "availability, aggressiveness of flight trajectories, and suit-"
+  },
+  {
+    "page": 3,
+    "line": 90,
+    "text": "abilityasbenchmarks. Thiscomparisonfurthermotivates The continuous-time dynamics of the quadrotor can be"
+  },
+  {
+    "page": 3,
+    "line": 91,
+    "text": "3"
+  },
+  {
+    "page": 4,
+    "line": 1,
+    "text": "Table2: Comparisonofrelateddatasetsandsystem-identificationstudiesonquadrotors."
+  },
+  {
+    "page": 4,
+    "line": 2,
+    "text": "Work Class-size Real/Sim Application Open-source Benchmark Aggressive"
+  },
+  {
+    "page": 4,
+    "line": 3,
+    "text": "[17] Micro Real AerodynamicsGray-boxSysID ✗ ✓ ✗"
+  },
+  {
+    "page": 4,
+    "line": 4,
+    "text": "[9] Standard Real/Sim Aerodynamics/Hybridmodeling ✓ ✓ ✓"
+  },
+  {
+    "page": 4,
+    "line": 5,
+    "text": "[18] Standard Real Faultdiagnosis ✓ ✗ ✗"
+  },
+  {
+    "page": 4,
+    "line": 6,
+    "text": "[12] Nano Sim Learning-basedSysID ✗ ✓ ✗"
+  },
+  {
+    "page": 4,
+    "line": 7,
+    "text": "[19] Nano Real Parameterestimation ✗ ✗ ✗"
+  },
+  {
+    "page": 4,
+    "line": 8,
+    "text": "Thiswork Nano Real SysID&control ✓ ✓ ✓"
+  },
+  {
+    "page": 4,
+    "line": 9,
+    "text": "writtencompactlyas: yy BB"
+  },
+  {
+    "page": 4,
+    "line": 10,
+    "text": " v "
+  },
+  {
+    "page": 4,
+    "line": 11,
+    "text": "p˙"
+  },
+  {
+    "page": 4,
+    "line": 12,
+    "text": "M3 M4"
+  },
+  {
+    "page": 4,
+    "line": 13,
+    "text": " 1R(q)f +g "
+  },
+  {
+    "page": 4,
+    "line": 14,
+    "text": "v˙  m B "
+  },
+  {
+    "page": 4,
+    "line": 15,
+    "text": "x˙ = = (cid:20)ω(cid:21) , (2)"
+  },
+  {
+    "page": 4,
+    "line": 16,
+    "text": ""
+  },
+  {
+    "page": 4,
+    "line": 17,
+    "text": ""
+  },
+  {
+    "page": 4,
+    "line": 18,
+    "text": "q˙"
+  },
+  {
+    "page": 4,
+    "line": 19,
+    "text": ""
+  },
+  {
+    "page": 4,
+    "line": 20,
+    "text": ""
+  },
+  {
+    "page": 4,
+    "line": 21,
+    "text": ""
+  },
+  {
+    "page": 4,
+    "line": 22,
+    "text": "1q⊗ "
+  },
+  {
+    "page": 4,
+    "line": 23,
+    "text": ""
+  },
+  {
+    "page": 4,
+    "line": 24,
+    "text": " 2 0 "
+  },
+  {
+    "page": 4,
+    "line": 25,
+    "text": "ω˙"
+  },
+  {
+    "page": 4,
+    "line": 26,
+    "text": "J−1(τ −ω×(Jω))"
+  },
+  {
+    "page": 4,
+    "line": 27,
+    "text": "xx"
+  },
+  {
+    "page": 4,
+    "line": 28,
+    "text": "BB"
+  },
+  {
+    "page": 4,
+    "line": 29,
+    "text": "wheremisthequadrotormass,Jistheinertiamatrixinbody zz"
+  },
+  {
+    "page": 4,
+    "line": 30,
+    "text": "BB"
+  },
+  {
+    "page": 4,
+    "line": 31,
+    "text": "coordinates,f B =[0, 0, T]⊤isthetotalforceactingonthe L=35.35mm"
+  },
+  {
+    "page": 4,
+    "line": 32,
+    "text": "droneexpressedinthebodyframe,τ =[τ , τ , τ ]⊤isthe"
+  },
+  {
+    "page": 4,
+    "line": 33,
+    "text": "x y z"
+  },
+  {
+    "page": 4,
+    "line": 34,
+    "text": "control torque vector, and g = [0, 0, −g]⊤ is the gravity"
+  },
+  {
+    "page": 4,
+    "line": 35,
+    "text": "vectorinworld-framecoordinates,withg =9.81m/s2."
+  },
+  {
+    "page": 4,
+    "line": 36,
+    "text": "Forcontroldesign,theinputistypicallydefinedas: M2 M1"
+  },
+  {
+    "page": 4,
+    "line": 37,
+    "text": "(cid:2) (cid:3)⊤"
+  },
+  {
+    "page": 4,
+    "line": 38,
+    "text": "u = T τ τ τ , (3)"
+  },
+  {
+    "page": 4,
+    "line": 39,
+    "text": "ctrl x y z"
+  },
+  {
+    "page": 4,
+    "line": 40,
+    "text": "whereT isthetotalthrustactingalongthebodyz-axisz ,"
+  },
+  {
+    "page": 4,
+    "line": 41,
+    "text": "B"
+  },
+  {
+    "page": 4,
+    "line": 42,
+    "text": "and(τ ,τ ,τ )arethetorquesaboutthebodyaxesx ,y , Figure2: “×”configurationandaxisconventionadoptedin"
+  },
+  {
+    "page": 4,
+    "line": 43,
+    "text": "x y z B B"
+  },
+  {
+    "page": 4,
+    "line": 44,
+    "text": "andz ,correspondingrespectivelytoroll,pitch,andyaw thiswork(geometrybasedon[21])."
+  },
+  {
+    "page": 4,
+    "line": 45,
+    "text": "B"
+  },
+  {
+    "page": 4,
+    "line": 46,
+    "text": "rotations."
+  },
+  {
+    "page": 4,
+    "line": 47,
+    "text": "In this work, however, we take as input the individual"
+  },
+  {
+    "page": 4,
+    "line": 48,
+    "text": "Remark1(QuadraticRotorModel) Equation (5) relies"
+  },
+  {
+    "page": 4,
+    "line": 49,
+    "text": "propellerangularvelocities(inrad/s):"
+  },
+  {
+    "page": 4,
+    "line": 50,
+    "text": "ontheassumptionthateachpropellerproducesthrustand"
+  },
+  {
+    "page": 4,
+    "line": 51,
+    "text": "(cid:2) (cid:3)⊤ torqueproportionaltothesquareofitsangularspeed,with"
+  },
+  {
+    "page": 4,
+    "line": 52,
+    "text": "u= Ω Ω Ω Ω , (4)"
+  },
+  {
+    "page": 4,
+    "line": 53,
+    "text": "1 2 3 4 proportionality coefficients k and k , respectively. Al-"
+  },
+  {
+    "page": 4,
+    "line": 54,
+    "text": "F M"
+  },
+  {
+    "page": 4,
+    "line": 55,
+    "text": "though this approximation suffices to illustrate the main"
+  },
+  {
+    "page": 4,
+    "line": 56,
+    "text": "sincethesearethephysicalquantitiesthatgeneratetheabove-"
+  },
+  {
+    "page": 4,
+    "line": 57,
+    "text": "dynamicsandremainsthestandardinquadrotormodeling"
+  },
+  {
+    "page": 4,
+    "line": 58,
+    "text": "mentionedthrustandtorques. Assumingaquadraticrelation"
+  },
+  {
+    "page": 4,
+    "line": 59,
+    "text": "andcontrol[22],recentadvanceshaveproducedmoreaccu-"
+  },
+  {
+    "page": 4,
+    "line": 60,
+    "text": "betweenthepropellers’angularvelocitiesandtheresulting"
+  },
+  {
+    "page": 4,
+    "line": 61,
+    "text": "ratedescriptionsoftheaerodynamics[9]. Thesenewerap-"
+  },
+  {
+    "page": 4,
+    "line": 62,
+    "text": "forces/torques[20],andconsideringthe“×”quadrotorcon-"
+  },
+  {
+    "page": 4,
+    "line": 63,
+    "text": "proaches,whetherphysics-basedordata-driven,mayoffer"
+  },
+  {
+    "page": 4,
+    "line": 64,
+    "text": "figuration characterizing the Crazyflie (see Figure 2), the"
+  },
+  {
+    "page": 4,
+    "line": 65,
+    "text": "amoreaccuratedescriptionofdronebehavior,particularly"
+  },
+  {
+    "page": 4,
+    "line": 66,
+    "text": "relationbetweenangularvelocities(4)andcontrolinputs(3)"
+  },
+  {
+    "page": 4,
+    "line": 67,
+    "text": "duringaggressivemaneuvers."
+  },
+  {
+    "page": 4,
+    "line": 68,
+    "text": "isgivenby:"
+  },
+  {
+    "page": 4,
+    "line": 69,
+    "text": "T  k k k k Ω2"
+  },
+  {
+    "page": 4,
+    "line": 70,
+    "text": "F F F F 1 4 Experimental Setup"
+  },
+  {
+    "page": 4,
+    "line": 71,
+    "text": "τ  −k L −k L k L k L Ω2"
+  },
+  {
+    "page": 4,
+    "line": 72,
+    "text": " x= F F F F  2. (5)"
+  },
+  {
+    "page": 4,
+    "line": 73,
+    "text": "  τ y     −k F L k F L k F L −k F L    Ω2 3   Allflightswerecarriedoutinthemotion-capturearenade-"
+  },
+  {
+    "page": 4,
+    "line": 74,
+    "text": "τ −k k −k k Ω2 scribedbelowandshowninFigure3,withsafetynetssur-"
+  },
+  {
+    "page": 4,
+    "line": 75,
+    "text": "z M M M M 4"
+  },
+  {
+    "page": 4,
+    "line": 76,
+    "text": "rounding the test volume in an enclosed room to prevent"
+  },
+  {
+    "page": 4,
+    "line": 77,
+    "text": "In(5),k andk arethethrustandmomentcoefficientsof externalairflowduringexperiments."
+  },
+  {
+    "page": 4,
+    "line": 78,
+    "text": "F M"
+  },
+  {
+    "page": 4,
+    "line": 79,
+    "text": "thepropellers,whileListheeffectivearmlength,defined"
+  },
+  {
+    "page": 4,
+    "line": 80,
+    "text": "astheorthogonaldistancefromthenano-drone’scenterof"
+  },
+  {
+    "page": 4,
+    "line": 81,
+    "text": "4.1 Crazyflie2.1BrushlessPlatform"
+  },
+  {
+    "page": 4,
+    "line": 82,
+    "text": "masstoeachrotorprojectiononthebodyaxes(seeFigure2)."
+  },
+  {
+    "page": 4,
+    "line": 83,
+    "text": "Thefirstrowexpressesthetotalthrustasthesumofthefour AllexperimentswereconductedonaCrazyflie2.1Brushless"
+  },
+  {
+    "page": 4,
+    "line": 84,
+    "text": "rotorcontributions,whiletheremainingrowsdescribethe nano–quadrotorequippedwithaFlow-deckv2andAI-deck"
+  },
+  {
+    "page": 4,
+    "line": 85,
+    "text": "roll,pitch,andyawtorquesresultingfromdifferentialthrust expansionboards. Theplatformprovideson-boardcomputa-"
+  },
+  {
+    "page": 4,
+    "line": 86,
+    "text": "andpropellerdrag. tion,sensing,andcommunicationthroughanSTM32F405"
+  },
+  {
+    "page": 4,
+    "line": 87,
+    "text": "4"
+  },
+  {
+    "page": 5,
+    "line": 1,
+    "text": "as the component of F along the body’s current z-axis:"
+  },
+  {
+    "page": 5,
+    "line": 2,
+    "text": "d"
+  },
+  {
+    "page": 5,
+    "line": 3,
+    "text": "T =F ·z ."
+  },
+  {
+    "page": 5,
+    "line": 4,
+    "text": "d B"
+  },
+  {
+    "page": 5,
+    "line": 5,
+    "text": "The desired orientation R is then constructed with z-"
+  },
+  {
+    "page": 5,
+    "line": 6,
+    "text": "d"
+  },
+  {
+    "page": 5,
+    "line": 7,
+    "text": "axispointinginthedirectionofF ,whilemaintainingthe"
+  },
+  {
+    "page": 5,
+    "line": 8,
+    "text": "d"
+  },
+  {
+    "page": 5,
+    "line": 9,
+    "text": "reference yaw angle ψ . The inner (attitude) loop runs"
+  },
+  {
+    "page": 5,
+    "line": 10,
+    "text": "d"
+  },
+  {
+    "page": 5,
+    "line": 11,
+    "text": "directly on the manifold SO(3) and computes the angu-"
+  },
+  {
+    "page": 5,
+    "line": 12,
+    "text": "lar velocity and torque commands required to track the"
+  },
+  {
+    "page": 5,
+    "line": 13,
+    "text": "desired attitude. The attitude error is defined as e ="
+  },
+  {
+    "page": 5,
+    "line": 14,
+    "text": "R"
+  },
+  {
+    "page": 5,
+    "line": 15,
+    "text": "1(cid:0) R⊤R(q)−R⊤(q)R (cid:1)∨ ,where(·)∨isthestandardvee"
+  },
+  {
+    "page": 5,
+    "line": 16,
+    "text": "2 d d"
+  },
+  {
+    "page": 5,
+    "line": 17,
+    "text": "operatorthatunpacksthe3independentelementsofskew-"
+  },
+  {
+    "page": 5,
+    "line": 18,
+    "text": "symmetric3×3matricesintoavectorwith3components."
+  },
+  {
+    "page": 5,
+    "line": 19,
+    "text": "The angular velocity error is e = ω −ω . The control"
+  },
+  {
+    "page": 5,
+    "line": 20,
+    "text": "ω d"
+  },
+  {
+    "page": 5,
+    "line": 21,
+    "text": "Figure 3: A Crazyflie 2.1 brushless flying in the motion- torqueisthen"
+  },
+  {
+    "page": 5,
+    "line": 22,
+    "text": "capture-equippedlaboratory."
+  },
+  {
+    "page": 5,
+    "line": 23,
+    "text": "(cid:90)"
+  },
+  {
+    "page": 5,
+    "line": 24,
+    "text": "τ =−K e −K e dt−K e ,"
+  },
+  {
+    "page": 5,
+    "line": 25,
+    "text": "R R R,i R ω ω"
+  },
+  {
+    "page": 5,
+    "line": 26,
+    "text": "flightMCUrunningtheofficialCrazyfliefirmware2,aBosch"
+  },
+  {
+    "page": 5,
+    "line": 27,
+    "text": "withK ,K ,andK thediagonalattitude,integralatti-"
+  },
+  {
+    "page": 5,
+    "line": 28,
+    "text": "R R,i ω"
+  },
+  {
+    "page": 5,
+    "line": 29,
+    "text": "BMI0886-DOFInertialMeasurementUnit(IMU),andan"
+  },
+  {
+    "page": 5,
+    "line": 30,
+    "text": "tude,andangular-rategainmatrices."
+  },
+  {
+    "page": 5,
+    "line": 31,
+    "text": "NRF518222.4GHzlow-latencyradio. Thevehicleispow-"
+  },
+  {
+    "page": 5,
+    "line": 32,
+    "text": "eredbyfour8mm10000KVbrushlessmotors, drivenby"
+  },
+  {
+    "page": 5,
+    "line": 33,
+    "text": "4.3 SensingandStateEstimation"
+  },
+  {
+    "page": 5,
+    "line": 34,
+    "text": "EFM8BB21ElectronicSpeedControllers(ESCs)withthe"
+  },
+  {
+    "page": 5,
+    "line": 35,
+    "text": "Bluejay3open-sourceESCfirmware."
+  },
+  {
+    "page": 5,
+    "line": 36,
+    "text": "Datawererecordedusingacombinationofonboardsensors"
+  },
+  {
+    "page": 5,
+    "line": 37,
+    "text": "TheFlow-deckv2alsoprovidesanSTVL53L1XTime- andanexternalmotion-capturesystem. Ground-truthposi-"
+  },
+  {
+    "page": 5,
+    "line": 38,
+    "text": "of-Flightlaser-basedaltitudesensorandaPMW3901opti- tionandorientationwereobtainedfromanOptiTracksetup"
+  },
+  {
+    "page": 5,
+    "line": 39,
+    "text": "calflowsensortomeasurehorizontaldisplacementrelative with18camerascoveringa6×6×2.5mvolume."
+  },
+  {
+    "page": 5,
+    "line": 40,
+    "text": "totheground. TheAI-deckprovidesaGreenwavesTech- Theonboardsensingsuiteincludes:(i)a3-axisgyroscope"
+  },
+  {
+    "page": 5,
+    "line": 41,
+    "text": "nologiesGAP8System-on-Chipforcomputation-intensive andaccelerometerforangularvelocityandspecificacceler-"
+  },
+  {
+    "page": 5,
+    "line": 42,
+    "text": "workloads [14] and an ublox NINA-W102 2.4GHz Wi- ation,(ii)aPMW3901opticalflowmoduleforhorizontal"
+  },
+  {
+    "page": 5,
+    "line": 43,
+    "text": "Fi module for high-bandwidth communication. A 1S velocityestimation,(iii)aVL53L1xtime-of-flightsensor"
+  },
+  {
+    "page": 5,
+    "line": 44,
+    "text": "350mAh LiPo battery powers the platform at a nominal for altitude, and (iv) propeller angular velocity measure-"
+  },
+  {
+    "page": 5,
+    "line": 45,
+    "text": "voltage of 3.7V. The total mass of the platform, includ- mentsobtainedfromtheESCsviaback-EMFzero-crossing"
+  },
+  {
+    "page": 5,
+    "line": 46,
+    "text": "ing the battery, amounts to m = 45g. The inertia ma- detection. Theseangularvelocitiesvaluesaretransmittedto"
+  },
+  {
+    "page": 5,
+    "line": 47,
+    "text": "trix J = diag(J x ,J y ,J z ) is diagonal due to the symmet- theSTM32flightcontrollerusingthebidirectionalDSHOT"
+  },
+  {
+    "page": 5,
+    "line": 48,
+    "text": "ric construction. The numerical values of the diagonal protocol."
+  },
+  {
+    "page": 5,
+    "line": 49,
+    "text": "entries, taken from the Crazyflow4 simulator, are: J x = State estimation is performed online by an Extended"
+  },
+  {
+    "page": 5,
+    "line": 50,
+    "text": "2.3951×10−5,J y =2.3951×10−5,J z =3.2347×10−5 Kalman Filter (EKF) [24, 25], executed at 100Hz in the"
+  },
+  {
+    "page": 5,
+    "line": 51,
+    "text": "kg×m2."
+  },
+  {
+    "page": 5,
+    "line": 52,
+    "text": "Crazyfliefirmware. ThefilterfusesIMU,opticalflow,time-"
+  },
+  {
+    "page": 5,
+    "line": 53,
+    "text": "of-flight, and motion-capture measurements to provide a"
+  },
+  {
+    "page": 5,
+    "line": 54,
+    "text": "4.2 ControlSystem full6-DoFposeestimate,usedasfeedbackbythelow-level"
+  },
+  {
+    "page": 5,
+    "line": 55,
+    "text": "controller."
+  },
+  {
+    "page": 5,
+    "line": 56,
+    "text": "Thequadrotoriscontrolledusingamodifiedversionofthe BecausetheofficialCrazyfliefirmwaresupportsonlyuni-"
+  },
+  {
+    "page": 5,
+    "line": 57,
+    "text": "geometriccontrolleroriginallyproposedby[23],withinte- directionalDSHOT,wedevelopedabidirectionaldriverto"
+  },
+  {
+    "page": 5,
+    "line": 58,
+    "text": "gralcontrolactionadded,asimplementedintheCrazyflie’s enablemotor-speedtelemetry. Theimplementationrequires"
+  },
+  {
+    "page": 5,
+    "line": 59,
+    "text": "official firmware and running at 500Hz on the embedded precisesynchronizationoftransmitandreceivephasesacross"
+  },
+  {
+    "page": 5,
+    "line": 60,
+    "text": "STM32MCU. thefourmotors. Weopen-sourcethisdriverandareintegrat-"
+  },
+  {
+    "page": 5,
+    "line": 61,
+    "text": "Control setpoints are streamed from a laptop computer ingitintotheofficialfirmware."
+  },
+  {
+    "page": 5,
+    "line": 62,
+    "text": "overtheNRF51radiousingtheCrazyswarm25ROSpackage."
+  },
+  {
+    "page": 5,
+    "line": 63,
+    "text": "Thecontrollertracksadesiredpositionandyawtrajectory"
+  },
+  {
+    "page": 5,
+    "line": 64,
+    "text": "5 Dataset and Evaluation Protocol"
+  },
+  {
+    "page": 5,
+    "line": 65,
+    "text": "p (t),ψ (t)bycomputingtherequiredtotalthrustT and"
+  },
+  {
+    "page": 5,
+    "line": 66,
+    "text": "d d"
+  },
+  {
+    "page": 5,
+    "line": 67,
+    "text": "bodytorquesτ =[τ ,τ ,τ ]⊤thatdrivethevehicletoward"
+  },
+  {
+    "page": 5,
+    "line": 68,
+    "text": "x y z"
+  },
+  {
+    "page": 5,
+    "line": 69,
+    "text": "thereference. Theouterpositionloopcomputesthedesired This section describes the trajectories used to collect the"
+  },
+  {
+    "page": 5,
+    "line": 70,
+    "text": "forcevector dataset. Itprovidesdetailsonthedataitself,aswellasthe"
+  },
+  {
+    "page": 5,
+    "line": 71,
+    "text": "evaluationsettingsadoptedtoassessmodelidentificationper-"
+  },
+  {
+    "page": 5,
+    "line": 72,
+    "text": "(cid:90)"
+  },
+  {
+    "page": 5,
+    "line": 73,
+    "text": "F =K (p −p)+K (p −p)dt+K (p˙ −v)+m(p¨ −gf)o,rmanceontheproposedbenchmark. Table3summarizes"
+  },
+  {
+    "page": 5,
+    "line": 74,
+    "text": "d p d i d d d d"
+  },
+  {
+    "page": 5,
+    "line": 75,
+    "text": "thestructureoftherecordeddataset,whichincludesmotor"
+  },
+  {
+    "page": 5,
+    "line": 76,
+    "text": "whereK p ,K i ,andK d areproportional,integral,andderiva- speedsu = [Ω 1 Ω 2 Ω 3 Ω 4 ]⊤, positionandorientation(in"
+  },
+  {
+    "page": 5,
+    "line": 77,
+    "text": "tivediagonalmatrixgains,whilep¨ isthedesiredfeedfor- quaternionform),angularvelocity,andlinearacceleration."
+  },
+  {
+    "page": 5,
+    "line": 78,
+    "text": "d"
+  },
+  {
+    "page": 5,
+    "line": 79,
+    "text": "ward acceleration. The commanded thrust T is then set"
+  },
+  {
+    "page": 5,
+    "line": 80,
+    "text": "5.1 DataPreprocessing"
+  },
+  {
+    "page": 5,
+    "line": 81,
+    "text": "2https://github.com/bitcraze/crazyflie-firmware"
+  },
+  {
+    "page": 5,
+    "line": 82,
+    "text": "3https://github.com/bitcraze/bluejay"
+  },
+  {
+    "page": 5,
+    "line": 83,
+    "text": "4https://github.com/utiasDSL/crazyflow Alldataisstreamedinreal-timeusinghigh-throughputWi-"
+  },
+  {
+    "page": 5,
+    "line": 84,
+    "text": "5https://imrclab.github.io/crazyswarm2/ FistreamingthroughourinternallydevelopedNanoCockpit"
+  },
+  {
+    "page": 5,
+    "line": 85,
+    "text": "5"
+  },
+  {
+    "page": 6,
+    "line": 1,
+    "text": "Table3: Datasetstructure. Datasetcolumnsdenotesthenameofthecolumninthecsvfileoftheprovidedbenchmark"
+  },
+  {
+    "page": 6,
+    "line": 2,
+    "text": "dataset."
+  },
+  {
+    "page": 6,
+    "line": 3,
+    "text": "Variable Symbol Unit Ref.frame Datasetcolumns Measurementsource"
+  },
+  {
+    "page": 6,
+    "line": 4,
+    "text": "Timestamp t s – t STM32hardwaretimer"
+  },
+  {
+    "page": 6,
+    "line": 5,
+    "text": "Inputs"
+  },
+  {
+    "page": 6,
+    "line": 6,
+    "text": "Propellerspeeds Ω rad/s – m{1,2,3,4}_rads Sensorlessback-EMFzerocrossing"
+  },
+  {
+    "page": 6,
+    "line": 7,
+    "text": "Outputs"
+  },
+  {
+    "page": 6,
+    "line": 8,
+    "text": "Position p m world x, y, z Motioncapture+Laseraltimeter(zonly)"
+  },
+  {
+    "page": 6,
+    "line": 9,
+    "text": "Velocity v m/s world vx, vy, vz Opticalflow(vx,vyonly)"
+  },
+  {
+    "page": 6,
+    "line": 10,
+    "text": "Orientation q quaternion world qx, qy, qz, qw Motioncapture"
+  },
+  {
+    "page": 6,
+    "line": 11,
+    "text": "Angularvelocity ω rad/s body wx, wy, wz Gyroscope"
+  },
+  {
+    "page": 6,
+    "line": 12,
+    "text": "Additional"
+  },
+  {
+    "page": 6,
+    "line": 13,
+    "text": "Specificacceleration aIMU m/s2 body a{x,y,x}_body Accelerometer.Itmeasures(a−g)"
+  },
+  {
+    "page": 6,
+    "line": 14,
+    "text": "B"
+  },
+  {
+    "page": 6,
+    "line": 15,
+    "text": "frameworkandrecordedinarosbagfile. Thisrecording Table4: Low-passfiltercutofffrequenciesfordifferentsig-"
+  },
+  {
+    "page": 6,
+    "line": 16,
+    "text": "is asynchronous and timestamped at the source using the nalgroups(f s =100Hz,Butterworthorder=4)."
+  },
+  {
+    "page": 6,
+    "line": 17,
+    "text": "onboardSTM32hardwareclock. Sincethemotion-capture"
+  },
+  {
+    "page": 6,
+    "line": 18,
+    "text": "systemandtheflightcontrolleroperateatdifferentfrequen- Signalgroup Cutofffrequency[Hz]"
+  },
+  {
+    "page": 6,
+    "line": 19,
+    "text": "ciesandwithindependentclocks,eachexperimentrequired"
+  },
+  {
+    "page": 6,
+    "line": 20,
+    "text": "Position(x,y,z) 10"
+  },
+  {
+    "page": 6,
+    "line": 21,
+    "text": "carefulpost-processingtoobtainatime-aligned,uniformly"
+  },
+  {
+    "page": 6,
+    "line": 22,
+    "text": "Linearandangularvelocities(v,ω) 18"
+  },
+  {
+    "page": 6,
+    "line": 23,
+    "text": "sampleddataset."
+  },
+  {
+    "page": 6,
+    "line": 24,
+    "text": "Linearaccelerations(a ,a ,a ) 25"
+  },
+  {
+    "page": 6,
+    "line": 25,
+    "text": "x y z"
+  },
+  {
+    "page": 6,
+    "line": 26,
+    "text": "Motorspeeds 20"
+  },
+  {
+    "page": 6,
+    "line": 27,
+    "text": "Quaternions(vialog-map) 12"
+  },
+  {
+    "page": 6,
+    "line": 28,
+    "text": "Timestampsynchronization RawdatafromtheCrazyflie"
+  },
+  {
+    "page": 6,
+    "line": 29,
+    "text": "firmwareandthemotion-capturesystemarefirstalignedin"
+  },
+  {
+    "page": 6,
+    "line": 30,
+    "text": "timebyestimatingtheirrelativedelay. Wecomputethelag"
+  },
+  {
+    "page": 6,
+    "line": 31,
+    "text": "thatmaximizesthecross-correlationbetweentheposition Filtering pipeline To reduce measurement noise while"
+  },
+  {
+    "page": 6,
+    "line": 32,
+    "text": "signals(x,y,z)fromtheOptiTrackandthecorresponding preservingdynamiccontentrelevantforsystemidentifica-"
+  },
+  {
+    "page": 6,
+    "line": 33,
+    "text": "onboard estimates, and subtract the average of the three tion, all continuous-valued signals are filtered using zero-"
+  },
+  {
+    "page": 6,
+    "line": 34,
+    "text": "estimatedlagstoreducenoisesensitivity. Afteralignment, phasefourth-orderButterworthlow-passfilters. Sincedif-"
+  },
+  {
+    "page": 6,
+    "line": 35,
+    "text": "allchannelsareresampledtoacommon100Hzrateusing ferentphysicalquantitiesexhibitdifferentspectralcharac-"
+  },
+  {
+    "page": 6,
+    "line": 36,
+    "text": "interpolation. Becausetheembeddedhardwareclockmay teristics, we assign a dedicated cutoff frequency to each"
+  },
+  {
+    "page": 6,
+    "line": 37,
+    "text": "exhibitirregularsamplingintervals,weadditionallyperform signal group. Short gaps in the raw data (up to 10 sam-"
+  },
+  {
+    "page": 6,
+    "line": 38,
+    "text": "aretimingwithnearest-neighborinterpolation,toguarantee ples)arefilledviaboundedinterpolation,whilelongergaps"
+  },
+  {
+    "page": 6,
+    "line": 39,
+    "text": "thatalldataafterprocessingareuniformlysampled. This remain untouched. Quaternion signals are mapped to the"
+  },
+  {
+    "page": 6,
+    "line": 40,
+    "text": "also compensates for any potentially missing packets by rotation-vectorrepresentationviathelogarithmicmap,low-"
+  },
+  {
+    "page": 6,
+    "line": 41,
+    "text": "assigningthemtheclosestavailablemeasurement. passfilteredcomponent-wise,andmappedbackusingthe"
+  },
+  {
+    "page": 6,
+    "line": 42,
+    "text": "exponentialmap. Thisprocedureensuresthatfilteringop-"
+  },
+  {
+    "page": 6,
+    "line": 43,
+    "text": "eratesinalinearspace,avoidsquaterniondriftornon-unit"
+  },
+  {
+    "page": 6,
+    "line": 44,
+    "text": "norms,andpreservesthemanifoldstructureofSO(3),which"
+  },
+  {
+    "page": 6,
+    "line": 45,
+    "text": "Flight-segmentextraction Eachexperimentbeginswith"
+  },
+  {
+    "page": 6,
+    "line": 46,
+    "text": "would be violated by direct filtering in quaternion coordi-"
+  },
+  {
+    "page": 6,
+    "line": 47,
+    "text": "an initial stationary phase, during which the trajectory is"
+  },
+  {
+    "page": 6,
+    "line": 48,
+    "text": "nates. Table4summarizesthecutofffrequenciesappliedto"
+  },
+  {
+    "page": 6,
+    "line": 49,
+    "text": "uploaded,andthevehicletakesoff.Weautomaticallyextract"
+  },
+  {
+    "page": 6,
+    "line": 50,
+    "text": "eachvariablegroup."
+  },
+  {
+    "page": 6,
+    "line": 51,
+    "text": "the flight segment by selecting the time interval in which"
+  },
+  {
+    "page": 6,
+    "line": 52,
+    "text": "thereferencepositionisnon-zero. Thisproducesconsistent"
+  },
+  {
+    "page": 6,
+    "line": 53,
+    "text": "flightwindowsacrossrepetitionswithoutmanualtrimming."
+  },
+  {
+    "page": 6,
+    "line": 54,
+    "text": "5.2 TrajectoryDesign"
+  },
+  {
+    "page": 6,
+    "line": 55,
+    "text": "Fourreferencetrajectories(namedSquare,Random,Melon,"
+  },
+  {
+    "page": 6,
+    "line": 56,
+    "text": "Motor–acceleration alignment Motor speed telemetry andChirp)weredesignedtoexcitethequadrotordynamics"
+  },
+  {
+    "page": 6,
+    "line": 57,
+    "text": "is affected by an additional delay in communication and overabroadrangeofoperatingconditionswhileremaining"
+  },
+  {
+    "page": 6,
+    "line": 58,
+    "text": "actuation. Tocompensateforthis,wealignthemotorcom- bounded and repeatable. All trajectories were sampled at"
+  },
+  {
+    "page": 6,
+    "line": 59,
+    "text": "mandstotheinertialmeasurementsbymaximizingthecross- 100Hzandexecutedatleastthreetimes(referredtoasruns);"
+  },
+  {
+    "page": 6,
+    "line": 60,
+    "text": "correlation between the vertical body acceleration a and Square,Random,andChirpincludea4thrun,foratotalof"
+  },
+  {
+    "page": 6,
+    "line": 61,
+    "text": "z"
+  },
+  {
+    "page": 6,
+    "line": 62,
+    "text": "theinstantaneoustotalthrust,approximatedasthesumof 15 flights. The reference paths are illustrated in Figure 4,"
+  },
+  {
+    "page": 6,
+    "line": 63,
+    "text": "squared motor speeds. This yields a robust estimate of and their main statistics are summarized in Table 5. To-"
+  },
+  {
+    "page": 6,
+    "line": 64,
+    "text": "thecommand–actuationdelay,ensuringconsistenttemporal gether,thesetrajectoriesprovideabalancedsetofstructured,"
+  },
+  {
+    "page": 6,
+    "line": 65,
+    "text": "alignmentbetweenthethrustinputandmeasuredaccelera- random,andfrequency-richmotionsforidentificationand"
+  },
+  {
+    "page": 6,
+    "line": 66,
+    "text": "tions. validation."
+  },
+  {
+    "page": 6,
+    "line": 67,
+    "text": "6"
+  },
+  {
+    "page": 7,
+    "line": 1,
+    "text": "(a)Square"
+  },
+  {
+    "page": 7,
+    "line": 2,
+    "text": "2.0"
+  },
+  {
+    "page": 7,
+    "line": 3,
+    "text": "1.5"
+  },
+  {
+    "page": 7,
+    "line": 4,
+    "text": "1.0"
+  },
+  {
+    "page": 7,
+    "line": 5,
+    "text": "0.5 −1"
+  },
+  {
+    "page": 7,
+    "line": 6,
+    "text": "0.0 0m]"
+  },
+  {
+    "page": 7,
+    "line": 7,
+    "text": "−1 X ["
+  },
+  {
+    "page": 7,
+    "line": 8,
+    "text": "0 1"
+  },
+  {
+    "page": 7,
+    "line": 9,
+    "text": "Y [m] 1"
+  },
+  {
+    "page": 7,
+    "line": 10,
+    "text": "]m["
+  },
+  {
+    "page": 7,
+    "line": 11,
+    "text": "Z"
+  },
+  {
+    "page": 7,
+    "line": 12,
+    "text": "(b)Random"
+  },
+  {
+    "page": 7,
+    "line": 13,
+    "text": "2.0"
+  },
+  {
+    "page": 7,
+    "line": 14,
+    "text": "1.5"
+  },
+  {
+    "page": 7,
+    "line": 15,
+    "text": "1.0"
+  },
+  {
+    "page": 7,
+    "line": 16,
+    "text": "0.5 −1"
+  },
+  {
+    "page": 7,
+    "line": 17,
+    "text": "0.0 0m]"
+  },
+  {
+    "page": 7,
+    "line": 18,
+    "text": "−1 X ["
+  },
+  {
+    "page": 7,
+    "line": 19,
+    "text": "0 1"
+  },
+  {
+    "page": 7,
+    "line": 20,
+    "text": "Y [m] 1"
+  },
+  {
+    "page": 7,
+    "line": 21,
+    "text": "]m["
+  },
+  {
+    "page": 7,
+    "line": 22,
+    "text": "Z"
+  },
+  {
+    "page": 7,
+    "line": 23,
+    "text": "(c)Melon"
+  },
+  {
+    "page": 7,
+    "line": 24,
+    "text": "2.0"
+  },
+  {
+    "page": 7,
+    "line": 25,
+    "text": "1.5"
+  },
+  {
+    "page": 7,
+    "line": 26,
+    "text": "1.0"
+  },
+  {
+    "page": 7,
+    "line": 27,
+    "text": "0.5 −1"
+  },
+  {
+    "page": 7,
+    "line": 28,
+    "text": "0.0 0m]"
+  },
+  {
+    "page": 7,
+    "line": 29,
+    "text": "−1 X ["
+  },
+  {
+    "page": 7,
+    "line": 30,
+    "text": "0 1"
+  },
+  {
+    "page": 7,
+    "line": 31,
+    "text": "Y [m] 1"
+  },
+  {
+    "page": 7,
+    "line": 32,
+    "text": "]m["
+  },
+  {
+    "page": 7,
+    "line": 33,
+    "text": "Z"
+  },
+  {
+    "page": 7,
+    "line": 34,
+    "text": "(d)Chirp"
+  },
+  {
+    "page": 7,
+    "line": 35,
+    "text": "2.0"
+  },
+  {
+    "page": 7,
+    "line": 36,
+    "text": "1.5"
+  },
+  {
+    "page": 7,
+    "line": 37,
+    "text": "1.0"
+  },
+  {
+    "page": 7,
+    "line": 38,
+    "text": "0.5 −1"
+  },
+  {
+    "page": 7,
+    "line": 39,
+    "text": "0.0 0m]"
+  },
+  {
+    "page": 7,
+    "line": 40,
+    "text": "−1 X ["
+  },
+  {
+    "page": 7,
+    "line": 41,
+    "text": "0 1"
+  },
+  {
+    "page": 7,
+    "line": 42,
+    "text": "Y [m] 1"
+  },
+  {
+    "page": 7,
+    "line": 43,
+    "text": "]m["
+  },
+  {
+    "page": 7,
+    "line": 44,
+    "text": "Z"
+  },
+  {
+    "page": 7,
+    "line": 45,
+    "text": "Figure4:Referencetrajectoriesandcorrespondinglong-exposureflighttraces.Toprow:ideal3Dreferencetrajectories"
+  },
+  {
+    "page": 7,
+    "line": 46,
+    "text": "generatedinPython. Bottomrow: long-exposureimagesofCrazyflie2.1executingthesametrajectoriesinthemotion-"
+  },
+  {
+    "page": 7,
+    "line": 47,
+    "text": "capturearena. (Clicksub-captionsinthePDFviewertoseetheanimations)."
+  },
+  {
+    "page": 7,
+    "line": 48,
+    "text": "Square A structured path consisting of two horizontal Train-test split Experimental data collected from the"
+  },
+  {
+    "page": 7,
+    "line": 49,
+    "text": "squaresof1msidelength,stacked1mapartinheight. Each Square,Random,andChirptrajectoriesareusedfortraining,"
+  },
+  {
+    "page": 7,
+    "line": 50,
+    "text": "segmentisexecutedin1s, followedby1sofhoveringto whiletheMelontrajectoryisreservedexclusivelyfortesting,"
+  },
+  {
+    "page": 7,
+    "line": 51,
+    "text": "allowstabilizationbetweentransitions. Themotionalong yielding55999trainingsamples(74.2%)and19497testing"
+  },
+  {
+    "page": 7,
+    "line": 52,
+    "text": "eachedgeisgeneratedusingminimum-snapinterpolation, samples(25.8%). Wedecidedtoexcludethemeasuredac-"
+  },
+  {
+    "page": 7,
+    "line": 53,
+    "text": "ensuringcontinuityinposition,velocity,andacceleration. celerationfromtheoutputvariables,asitisnotastateofthe"
+  },
+  {
+    "page": 7,
+    "line": 54,
+    "text": "Aftercompletingthelowerloop,thevehicleascendstothe system."
+  },
+  {
+    "page": 7,
+    "line": 55,
+    "text": "upperplane,repeatsthesamepattern,andfinallyreturnsto"
+  },
+  {
+    "page": 7,
+    "line": 56,
+    "text": "thestartingheight. Thistrajectoryprimarilyexcitesrolland Remark2(Zeroyawrate) Alltrajectoriesweregenerated"
+  },
+  {
+    "page": 7,
+    "line": 57,
+    "text": "pitchdynamicsindependently,providingarepeatableplanar withafixedyaworientation,i.e.,thereferenceyawsatisfies"
+  },
+  {
+    "page": 7,
+    "line": 58,
+    "text": "motionforcontrollervalidation. ψref =0throughouttheexperiments. Thischoicesimplifies"
+  },
+  {
+    "page": 7,
+    "line": 59,
+    "text": "thecontrolproblembydecouplingyawfromrollandpitch"
+  },
+  {
+    "page": 7,
+    "line": 60,
+    "text": "Random-points A 60s trajectory composed of 52 way- dynamics. Itreflectscommonpracticeintheidentification"
+  },
+  {
+    "page": 7,
+    "line": 61,
+    "text": "pointsuniformlysampledwithinaboxofsize1×1×0.5m ofdronedynamics, wherethefocusistypicallyonmodel-"
+  },
+  {
+    "page": 7,
+    "line": 62,
+    "text": "centeredat(0,0,1.5). Positionsareinterpolatedusingcubic ing translational and attitude dynamics under a constant"
+  },
+  {
+    "page": 7,
+    "line": 63,
+    "text": "splinestogeneratesmoothvelocityandaccelerationprofiles. heading[9]."
+  },
+  {
+    "page": 7,
+    "line": 64,
+    "text": "The resulting motion is irregular and non-periodic, with"
+  },
+  {
+    "page": 7,
+    "line": 65,
+    "text": "broadband excitation arising from the random spacing of"
+  },
+  {
+    "page": 7,
+    "line": 66,
+    "text": "consecutivepoints. Table5: Benchmarkstatisticsforrealquadrotortrajectories."
+  },
+  {
+    "page": 7,
+    "line": 67,
+    "text": "Reportedvaluesareaveragedacrossruns."
+  },
+  {
+    "page": 7,
+    "line": 68,
+    "text": "Melon Asmooth,periodic65smotioncombiningellipti-"
+  },
+  {
+    "page": 7,
+    "line": 69,
+    "text": "caloscillationsinthelocalx–z planewithaslowrotation"
+  },
+  {
+    "page": 7,
+    "line": 70,
+    "text": "of the plane about the x-axis ω = 0.4rad/s. The el-"
+  },
+  {
+    "page": 7,
+    "line": 71,
+    "text": "plane"
+  },
+  {
+    "page": 7,
+    "line": 72,
+    "text": "lipseradiiarefixedto0.75m, andtheangularvelocityto"
+  },
+  {
+    "page": 7,
+    "line": 73,
+    "text": "ω = 2.5rad/s. Afterthemainsegment, thedronere- circle"
+  },
+  {
+    "page": 7,
+    "line": 74,
+    "text": "turnssmoothlytothecenterusingaminimum-jerktransition."
+  },
+  {
+    "page": 7,
+    "line": 75,
+    "text": "Thistrajectorygeneratescoupledtranslationalandrotational"
+  },
+  {
+    "page": 7,
+    "line": 76,
+    "text": "motion,providingsignificantexcitationoftheattitudedy-"
+  },
+  {
+    "page": 7,
+    "line": 77,
+    "text": "namics."
+  },
+  {
+    "page": 7,
+    "line": 78,
+    "text": "Chirp A60strajectoryinwhichthethreepositionaxes"
+  },
+  {
+    "page": 7,
+    "line": 79,
+    "text": "aresimultaneouslydrivenbyindependentsinusoidalsignals"
+  },
+  {
+    "page": 7,
+    "line": 80,
+    "text": "ofamplitude0.5m. Theinstantaneousfrequenciesarelin-"
+  },
+  {
+    "page": 7,
+    "line": 81,
+    "text": "early increased from 0.1Hz to 0.5Hz, resulting in a rich"
+  },
+  {
+    "page": 7,
+    "line": 82,
+    "text": "spectralcontentacrossmultiplefrequencybands. Thistra-"
+  },
+  {
+    "page": 7,
+    "line": 83,
+    "text": "jectoryyieldspersistentexcitationofbothtranslationaland"
+  },
+  {
+    "page": 7,
+    "line": 84,
+    "text": "rotationalmodes."
+  },
+  {
+    "page": 7,
+    "line": 85,
+    "text": "]s[noitaruD ]s/m["
+  },
+  {
+    "page": 7,
+    "line": 86,
+    "text": "v"
+  },
+  {
+    "page": 7,
+    "line": 87,
+    "text": "naem"
+  },
+  {
+    "page": 7,
+    "line": 88,
+    "text": "]s/m["
+  },
+  {
+    "page": 7,
+    "line": 89,
+    "text": "v"
+  },
+  {
+    "page": 7,
+    "line": 90,
+    "text": "xam"
+  },
+  {
+    "page": 7,
+    "line": 91,
+    "text": "]²s/m["
+  },
+  {
+    "page": 7,
+    "line": 92,
+    "text": "a"
+  },
+  {
+    "page": 7,
+    "line": 93,
+    "text": "xam"
+  },
+  {
+    "page": 7,
+    "line": 94,
+    "text": "]°[tlitxaM"
+  },
+  {
+    "page": 7,
+    "line": 95,
+    "text": "Square 19.00 0.83 2.60 12.53 42.95"
+  },
+  {
+    "page": 7,
+    "line": 96,
+    "text": "Random 60.00 1.11 2.69 8.30 43.23"
+  },
+  {
+    "page": 7,
+    "line": 97,
+    "text": "Melon 65.00 1.44 3.06 10.91 56.07"
+  },
+  {
+    "page": 7,
+    "line": 98,
+    "text": "Chirp 60.00 0.88 3.02 10.13 62.69"
+  },
+  {
+    "page": 7,
+    "line": 99,
+    "text": "5.3 EvaluationandMetrics"
+  },
+  {
+    "page": 7,
+    "line": 100,
+    "text": "Lety denotethesetoftheOutputsvariablesinTable3at t"
+  },
+  {
+    "page": 7,
+    "line": 101,
+    "text": "timet:"
+  },
+  {
+    "page": 7,
+    "line": 102,
+    "text": "y = (cid:2) p⊤v⊤q⊤ω⊤(cid:3)⊤ ∈R13, (6)"
+  },
+  {
+    "page": 7,
+    "line": 103,
+    "text": "t t t t t"
+  },
+  {
+    "page": 7,
+    "line": 104,
+    "text": "7"
+  },
+  {
+    "page": 8,
+    "line": 1,
+    "text": "where p ∈ R3 is the position, v ∈ R3 the linear veloc- 6 Results"
+  },
+  {
+    "page": 8,
+    "line": 2,
+    "text": "t t"
+  },
+  {
+    "page": 8,
+    "line": 3,
+    "text": "ity,q ∈ R4 theunitquaternionrepresentingattitude,and"
+  },
+  {
+    "page": 8,
+    "line": 4,
+    "text": "t"
+  },
+  {
+    "page": 8,
+    "line": 5,
+    "text": "ω ∈R3theangularvelocity. Thebenchmarkevaluateshow All models were implemented in PyTorch with dif-"
+  },
+  {
+    "page": 8,
+    "line": 6,
+    "text": "t"
+  },
+  {
+    "page": 8,
+    "line": 7,
+    "text": "accurately the model predicts the evolution of the output ferentiable integration and trained using the data splits"
+  },
+  {
+    "page": 8,
+    "line": 8,
+    "text": "variablesoverrollingwindowsofmaximumlengthH =50 described in Section 5.1. Preprocessing, model training,"
+  },
+  {
+    "page": 8,
+    "line": 9,
+    "text": "(correspondingto0.5sat100Hz). Attesttime,themodel and evaluation were performed on a laptop equipped"
+  },
+  {
+    "page": 8,
+    "line": 10,
+    "text": "receivesthetruevariablesy atthebeginningofthewindow with an Intel® Core™ i9–14900HX CPU (24 cores,"
+  },
+  {
+    "page": 8,
+    "line": 11,
+    "text": "t"
+  },
+  {
+    "page": 8,
+    "line": 12,
+    "text": "andthefullinputsequence{u }H−1,andmustpredictthe 32 threads), 32GB of RAM, and an NVIDIA GeForce"
+  },
+  {
+    "page": 8,
+    "line": 13,
+    "text": "t+k k=0"
+  },
+  {
+    "page": 8,
+    "line": 14,
+    "text": "futurestates{yˆ }H withoutadditionalstatecorrections. RTX4070LaptopGPU,runningWindows11(build22621)."
+  },
+  {
+    "page": 8,
+    "line": 15,
+    "text": "t+k k=1"
+  },
+  {
+    "page": 8,
+    "line": 16,
+    "text": "Metrics are computed on the held-out Melon trajectory The complete implementation is publicly available"
+  },
+  {
+    "page": 8,
+    "line": 17,
+    "text": "{(y ,u )}Ttest−1. Foreachadmissiblestarttimet∈T := at https://github.com/idsia-robotics/"
+  },
+  {
+    "page": 8,
+    "line": 18,
+    "text": "t t t=0"
+  },
+  {
+    "page": 8,
+    "line": 19,
+    "text": "{0,1,...,T −H −1},themodelproducesamulti-step nanodrone-sysid-benchmark."
+  },
+  {
+    "page": 8,
+    "line": 20,
+    "text": "test"
+  },
+  {
+    "page": 8,
+    "line": 21,
+    "text": "open-loopprediction:"
+  },
+  {
+    "page": 8,
+    "line": 22,
+    "text": "6.1 Datarepresentationforblack-boxmodel"
+  },
+  {
+    "page": 8,
+    "line": 23,
+    "text": "yˆ =M(y ,u )."
+  },
+  {
+    "page": 8,
+    "line": 24,
+    "text": "t+1:t+H t t:t+H−1 learning"
+  },
+  {
+    "page": 8,
+    "line": 25,
+    "text": "Thus, each start time t ∈ T yields a set of H predictions As introduced in Section 3, the quadrotor is actuated by"
+  },
+  {
+    "page": 8,
+    "line": 26,
+    "text": "{yˆ t+1|t ,...,yˆ t+H|t },whichiscomparedtothecorrespond- four brushless motors whose angular velocities form the"
+  },
+  {
+    "page": 8,
+    "line": 27,
+    "text": "ingground-truthsequencey t+1:t+H usingerrormetricsde- inputvectoru∈R4,see(4). Selectingasubsetofrelevant"
+  },
+  {
+    "page": 8,
+    "line": 28,
+    "text": "finedbelow. variables from the measurement vector y and expressing"
+  },
+  {
+    "page": 8,
+    "line": 29,
+    "text": "For positions, linear velocities, and angular velocities, theminarepresentationtailoredforlearningcansimplify"
+  },
+  {
+    "page": 8,
+    "line": 30,
+    "text": "we define the instantaneous Euclidean prediction error at theregressionproblemandimprovenumericalstability."
+  },
+  {
+    "page": 8,
+    "line": 31,
+    "text": "horizonhas: For example, a direct regression on quaternion orienta-"
+  },
+  {
+    "page": 8,
+    "line": 32,
+    "text": "tions q = [q ,q ,q ,q ]⊤ is undesirable due to the unit-"
+  },
+  {
+    "page": 8,
+    "line": 33,
+    "text": "(cid:13) (cid:13) x y z w"
+  },
+  {
+    "page": 8,
+    "line": 34,
+    "text": "e p,t,h =(cid:13)p t+h −pˆ t+h|t (cid:13) 2 , (7) normconstraintandthedouble-coveringpropertyofquater-"
+  },
+  {
+    "page": 8,
+    "line": 35,
+    "text": "(cid:13) (cid:13) nions,bothofwhichintroducediscontinuitiesinthelearning"
+  },
+  {
+    "page": 8,
+    "line": 36,
+    "text": "e v,t,h =(cid:13)v t+h −vˆ t+h|t (cid:13) 2 , (8) problem. To avoid these issues, we map each quaternion"
+  },
+  {
+    "page": 8,
+    "line": 37,
+    "text": "(cid:13) (cid:13) intoitsequivalentrotation-vector(axis–angle)formusing"
+  },
+  {
+    "page": 8,
+    "line": 38,
+    "text": "e ω,t,h =(cid:13)ω t+h −ωˆ t+h|t(cid:13) 2 . (9) thelogarithmicmaponSO(3):"
+  },
+  {
+    "page": 8,
+    "line": 39,
+    "text": "dis F ta o n r c th e e o o n r S ie O nt ( a 3 ti ) o [ n 2 , 6 w ] e be a t d w o e p e t n as th e e rr t o r r u m ea et t r ti i t c u t d h e e q g t e + o h de a s n i d c r=2 atan2 (cid:0) ∥q v ∥, q w (cid:1) ∥ q q v ∥ , (13)"
+  },
+  {
+    "page": 8,
+    "line": 40,
+    "text": "v"
+  },
+  {
+    "page": 8,
+    "line": 41,
+    "text": "itspredictionqˆ . Therelativerotationis"
+  },
+  {
+    "page": 8,
+    "line": 42,
+    "text": "t+h|t"
+  },
+  {
+    "page": 8,
+    "line": 43,
+    "text": "whereq =[q ,q ,q ]⊤isthevectorpartofthequaternion."
+  },
+  {
+    "page": 8,
+    "line": 44,
+    "text": "(cid:20) (cid:21) v x y z"
+  },
+  {
+    "page": 8,
+    "line": 45,
+    "text": "q =q−1 ⊗qˆ = q v , Theresultingvectorr ∈ R3 providesaminimalandtopo-"
+  },
+  {
+    "page": 8,
+    "line": 46,
+    "text": "rel,t,h t+h t+h|t q w logicallyconsistentparameterizationoforientation,freeof"
+  },
+  {
+    "page": 8,
+    "line": 47,
+    "text": "normalizationconstraintsandsignambiguities[27]."
+  },
+  {
+    "page": 8,
+    "line": 48,
+    "text": "withvectorpartq andscalarpartq . Thecorresponding"
+  },
+  {
+    "page": 8,
+    "line": 49,
+    "text": "v w Usingthisrepresentation,theoutputvectorusedforlearn-"
+  },
+  {
+    "page": 8,
+    "line": 50,
+    "text": "axis–anglerotationerrorisgivenby:"
+  },
+  {
+    "page": 8,
+    "line": 51,
+    "text": "ingisdefinedas:"
+  },
+  {
+    "page": 8,
+    "line": 52,
+    "text": "(cid:0)(cid:13) (cid:13) (cid:1)"
+  },
+  {
+    "page": 8,
+    "line": 53,
+    "text": "e R,t,h =2 atan2 (cid:13)q v(cid:13), q w , (10) y˜ = (cid:2) p⊤ v⊤ r⊤ ω⊤(cid:3)⊤ ∈R12, (14)"
+  },
+  {
+    "page": 8,
+    "line": 54,
+    "text": "whichyieldsthegeodesicorientationerrorinradians."
+  },
+  {
+    "page": 8,
+    "line": 55,
+    "text": "wherep = [p ,p ,p ]⊤ isthepositionintheworldframe"
+  },
+  {
+    "page": 8,
+    "line": 56,
+    "text": "Weevaluatethepredictionaccuracyusingthemeanabso- x y z"
+  },
+  {
+    "page": 8,
+    "line": 57,
+    "text": "W, r is the rotation vector obtained from the quaternion"
+  },
+  {
+    "page": 8,
+    "line": 58,
+    "text": "luteerrorper-predictionhorizon,definedas:"
+  },
+  {
+    "page": 8,
+    "line": 59,
+    "text": "orientation, v = [v ,v ,v ]⊤ is the linear velocity in W,"
+  },
+  {
+    "page": 8,
+    "line": 60,
+    "text": "x y z"
+  },
+  {
+    "page": 8,
+    "line": 61,
+    "text": "1 (cid:88) andω =[ω x ,ω y ,ω z ]⊤isthebody-frameangularvelocity."
+  },
+  {
+    "page": 8,
+    "line": 62,
+    "text": "MAE (·),h = |T| e (·),t,h , h=1,...,H, (11) Training is performed using fixed-length input–output"
+  },
+  {
+    "page": 8,
+    "line": 63,
+    "text": "t∈T windows of horizon H = 50 samples (0.5 s). For each"
+  },
+  {
+    "page": 8,
+    "line": 64,
+    "text": "trajectoryj ∈J ={Square,Random,Multisine},with"
+  },
+  {
+    "page": 8,
+    "line": 65,
+    "text": "where(·)∈{p, v, ω, R}indicatesquantityofinterest. For train"
+  },
+  {
+    "page": 8,
+    "line": 66,
+    "text": "T denotingthetotalnumberoftimesamples,thedatasetis"
+  },
+  {
+    "page": 8,
+    "line": 67,
+    "text": "a compact comparison across models, we also report an j"
+  },
+  {
+    "page": 8,
+    "line": 68,
+    "text": "constructedas:"
+  },
+  {
+    "page": 8,
+    "line": 69,
+    "text": "aggregatedsimulationerrormetric,definedastheaverage"
+  },
+  {
+    "page": 8,
+    "line": 70,
+    "text": "predictionerroraccumulatedoveraH =50-stepopen-loop"
+  },
+  {
+    "page": 8,
+    "line": 71,
+    "text": "D ="
+  },
+  {
+    "page": 8,
+    "line": 72,
+    "text": "(cid:91) (cid:8)(cid:0)"
+  },
+  {
+    "page": 8,
+    "line": 73,
+    "text": "X ,Y"
+  },
+  {
+    "page": 8,
+    "line": 74,
+    "text": "(cid:1)(cid:9)Tj−H"
+  },
+  {
+    "page": 8,
+    "line": 75,
+    "text": ", (15)"
+  },
+  {
+    "page": 8,
+    "line": 76,
+    "text": "rollout: train t t t=0"
+  },
+  {
+    "page": 8,
+    "line": 77,
+    "text": "H"
+  },
+  {
+    "page": 8,
+    "line": 78,
+    "text": "j∈Jtrain"
+  },
+  {
+    "page": 8,
+    "line": 79,
+    "text": "(cid:88)"
+  },
+  {
+    "page": 8,
+    "line": 80,
+    "text": "MAE = MAE . (12)"
+  },
+  {
+    "page": 8,
+    "line": 81,
+    "text": "(·),1:H (·),h whereeachpaircorrespondstoatemporalwindow:"
+  },
+  {
+    "page": 8,
+    "line": 82,
+    "text": "h=1"
+  },
+  {
+    "page": 8,
+    "line": 83,
+    "text": "(cid:8) (cid:9)"
+  },
+  {
+    "page": 8,
+    "line": 84,
+    "text": "This50-stepsimulationerrorsummarizesthemodel’sopen- X t = y˜ t , u t:t+H−1 , (16)"
+  },
+  {
+    "page": 8,
+    "line": 85,
+    "text": "loopperformanceoverafinitehorizon,providingacompact Y = (cid:8) y˜ (cid:9) . (17)"
+  },
+  {
+    "page": 8,
+    "line": 86,
+    "text": "t t+1:t+H"
+  },
+  {
+    "page": 8,
+    "line": 87,
+    "text": "indicatorofoverallsimulationquality. Forreproducibility,"
+  },
+  {
+    "page": 8,
+    "line": 88,
+    "text": "theaccompanyingrepositoryprovidesready-to-useimple- ThesameconstructionisappliedtotheMelontrajectoryto"
+  },
+  {
+    "page": 8,
+    "line": 89,
+    "text": "mentationsofalltheevaluationmetricsdefinedabove. obtainthetestsetD ."
+  },
+  {
+    "page": 8,
+    "line": 90,
+    "text": "test"
+  },
+  {
+    "page": 8,
+    "line": 91,
+    "text": "8"
+  },
+  {
+    "page": 9,
+    "line": 1,
+    "text": "6.2 NaïveModel"
+  },
+  {
+    "page": 9,
+    "line": 2,
+    "text": "1.0"
+  },
+  {
+    "page": 9,
+    "line": 3,
+    "text": "0.8 Asareferenceforevaluatingthepredictiveperformanceof"
+  },
+  {
+    "page": 9,
+    "line": 4,
+    "text": "theproposedmodels,weconsideraconstantpredictorasa 0.6"
+  },
+  {
+    "page": 9,
+    "line": 5,
+    "text": "baseline.Thismodelassumesthatthesystemoutputremains 0.4"
+  },
+  {
+    "page": 9,
+    "line": 6,
+    "text": "constantoverthepredictionhorizon: 0.2"
+  },
+  {
+    "page": 9,
+    "line": 7,
+    "text": "yˆ =y˜ , h=1,...,H, (18) 0 10 20 30 40 50 60"
+  },
+  {
+    "page": 9,
+    "line": 8,
+    "text": "t+h|t t Time t [s]"
+  },
+  {
+    "page": 9,
+    "line": 9,
+    "text": "where yˆ denotes the prediction of the output vector"
+  },
+  {
+    "page": 9,
+    "line": 10,
+    "text": "t+h|t"
+  },
+  {
+    "page": 9,
+    "line": 11,
+    "text": "y˜ (used for model training) h steps ahead given the t+h|t"
+  },
+  {
+    "page": 9,
+    "line": 12,
+    "text": "currentmeasurementy˜ . Althoughthisapproachneglects"
+  },
+  {
+    "page": 9,
+    "line": 13,
+    "text": "t"
+  },
+  {
+    "page": 9,
+    "line": 14,
+    "text": "thesystemdynamicsentirely,itestablishesameaningfulref-"
+  },
+  {
+    "page": 9,
+    "line": 15,
+    "text": "erencelevelforshort-horizonpredictions,sinceitcaptures"
+  },
+  {
+    "page": 9,
+    "line": 16,
+    "text": "the strong temporal correlation often present in high-rate"
+  },
+  {
+    "page": 9,
+    "line": 17,
+    "text": "sampleddata. Modelsthatdonotoutperformthisbaseline"
+  },
+  {
+    "page": 9,
+    "line": 18,
+    "text": "forsmallhorizonshcanbeconsideredineffective,whilea"
+  },
+  {
+    "page": 9,
+    "line": 19,
+    "text": "consistentimprovementindicatesthatthemodelhassuccess-"
+  },
+  {
+    "page": 9,
+    "line": 20,
+    "text": "fullycapturedmeaningfulsystemdynamics."
+  },
+  {
+    "page": 9,
+    "line": 21,
+    "text": "6.3 Physicalmodel"
+  },
+  {
+    "page": 9,
+    "line": 22,
+    "text": "The nominal physical model is based on the continuous-"
+  },
+  {
+    "page": 9,
+    "line": 23,
+    "text": "time quadrotor dynamics given in (2), together with the"
+  },
+  {
+    "page": 9,
+    "line": 24,
+    "text": "quadraticaerodynamicsequationsin(5). Thesystemstate"
+  },
+  {
+    "page": 9,
+    "line": 25,
+    "text": "isx = y = [p⊤,v⊤,q⊤,ω⊤]⊤,whilethecontrolinputu"
+  },
+  {
+    "page": 9,
+    "line": 26,
+    "text": "correspondstothefourpropellers’rotationalspeeds."
+  },
+  {
+    "page": 9,
+    "line": 27,
+    "text": "To obtain a discrete-time model suitable for multi-step"
+  },
+  {
+    "page": 9,
+    "line": 28,
+    "text": "predictionandsimulation,thecontinuous-timedynamicsare"
+  },
+  {
+    "page": 9,
+    "line": 29,
+    "text": "numericallyintegratedovereachsamplinginterval∆tusing"
+  },
+  {
+    "page": 9,
+    "line": 30,
+    "text": "afourth-orderRunge–Kutta(RK4)scheme. Startingfrom"
+  },
+  {
+    "page": 9,
+    "line": 31,
+    "text": "thecurrentmeasurementy ,thephysicalmodelrecursively"
+  },
+  {
+    "page": 9,
+    "line": 32,
+    "text": "t"
+  },
+  {
+    "page": 9,
+    "line": 33,
+    "text": "predictsthefutureoutputsas:"
+  },
+  {
+    "page": 9,
+    "line": 34,
+    "text": "yˆ =y˜ , (19)"
+  },
+  {
+    "page": 9,
+    "line": 35,
+    "text": "t|t t"
+  },
+  {
+    "page": 9,
+    "line": 36,
+    "text": "(cid:0) (cid:1) yˆ =f yˆ ,u , h=1,...,H, (20)"
+  },
+  {
+    "page": 9,
+    "line": 37,
+    "text": "t+h|t phys t+h−1|t t+h−1"
+  },
+  {
+    "page": 9,
+    "line": 38,
+    "text": "wheref denotesthediscrete-timetransitionfunctionim-"
+  },
+  {
+    "page": 9,
+    "line": 39,
+    "text": "phys"
+  },
+  {
+    "page": 9,
+    "line": 40,
+    "text": "plementingthefullrigid-bodyandmotordynamics. Notice"
+  },
+  {
+    "page": 9,
+    "line": 41,
+    "text": "thatf containsthetransformationfromaxes-anglecon- phys"
+  },
+  {
+    "page": 9,
+    "line": 42,
+    "text": "ventiontoquaternionsandtheinverse,tokeepconsistency"
+  },
+  {
+    "page": 9,
+    "line": 43,
+    "text": "with data representation in (16). This model requires the"
+  },
+  {
+    "page": 9,
+    "line": 44,
+    "text": "identificationofthepropeller thrustanddragcoefficients,"
+  },
+  {
+    "page": 9,
+    "line": 45,
+    "text": "k andk ,whichmapthenormalizedmotorcommandsto"
+  },
+  {
+    "page": 9,
+    "line": 46,
+    "text": "F M"
+  },
+  {
+    "page": 9,
+    "line": 47,
+    "text": "physicalthrustandtorquevalues."
+  },
+  {
+    "page": 9,
+    "line": 48,
+    "text": "ParameterEstimation Thetotalthrustandtorquesgener-"
+  },
+  {
+    "page": 9,
+    "line": 49,
+    "text": "atedbythepropellersaremodeledaccordingtothequadratic"
+  },
+  {
+    "page": 9,
+    "line": 50,
+    "text": "aerodynamicsmodelin(5),whichdependsontheunknown"
+  },
+  {
+    "page": 9,
+    "line": 51,
+    "text": "coefficientsk andk . Toestimatethethrustcoefficient"
+  },
+  {
+    "page": 9,
+    "line": 52,
+    "text": "F M"
+  },
+  {
+    "page": 9,
+    "line": 53,
+    "text": "k ,itisconvenienttoexpressthetranslationdynamics(sec-"
+  },
+  {
+    "page": 9,
+    "line": 54,
+    "text": "F"
+  },
+  {
+    "page": 9,
+    "line": 55,
+    "text": "ondequationof(2))inbodycoordinates:f =m(a−g) ="
+  },
+  {
+    "page": 9,
+    "line": 56,
+    "text": "B B"
+  },
+  {
+    "page": 9,
+    "line": 57,
+    "text": "[00T]⊤.Wereplace(a−g) withtheaccelerometerread- B"
+  },
+  {
+    "page": 9,
+    "line": 58,
+    "text": "ingaIMU,whichdirectlymeasuresspecificaccelerationin"
+  },
+  {
+    "page": 9,
+    "line": 59,
+    "text": "body frame coordinates: f ≈ ˜f = maIMU. By con-"
+  },
+  {
+    "page": 9,
+    "line": 60,
+    "text": "B B"
+  },
+  {
+    "page": 9,
+    "line": 61,
+    "text": "sidering the force balance along the body’s z-axis and by"
+  },
+  {
+    "page": 9,
+    "line": 62,
+    "text": "substitutingthetotalthrustT withitsconstitutiveequation"
+  },
+  {
+    "page": 9,
+    "line": 63,
+    "text": "fromthefirstrowof(5),weget:"
+  },
+  {
+    "page": 9,
+    "line": 64,
+    "text": "f˜ =maIMU =k (Ω2+Ω2+Ω2+Ω2). (21)"
+  },
+  {
+    "page": 9,
+    "line": 65,
+    "text": "B,z z F 1 2 3 4"
+  },
+  {
+    "page": 9,
+    "line": 66,
+    "text": "Theequationabovedependsonmeasuredquantitiesandthe"
+  },
+  {
+    "page": 9,
+    "line": 67,
+    "text": "unknownparameterk ,allowingfortheestimationofthe"
+  },
+  {
+    "page": 9,
+    "line": 68,
+    "text": "F"
+  },
+  {
+    "page": 9,
+    "line": 69,
+    "text": "]N["
+  },
+  {
+    "page": 9,
+    "line": 70,
+    "text": "tsurhT"
+  },
+  {
+    "page": 9,
+    "line": 71,
+    "text": "f~ k (­2+­2+­2+­2)"
+  },
+  {
+    "page": 9,
+    "line": 72,
+    "text": ";z F 1 2 3 4 B"
+  },
+  {
+    "page": 9,
+    "line": 73,
+    "text": "5.0"
+  },
+  {
+    "page": 9,
+    "line": 74,
+    "text": "0.0"
+  },
+  {
+    "page": 9,
+    "line": 75,
+    "text": "−5.0"
+  },
+  {
+    "page": 9,
+    "line": 76,
+    "text": "0 10 20 30 40 50 60"
+  },
+  {
+    "page": 9,
+    "line": 77,
+    "text": "Time [s]"
+  },
+  {
+    "page": 9,
+    "line": 78,
+    "text": "]mN["
+  },
+  {
+    "page": 9,
+    "line": 79,
+    "text": "euqroT"
+  },
+  {
+    "page": 9,
+    "line": 80,
+    "text": "10−3"
+  },
+  {
+    "page": 9,
+    "line": 81,
+    "text": "£"
+  },
+  {
+    "page": 9,
+    "line": 82,
+    "text": "¿~x k F L( ¡ ­2 1¡ ­2 2 +­2 3 +­2 4 )"
+  },
+  {
+    "page": 9,
+    "line": 83,
+    "text": "5.0"
+  },
+  {
+    "page": 9,
+    "line": 84,
+    "text": "0.0"
+  },
+  {
+    "page": 9,
+    "line": 85,
+    "text": "−5.0"
+  },
+  {
+    "page": 9,
+    "line": 86,
+    "text": "0 10 20 30 40 50 60"
+  },
+  {
+    "page": 9,
+    "line": 87,
+    "text": "Time [s]"
+  },
+  {
+    "page": 9,
+    "line": 88,
+    "text": "]mN["
+  },
+  {
+    "page": 9,
+    "line": 89,
+    "text": "euqroT"
+  },
+  {
+    "page": 9,
+    "line": 90,
+    "text": "10−3"
+  },
+  {
+    "page": 9,
+    "line": 91,
+    "text": "£"
+  },
+  {
+    "page": 9,
+    "line": 92,
+    "text": "¿~y k F L( ¡ ­2 1 +­2 2 +­2 3¡ ­2 4 )"
+  },
+  {
+    "page": 9,
+    "line": 93,
+    "text": "5.0"
+  },
+  {
+    "page": 9,
+    "line": 94,
+    "text": "0.0"
+  },
+  {
+    "page": 9,
+    "line": 95,
+    "text": "0 10 20 30 40 50 60"
+  },
+  {
+    "page": 9,
+    "line": 96,
+    "text": "Time [s]"
+  },
+  {
+    "page": 9,
+    "line": 97,
+    "text": "]mN["
+  },
+  {
+    "page": 9,
+    "line": 98,
+    "text": "euqroT"
+  },
+  {
+    "page": 9,
+    "line": 99,
+    "text": "10−4"
+  },
+  {
+    "page": 9,
+    "line": 100,
+    "text": "£"
+  },
+  {
+    "page": 9,
+    "line": 101,
+    "text": "¿~z k M ( ¡ ­2 1 +­2 2¡ ­2 3 +­2 4 )"
+  },
+  {
+    "page": 9,
+    "line": 102,
+    "text": "Figure 5: Comparison between measured and model-"
+  },
+  {
+    "page": 9,
+    "line": 103,
+    "text": "predictedthrustandyawtorqueontheMelontesttrajectory"
+  },
+  {
+    "page": 9,
+    "line": 104,
+    "text": "(run1),averagedoverthreeruns,usingtheidentifiedaero-"
+  },
+  {
+    "page": 9,
+    "line": 105,
+    "text": "dynamiccoefficientsk andk . F M"
+  },
+  {
+    "page": 9,
+    "line": 106,
+    "text": "latter. Least-squaresfittingsoverthetrainingdatasetyields"
+  },
+  {
+    "page": 9,
+    "line": 107,
+    "text": "k =3.72×10−8Ns2/rad2. F"
+  },
+  {
+    "page": 9,
+    "line": 108,
+    "text": "Asimilarprocedureisusedtoestimatethetorquecoef-"
+  },
+  {
+    "page": 9,
+    "line": 109,
+    "text": "ficientk . Theground-truthtorquesignalτ˜isfirstrecon- M"
+  },
+  {
+    "page": 9,
+    "line": 110,
+    "text": "structedas"
+  },
+  {
+    "page": 9,
+    "line": 111,
+    "text": "τ˜ =Jω˙ +ω×(Jω),"
+  },
+  {
+    "page": 9,
+    "line": 112,
+    "text": "followingtherigidbodyangulardynamicsinthelastequa-"
+  },
+  {
+    "page": 9,
+    "line": 113,
+    "text": "tionof(2). Thereconstructionisbasedontheknowninertia"
+  },
+  {
+    "page": 9,
+    "line": 114,
+    "text": "matrixJ,theangularvelocityωmeasuredbythegyroscope,"
+  },
+  {
+    "page": 9,
+    "line": 115,
+    "text": "andafinitedifferenceapproximationoftheangularacceler-"
+  },
+  {
+    "page": 9,
+    "line": 116,
+    "text": "ationω˙ obtainedfromthesamesignal."
+  },
+  {
+    "page": 9,
+    "line": 117,
+    "text": "Consideringtheconstitutiveequationforτ atthelastrow"
+  },
+  {
+    "page": 9,
+    "line": 118,
+    "text": "z"
+  },
+  {
+    "page": 9,
+    "line": 119,
+    "text": "of(5),weget:"
+  },
+  {
+    "page": 9,
+    "line": 120,
+    "text": "τ˜ =k (−Ω2+Ω2−Ω2+Ω ). (22) z M 1 2 3 4"
+  },
+  {
+    "page": 9,
+    "line": 121,
+    "text": "The parameter k is then estimated via least-squares re-"
+  },
+  {
+    "page": 9,
+    "line": 122,
+    "text": "M"
+  },
+  {
+    "page": 9,
+    "line": 123,
+    "text": "gressionoverthetrainingdatasetbasedon(22). Weobtain"
+  },
+  {
+    "page": 9,
+    "line": 124,
+    "text": "k =7.73×10−11Nms2/rad2."
+  },
+  {
+    "page": 9,
+    "line": 125,
+    "text": "M"
+  },
+  {
+    "page": 9,
+    "line": 126,
+    "text": "Limitationsofthephysicalmodel Thrustpredictionsob-"
+  },
+  {
+    "page": 9,
+    "line": 127,
+    "text": "tainedwiththeestimatedk arecomparedwithexperimen-"
+  },
+  {
+    "page": 9,
+    "line": 128,
+    "text": "F"
+  },
+  {
+    "page": 9,
+    "line": 129,
+    "text": "talmeasurementsoftheMelontrajectoryinthetoppanelof"
+  },
+  {
+    "page": 9,
+    "line": 130,
+    "text": "Figure5. Theestimatedthrustalongz alignscloselywith"
+  },
+  {
+    "page": 9,
+    "line": 131,
+    "text": "9"
+  },
+  {
+    "page": 10,
+    "line": 1,
+    "text": "0.8"
+  },
+  {
+    "page": 10,
+    "line": 2,
+    "text": "0.6"
+  },
+  {
+    "page": 10,
+    "line": 3,
+    "text": "0.4"
+  },
+  {
+    "page": 10,
+    "line": 4,
+    "text": "0.2"
+  },
+  {
+    "page": 10,
+    "line": 5,
+    "text": "0.0"
+  },
+  {
+    "page": 10,
+    "line": 6,
+    "text": "0 10 20 30 40 50 60"
+  },
+  {
+    "page": 10,
+    "line": 7,
+    "text": "Time [s]"
+  },
+  {
+    "page": 10,
+    "line": 8,
+    "text": "]N["
+  },
+  {
+    "page": 10,
+    "line": 9,
+    "text": "f"
+  },
+  {
+    "page": 10,
+    "line": 10,
+    "text": "B"
+  },
+  {
+    "page": 10,
+    "line": 11,
+    "text": "f~ ;x f~ ;y f~ ;z 5.0"
+  },
+  {
+    "page": 10,
+    "line": 12,
+    "text": "B B B"
+  },
+  {
+    "page": 10,
+    "line": 13,
+    "text": "0.0"
+  },
+  {
+    "page": 10,
+    "line": 14,
+    "text": "33 34 35 36 37 38 39"
+  },
+  {
+    "page": 10,
+    "line": 15,
+    "text": "Time [s]"
+  },
+  {
+    "page": 10,
+    "line": 16,
+    "text": "Figure6: Exampleofmeasuredforcesinbodyframe. f"
+  },
+  {
+    "page": 10,
+    "line": 17,
+    "text": "B,x"
+  },
+  {
+    "page": 10,
+    "line": 18,
+    "text": "andf arethenon-ideallateralforcecomponentsduring"
+  },
+  {
+    "page": 10,
+    "line": 19,
+    "text": "B,y"
+  },
+  {
+    "page": 10,
+    "line": 20,
+    "text": "theMelontrajectory(run1)."
+  },
+  {
+    "page": 10,
+    "line": 21,
+    "text": "themeasurements.However,asshowninFigure6,therecon-"
+  },
+  {
+    "page": 10,
+    "line": 22,
+    "text": "structedbodyframeforcesexhibitadditionalcomponentsin"
+  },
+  {
+    "page": 10,
+    "line": 23,
+    "text": "thexandydirectionsthatthemodeldoesnotexplain."
+  },
+  {
+    "page": 10,
+    "line": 24,
+    "text": "Thereconstructedyawtorquek (−Ω2+Ω2−Ω2+Ω2) M 1 2 3 4"
+  },
+  {
+    "page": 10,
+    "line": 25,
+    "text": "is shown together with the ground truth torque τ˜ in the"
+  },
+  {
+    "page": 10,
+    "line": 26,
+    "text": "z"
+  },
+  {
+    "page": 10,
+    "line": 27,
+    "text": "bottompanelofFigure5. Itappearsthatthemodelexplains"
+  },
+  {
+    "page": 10,
+    "line": 28,
+    "text": "onlypartoftheyawdynamics."
+  },
+  {
+    "page": 10,
+    "line": 29,
+    "text": "An even larger model mismatch occurs in the roll and"
+  },
+  {
+    "page": 10,
+    "line": 30,
+    "text": "pitch torques, visualized in the second and third panels"
+  },
+  {
+    "page": 10,
+    "line": 31,
+    "text": "of Figure 5. For instance, the predicted pitch torque"
+  },
+  {
+    "page": 10,
+    "line": 32,
+    "text": "k L"
+  },
+  {
+    "page": 10,
+    "line": 33,
+    "text": "(cid:0) −Ω2−Ω2+Ω2+Ω2(cid:1)"
+  },
+  {
+    "page": 10,
+    "line": 34,
+    "text": "basedonthesecondrowof(5)"
+  },
+  {
+    "page": 10,
+    "line": 35,
+    "text": "F 1 2 3 4"
+  },
+  {
+    "page": 10,
+    "line": 36,
+    "text": "departssignificantlyfromtheground-truthτ˜ ."
+  },
+  {
+    "page": 10,
+    "line": 37,
+    "text": "x"
+  },
+  {
+    "page": 10,
+    "line": 38,
+    "text": "Figure 7 presents a zoomed view of the ground-truth"
+  },
+  {
+    "page": 10,
+    "line": 39,
+    "text": "torque roll τ˜ , together with its prediction based on the"
+  },
+  {
+    "page": 10,
+    "line": 40,
+    "text": "x"
+  },
+  {
+    "page": 10,
+    "line": 41,
+    "text": "quadraticmodel. Thepredictedsignalappearstocomprise"
+  },
+  {
+    "page": 10,
+    "line": 42,
+    "text": "twocomponents: ahigh-frequencypartthatagreeswiththe"
+  },
+  {
+    "page": 10,
+    "line": 43,
+    "text": "measuredtorqueandalower-frequencypartthatthemodel"
+  },
+  {
+    "page": 10,
+    "line": 44,
+    "text": "cannotaccountfor. Thisindicatesthatadditionaltorques,"
+  },
+  {
+    "page": 10,
+    "line": 45,
+    "text": "notcapturedby(5),areactingonthedrone."
+  },
+  {
+    "page": 10,
+    "line": 46,
+    "text": "Wehypothesizethattheobservedlackoffitarisesfrom"
+  },
+  {
+    "page": 10,
+    "line": 47,
+    "text": "thelimitationsofthequadraticmodelin(5)whenapplied"
+  },
+  {
+    "page": 10,
+    "line": 48,
+    "text": "toaggressivemaneuvers,asanticipatedinRemark1. Simi-"
+  },
+  {
+    "page": 10,
+    "line": 49,
+    "text": "larissueshavebeenreportedforlargerquadrotors[9,17],"
+  },
+  {
+    "page": 10,
+    "line": 50,
+    "text": "although,toourknowledge,theyhavenotyetbeeninvesti-"
+  },
+  {
+    "page": 10,
+    "line": 51,
+    "text": "gatedatthenanoscale."
+  },
+  {
+    "page": 10,
+    "line": 52,
+    "text": "Sincethisbehaviourisalsoobservedinthetrainingdata,"
+  },
+  {
+    "page": 10,
+    "line": 53,
+    "text": "inlightoftheconsiderationsabove,weadoptasimplified"
+  },
+  {
+    "page": 10,
+    "line": 54,
+    "text": "physicalbaselineinwhichω˙ =0. Westressthatthisdoes"
+  },
+  {
+    "page": 10,
+    "line": 55,
+    "text": "notimplythattheangularaccelerationisactuallyzero. In-"
+  },
+  {
+    "page": 10,
+    "line": 56,
+    "text": "stead,weretaintheportionofthephysicalmodelthataccu-"
+  },
+  {
+    "page": 10,
+    "line": 57,
+    "text": "ratelyreflectstheunderlyingdynamicsandmakeaconser-"
+  },
+  {
+    "page": 10,
+    "line": 58,
+    "text": "vativemodelingchoicefortherotationaldynamics,which"
+  },
+  {
+    "page": 10,
+    "line": 59,
+    "text": "welatercompensatewithblackboxcomponents. Attempts"
+  },
+  {
+    "page": 10,
+    "line": 60,
+    "text": "to incorporate the rotational dynamics from the physical"
+  },
+  {
+    "page": 10,
+    "line": 61,
+    "text": "equationsyieldedoverallworseresults."
+  },
+  {
+    "page": 10,
+    "line": 62,
+    "text": "6.4 Black-boxmodels"
+  },
+  {
+    "page": 10,
+    "line": 63,
+    "text": "Thepurelydata-drivenmodelslearnthestatetransitiondi-"
+  },
+  {
+    "page": 10,
+    "line": 64,
+    "text": "rectlyfromdata,withoutexplicitphysicspriors. Botharchi-"
+  },
+  {
+    "page": 10,
+    "line": 65,
+    "text": "tecturespredictthenextoutputasaresidualcorrectionon"
+  },
+  {
+    "page": 10,
+    "line": 66,
+    "text": "topofthecurrentstate. Formulti-stepprediction,starting"
+  },
+  {
+    "page": 10,
+    "line": 67,
+    "text": "fromyˆ =y˜ ,themodelsarerecursivelyappliedas:"
+  },
+  {
+    "page": 10,
+    "line": 68,
+    "text": "t|t t"
+  },
+  {
+    "page": 10,
+    "line": 69,
+    "text": "(cid:0) (cid:1) yˆ =yˆ +f ... , h=1,...,H, (23)"
+  },
+  {
+    "page": 10,
+    "line": 70,
+    "text": "t+h|t t+h−1|t bb"
+  },
+  {
+    "page": 10,
+    "line": 71,
+    "text": "wherethestructureoff dependsonthespecificarchitec-"
+  },
+  {
+    "page": 10,
+    "line": 72,
+    "text": "bb"
+  },
+  {
+    "page": 10,
+    "line": 73,
+    "text": "turedescribedbelow."
+  },
+  {
+    "page": 10,
+    "line": 74,
+    "text": "]mN["
+  },
+  {
+    "page": 10,
+    "line": 75,
+    "text": "euqroT"
+  },
+  {
+    "page": 10,
+    "line": 76,
+    "text": "10−3"
+  },
+  {
+    "page": 10,
+    "line": 77,
+    "text": "£"
+  },
+  {
+    "page": 10,
+    "line": 78,
+    "text": "J x !_ x k F L(­2 3 +­2 4¡ ­2 1¡ ­2 2 )"
+  },
+  {
+    "page": 10,
+    "line": 79,
+    "text": "Figure7:Zoomedcomparisonbetweenmeasuredandmodel-"
+  },
+  {
+    "page": 10,
+    "line": 80,
+    "text": "predictedthrustandyawtorqueontheMelontesttrajectory"
+  },
+  {
+    "page": 10,
+    "line": 81,
+    "text": "(run1)."
+  },
+  {
+    "page": 10,
+    "line": 82,
+    "text": "Rolling Feed-Forward The rolling feed-forward (FF)"
+  },
+  {
+    "page": 10,
+    "line": 83,
+    "text": "model implements f as a multilayer perceptron (MLP)"
+  },
+  {
+    "page": 10,
+    "line": 84,
+    "text": "bb"
+  },
+  {
+    "page": 10,
+    "line": 85,
+    "text": "thatoutputstheresidualincrement∆yˆ basedsolelyonthe"
+  },
+  {
+    "page": 10,
+    "line": 86,
+    "text": "immediatestateandinput. Therecursionbecomes:"
+  },
+  {
+    "page": 10,
+    "line": 87,
+    "text": "(cid:0) (cid:1)"
+  },
+  {
+    "page": 10,
+    "line": 88,
+    "text": "yˆ =yˆ +f yˆ ,u . (24) t+h|t t+h−1|t MLP t+h−1|t t+h−1"
+  },
+  {
+    "page": 10,
+    "line": 89,
+    "text": "It captures instantaneous nonlinear relationships between"
+  },
+  {
+    "page": 10,
+    "line": 90,
+    "text": "stateandinput,providingapurelystaticapproximationof"
+  },
+  {
+    "page": 10,
+    "line": 91,
+    "text": "theresidualdynamics."
+  },
+  {
+    "page": 10,
+    "line": 92,
+    "text": "Long Short-Term Memory The LSTM model extends"
+  },
+  {
+    "page": 10,
+    "line": 93,
+    "text": "theresidualformulationbyintroducingarecurrenthidden"
+  },
+  {
+    "page": 10,
+    "line": 94,
+    "text": "stateh,whichevolvesdynamicallyoverthepredictionhori-"
+  },
+  {
+    "page": 10,
+    "line": 95,
+    "text": "zon. Toproperlyinitializetheinternaldynamicsfromthe"
+  },
+  {
+    "page": 10,
+    "line": 96,
+    "text": "staticobservationy ,theinitialhiddenstateisinferredvia"
+  },
+  {
+    "page": 10,
+    "line": 97,
+    "text": "t"
+  },
+  {
+    "page": 10,
+    "line": 98,
+    "text": "a dedicated mapping h = f (y˜ ), parameterized as a"
+  },
+  {
+    "page": 10,
+    "line": 99,
+    "text": "t|t init t"
+  },
+  {
+    "page": 10,
+    "line": 100,
+    "text": "smallMLP.Themulti-steppredictionisthengeneratedvia"
+  },
+  {
+    "page": 10,
+    "line": 101,
+    "text": "thecoupledupdatelaw:"
+  },
+  {
+    "page": 10,
+    "line": 102,
+    "text": "(cid:0) (cid:1)"
+  },
+  {
+    "page": 10,
+    "line": 103,
+    "text": "h =ϕ h ,yˆ ,u , (25a) t+h|t LSTM t+h−1|t t+h−1|t t+h−1"
+  },
+  {
+    "page": 10,
+    "line": 104,
+    "text": "(cid:0) (cid:1)"
+  },
+  {
+    "page": 10,
+    "line": 105,
+    "text": "yˆ =yˆ +ψ h , (25b)"
+  },
+  {
+    "page": 10,
+    "line": 106,
+    "text": "t+h|t t+h−1|t out t+h|t"
+  },
+  {
+    "page": 10,
+    "line": 107,
+    "text": "forh=1,...,H. Here,f projectstheinitialsystemstate"
+  },
+  {
+    "page": 10,
+    "line": 108,
+    "text": "init"
+  },
+  {
+    "page": 10,
+    "line": 109,
+    "text": "intothelatentspace,ϕ propagatesthetemporalcontext,"
+  },
+  {
+    "page": 10,
+    "line": 110,
+    "text": "LSTM"
+  },
+  {
+    "page": 10,
+    "line": 111,
+    "text": "andψ isalinearreadoutlayermappingtheupdatedhidden"
+  },
+  {
+    "page": 10,
+    "line": 112,
+    "text": "out"
+  },
+  {
+    "page": 10,
+    "line": 113,
+    "text": "statetotheresidualincrement."
+  },
+  {
+    "page": 10,
+    "line": 114,
+    "text": "6.5 Hybridmodel"
+  },
+  {
+    "page": 10,
+    "line": 115,
+    "text": "Thehybridmodel(Physical+Residual)extendsthephysical"
+  },
+  {
+    "page": 10,
+    "line": 116,
+    "text": "predictorf withaneuralcorrectiontermthatlearnsto"
+  },
+  {
+    "page": 10,
+    "line": 117,
+    "text": "phys"
+  },
+  {
+    "page": 10,
+    "line": 118,
+    "text": "compensateforunmodeledresidualeffects. Startingfrom"
+  },
+  {
+    "page": 10,
+    "line": 119,
+    "text": "thecurrentmeasurementy ,themodelrecursivelypredicts"
+  },
+  {
+    "page": 10,
+    "line": 120,
+    "text": "t"
+  },
+  {
+    "page": 10,
+    "line": 121,
+    "text": "futureoutputsas:"
+  },
+  {
+    "page": 10,
+    "line": 122,
+    "text": "yˆ =y˜ ,"
+  },
+  {
+    "page": 10,
+    "line": 123,
+    "text": "t|t t"
+  },
+  {
+    "page": 10,
+    "line": 124,
+    "text": "yˆ =f (cid:0) yˆ ,u (cid:1) + (26)"
+  },
+  {
+    "page": 10,
+    "line": 125,
+    "text": "t+h|t phys t+h−1|t t+h−1"
+  },
+  {
+    "page": 10,
+    "line": 126,
+    "text": "(cid:0) (cid:1)"
+  },
+  {
+    "page": 10,
+    "line": 127,
+    "text": "f yˆ ,u , h=1,...,H."
+  },
+  {
+    "page": 10,
+    "line": 128,
+    "text": "res t+h−1|t t+h−1"
+  },
+  {
+    "page": 10,
+    "line": 129,
+    "text": "wheref denotesthediscrete-timephysicalmappingde-"
+  },
+  {
+    "page": 10,
+    "line": 130,
+    "text": "phys"
+  },
+  {
+    "page": 10,
+    "line": 131,
+    "text": "finedin(20),andf isafeed-forwardneuralnetworkthat"
+  },
+  {
+    "page": 10,
+    "line": 132,
+    "text": "res"
+  },
+  {
+    "page": 10,
+    "line": 133,
+    "text": "outputs a residual correction ∆y in the same representa-"
+  },
+  {
+    "page": 10,
+    "line": 134,
+    "text": "t"
+  },
+  {
+    "page": 10,
+    "line": 135,
+    "text": "tionasy. Theresidualcomponentisinitializedtozeroand"
+  },
+  {
+    "page": 10,
+    "line": 136,
+    "text": "progressivelylearnstocorrectsystematicerrorsofthephys-"
+  },
+  {
+    "page": 10,
+    "line": 137,
+    "text": "icalmodel,suchasaerodynamicdrag,bladeinterference,or"
+  },
+  {
+    "page": 10,
+    "line": 138,
+    "text": "motorlag."
+  },
+  {
+    "page": 10,
+    "line": 139,
+    "text": "10"
+  },
+  {
+    "page": 11,
+    "line": 1,
+    "text": "6.6 Performancediscussion paratively strong performance at short horizons. Learned"
+  },
+  {
+    "page": 11,
+    "line": 2,
+    "text": "residual models, both the feedforward and the LSTM, do"
+  },
+  {
+    "page": 11,
+    "line": 3,
+    "text": "Figure8reportsthefullMAE curvesforh=1,...,50"
+  },
+  {
+    "page": 11,
+    "line": 4,
+    "text": "(·),h not substantially improve rotational accuracy, as they are"
+  },
+  {
+    "page": 11,
+    "line": 5,
+    "text": "acrossallmodelsandaveragedacrossthethreerunsofthe"
+  },
+  {
+    "page": 11,
+    "line": 6,
+    "text": "trainedandevaluatedon50-stepwindowsthataretooshort"
+  },
+  {
+    "page": 11,
+    "line": 7,
+    "text": "Melontrajectory,whileFigure9illustratesqualitativelythe"
+  },
+  {
+    "page": 11,
+    "line": 8,
+    "text": "to resolve the underlying slow dynamics. This choice is"
+  },
+  {
+    "page": 11,
+    "line": 9,
+    "text": "50-step-ahead predictions on a representative segment of"
+  },
+  {
+    "page": 11,
+    "line": 10,
+    "text": "deliberate: the benchmark targets 0.5-s multi-step predic-"
+  },
+  {
+    "page": 11,
+    "line": 11,
+    "text": "thefirsttesttrajectory. Forclarity,Table6summarizesthe"
+  },
+  {
+    "page": 11,
+    "line": 12,
+    "text": "tion,andlongertemporalwindowswouldbeincompatible"
+  },
+  {
+    "page": 11,
+    "line": 13,
+    "text": "MAEatthreerepresentativehorizons(h=1,h=10,and"
+  },
+  {
+    "page": 11,
+    "line": 14,
+    "text": "withreal-timedeploymentonembeddedhardwaresuchas"
+  },
+  {
+    "page": 11,
+    "line": 15,
+    "text": "h = 50) for the five models considered: Naïve, Physics,"
+  },
+  {
+    "page": 11,
+    "line": 16,
+    "text": "theCrazyflie’sSTM32microcontroller. Moreover,evenif"
+  },
+  {
+    "page": 11,
+    "line": 17,
+    "text": "Residual,Phys.+Res.,andLSTM."
+  },
+  {
+    "page": 11,
+    "line": 18,
+    "text": "trainedonlongersequences, test-timerolloutswouldstill"
+  },
+  {
+    "page": 11,
+    "line": 19,
+    "text": "All learned models operate in a residual fashion: they"
+  },
+  {
+    "page": 11,
+    "line": 20,
+    "text": "be limited to the same short horizons, preventing recon-"
+  },
+  {
+    "page": 11,
+    "line": 21,
+    "text": "predictstateincrementsandconstructtrajectoriesthrough"
+  },
+  {
+    "page": 11,
+    "line": 22,
+    "text": "struction of long-timescale actuation effects. As a result,"
+  },
+  {
+    "page": 11,
+    "line": 23,
+    "text": "recursivesummation,insteadofpredictingabsolutestates."
+  },
+  {
+    "page": 11,
+    "line": 24,
+    "text": "improvementsinrotationalpredictionremainmodestacross"
+  },
+  {
+    "page": 11,
+    "line": 25,
+    "text": "Formally,eachmodellearns:"
+  },
+  {
+    "page": 11,
+    "line": 26,
+    "text": "baselines, pointing to the need for either more expressive"
+  },
+  {
+    "page": 11,
+    "line": 27,
+    "text": "temporalmodelswithlongercontextorenhancedphysics-"
+  },
+  {
+    "page": 11,
+    "line": 28,
+    "text": "∆yˆ =yˆ −yˆ , (27)"
+  },
+  {
+    "page": 11,
+    "line": 29,
+    "text": "t+h−1|t t+h|t t+h−1|t"
+  },
+  {
+    "page": 11,
+    "line": 30,
+    "text": "baseddescriptionsofrotorandmotordynamics."
+  },
+  {
+    "page": 11,
+    "line": 31,
+    "text": "andthemulti-steppredictionisobtainedbyaccumulating Table 7 summarizes the main architectural and compu-"
+  },
+  {
+    "page": 11,
+    "line": 32,
+    "text": "theseresiduals. Notethatanysystematicbiasinthelearned tationalcharacteristicsoftheevaluatedmodels,whichwe"
+  },
+  {
+    "page": 11,
+    "line": 33,
+    "text": "incrementscompoundsovertime,makinglong-horizonpre- encouragepractitionerstotakeintoaccountwhendesign-"
+  },
+  {
+    "page": 11,
+    "line": 34,
+    "text": "dictionsensitivetomodelstructure. Modelswithoutstrong ing or assessing new benchmarks. In particular, the table"
+  },
+  {
+    "page": 11,
+    "line": 35,
+    "text": "inductivepriors–notablythepureneuralresidualmodeland liststhenumberoftrainableparametersforeachmodel. All"
+  },
+  {
+    "page": 11,
+    "line": 36,
+    "text": "theLSTM–arethereforemorepronetodrift. Indeed,feed- learned architectures were selected to have a comparable"
+  },
+  {
+    "page": 11,
+    "line": 37,
+    "text": "forwardneuralnetworksmustapproximatethefulltransition order of magnitude in terms of parameter count, thereby"
+  },
+  {
+    "page": 11,
+    "line": 38,
+    "text": "mapdirectlyfromnoisydata,makingthemespeciallysensi- avoidingbiasedcomparisonsand,mostimportantly,prevent-"
+  },
+  {
+    "page": 11,
+    "line": 39,
+    "text": "tivetobiasinthelearnedresidualincrements. TheLSTM ingexcessivelydemandingcomputationalloadsonembed-"
+  },
+  {
+    "page": 11,
+    "line": 40,
+    "text": "faces an additional limitation: its recurrent update is gov- ded hardware. The second column reports the number of"
+  },
+  {
+    "page": 11,
+    "line": 41,
+    "text": "ernedbyaninternalhiddenstateratherthanexplicitphysical floating-point operations (FLOPs) per forward pass. We"
+  },
+  {
+    "page": 11,
+    "line": 42,
+    "text": "variables,makingitchallengingtoenforcephysicalconsis- further deploy all models in 32-bit float precision on our"
+  },
+  {
+    "page": 11,
+    "line": 43,
+    "text": "tencyandcausinghidden-statedrifttoaccumulateovertime. platform’s STM32 MCU with STM32EdgeAI Developer"
+  },
+  {
+    "page": 11,
+    "line": 44,
+    "text": "Incontrast,thePhys+Resmodelbenefitsfromthestability Cloud6. Thisserviceenablesmodelbenchmarkingonthe"
+  },
+  {
+    "page": 11,
+    "line": 45,
+    "text": "of the physical integrator, requiring the network to learn targetMCUwithoutonhavingaccesstoaCrazyfliedrone,"
+  },
+  {
+    "page": 11,
+    "line": 46,
+    "text": "only minor corrections to account for unmodelled effects. leveragingtheservice’stestfarmofphysicalMCUsinthe"
+  },
+  {
+    "page": 11,
+    "line": 47,
+    "text": "Thisstructuralpriorprovidesamorereliablefoundationfor cloud. WemeasuretheresultinginferencetimeTinf,reflect-"
+  },
+  {
+    "page": 11,
+    "line": 48,
+    "text": "multi-stepprediction,explainingitssuperiorlong-horizon ingthecomputationalcostofrunningeachmodelonboard."
+  },
+  {
+    "page": 11,
+    "line": 49,
+    "text": "performance. Amongthelearnedarchitectures,theLSTMisthemostcom-"
+  },
+  {
+    "page": 11,
+    "line": 50,
+    "text": "Forpositionandlinearvelocity,alllearnedmodelsout- putationallydemanding,withaninferencetimeof2.09ms"
+  },
+  {
+    "page": 11,
+    "line": 51,
+    "text": "performthenaïveintegrator. Thephysicalmodelandthe forasingleone-stepprediction. Thisisapproximatelytwice"
+  },
+  {
+    "page": 11,
+    "line": 52,
+    "text": "physics–plus–residualnetworkdeliverthebestperformance, theinferencetimeofthepurelyresidualfeed-forwardmodel,"
+  },
+  {
+    "page": 11,
+    "line": 53,
+    "text": "followedbythepurelyneuralresidualmodelandtheLSTM. whichisthelightestarchitecture."
+  },
+  {
+    "page": 11,
+    "line": 54,
+    "text": "Translationaldynamicsarecomparativelyeasiertoidentify: For N-step–ahead predictions, the computational cost"
+  },
+  {
+    "page": 11,
+    "line": 55,
+    "text": "the mass is known with high accuracy, and the linear ac- scaleslinearlyasN ×Tinf. Atasamplingrateof100Hz,"
+  },
+  {
+    "page": 11,
+    "line": 56,
+    "text": "celerometerprovideslow-noisemeasurements,makingthe thisimpliesthatonly4to8stepscouldbepredictedwithin"
+  },
+  {
+    "page": 11,
+    "line": 57,
+    "text": "thrustcontributiontolinearaccelerationveryreliable,even a single control cycle, which may still be suitable for a"
+  },
+  {
+    "page": 11,
+    "line": 58,
+    "text": "if torque estimation is more uncertain. This behaviour is short-horizonmodelpredictivecontrol. Itisworthnoting"
+  },
+  {
+    "page": 11,
+    "line": 59,
+    "text": "clearlyvisibleinthefirstrowofFigure9:the50–step–ahead thatthePhysicsmodel(and,consequently,thePhys.+Res."
+  },
+  {
+    "page": 11,
+    "line": 60,
+    "text": "predictionsfromthelearnedmodelsaligncloselywiththe model)isslowerthanthepurelyresidualnetworkdespite"
+  },
+  {
+    "page": 11,
+    "line": 61,
+    "text": "groundtruth(GT),insharpcontrastwiththeNaïvepredic- havingzerotrainableparameters. Thisisduetothemore"
+  },
+  {
+    "page": 11,
+    "line": 62,
+    "text": "tion(pink),whichbehavesasapuredelay.Ananalogouspat- expensiveoperationsinherenttorigid-bodydynamics,such"
+  },
+  {
+    "page": 11,
+    "line": 63,
+    "text": "ternisobservedforthelinearvelocities(thirdrow): despite as cross products, normalization steps, and matrix–vector"
+  },
+  {
+    "page": 11,
+    "line": 64,
+    "text": "thehighervariabilityinherenttothesesignals,thelearned computations,whichimposeahighercomputationalburden"
+  },
+  {
+    "page": 11,
+    "line": 65,
+    "text": "modelsremaintemporallyalignedwiththeGT,whereasthe onembeddedhardware."
+  },
+  {
+    "page": 11,
+    "line": 66,
+    "text": "Naïvefailstotrackthecorrecttimingofthemotion."
+  },
+  {
+    "page": 11,
+    "line": 67,
+    "text": "Rotationaldynamicsareparticularlychallengingtopre-"
+  },
+  {
+    "page": 11,
+    "line": 68,
+    "text": "7 Conclusions"
+  },
+  {
+    "page": 11,
+    "line": 69,
+    "text": "dictduetolimitationsinthestandardquadraticmotormodel,"
+  },
+  {
+    "page": 11,
+    "line": 70,
+    "text": "whichdoesnotcaptureaslow,low-frequencycomponentof"
+  },
+  {
+    "page": 11,
+    "line": 71,
+    "text": "Wehavepresentedacomprehensivebenchmarkfornonlin-"
+  },
+  {
+    "page": 11,
+    "line": 72,
+    "text": "theactuationdynamicsandthereforeintroducessystematic"
+  },
+  {
+    "page": 11,
+    "line": 73,
+    "text": "ear system identification on nano-quadrotors, comprising"
+  },
+  {
+    "page": 11,
+    "line": 74,
+    "text": "errors in the torque prediction. The physics model miti-"
+  },
+  {
+    "page": 11,
+    "line": 75,
+    "text": "high-frequency flight data, a standardized evaluation pro-"
+  },
+  {
+    "page": 11,
+    "line": 76,
+    "text": "gates this by driving the rotational motion directly from"
+  },
+  {
+    "page": 11,
+    "line": 77,
+    "text": "tocol, and a suite of baseline models. Our comparative"
+  },
+  {
+    "page": 11,
+    "line": 78,
+    "text": "themeasuredangularvelocityandsettingitsderivativeto"
+  },
+  {
+    "page": 11,
+    "line": 79,
+    "text": "zero, preventingtheinstabilitythatwouldarisefrominte- 6https://stedgeai-dc.st.com. Model export process and"
+  },
+  {
+    "page": 11,
+    "line": 80,
+    "text": "gratinganincorrecttorquemodelandexplainingitscom- benchmarksetuparedescribedinourGitHubrepo."
+  },
+  {
+    "page": 11,
+    "line": 81,
+    "text": "11"
+  },
+  {
+    "page": 12,
+    "line": 1,
+    "text": "0.6"
+  },
+  {
+    "page": 12,
+    "line": 2,
+    "text": "0.4"
+  },
+  {
+    "page": 12,
+    "line": 3,
+    "text": "0.2"
+  },
+  {
+    "page": 12,
+    "line": 4,
+    "text": "20 40"
+  },
+  {
+    "page": 12,
+    "line": 5,
+    "text": "h [-]"
+  },
+  {
+    "page": 12,
+    "line": 6,
+    "text": "]m["
+  },
+  {
+    "page": 12,
+    "line": 7,
+    "text": "EAM"
+  },
+  {
+    "page": 12,
+    "line": 8,
+    "text": "h;pe"
+  },
+  {
+    "page": 12,
+    "line": 9,
+    "text": "1.0"
+  },
+  {
+    "page": 12,
+    "line": 10,
+    "text": "0.5"
+  },
+  {
+    "page": 12,
+    "line": 11,
+    "text": "20 40"
+  },
+  {
+    "page": 12,
+    "line": 12,
+    "text": "h [-]"
+  },
+  {
+    "page": 12,
+    "line": 13,
+    "text": "]s/m["
+  },
+  {
+    "page": 12,
+    "line": 14,
+    "text": "EAM"
+  },
+  {
+    "page": 12,
+    "line": 15,
+    "text": "h;ve"
+  },
+  {
+    "page": 12,
+    "line": 16,
+    "text": "0.3"
+  },
+  {
+    "page": 12,
+    "line": 17,
+    "text": "0.2"
+  },
+  {
+    "page": 12,
+    "line": 18,
+    "text": "0.1"
+  },
+  {
+    "page": 12,
+    "line": 19,
+    "text": "20 40"
+  },
+  {
+    "page": 12,
+    "line": 20,
+    "text": "h [-]"
+  },
+  {
+    "page": 12,
+    "line": 21,
+    "text": "]dar["
+  },
+  {
+    "page": 12,
+    "line": 22,
+    "text": "EAM"
+  },
+  {
+    "page": 12,
+    "line": 23,
+    "text": "h;Re"
+  },
+  {
+    "page": 12,
+    "line": 24,
+    "text": "0.8"
+  },
+  {
+    "page": 12,
+    "line": 25,
+    "text": "0.5"
+  },
+  {
+    "page": 12,
+    "line": 26,
+    "text": "0.2"
+  },
+  {
+    "page": 12,
+    "line": 27,
+    "text": "20 40"
+  },
+  {
+    "page": 12,
+    "line": 28,
+    "text": "h [-]"
+  },
+  {
+    "page": 12,
+    "line": 29,
+    "text": "]s/dar["
+  },
+  {
+    "page": 12,
+    "line": 30,
+    "text": "EAM"
+  },
+  {
+    "page": 12,
+    "line": 31,
+    "text": "h;!e"
+  },
+  {
+    "page": 12,
+    "line": 32,
+    "text": "Naïve Physics Residual Phys+Res LSTM"
+  },
+  {
+    "page": 12,
+    "line": 33,
+    "text": "Figure8: MAE scores(forposition,linearvelocity,orientationandangularvelocity)forh=1,...,50"
+  },
+  {
+    "page": 12,
+    "line": 34,
+    "text": "(·),h"
+  },
+  {
+    "page": 12,
+    "line": 35,
+    "text": "Table6: Numericalperformanceath=1,10,50. Theitaliccolumnreportsthecumulativesimulationerror(sumofMAEs"
+  },
+  {
+    "page": 12,
+    "line": 36,
+    "text": "overh=1..50)."
+  },
+  {
+    "page": 12,
+    "line": 37,
+    "text": "MAEp,h[m] MAEv,h[m/s] MAER,h[rad] MAEω,h[rad/s]"
+  },
+  {
+    "page": 12,
+    "line": 38,
+    "text": "Model h=1 h=10 h=50 h=1:50 h=1 h=10 h=50 h=1:50 h=1 h=10 h=50 h=1:50 h=1 h=10 h=50 h=1:50"
+  },
+  {
+    "page": 12,
+    "line": 39,
+    "text": "Naïve 0.0143 0.1430 0.6797 17.7878 0.0329 0.3182 1.4749 38.9241 0.0071 0.0692 0.3041 8.2138 0.0796 0.3596 0.8837 29.0866"
+  },
+  {
+    "page": 12,
+    "line": 40,
+    "text": "Physics 0.0013 0.0126 0.1269 2.3223 0.0080 0.0570 0.5781 10.6232 0.0011 0.0205 0.2544 5.1013 0.0796 0.3596 0.8837 29.0866"
+  },
+  {
+    "page": 12,
+    "line": 41,
+    "text": "Residual 0.0032 0.0305 0.1712 4.0519 0.0116 0.0890 0.5720 12.5809 0.0022 0.0331 0.2268 6.0591 0.1138 0.5949 0.9005 35.5735"
+  },
+  {
+    "page": 12,
+    "line": 42,
+    "text": "Phys+Res 0.0016 0.0166 0.1119 2.3625 0.0092 0.0613 0.5556 10.4033 0.0027 0.0376 0.2306 6.1534 0.0912 0.4880 0.5979 28.9873"
+  },
+  {
+    "page": 12,
+    "line": 43,
+    "text": "LSTM 0.0079 0.0390 0.2572 5.9711 0.0247 0.1175 0.7407 16.7207 0.0066 0.0372 0.2325 5.6525 0.1021 0.4292 1.2407 35.8353"
+  },
+  {
+    "page": 12,
+    "line": 44,
+    "text": "0.5"
+  },
+  {
+    "page": 12,
+    "line": 45,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 46,
+    "text": "-0.5"
+  },
+  {
+    "page": 12,
+    "line": 47,
+    "text": "]m["
+  },
+  {
+    "page": 12,
+    "line": 48,
+    "text": "x"
+  },
+  {
+    "page": 12,
+    "line": 49,
+    "text": "0.5"
+  },
+  {
+    "page": 12,
+    "line": 50,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 51,
+    "text": "-0.5"
+  },
+  {
+    "page": 12,
+    "line": 52,
+    "text": "]m["
+  },
+  {
+    "page": 12,
+    "line": 53,
+    "text": "y"
+  },
+  {
+    "page": 12,
+    "line": 54,
+    "text": "1.5"
+  },
+  {
+    "page": 12,
+    "line": 55,
+    "text": "1.0"
+  },
+  {
+    "page": 12,
+    "line": 56,
+    "text": "]m["
+  },
+  {
+    "page": 12,
+    "line": 57,
+    "text": "z"
+  },
+  {
+    "page": 12,
+    "line": 58,
+    "text": "0.2"
+  },
+  {
+    "page": 12,
+    "line": 59,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 60,
+    "text": "-0.2"
+  },
+  {
+    "page": 12,
+    "line": 61,
+    "text": "]dar["
+  },
+  {
+    "page": 12,
+    "line": 62,
+    "text": "'"
+  },
+  {
+    "page": 12,
+    "line": 63,
+    "text": "0.5"
+  },
+  {
+    "page": 12,
+    "line": 64,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 65,
+    "text": "]dar["
+  },
+  {
+    "page": 12,
+    "line": 66,
+    "text": "µ"
+  },
+  {
+    "page": 12,
+    "line": 67,
+    "text": "0.1"
+  },
+  {
+    "page": 12,
+    "line": 68,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 69,
+    "text": "-0.1"
+  },
+  {
+    "page": 12,
+    "line": 70,
+    "text": "]dar["
+  },
+  {
+    "page": 12,
+    "line": 71,
+    "text": "Ã"
+  },
+  {
+    "page": 12,
+    "line": 72,
+    "text": "1.0"
+  },
+  {
+    "page": 12,
+    "line": 73,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 74,
+    "text": "-1.0"
+  },
+  {
+    "page": 12,
+    "line": 75,
+    "text": "]s/m["
+  },
+  {
+    "page": 12,
+    "line": 76,
+    "text": "v"
+  },
+  {
+    "page": 12,
+    "line": 77,
+    "text": "x"
+  },
+  {
+    "page": 12,
+    "line": 78,
+    "text": "1.0"
+  },
+  {
+    "page": 12,
+    "line": 79,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 80,
+    "text": "-1.0"
+  },
+  {
+    "page": 12,
+    "line": 81,
+    "text": "]s/m["
+  },
+  {
+    "page": 12,
+    "line": 82,
+    "text": "v"
+  },
+  {
+    "page": 12,
+    "line": 83,
+    "text": "y"
+  },
+  {
+    "page": 12,
+    "line": 84,
+    "text": "0.5"
+  },
+  {
+    "page": 12,
+    "line": 85,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 86,
+    "text": "-0.5"
+  },
+  {
+    "page": 12,
+    "line": 87,
+    "text": "]s/m["
+  },
+  {
+    "page": 12,
+    "line": 88,
+    "text": "v"
+  },
+  {
+    "page": 12,
+    "line": 89,
+    "text": "z"
+  },
+  {
+    "page": 12,
+    "line": 90,
+    "text": "1.0"
+  },
+  {
+    "page": 12,
+    "line": 91,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 92,
+    "text": "-1.0"
+  },
+  {
+    "page": 12,
+    "line": 93,
+    "text": "22 24"
+  },
+  {
+    "page": 12,
+    "line": 94,
+    "text": "]s/dar["
+  },
+  {
+    "page": 12,
+    "line": 95,
+    "text": "! x"
+  },
+  {
+    "page": 12,
+    "line": 96,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 97,
+    "text": "-2.0"
+  },
+  {
+    "page": 12,
+    "line": 98,
+    "text": "22 24"
+  },
+  {
+    "page": 12,
+    "line": 99,
+    "text": "Time [s]"
+  },
+  {
+    "page": 12,
+    "line": 100,
+    "text": "]s/dar["
+  },
+  {
+    "page": 12,
+    "line": 101,
+    "text": "! y"
+  },
+  {
+    "page": 12,
+    "line": 102,
+    "text": "0.0"
+  },
+  {
+    "page": 12,
+    "line": 103,
+    "text": "-0.2"
+  },
+  {
+    "page": 12,
+    "line": 104,
+    "text": "22 24"
+  },
+  {
+    "page": 12,
+    "line": 105,
+    "text": "]s/dar["
+  },
+  {
+    "page": 12,
+    "line": 106,
+    "text": "! z"
+  },
+  {
+    "page": 12,
+    "line": 107,
+    "text": "GT Naïve Physics Residual Phys+Res LSTM"
+  },
+  {
+    "page": 12,
+    "line": 108,
+    "text": "Figure9: OutputtrajectoriesofMelon(run1),from20to25s,comparing50-stepaheadpredictionsyˆ fromdifferent"
+  },
+  {
+    "page": 12,
+    "line": 109,
+    "text": "t+50|t"
+  },
+  {
+    "page": 12,
+    "line": 110,
+    "text": "modelswithrespectthegroundtruthy Trajectorieshavebeenfiltered(centeredrollingmeanwithwindow20)for"
+  },
+  {
+    "page": 12,
+    "line": 111,
+    "text": "t+50"
+  },
+  {
+    "page": 12,
+    "line": 112,
+    "text": "visualizationpurpose."
+  },
+  {
+    "page": 12,
+    "line": 113,
+    "text": "analysisdemonstratesthatwhilecurrentmethodsachieve linearities,improvedactuationmodelingwilllikelyunlock"
+  },
+  {
+    "page": 12,
+    "line": 114,
+    "text": "high-fidelitypredictionofpositionandlinearvelocity,mak- theplatform’sfullflightenvelope. Thiscreatesavirtuous"
+  },
+  {
+    "page": 12,
+    "line": 115,
+    "text": "ingthemviableformodel-basedcontrol,accuratemodeling cyclewherebettermodelsenablemoreagiledatacollection,"
+  },
+  {
+    "page": 12,
+    "line": 116,
+    "text": "ofrotationaldynamicsremainsasignificantopenchallenge. furtherenrichingthebenchmarkandacceleratingprogress"
+  },
+  {
+    "page": 12,
+    "line": 117,
+    "text": "Aprimarybottleneckisthestandardquadraticmotormodel, incontrolforminiaturizedaerialvehicles."
+  },
+  {
+    "page": 12,
+    "line": 118,
+    "text": "whichneglectslow-frequencyactuationdynamicsthatresid-"
+  },
+  {
+    "page": 12,
+    "line": 119,
+    "text": "ualfeedforwardcorrectionsalonecannotfullycompensate."
+  },
+  {
+    "page": 12,
+    "line": 120,
+    "text": "This finding suggests that future hybrid approaches must"
+  },
+  {
+    "page": 12,
+    "line": 121,
+    "text": "Acknowledgments"
+  },
+  {
+    "page": 12,
+    "line": 122,
+    "text": "leveragetemporallearningarchitecturesorincorporatemore"
+  },
+  {
+    "page": 12,
+    "line": 123,
+    "text": "expressivephysics-basedrotormodels. Finally, whilethe"
+  },
+  {
+    "page": 12,
+    "line": 124,
+    "text": "proposedtrajectoriesaresufficientlyaggressivetoexcitenon- SupportedbyIDSIA."
+  },
+  {
+    "page": 12,
+    "line": 125,
+    "text": "12"
+  },
+  {
+    "page": 13,
+    "line": 1,
+    "text": "Table7: #paramsindicatesthenumberoftrainableparame- [9] Leonard Bauersfeld, Elia Kaufmann, Philipp Foehn,"
+  },
+  {
+    "page": 13,
+    "line": 2,
+    "text": "ters,Computedenotesthefloating-pointoperations(FLOPs) SihaoSun,andDavideScaramuzza. Neurobem: Hy-"
+  },
+  {
+    "page": 13,
+    "line": 3,
+    "text": "perstep,andTinf istheaverageinferencetimemeasuredon brid aerodynamic quadrotor model. arXiv preprint"
+  },
+  {
+    "page": 13,
+    "line": 4,
+    "text": "thetargetSTM32MCU. arXiv:2106.08015,2021."
+  },
+  {
+    "page": 13,
+    "line": 5,
+    "text": "[10] Lorenzo Lamberti, Elia Cereda, Gabriele Abbate,"
+  },
+  {
+    "page": 13,
+    "line": 6,
+    "text": "Model #params[k] Compute[kFLOPs] Tinf [ms]"
+  },
+  {
+    "page": 13,
+    "line": 7,
+    "text": "Lorenzo Bellone, Victor Javier Kartsch Morinigo,"
+  },
+  {
+    "page": 13,
+    "line": 8,
+    "text": "Naïve – – – Michał Barcis´, Agata Barcis´, Alessandro Giusti,"
+  },
+  {
+    "page": 13,
+    "line": 9,
+    "text": "Physics – 0.8 1.79 FrancescoConti,andDanielePalossi. Asim-to-real"
+  },
+  {
+    "page": 13,
+    "line": 10,
+    "text": "Residual 18.5 18.2 1.03 deeplearning-basedframeworkforautonomousnano-"
+  },
+  {
+    "page": 13,
+    "line": 11,
+    "text": "drone racing. IEEE Robotics and Automation Let-"
+  },
+  {
+    "page": 13,
+    "line": 12,
+    "text": "Phys+Res 18.5 18.2 2.82"
+  },
+  {
+    "page": 13,
+    "line": 13,
+    "text": "ters,9(2):1899–1906,2024. doi: 10.1109/LRA.2024."
+  },
+  {
+    "page": 13,
+    "line": 14,
+    "text": "LSTM 24.7 25.1 2.09"
+  },
+  {
+    "page": 13,
+    "line": 15,
+    "text": "3349814."
+  },
+  {
+    "page": 13,
+    "line": 16,
+    "text": "[11] S Bonato, SC Lambertenghi, E Cereda, A Giusti,"
+  },
+  {
+    "page": 13,
+    "line": 17,
+    "text": "References"
+  },
+  {
+    "page": 13,
+    "line": 18,
+    "text": "and D Palossi. Ultra-low power deep learning-"
+  },
+  {
+    "page": 13,
+    "line": 19,
+    "text": "based monocular relative localization onboard nano-"
+  },
+  {
+    "page": 13,
+    "line": 20,
+    "text": "[1] JiaDeng,WeiDong,RichardSocher,Li-JiaLi,KaiLi, quadrotors. In2023IEEEInternationalConferenceon"
+  },
+  {
+    "page": 13,
+    "line": 21,
+    "text": "andLiFei-Fei. Imagenet: Alarge-scalehierarchical Robotics and Automation (ICRA), pages 3411–3417."
+  },
+  {
+    "page": 13,
+    "line": 22,
+    "text": "imagedatabase. In2009IEEEconferenceoncomputer IEEE,2023."
+  },
+  {
+    "page": 13,
+    "line": 23,
+    "text": "visionandpatternrecognition,pages248–255.Ieee,"
+  },
+  {
+    "page": 13,
+    "line": 24,
+    "text": "[12] MSzécsi,BGyörök,ÁWeinhardt-Kovács,GIBein-"
+  },
+  {
+    "page": 13,
+    "line": 25,
+    "text": "2009."
+  },
+  {
+    "page": 13,
+    "line": 26,
+    "text": "tema,MSchoukens,TPéni,andRTóth.Deeplearning"
+  },
+  {
+    "page": 13,
+    "line": 27,
+    "text": "[2] Marc G Bellemare, Yavar Naddaf, Joel Veness, and ofvehicledynamics.IFAC-PapersOnLine,58(15):283–"
+  },
+  {
+    "page": 13,
+    "line": 28,
+    "text": "MichaelBowling. Thearcadelearningenvironment: 288,2024."
+  },
+  {
+    "page": 13,
+    "line": 29,
+    "text": "Anevaluationplatformforgeneralagents. Journalof"
+  },
+  {
+    "page": 13,
+    "line": 30,
+    "text": "[13] BabakAkbari,JustinFrank,andMelissaGreeff. Tiny"
+  },
+  {
+    "page": 13,
+    "line": 31,
+    "text": "artificialintelligenceresearch,47:253–279,2013."
+  },
+  {
+    "page": 13,
+    "line": 32,
+    "text": "learning-based MPC for multirotors: Solver-aware"
+  },
+  {
+    "page": 13,
+    "line": 33,
+    "text": "[3] ZhenqinWu, BharathRamsundar, EvanNFeinberg, learning for efficient embedded predictive control."
+  },
+  {
+    "page": 13,
+    "line": 34,
+    "text": "JosephGomes,CalebGeniesse,AneeshSPappu,Karl arXivpreprintarXiv:2410.23634,2024."
+  },
+  {
+    "page": 13,
+    "line": 35,
+    "text": "Leswing,andVijayPande. Moleculenet: abenchmark"
+  },
+  {
+    "page": 13,
+    "line": 36,
+    "text": "[14] EliaCereda, AlessandroGiusti, andDanielePalossi."
+  },
+  {
+    "page": 13,
+    "line": 37,
+    "text": "formolecularmachinelearning. Chemicalscience,9"
+  },
+  {
+    "page": 13,
+    "line": 38,
+    "text": "Trainingonthefly: On-deviceself-supervisedlearning"
+  },
+  {
+    "page": 13,
+    "line": 39,
+    "text": "(2):513–530,2018."
+  },
+  {
+    "page": 13,
+    "line": 40,
+    "text": "aboard nano-drones within 20 mw. IEEE Transac-"
+  },
+  {
+    "page": 13,
+    "line": 41,
+    "text": "[4] Max Champneys, Gerben I Beintema, Roland Tóth, tions on Computer-Aided Design of Integrated Cir-"
+  },
+  {
+    "page": 13,
+    "line": 42,
+    "text": "Maarten Schoukens, and Timothy J Rogers. Base- cuits and Systems, 43(11):3685–3695, 2024. doi:"
+  },
+  {
+    "page": 13,
+    "line": 43,
+    "text": "lineresultsforselectednonlinearsystemidentification 10.1109/TCAD.2024.3447208."
+  },
+  {
+    "page": 13,
+    "line": 44,
+    "text": "benchmarks. IFAC-PapersOnLine, 58(15):474–479,"
+  },
+  {
+    "page": 13,
+    "line": 45,
+    "text": "[15] RobertJ.Wood,BenjaminFinio,MichaelKarpelson,"
+  },
+  {
+    "page": 13,
+    "line": 46,
+    "text": "2024."
+  },
+  {
+    "page": 13,
+    "line": 47,
+    "text": "Kevin Ma, Néstor O. Pérez-Arancibia, Pratheev S."
+  },
+  {
+    "page": 13,
+    "line": 48,
+    "text": "Sreetharan, Hiro Tanaka, and John P. Whitney."
+  },
+  {
+    "page": 13,
+    "line": 49,
+    "text": "[5] Maarten Schoukens and Jean Philippe Noël. Three"
+  },
+  {
+    "page": 13,
+    "line": 50,
+    "text": "Progress on “Pico” air vehicles. In Henrik I. Chris-"
+  },
+  {
+    "page": 13,
+    "line": 51,
+    "text": "benchmarksaddressingopenchallengesinnonlinear"
+  },
+  {
+    "page": 13,
+    "line": 52,
+    "text": "tensen and Oussama Khatib, editors, Robotics Re-"
+  },
+  {
+    "page": 13,
+    "line": 53,
+    "text": "systemidentification. IFAC-PapersOnLine,50(1):446–"
+  },
+  {
+    "page": 13,
+    "line": 54,
+    "text": "search : The 15th International Symposium ISRR,"
+  },
+  {
+    "page": 13,
+    "line": 55,
+    "text": "451,2017."
+  },
+  {
+    "page": 13,
+    "line": 56,
+    "text": "pages3–19.SpringerInternationalPublishing,Cham,"
+  },
+  {
+    "page": 13,
+    "line": 57,
+    "text": "[6] Ravindu G Thalagala, Oscar De Silva, Awantha 2017. ISBN 978-3-319-29363-9. doi: 10.1007/"
+  },
+  {
+    "page": 13,
+    "line": 58,
+    "text": "Jayasiri,ArthurGubbels,GeorgeKIMann,andRay- 978-3-319-29363-9âC´A˛."
+  },
+  {
+    "page": 13,
+    "line": 59,
+    "text": "mondGGosine.Mun-frl:avisual-inertial-lidardataset"
+  },
+  {
+    "page": 13,
+    "line": 60,
+    "text": "[16] VladNiculescu,DanielePalossi,MicheleMagno,and"
+  },
+  {
+    "page": 13,
+    "line": 61,
+    "text": "foraerialautonomousnavigationandmapping. The"
+  },
+  {
+    "page": 13,
+    "line": 62,
+    "text": "LucaBenini. Fly,wake-up,find: Uav-basedenergy-"
+  },
+  {
+    "page": 13,
+    "line": 63,
+    "text": "International Journal of Robotics Research, 43(12):"
+  },
+  {
+    "page": 13,
+    "line": 64,
+    "text": "efficientlocalizationfordistributedsensornodes. Sus-"
+  },
+  {
+    "page": 13,
+    "line": 65,
+    "text": "1853–1866,2024."
+  },
+  {
+    "page": 13,
+    "line": 66,
+    "text": "tainable Computing: Informatics and Systems, 34:"
+  },
+  {
+    "page": 13,
+    "line": 67,
+    "text": "[7] Jeffrey Delmerico, Titus Cieslewski, Henri Rebecq, 100666,2022."
+  },
+  {
+    "page": 13,
+    "line": 68,
+    "text": "Matthias Faessler, and Davide Scaramuzza. Are we"
+  },
+  {
+    "page": 13,
+    "line": 69,
+    "text": "[17] SihaoSun,CoenCdeVisser,andQipingChu. Quadro-"
+  },
+  {
+    "page": 13,
+    "line": 70,
+    "text": "ready for autonomous drone racing? the UZH-FPV"
+  },
+  {
+    "page": 13,
+    "line": 71,
+    "text": "tor gray-box model identification from high-speed"
+  },
+  {
+    "page": 13,
+    "line": 72,
+    "text": "droneracingdataset. In2019InternationalConference"
+  },
+  {
+    "page": 13,
+    "line": 73,
+    "text": "flightdata. JournalofAircraft,56(2):645–661,2019."
+  },
+  {
+    "page": 13,
+    "line": 74,
+    "text": "onRoboticsandAutomation(ICRA),pages6713–6719."
+  },
+  {
+    "page": 13,
+    "line": 75,
+    "text": "IEEE,2019. [18] MohamedAAIsmail,MohssenEElshaar,AymanAb-"
+  },
+  {
+    "page": 13,
+    "line": 76,
+    "text": "dallah,andQuanQuan. Dronepropa: Motiontrajecto-"
+  },
+  {
+    "page": 13,
+    "line": 77,
+    "text": "[8] MichaelBurri,JanoschNikolic,PascalGohl,Thomas"
+  },
+  {
+    "page": 13,
+    "line": 78,
+    "text": "riesdatasetfordefectivedrones. DatainBrief,page"
+  },
+  {
+    "page": 13,
+    "line": 79,
+    "text": "Schneider, Joern Rehder, SammyOmari, MarkusW"
+  },
+  {
+    "page": 13,
+    "line": 80,
+    "text": "111589,2025."
+  },
+  {
+    "page": 13,
+    "line": 81,
+    "text": "Achtelik,andRolandSiegwart. Theeurocmicroaerial"
+  },
+  {
+    "page": 13,
+    "line": 82,
+    "text": "vehicledatasets. TheInternationalJournalofRobotics [19] JulianFörster. Systemidentificationofthecrazyflie"
+  },
+  {
+    "page": 13,
+    "line": 83,
+    "text": "Research,35(10):1157–1163,2016. 2.0nanoquadrocopter. B.S.thesis,ETHZurich,2015."
+  },
+  {
+    "page": 13,
+    "line": 84,
+    "text": "13"
+  },
+  {
+    "page": 14,
+    "line": 1,
+    "text": "[20] Fadri Furrer, Michael Burri, Markus Achtelik, and"
+  },
+  {
+    "page": 14,
+    "line": 2,
+    "text": "Roland Siegwart. RotorS—a modular gazebo MAV"
+  },
+  {
+    "page": 14,
+    "line": 3,
+    "text": "simulator framework. In Robot Operating System"
+  },
+  {
+    "page": 14,
+    "line": 4,
+    "text": "(ROS)TheCompleteReference(Volume1),pages595–"
+  },
+  {
+    "page": 14,
+    "line": 5,
+    "text": "625.Springer,2016."
+  },
+  {
+    "page": 14,
+    "line": 6,
+    "text": "[21] Wojciech Giernacki, Mateusz Skwierczyn´ski, Woj-"
+  },
+  {
+    "page": 14,
+    "line": 7,
+    "text": "ciechWitwicki,PawełWron´ski,andPiotrKozierski."
+  },
+  {
+    "page": 14,
+    "line": 8,
+    "text": "Crazyflie2.0quadrotorasaplatformforresearchand"
+  },
+  {
+    "page": 14,
+    "line": 9,
+    "text": "educationinroboticsandcontrolengineering. In2017"
+  },
+  {
+    "page": 14,
+    "line": 10,
+    "text": "22nd international conference on methods and mod-"
+  },
+  {
+    "page": 14,
+    "line": 11,
+    "text": "elsinautomationandrobotics(MMAR),pages37–42."
+  },
+  {
+    "page": 14,
+    "line": 12,
+    "text": "IEEE,2017."
+  },
+  {
+    "page": 14,
+    "line": 13,
+    "text": "[22] RobertMahony,VijayKumar,andPeterCorke. Multi-"
+  },
+  {
+    "page": 14,
+    "line": 14,
+    "text": "rotoraerialvehicles:Modeling,estimation,andcontrol"
+  },
+  {
+    "page": 14,
+    "line": 15,
+    "text": "ofquadrotor. IEEErobotics&automationmagazine,"
+  },
+  {
+    "page": 14,
+    "line": 16,
+    "text": "19(3):20–32,2012."
+  },
+  {
+    "page": 14,
+    "line": 17,
+    "text": "[23] Daniel Mellinger and Vijay Kumar. Minimum snap"
+  },
+  {
+    "page": 14,
+    "line": 18,
+    "text": "trajectory generation and control for quadrotors. In"
+  },
+  {
+    "page": 14,
+    "line": 19,
+    "text": "2011IEEEinternationalconferenceonroboticsand"
+  },
+  {
+    "page": 14,
+    "line": 20,
+    "text": "automation,pages2520–2525.IEEE,2011."
+  },
+  {
+    "page": 14,
+    "line": 21,
+    "text": "[24] Mark W. Mueller, Michael Hamer, and Raffaello"
+  },
+  {
+    "page": 14,
+    "line": 22,
+    "text": "D’Andrea. Fusingultra-widebandrangemeasurements"
+  },
+  {
+    "page": 14,
+    "line": 23,
+    "text": "with accelerometers and rate gyroscopes for quadro-"
+  },
+  {
+    "page": 14,
+    "line": 24,
+    "text": "copter state estimation. In 2015 IEEE International"
+  },
+  {
+    "page": 14,
+    "line": 25,
+    "text": "ConferenceonRoboticsandAutomation(ICRA),pages"
+  },
+  {
+    "page": 14,
+    "line": 26,
+    "text": "1730–1736,2015. doi: 10.1109/ICRA.2015.7139421."
+  },
+  {
+    "page": 14,
+    "line": 27,
+    "text": "[25] Mark W. Mueller, Markus Hehn, and Raffaello"
+  },
+  {
+    "page": 14,
+    "line": 28,
+    "text": "D’Andrea. Covariancecorrectionstepforkalmanfil-"
+  },
+  {
+    "page": 14,
+    "line": 29,
+    "text": "teringwithanattitude. JournalofGuidance,Control,"
+  },
+  {
+    "page": 14,
+    "line": 30,
+    "text": "andDynamics,40(9):2301–2306,2017."
+  },
+  {
+    "page": 14,
+    "line": 31,
+    "text": "[26] DuQHuynh. Metricsfor3drotations: Comparison"
+  },
+  {
+    "page": 14,
+    "line": 32,
+    "text": "andanalysis. JournalofMathematicalImagingand"
+  },
+  {
+    "page": 14,
+    "line": 33,
+    "text": "Vision,35(2):155–164,2009."
+  },
+  {
+    "page": 14,
+    "line": 34,
+    "text": "[27] Joan Solà, Jeremie Deray, and Dinesh Atchuthan."
+  },
+  {
+    "page": 14,
+    "line": 35,
+    "text": "A micro lie theory for state estimation in robotics,"
+  },
+  {
+    "page": 14,
+    "line": 36,
+    "text": "2021. URL https://arxiv.org/abs/1812."
+  },
+  {
+    "page": 14,
+    "line": 37,
+    "text": "01537."
+  },
+  {
+    "page": 14,
+    "line": 38,
+    "text": "14"
+  }
+]

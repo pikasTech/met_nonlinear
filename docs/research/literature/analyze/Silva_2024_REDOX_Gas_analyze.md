@@ -50,7 +50,7 @@
 ### 直接支持
 
 **论文证明了什么**：
-- 忆阻器的电流-电压滞后特性源于多时间尺度的电化学反应（第121-124行）
+- 忆阻器的电流-电压滞后特性源于多时间尺度的电化学反应（第123行）
 - 横向平面电接触配置可以揭示垂直结构无法观察的电化学过程（第41-43行）
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
@@ -68,8 +68,8 @@
 | 第81-83行 | Butler-Volmer模型的局限性 |
 | 第89-91行 | 改进的横向电化学模型方程 |
 | 第107-109行 | 喷雾热解技术掺杂ZnO的制备 |
-| 第121-124行 | 多时间尺度机制的特征 |
-| 第139-141行 | 模式识别在解读滞后回路中的潜力 |
+| 第123行 | 多时间尺度机制的特征 |
+| 第149-151行 | 模式识别在解读滞后回路中的潜力 |
 
 ## 关键原文段落摘录
 
@@ -86,7 +86,7 @@
 ### 段落3（多时间尺度动力学）
 
 > "Our analysis reveals at least six distinct contributions with contrasting timescales. To facilitate the fitting process, we combine these contributions into pairs, designated as mechanisms 1, 2, and 3."
-> （第121-124行）
+> （第123行）
 
 ## 分析结论
 

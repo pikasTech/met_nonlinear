@@ -4,7 +4,7 @@ title: 第20轮复查 - 67篇论文全面核查
 status: closed
 tags: round20, comprehensive, verification, papers, analyze
 created_at: 2026-04-01T04:03:23
-updated_at: 2026-04-01T04:41:38
+updated_at: 2026-04-01T22:00:21
 ---
 
 "## ��20�ָ�������\n\n### Ŀ��\nȫ��˲��ѹرյ�67ƪ���ķ������棬ȷ����\n1. �к�����׼ȷ\n2. GAP����������ȷ\n3. ����������index.mdһ��\n\n### �������\n1. ������10-15ƪ����\n2. ��ƪ�˲��к�����\n3. ��֤GAP��ǩ׼ȷ��"
@@ -595,4 +595,184 @@ updated_at: 2026-04-01T04:41:38
 
 ---
 *审查者 - 2026-04-01 04:40*
+
+### r011 (2026-04-01T21:50:39)
+
+# Round 49 复查启动
+
+## 复查背景
+- Round 48 已完成（Issue 244 Schoukens_2017 引用错误已关闭）
+- REVIEW.md 要求："当前的主要任务是开展全面的多轮复查"
+
+## Round 49 复查计划
+1. 继续 Issue 160 的复查工作
+2. 随机抽样已关闭的 analyze 文件进行行号准确性核查
+3. 重点关注之前可能遗漏的引用错误
+
+## 待复查抽样方案
+从剩余未抽查的 analyze 文件中随机抽取 5-10 篇
+
+## 执行要求
+- 发现问题立即创建新 issue 重新修正
+- 保持 open issue 在 8 个左右
+
+### r012 (2026-04-01T21:57:26)
+
+## 执行者 r012 - Round 49 抽样复查报告
+
+### 复查方法
+随机抽取了5篇论文的分析报告，对照原文验证行号引用准确性：
+- Liu_2026_GRAU
+- FreDF_Wang_2025_ICLR
+- Xu_2008_Volterra
+- Southworth_2026_Multi-layer_KAN
+- Voit_2024_Multikernel_NN
+
+---
+
+### 复查结果
+
+#### ✅ 验证通过（3篇）
+
+| 论文 | 引用项数 | 状态 |
+|------|---------|------|
+| Liu_2026_GRAU | 7 | ✅ 全部正确 |
+| FreDF_Wang_2025_ICLR | 2 | ✅ 全部正确 |
+| Xu_2008_Volterra | 5 | ✅ 全部正确 |
+
+---
+
+#### ⚠️ 发现问题（2篇）
+
+##### 1. Southworth_2026_Multi-layer_KAN_analyze.md
+
+**问题**：第281行引用不准确
+
+**分析报告声称**：
+> 第281行: 微分算子特征值与傅里叶频率直接相关
+
+**实际原文**（第281行）：
+```
+$
+{f}_{i}\left( x\right)  \mathrel{\text{ := }} {e}^{-{2\pi i}\mathrm{i}x}\;i \in  \mathbb{Z}. \tag{11}
+$
+```
+这只是一个傅里叶基函数定义，不包含"特征值与频率相关"的陈述。
+
+**实际陈述位置**：**第293行**
+```
+"eigenvalue λ directly related to Fourier frequency of corresponding eigenvector"
+```
+
+**偏差**：约12行
+
+**修复建议**：
+- 第65行: `第281行` → `第293行`
+
+---
+
+##### 2. Voit_2024_Multikernel_NN_analyze.md
+
+**问题**：第489行引用不准确
+
+**分析报告声称**：
+> 第489行(CN): "merely the frequency-domain FIR block successfully attains the former -70dB NMSE..."
+
+**实际原文**（第487行）：
+```
+"With speech input into the plants... merely the frequency-domain FIR block 
+successfully attains the former $-70\mathrm{\;{dB}}$ NMSE..."
+```
+
+**偏差**：约2行
+
+**修复建议**：
+- 第65行: `第489行(CN)` → `第487行(CN)`
+
+---
+
+### 复查统计
+
+| 项目 | 数量 |
+|------|------|
+| 复查论文数 | 5 |
+| 验证通过 | 3 |
+| 发现问题 | 2 |
+| 总引用验证项 | ~20 |
+| 错误引用 | 2 |
+
+### 修复执行
+
+已对上述2篇论文进行修复，修复内容如下：
+
+#### Southworth_2026_Multi-layer_KAN_analyze.md
+- 第65行: `第281行` → `第293行`
+
+#### Voit_2024_Multikernel_NN_analyze.md
+- 第65行: `第489行(CN)` → `第487行(CN)`
+
+---
+
+*执行者 - 2026-04-01 21:52*
+
+### r013 (2026-04-01T21:59:19)
+
+## 审查者 Round 49 r013 审查意见
+
+### 审查方法
+
+对照原文逐文件验证执行者r012的复查结果。
+
+---
+
+### 一、Southworth_2026_Multi-layer_KAN 验证
+
+**执行者发现**：第65行引用第281行有"微分算子特征值与傅里叶频率直接相关"，实际位于第293行
+
+**原文验证**：
+- 第281行：仅为方程(11)的开始符号 `$`，不包含陈述
+- 第293行：`"for $i \in  \mathbb{Z}$ . Thus we have eigenvalues of ${D}^{2r}$ given by... with magnitude of eigenvalue $\lambda$ directly related to Fourier frequency of corresponding eigenvector"`
+
+**结论**：执行者发现**正确**，偏差12行。分析报告已修复为`第293行`。
+
+---
+
+### 二、Voit_2024_Multikernel_NN 验证
+
+**执行者发现**：第65行引用第489行有英文短语"merely the frequency-domain FIR block successfully attains the former -70dB NMSE"，实际位于第487行
+
+**原文验证**：
+- 第487行（英文）：`"merely the frequency-domain FIR block successfully attains the former $- {70}\mathrm{\;{dB}}$ NMSE"`
+- 第489行（中文翻译）：`"只有频域FIR块成功达到了之前的$- {70}\mathrm{\;{dB}}$ NMSE"`
+
+**结论**：执行者发现**正确**，偏差2行。分析报告已修复为`第487行(CN)`。
+
+---
+
+### 三、修复验证
+
+| 论文 | 修复项 | 原引用 | 正确引用 | 验证状态 |
+|------|--------|--------|---------|---------|
+| Southworth_2026 | 第65行 | 第281行 | 第293行 | ✅ 正确 |
+| Voit_2024 | 第65行 | 第489行(CN) | 第487行(CN) | ✅ 正确 |
+
+---
+
+### 四、审查意见
+
+1. **执行者r012的复查工作已验证正确**，2处行号引用错误均已正确识别并修复
+2. **复查方法有效**：随机抽样5篇论文，发现2处错误（40%误差率），说明行号引用问题仍需持续关注
+3. **建议继续推进Issue 160复查**：按规划者指示继续随机抽样核查，保持多轮复查机制
+
+### 五、Critical Feedback
+
+执行者的复查工作流程存在一个缺陷：**在报告中先声称"验证通过"再报告"发现问题"容易引起混淆**。建议执行者明确分两栏报告：
+- 左栏：验证通过的论文
+- 右栏：发现问题的论文
+
+这样审查者可以快速定位需要验证的内容。
+
+---
+
+*审查者 - 2026-04-01 21:57*
 
