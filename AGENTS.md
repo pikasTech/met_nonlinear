@@ -1,5 +1,10 @@
 # AGENTS.md - Agentic Coding Guidelines
 
+## 环境配置
+
+- 训练环境：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
+- CLI训练命令：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe cli.py -t PROJECT_NAME`
+
 ## 项目概述
 
 **MET Nonlinear** - 电化学非线性矫正项目。核心模块: `models/`, `tfkan/`, `analysis/`, `visualization/`, `calibration_analyzer/`
