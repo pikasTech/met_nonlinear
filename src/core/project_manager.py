@@ -176,6 +176,23 @@ class ProjectManager:
         logger.info(f'训练集 AFMAE: {afmae:.4f}')
         logger.info(f'验证集 MAE: {val_mae:.4f}')
         logger.info(f'验证集 AFMAE: {val_afmae:.4f}')
+
+        training_info_path = os.path.join(self.checkpoint_dir, 'training_info.json')
+        if os.path.exists(training_info_path):
+            import json
+            with open(training_info_path, 'r') as f:
+                training_info = json.load(f)
+            training_info['evaluation_metrics'] = {
+                'train_loss': float(loss),
+                'val_loss': float(val_loss),
+                'train_mae': float(mae),
+                'train_afmae': float(afmae),
+                'val_mae': float(val_mae),
+                'val_afmae': float(val_afmae)
+            }
+            with open(training_info_path, 'w') as f:
+                json.dump(training_info, f, indent=4)
+
         logger.info(f'评估完成，结果保存在 {self.checkpoint_dir} 中。')
 
     def lut(self):

@@ -41,6 +41,12 @@ python cli.py ep "LSTMu32al_rs300/freq-response-compensator/test"
 - `ablation-study`
 - `compare`
 
+### compare 类任务
+
+compare 类任务用于系统性对比分析，支持多种消融实验：
+
+- `compare/mae_vs_afmae` - MAE 与 AFMAE 损失函数消融对比
+
 ## 配置文件与输出目录
 
 对于训练项目路径，通常会生成：

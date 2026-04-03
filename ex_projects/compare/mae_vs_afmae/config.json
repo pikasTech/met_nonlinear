@@ -63,6 +63,31 @@
       "name": "FRIKANh8u6l6_6",
       "label": "FRIKANh8u6l6_6 (MAE)",
       "path": "FRIKANh8u6l6_6"
+    },
+    {
+      "name": "FRIKANh6u6l4",
+      "label": "FRIKANh6u6l4",
+      "path": "FRIKANh6u6l4"
+    },
+    {
+      "name": "FRIKANh6u6l4_2",
+      "label": "FRIKANh6u6l4_2",
+      "path": "FRIKANh6u6l4_2"
+    },
+    {
+      "name": "FRIKANh6u6l4_3",
+      "label": "FRIKANh6u6l4_3",
+      "path": "FRIKANh6u6l4_3"
+    },
+    {
+      "name": "FRIKANh6u6l4_4",
+      "label": "FRIKANh6u6l4_4",
+      "path": "FRIKANh6u6l4_4"
+    },
+    {
+      "name": "FRIKANh6u6l4_5",
+      "label": "FRIKANh6u6l4_5",
+      "path": "FRIKANh6u6l4_5"
     }
   ],
   "metrics": {
@@ -76,6 +101,13 @@
       "frequency_hz": 100
     },
     "linearity": {
+      "enabled": true
+    },
+    "compute_cost": {
+      "enabled": true,
+      "show_details": true
+    },
+    "mae_afmae": {
       "enabled": true
     }
   },

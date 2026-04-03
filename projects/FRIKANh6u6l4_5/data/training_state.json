@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "FRIKAN",
+  "training_alive": false,
+  "timestamp": "20260402195920.5",
+  "best_weights_file": "projects/FRIKANh6u6l4_5/data\\FRIKANh6u6l4_5_best_weights.h5",
+  "best_val_weights_file": "projects/FRIKANh6u6l4_5/data\\FRIKANh6u6l4_5_best_val_weights.h5"
+}

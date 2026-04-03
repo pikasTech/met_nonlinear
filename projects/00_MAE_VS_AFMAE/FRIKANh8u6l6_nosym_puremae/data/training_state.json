@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "FRIKAN",
   "training_alive": false,
-  "timestamp": "20260402114138.6",
+  "timestamp": "20260402200425.2",
   "best_weights_file": "projects\\00_MAE_VS_AFMAE\\FRIKANh8u6l6_nosym_puremae/data\\projects\\00_MAE_VS_AFMAE\\FRIKANh8u6l6_nosym_puremae_best_weights.h5",
   "best_val_weights_file": "projects\\00_MAE_VS_AFMAE\\FRIKANh8u6l6_nosym_puremae/data\\projects\\00_MAE_VS_AFMAE\\FRIKANh8u6l6_nosym_puremae_best_val_weights.h5",
   "loss": 0.1130894124507904,

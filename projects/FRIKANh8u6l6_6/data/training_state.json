@@ -5,7 +5,7 @@
   "current_epoch": 0,
   "model_name": "FRIKAN",
   "training_alive": false,
-  "timestamp": "20260402170624.5",
+  "timestamp": "20260402200529.7",
   "best_weights_file": "projects/FRIKANh8u6l6_6/data\\FRIKANh8u6l6_6_best_weights.h5",
   "best_val_weights_file": "projects/FRIKANh8u6l6_6/data\\FRIKANh8u6l6_6_best_val_weights.h5"
 }

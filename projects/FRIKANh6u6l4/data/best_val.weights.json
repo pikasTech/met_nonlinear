@@ -432,7 +432,7 @@
         ]
     },
     {
-        "name": "dense_kan_66/spline_kernel:0",
+        "name": "dense_kan_1/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -943,7 +943,7 @@
         ]
     },
     {
-        "name": "dense_kan_66/bias:0",
+        "name": "dense_kan_1/bias:0",
         "shape": [
             6
         ],
@@ -966,7 +966,7 @@
         ]
     },
     {
-        "name": "dense_kan_67/spline_kernel:0",
+        "name": "dense_kan_2/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -1477,7 +1477,7 @@
         ]
     },
     {
-        "name": "dense_kan_67/bias:0",
+        "name": "dense_kan_2/bias:0",
         "shape": [
             6
         ],
@@ -1500,7 +1500,7 @@
         ]
     },
     {
-        "name": "dense_kan_68/spline_kernel:0",
+        "name": "dense_kan_3/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -2011,7 +2011,7 @@
         ]
     },
     {
-        "name": "dense_kan_68/bias:0",
+        "name": "dense_kan_3/bias:0",
         "shape": [
             6
         ],
@@ -2034,7 +2034,7 @@
         ]
     },
     {
-        "name": "dense_kan_69/spline_kernel:0",
+        "name": "dense_kan_4/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -2545,7 +2545,7 @@
         ]
     },
     {
-        "name": "dense_kan_69/bias:0",
+        "name": "dense_kan_4/bias:0",
         "shape": [
             6
         ],
@@ -2568,7 +2568,7 @@
         ]
     },
     {
-        "name": "dense_kan_65/spline_kernel:0",
+        "name": "dense_kan/spline_kernel:0",
         "shape": [
             6,
             10,
@@ -2779,7 +2779,7 @@
         ]
     },
     {
-        "name": "dense_kan_65/bias:0",
+        "name": "dense_kan/bias:0",
         "shape": [
             1
         ],

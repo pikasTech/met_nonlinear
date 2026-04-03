@@ -30,5 +30,13 @@
     },
     "learning_rate_max": 0.002,
     "learning_rate_min": 1.1453e-07,
-    "learning_rate_mean": 0.000200958921228
+    "learning_rate_mean": 0.000200958921228,
+    "evaluation_metrics": {
+        "train_loss": 0.012115173041820526,
+        "val_loss": 0.014905599877238274,
+        "train_mae": 0.013345646671950817,
+        "train_afmae": 0.012667795643210411,
+        "val_mae": 0.013755260035395622,
+        "val_afmae": 0.026227544993162155
+    }
 }

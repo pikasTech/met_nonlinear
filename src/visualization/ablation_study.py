@@ -16,8 +16,38 @@ class SimpleProjectResult:
     def __init__(self, project_path: str):
         self.project_path = project_path
         self.raw_data_path = Path('projects') / project_path / 'data' / 'linear_response.json'
+        self.compute_analysis_path = Path('projects') / project_path / 'data' / 'compute_analysis.json'
+        self.training_info_path = Path('projects') / project_path / 'data' / 'training_info.json'
         self.raw_data = {}
         self.processed_data = {}
+        self.compute_data = {}
+        self.training_info = {}
+
+    def load_compute_analysis(self) -> bool:
+        """Load compute analysis from JSON file."""
+        try:
+            with open(self.compute_analysis_path, 'r') as f:
+                self.compute_data = json.load(f)
+            return True
+        except FileNotFoundError:
+            logger.warning(f"compute_analysis.json not found: {self.compute_analysis_path}")
+            return False
+        except Exception as e:
+            logger.error(f"Error loading compute analysis: {e}")
+            return False
+
+    def load_training_info(self) -> bool:
+        """Load training info from JSON file."""
+        try:
+            with open(self.training_info_path, 'r') as f:
+                self.training_info = json.load(f)
+            return True
+        except FileNotFoundError:
+            logger.warning(f"training_info.json not found: {self.training_info_path}")
+            return False
+        except Exception as e:
+            logger.error(f"Error loading training info: {e}")
+            return False
 
     def load_data(self):
         """Load raw data from the JSON file."""
@@ -102,17 +132,20 @@ class AblationStudyAnalyzer:
                 result = SimpleProjectResult(proj_path)
                 result.load_data()
                 result.process_data()
+                result.load_compute_analysis()
+                result.load_training_info()
                 self.projects[proj_name] = result
                 logger.info(f"已加载项目: {proj_name} ({proj_path})")
             except Exception as e:
                 logger.error(f"加载项目失败 {proj_name}: {e}")
 
-    def calculate_natural_frequency_drift(self, project_name: str) -> dict:
+    def calculate_natural_frequency_drift(self, project_name: str, use_origin: bool = False) -> dict:
         """计算固有频率漂移 - 复用 ProjectResult + calculate_drift()"""
         if project_name not in self.projects:
             raise ValueError(f"项目未加载: {project_name}")
 
-        fn = self.projects[project_name].processed_data['fn_comped']
+        key = 'fn_origin' if use_origin else 'fn_comped'
+        fn = self.projects[project_name].processed_data[key]
         metric = {
             'min': float(np.min(fn)),
             'max': float(np.max(fn)),
@@ -121,14 +154,15 @@ class AblationStudyAnalyzer:
         metric['drift'] = calculate_drift(metric)
         return metric
 
-    def calculate_sensitivity_drift(self, project_name: str, freq_hz: float = 100) -> dict:
+    def calculate_sensitivity_drift(self, project_name: str, freq_hz: float = 100, use_origin: bool = False) -> dict:
         """计算灵敏度漂移 - 复用 ProjectResult.process_data(freq_sen) + calculate_drift()"""
         if project_name not in self.projects:
             raise ValueError(f"项目未加载: {project_name}")
 
         result = self.projects[project_name]
         result.process_data(freq_sen=freq_hz)
-        sens = result.processed_data['sensitive_comped']
+        key = 'sensitive_origin' if use_origin else 'sensitive_comped'
+        sens = result.processed_data[key]
         metric = {
             'min': float(np.min(sens)),
             'max': float(np.max(sens)),
@@ -137,7 +171,7 @@ class AblationStudyAnalyzer:
         metric['drift'] = calculate_drift(metric)
         return metric
 
-    def calculate_linearity(self, project_name: str) -> dict:
+    def calculate_linearity(self, project_name: str, use_origin: bool = False) -> dict:
         """计算平均线性度 (1 - R²) - 直接读取 JSON"""
         if project_name not in self.projects:
             raise ValueError(f"项目未加载: {project_name}")
@@ -145,17 +179,59 @@ class AblationStudyAnalyzer:
         proj = self.projects[project_name]
         path = Path('projects') / proj.project_path / 'data' / 'linearity_by_frequency.json'
         if not path.exists():
-            raise FileNotFoundError(f"linearity_by_frequency.json not found: {path}")
+            return {'error': 'linearity_by_frequency.json not available', 'hint': 'run python cli.py -e PROJECT_NAME to generate'}
 
         with open(path) as f:
             data = json.load(f)
 
-        r2_values = [item['r_squared_comped'] for item in data['linearity_by_frequency']]
+        r2_key = 'r_squared_origin' if use_origin else 'r_squared_comped'
+        r2_values = [item[r2_key] for item in data['linearity_by_frequency']]
         nonlinearity = [1 - r2 for r2 in r2_values]
         return {
             'mean': float(np.mean(nonlinearity)) * 100,
             'max': float(np.max(nonlinearity)) * 100,
             'min': float(np.min(nonlinearity)) * 100
+        }
+
+    def calculate_compute_cost(self, project_name: str) -> dict:
+        """计算计算量估计指标"""
+        if project_name not in self.projects:
+            raise ValueError(f"项目未加载: {project_name}")
+
+        proj = self.projects[project_name]
+        if not proj.compute_data:
+            return {}
+
+        totals = proj.compute_data.get('totals', {})
+        estimated = proj.compute_data.get('estimated_cost', {}).get('weighted_units', {})
+        params = proj.compute_data.get('total_params', 0)
+
+        return {
+            'total_params': params,
+            'additions': totals.get('additions', 0),
+            'multiplications': totals.get('multiplications', 0),
+            'maps': totals.get('maps', 0),
+            'total_ops': totals.get('total', 0),
+            'weighted_total': estimated.get('total', 0),
+            'weighted_additions': estimated.get('additions', 0),
+            'weighted_multiplications': estimated.get('multiplications', 0),
+            'weighted_maps': estimated.get('maps', 0),
+        }
+
+    def calculate_mae_afmae(self, project_name: str) -> dict:
+        """获取 MAE 和 AFMAE 指标"""
+        if project_name not in self.projects:
+            raise ValueError(f"项目未加载: {project_name}")
+
+        proj = self.projects[project_name]
+        eval_metrics = proj.training_info.get('evaluation_metrics', {})
+
+        if not eval_metrics:
+            return {'error': 'evaluation_metrics not available', 'hint': 'run python cli.py -e PROJECT_NAME to generate'}
+
+        return {
+            'val_mae': eval_metrics.get('val_mae', 0),
+            'val_afmae': eval_metrics.get('val_afmae', 0),
         }
 
     def calculate_suppression_rate(self, ref_drift: float, comp_drift: float) -> float:
@@ -199,6 +275,23 @@ class AblationStudyAnalyzer:
         if metrics_cfg.get('linearity', {}).get('enabled', False):
             results['metrics']['linearity'] = self._analyze_linearity()
 
+        if metrics_cfg.get('compute_cost', {}).get('enabled', False):
+            results['metrics']['compute_cost'] = self._analyze_compute_cost(
+                metrics_cfg['compute_cost']
+            )
+
+        if metrics_cfg.get('mae_afmae', {}).get('enabled', False):
+            results['metrics']['mae_afmae'] = self._analyze_mae_afmae()
+
+        results['metrics']['natural_frequency_drift_origin'] = self._analyze_natural_frequency_drift_origin(
+            metrics_cfg.get('natural_frequency_drift', {})
+        )
+        results['metrics']['sensitivity_drift_origin'] = self._analyze_sensitivity_drift_origin(
+            metrics_cfg.get('sensitivity_drift', {}),
+            metrics_cfg.get('sensitivity_drift', {}).get('frequency_hz', 100)
+        )
+        results['metrics']['linearity_origin'] = self._analyze_linearity_origin()
+
         self.results = results
         return results
 
@@ -208,7 +301,7 @@ class AblationStudyAnalyzer:
         metric_results = {}
 
         for proj_name in self.projects.keys():
-            drift_data = self.calculate_natural_frequency_drift(proj_name)
+            drift_data = self.calculate_natural_frequency_drift(proj_name, use_origin=False)
             metric_results[proj_name] = {
                 'drift': drift_data['drift'],
                 'unit': 'Hz',
@@ -225,13 +318,33 @@ class AblationStudyAnalyzer:
 
         return metric_results
 
+    def _analyze_natural_frequency_drift_origin(self, metric_cfg: dict) -> dict:
+        """分析固有频率漂移 (未补偿/Origin)"""
+        metric_results = {}
+
+        for proj_name in self.projects.keys():
+            proj_path = self.config['projects'][list(self.projects.keys()).index(proj_name)]['path']
+            if not proj_path.startswith('00_MAE_VS_AFMAE'):
+                continue
+
+            drift_data = self.calculate_natural_frequency_drift(proj_name, use_origin=True)
+            metric_results[proj_name] = {
+                'drift': drift_data['drift'],
+                'unit': 'Hz',
+                'min': drift_data['min'],
+                'max': drift_data['max'],
+                'median': drift_data['median']
+            }
+
+        return metric_results
+
     def _analyze_sensitivity_drift(self, metric_cfg: dict, freq_hz: float) -> dict:
         """分析灵敏度漂移"""
         ref_project = metric_cfg.get('reference')
         metric_results = {}
 
         for proj_name in self.projects.keys():
-            drift_data = self.calculate_sensitivity_drift(proj_name, freq_hz)
+            drift_data = self.calculate_sensitivity_drift(proj_name, freq_hz, use_origin=False)
             metric_results[proj_name] = {
                 'drift': drift_data['drift'],
                 'unit': '%',
@@ -248,18 +361,108 @@ class AblationStudyAnalyzer:
 
         return metric_results
 
+    def _analyze_sensitivity_drift_origin(self, metric_cfg: dict, freq_hz: float) -> dict:
+        """分析灵敏度漂移 (未补偿/Origin)"""
+        metric_results = {}
+
+        for proj_name in self.projects.keys():
+            proj_path = self.config['projects'][list(self.projects.keys()).index(proj_name)]['path']
+            if not proj_path.startswith('00_MAE_VS_AFMAE'):
+                continue
+
+            drift_data = self.calculate_sensitivity_drift(proj_name, freq_hz, use_origin=True)
+            metric_results[proj_name] = {
+                'drift': drift_data['drift'],
+                'unit': '%',
+                'min': drift_data['min'],
+                'max': drift_data['max'],
+                'median': drift_data['median']
+            }
+
+        return metric_results
+
     def _analyze_linearity(self) -> dict:
         """分析线性度"""
         metric_results = {}
 
         for proj_name in self.projects.keys():
-            linearity_data = self.calculate_linearity(proj_name)
-            metric_results[proj_name] = {
-                'mean': linearity_data['mean'],
-                'max': linearity_data['max'],
-                'min': linearity_data['min'],
-                'unit': '%'
+            linearity_data = self.calculate_linearity(proj_name, use_origin=False)
+            if 'error' in linearity_data:
+                metric_results[proj_name] = linearity_data
+            else:
+                metric_results[proj_name] = {
+                    'mean': linearity_data['mean'],
+                    'max': linearity_data['max'],
+                    'min': linearity_data['min'],
+                    'unit': '%'
+                }
+
+        return metric_results
+
+    def _analyze_linearity_origin(self) -> dict:
+        """分析线性度 (未补偿/Origin)"""
+        metric_results = {}
+
+        for proj_name in self.projects.keys():
+            proj_path = self.config['projects'][list(self.projects.keys()).index(proj_name)]['path']
+            if not proj_path.startswith('00_MAE_VS_AFMAE'):
+                continue
+
+            linearity_data = self.calculate_linearity(proj_name, use_origin=True)
+            if 'error' in linearity_data:
+                metric_results[proj_name] = linearity_data
+            else:
+                metric_results[proj_name] = {
+                    'mean': linearity_data['mean'],
+                    'max': linearity_data['max'],
+                    'min': linearity_data['min'],
+                    'unit': '%'
+                }
+
+        return metric_results
+
+    def _analyze_compute_cost(self, metric_cfg: dict) -> dict:
+        """分析计算量估计指标"""
+        metric_results = {}
+        show_details = metric_cfg.get('show_details', True)
+
+        for proj_name in self.projects.keys():
+            compute_data = self.calculate_compute_cost(proj_name)
+            if not compute_data:
+                metric_results[proj_name] = {'error': 'compute_analysis not available'}
+                continue
+
+            result = {
+                'total_params': compute_data.get('total_params', 0),
+                'additions': compute_data.get('additions', 0),
+                'multiplications': compute_data.get('multiplications', 0),
+                'maps': compute_data.get('maps', 0),
+                'total_ops': compute_data.get('total_ops', 0),
+                'weighted_total': compute_data.get('weighted_total', 0),
             }
+
+            if show_details:
+                result['weighted_additions'] = compute_data.get('weighted_additions', 0)
+                result['weighted_multiplications'] = compute_data.get('weighted_multiplications', 0)
+                result['weighted_maps'] = compute_data.get('weighted_maps', 0)
+
+            metric_results[proj_name] = result
+
+        return metric_results
+
+    def _analyze_mae_afmae(self) -> dict:
+        """分析 MAE 和 AFMAE 指标"""
+        metric_results = {}
+
+        for proj_name in self.projects.keys():
+            mae_afmae_data = self.calculate_mae_afmae(proj_name)
+            if 'error' in mae_afmae_data:
+                metric_results[proj_name] = mae_afmae_data
+            else:
+                metric_results[proj_name] = {
+                    'val_mae': mae_afmae_data.get('val_mae', 0),
+                    'val_afmae': mae_afmae_data.get('val_afmae', 0),
+                }
 
         return metric_results
 
@@ -288,6 +491,11 @@ class AblationStudyAnalyzer:
 
         if 'linearity' in metrics:
             lines.extend(self._format_linearity_section(metrics['linearity']))
+
+        if 'compute_cost' in metrics:
+            lines.extend(self._format_compute_cost_section(metrics['compute_cost']))
+
+        lines.extend(self._format_summary_section(metrics))
 
         return '\n'.join(lines)
 
@@ -328,8 +536,126 @@ class AblationStudyAnalyzer:
             "| Project | Mean (%) | Max (%) | Min (%) |",
             "|---------|----------|---------|---------|"
         ]
+        has_missing = False
         for proj_name, proj_data in data.items():
-            lines.append(f"| {proj_name} | {proj_data['mean']:.4f} | {proj_data['max']:.4f} | {proj_data['min']:.4f} |")
+            if 'error' in proj_data:
+                lines.append(f"| {proj_name} | ERROR: {proj_data['error']} | - | - |")
+                has_missing = True
+            else:
+                lines.append(f"| {proj_name} | {proj_data['mean']:.4f} | {proj_data['max']:.4f} | {proj_data['min']:.4f} |")
+        if has_missing:
+            lines.append("")
+            lines.append("> **提示**: 缺少 `linearity_by_frequency.json` 的项目可通过 `python cli.py -e PROJECT_NAME` 生成")
+        lines.append("")
+        return lines
+
+    def _format_compute_cost_section(self, data: dict) -> List[str]:
+        lines = [
+            "## 4. 计算量估计",
+            "",
+            "| Project | Add | Mul | MAP | Total Ops | 加权估计 |",
+            "|---------|-----|-----|-----|-----------|------------|"
+        ]
+        has_missing = False
+        for proj_name, proj_data in data.items():
+            if 'error' in proj_data:
+                lines.append(f"| {proj_name} | ERROR: {proj_data['error']} | - | - | - | - |")
+                has_missing = True
+            else:
+                lines.append(
+                    f"| {proj_name} | "
+                    f"{proj_data.get('additions', 0)} | "
+                    f"{proj_data.get('multiplications', 0)} | "
+                    f"{proj_data.get('maps', 0)} | "
+                    f"{proj_data.get('total_ops', 0)} | "
+                    f"{proj_data.get('weighted_total', 0):.1f} |"
+                )
+        if has_missing:
+            lines.append("")
+            lines.append("> **提示**: 缺少 `compute_analysis.json` 的项目可通过 `python cli.py -m PROJECT_NAME` 或 `python cli.py -e PROJECT_NAME` 生成")
+        lines.append("")
+        return lines
+
+    def _format_summary_section(self, metrics: dict) -> List[str]:
+        lines = [
+            "## 5. 综合对比",
+            "",
+            "| Project | 加权估计 | Val MAE | Val AFMAE | Freq Drift (Hz) | Sens Drift (%) | Linearity (%) |",
+            "|---------|------------|---------|------------|------------------|-----------------|----------------|"
+        ]
+
+        compute_cost = metrics.get('compute_cost', {})
+        mae_afmae = metrics.get('mae_afmae', {})
+        freq_drift = metrics.get('natural_frequency_drift', {})
+        sens_drift = metrics.get('sensitivity_drift', {})
+        linearity = metrics.get('linearity', {})
+        freq_drift_origin = metrics.get('natural_frequency_drift_origin', {})
+        sens_drift_origin = metrics.get('sensitivity_drift_origin', {})
+        linearity_origin = metrics.get('linearity_origin', {})
+
+        has_missing = False
+
+        origin_added = False
+        for proj_entry in self.results.get('projects', []):
+            proj_name_only = proj_entry['name']
+            proj_path = proj_entry.get('path', '')
+            is_00_series = proj_path.startswith('00_MAE_VS_AFMAE')
+
+            if is_00_series and not origin_added:
+                fd_keys = list(freq_drift_origin.keys())
+                if fd_keys:
+                    fd_o = freq_drift_origin[fd_keys[0]]
+                    sd_o = sens_drift_origin[fd_keys[0]]
+                    lin_o = linearity_origin[fd_keys[0]]
+                    lines.append("| ORIGIN (未补偿) | - | - | - | "
+                                 f"{fd_o.get('drift', 0):.4f} | "
+                                 f"{sd_o.get('drift', 0):.4f} | "
+                                 f"{lin_o.get('mean', 0):.4f} |")
+                    origin_added = True
+
+            row = [proj_name_only]
+
+            cc = compute_cost.get(proj_name_only, {})
+            if 'error' in cc:
+                row.append('ERROR')
+                has_missing = True
+            else:
+                row.append(f"{cc.get('weighted_total', 0):.1f}")
+
+            ma = mae_afmae.get(proj_name_only, {})
+            if 'error' in ma:
+                row.extend(['ERROR', 'ERROR'])
+                has_missing = True
+            else:
+                row.append(f"{ma.get('val_mae', 0):.4f}")
+                row.append(f"{ma.get('val_afmae', 0):.4f}")
+
+            fd = freq_drift.get(proj_name_only, {})
+            if 'error' in fd:
+                row.append('ERROR')
+                has_missing = True
+            else:
+                row.append(f"{fd.get('drift', 0):.4f}")
+
+            sd = sens_drift.get(proj_name_only, {})
+            if 'error' in sd:
+                row.append('ERROR')
+                has_missing = True
+            else:
+                row.append(f"{sd.get('drift', 0):.4f}")
+
+            lin = linearity.get(proj_name_only, {})
+            if 'error' in lin:
+                row.append('ERROR')
+                has_missing = True
+            else:
+                row.append(f"{lin.get('mean', 0):.4f}")
+
+            lines.append("| " + " | ".join(row) + " |")
+
+        if has_missing:
+            lines.append("")
+            lines.append("> **提示**: 缺少数据的项目可通过 `python cli.py -e PROJECT_NAME` 生成")
         lines.append("")
         return lines
 
