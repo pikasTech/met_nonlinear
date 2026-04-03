@@ -17,6 +17,10 @@
 
 ## Domain Notes
 - MET非线性项目: Wiener-KAN用于频率响应漂移补偿
+- 2026-04-03: 若 nvidia-smi 报某块卡 `GPU is lost`，Windows 的 WMI `Status: OK` 仍可能误导；以 nvidia-smi 为准
+- 2026-04-03: 当前机器在 3090 lost、2080 正常时，可在 TensorFlow 导入前设置 `CUDA_VISIBLE_DEVICES=1` 继续训练；设备级 `pnputil /restart-device` 需要管理员权限
+- 2026-04-03: 多卡默认优先级改为 `RTX 2080 Ti > RTX 3090 > 其他 GPU`，逻辑在 `src/utils/cuda_preflight.py`
+- 2026-04-03: GPU lost/Lost 后恢复与冷启动判定写入 `docs/reference/gpu_recovery.md`，CLAUDE 索引已补链接
 - 所有P0-P1主张支撑已完备
 - R3-4对比方法支撑: Yin 2017 CNN/RNN, Bai TCN, Rather 2025 KAN-GRU
 - R4-8计算成本支撑: KANtize, LUT-KAN, IoT KAN (LUT效率)
@@ -273,3 +277,9 @@
 ### 注意事项
 - bash heredoc在Windows上会产生编码问题，应使用write工具创建回复文件
 - 执行者不得修改原文markdown文件名，只修正分析文件内容
+
+## 2026-04-03 R217 Issue 825 复查完成
+- Rodriguez_Linhares_2025: 分析文件第42-44行引用正确
+- r002误读：将第29行 `## I. INTRODUCTION` 标题误认为第33行
+- 实际：第33行是英文正文段落（以"This paper focuses on ADIs."结尾）
+- 结论：无需修正，已回复r003核实结果

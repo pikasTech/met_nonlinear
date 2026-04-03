@@ -25,6 +25,30 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 
+def _log_cuda_diagnostics_when_no_gpu() -> None:
+    if os.environ.get('METNL_CUDA_LOST_GPU_DETECTED') != '1':
+        logger.warning("Failed to set GPU usage, no GPU found")
+        return
+
+    healthy_indices = os.environ.get('METNL_CUDA_HEALTHY_GPU_INDICES', '')
+    visible_devices = os.environ.get('CUDA_VISIBLE_DEVICES', '')
+    if healthy_indices:
+        logger.warning(
+            'TensorFlow still failed to initialize CUDA after masking lost GPUs. '
+            'This usually means the NVIDIA driver is in a globally poisoned state. '
+            'healthy_gpu_indices=%s, CUDA_VISIBLE_DEVICES=%s. '
+            'Use an admin device restart for the lost GPU or reboot the machine to recover GPU training.',
+            healthy_indices,
+            visible_devices,
+        )
+        return
+
+    logger.warning(
+        'Detected lost NVIDIA GPU state and no healthy GPU remained. Falling back to CPU. '
+        'Recover the device with an admin device restart or reboot the machine.'
+    )
+
+
 def initialize_device():
     # 检查是否有可用的GPU
     gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -72,7 +96,7 @@ def set_using_gpu(enable: bool):
             logger.warning("Error in setting GPU, falling back to CPU")
             tf.config.set_visible_devices([], 'GPU')
     else:
-        logger.warning("Failed to set GPU usage, no GPU found")
+        _log_cuda_diagnostics_when_no_gpu()
         using_gpu = False
 
 

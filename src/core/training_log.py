@@ -254,15 +254,21 @@ class TrainingLogger:
         :return: 最小值及最小值对应的参数（epoch 和其他相关指标）
         """
         metric = training_log.get(metric_name, [])
+        if not metric:
+            return None, {}
         min_value = min(metric)
         min_epoch = metric.index(min_value) + 1  # 训练轮次从1开始
-        min_val_loss = training_log.get('val_loss', [])[min_epoch - 1]
-        min_mae = training_log.get('mae', [])[min_epoch - 1]
-        min_val_mae = training_log.get('val_mae', [])[min_epoch - 1]
-        min_power_log_loss = training_log.get(
-            'power_log_loss', [])[min_epoch - 1]
-        min_val_power_log_loss = training_log.get(
-            'val_power_log_loss', [])[min_epoch - 1]
+        idx = min_epoch - 1
+
+        def safe_get(log, key, default=None):
+            lst = log.get(key, [])
+            return lst[idx] if idx < len(lst) else default
+
+        min_val_loss = safe_get(training_log, 'val_loss')
+        min_mae = safe_get(training_log, 'mae')
+        min_val_mae = safe_get(training_log, 'val_mae')
+        min_power_log_loss = safe_get(training_log, 'power_log_loss')
+        min_val_power_log_loss = safe_get(training_log, 'val_power_log_loss')
         return min_value, {
             "epoch": min_epoch,
             "val_loss": min_val_loss,

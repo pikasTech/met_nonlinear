@@ -1,3 +1,78 @@
+## Round 194 审查完成 (2026-04-03 14:48)
+
+**7个Issue审查通过 (709/710/637/664/718/698/751)**:
+
+- Issue 709: Jiang_2025_KANMixer ✅ r004审查通过 - 7处行号引用验证准确
+- Issue 710: Kuznetsov_2026_LUT_KAN ✅ r004审查通过 - 5处行号引用验证准确
+- Issue 637: Gong_2026_SWAN_Seismic ✅ r004审查通过 - 边缘通过，5处引用验证准确
+- Issue 664: Khodakarami_2026_Spectral_Bias ✅ r007审查通过 - 8处行号引用验证准确
+- Issue 718: Kui_2025_TFKAN ✅ r010审查通过 - 4处P0行号修正已验证正确
+- Issue 698: Rather_2025_KAN_GRU ✅ r004审查通过 - 14处行号引用验证准确
+- Issue 751: Silva_2024_REDOX_Gas ✅ r004审查通过 - 9处行号引用验证准确
+
+**1个Issue续审 (614)**:
+
+- Issue 614: Southworth_2026_Multi-layer_KAN ❌ r008续审 - P0行号错误：Lemma引理行号系统性偏差(186→137, 260→213, 277→237)，章节引用错误(2.1节→第5节)
+
+**Round 195 规划决策**:
+- 7个Issue关闭 (709/710/637/664/718/698/751)
+- 1个Issue续审 (614) - 执行者需修正P0行号错误
+- 7个新Issue开启 (816-822) - 复查候选
+
+---
+
+## Round 193 审查完成 (2026-04-03 14:29)
+
+**8个Issue审查通过 (808-815)**:
+
+- Issue 808: Busetto_2025_Nano_Drone ✅ r004审查通过 - 5处行号引用验证准确
+- Issue 809: Schaller_2025_AutoML ✅ r004审查通过 - 6处行号引用验证准确
+- Issue 810: Chao_2025_Dynamic_Measurement ✅ r004审查通过 - 7处行号引用验证准确
+- Issue 811: Ullah_2026_NanoBench ✅ r004审查通过 - 10处行号引用验证准确
+- Issue 812: Subich_2025 ✅ r004审查通过 - 9处行号引用验证准确
+- Issue 813: Somvanshi_2025_KAN_Survey ✅ r004审查通过 - 4处行号引用验证准确
+- Issue 814: Shen_2026_KAN_FIF ✅ r004审查通过 - 5处行号引用验证准确
+- Issue 815: Rufolo_2024_WH_Transformer ✅ r004审查通过 - 7处行号引用验证准确
+
+**Round 194 规划决策**:
+- 8个Issue关闭 (808-815)
+- 8个Issue重开 (614/709/710/637/664/718/698/751) - 复查候选
+
+---
+
+## Round 190 审查完成 (2026-04-03 13:33)
+
+**1个Issue审查通过 (796)**:
+
+- Issue 796: Jarraya_2025_SOH_KLSTM ✅ r004审查通过 - 10处引用全部验证准确，补充的6处引用行号精确
+
+**1个Issue续审 (799)**:
+
+- Issue 799: Rodriguez_Linhares_2025 ❌ r004续审 - 执行者r003未正确修正，3处行号偏移均未修正(63→65, 65-66→65-67, 88→89)
+
+**Round 191 规划者决策**:
+- 1个Issue关闭 (796)
+- 1个Issue续审 (799) - 执行者需正确理解修正要求后重新提交
+- 7个新Issue开启 (801-807)
+
+---
+
+## Round 191 规划完成 (2026-04-03 13:38)
+
+**Issue状态更新**:
+- 8个Issue开放中 (799/801-807)
+
+**7个新Issue开启 (801-807)**:
+- Issue 801: Wang_2024_SpectralKAN - 复查候选
+- Issue 802: Wahlberg_2015_stochastic_Wiener - 复查候选
+- Issue 803: Willemstein_2023_WH_Piezoresistive - 复查候选
+- Issue 804: Xu_2008_Volterra - 复查候选
+- Issue 805: Yu_2025_PolyKAN - 复查候选
+- Issue 806: Zhang_2026_Time_TK - 复查候选
+- Issue 807: Zeng_2025_AR_KAN - 复查候选
+
+---
+
 ## Round 189 审查完成 (2026-04-03 13:20)
 
 **6个Issue审查通过 (793/794/795/797/798/800)**:

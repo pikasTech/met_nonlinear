@@ -33,6 +33,7 @@
 
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
+	- GPU 恢复与优先级：训练前执行 CUDA 预检查，处理 3090 lost 与多卡优先级，详见 [docs/reference/gpu_recovery.md](docs/reference/gpu_recovery.md)。
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。

@@ -83,6 +83,12 @@ def _run_main_commands(args) -> None:
         # 环境检查模块缺失不阻塞主流程
         pass
 
+    try:
+        from utils.cuda_preflight import prepare_cuda_visible_devices
+        prepare_cuda_visible_devices(logger)
+    except Exception as exc:
+        logger.warning(f'CUDA preflight failed, continuing with default GPU visibility: {exc}')
+
     # 第三阶段：依赖导入（保持原有导入顺序）
     from models.base_models import ModelEvent, ModelEventType
     import tensorflow as tf
