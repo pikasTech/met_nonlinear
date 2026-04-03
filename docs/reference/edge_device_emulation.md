@@ -55,10 +55,28 @@ python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 ```
 
-预期输出中应包含：
+### LSTM QEMU 推理验证
+
+如果要从已训练的 LSTM 项目直接生成裸机 C 工程并运行，可使用：
+
+```powershell
+python cli.py ep ex_projects/inference/qemu-c-inference/lstm_u16_base
+```
+
+该命令会在对应 EP 目录下生成 `qemu_project/`，随后调用现有 `cli.py qemu` 工作流进行构建与运行，并把结果写入 `data/benchmark_summary.json`。
+
+该入口在 EP 索引中归类为 `qemu-c-inference` 任务，路径格式与模板生成规则见 [ep 子命令说明](ep.md)。
+
+需要注意：QEMU 当前不能可靠提供 Cortex-M4 的 `DWT_CYCCNT` 计数，直接读 DWT 往往恒为 `0`。当前仓库的生成代码会先探测 DWT；若 DWT 不可用，则不再伪造 guest 内 cycle/tick 计数，而是由 EP 任务在捕获到完整 benchmark 输出后立即结束 QEMU，并把 host 侧 elapsed time 作为回退计时来源。因此汇总里应优先看 `timer_source`、`measurement_unit`、`measurement_per_iter`。
+
+预期输出中应包含类似：
 
 ```text
-Hello World!
+LSTM_QEMU_BENCHMARK
+dwt_supported=0
+timer_source=host_elapsed
+measurement_unit=seconds
+measurement_per_iter=...
 ```
 
 ## 本机工具链

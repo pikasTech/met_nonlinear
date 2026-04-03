@@ -855,9 +855,12 @@ class TestExternalPathParser:
             'bias-visualization',
             'waveform-analysis',
             'wnet5-circuit-validation',
+            'qemu-c-inference',
             'data-analysis',
             'model-export',
-            'performance-benchmark'
+            'performance-benchmark',
+            'ablation-study',
+            'compare'
         ]
 
         assert parser.SUPPORTED_TASK_TYPES == expected_types
@@ -897,6 +900,18 @@ class TestExternalPathParser:
         assert result.task_type == 'freq-response-compare'
         assert result.task_name == 'task'
         # project_name is determined by the path structure
+
+    def test_parse_ex_projects_inference_path(self):
+        """Test parsing ex_projects/inference/task_type/task_name path."""
+        from core.external_path_parser import ExternalPathParser
+
+        parser = ExternalPathParser()
+        result = parser.parse('ex_projects/inference/qemu-c-inference/lstm_u16_base')
+
+        assert result.project_name == 'lstm_u16_base'
+        assert result.task_type == 'qemu-c-inference'
+        assert result.task_name == 'lstm_u16_base'
+        assert result.config_path.name == 'config.json'
 
     def test_validate_project_name(self):
         """Test project name validation"""

@@ -1,0 +1,25 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "使用 LSTMu16_base 生成裸机 QEMU C 工程并执行推理耗时测试"
+  },
+  "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+  "weights_file": "best_val.weights.json",
+  "generation_config": {
+    "project_dir": "qemu_project",
+    "overwrite": true
+  },
+  "benchmark_config": {
+    "iterations": 1000,
+    "input_sequence": [
+      0.1
+    ],
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "qemu_config": {
+    "action": "build-run",
+    "machine": "olimex-stm32-h405",
+    "timeout": 5
+  }
+}

@@ -12,6 +12,9 @@
 - STEP3 documents (key_references.md, theory_framework.md, paper_draft_segments.md, SUMMARY.md) are already comprehensive after R32/R33 analysis
 - Only status updates needed for STEP3 - no content changes required
 - R33 confirmed Luo KANLoc exclusion (domain mismatch: robot vision vs sensor drift compensation)
+- 2026-04-03: `qemu-c-inference` 应直接从 `best_val.weights.json` 生成专用 bare-metal C 工程，不要复用桌面版 `src/inference/cimpl/lstm.c`；后者依赖 `printf/math.h`，在 `-nostdlib` 的 QEMU 构建里不稳
+- 2026-04-03: 生成 C 源码模板时若包含 `\n`/`\r`/`\0`，优先用原始字符串保留转义；但 `#include "..."` 不能保留反斜杠，否则会生成非法源码
+- 2026-04-03: QEMU 的 Cortex-M4 场景下不要把 `DWT_CYCCNT` 当成可靠 benchmark 来源；应先探测 DWT 是否真正递增，当前仓库在 DWT 不可用时以 host-side elapsed time 作为回退计时，避免在 guest 内伪造 cycle/tick 指标
 
 ## Patterns That Don't Work
 - Trying to remove the corrupted `-p` directory in root (encoding issues make it inaccessible) - KNOWN ISSUE, documented in napkin
@@ -305,3 +308,20 @@
 ### 注意事项
 - 使用write工具创建mdissue回复文件，避免bash heredoc编码问题
 - 执行者不得修改原文markdown文件名，只修正分析文件内容
+
+## 2026-04-03 R213 执行完成 (Round 213复查)
+### 8个Issue复查执行 (922-929)
+- 922 FIRE_He_2025: 引用全部准确 (第35/41/747/751行)
+- 923 Hoekstra_2026_LFR_Learning: 引用全部准确 (第35行)
+- 924 Fang_2024_exploiting_nonlinearity: 引用全部准确 (第18/71-73/439/451/465-471行)
+- 925 Fasmin_2017_Nonlinear_Electrochemical: 引用全部准确 (第28-29/174-187/269-275行)
+- 926 Gaonkar_2026_KAN_vs_MLP: 引用全部准确 (第55-57/259/281行)
+- 927 Genet_2024_TKAN: 引用全部准确 (第44/45/46/331/357行)
+- 928 Howard_2026_SINDy_KANs: 引用全部准确 (第56/59/62/95/297/379/387行)
+- 929 Iacob_2025_Koopman_Schoukens: 引用全部准确 (第24/31/91/153行)
+
+### 执行结果
+- 所有8个Issue无P0/P1问题
+- 所有引用经验证与markdown源文件一致
+- 已通过mdissue CLI发送回复(r004)
+- 建议全部关闭（await审查者确认）

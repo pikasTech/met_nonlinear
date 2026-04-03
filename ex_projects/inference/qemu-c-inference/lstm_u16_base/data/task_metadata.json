@@ -1,0 +1,11 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "使用 LSTMu16_base 生成裸机 QEMU C 工程并执行推理耗时测试"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/qemu_project"
+  ],
+  "action": "build-run"
+}

@@ -1,0 +1,87 @@
+{
+  "task_type": "qemu-c-inference",
+  "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+  "weights_json_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.json",
+  "generated_project_dir": "ex_projects/inference/qemu-c-inference/lstm_u16_base/qemu_project",
+  "benchmark_config": {
+    "iterations": 1000,
+    "input_sequence": [
+      [
+        0.1
+      ]
+    ],
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "qemu_config": {
+    "action": "build-run",
+    "machine": "olimex-stm32-h405",
+    "timeout": 5
+  },
+  "build": {
+    "action": "build",
+    "exit_code": 0,
+    "project": {
+      "project_dir": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project",
+      "output_elf": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.elf",
+      "linker_script": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\stm32f405.ld",
+      "source_files": [
+        "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.c",
+        "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\startup.c"
+      ]
+    },
+    "build": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 0.3192462000006344,
+      "timed_out": false
+    }
+  },
+  "runs": [
+    {
+      "run_index": 0,
+      "workflow": {
+        "action": "run",
+        "exit_code": 0,
+        "project": {
+          "project_dir": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project",
+          "output_elf": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.elf",
+          "linker_script": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\stm32f405.ld",
+          "source_files": [
+            "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.c",
+            "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\startup.c"
+          ]
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "LSTM_QEMU_BENCHMARK\niterations=1000\nseq_len=1\ninput_dim=1\nlstm_units=16\ndense_units=16\ndwt_supported=0\ntimer_source=host_elapsed\noutput=0.020882\n",
+          "stderr": "",
+          "elapsed_seconds": 0.19326339999679476,
+          "timed_out": false
+        }
+      },
+      "parsed_output": {
+        "iterations": 1000,
+        "seq_len": 1,
+        "input_dim": 1,
+        "lstm_units": 16,
+        "dense_units": 16,
+        "dwt_supported": 0,
+        "timer_source": "host_elapsed",
+        "output": 0.020882,
+        "measurement_unit": "seconds",
+        "measurement_total": 0.19326339999679476,
+        "measurement_per_iter": 0.00019326339999679477
+      }
+    }
+  ],
+  "aggregated": {
+    "run_count": 1,
+    "avg_host_elapsed_seconds": 0.19326339999679476,
+    "avg_measurement_per_iter": 0.00019326339999679477,
+    "measurement_sources": [
+      "host_elapsed"
+    ]
+  }
+}

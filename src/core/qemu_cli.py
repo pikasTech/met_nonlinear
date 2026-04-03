@@ -6,8 +6,10 @@ import logging
 import os
 import shutil
 import subprocess
-from dataclasses import dataclass
-from typing import Iterable, List, Optional, Tuple
+import threading
+import time
+from dataclasses import asdict, dataclass
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,17 @@ class QemuProject:
     source_files: List[str]
     linker_script: str
     output_elf: str
+
+
+@dataclass
+class CommandExecutionResult:
+    """单次命令执行结果。"""
+
+    exit_code: int
+    stdout: str
+    stderr: str
+    elapsed_seconds: float
+    timed_out: bool = False
 
 
 def _resolve_executable(user_path: Optional[str], program_name: str,
@@ -176,21 +189,27 @@ def _log_subprocess_output(stdout: str, stderr: str,
         logger.warning('命令执行完成，但没有产生任何输出')
 
 
-def _build_project(project: QemuProject, gcc_path: str) -> int:
-    """编译 QEMU 工程。"""
+def _build_project_details(project: QemuProject,
+                           gcc_path: str) -> CommandExecutionResult:
+    """编译 QEMU 工程并返回详细结果。"""
     os.makedirs(os.path.dirname(project.output_elf), exist_ok=True)
 
     command = [
         gcc_path,
+        '-std=c99',
+        '-O2',
         '-mcpu=cortex-m4',
         '-mthumb',
         '-mfloat-abi=soft',
         '-ffreestanding',
+        '-ffunction-sections',
+        '-fdata-sections',
         '-nostdlib',
         f'-Wl,-T,{project.linker_script}',
         '-Wl,--gc-sections',
         '-o', project.output_elf,
         *project.source_files,
+        '-lgcc',
     ]
 
     logger.info('开始编译 QEMU 工程: %s', os.path.relpath(project.project_dir, REPO_ROOT))
@@ -199,6 +218,7 @@ def _build_project(project: QemuProject, gcc_path: str) -> int:
     logger.info('输出 ELF: %s', project.output_elf)
     logger.info('编译命令: %s', ' '.join(command))
 
+    started_at = time.perf_counter()
     result = subprocess.run(
         command,
         cwd=REPO_ROOT,
@@ -207,22 +227,57 @@ def _build_project(project: QemuProject, gcc_path: str) -> int:
         encoding='utf-8',
         errors='replace',
     )
+    elapsed_seconds = time.perf_counter() - started_at
     _log_subprocess_output(result.stdout, result.stderr, warn_if_empty=False)
 
     if result.returncode != 0:
         logger.error('编译失败，返回码: %s', result.returncode)
-        return result.returncode
+        return CommandExecutionResult(
+            exit_code=result.returncode,
+            stdout=result.stdout,
+            stderr=result.stderr,
+            elapsed_seconds=elapsed_seconds,
+        )
 
     logger.info('编译成功: %s', project.output_elf)
-    return 0
+    return CommandExecutionResult(
+        exit_code=0,
+        stdout=result.stdout,
+        stderr=result.stderr,
+        elapsed_seconds=elapsed_seconds,
+    )
 
 
-def _run_project(project: QemuProject, qemu_path: str, machine: str,
-                 timeout: int) -> int:
-    """运行 QEMU 工程。"""
+def _build_project(project: QemuProject, gcc_path: str) -> int:
+    """编译 QEMU 工程。"""
+    return _build_project_details(project, gcc_path).exit_code
+
+
+def _stream_reader(stream, sink: List[str], success_patterns: Optional[Sequence[str]],
+                   success_event: Optional[threading.Event]) -> None:
+    """持续读取子进程输出，并在命中成功模式时发信号。"""
+    try:
+        for line in iter(stream.readline, ''):
+            sink.append(line)
+            if success_event is not None and success_patterns:
+                if any(pattern in line for pattern in success_patterns):
+                    success_event.set()
+    finally:
+        stream.close()
+
+
+def _run_project_details(project: QemuProject, qemu_path: str, machine: str,
+                         timeout: int,
+                         success_patterns: Optional[Sequence[str]] = None) -> CommandExecutionResult:
+    """运行 QEMU 工程并返回详细结果。"""
     if not os.path.exists(project.output_elf):
         logger.error('未找到 ELF 文件，请先执行 build 或 build-run: %s', project.output_elf)
-        return 1
+        return CommandExecutionResult(
+            exit_code=1,
+            stdout='',
+            stderr=f'未找到 ELF 文件，请先执行 build 或 build-run: {project.output_elf}',
+            elapsed_seconds=0.0,
+        )
 
     command = [
         qemu_path,
@@ -249,45 +304,133 @@ def _run_project(project: QemuProject, qemu_path: str, machine: str,
     )
 
     timed_out = False
-    try:
-        if timeout > 0:
-            stdout, stderr = process.communicate(timeout=timeout)
-        else:
-            stdout, stderr = process.communicate()
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        logger.info('QEMU 达到超时时间 %s 秒，准备终止进程并收集输出', timeout)
-        process.terminate()
-        try:
-            stdout, stderr = process.communicate(timeout=2)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            stdout, stderr = process.communicate()
+    terminated_after_success_output = False
+    started_at = time.perf_counter()
+    stdout_chunks: List[str] = []
+    stderr_chunks: List[str] = []
+    success_event = threading.Event() if success_patterns else None
+    stdout_thread = threading.Thread(
+        target=_stream_reader,
+        args=(process.stdout, stdout_chunks, success_patterns, success_event),
+        daemon=True,
+    )
+    stderr_thread = threading.Thread(
+        target=_stream_reader,
+        args=(process.stderr, stderr_chunks, None, None),
+        daemon=True,
+    )
+    stdout_thread.start()
+    stderr_thread.start()
+
+    deadline = started_at + timeout if timeout > 0 else None
+    while True:
+        if process.poll() is not None:
+            break
+
+        if success_event is not None and success_event.is_set():
+            terminated_after_success_output = True
+            logger.info('QEMU 已捕获成功输出，准备提前终止进程并收集结果')
+            process.terminate()
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+            break
+
+        if deadline is not None and time.perf_counter() >= deadline:
+            timed_out = True
+            logger.info('QEMU 达到超时时间 %s 秒，准备终止进程并收集输出', timeout)
+            process.terminate()
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+            break
+
+        time.sleep(0.01)
+
+    stdout_thread.join(timeout=1)
+    stderr_thread.join(timeout=1)
+    stdout = ''.join(stdout_chunks)
+    stderr = ''.join(stderr_chunks)
+
+    elapsed_seconds = time.perf_counter() - started_at
 
     _log_subprocess_output(stdout, stderr)
 
     stderr_lower = stderr.lower()
     if 'qemu: fatal' in stderr_lower or 'hardfault' in stderr_lower:
         logger.error('QEMU 运行失败，检测到致命错误')
-        return 1
+        return CommandExecutionResult(
+            exit_code=1,
+            stdout=stdout,
+            stderr=stderr,
+            elapsed_seconds=elapsed_seconds,
+            timed_out=timed_out,
+        )
+
+    if terminated_after_success_output and stdout.strip():
+        logger.info('QEMU 已输出目标结果并被主动终止，视为成功完成验证')
+        return CommandExecutionResult(
+            exit_code=0,
+            stdout=stdout,
+            stderr=stderr,
+            elapsed_seconds=elapsed_seconds,
+            timed_out=False,
+        )
 
     if timed_out:
         if stdout.strip():
             logger.info('QEMU 在超时前已产生输出，视为成功完成冒烟验证')
-            return 0
+            return CommandExecutionResult(
+                exit_code=0,
+                stdout=stdout,
+                stderr=stderr,
+                elapsed_seconds=elapsed_seconds,
+                timed_out=True,
+            )
         logger.error('QEMU 超时且未产生可见输出')
-        return 1
+        return CommandExecutionResult(
+            exit_code=1,
+            stdout=stdout,
+            stderr=stderr,
+            elapsed_seconds=elapsed_seconds,
+            timed_out=True,
+        )
 
     if process.returncode != 0:
         logger.error('QEMU 运行失败，返回码: %s', process.returncode)
-        return process.returncode
+        return CommandExecutionResult(
+            exit_code=process.returncode,
+            stdout=stdout,
+            stderr=stderr,
+            elapsed_seconds=elapsed_seconds,
+        )
 
     if not stdout.strip():
         logger.error('QEMU 正常退出，但没有产生可见输出')
-        return 1
+        return CommandExecutionResult(
+            exit_code=1,
+            stdout=stdout,
+            stderr=stderr,
+            elapsed_seconds=elapsed_seconds,
+        )
 
     logger.info('QEMU 运行完成')
-    return 0
+    return CommandExecutionResult(
+        exit_code=0,
+        stdout=stdout,
+        stderr=stderr,
+        elapsed_seconds=elapsed_seconds,
+    )
+
+
+def _run_project(project: QemuProject, qemu_path: str, machine: str,
+                 timeout: int) -> int:
+    """运行 QEMU 工程。"""
+    return _run_project_details(project, qemu_path, machine, timeout).exit_code
 
 
 def _describe_project(project: QemuProject) -> None:
@@ -299,48 +442,87 @@ def _describe_project(project: QemuProject) -> None:
     logger.info('目标 ELF: %s', os.path.relpath(project.output_elf, REPO_ROOT))
 
 
+def execute_qemu_workflow(action: str,
+                          project_dir: Optional[str] = None,
+                          machine: str = 'olimex-stm32-h405',
+                          timeout: int = 5,
+                          output_path: Optional[str] = None,
+                          qemu_path_override: Optional[str] = None,
+                          gcc_path_override: Optional[str] = None,
+                          linker_script: Optional[str] = None,
+                          success_patterns: Optional[Sequence[str]] = None) -> Dict[str, Any]:
+    """执行 QEMU 工作流并返回结构化结果。"""
+    result: Dict[str, Any] = {
+        'action': action,
+        'exit_code': 1,
+    }
+
+    if action == 'list':
+        projects = _find_qemu_projects(REPO_ROOT)
+        result['projects'] = projects
+        if not projects:
+            logger.error('仓库中未找到包含 .c 和 .ld 的 QEMU 工程目录')
+            return result
+
+        logger.info('发现 %s 个 QEMU 工程目录:', len(projects))
+        for project in projects:
+            logger.info('- %s', project)
+        result['exit_code'] = 0
+        return result
+
+    resolved_project_dir = _resolve_project_dir(project_dir)
+    project = _discover_project(
+        resolved_project_dir,
+        output_path,
+        linker_script,
+    )
+    _describe_project(project)
+    result['project'] = {
+        'project_dir': os.path.relpath(project.project_dir, REPO_ROOT),
+        'output_elf': os.path.relpath(project.output_elf, REPO_ROOT),
+        'linker_script': os.path.relpath(project.linker_script, REPO_ROOT),
+        'source_files': [os.path.relpath(path, REPO_ROOT) for path in project.source_files],
+    }
+
+    if action in {'build', 'build-run'}:
+        gcc_path = _resolve_executable(gcc_path_override, 'arm-none-eabi-gcc', GCC_CANDIDATES)
+        logger.info('ARM GCC 可执行文件: %s', gcc_path)
+        build_result = _build_project_details(project, gcc_path)
+        result['build'] = asdict(build_result)
+        if build_result.exit_code != 0:
+            result['exit_code'] = build_result.exit_code
+            return result
+
+    if action in {'run', 'build-run'}:
+        qemu_path = _resolve_executable(qemu_path_override, 'qemu-system-arm', QEMU_CANDIDATES)
+        logger.info('QEMU 可执行文件: %s', qemu_path)
+        run_result = _run_project_details(project, qemu_path, machine, timeout, success_patterns)
+        result['run'] = asdict(run_result)
+        result['exit_code'] = run_result.exit_code
+        return result
+
+    if action == 'build':
+        result['exit_code'] = 0
+        return result
+
+    logger.error('不支持的 QEMU 操作: %s', action)
+    return result
+
+
 def handle_qemu_command(args) -> int:
     """处理 QEMU 子命令。"""
     try:
-        qemu_path = _resolve_executable(args.qemu_qemu_path, 'qemu-system-arm', QEMU_CANDIDATES)
-        gcc_path = _resolve_executable(args.qemu_gcc_path, 'arm-none-eabi-gcc', GCC_CANDIDATES)
-
-        logger.info('QEMU 可执行文件: %s', qemu_path)
-        logger.info('ARM GCC 可执行文件: %s', gcc_path)
-
-        if args.qemu_action == 'list':
-            projects = _find_qemu_projects(REPO_ROOT)
-            if not projects:
-                logger.error('仓库中未找到包含 .c 和 .ld 的 QEMU 工程目录')
-                return 1
-
-            logger.info('发现 %s 个 QEMU 工程目录:', len(projects))
-            for project in projects:
-                logger.info('- %s', project)
-            return 0
-
-        project_dir = _resolve_project_dir(args.qemu_project_dir)
-        project = _discover_project(
-            project_dir,
-            args.qemu_output_path,
-            args.qemu_linker_script,
+        result = execute_qemu_workflow(
+            action=args.qemu_action,
+            project_dir=args.qemu_project_dir,
+            machine=args.qemu_machine,
+            timeout=args.qemu_timeout,
+            output_path=args.qemu_output_path,
+            qemu_path_override=args.qemu_qemu_path,
+            gcc_path_override=args.qemu_gcc_path,
+            linker_script=args.qemu_linker_script,
         )
-        _describe_project(project)
-
-        if args.qemu_action == 'build':
-            return _build_project(project, gcc_path)
-
-        if args.qemu_action == 'run':
-            return _run_project(project, qemu_path, args.qemu_machine, args.qemu_timeout)
-
-        if args.qemu_action == 'build-run':
-            build_code = _build_project(project, gcc_path)
-            if build_code != 0:
-                return build_code
-            return _run_project(project, qemu_path, args.qemu_machine, args.qemu_timeout)
-
-        logger.error('不支持的 QEMU 操作: %s', args.qemu_action)
-        return 1
+        return int(result.get('exit_code', 1))
     except Exception as exc:
         logger.exception('QEMU 子命令执行失败: %s', exc)
         return 1

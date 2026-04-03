@@ -1,0 +1,319 @@
+#include <stdint.h>
+
+#include "model_data.h"
+
+#define RCC_BASE 0x40023800u
+#define DEMCR (*(volatile uint32_t *)0xE000EDFCu)
+#define DWT_CTRL (*(volatile uint32_t *)0xE0001000u)
+#define DWT_CYCCNT (*(volatile uint32_t *)0xE0001004u)
+
+#define USART1_BASE 0x40011000u
+#define RCC_APB2ENR (*(volatile uint32_t *)(RCC_BASE + 0x44u))
+#define USART1_SR (*(volatile uint32_t *)(USART1_BASE + 0x00u))
+#define USART1_DR (*(volatile uint32_t *)(USART1_BASE + 0x04u))
+#define USART1_BRR (*(volatile uint32_t *)(USART1_BASE + 0x08u))
+#define USART1_CR1 (*(volatile uint32_t *)(USART1_BASE + 0x0Cu))
+
+#define RCC_APB2ENR_USART1EN (1u << 4)
+#define USART_SR_TXE (1u << 7)
+#define USART_CR1_TE (1u << 3)
+#define USART_CR1_UE (1u << 13)
+#define DEMCR_TRCENA (1u << 24)
+#define DWT_CTRL_CYCCNTENA (1u << 0)
+
+static void uart_init(void)
+{
+    RCC_APB2ENR |= RCC_APB2ENR_USART1EN;
+    USART1_BRR = 0x05B2u;
+    USART1_CR1 = USART_CR1_UE | USART_CR1_TE;
+}
+
+static void uart_putc(char ch)
+{
+    while ((USART1_SR & USART_SR_TXE) == 0u) {
+    }
+
+    USART1_DR = (uint32_t)ch;
+}
+
+static void uart_puts(const char *message)
+{
+    while (*message != '\0') {
+        if (*message == '\n') {
+            uart_putc('\r');
+        }
+
+        uart_putc(*message++);
+    }
+}
+
+static void uart_put_u32(uint32_t value)
+{
+    char buffer[11];
+    uint32_t index = 0u;
+
+    if (value == 0u) {
+        uart_putc('0');
+        return;
+    }
+
+    while (value > 0u && index < (uint32_t)sizeof(buffer)) {
+        buffer[index++] = (char)('0' + (value % 10u));
+        value /= 10u;
+    }
+
+    while (index > 0u) {
+        uart_putc(buffer[--index]);
+    }
+}
+
+static void uart_put_s32(int32_t value)
+{
+    if (value < 0) {
+        uart_putc('-');
+        uart_put_u32((uint32_t)(-value));
+        return;
+    }
+
+    uart_put_u32((uint32_t)value);
+}
+
+static void uart_put_fixed6(port_float value)
+{
+    int32_t scaled = (int32_t)(value * 1000000.0f);
+    int32_t integer_part = scaled / 1000000;
+    int32_t fraction = scaled % 1000000;
+    int32_t divisor = 100000;
+
+    if (fraction < 0) {
+        fraction = -fraction;
+    }
+
+    uart_put_s32(integer_part);
+    uart_putc('.');
+    while (divisor > 0) {
+        uart_putc((char)('0' + ((fraction / divisor) % 10)));
+        divisor /= 10;
+    }
+}
+
+static void dwt_init(void)
+{
+    DEMCR |= DEMCR_TRCENA;
+    DWT_CYCCNT = 0u;
+    DWT_CTRL |= DWT_CTRL_CYCCNTENA;
+}
+
+static uint32_t dwt_read_cycles(void)
+{
+    return DWT_CYCCNT;
+}
+
+static uint32_t dwt_is_counting(void)
+{
+    volatile uint32_t spin;
+    uint32_t before;
+    uint32_t after;
+
+    dwt_init();
+    before = dwt_read_cycles();
+    for (spin = 0u; spin < 64u; ++spin) {
+        __asm volatile ("nop");
+    }
+    after = dwt_read_cycles();
+    return after > before ? 1u : 0u;
+}
+
+static port_float abs_approx(port_float value)
+{
+    return value < 0.0f ? -value : value;
+}
+
+static port_float tanh_approx(port_float value)
+{
+    port_float squared;
+
+    if (value > 3.0f) {
+        return 0.99505478f;
+    }
+    if (value < -3.0f) {
+        return -0.99505478f;
+    }
+
+    squared = value * value;
+    return value * (27.0f + squared) / (27.0f + 9.0f * squared);
+}
+
+static port_float sigmoid_approx(port_float value)
+{
+    if (value > 8.0f) {
+        return 0.99966466f;
+    }
+    if (value < -8.0f) {
+        return 0.00033535f;
+    }
+    return 0.5f * (tanh_approx(value * 0.5f) + 1.0f);
+}
+
+static port_float relu(port_float value)
+{
+    return value > 0.0f ? value : 0.0f;
+}
+
+static void zero_buffer(port_float *buffer, uint32_t length)
+{
+    uint32_t index;
+    for (index = 0u; index < length; ++index) {
+        buffer[index] = 0.0f;
+    }
+}
+
+static void lstm_forward(const port_float sequence[BENCHMARK_SEQ_LEN][LSTM_INPUT_DIM],
+                         port_float hidden_state[LSTM_UNITS],
+                         port_float cell_state[LSTM_UNITS])
+{
+    uint32_t step;
+    port_float previous_hidden[LSTM_UNITS];
+    port_float previous_cell[LSTM_UNITS];
+
+    for (step = 0u; step < BENCHMARK_SEQ_LEN; ++step) {
+        uint32_t unit;
+        for (unit = 0u; unit < LSTM_UNITS; ++unit) {
+            previous_hidden[unit] = hidden_state[unit];
+            previous_cell[unit] = cell_state[unit];
+        }
+
+        for (unit = 0u; unit < LSTM_UNITS; ++unit) {
+            uint32_t input_index;
+            uint32_t hidden_index;
+            port_float input_gate_acc = lstm_bias[unit + LSTM_UNITS * 0u];
+            port_float forget_gate_acc = lstm_bias[unit + LSTM_UNITS * 1u];
+            port_float candidate_acc = lstm_bias[unit + LSTM_UNITS * 2u];
+            port_float output_gate_acc = lstm_bias[unit + LSTM_UNITS * 3u];
+
+            for (input_index = 0u; input_index < LSTM_INPUT_DIM; ++input_index) {
+                port_float input_value = sequence[step][input_index];
+                input_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 0u];
+                forget_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 1u];
+                candidate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 2u];
+                output_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 3u];
+            }
+
+            for (hidden_index = 0u; hidden_index < LSTM_UNITS; ++hidden_index) {
+                port_float hidden_value = previous_hidden[hidden_index];
+                input_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 0u];
+                forget_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 1u];
+                candidate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 2u];
+                output_gate_acc += hidden_value * lstm_recurrent_kernel[hidden_index][unit + LSTM_UNITS * 3u];
+            }
+
+            {
+                port_float input_gate = sigmoid_approx(input_gate_acc);
+                port_float forget_gate = sigmoid_approx(forget_gate_acc);
+                port_float candidate = tanh_approx(candidate_acc);
+                port_float output_gate = sigmoid_approx(output_gate_acc);
+                port_float cell_value = forget_gate * previous_cell[unit] + input_gate * candidate;
+                port_float hidden_value = output_gate * tanh_approx(cell_value);
+
+                cell_state[unit] = cell_value;
+                hidden_state[unit] = hidden_value;
+            }
+        }
+    }
+}
+
+static void dense_forward_relu(const port_float input[LSTM_UNITS],
+                              port_float output[DENSE_UNITS])
+{
+    uint32_t out_index;
+    for (out_index = 0u; out_index < DENSE_UNITS; ++out_index) {
+        uint32_t input_index;
+        port_float sum = dense_bias[out_index];
+        for (input_index = 0u; input_index < LSTM_UNITS; ++input_index) {
+            sum += input[input_index] * dense_kernel[input_index][out_index];
+        }
+        output[out_index] = relu(sum);
+    }
+}
+
+static port_float output_forward_linear(const port_float input[DENSE_UNITS])
+{
+    uint32_t input_index;
+    port_float sum = output_bias[0u];
+    for (input_index = 0u; input_index < DENSE_UNITS; ++input_index) {
+        sum += input[input_index] * output_kernel[input_index][0u];
+    }
+    return sum;
+}
+
+int main(void)
+{
+    uint32_t iteration;
+    uint32_t dwt_supported;
+    port_float hidden_state[LSTM_UNITS];
+    port_float cell_state[LSTM_UNITS];
+    port_float dense_output[DENSE_UNITS];
+    port_float output_value = 0.0f;
+    uint32_t start_cycles;
+    uint32_t end_cycles;
+    uint32_t total_cycles = 0u;
+
+    uart_init();
+    dwt_supported = dwt_is_counting();
+    zero_buffer(hidden_state, LSTM_UNITS);
+    zero_buffer(cell_state, LSTM_UNITS);
+
+    if (dwt_supported != 0u) {
+        start_cycles = dwt_read_cycles();
+    }
+
+    for (iteration = 0u; iteration < BENCHMARK_ITERATIONS; ++iteration) {
+        if (BENCHMARK_RESET_STATE_EACH_RUN != 0u) {
+            zero_buffer(hidden_state, LSTM_UNITS);
+            zero_buffer(cell_state, LSTM_UNITS);
+        }
+
+        lstm_forward(benchmark_input, hidden_state, cell_state);
+        dense_forward_relu(hidden_state, dense_output);
+        output_value = output_forward_linear(dense_output);
+    }
+
+    if (dwt_supported != 0u) {
+        end_cycles = dwt_read_cycles();
+        total_cycles = end_cycles - start_cycles;
+    }
+
+    uart_puts("LSTM_QEMU_BENCHMARK\n");
+    uart_puts("iterations=");
+    uart_put_u32(BENCHMARK_ITERATIONS);
+    uart_puts("\nseq_len=");
+    uart_put_u32(BENCHMARK_SEQ_LEN);
+    uart_puts("\ninput_dim=");
+    uart_put_u32(LSTM_INPUT_DIM);
+    uart_puts("\nlstm_units=");
+    uart_put_u32(LSTM_UNITS);
+    uart_puts("\ndense_units=");
+    uart_put_u32(DENSE_UNITS);
+    uart_puts("\ndwt_supported=");
+    uart_put_u32(dwt_supported);
+    uart_puts("\ntimer_source=");
+    uart_puts(dwt_supported != 0u ? "dwt" : "host_elapsed");
+    if (dwt_supported != 0u) {
+        uart_puts("\nmeasurement_unit=");
+        uart_puts("cycles");
+        uart_puts("\nmeasurement_total=");
+        uart_put_u32(total_cycles);
+        uart_puts("\nmeasurement_per_iter=");
+        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));
+        uart_puts("\ncycles_total=");
+        uart_put_u32(total_cycles);
+        uart_puts("\ncycles_per_iter=");
+        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));
+    }
+    uart_puts("\noutput=");
+    uart_put_fixed6(output_value);
+    uart_puts("\n");
+
+    while (1) {
+    }
+}

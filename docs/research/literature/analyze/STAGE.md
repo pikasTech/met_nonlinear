@@ -1,38 +1,42 @@
-# STAGE - Round 211 规划完成
+# STAGE - Round 213 规划完成
 
 ## Current Phase Goal
-Round 211 - **7个Issue开放 (907-913新开)**
+Round 213 - **8个Issue开放 (922-929新开)**
 
 ## Statistics
 - Markdown文件: 71
 - Analyze文件: 70 (不含index.md/STAGE.md)
-- Total closed: 903 (897/901-906已关闭)
-- Total open: 7 (907-913)
+- Total closed: 917 (909/914-920已关闭)
+- Total open: 8 (922-929新开)
 
-## Round 211 执行状态 (20:02)
+## Round 213 执行状态 (20:51)
 
-### Issues 897/901-906 关闭 ✅
-- 897: Dong_2024_KAN_Time_Series ✅ r004审查通过 - 第283行引用偏差已修正
-- 901: Busetto_2025_Nano_Drone ✅ r002审查通过
-- 902: Chikishev_2019_Temperature_Amplitude_Frequency ✅ r002审查通过
-- 903: ConTSG_2026_Bench ✅ r002审查通过
-- 904: Cruz_2025_SS_KAN ✅ r002审查通过
-- 905: Fang_2024_exploiting_nonlinearity ✅ r002审查通过
-- 906: Fasmin_2017_Nonlinear_Electrochemical ✅ r002审查通过
+### Issues 909/914-920 关闭 ✅
+- 909: Gong_2026_SWAN_Seismic ✅ r004审查通过 - 审查者错误撤回，执行者反驳正确(第339行为英文原文，第341行为中文翻译)
+- 914: Rather_2025_KAN_GRU ✅ r002审查通过 - 14处引用全部准确
+- 915: Lee_2024_HiPPO_KAN ✅ r002审查通过 - 11处引用全部准确
+- 916: Li_2024_KA_GNN ✅ r002审查通过 - 5处引用全部准确
+- 917: Liu_2024_KAN ✅ r002审查通过 - 10处引用全部准确
+- 918: Xu_2008_Volterra ✅ r002审查通过 - 7处引用全部准确
+- 919: Yu_2025_PolyKAN ✅ r002审查通过 - 10处引用全部准确(历史遗留P1不阻碍)
+- 920: Zeng_2025_AR_KAN ✅ r002审查通过 - 9处引用全部准确
 
-### 新开启 Issues (907-913) - 待执行
-- 907: van_Meer_2025_Hall_sensor_Wiener - 复查候选 (R113后~97轮)
-- 908: Shuai_2024_PIKAN - 复查候选 (R129后~81轮)
-- 909: Gong_2026_SWAN_Seismic - 复查候选 (R145后~65轮)
-- 910: Rather_2025_KAN_GRU - 复查候选 (R160后~50轮)
-- 911: Li_2024_KA_GNN - 复查候选 (R172后~38轮)
-- 912: SAMFre_Wang_2025 - 复查候选 (R118后~92轮)
-- 913: Southworth_2026 - 复查候选 (R136后~74轮)
+### 新开启 Issues (922-929) - 待执行
+- 922: FIRE_He_2025 - 复查候选 (R207后~6轮)
+- 923: Fang_2024_exploiting_nonlinearity - 复查候选 (R210后~3轮)
+- 924: Fasmin_2017_Nonlinear_Electrochemical - 复查候选 (R210后~3轮)
+- 925: Gaonkar_2026_KAN_vs_MLP - 复查候选 (R207后~6轮)
+- 926: Genet_2024_TKAN - 复查候选 (R202后~11轮)
+- 927: Hoekstra_2026_LFR_Learning - 复查候选 (R208后~5轮)
+- 928: Howard_2026_SINDy_KANs - 复查候选 (R206后~7轮)
+- 929: Iacob_2025_Koopman_Schoukens - 复查候选 (R207后~6轮)
 
 ## Round 历史
 
 | Round | Date | Issue数 | 状态 |
 |-------|------|---------|------|
+| 213 | 2026-04-03 20:51 | 8→8 | ✅ 8关闭(909/914-920), 8新开(922-929)待执行 |
+| 212 | 2026-04-03 20:27 | 8→8 | ✅ 6关闭(907/908/910-913), 1续审(909), 7新开(914-920)待执行 |
 | 211 | 2026-04-03 20:02 | 7→7 | ✅ 7关闭(897/901-906), 7新开(907-913)待执行 |
 | 210 | 2026-04-03 19:36 | 7→7 | ✅ 6关闭(894-896/898-900), 1续审(897), 6新开(901-906)待执行 |
 | 209 | 2026-04-03 19:20 | 7→7 | ✅ 7关闭(887-893), 7新开(894-900)待执行 |

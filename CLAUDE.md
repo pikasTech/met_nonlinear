@@ -80,6 +80,9 @@
 - `python cli.py ep "PROJECT/freq-response-compensator/test"`
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+- `python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"`
+	- LSTM QEMU 推理：从 `best_val.weights.json` 生成裸机 C 工程并执行推理 benchmark，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+	- 输出产物：生成 `qemu_project/` 与 `data/benchmark_summary.json`，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `python cli.py ep "compare/lr_test_1k_epoch"`
