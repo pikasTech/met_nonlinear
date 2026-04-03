@@ -154,6 +154,11 @@ class LayerKAN:
         spline_out : tf.Tensor
             the output tensor with shape `(batch_size, in_size, out_size)`
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        if not hasattr(self, '_origin_logged'):
+            self._origin_logged = True
+            logger.info("DenseKAN constraint applied: no symmetry (use_symmetry=False)")
         # calculate the B-spline output
         # (B, in_size, grid_basis_size)
         spline_in = calc_spline_values(inputs, self.grid, self.spline_order)
@@ -183,6 +188,11 @@ class LayerKAN:
         spline_out : tf.Tensor
             输出张量，形状为 `(batch_size, in_size, out_size)`
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        if not hasattr(self, '_symmetry_logged'):
+            self._symmetry_logged = True
+            logger.info(f"DenseKAN constraint applied: only_positive={only_positive}, use_even={use_even}, use_zero_point={use_zero_point}")
         # 1. 对输入取绝对值
         abs_inputs = tf.abs(inputs)
         if use_debug:
@@ -237,9 +247,15 @@ class LayerKAN:
 
         return spline_out
 
-    def calc_spline_output(self, inputs, use_symmetry=True):
+    def calc_spline_output(self, inputs, use_symmetry=None):
+        if use_symmetry is None:
+            use_symmetry = getattr(self, 'use_symmetry', True)
         if use_symmetry:
-            return self.calc_spline_output_symmetry(inputs)
+            return self.calc_spline_output_symmetry(
+                inputs,
+                only_positive=getattr(self, 'only_positive', True),
+                use_even=getattr(self, 'use_even', False)
+            )
         else:
             return self.calc_spline_output_origin(inputs)
 

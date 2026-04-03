@@ -48,7 +48,9 @@ class ExternalPathParser:
         'wnet5-circuit-validation',
         'data-analysis',
         'model-export',
-        'performance-benchmark'
+        'performance-benchmark',
+        'ablation-study',
+        'compare'
     ]
     
     def __init__(self, base_dir: Optional[Path] = None):
@@ -334,6 +336,40 @@ class ExternalPathParser:
     def _parse_universal_path(self, path_str: str) -> ExternalPath:
         """通用路径解析 - 支持任何路径格式"""
         parts = path_str.split('/')
+
+        # 处理 compare/{task_name} 短格式 (自动转换为 ex_projects/compare/{task_name})
+        if len(parts) == 2 and parts[0] in self.SUPPORTED_TASK_TYPES:
+            task_type = parts[0]
+            task_name = parts[1]
+            project_name = task_name
+            full_path = Path(self.base_dir) / 'ex_projects' / path_str
+            config_path = full_path / 'config.json'
+            output_path = full_path / 'data'
+            return ExternalPath(
+                project_name=project_name,
+                task_type=task_type,
+                task_name=task_name,
+                config_path=config_path,
+                output_path=output_path,
+                full_path=full_path
+            )
+
+        # 处理 ex_projects/{task_type}/{task_name} 格式 (如 ex_projects/compare/mae_vs_afmae)
+        if len(parts) >= 3 and parts[0] == 'ex_projects' and parts[1] in self.SUPPORTED_TASK_TYPES:
+            task_type = parts[1]
+            task_name = parts[2]
+            project_name = task_name
+            full_path = Path(self.base_dir) / path_str
+            config_path = full_path / 'config.json'
+            output_path = full_path / 'data'
+            return ExternalPath(
+                project_name=project_name,
+                task_type=task_type,
+                task_name=task_name,
+                config_path=config_path,
+                output_path=output_path,
+                full_path=full_path
+            )
 
         # 优先匹配独立可视化路径 visualization/projects/{task_type}/{task_name}
         if len(parts) >= 4 and parts[0] == 'visualization' and parts[1] == 'projects' and parts[2] in self.SUPPORTED_TASK_TYPES:

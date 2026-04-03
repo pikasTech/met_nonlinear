@@ -83,10 +83,40 @@ class FRIKAN(BaseModel):
             kan_log_grid: 是否使用对数网格
             kan_grid_expand: 是否扩展网格
             save_each_epoch: 是否每个周期保存
-            model_subcfg: 模型子配置
+            model_subcfg: 模型子配置（可包含only_positive、use_even和use_symmetry）
         """
         self.model_name = 'FRIKAN'
         self.callback = None
+        if isinstance(model_subcfg, dict):
+            if 'only_positive' in model_subcfg:
+                if not isinstance(model_subcfg['only_positive'], bool):
+                    raise TypeError("model_subcfg['only_positive'] must be bool")
+                self.only_positive = model_subcfg['only_positive']
+            else:
+                self.only_positive = True
+            if 'use_even' in model_subcfg:
+                if not isinstance(model_subcfg['use_even'], bool):
+                    raise TypeError("model_subcfg['use_even'] must be bool")
+                self.use_even = model_subcfg['use_even']
+            else:
+                self.use_even = False
+            if 'use_symmetry' in model_subcfg:
+                if not isinstance(model_subcfg['use_symmetry'], bool):
+                    raise TypeError("model_subcfg['use_symmetry'] must be bool")
+                self.use_symmetry = model_subcfg['use_symmetry']
+            else:
+                self.use_symmetry = True
+        else:
+            self.only_positive = True
+            self.use_even = False
+            self.use_symmetry = True
+        # model_subcfg 配置组合效果:
+        # | use_symmetry | only_positive | use_even | 效果                   |
+        # |--------------|---------------|----------|------------------------|
+        # | true         | true          | false    | 正定+奇对称 (默认)     |
+        # | true         | true          | true     | 正定+偶对称            |
+        # | true         | false         | false    | 无约束+奇对称          |
+        # | false        | -             | -        | 完全禁用对称处理       |
         if iir_params_list is not None:
             features_num = len(iir_params_list)
             a1_list = [iir_param['a1'] for iir_param in iir_params_list]
@@ -151,7 +181,10 @@ class FRIKAN(BaseModel):
             fix_scale_factor=fix_scale_factor,
             disable_basis_activation=disable_basis_activation,
             kan_log_grid=kan_log_grid,
-            grid_expand=kan_grid_expand
+            grid_expand=kan_grid_expand,
+            only_positive=self.only_positive,
+            use_even=self.use_even,
+            use_symmetry=self.use_symmetry
         )
 
         self.kan_inner_layers = [
@@ -165,7 +198,10 @@ class FRIKAN(BaseModel):
                 fix_scale_factor=fix_scale_factor,
                 disable_basis_activation=disable_basis_activation,
                 kan_log_grid=kan_log_grid,
-                grid_expand=kan_grid_expand
+                grid_expand=kan_grid_expand,
+                only_positive=self.only_positive,
+                use_even=self.use_even,
+                use_symmetry=self.use_symmetry
             ) for _ in range(inner_kan_layers)
         ]
 
@@ -874,7 +910,15 @@ class CNNKAN(BaseModel):
         """
         self.model_name = 'CNNKAN'
         self.callback = None
-        
+        if isinstance(model_subcfg, dict):
+            self.only_positive = model_subcfg.get('only_positive', True)
+            self.use_even = model_subcfg.get('use_even', False)
+            self.use_symmetry = model_subcfg.get('use_symmetry', True)
+        else:
+            self.only_positive = True
+            self.use_even = False
+            self.use_symmetry = True
+
         self.cnn_filters = cnn_filters
         self.cnn_kernel_size = cnn_kernel_size
         self.cnn = tf.keras.layers.Conv1D(
@@ -896,7 +940,10 @@ class CNNKAN(BaseModel):
             fix_scale_factor=fix_scale_factor,
             disable_basis_activation=disable_basis_activation,
             kan_log_grid=kan_log_grid,
-            grid_expand=kan_grid_expand
+            grid_expand=kan_grid_expand,
+            only_positive=self.only_positive,
+            use_even=self.use_even,
+            use_symmetry=self.use_symmetry
         )
 
         self.kan_inner_layers = [
@@ -910,7 +957,10 @@ class CNNKAN(BaseModel):
                 fix_scale_factor=fix_scale_factor,
                 disable_basis_activation=disable_basis_activation,
                 kan_log_grid=kan_log_grid,
-                grid_expand=kan_grid_expand
+                grid_expand=kan_grid_expand,
+                only_positive=self.only_positive,
+                use_even=self.use_even,
+                use_symmetry=self.use_symmetry
             ) for _ in range(inner_kan_layers)
         ]
 

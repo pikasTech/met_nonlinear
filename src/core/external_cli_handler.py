@@ -32,13 +32,13 @@ def handle_ep_command(args: CLIArgs) -> None:
         args: CLI参数对象
     """
     try:
-        logger.info(f"🎯 开始处理外部项目: {args.ep_project_path}")
+        logger.info(f"[EP] 开始处理外部项目: {args.ep_project_path}")
         # 解析路径
         parser = ExternalPathParser()
         ep_project_path = args.ep_project_path or ""
         ep_path = parser.parse(ep_project_path)
 
-        logger.info(f"📂 项目信息:")
+        logger.info(f"[INFO] 项目信息:")
         logger.info(f"   项目名称: {ep_path.project_name}")
         logger.info(f"   任务类型: {ep_path.task_type}")
         logger.info(f"   任务名称: {ep_path.task_name}")
@@ -48,7 +48,7 @@ def handle_ep_command(args: CLIArgs) -> None:
         # 智能执行：检查配置文件，不存在则创建，然后执行任务
         execute_external_task_auto(ep_path)
     except Exception as e:
-        logger.error(f"❌ ep命令执行失败: {e}")
+        logger.error(f"[ERROR] ep命令执行失败: {e}")
         _show_ep_help()
         sys.exit(1)
 
@@ -64,26 +64,26 @@ def execute_external_task_auto(ep_path: ExternalPath) -> None:
     Args:
         ep_path: 外部项目路径对象
     """
-    logger.info(f"📊 开始处理外部项目任务: {ep_path.task_name}")
+    logger.info(f"[TASK] 开始处理外部项目任务: {ep_path.task_name}")
     
     # 检查配置文件是否存在
     if not ep_path.config_path.exists():
         logger.info(f"📝 配置文件不存在，创建模板: {ep_path.config_path}")
         create_external_template(ep_path)
-        logger.info("✅ 配置模板已创建")
+        logger.info("[OK] 配置模板已创建")
         logger.info("📋 请编辑配置文件后重新运行相同命令")
         logger.info(f"   配置文件位置: {ep_path.config_path}")
         return
     
     # 执行任务
-    logger.info(f"🚀 执行外部项目任务...")
+    logger.info(f"[RUN] 执行外部项目任务...")
     result = _execute_task(ep_path)
     
     if result:
-        logger.info(f"✅ 任务执行完成")
+        logger.info(f"[OK] 任务执行完成")
         logger.info(f"   输出目录: {ep_path.output_path}")
     else:
-        logger.error(f"❌ 任务执行失败")
+        logger.error(f"[ERROR] 任务执行失败")
         sys.exit(1)
 
 
@@ -111,6 +111,8 @@ def create_external_template(ep_path: ExternalPath) -> None:
         template = _create_waveform_analysis_template(ep_path)
     elif ep_path.task_type == 'wnet5-circuit-validation':
         template = _create_wnet5_circuit_validation_template(ep_path)
+    elif ep_path.task_type == 'ablation-study':
+        template = _create_ablation_study_template(ep_path)
     else:
         template = _create_generic_template(ep_path)
     
@@ -162,6 +164,46 @@ def _create_wnet5_circuit_validation_template(ep_path: ExternalPath) -> dict:
         "frequency_range": {
             "start_freq": 0.1,
             "stop_freq": 1000
+        }
+    }
+
+
+def _create_ablation_study_template(ep_path: ExternalPath) -> dict:
+    """创建消融实验对比配置模板"""
+    return {
+        "task_info": {
+            "task_type": "ablation-study",
+            "description": "MAE vs AFMAE 消融实验对比"
+        },
+        "projects": [
+            {
+                "name": "LSTMu16_base",
+                "label": "Base (MAE)",
+                "path": "00_MAE_VS_AFMAE/LSTMu16_base"
+            },
+            {
+                "name": "FRIKANh8u6l6_pureafmae",
+                "label": "AFMAE",
+                "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
+            }
+        ],
+        "metrics": {
+            "natural_frequency_drift": {
+                "enabled": True,
+                "reference": "LSTMu16_base"
+            },
+            "sensitivity_drift": {
+                "enabled": True,
+                "reference": "LSTMu16_base",
+                "frequency_hz": 100
+            },
+            "linearity": {
+                "enabled": True
+            }
+        },
+        "output": {
+            "format": ["json", "markdown"],
+            "output_dir": "ex_projects/compare/mae_vs_afmae/results"
         }
     }
 
@@ -264,6 +306,8 @@ def _execute_task(ep_path: ExternalPath) -> bool:
             return _execute_waveform_analysis_task(ep_path, validated_config)
         elif ep_path.task_type == 'wnet5-circuit-validation':
             return _execute_wnet5_circuit_validation_task(ep_path, validated_config)
+        elif ep_path.task_type in ('ablation-study', 'compare'):
+            return _execute_ablation_study_task(ep_path, validated_config)
         else:
             logger.error(f"不支持的任务类型: {ep_path.task_type}")
             return False
@@ -300,17 +344,23 @@ def _load_config(config_path: Path) -> dict:
 def _validate_config(config: dict, task_type: str) -> dict:
     """验证配置文件格式（使用严格验证器）"""
     from .config_validator import validate_visualization_config_data, ConfigValidationError
+
+    # 跳过验证的任务类型（使用自定义配置格式）
+    skip_validation_types = {'ablation-study', 'compare'}
+    if task_type in skip_validation_types:
+        logger.info(f"跳过配置验证 (自定义格式): {task_type}")
+        return config
     
     try:
         # 使用严格的配置验证器
         validated_config = validate_visualization_config_data(config, task_type)
-        logger.info(f"✅ 配置验证通过: {task_type}")
+        logger.info(f"[OK] 配置验证通过: {task_type}")
         return validated_config
     except ConfigValidationError as e:
-        logger.error(f"❌ 配置验证失败: {e}")
+        logger.error(f"[ERROR] 配置验证失败: {e}")
         raise ValueError(f"配置验证失败: {e}")
     except Exception as e:
-        logger.error(f"❌ 配置验证过程出错: {e}")
+        logger.error(f"[ERROR] 配置验证过程出错: {e}")
         raise ValueError(f"配置验证过程出错: {e}")
 
 
@@ -572,7 +622,7 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
         result = validator.execute_validation()
         
         if result:
-            logger.info(f"✅ WNET5电路验证任务完成: {ep_path.output_path}")
+            logger.info(f"[OK] WNET5电路验证任务完成: {ep_path.output_path}")
         
         return result
         
@@ -581,6 +631,29 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
         return False
     except Exception as e:
         logger.error(f"WNET5电路验证任务执行失败: {e}")
+        return False
+
+
+def _execute_ablation_study_task(ep_path: ExternalPath, config: dict) -> bool:
+    """执行消融实验对比任务"""
+    try:
+        from visualization.ablation_study import AblationStudyAnalyzer
+
+        logger.info(f"执行消融实验对比任务: {ep_path.task_name}")
+
+        analyzer = AblationStudyAnalyzer(config, ep_path.output_path)
+        results = analyzer.run_analysis()
+        analyzer.save_results()
+
+        logger.info(f"[OK] 消融实验任务完成: {ep_path.output_path}")
+        _save_task_metadata(ep_path, config, str(ep_path.output_path))
+        return True
+
+    except ImportError as e:
+        logger.error(f"无法导入消融实验模块: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"消融实验任务执行失败: {e}")
         return False
 
 

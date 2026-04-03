@@ -1,0 +1,86 @@
+{
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "MAE vs AFMAE 消融实验对比"
+  },
+  "projects": [
+    {
+      "name": "LSTMu16_base",
+      "label": "LSTMu16 Base (MAE)",
+      "path": "00_MAE_VS_AFMAE/LSTMu16_base"
+    },
+    {
+      "name": "LSTMu12_puremae",
+      "label": "LSTMu12 PureMAE",
+      "path": "00_MAE_VS_AFMAE/LSTMu12_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_base",
+      "label": "FRIKAN Base (MAE)",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+    },
+    {
+      "name": "FRIKANh8u6l6_puremae",
+      "label": "FRIKAN PureMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_pureafmae",
+      "label": "FRIKAN PureAFMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6_nosym",
+      "label": "FRIKAN NoSym (MAE)",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_nosym"
+    },
+    {
+      "name": "FRIKANh8u6l6_nosym_puremae",
+      "label": "FRIKAN NoSym PureMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_nosym_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_nosym_pureafmae",
+      "label": "FRIKAN NoSym PureAFMAE",
+      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_nosym_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6",
+      "label": "FRIKANh8u6l6 (MAE)",
+      "path": "FRIKANh8u6l6"
+    },
+    {
+      "name": "FRIKANh8u6l6_4",
+      "label": "FRIKANh8u6l6_4 (MAE)",
+      "path": "FRIKANh8u6l6_4"
+    },
+    {
+      "name": "FRIKANh8u6l6_5",
+      "label": "FRIKANh8u6l6_5 (MAE)",
+      "path": "FRIKANh8u6l6_5"
+    },
+    {
+      "name": "FRIKANh8u6l6_6",
+      "label": "FRIKANh8u6l6_6 (MAE)",
+      "path": "FRIKANh8u6l6_6"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "enabled": true,
+      "reference": "LSTMu16_base"
+    },
+    "sensitivity_drift": {
+      "enabled": true,
+      "reference": "LSTMu16_base",
+      "frequency_hz": 100
+    },
+    "linearity": {
+      "enabled": true
+    }
+  },
+  "output": {
+    "format": ["json", "markdown"],
+    "output_dir": "ex_projects/compare/mae_vs_afmae/results"
+  }
+}

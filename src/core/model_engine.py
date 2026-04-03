@@ -17,7 +17,7 @@ from . import data_processing
 from .data_processing import Dataset_COMP_MET, Dataset_COMP_PE,  CustomScaler, Dataset_COMP_AliasSimu, Dataset_COMP_Alias
 from visualization.model_analysis import FR_for_comp_real_data
 from .data_processing import augment_data
-from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_loss
+from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_loss, pure_power_log_mae_loss, pure_mae_metric
 from .training import RealTimeTrainingCallback, CosineAnnealingWithDecayFixedPeriod
 from .freq_config_manager import freq_config_manager
 
@@ -443,21 +443,37 @@ class ModelEngine:
 
         loss_type = getattr(self.config, 'loss_type', None)
         loss_map = {
-            'mae': 'mae',
-            'af_mse': af_mse_loss,
             'afmse': af_mse_loss,
-            'power_log_mae': power_log_mae_loss
+            'power_log_mae': power_log_mae_loss,
+            'pure_power_log_mae': pure_power_log_mae_loss
         }
         if loss_type is not None:
             loss_fn = loss_map[loss_type]
+        elif self.config.use_pure_power_loss:
+            loss_fn = pure_power_log_mae_loss
+        elif self.config.use_power_loss:
+            loss_fn = power_log_mae_loss
         else:
-            loss_fn = power_log_mae_loss if self.config.use_power_loss else 'mae'
+            loss_fn = 'mae'
 
-        self.model_comp.compile(
-            optimizer=optimizer,
-            loss=loss_fn,
-            metrics=[power_log_loss]
-        )
+        if loss_fn == 'mae':
+            self.model_comp.compile(
+                optimizer=optimizer,
+                loss=loss_fn,
+                metrics=[pure_mae_metric]
+            )
+        elif loss_fn == pure_power_log_mae_loss:
+            self.model_comp.compile(
+                optimizer=optimizer,
+                loss=loss_fn,
+                metrics=[power_log_loss]
+            )
+        else:
+            self.model_comp.compile(
+                optimizer=optimizer,
+                loss=loss_fn,
+                metrics=[pure_mae_metric, power_log_loss]
+            )
 
     def _convert_np_types(self, obj):
         """Recursively convert NumPy types to native Python types."""
@@ -612,13 +628,43 @@ class ModelEngine:
             x_test = self.x_test.reshape(-1, self.x_test.shape[2], 1)
             y_train = self.y_train.reshape(-1, self.y_train.shape[2], 1)
             y_test = self.y_test.reshape(-1, self.y_test.shape[2], 1)
-        loss, metrics = self.model_comp.evaluate(
+        result = self.model_comp.evaluate(
             x_train, y_train, batch_size=self.batch_size
         )
-        val_loss, val_metrics = self.model_comp.evaluate(
+        val_result = self.model_comp.evaluate(
             x_test, y_test, batch_size=self.batch_size
         )
-        return loss, metrics, val_loss, val_metrics
+        if len(result) == 2:
+            loss, metrics = result
+            if not isinstance(metrics, list):
+                metrics = [metrics]
+        elif len(result) >= 3:
+            loss = result[0]
+            metrics = list(result[1:])
+        if len(val_result) == 2:
+            val_loss, val_metrics = val_result
+            if not isinstance(val_metrics, list):
+                val_metrics = [val_metrics]
+        elif len(val_result) >= 3:
+            val_loss = val_result[0]
+            val_metrics = list(val_result[1:])
+        if isinstance(metrics, list) and len(metrics) >= 2:
+            mae, afmae = metrics[0], metrics[1]
+        elif isinstance(metrics, list) and len(metrics) == 1:
+            mae = metrics[0]
+            afmae = metrics[0]
+        else:
+            mae = metrics
+            afmae = metrics
+        if isinstance(val_metrics, list) and len(val_metrics) >= 2:
+            val_mae, val_afmae = val_metrics[0], val_metrics[1]
+        elif isinstance(val_metrics, list) and len(val_metrics) == 1:
+            val_mae = val_metrics[0]
+            val_afmae = val_metrics[0]
+        else:
+            val_mae = val_metrics
+            val_afmae = val_metrics
+        return loss, mae, afmae, val_loss, val_mae, val_afmae
 
     def train_model(self):
         # (magn_num, freq_num, point_num) -> (magn_num * freq_num, point_num, 1)
@@ -646,14 +692,18 @@ class ModelEngine:
             print(f"将从头开始训练。")
         print(f'评估初始权重...')
         # 计算初始 loss
-        loss, metrics, val_loss, val_metrics = self.evaluate_loss()
+        loss, mae, afmae, val_loss, val_mae, val_afmae = self.evaluate_loss()
         lr = 0
-        power_log_loss = metrics
+        power_log_loss = afmae
         print(f'初始 loss: {loss:.4f}')
         self.state_manager['loss'] = loss
         self.state_manager['min_loss'] = loss
         self.state_manager['val_loss'] = val_loss
         self.state_manager['min_val_loss'] = val_loss
+        self.state_manager['mae'] = mae
+        self.state_manager['afmae'] = afmae
+        self.state_manager['val_mae'] = val_mae
+        self.state_manager['val_afmae'] = val_afmae
         # 实例化回调函数
         real_time_plotting_callback = RealTimeTrainingCallback(
             self

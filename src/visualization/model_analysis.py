@@ -261,8 +261,8 @@ def FR_for_comp_real_data(
         with open(linearity_output_path, 'w', encoding='utf-8') as json_file:
             json.dump({'linearity_by_frequency': linearity_by_frequency}, json_file, indent=2, ensure_ascii=False)
 
-        print('Per-frequency R² linearity (markdown table):')
-        print('| Frequency (Hz) | Origin R² | Comped R² | Improvement |')
+        print('Per-frequency R^2 linearity (markdown table):')
+        print('| Frequency (Hz) | Origin R^2 | Comped R^2 | Improvement |')
         print('| :--- | ---: | ---: | ---: |')
         for item in linearity_by_frequency:
             print(

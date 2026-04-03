@@ -119,6 +119,25 @@ def power_log_mae_loss(
     return k * loss_power_log_avr + (1 - k) * loss_mae_avr
 
 
+def pure_power_log_mae_loss(y_true, y_pred, group_points=4000, use_debug=False):
+    """
+    仅包含 Power Log MAE 的损失函数，不包含标准 MAE 部分。
+    用于只关注能量对数误差的场景。
+    """
+    if len(y_true.shape) == 2:
+        y_true = tf.reshape(y_true, [-1, group_points, y_true.shape[-1]])
+        y_pred = tf.reshape(y_pred, [-1, group_points, y_pred.shape[-1]])
+
+    power_true = tf.reduce_sum(tf.abs(y_true), axis=1)
+    power_pred = tf.reduce_sum(tf.abs(y_pred), axis=1)
+
+    power_true_log = tf.math.log(power_true + 1e-8)
+    power_pred_log = tf.math.log(power_pred + 1e-8)
+
+    loss_power_log = tf.abs(power_true_log - power_pred_log)
+    return tf.reduce_mean(loss_power_log)
+
+
 def power_log_loss(y_true, y_pred, group_points=4000, use_debug=False):
     # ============ 1) 以 group_points 为单位拆分序列 ============
     # 假设 seq_num 能被 group_points 整除
@@ -188,3 +207,8 @@ def af_mse_loss(y_true, y_pred, group_points=4000, use_debug=False):
 
     loss_power_log = tf.square(power_true_log - power_pred_log)
     return tf.reduce_mean(loss_power_log)
+
+
+def pure_mae_metric(y_true, y_pred):
+    """纯MAE指标，用于评估时分离MAE和AFMAE"""
+    return tf.reduce_mean(tf.abs(y_true - y_pred))

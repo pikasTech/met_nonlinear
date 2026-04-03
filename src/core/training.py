@@ -84,6 +84,8 @@ class RealTimeTrainingCallback(Callback):
 
         loss = logs.get('loss')
         val_loss = logs.get('val_loss')
+        mae = logs.get('mae')
+        val_mae = logs.get('val_mae')
         power_log_loss = logs.get('power_log_loss')
         val_power_log_loss = logs.get('val_power_log_loss')
 
@@ -99,7 +101,8 @@ class RealTimeTrainingCallback(Callback):
             f"{completed_epoch + 1}/{total_epochs} | "
             f"{self.format_time(elapsed_time)}/{self.format_time(remaining_time)}/{expected_finish_time.strftime('%Y-%m-%d %H:%M:%S')} | "
             f"Loss: {loss:.4f}/{val_loss:.4f} | "
-            f"PLog: {power_log_loss:.4f}/{val_power_log_loss:.4f} | "
+            f"MAE: {mae:.4f}/{val_mae:.4f} | "
+            f"AFMAE: {power_log_loss:.4f}/{val_power_log_loss:.4f} | "
             f"{self.smoothed_speed:.1f}/{current_speed:.1f} epochs/h]")
 
         self.scrolling_log_handler.update_log(log_message)
@@ -108,6 +111,8 @@ class RealTimeTrainingCallback(Callback):
             "epoch": int(completed_epoch) + 1,
             "loss": float(loss),
             "val_loss": float(val_loss),
+            "mae": float(mae),
+            "val_mae": float(val_mae),
             "power_log_loss": float(power_log_loss),
             "val_power_log_loss": float(val_power_log_loss),
             "lr": float(lr),
@@ -116,8 +121,10 @@ class RealTimeTrainingCallback(Callback):
         self.state_manager['min_loss'] = self.min_loss
         self.state_manager['min_val_loss'] = self.min_val_loss
         self.state_manager['val_loss'] = val_loss
+        self.state_manager['val_mae'] = val_mae
         self.state_manager['val_power_log_loss'] = val_power_log_loss
         self.state_manager['loss'] = loss
+        self.state_manager['mae'] = mae
         self.state_manager['power_log_loss'] = power_log_loss
         self.state_manager['lr'] = float(lr)
         self.state_manager['elapsed_time'] = elapsed_time

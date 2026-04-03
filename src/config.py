@@ -26,6 +26,7 @@ class Config:
         self.use_train_model = True
         self.use_model = 'GRN'  # 可以是 'GRN', 'FRIKAN', 'LSTM', 'Transformer', 'WaveNet', 'RNN'
         self.use_power_loss = True
+        self.use_pure_power_loss = False
         self.loss_type = None
         self.use_points = 8000
         self.resume_training = True  # 断点续训
@@ -128,6 +129,13 @@ class Config:
                 'bias_divider_low': 10000
             }
         }
+        self.compute_cost_model = {
+            'platform': 'stm32f405',
+            'unit': 'add_equivalent',
+            'add_weight': 1.0,
+            'mul_weight': 1.0,
+            'map_weight': 6.0,
+        }
 
         logger = logging.getLogger(__name__)
         logger.info(f"base_data_path: {self.data_base_path}")
@@ -216,6 +224,16 @@ class Config:
 
         # 更新配置
         config.__dict__.update(data)
+        
+        # 验证 loss 配置互斥
+        if config.use_power_loss and config.use_pure_power_loss:
+            raise ValueError(
+                "❌ 配置错误：use_power_loss 和 use_pure_power_loss 不能同时为 True！\n"
+                "只能启用其中一个 loss 函数：\n"
+                "  - use_power_loss=true: 启用 power_log_mae_loss (混合 loss)\n"
+                "  - use_pure_power_loss=true: 启用 pure_power_log_mae_loss (仅能量对数 loss)\n"
+                "请修改配置文件，只保留其中一个为 True。"
+            )
         
         # 验证偏置补偿配置（可选，因为模型可能还未加载）
         try:

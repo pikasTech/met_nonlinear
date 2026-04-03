@@ -5,7 +5,7 @@
   "current_epoch": 0,
   "model_name": "LSTM",
   "training_alive": false,
-  "timestamp": "20250414164106.2",
+  "timestamp": "20260402183259.4",
   "best_weights_file": "projects/LSTMu16/data\\LSTMu16_best_weights.h5",
   "best_val_weights_file": "projects/LSTMu16/data\\LSTMu16_best_val_weights.h5"
 }

@@ -28,7 +28,7 @@
             "num_params": 0
         },
         {
-            "name": "dropout_30",
+            "name": "dropout",
             "type": "Dropout",
             "output_shape": [
                 null,
@@ -39,7 +39,7 @@
             "num_params": 0
         },
         {
-            "name": "simoiir_30",
+            "name": "simoiir",
             "type": "SIMOIIR",
             "output_shape": [
                 null,
@@ -50,7 +50,7 @@
             "num_params": 192
         },
         {
-            "name": "dense_kan_159",
+            "name": "dense_kan_1",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -61,7 +61,7 @@
             "num_params": 486
         },
         {
-            "name": "dense_kan_160",
+            "name": "dense_kan_2",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -72,7 +72,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_161",
+            "name": "dense_kan_3",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -83,7 +83,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_162",
+            "name": "dense_kan_4",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -94,7 +94,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_163",
+            "name": "dense_kan_5",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -105,7 +105,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_164",
+            "name": "dense_kan_6",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -116,7 +116,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_158",
+            "name": "dense_kan",
             "type": "DenseKAN",
             "output_shape": [
                 null,

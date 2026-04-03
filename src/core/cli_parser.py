@@ -31,6 +31,7 @@ class TaskType(Enum):
     EXPORT_RESISTANCE = "export_resistance"
     STANDARDIZE_RESISTANCE = "standardize_resistance"
     WAVEFORM_VIS = "waveform_vis"
+    LOSS_PLOT = "loss_plot"
     TEST = "test"
 
 
@@ -186,12 +187,14 @@ def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
   analyze       分析错误
   wave          生成波形数据
   bias_viz      偏置可视化
+  loss_plot     绘制训练loss曲线（lr, loss, val_loss）
 
 示例用法：
   python cli.py -t PROJECT_NAME
   python cli.py -e PROJECT_NAME
   python cli.py -i PROJECT_NAME --layers 5
   python cli.py -a PROJECT_NAME --bias-method auto
+  python cli.py --loss-plot PROJECT_NAME
   python cli.py ep project/freq-response-compare/task-name
 
 配置文件：
@@ -279,6 +282,9 @@ def _add_main_arguments(parser: argparse.ArgumentParser, config: CLIConfig) -> N
     task_group.add_argument('--test', action='store_const',
                            const=TaskType.TEST, dest='task_type',
                            help='运行单元测试')
+    task_group.add_argument('--loss-plot', action='store_const',
+                           const=TaskType.LOSS_PLOT, dest='task_type',
+                           help='绘制训练loss曲线（lr, loss, val_loss）')
 
     # 项目名称
     parser.add_argument('project_name', nargs='?', 

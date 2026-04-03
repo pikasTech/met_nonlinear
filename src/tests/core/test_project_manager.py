@@ -1196,16 +1196,18 @@ class TestProjectManagerEvaluateMethod:
         pm = mock_pm_evaluate
 
         mock_engine = MagicMock()
-        mock_engine.evaluate_loss = MagicMock(return_value=(0.5, 0.3, 0.4, 0.2))
+        mock_engine.evaluate_loss = MagicMock(return_value=(0.5, 0.3, 0.35, 0.4, 0.43, 0.45))
 
         with patch.object(pm, 'prepare_dataset_and_model', return_value=mock_engine):
             with patch.object(pm, 'run_prediction'):
-                loss, metrics, val_loss, val_metrics = mock_engine.evaluate_loss()
+                loss, mae, afmae, val_loss, val_mae, val_afmae = mock_engine.evaluate_loss()
 
                 assert loss == 0.5
-                assert metrics == 0.3
+                assert mae == 0.3
+                assert afmae == 0.35
                 assert val_loss == 0.4
-                assert val_metrics == 0.2
+                assert val_mae == 0.43
+                assert val_afmae == 0.45
 
 
 class TestProjectManagerProcessEvaluate:
@@ -1244,14 +1246,16 @@ class TestProjectManagerProcessEvaluate:
         pm = mock_pm_for_evaluate
 
         mock_engine = MagicMock()
-        mock_engine.evaluate_loss = MagicMock(return_value=(0.5, 0.3, 0.4, 0.2))
+        mock_engine.evaluate_loss = MagicMock(return_value=(0.5, 0.3, 0.35, 0.4, 0.43, 0.45))
 
-        loss, metrics, val_loss, val_metrics = mock_engine.evaluate_loss()
+        loss, mae, afmae, val_loss, val_mae, val_afmae = mock_engine.evaluate_loss()
 
         assert loss == 0.5
-        assert metrics == 0.3
+        assert mae == 0.3
+        assert afmae == 0.35
         assert val_loss == 0.4
-        assert val_metrics == 0.2
+        assert val_mae == 0.43
+        assert val_afmae == 0.45
 
     def test_evaluate_with_best_val_weights_calls_load(self, mock_pm_for_evaluate):
         """Test evaluate loads best validation weights when configured"""

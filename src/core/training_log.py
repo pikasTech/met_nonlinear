@@ -209,6 +209,10 @@ class TrainingLogger:
             "power_log_loss", training_log)
         min_val_power_log_loss, params_at_min_val_power_log_loss = self.get_min_value_and_params(
             "val_power_log_loss", training_log)
+        min_mae, params_at_min_mae = self.get_min_value_and_params(
+            "mae", training_log)
+        min_val_mae, params_at_min_val_mae = self.get_min_value_and_params(
+            "val_mae", training_log)
 
         # 获取学习率的统计信息
         lr = training_log.get("lr", [])
@@ -223,6 +227,10 @@ class TrainingLogger:
             "params@min_loss": params_at_min_loss,
             "min_val_loss": min_val_loss,
             "params@min_val_loss": params_at_min_val_loss,
+            "min_mae": min_mae,
+            "params@min_mae": params_at_min_mae,
+            "min_val_mae": min_val_mae,
+            "params@min_val_mae": params_at_min_val_mae,
             "min_power_log_loss": min_power_log_loss,
             "params@min_power_log_loss": params_at_min_power_log_loss,
             "min_val_power_log_loss": min_val_power_log_loss,
@@ -249,6 +257,8 @@ class TrainingLogger:
         min_value = min(metric)
         min_epoch = metric.index(min_value) + 1  # 训练轮次从1开始
         min_val_loss = training_log.get('val_loss', [])[min_epoch - 1]
+        min_mae = training_log.get('mae', [])[min_epoch - 1]
+        min_val_mae = training_log.get('val_mae', [])[min_epoch - 1]
         min_power_log_loss = training_log.get(
             'power_log_loss', [])[min_epoch - 1]
         min_val_power_log_loss = training_log.get(
@@ -256,6 +266,8 @@ class TrainingLogger:
         return min_value, {
             "epoch": min_epoch,
             "val_loss": min_val_loss,
+            "mae": min_mae,
+            "val_mae": min_val_mae,
             "power_log_loss": min_power_log_loss,
             "val_power_log_loss": min_val_power_log_loss
         }

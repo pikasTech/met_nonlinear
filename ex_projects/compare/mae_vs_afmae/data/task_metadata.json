@@ -1,0 +1,11 @@
+{
+  "execution_time": "2026-04-02T17:17:46.833627",
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "MAE vs AFMAE 消融实验对比"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\compare\\mae_vs_afmae\\data"
+  ],
+  "config_hash": "d983863fa6b583039d968d645550afb0"
+}
