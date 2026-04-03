@@ -4,7 +4,7 @@
 
 通过 QEMU 模拟 Cortex-M4 环境，在 PC 上完成最小固件冒烟验证，并为后续的边缘设备推理时延评估提供可重复的基础环境。
 
-当前仓库的最小可运行路径不再依赖 semihosting，而是使用 QEMU 官方支持较完整的 `mps2-an386` 板卡和其 `UART0` 输出 `Hello World!`。
+当前仓库的最小可运行路径不再依赖 semihosting，而是使用 QEMU 官方支持的 `olimex-stm32-h405` 板卡，并通过 STM32F405 的 `USART1` 输出 `Hello World!`。
 
 已在 2026-04-03 本机实测通过，QEMU 控制台成功打印 `Hello World!`。
 
@@ -34,7 +34,7 @@ python cli.py qemu build-run test_qemu --timeout 5
 
 | 参数 | 说明 |
 |------|------|
-| `--machine mps2-an386` | 指定 QEMU 机器型号，默认 `mps2-an386` |
+| `--machine olimex-stm32-h405` | 指定 QEMU 机器型号，默认 `olimex-stm32-h405` |
 | `--timeout 5` | 运行超时秒数，默认 5；设为 `0` 表示不设超时 |
 | `--output hello.elf` | 指定 ELF 输出文件名或路径 |
 | `--linker-script xxx.ld` | 指定链接脚本；工程目录中有多个 `.ld` 时必须显式指定 |
@@ -90,8 +90,8 @@ winget install --id Arm.GnuArmEmbeddedToolchain -e --accept-package-agreements -
 
 ### 推荐路径
 
-1. 板卡选 `mps2-an386`，因为这是 QEMU 官方明确支持的 Cortex-M4 M-profile 开发板。
-2. 输出走 `CMSDK APB UART0`，基地址为 `0x40004000`。
+1. 板卡选 `olimex-stm32-h405`，因为它直接对应 STM32F405RGT6，更贴近当前仓库的目标平台。
+2. 输出走 `USART1`，基地址为 `0x40011000`。
 3. 固件使用自带启动代码和链接脚本，避免 `rdimon.specs` 与自定义 `_start` 冲突。
 4. `Hello World` 冒烟验证阶段不再优先使用 semihosting。
 
@@ -108,20 +108,19 @@ winget install --id Arm.GnuArmEmbeddedToolchain -e --accept-package-agreements -
 ### QEMU 官方文档
 
 1. QEMU 官方 ARM 文档明确说明 Cortex-M 属于 M-profile 板卡场景，需要选具体板型，不能只靠 `virt` 泛化。
-2. `mps2-an386` 是官方支持的 Cortex-M4 机器。
+2. `olimex-stm32-h405` 是官方支持的 STM32F405 Cortex-M4 机器。
 3. QEMU semihosting 文档说明输出可重定向到 chardev，但 semihosting 本质上依赖特定 ABI 和宿主调试链路，不是最稳的入门输出方式。
 
 ### QEMU 源码信息
 
-1. `mps2-an386` 的 `UART0` 映射到 `0x40004000`。
-2. QEMU 的 `CMSDK APB UART` 寄存器偏移为：
-   - `DATA = 0x00`
-   - `STATE = 0x04`
-   - `CTRL = 0x08`
-   - `INTSTATUS = 0x0c`
-   - `BAUDDIV = 0x10`
-3. `STATE.TXFULL` 是 bit 0，`CTRL.TX_EN` 是 bit 0，满足最小轮询发送需求。
-4. `mps2-an386` 的程序镜像由 `armv7m_load_kernel(..., 0, 0x400000)` 加载到低地址区域，因此链接脚本应该从 `0x00000000` 开始，而不是 STM32 风格的 `0x08000000`。
+1. `olimex-stm32-h405` 使用 `STM32F405` SoC，QEMU 把 `serial0` 绑定到 `USART1`，地址为 `0x40011000`。
+2. QEMU 的 `STM32F2XX USART` 关键寄存器偏移为：
+  - `SR = 0x00`
+  - `DR = 0x04`
+  - `BRR = 0x08`
+  - `CR1 = 0x0c`
+3. `TXE` 是 `SR` 的 bit 7，`TE` 是 `CR1` 的 bit 3，`UE` 是 `CR1` 的 bit 13，满足最小轮询发送需求。
+4. QEMU 同时把 flash 映射到 `0x08000000`，并在 `0x00000000` 提供 alias；ELF 链接脚本应使用 STM32F405 的 flash 基地址 `0x08000000`。
 
 ### Semihosting 资料
 
@@ -134,9 +133,9 @@ winget install --id Arm.GnuArmEmbeddedToolchain -e --accept-package-agreements -
 
 ```
 test_qemu/
-├── hello.c        # 直接写 UART0 输出 Hello World
+├── hello.c        # 直接写 USART1 输出 Hello World
 ├── startup.c      # Cortex-M 启动代码，负责向量表、data/bss 初始化
-├── stm32f405.ld   # 当前已改为 MPS2 AN386 使用的链接脚本
+├── stm32f405.ld   # STM32F405 的 flash/ram 链接脚本
 └── hello.elf      # 编译产物
 ```
 
@@ -163,7 +162,7 @@ test_qemu/
 
 ```powershell
 & 'C:\Program Files\qemu\qemu-system-arm.exe' \
-  -M mps2-an386 \
+  -M olimex-stm32-h405 \
   -kernel test_qemu/hello.elf \
   -display none \
   -serial stdio \
@@ -182,17 +181,17 @@ Hello World!
 
 根因不是单一的 PowerShell 重定向问题，而是当前最小样例把输出建立在 `rdimon + semihosting + 板卡/入口地址` 的组合上，链路太脆弱。
 
-修复策略：改为 `mps2-an386 + UART0`，去掉对 semihosting 的硬依赖。
+修复策略：改为 `olimex-stm32-h405 + USART1`，去掉对 semihosting 的硬依赖。
 
 ### 2. 链接脚本错误
 
-旧链接脚本按 STM32F405 的 `FLASH=0x08000000` 编写，不适配 `mps2-an386`。
+旧链接脚本曾被改成适配 `mps2-an386` 的低地址布局，不再适合 STM32F405 板级仿真。
 
 修复策略：
 
-1. ROM 改为 `0x00000000` 起始。
+1. ROM 改回 `0x08000000` 起始。
 2. RAM 改为 `0x20000000` 起始。
-3. 启动栈顶改为 QEMU 该板卡的 RAM 顶部。
+3. 启动栈顶保持为 STM32F405 SRAM 顶部。
 
 ### 3. `rdimon.specs` 与自定义启动冲突
 
@@ -207,7 +206,7 @@ Hello World!
 
 QEMU 虽然列出了该机器，但当前仓库最小固件没有针对该 STM32L4 板卡完成时钟、向量表和外设初始化，直接跑很容易进 fault。
 
-修复策略：最小验证改用官方通用 M-profile 板卡 `mps2-an386`。后续如果必须贴近 STM32 板级行为，再单独做针对性适配。
+修复策略：最小验证改用 `olimex-stm32-h405`，直接在 STM32F405 板级模型上完成验证。
 
 ## 后续如何迁移到算法验证
 
@@ -218,7 +217,7 @@ QEMU 虽然列出了该机器，但当前仓库最小固件没有针对该 STM32
 ## 限制说明
 
 1. QEMU 不是 cycle-accurate，不能把它当真实芯片周期计数器。
-2. `mps2-an386` 是 Cortex-M4 参考板，不等价于 STM32F405 的全部外设行为。
+2. `olimex-stm32-h405` 也不是 cycle-accurate 模型，仍不能替代真实 STM32F405 硬件测时。
 3. 对 GPIO、ADC、DMA、时钟树等 STM32 专有外设，QEMU 结果只能做功能冒烟，不能做最终性能结论。
 
 ## 相关文档

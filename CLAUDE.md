@@ -110,5 +110,5 @@
 - `python cli.py qemu build-run test_qemu --timeout 5`
 	- QEMU 冒烟验证：一条命令完成编译与运行，适合快速验证 `Hello World!`，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 
-- `qemu-system-arm.exe -M mps2-an386 -kernel test_qemu/hello.elf -nographic`
+- `qemu-system-arm.exe -M olimex-stm32-h405 -kernel test_qemu/hello.elf -nographic`
 	- 边缘设备仿真：使用 QEMU 模拟 Cortex-M4，在 PC 上近似评估算法在 STM32F405 等边缘设备上的推理性能，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。

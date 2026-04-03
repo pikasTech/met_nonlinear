@@ -66,7 +66,7 @@ class CLIArgs:
     ep_project_path: Optional[str] = None
     qemu_action: Optional[str] = None
     qemu_project_dir: Optional[str] = None
-    qemu_machine: str = 'mps2-an386'
+    qemu_machine: str = 'olimex-stm32-h405'
     qemu_timeout: int = 5
     qemu_output_path: Optional[str] = None
     qemu_qemu_path: Optional[str] = None
@@ -220,8 +220,8 @@ def _add_qemu_common_arguments(parser: argparse.ArgumentParser) -> None:
     """添加 QEMU 子命令的通用参数。"""
     parser.add_argument('qemu_project_dir', nargs='?',
                         help='QEMU 工程目录，例如 test_qemu')
-    parser.add_argument('--machine', default='mps2-an386',
-                        help='QEMU 机器型号，默认: mps2-an386')
+    parser.add_argument('--machine', default='olimex-stm32-h405',
+                        help='QEMU 机器型号，默认: olimex-stm32-h405')
     parser.add_argument('--timeout', type=int, default=5,
                         help='运行超时时间（秒），0 表示不设超时，默认: 5')
     parser.add_argument('--output', dest='qemu_output_path',
@@ -487,7 +487,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 command='qemu',
                 qemu_action=getattr(args, 'qemu_action', None),
                 qemu_project_dir=getattr(args, 'qemu_project_dir', None),
-                qemu_machine=getattr(args, 'machine', 'mps2-an386'),
+                qemu_machine=getattr(args, 'machine', 'olimex-stm32-h405'),
                 qemu_timeout=getattr(args, 'timeout', 5),
                 qemu_output_path=getattr(args, 'qemu_output_path', None),
                 qemu_qemu_path=getattr(args, 'qemu_qemu_path', None),
@@ -555,7 +555,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             ep_project_path=getattr(args, 'ep_project_path', None),
             qemu_action=getattr(args, 'qemu_action', None),
             qemu_project_dir=getattr(args, 'qemu_project_dir', None),
-            qemu_machine=getattr(args, 'machine', 'mps2-an386'),
+            qemu_machine=getattr(args, 'machine', 'olimex-stm32-h405'),
             qemu_timeout=getattr(args, 'timeout', 5),
             qemu_output_path=getattr(args, 'qemu_output_path', None),
             qemu_qemu_path=getattr(args, 'qemu_qemu_path', None),

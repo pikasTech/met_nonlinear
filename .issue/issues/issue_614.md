@@ -4,7 +4,7 @@ title: Round136复查 Southworth_2026_Multi-layer_KAN
 status: closed
 tags: review, r136, round136, southworth, multikan
 created_at: 2026-04-02T21:52:51
-updated_at: 2026-04-03T15:14:29
+updated_at: 2026-04-03T20:01:49
 ---
 
 # Round 136 复查 - 近期关闭论文

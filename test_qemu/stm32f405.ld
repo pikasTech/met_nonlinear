@@ -1,7 +1,7 @@
 MEMORY
 {
-    ROM (rx)  : ORIGIN = 0x00000000, LENGTH = 4M
-    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 4M
+    ROM (rx)  : ORIGIN = 0x08000000, LENGTH = 1024K
+    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
 }
 
 ENTRY(Reset_Handler)
