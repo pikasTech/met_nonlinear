@@ -79,7 +79,7 @@ def _find_qemu_projects(root_dir: str) -> List[str]:
 def _resolve_project_dir(project_dir: Optional[str]) -> str:
     """解析工程目录。"""
     if not project_dir:
-        project_dir = 'test_qemu'
+        project_dir = os.path.join('src', 'tests', 'qemu', 'stm32f405_hello')
 
     resolved = project_dir
     if not os.path.isabs(resolved):

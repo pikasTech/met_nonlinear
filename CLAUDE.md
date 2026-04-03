@@ -103,12 +103,12 @@
 
 - `python cli.py qemu list`
 	- QEMU 工程扫描：列出仓库中可直接编译运行的 QEMU 工程目录，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
-- `python cli.py qemu build test_qemu`
+- `python cli.py qemu build src/tests/qemu/stm32f405_hello`
 	- QEMU 编译：对指定工程目录自动解析源文件和链接脚本并生成 ELF，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
-- `python cli.py qemu run test_qemu --timeout 5`
+- `python cli.py qemu run src/tests/qemu/stm32f405_hello --timeout 5`
 	- QEMU 运行：运行指定工程 ELF，默认超时后自动结束并回显串口输出，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
-- `python cli.py qemu build-run test_qemu --timeout 5`
+- `python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5`
 	- QEMU 冒烟验证：一条命令完成编译与运行，适合快速验证 `Hello World!`，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 
-- `qemu-system-arm.exe -M olimex-stm32-h405 -kernel test_qemu/hello.elf -nographic`
+- `qemu-system-arm.exe -M olimex-stm32-h405 -kernel src/tests/qemu/stm32f405_hello/hello.elf -nographic`
 	- 边缘设备仿真：使用 QEMU 模拟 Cortex-M4，在 PC 上近似评估算法在 STM32F405 等边缘设备上的推理性能，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。

@@ -219,7 +219,7 @@ def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
 def _add_qemu_common_arguments(parser: argparse.ArgumentParser) -> None:
     """添加 QEMU 子命令的通用参数。"""
     parser.add_argument('qemu_project_dir', nargs='?',
-                        help='QEMU 工程目录，例如 test_qemu')
+                        help='QEMU 工程目录，例如 src/tests/qemu/stm32f405_hello')
     parser.add_argument('--machine', default='olimex-stm32-h405',
                         help='QEMU 机器型号，默认: olimex-stm32-h405')
     parser.add_argument('--timeout', type=int, default=5,
@@ -244,9 +244,9 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
   python cli.py ep project/freq-response-compare/task-name
   python cli.py ep LSTMu32al_rs300/freq-response-compare/test
   python cli.py qemu list
-  python cli.py qemu build test_qemu
-  python cli.py qemu run test_qemu --timeout 5
-  python cli.py qemu build-run test_qemu
+    python cli.py qemu build src/tests/qemu/stm32f405_hello
+    python cli.py qemu run src/tests/qemu/stm32f405_hello --timeout 5
+    python cli.py qemu build-run src/tests/qemu/stm32f405_hello
         """
     )
     subparsers = parser.add_subparsers(dest='command', help='可用命令')

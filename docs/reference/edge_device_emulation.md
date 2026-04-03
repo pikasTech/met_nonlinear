@@ -16,9 +16,9 @@
 
 ```powershell
 python cli.py qemu list
-python cli.py qemu build test_qemu
-python cli.py qemu run test_qemu --timeout 5
-python cli.py qemu build-run test_qemu --timeout 5
+python cli.py qemu build src/tests/qemu/stm32f405_hello
+python cli.py qemu run src/tests/qemu/stm32f405_hello --timeout 5
+python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 ```
 
 ### 命令说明
@@ -52,7 +52,7 @@ python cli.py qemu build-run test_qemu --timeout 5
 ### 推荐最小验证
 
 ```powershell
-python cli.py qemu build-run test_qemu --timeout 5
+python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 ```
 
 预期输出中应包含：
@@ -131,12 +131,14 @@ winget install --id Arm.GnuArmEmbeddedToolchain -e --accept-package-agreements -
 
 ## 测试目录
 
+QEMU 最小样例现已收纳到 `src/tests/qemu/stm32f405_hello/`，避免继续占用仓库根目录。
+
 ```
-test_qemu/
+src/tests/qemu/stm32f405_hello/
 ├── hello.c        # 直接写 USART1 输出 Hello World
 ├── startup.c      # Cortex-M 启动代码，负责向量表、data/bss 初始化
 ├── stm32f405.ld   # STM32F405 的 flash/ram 链接脚本
-└── hello.elf      # 编译产物
+└── hello.elf      # 编译产物（按需生成）
 ```
 
 ## 编译命令
@@ -150,10 +152,10 @@ test_qemu/
   -mfloat-abi=soft \
   -ffreestanding \
   -nostdlib \
-  -Wl,-T,test_qemu/stm32f405.ld \
+  -Wl,-T,src/tests/qemu/stm32f405_hello/stm32f405.ld \
   -Wl,--gc-sections \
-  -o test_qemu/hello.elf \
-  test_qemu/startup.c test_qemu/hello.c
+  -o src/tests/qemu/stm32f405_hello/hello.elf \
+  src/tests/qemu/stm32f405_hello/startup.c src/tests/qemu/stm32f405_hello/hello.c
 ```
 
 ## 运行命令
@@ -163,7 +165,7 @@ test_qemu/
 ```powershell
 & 'C:\Program Files\qemu\qemu-system-arm.exe' \
   -M olimex-stm32-h405 \
-  -kernel test_qemu/hello.elf \
+  -kernel src/tests/qemu/stm32f405_hello/hello.elf \
   -display none \
   -serial stdio \
   -monitor none

@@ -20,6 +20,7 @@
 - MET非线性项目: Wiener-KAN用于频率响应漂移补偿
 - 2026-04-03: Windows 上 QEMU/ARM GCC 已安装但未进 PATH；边缘仿真文档需同时给出绝对路径或提醒先配 PATH
 - 2026-04-03: 面向 STM32F405 的 QEMU 最小冒烟验证应优先用 `olimex-stm32-h405 + USART1(0x40011000)`；`mps2-an386` 仅保留给通用 Cortex-M4 参考板场景
+- 2026-04-03: 迁移 QEMU 示例目录前先确认没有残留 `qemu-system-arm.exe` 进程；它会锁住根目录下的 `stdout.txt/stderr.txt` 临时文件，导致 Windows 上 `Move-Item` 失败
 - 2026-04-03: `cli.py qemu run` 必须默认带超时并在超时后终止 QEMU，否则裸机固件无限循环会造成 CLI 长时阻塞
 - 2026-04-03: 若 nvidia-smi 报某块卡 `GPU is lost`，Windows 的 WMI `Status: OK` 仍可能误导；以 nvidia-smi 为准
 - 2026-04-03: 当前机器在 3090 lost、2080 正常时，可在 TensorFlow 导入前设置 `CUDA_VISIBLE_DEVICES=1` 继续训练；设备级 `pnputil /restart-device` 需要管理员权限
