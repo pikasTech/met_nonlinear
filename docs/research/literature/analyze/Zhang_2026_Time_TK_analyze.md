@@ -40,8 +40,8 @@
 ### 直接支持
 
 **论文证明了什么**：
-- KAN可与Transformer结合用于时间序列预测（原文第143行）："Time-TK is a lightweight and efficient model that incorporates the MI-KAN module. Leveraging the flexibility of KAN, it effectively models multi-offset sub-sequences"
-- Time-TK在多个数据集上优于TimeKAN等现有KAN模型（原文第305行）："Compared with TimeKAN, Time-TK reduces MSE by 7.4% and MAE by 8.57%"
+- KAN可与Transformer结合用于时间序列预测（原文第143行[EN]）："Time-TK is a lightweight and efficient model that incorporates the MI-KAN module. Leveraging the flexibility of KAN, it effectively models multi-offset sub-sequences"
+- Time-TK在多个数据集上优于TimeKAN等现有KAN模型（原文第305行[EN]）："Compared with TimeKAN, Time-TK reduces MSE by 7.4% and MAE by 8.57%"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的MI-KAN结构为FRIKAN/Wiener-KAN的架构设计提供参考
@@ -51,21 +51,21 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第143行 | Time-TK架构描述：轻量级高效模型，集成了MI-KAN模块，利用KAN的灵活性对多偏移子序列进行建模 |
-| 第201-202行 | KAN核心特性描述：KAN通过可学习单变量函数替换传统线性连接来增强网络对非线性模式的建模能力 |
-| 第305行 | Time-TK相比TimeKAN的性能提升：MSE降低7.4%，MAE降低8.57% |
+| 第143行[EN] | Time-TK架构描述：轻量级高效模型，集成了MI-KAN模块，利用KAN的灵活性对多偏移子序列进行建模 |
+| 第201-202行[EN] | KAN核心特性描述：KAN通过可学习单变量函数替换传统线性连接来增强网络对非线性模式的建模能力 |
+| 第305行[EN] | Time-TK相比TimeKAN的性能提升：MSE降低7.4%，MAE降低8.57% |
 
 ## 关键原文段落摘录
 
 ### 段落1（关于KAN架构）
 
 > "KAN (Kolmogorov-Arnold Network)[29] focuses more on approximating complex, high-dimensional mapping relationships through a set of combinable simple functions. Specifically, KAN enhances the network's ability to model nonlinear patterns by replacing traditional linear connections between neurons with learnable univariate functions."
-> （第201-202行）
+> （第201-202行[EN]）
 
 ### 段落2（关于Time-TK贡献）
 
 > "Time-TK is a lightweight and efficient model that incorporates the MI-KAN module. Leveraging the flexibility of KAN, it effectively models multi-offset sub-sequences. Moreover, Time-TK is among the few time series forecasting models that successfully integrate Transformer and KAN."
-> （第143行）
+> （第143行[EN]）
 
 ## 与其他已分析论文的关联
 

@@ -29,18 +29,18 @@
 
 1. **建立了非线性动态模型**:
    - 论文不仅推导了线性动态子系统（传递函数 h(t)），还识别了非线性静态子系统的多项式系数 N(·) = z(t) + r₂z²(t) + r₃z³(t) + ...
-- **引用**: 第121行：`"the main task of modeling focuses on identifying parameters of the linear dynamic part and nonlinear static part r = {r₁, r₂, ..., rₙ}"`
-- **引用**: 第146行（公式3）：`y(t) = N[z(t)] = z(t) + r₂z²(t) + r₃z³(t) + ...`
+- **引用**: 第121行[EN]：`"the main task of modeling focuses on identifying parameters of the linear dynamic part and nonlinear static part r = {r₁, r₂, ..., rₙ}"`
+- **引用**: 第146行[EN]（公式(3)）：`y(t) = N[z(t)] = z(t) + r₂z²(t) + r₃z³(t) + ...`
 
 2. **验证了非线性建模的必要性**:
    - 论文对热膜式MAF传感器进行了实验验证，静态校准结果表明热膜/热线MAF传感器是非线性器件
-- **引用**: 第661行（静态校准结果）：`"The results of static calibration show the hot-film/wire MAF sensors are the nonlinear devices [21]."`
-- **引用**: 第661行：`"Furthermore the dynamic experiments indicate that there is also the dynamic non-linearity in their responses, which affects their measurement accuracy."`
+- **引用**: 第661行[EN]（静态校准结果）：`"The results of static calibration show the hot-film/wire MAF sensors are the nonlinear devices [21]."`
+- **引用**: 第661行[EN]：`"Furthermore the dynamic experiments indicate that there is also the dynamic non-linearity in their responses, which affects their measurement accuracy."`
 
 3. **提出了完整的非线性模型参数识别流程**:
    - 使用 Volterra 核的参数可分离性，通过多级输入信号分离提取各阶输出
-   - **引用**: 第245行：`"Eqs. (7a)-(7c) indicate that the higher-order Volterra kernels are of parameter separable."`
-   - **引用**: 第257行：`"Thus the higher-order outputs of the Wiener model can be computed by the convolution of the higher-order kernel with sensor input, and also be obtained with the first order output y₁ and rₙ."`
+   - **引用**: 第245行[EN]：`"Eqs. (7a)-(7c) indicate that the higher-order Volterra kernels are of parameter separable."`
+   - **引用**: 第257行[EN]：`"Thus the higher-order outputs of the Wiener model can be computed by the convolution of the higher-order kernel with sensor input, and also be obtained with the first order output y₁ and rₙ."`
 
 ### 论文没有做什么/没有做好什么（批判凸显 GAP）
 
@@ -82,7 +82,7 @@
 
 3. **实验条件过于简化**:
    - 论文的动态校准实验在相对稳定的环境条件下进行
-   - **引用**: 第675行：实验装置描述完整内容为"气泵15kW、气罐2m³、直径60mm直管、热膜MAF传感器、层流流量计等"，未提及环境控制或监测设备
+   - **引用**: 第673行[EN]/第675行[CN]：实验装置描述完整内容为"The experimental setup consists of an air pump with 15kW, an air tank with 2m³, a straight pipe with the diameter 60mm..."，未提及环境控制或监测设备
 
 ### 对 GAP5 的支撑关系
 
@@ -102,19 +102,16 @@ Xu 2008 这篇论文与 GAP5 呈现**间接批判关系**：
 ## 关键原文摘录
 
 ### 非线性模型必要性（支撑 GAP4）
-> "The results of static calibration show the hot-film/wire MAF sensors are the nonlinear devices. Furthermore the dynamic experiments indicate that there is also the dynamic non-linearity in their responses, which affects their measurement accuracy."
+> 第661行[EN]: "The results of static calibration show the hot-film/wire MAF sensors are the nonlinear devices. Furthermore the dynamic experiments indicate that there is also the dynamic non-linearity in their responses, which affects their measurement accuracy."
 > （静态校准结果表明，热膜/热线MAF传感器是非线性器件。此外，动态实验表明，它们的响应中也存在动态非线性，这会影响其测量精度。）
-> — 第661行
 
 ### 块模型结构（支撑 GAP4）
-> "The Wiener model is given by the cascade connection of a linear dynamic block followed by a nonlinear static subsystem... N(·) = z(t) + r₂z²(t) + r₃z³(t) + ... is the approximate expression of the nonlinear static subsystem."
+> 第89行[EN]/第121行[EN]: "The Wiener model is given by the cascade connection of a linear dynamic block followed by a nonlinear static subsystem... N(·) = z(t) + r₂z²(t) + r₃z³(t) + ... is the approximate expression of the nonlinear static subsystem."
 > （Wiener模型由一个线性动态块后跟一个非线性静态子系统的级联组成... N(·) = z(t) + r₂z²(t) + r₃z³(t) + ... 是非线性静态子系统的近似表达式。）
-> — 第89行和第121行
 
 ### 参数可分离性（支撑 GAP4）
-> "Eqs. (7a)-(7c) indicate that the higher-order Volterra kernels are of parameter separable."
+> 第245行[EN]: "Eqs. (7a)-(7c) indicate that the higher-order Volterra kernels are of parameter separable."
 > （式(7a)-(7c)表明高阶沃尔泰拉核具有参数可分离性。）
-> — 第245行
 
 ---
 

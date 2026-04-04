@@ -18,7 +18,7 @@
 
 **批判性支持**：
 
-- **论文做了什么**：第33行（摘要/背景）介绍KAN用可学习单变量函数取代标量权重，B样条实现准确且可解释，但CPU推理昂贵。第35行（中文翻译）报告"在NumPy后端下将稳态CPU推理延迟降低了${12}\mathrm{x}$，在Numba后端下降低了${10}\mathrm{x}$"。这是关于KAN推理效率的直接证据。
+- **论文做了什么**：第33行[EN]介绍KAN用可学习单变量函数取代标量权重，B样条实现准确且可解释，但CPU推理昂贵。第35行[CN]报告"在NumPy后端下将稳态CPU推理延迟降低了${12}\mathrm{x}$，在Numba后端下降低了${10}\mathrm{x}$"。这是关于KAN推理效率的直接证据。
 - **关键发现**：第1361-1363行确认LUT加速是"真实的表示效果"而非软件栈差异：NumPy 12.3±1.2倍加速，Numba 10.5±0.6倍加速。
 
 **直接支撑**：
@@ -35,13 +35,12 @@
 
 ## 关键原文摘录
 
-> "KAN replace scalar weights by learnable univariate functions, often implemented with B-splines. This design can be accurate and interpretable, but it makes inference expensive on CPU because each layer requires many spline evaluations."（第33行，摘要）
+> **第33行[EN]**: "KAN replace scalar weights by learnable univariate functions, often implemented with B-splines. This design can be accurate and interpretable, but it makes inference expensive on CPU because each layer requires many spline evaluations. Standard quantization toolchains are also hard to apply because the main computation is not a matrix multiply but repeated spline basis evaluation. This paper introduces LUT-KAN, a segment-wise lookup-table (LUT) compilation... NumPy speedup is 12.3 ± 1.2× (range: 11.4-14.0×), and the Numba speedup is 10.5 ± 0.6× (range: 9.5-11.1×). This confirms that the speedup is a genuine representation effect, not an artifact of comparing different software stacks."
+> （第33行英文摘要，含B-spline成本问题与加速数据）
 
-> "NumPy speedup is 12.3 ± 1.2× (range: 11.4-14.0×), and the Numba speedup is 10.5 ± 0.6× (range: 9.5-11.1×). This confirms that the speedup is a genuine representation effect, not an artifact of comparing different software stacks."（第1361-1363行）
+> **第1365行[EN]**: "The LUT resolution L affects accuracy much more than it affects latency, because the LUT kernel is memory-bound (dominated by table access) rather than compute-bound."
 
-> "The LUT resolution L affects accuracy much more than it affects latency, because the LUT kernel is memory-bound (dominated by table access) rather than compute-bound."（第1365行）
-
-> "LUT artifact size scales approximately linearly with L. The dominant component is the quantized table (q_table), which accounts for 73-88% of the total depending on L."（第1403行）
+> **第1403行[EN]**: "LUT artifact size scales approximately linearly with L. The dominant component is the quantized table (q_table), which accounts for 73-88% of the total depending on L."
 
 ## 技术细节
 

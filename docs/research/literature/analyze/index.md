@@ -68,7 +68,7 @@
 | Wang_2025_WaveTuner | [Wang_2025_WaveTuner_analyze.md](Wang_2025_WaveTuner_analyze.md) | GAP8 | 2026-03-31 |
 | Willemstein_2023_WH_Piezoresistive | [Willemstein_2023_WH_Piezoresistive_analyze.md](Willemstein_2023_WH_Piezoresistive_analyze.md) | GAP7 | 2026-03-31 |
 | Xu_2008_Volterra | [Xu_2008_Volterra_analyze.md](Xu_2008_Volterra_analyze.md) | GAP4 | 2026-03-31 |
-| Yang_2023_Floss | [Yang_2023_Floss_analyze.md](Yang_2023_Floss_analyze.md) | 无关联 | 2026-03-31 |
+| Yang_2023_Floss | [Yang_2023_Floss_analyze.md](Yang_2023_Floss_analyze.md) | GAP10, GAP11 | 2026-03-31 |
 | Yu_2025_PolyKAN | [Yu_2025_PolyKAN_analyze.md](Yu_2025_PolyKAN_analyze.md) | GAP9 | 2026-03-31 |
 | Yu_2025_SATL | [Yu_2025_SATL_analyze.md](Yu_2025_SATL_analyze.md) | GAP10, GAP11 | 2026-03-31 |
 | Zeng_2025_AR_KAN | [Zeng_2025_AR_KAN_analyze.md](Zeng_2025_AR_KAN_analyze.md) | GAP7 | 2026-03-31 |

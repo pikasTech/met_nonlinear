@@ -1,0 +1,33 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "使用 MET 数据集子集执行 LSTMTransformeru6_e1k_1 的 C/TF26 波形一致性验证"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/qemu_project",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_transformer_ln_attn_0.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_transformer_ln_ffn_0.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_transformer_ln_attn_1.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_transformer_ln_ffn_1.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_post_dense.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_post_dense.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_transformer_ln_attn_0.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_transformer_ln_attn_1.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_transformer_ln_ffn_0.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/waves/c_transformer_ln_ffn_1.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/data/plots/mag0_24_freq10_comparison.png"
+  ],
+  "action": "build-run"
+}

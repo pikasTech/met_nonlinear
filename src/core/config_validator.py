@@ -505,6 +505,197 @@ class VisualizationConfigValidator:
         }
     }
 
+    QEMU_C_INFERENCE_SCHEMA = {
+        "type": "object",
+        "required": ["task_info", "model_project_name", "benchmark_config", "validation_config", "qemu_config"],
+        "additionalProperties": False,
+        "properties": {
+            "task_info": {
+                "type": "object",
+                "required": ["task_type"],
+                "additionalProperties": False,
+                "properties": {
+                    "task_type": {
+                        "type": "string",
+                        "enum": ["qemu-c-inference"]
+                    },
+                    "description": {"type": "string"}
+                }
+            },
+            "model_project_name": {
+                "type": "string",
+                "minLength": 1
+            },
+            "weights_file": {
+                "type": "string",
+                "minLength": 1
+            },
+            "generation_config": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "project_dir": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "overwrite": {
+                        "type": "boolean"
+                    },
+                    "lut_points": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 65536
+                    },
+                    "lut_interpolation": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "benchmark_config": {
+                "type": "object",
+                "required": ["iterations"],
+                "additionalProperties": False,
+                "properties": {
+                    "iterations": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100000000
+                    },
+                    "reset_state_each_run": {
+                        "type": "boolean"
+                    },
+                    "repeat_runs": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                    }
+                }
+            },
+            "validation_config": {
+                "type": "object",
+                "required": ["dataset", "selection"],
+                "additionalProperties": False,
+                "properties": {
+                    "dataset": {
+                        "type": "object",
+                        "required": ["dataset_type", "data_path", "sample_rate", "time_clipped_s", "target_sweep"],
+                        "additionalProperties": False,
+                        "properties": {
+                            "source_project_config": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "dataset_type": {
+                                "type": "string",
+                                "enum": ["MET", "Alias", "PE", "AliasSimu"]
+                            },
+                            "data_path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "data_base_path": {
+                                "type": "string",
+                                "minLength": 1
+                            },
+                            "sample_rate": {
+                                "type": "number",
+                                "minimum": 1
+                            },
+                            "time_clipped_s": {
+                                "type": "number",
+                                "minimum": 0.000001
+                            },
+                            "target_sweep": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "feature_range": {
+                                "type": "array",
+                                "minItems": 2,
+                                "maxItems": 2,
+                                "items": {"type": "number"}
+                            },
+                            "use_scale": {
+                                "type": "boolean"
+                            },
+                            "use_cache_features": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "selection": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "magnitudes": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {"type": "number"}
+                            },
+                            "frequencies": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {"type": "number"}
+                            },
+                            "start_time_s": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "end_time_s": {
+                                "type": "number",
+                                "minimum": 0
+                            }
+                        }
+                    },
+                    "wave_output": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "properties": {
+                            "compress": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                }
+            },
+            "qemu_config": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["generate", "build", "run", "build-run"]
+                    },
+                    "machine": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "timeout": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 600
+                    },
+                    "qemu_path": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "gcc_path": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "linker_script": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "output": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
+            }
+        }
+    }
+
     def __init__(self):
         """初始化验证器"""
         self.schemas = {
@@ -512,7 +703,8 @@ class VisualizationConfigValidator:
             "freq-response-compensator": self.FREQ_RESPONSE_COMPENSATOR_SCHEMA,
             "bias-visualization": self.BIAS_VISUALIZATION_SCHEMA,
             "waveform-analysis": self.WAVEFORM_ANALYSIS_SCHEMA,
-            "wnet5-circuit-validation": self.WNET5_CIRCUIT_VALIDATION_SCHEMA
+            "wnet5-circuit-validation": self.WNET5_CIRCUIT_VALIDATION_SCHEMA,
+            "qemu-c-inference": self.QEMU_C_INFERENCE_SCHEMA
         }
 
     def validate_config_file(self, config_path: Union[str, Path], task_type: str) -> Dict[str, Any]:
@@ -736,6 +928,8 @@ class VisualizationConfigValidator:
         # 频率响应特殊验证
         if task_type == "freq-response-compare":
             self._validate_freq_response_logic(config)
+        elif task_type == "qemu-c-inference":
+            self._validate_qemu_c_inference_logic(config)
 
     def _validate_freq_response_logic(self, config: Dict[str, Any]) -> None:
         """频率响应任务的特殊验证"""
@@ -751,6 +945,28 @@ class VisualizationConfigValidator:
         data_sources = config.get("data_sources", [])
         if len(data_sources) < 1:
             raise ConfigValidationError("freq-response-compare任务至少需要1个数据源")
+
+    def _validate_qemu_c_inference_logic(self, config: Dict[str, Any]) -> None:
+        """QEMU C 推理任务的特殊验证"""
+        benchmark_config = config.get("benchmark_config", {})
+        if int(benchmark_config.get("iterations", 0)) <= 0:
+            raise ConfigValidationError("qemu-c-inference 任务要求 benchmark_config.iterations 大于 0")
+
+        validation_config = config.get("validation_config", {})
+        dataset_config = validation_config.get("dataset", {})
+        if dataset_config.get("dataset_type") != "MET":
+            raise ConfigValidationError("当前 qemu-c-inference 波形校验仅支持 MET 数据集")
+
+        selection_config = validation_config.get("selection", {})
+        start_time_s = float(selection_config.get("start_time_s", 0.0) or 0.0)
+        end_time_s = selection_config.get("end_time_s")
+        if end_time_s is not None and float(end_time_s) <= start_time_s:
+            raise ConfigValidationError("validation_config.selection.end_time_s 必须大于 start_time_s")
+
+        qemu_config = config.get("qemu_config", {})
+        action = qemu_config.get("action")
+        if action == "run" and "project_dir" not in config.get("generation_config", {}):
+            raise ConfigValidationError("qemu-c-inference 在 action=run 时仍需 generation_config.project_dir 以定位已生成工程")
 
 
 # 全局验证器实例

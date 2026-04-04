@@ -23,9 +23,9 @@
 #### 批判性支持
 
 **论文做了什么**:
-- 第39-41行: 论文指出"频域已成为传统时域方法的有力替代方案，提供全局视图和能量压缩"
+- 第40行: 论文指出"频域已成为传统时域方法的有力替代方案，提供全局视图和能量压缩"
 - 第21行(EN): AWR模块将时间序列转换为时频系数，自适应分配子带权重
-- 第189-195行: MBS模块采用不同阶数的KAN建模不同频带：低频用低阶(平滑全局趋势)，高频用高阶(快速变化的局部模式)
+- 第193行: MBS模块采用不同阶数的KAN建模不同频带：低频用低阶(平滑全局趋势)，高频用高阶(快速变化的局部模式)
 
 **论文没有做什么/没有做好什么**:
 - 聚焦于通用时间序列预测，与地震传感器频率漂移补偿无直接关联
@@ -53,10 +53,10 @@
 - 主要关注预测精度，而非推理效率
 
 **关键引文**:
-> **第189-195行**: "the MBS module adopts a frequency-aware modeling strategy. It learns specialized representations for each subband...polynomial order increases progressively with frequency, enabling low-frequency branches to capture smooth global trends, while high-frequency branches model fine-grained temporal variations"
+> **第193行**: "the MBS module adopts a frequency-aware modeling strategy. It learns specialized representations for each subband...polynomial order increases progressively with frequency, enabling low-frequency branches to capture smooth global trends, while high-frequency branches model fine-grained temporal variations"
 > (MBS模块采用频率感知建模策略。它为每个子带学习专门表示...多项式阶数随频率逐渐增加，使低频分支能够捕捉平滑的全局趋势，而高频分支对细粒度时间变化进行建模。)
 
-> **第197-203行**: "we adopt Chebyshev polynomials T_n(x) = cos(n·arccos(x)) as the functional basis to construct expressive univariate functions"
+> **第197行**: "we adopt Chebyshev polynomials T_n(x) = cos(n·arccos(x)) as the functional basis to construct expressive univariate functions"
 > (我们采用切比雪夫多项式 T_n(x) = cos(n·arccos(x)) 作为功能基来构建有表现力的单变量函数。)
 
 ## GAP支撑结论

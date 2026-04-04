@@ -7,7 +7,6 @@ import numpy as np
 import base64
 from typing import List, Optional, Union
 import traceback
-from . import exam_class
 
 
 def integrate_signal_remove_dc(signal: list[float],

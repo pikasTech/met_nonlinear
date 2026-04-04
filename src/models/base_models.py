@@ -15,6 +15,7 @@ import tensorflow as tf
 import json
 from config import CONF_DROPOUT
 import numpy as np
+from .utils import merge_config
 
 # 创建 logger
 logger = logging.getLogger(__name__)
@@ -297,7 +298,7 @@ class BaseModel:
         Args:
             weights_file: 权重文件路径
         """
-        if self.use_fast_model:
+        if getattr(self, 'use_fast_model', False):
             fast_weights_file = weights_file.replace('best', 'fast_best')
             self.fast_model.save_weights(fast_weights_file)
             # 获取 fast_model 的权重，然后拼接上 iir 的权重
@@ -353,7 +354,7 @@ class BaseModel:
         Args:
             weights_file: 权重文件路径
         """
-        if self.use_fast_model:
+        if getattr(self, 'use_fast_model', False):
             fast_weights_file = weights_file.replace('best', 'fast_best')
             logger.info(f'Loading fast model weights from {fast_weights_file}')
             self.fast_model.load_weights(fast_weights_file)
@@ -385,7 +386,7 @@ class BaseModel:
         if 'callbacks' not in kwargs:
             kwargs['callbacks'] = []
 
-        if self.use_fast_model:
+        if getattr(self, 'use_fast_model', False):
             # iir 的参数固定的，因此可以由input直接得到输出
             # 将 iir 的输出作为 fast_model 的输入
             iir_features = self.fast_iir(args[0])
@@ -598,4 +599,112 @@ class RNN(LSTM):
         # 构建模型，指定输入形状 (None, None, 1)
         self.model.build(input_shape=(None, None, 1))
 
+        self.init_checkpoint(checkpoint_dir)
+
+
+class LSTMTransformer(BaseModel):
+    def __init__(self,
+                 lstm_units=64,
+                 activation='tanh',
+                 fs=2000,
+                 checkpoint_dir='data',
+                 model_subcfg={},
+                 ):
+        super().__init__()
+        self.model_name = 'LSTMTransformer'
+        self.fs = fs
+
+        default_subcfg = {
+            'lstm_dropout': CONF_DROPOUT,
+            'transformer_num_heads': 2,
+            'transformer_ff_dim': max(lstm_units * 4, 8),
+            'transformer_layers': 2,
+            'transformer_dropout': 0.1,
+            'attention_pool_size': 1,
+            'dense_units': lstm_units,
+            'dense_activation': 'relu',
+        }
+        subcfg = merge_config(default_subcfg, model_subcfg)
+
+        num_heads = int(subcfg['transformer_num_heads'])
+        if num_heads <= 0:
+            raise ValueError('transformer_num_heads 必须大于 0')
+        if lstm_units % num_heads != 0:
+            raise ValueError(
+                f'lstm_units({lstm_units}) 必须能被 transformer_num_heads({num_heads}) 整除')
+
+        transformer_layers = int(subcfg['transformer_layers'])
+        if transformer_layers <= 0:
+            raise ValueError('transformer_layers 必须大于 0')
+
+        attention_pool_size = int(subcfg['attention_pool_size'])
+        if attention_pool_size <= 0:
+            raise ValueError('attention_pool_size 必须大于 0')
+
+        inputs = tf.keras.Input(shape=(None, 1), name='input')
+        x = tf.keras.layers.LSTM(
+            units=lstm_units,
+            activation=activation,
+            dropout=float(subcfg['lstm_dropout']),
+            return_sequences=True,
+            name='lstm_backbone'
+        )(inputs)
+
+        key_dim = lstm_units // num_heads
+        dropout_rate = float(subcfg['transformer_dropout'])
+        ff_dim = int(subcfg['transformer_ff_dim'])
+
+        for layer_idx in range(transformer_layers):
+            attention_context = x
+            if attention_pool_size > 1:
+                attention_context = tf.keras.layers.AveragePooling1D(
+                    pool_size=attention_pool_size,
+                    strides=attention_pool_size,
+                    padding='same',
+                    name=f'transformer_context_pool_{layer_idx}'
+                )(attention_context)
+
+            attention_output = tf.keras.layers.MultiHeadAttention(
+                num_heads=num_heads,
+                key_dim=key_dim,
+                dropout=dropout_rate,
+                name=f'transformer_mha_{layer_idx}'
+            )(x, attention_context, attention_context)
+            attention_output = tf.keras.layers.Dropout(
+                dropout_rate,
+                name=f'transformer_dropout_attn_{layer_idx}'
+            )(attention_output)
+            x = tf.keras.layers.LayerNormalization(
+                epsilon=1e-6,
+                name=f'transformer_ln_attn_{layer_idx}'
+            )(x + attention_output)
+
+            ff_output = tf.keras.layers.Dense(
+                ff_dim,
+                activation='relu',
+                name=f'transformer_ffn_expand_{layer_idx}'
+            )(x)
+            ff_output = tf.keras.layers.Dropout(
+                dropout_rate,
+                name=f'transformer_dropout_ffn_{layer_idx}'
+            )(ff_output)
+            ff_output = tf.keras.layers.Dense(
+                lstm_units,
+                name=f'transformer_ffn_project_{layer_idx}'
+            )(ff_output)
+            x = tf.keras.layers.LayerNormalization(
+                epsilon=1e-6,
+                name=f'transformer_ln_ffn_{layer_idx}'
+            )(x + ff_output)
+
+        dense_units = int(subcfg['dense_units'])
+        if dense_units > 0:
+            x = tf.keras.layers.Dense(
+                dense_units,
+                activation=subcfg['dense_activation'],
+                name='post_dense'
+            )(x)
+
+        outputs = tf.keras.layers.Dense(1, name='output')(x)
+        self.model = tf.keras.Model(inputs=inputs, outputs=outputs, name=self.model_name)
         self.init_checkpoint(checkpoint_dir)

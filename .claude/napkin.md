@@ -3,6 +3,11 @@
 ## Corrections
 | Date | Source | What Went Wrong | What To Do Instead |
 |------|--------|----------------|-------------------|
+| 2026-04-03 | user | 在 QEMU 问题上先开始本地复现，没先做外部资料调研 | 这类工具链/仿真器卡点先做广泛联网调研，再回仓库落地 |
+| 2026-04-04 | self | 在 `src/core/lstm_qemu_ep_task.py` 里给 GRN 加 SiLU 时改到了相邻的 LSTM 模板片段，导致源码里看似有修复但生成结果仍旧错误 | 这类生成器文件含重复 C 模板片段时，修改后必须同时核对真正的模板分支和重新生成出的 `qemu_project/main.c` |
+| 2026-04-04 | self | 做 `ModelEngine.build_model()` 轻量冒烟测试时忘了训练流程会先准备 scaler，导致 `set_scaler` 直接报错 | 如果跳过 `prepare_training_data()`，就临时设 `config.use_scale=False` 或手动注入 `CombinedScaler` 再测构建链路 |
+| 2026-04-04 | self | 长序列 LSTM+Transformer 直接全长自注意力在 `4000` 步输入、batch `70` 下会在初始 `evaluate()` 阶段因 `MultiHeadAttention` OOM 退出 | 对长序列时序任务给 Transformer 加可配置的降采样 K/V 路径（如 `attention_pool_size=128`），保留时序长度给 query，显著降低显存占用 |
+| 2026-04-04 | self | 排查 LSTMTransformer 第一层 `transformer_ln_attn_0` 大偏差时，把 `exact_exp_approx_sqrt` / `approx_exp_exact_sqrt` 的命名看反，误以为 softmax `exp` 是主因 | 看近似消融报告时先按“哪个近似被保留”逐项解释；本案真正主因是 layer norm 的 `sqrt_approx()`，旧实现从 `guess=1` 开始对小方差会严重高估分母 |
 
 ## User Preferences
 - (none recorded)
@@ -11,12 +16,37 @@
 - STEP3 documents (key_references.md, theory_framework.md, paper_draft_segments.md, SUMMARY.md) are already comprehensive after R32/R33 analysis
 - Only status updates needed for STEP3 - no content changes required
 - R33 confirmed Luo KANLoc exclusion (domain mismatch: robot vision vs sensor drift compensation)
+- 2026-04-03: `qemu-c-inference` 应直接从 `best_val.weights.json` 生成专用 bare-metal C 工程，不要复用桌面版 `src/inference/cimpl/lstm.c`；后者依赖 `printf/math.h`，在 `-nostdlib` 的 QEMU 构建里不稳
+- 2026-04-04: FRIKAN 的 LUT 精度调参先看 ROM 上限；`lut_points=1025` 会让 STM32F405 链接溢出，`lut_points=769` 在当前 `frikan_h8u6l6_nosym` 上仍可链接且能把最终 MAE 从 `2.09e-4` 压到 `3.89e-5`
+- 2026-04-03: 生成 C 源码模板时若包含 `\n`/`\r`/`\0`，优先用原始字符串保留转义；但 `#include "..."` 不能保留反斜杠，否则会生成非法源码
+- 2026-04-03: QEMU 的 Cortex-M4 场景下不要把 `DWT_CYCCNT` 当成可靠 benchmark 来源；应先探测 DWT 是否真正递增，当前仓库在 DWT 不可用时以 host-side elapsed time 作为回退计时，避免在 guest 内伪造 cycle/tick 指标
+- 2026-04-04: 做 QEMU/C 代码生成性能优化前，先保存一份成功运行的 benchmark 摘要快照；否则后续即使能确认 MAE 与 ELF 大小变化，也无法可靠量化优化前后的 host_elapsed 差异
+- 2026-04-04: `benchmark_summary.json` 里的 `host_elapsed` 只有在 success pattern 停在 `benchmark_complete=1` 时才是纯 benchmark；若停在 `validation_complete=1`，UART validation 输出也会被算进 wall time，不能拿来和 benchmark-only 结果直接比较
+- 2026-04-04: FRIKAN 的 LUT 优化不要把“模板默认 no-interpolation”和“当前样例配置”混为一谈；模板可以默认 `lut_interpolation=false`，但 `frikan_h8u6l6_nosym` 在 `lut_points=769` 下必须显式保留 `lut_interpolation=true` 才能把 MAE 维持在 `3.9e-5` 量级
+- 2026-04-04: FRIKAN 性能优先版若改成“按层编译期固化 LUT scale/offset + `lut_interpolation=false`”，`frikan_h8u6l6_nosym` 的 benchmark-only 可降到约 `0.0434 s/iter`，但最终 MAE 会升到约 `0.0806`；这时误差主因在 KAN/LUT 近似，不在 IIR（IIR 中间层 MAE 仍约 `4.9e-7`）
+- 2026-04-04: FRIKAN LUT 热路径若继续把按层 helper 强制 `always_inline`，当前 STM32F405 QEMU 工程会再度触发 ROM 溢出；性能版要保持可链接时，按层特化 helper 用 `noinline` 更稳
+- 2026-04-04: GRNu16 的 QEMU C 推理不能复用 LSTM 路径里的 Dense+ReLU；该模型实际结构是 `GRU -> Dense(silu) -> Dense(1)`。若中间层误用 ReLU，`gru_hidden` 会接近 TF，但 `dense_output` 与最终输出会整体偏正，最终 MSE 会升到约 `5.6e-3`
+- 2026-04-03: 当前机器可用的 tf26 解释器是 `C:\Users\liang\.conda\envs\tf26\python.exe`，不要照抄 CLAUDE.md 里的旧绝对路径
+- 2026-04-03: 若 QEMU C/TF 最终波形看起来“能量接近但符号明显不对”，先检查 UART 数值格式化链；本仓库曾出现 `uart_put_fixed6()` 对 `(-1, 0)` 负数丢失负号，导致输出文本看似全正，但中间层实际计算基本正确
+- 2026-04-03: 排查 QEMU 数值偏差时，优先同时导出 TF/C 的 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` wave，再判断是解析问题、缩放问题还是核心算子误差
+- 2026-04-04: 解析 Keras 导出的 Transformer 权重时，`output/kernel` 不能用包含或后缀匹配；`transformer_mha_x/attention_output/kernel:0` 会误命中，必须按完整权重名精确匹配顶层 `output/kernel:0`
+- 2026-04-03: `src/calibration_analyzer/datastruct.py` 与根目录同名文件里对 `exam_class` 的反向导入是无用且会触发循环导入；遇到 `DataRecord from partially initialized module` 先检查这行
 
 ## Patterns That Don't Work
 - Trying to remove the corrupted `-p` directory in root (encoding issues make it inaccessible) - KNOWN ISSUE, documented in napkin
 
 ## Domain Notes
 - MET非线性项目: Wiener-KAN用于频率响应漂移补偿
+- 2026-04-03: calibration_analyzer 的真实保留实现是 src/calibration_analyzer；根目录旧 calibration_analyzer 是遗留 gitlink，可直接移除，不应继续作为主包使用
+- 2026-04-03: Windows 上 QEMU/ARM GCC 已安装但未进 PATH；边缘仿真文档需同时给出绝对路径或提醒先配 PATH
+- 2026-04-03: 面向 STM32F405 的 QEMU 最小冒烟验证应优先用 `olimex-stm32-h405 + USART1(0x40011000)`；`mps2-an386` 仅保留给通用 Cortex-M4 参考板场景
+- 2026-04-03: 迁移 QEMU 示例目录前先确认没有残留 `qemu-system-arm.exe` 进程；它会锁住根目录下的 `stdout.txt/stderr.txt` 临时文件，导致 Windows 上 `Move-Item` 失败
+- 2026-04-03: `cli.py qemu run` 必须默认带超时并在超时后终止 QEMU，否则裸机固件无限循环会造成 CLI 长时阻塞
+- 2026-04-04: 若 LSTMTransformer 里只有第一层 `transformer_ln_attn_0` 明显失真、而 `transformer_ln_ffn_0`/后续层已接近 TF，优先检查 layer norm 的开方近似；小方差场景下需要先按 `4^k` 归一化再做 Newton 迭代，不能直接从 `guess=1` 硬迭代
+- 2026-04-03: 若 nvidia-smi 报某块卡 `GPU is lost`，Windows 的 WMI `Status: OK` 仍可能误导；以 nvidia-smi 为准
+- 2026-04-03: 当前机器在 3090 lost、2080 正常时，可在 TensorFlow 导入前设置 `CUDA_VISIBLE_DEVICES=1` 继续训练；设备级 `pnputil /restart-device` 需要管理员权限
+- 2026-04-03: 多卡默认优先级改为 `RTX 2080 Ti > RTX 3090 > 其他 GPU`，逻辑在 `src/utils/cuda_preflight.py`
+- 2026-04-03: GPU lost/Lost 后恢复与冷启动判定写入 `docs/reference/gpu_recovery.md`，CLAUDE 索引已补链接
 - 所有P0-P1主张支撑已完备
 - R3-4对比方法支撑: Yin 2017 CNN/RNN, Bai TCN, Rather 2025 KAN-GRU
 - R4-8计算成本支撑: KANtize, LUT-KAN, IoT KAN (LUT效率)
@@ -273,3 +303,105 @@
 ### 注意事项
 - bash heredoc在Windows上会产生编码问题，应使用write工具创建回复文件
 - 执行者不得修改原文markdown文件名，只修正分析文件内容
+
+## 2026-04-03 R217 Issue 825 复查完成
+- Rodriguez_Linhares_2025: 分析文件第42-44行引用正确
+- r002误读：将第29行 `## I. INTRODUCTION` 标题误认为第33行
+- 实际：第33行是英文正文段落（以"This paper focuses on ADIs."结尾）
+- 结论：无需修正，已回复r003核实结果
+
+## 2026-04-03 R206 执行完成 (STEP2)
+### 6个Issue复查执行 (881-886)
+- 881 iqbal_2024_electrochemical_volterra: 6处引用全部验证准确✅
+- 882 Lin_effect_2020: 12处引用全部验证准确✅
+- 883 Fang_2024_exploiting_nonlinearity: 6处引用全部验证准确✅
+- 884 Schaller_2025_AutoML_Measurement: 6处引用全部验证准确✅
+- 885 Chen_2025_DE-LOESS_LSTM_Measurement: 6处引用全部验证准确✅
+- 886 Howard_2026_SINDy_KANs: 9处引用实质准确(第379行标注偏移至387)✅
+
+### 执行修正记录
+- 所有analyze文件无需修正
+- 轻微标注差异(Howard第379→387)不影响实质内容
+
+### 注意事项
+- 使用write工具创建mdissue回复文件，避免bash heredoc编码问题
+- 执行者不得修改原文markdown文件名，只修正分析文件内容
+
+## 2026-04-03 R213 执行完成 (Round 213复查)
+### 8个Issue复查执行 (922-929)
+- 922 FIRE_He_2025: 引用全部准确 (第35/41/747/751行)
+- 923 Hoekstra_2026_LFR_Learning: 引用全部准确 (第35行)
+- 924 Fang_2024_exploiting_nonlinearity: 引用全部准确 (第18/71-73/439/451/465-471行)
+- 925 Fasmin_2017_Nonlinear_Electrochemical: 引用全部准确 (第28-29/174-187/269-275行)
+- 926 Gaonkar_2026_KAN_vs_MLP: 引用全部准确 (第55-57/259/281行)
+- 927 Genet_2024_TKAN: 引用全部准确 (第44/45/46/331/357行)
+- 928 Howard_2026_SINDy_KANs: 引用全部准确 (第56/59/62/95/297/379/387行)
+- 929 Iacob_2025_Koopman_Schoukens: 引用全部准确 (第24/31/91/153行)
+
+### 执行结果
+- 所有8个Issue无P0/P1问题
+- 所有引用经验证与markdown源文件一致
+- 已通过mdissue CLI发送回复(r004)
+- 建议全部关闭（await审查者确认）
+
+## 2026-04-03 R214 规划完成
+### 审查结果
+- 928 Howard_2026_SINDy_KANs: 审查通过✅
+- 929 Iacob_2025_Koopman_Schoukens: 审查通过✅
+- 922-927: 审查发现P0/P1问题需执行者修正
+
+### 续审Issue (922-927)
+- 922: FIRE_He_2025 P0数据错误(P0: FIRE_base 0/7→1/7) + P1行号偏差
+- 923: Fang_2024 P0概念误读(Allan deviation≠噪声抑制)
+- 924: Fasmin_2017 P1温度依赖性过度解读
+- 925: Gaonkar_2026 P1第44行Table引用位置错误
+- 926: Genet_2024 引用准确但GAP评估过于保守
+- 927: Hoekstra_2026 P1第188行应为187-188行
+
+### 新开Issue (930-931)
+- 930: Willemstein_2023_WH_Piezoresistive (R199后~14轮)
+- 931: Wahlberg_2015_stochastic_Wiener (R191后~22轮)
+
+## 2026-04-03 R222 执行完成 (Round 222复查)
+### 8个Issue复查执行 (964-971)
+- 964 Buhrer_2026_BitLogic: 审查通过✅ (行号引用准确,GAP3/GAP7/GAP8弱支撑)
+- 965 Busetto_2025_Nano_Drone: 审查通过✅ (行号引用准确,GAP3/GAP8强支撑)
+- 966 Dong_2024_KAN_Time_Series: 审查通过✅ (行号引用准确,GAP1/GAP2/GAP7/GAP11支撑)
+- 967 Faroughi_2026_Symbolic_KAN: 审查通过✅ (行号引用准确,GAP2/GAP7/GAP11支撑)
+- 968 Fasmin_2017_Nonlinear_Electrochemical: 审查通过✅ (行号引用准确,GAP1/GAP2/GAP4强支撑)
+- 969 Genet_2024_TKAN: 审查通过✅ (行号引用准确,GAP1/GAP2/GAP6/GAP7/GAP11支撑)
+- 970 Hoekstra_2026_LFR_Learning: 审查通过✅ (行号引用准确,GAP4弱支撑)
+- 971 Howard_2026_SINDy_KANs: 审查通过✅ (行号引用准确,GAP2/GAP7/GAP11支撑)
+
+### 执行结果
+- 所有8个Issue无P0/P1问题
+- 所有引用经验证与markdown源文件一致
+- 已通过mdissue CLI发送回复(r001)
+- 建议全部关闭（await审查者确认）
+
+### 注意事项
+- mdissue CLI必须从workspace目录运行以访问正确的.issue/存储
+- 使用tsx替代ts-node可解决编译问题
+- 执行者回复文件被CLI自动删除(file_deleted:true)
+
+## 2026-04-04 R241 审查完成
+### 全量复查完成
+- 0个开放Issue，992个已关闭Issue
+- 71篇论文全部完成分析
+- Issue 991 (Rather_2025_KAN_GRU): analyze文件引用准确(25/53/101-103/157-161/269-335/381-455行)，GAP分析合理；markdown源文件第851/873行参考文献损坏属历史遗留问题，不影响analyze文件质量
+- Round 241 全量复查完成确认
+
+## 2026-04-04 R273 执行者完成
+### Issue 1132 (Lee 2024 HiPPO KAN)
+- r003修复报告已提交：P0行号错误已修正（第317-318行→第293-295行）
+### Issues 1133-1139 复查完成
+- 1133 (Revay 2021 Recurrent Equilibrium): ✅ 无P0问题，10处引用全部准确
+- 1134 (Willemstein 2023 WH Piezoresistive): ✅ 无P0问题，引用准确
+- 1135 (Hoekstra 2026 LFR Learning): ✅ 无P0问题，10处引用全部准确
+- 1136 (Kui 2025 TFKAN): ✅ 无P0问题，引用准确
+- 1137 (Kuznetsov 2026 LUT KAN): ✅ 无P0问题，引用准确
+- 1138 (Chikishev 2019 TAF): ✅ 无P0问题，10处引用全部准确
+- 1139 (Chakraborty 2025 BSP): ✅ 无P0问题，引用准确
+### 注意
+- Issue 1138的issue描述中文件名使用短名(Chikishev_2019_TAF.md)，但实际文件为Chikishev_2019_Temperature_Amplitude_Frequency.md，这是issue描述问题，不影响analyze文件验证
+- 所有验证报告已通过mdissue CLI提交(r001)

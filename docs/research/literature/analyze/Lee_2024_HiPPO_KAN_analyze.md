@@ -22,10 +22,19 @@
 - **关键贡献**：参数数量恒定（不随窗口大小增加），而传统KAN参数随窗口线性增长。
 
 - **直接支撑**：
-  - 隐藏状态维度N与序列长度L解耦：第269行
-  - HiPPO编码将长度L的时间序列映射为维度N的系数向量，与L无关
+  - HiPPO编码将长度L的时间序列映射为维度N的系数向量，与L无关：第269行
+  - 系数空间R^N与序列长度L解耦：第293-295行
+  - KAN在系数空间中对系数向量进行非线性变换：第277-282行
+  - 固定维度系数空间作为信息瓶颈，促进高效学习：第365-367行
 
-> "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."（第317-318行）
+> **第293-295行[EN]**: "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."
+
+> **第365-367行[EN]**: "This methodology resembles an auto-encoder architecture, where the encoder (HiPPO transformation) compresses the input time series into a latent coefficient vector..."
+
+- **实验验证**：
+  - 窗口大小120/500/1200参数均为4,384（常数）：表1（第477行）
+  - 窗口1200时HiPPO-KAN参数4,384 vs KAN参数16,800：第569-571行
+  - KAN参数随窗口线性增长（120→1,680、500→7,000、1200→16,800）：表1（第477行）
 
 ### GAP10/GAP11: AFMAE vs MAE/频域损失
 
@@ -43,7 +52,7 @@
 
 | 贡献 | 正文引用 | 对应GAP | 关联理由 |
 |------|---------|---------|----------|
-| 参数效率：系数向量维度固定，与序列长度L无关 | 第269行（HiPPO映射）、第317-318行（系数空间R^N与L解耦） | GAP9 | 参数恒定性直接支撑计算效率优势 |
+| 参数效率：系数向量维度固定，与序列长度L无关 | 第269行（HiPPO映射）、第293-295行（系数空间R^N与L解耦） | GAP9 | 参数恒定性直接支撑计算效率优势 |
 | 长期预测性能优于传统KAN | 无直接对应正文 | 无直接对应 | 时间序列预测任务与频率补偿任务不同 |
 | HiPPO系数提供简洁可解释的状态表示 | 无直接对应正文 | 无直接对应 | 可解释性是独立特性，与前馈非线性利用（GAP7）无直接关联 |
 
@@ -53,16 +62,20 @@
 
 第21行摘要指出HiPPO-KAN'在不增加参数数量的情况下实现卓越性能'
 
-> "The HiPPO transformation maps this time series into a coefficient vector c^(L) ∈ R^N via the mapping"（第269行）
+> **第269行[EN]**: "The HiPPO transformation maps this time series into a coefficient vector c^(L) ∈ R^N via the mapping"
 
-> "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."（第317-318行）
+> **第293-295行[EN]**: "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."
 
 ## 技术细节
 
-- **HiPPO框架**：将时间序列投影到由正交多项式基扩展的有限维空间
-- **KAN作为函数逼近器**：在固定维度系数空间R^N中建模非线性变换
-- **损失函数改进**：在HiPPO域中直接计算MSE系数向量，解决预测滞后问题
-- **状态空间解释**：类似于自动编码器，HiPPO编码器/解码器+ KAN潜空间操作
+- **HiPPO框架**：将时间序列投影到由正交多项式基扩展的有限维空间（第127-130行）
+- **Legendre多项式基**：采用Legendre多项式基扩展，具有指数衰减加权特性（第537-543行）
+- **KAN作为函数逼近器**：在固定维度系数空间R^N中建模非线性变换（第277-282行）
+- **损失函数改进**：在HiPPO域中直接计算MSE系数向量，解决预测滞后问题（第489-496行）
+- **状态空间解释**：类似于自动编码器，HiPPO编码器/解码器+ KAN潜空间操作（第365-367行）
+- **HiPPO-KAN vs 标准KAN**：标准KAN参数随窗口线性增长，HiPPO-KAN参数恒定（第261-263行）
+
+> **第261-263行[EN]**: "While these approaches validate the effectiveness of KAN models in time-series prediction...they involve integrating KAN into complex architectures, which can increases model complexity and computational demands."
 
 ## GAP支撑结论
 

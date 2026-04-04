@@ -360,6 +360,14 @@ class ModelEngine:
                 activation=self.config.activation,
                 model_subcfg=self.config.model_subcfg
             )
+        elif self.config.use_model == 'LSTMTransformer':
+            self.model_comp = LSTMTransformer(
+                fs=self.config.sample_rate,
+                lstm_units=self.config.kernal_units,
+                checkpoint_dir=self.checkpoint_dir,
+                activation=self.config.activation,
+                model_subcfg=self.config.model_subcfg
+            )
         elif self.config.use_model == 'GRN':
             self.model_comp = GRN(
                 fs=self.config.sample_rate,

@@ -5,7 +5,7 @@
 | 字段 | 内容 |
 |------|------|
 | 标题 | Binned Spectral Power Loss for Improved Prediction of Chaotic Systems（分箱谱功率损失用于改进混沌系统预测） |
-| 作者 | Dibyajyeti Chakraborty, Arvind T. Mohan, Romit Maulik |
+| 作者 | Dibyajyoti Chakraborty, Arvind T. Mohan, Romit Maulik |
 | 机构 | Pennsylvania State University（宾夕法尼亚州立大学）, Los Alamos National Laboratory（洛斯阿拉莫斯国家实验室） |
 | 发表时间 | 2025年 |
 
@@ -56,10 +56,9 @@
 | 引用位置 | 原文引用 |
 |---------|---------|
 | 第57行 | BSP损失是一种频域损失函数，自适应地权衡预测数据中较大和较小尺度的误差（摘要） |
-| 第83-85行 | 谱偏差定义：神经网络在训练时倾向于首先优化较大波数 |
+| 第81行 | 谱偏差定义：神经网络在训练时倾向于首先优化较大波数 |
 | 第181-185行 | 标准FFT损失偏向低频模式，方程6会严重偏向傅里叶谱中对应低频的大值 |
 | 第193-195行 | BSP方法论：将预测和目标样本转换到波数域，按波数范围分组能量分量 |
-| 第233行 | BSP损失是一种频率域损失函数，自适应地权衡预测数据中较大和较小尺度的误差 |
 | 第233-238行 | BSP损失与MSE不同，通过分箱能量比策略为数据各尺度提供鲁棒学习 |
 | 第238行 | BSP损失定义：L_BSP = (1/N_k) Σ_c Σ_i (1 - E_u^bin(c,i) / E_v^bin(c,i))² |
 | 第309-311行 | 尽管FFT损失略优于MSE，但BSP明显优于所有损失，展示了其卓越的收敛特性 |

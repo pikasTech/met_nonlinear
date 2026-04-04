@@ -1,9 +1,21 @@
-# AGENTS.md - Agentic Coding Guidelines
+# Agentic Coding Guidelines
 
 ## 环境配置
 
-- 训练环境：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
-- CLI训练命令：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe cli.py -t PROJECT_NAME`
+- 训练环境：使用名为 `tf26` 的 Conda 环境 Python，而不是硬编码某台机器的绝对路径。
+- 常见路径规律：
+	- `C:\Users\<用户名>\.conda\envs\tf26\python.exe`
+	- `C:\Users\<用户名>\MiniConda3\envs\tf26\python.exe`
+	- `C:\Users\<用户名>\miniconda3\envs\tf26\python.exe`
+- 当前主机实例：`C:\Users\liang\.conda\envs\tf26\python.exe`
+- CLI训练命令：`<TF26_PYTHON> cli.py -t PROJECT_NAME`
+
+> **定位规律**：先找 `tf26` 这个环境名，再拼接到对应的 Conda 根目录，不要先假设用户名或 Conda 安装目录固定。
+
+> **推荐定位命令**：
+> - `conda env list`
+> - `where conda`
+> - `Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\MiniConda3\envs\tf26\python.exe","$env:USERPROFILE\miniconda3\envs\tf26\python.exe" -ErrorAction SilentlyContinue`
 
 > **PROJECT_NAME 路径格式**：主命令（`-t`、`-e`、`-m` 等）传入相对路径，格式为 `projects/项目路径`，如 `projects\01_LR_STUDY\FRIKANh6u6l6_e1k_1` 或 `projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base`。
 
@@ -11,19 +23,25 @@
 
 ## 项目概述
 
-**MET Nonlinear** - 电化学非线性矫正项目。核心模块: `models/`, `tfkan/`, `analysis/`, `visualization/`, `calibration_analyzer/`
+**MET Nonlinear** - 电化学非线性矫正项目。当前核心代码统一收敛在 `src/` 下，重点模块包括 `src/core/`、`src/models/`、`src/inference/`、`src/analysis/`、`src/visualization/`、`src/calibration_analyzer/`。
+
+参考索引：
+- 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
+- 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。
+- 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
+- 外部项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 
 ---
 
-## AGENTS.md 组织原则
+## CLAUDE.md 组织原则
 
 - `AGENTS.md` 只作为项目级顶级索引，用于快速定位命令、入口和文档。
 - `AGENTS.md` 的具体功能区只保留四个顶级标题：`主命令`、`ep 子命令`、`projects/ex_projects`、`测试`，不额外拆出新的命令分类标题。
 - 每个命令在 `AGENTS.md` 中保留一条主索引，命令下面可以挂多个功能子列表。
 - 每个子列表只描述一个功能点，并使用一句话概括，不在此处展开实现细节、参数说明或背景分析。
 - 每个子列表应独立对应一个 `docs/reference/` 下的参考文档；如果同一命令包含多个功能，则分别链接到各自文档。
-- 所有功能的详细说明统一写入 `docs/reference/` 下的独立 Markdown 文档，并在 `AGENTS.md` 中提供对应链接索引。
-- 当某项功能需要补充说明时，优先更新 `docs/reference/` 的详细文档，再回到 `AGENTS.md` 维护对应子列表的一句话摘要与链接。
+- 所有功能的详细说明统一写入 `docs/reference/` 下的独立 Markdown 文档，并在 `CLAUDE.md` 中提供对应链接索引。
+- 当某项功能需要补充说明时，优先更新 `docs/reference/` 的详细文档，再回到 `CLAUDE.md` 维护对应子列表的一句话摘要与链接。
 
 ---
 
@@ -103,3 +121,15 @@
 	- 单测定位：运行单个测试文件或函数，详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - `pytest -k "test_module_import"`
 	- 关键字筛选：按关键字筛选测试，详见 [docs/reference/testing.md](docs/reference/testing.md)。
+
+- `python cli.py qemu list`
+	- QEMU 工程扫描：列出仓库中可直接编译运行的 QEMU 工程目录，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+- `python cli.py qemu build src/tests/qemu/stm32f405_hello`
+	- QEMU 编译：对指定工程目录自动解析源文件和链接脚本并生成 ELF，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+- `python cli.py qemu run src/tests/qemu/stm32f405_hello --timeout 5`
+	- QEMU 运行：运行指定工程 ELF，默认超时后自动结束并回显串口输出，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+- `python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5`
+	- QEMU 冒烟验证：一条命令完成编译与运行，适合快速验证 `Hello World!`，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+
+- `qemu-system-arm.exe -M olimex-stm32-h405 -kernel src/tests/qemu/stm32f405_hello/hello.elf -nographic`
+	- 边缘设备仿真：使用 QEMU 模拟 Cortex-M4，在 PC 上近似评估算法在 STM32F405 等边缘设备上的推理性能，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。

@@ -22,7 +22,7 @@
 
 **直接支持**：
 
-- **方法论支撑**：第86-87行公式(1)展示了Kolmogorov-Arnold表示定理将多元函数分解为单变量函数的叠加。**该公式与原始Kolmogorov-Arnold定理的关系**：原始定理（KART）仅保证存在性——任何连续多元函数都可以表示为单变量函数和加法的有限叠加，但不规定具体的函数形式或结构。公式(1)是KART的一种标准规范形式（内层n个单变量函数ψ_ij，外层2n+1个单变量函数Φ_i），明确了两层结构。Symbolic-KAN采用这一形式作为架构蓝图，但通过学习投影坐标s_k^(ℓ)替代固定的内部求和，实现可学习的内部分解。
+- **方法论支撑**：第85-86行公式(1)展示了Kolmogorov-Arnold表示定理将多元函数分解为单变量函数的叠加。**该公式与原始Kolmogorov-Arnold定理的关系**：原始定理（KART）仅保证存在性——任何连续多元函数都可以表示为单变量函数和加法的有限叠加，但不规定具体的函数形式或结构。公式(1)是KART的一种标准规范形式（内层n个单变量函数ψ_ij，外层2n+1个单变量函数Φ_i），明确了两层结构。Symbolic-KAN采用这一形式作为架构蓝图，但通过学习投影坐标s_k^(ℓ)替代固定的内部求和，实现可学习的内部分解。
 - **计算效率优化验证**：Symbolic-KAN将双索引结构(i,j)坍缩为单符号索引k，在保持Kolmogorov-Arnold原理（每个单元仍是标量自变量的单变量变换）的同时，提供了计算效率优化思路。这与GAP9关于频率相关补偿计算效率的研究相关。
 - **为Wiener-KAN方法提供间接理论支撑**：Symbolic-KAN证明了KAN可以用符号化方式表示非线性函数，支撑了"KAN适合建模非线性动态"的论点。
 
@@ -98,7 +98,7 @@
 | 1 | 第41-42行 | KAN将多元映射参数化为单变量函数的叠加，呼应KART定理 | ✅ |
 | 2 | 第61行 | 门控训练和离散化后每个活动单元选择一个基元和一个投影方向 | ✅ |
 | 3 | 第61-62行 | Symbolic-KAN用候选基元动态细化替代固定基函数 | ✅ |
-| 4 | 第86-87行 | KART定理的标准形式（内层n个单变量函数ψ_ij，外层2n+1个单变量函数Φ_i） | ✅ |
+| 4 | 第85-86行 | KART定理的标准形式（内层n个单变量函数ψ_ij，外层2n+1个单变量函数Φ_i） | ✅ |
 | 5 | 第109行 | 双索引结构坍缩为单个符号索引的效率优化 | ✅ |
 | 6 | 第113行 | Symbolic-KAN层算子公式(4)：将双索引结构坍缩为单符号索引k | ✅ |
 | 7 | 第109-111行 | Symbolic-KAN架构提出改变：每个单元学习标量投影坐标s_k^(ℓ)，将双索引(i,j)坍缩为单符号索引k | ✅ (新增) |
@@ -117,7 +117,7 @@
 > **第61-62行**: "Symbolic-KAN replaces conventional KAN formulations that rely on fixed basis functions...with a formulation in which candidate primitives are dynamically refined."
 > (Symbolic-KAN用候选基元动态细化的公式取代了依赖于固定基函数的传统KAN公式。)
 
-> **第86-87行**: 公式(1) KART标准形式 F(ξ) = ΣΦ_i(Σψ_ij(x_j))
+> **第85-86行**: 公式(1) KART标准形式 F(ξ) = ΣΦ_i(Σψ_ij(x_j))
 > (柯尔莫哥洛夫-阿诺德表示定理的标准形式)
 
 > **第109行**: "This collapses the two-index structure (i, j) into a single symbolic index k, while still ensuring that each unit computes a univariate transformation of a scalar argument."

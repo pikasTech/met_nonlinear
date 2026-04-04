@@ -29,7 +29,7 @@
    - 论文研究了传感器漂移补偿问题，证明了传统交叉验证方法因对漂移考虑不足而高估了性能（第49-51行）
    - 论文指出传感器漂移会导致机器学习模型性能逐渐下降（第49行）
    - 论文讨论了漂移来源：传感器老化、中毒、环境变化、机械磨损等（第57行）
-   - 论文对比了多种漂移补偿方法：组件校正、自适应方法、传感器信号预处理、调整方法和机器学习方法（第127行(英文)，第129行(中文)）
+   - 论文对比了多种漂移补偿方法：组件校正、自适应方法、传感器信号预处理、调整方法和机器学习方法（第145-163行）
 
 2. **论文没有做XXX（批判凸显 IDEA 的 GAP）：**
    - 论文**没有讨论震级(magnitude)对测量范围/线性度的影响**
@@ -48,19 +48,19 @@
 
 ### 关于传感器漂移对测量系统的影响（第49-51行）
 
-> "Addressing sensor drift is essential in industrial measurement systems, where precise data output is necessary for maintaining accuracy and reliability in monitoring processes, as it progressively degrades the performance of machine learning models over time."
+> "Addressing sensor drift is essential in industrial measurement systems, where precise data output is necessary for maintaining accuracy and reliability in monitoring processes, as it progressively degrades the performance of machine learning models over time." [EN]
 
 ### 关于传统方法的局限性（第95-97行）
 
-> "Within different experiments, we demonstrate that several existing methods for sensor drift compensation are ineffective in learning the drift and, therefore, fail when the conventional validation setting is slightly modified. We demonstrate that previously published approaches cannot adequately compensate for the drift effect because of their unrealistic training setups."
+> "Within different experiments, we demonstrate that several existing methods for sensor drift compensation are ineffective in learning the drift and, therefore, fail when the conventional validation setting is slightly modified. We demonstrate that previously published approaches cannot adequately compensate for the drift effect because of their unrealistic training setups." [EN]
 
 ### 关于漂移来源（第57行）
 
-> "Sensor drift is prevalent in industry, autonomous driving, and intelligent systems with integrated sensors...This phenomenon occurs due to factors such as poisoning or environmental changes, sensor aging, and mechanical wear, leading to progressively inaccurate sensor readings."
+> "Sensor drift is prevalent in industry, autonomous driving, and intelligent systems with integrated sensors...This phenomenon occurs due to factors such as poisoning or environmental changes, sensor aging, and mechanical wear, leading to progressively inaccurate sensor readings." [EN]
 
 ### 关于SVM核函数选择（第337行）
 
-> "The effectiveness of the linear kernel with an Accuracy of 0.97 implies that a significant portion of the sensor drift can be explained by linear relationships between features and classes. On the other hand, the slightly better performance of the RBF kernel with an Accuracy of 0.98 indicates that there are also additional non-linearities in the data."
+> "The effectiveness of the linear kernel with an Accuracy of 0.97 implies that a significant portion of the sensor drift can be explained by linear relationships between features and classes. On the other hand, the slightly better performance of the RBF kernel with an Accuracy of 0.98 indicates that there are also additional non-linearities in the data." [EN]
 
 **说明**：此处的"linear"和"non-linear"指的是SVM核函数类型，用于评估漂移补偿任务是否需要非线性分类器，而非讨论传感器本身的线性测量范围。
 

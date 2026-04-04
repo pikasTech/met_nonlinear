@@ -79,39 +79,27 @@ TFKAN包含三个主要组件：
 
 ### 4.1 频域KAN的首创性
 
-> "We propose the frequency-domain KAN, a novel approach that enables the model to capture prominent periodic patterns in the frequency domain. To the best of our knowledge, this is the first work to directly apply KAN in the frequency domain for time series forecasting."
-
-**出处**：第81行
+> **第81行[EN]**: "We propose the frequency-domain KAN, a novel approach that enables the model to capture prominent periodic patterns in the frequency domain. To the best of our knowledge, this is the first work to directly apply KAN in the frequency domain for time series forecasting."
 
 ### 4.2 KAN vs MLP在周期函数逼近中的优势
 
-> "Results in Fig. 1 show that KAN consistently yields smoother and more accurate reconstructions. Because a Fourier transform maps multi-harmonic signals to sparse, localised spectral peaks, the observed advantage suggests that KAN's B-spline bases naturally adapt around those peaks."
-
-**出处**：第43行
+> **第43行[EN]**: "Results in Fig. 1 show that KAN consistently yields smoother and more accurate reconstructions. Because a Fourier transform maps multi-harmonic signals to sparse, localised spectral peaks, the observed advantage suggests that KAN's B-spline bases naturally adapt around those peaks."
 
 ### 4.3 频域与时域的互补性
 
-> "The frequency domain complements the time domain by providing insights into recurring cycles, periodicities, and spectral distributions that are critical for understanding long-term patterns."
-
-**出处**：第29行
+> **第29行[EN]**: "The frequency domain complements the time domain by providing insights into recurring cycles, periodicities, and spectral distributions that are critical for understanding long-term patterns."
 
 ### 4.4 周期性模式在频域更显著
 
-> "Recent studies have shown that periodic patterns are often more salient and interpretable in the frequency domain."
-
-**出处**：第29行
+> **第29行[EN]**: "Recent studies have shown that periodic patterns are often more salient and interpretable in the frequency domain."
 
 ### 4.5 双分支架构
 
-> "TFKAN employs a dual-branch architecture that independently processes features from the time and frequency domains. This design ensures the full utilization of the unique characteristics of each domain while preventing interference between them."
-
-**出处**：第85行
+> **第85行[EN]**: "We introduce a dual-branch architecture TFKAN that independently processes features from the time and frequency domains. This design ensures the full utilization of the unique characteristics of each domain while preventing interference between them."
 
 ### 4.6 维度调整策略
 
-> "For the frequency branch, the historical data is multiplied by a learnable weight vector $\mathcal{W} \in \mathbb{R}^{1 \times d}$, producing hidden representations enriched with frequency-specific information. For the time branch, the original input remains unchanged to preserve the temporal structure and efficient processing."
-
-**出处**：第203行
+> **第203行[EN]**: "For the frequency branch, the historical data is multiplied by a learnable weight vector $\mathcal{W} \in \mathbb{R}^{1 \times d}$, producing hidden representations enriched with frequency-specific information. For the time branch, the original input remains unchanged to preserve the temporal structure and efficient processing."
 
 ## 5. 方法论总结
 

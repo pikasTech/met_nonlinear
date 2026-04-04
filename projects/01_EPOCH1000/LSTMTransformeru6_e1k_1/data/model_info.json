@@ -1,0 +1,284 @@
+{
+    "model_type": "LSTMTransformer",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 1261,
+    "trainable_params": 1261,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "lstm_backbone",
+            "type": "LSTM",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 192
+        },
+        {
+            "name": "transformer_context_pool_0",
+            "type": "AveragePooling1D",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_mha_0",
+            "type": "MultiHeadAttention",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 168
+        },
+        {
+            "name": "transformer_dropout_attn_0",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "tf.__operators__.add",
+            "type": "TFOpLambda",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_ln_attn_0",
+            "type": "LayerNormalization",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 12
+        },
+        {
+            "name": "transformer_ffn_expand_0",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 168
+        },
+        {
+            "name": "transformer_dropout_ffn_0",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_ffn_project_0",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 150
+        },
+        {
+            "name": "tf.__operators__.add_1",
+            "type": "TFOpLambda",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_ln_ffn_0",
+            "type": "LayerNormalization",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 12
+        },
+        {
+            "name": "transformer_context_pool_1",
+            "type": "AveragePooling1D",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_mha_1",
+            "type": "MultiHeadAttention",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 168
+        },
+        {
+            "name": "transformer_dropout_attn_1",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "tf.__operators__.add_2",
+            "type": "TFOpLambda",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_ln_attn_1",
+            "type": "LayerNormalization",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 12
+        },
+        {
+            "name": "transformer_ffn_expand_1",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 168
+        },
+        {
+            "name": "transformer_dropout_ffn_1",
+            "type": "Dropout",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_ffn_project_1",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 150
+        },
+        {
+            "name": "tf.__operators__.add_3",
+            "type": "TFOpLambda",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "transformer_ln_ffn_1",
+            "type": "LayerNormalization",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 12
+        },
+        {
+            "name": "post_dense",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "trainable": true,
+            "num_params": 42
+        },
+        {
+            "name": "output",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 7
+        }
+    ]
+}

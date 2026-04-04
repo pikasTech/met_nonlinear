@@ -111,6 +111,8 @@ def create_external_template(ep_path: ExternalPath) -> None:
         template = _create_waveform_analysis_template(ep_path)
     elif ep_path.task_type == 'wnet5-circuit-validation':
         template = _create_wnet5_circuit_validation_template(ep_path)
+    elif ep_path.task_type == 'qemu-c-inference':
+        template = _create_qemu_c_inference_template(ep_path)
     elif ep_path.task_type == 'ablation-study':
         template = _create_ablation_study_template(ep_path)
     else:
@@ -164,6 +166,56 @@ def _create_wnet5_circuit_validation_template(ep_path: ExternalPath) -> dict:
         "frequency_range": {
             "start_freq": 0.1,
             "stop_freq": 1000
+        }
+    }
+
+
+def _create_qemu_c_inference_template(ep_path: ExternalPath) -> dict:
+    """创建 QEMU C 推理模板。"""
+    return {
+        "task_info": {
+            "task_type": "qemu-c-inference",
+            "description": "自动识别模型类型并执行 C/TF26 波形一致性验证"
+        },
+        "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+        "weights_file": "best_val.weights.json",
+        "generation_config": {
+            "project_dir": "qemu_project",
+            "overwrite": True,
+            "lut_points": 513,
+            "lut_interpolation": False
+        },
+        "benchmark_config": {
+            "iterations": 10,
+            "reset_state_each_run": True,
+            "repeat_runs": 1
+        },
+        "validation_config": {
+            "dataset": {
+                "source_project_config": "projects/LSTMu16/config.json",
+                "dataset_type": "MET",
+                "data_path": "data/M50",
+                "sample_rate": 2000,
+                "time_clipped_s": 4.0,
+                "target_sweep": 2,
+                "feature_range": [-1, 1],
+                "use_scale": True,
+                "use_cache_features": True
+            },
+            "selection": {
+                "magnitudes": [0.24],
+                "frequencies": [10.0],
+                "start_time_s": 0.0,
+                "end_time_s": 0.2
+            },
+            "wave_output": {
+                "compress": True
+            }
+        },
+        "qemu_config": {
+            "action": "build-run",
+            "machine": "olimex-stm32-h405",
+            "timeout": 5
         }
     }
 
@@ -306,6 +358,8 @@ def _execute_task(ep_path: ExternalPath) -> bool:
             return _execute_waveform_analysis_task(ep_path, validated_config)
         elif ep_path.task_type == 'wnet5-circuit-validation':
             return _execute_wnet5_circuit_validation_task(ep_path, validated_config)
+        elif ep_path.task_type == 'qemu-c-inference':
+            return _execute_qemu_c_inference_task(ep_path, validated_config)
         elif ep_path.task_type in ('ablation-study', 'compare'):
             return _execute_ablation_study_task(ep_path, validated_config)
         else:
@@ -596,9 +650,11 @@ ep 命令使用说明：
 
 支持的任务类型：
   - freq-response-compare: 频率响应对比
+    - freq-response-compensator: 补偿器频率响应差分绘图
   - bias-visualization: 偏置可视化
   - waveform-analysis: 波形分析
   - wnet5-circuit-validation: WNET5电路验证
+    - qemu-c-inference: 从 LSTM 权重生成 QEMU C 工程并做推理耗时测试
   - data-analysis: 数据分析
   - model-export: 模型导出
   - performance-benchmark: 性能基准测试
@@ -631,6 +687,21 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
         return False
     except Exception as e:
         logger.error(f"WNET5电路验证任务执行失败: {e}")
+        return False
+
+
+def _execute_qemu_c_inference_task(ep_path: ExternalPath, config: dict) -> bool:
+    """执行自动识别模型类型的 QEMU C 推理任务。"""
+    try:
+        from .lstm_qemu_ep_task import execute_qemu_inference_task
+
+        logger.info(f"执行 QEMU C 推理任务: {ep_path.task_name}")
+        return execute_qemu_inference_task(ep_path, config)
+    except ImportError as e:
+        logger.error(f"无法导入 QEMU C 推理模块: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"QEMU C 推理任务执行失败: {e}")
         return False
 
 

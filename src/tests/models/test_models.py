@@ -320,6 +320,72 @@ class TestRNN:
         assert isinstance(rnn_model.model, keras.Model)
 
 
+class TestLSTMTransformer:
+    """Test cases for LSTMTransformer model class."""
+
+    @pytest.fixture
+    def lstm_transformer_model(self):
+        """Create an LSTMTransformer model instance for testing."""
+        from models.base_models import LSTMTransformer
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = LSTMTransformer(
+                lstm_units=16,
+                activation='tanh',
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                model_subcfg={
+                    'lstm_dropout': 0.0,
+                    'transformer_num_heads': 4,
+                    'transformer_ff_dim': 32,
+                    'transformer_layers': 2,
+                    'transformer_dropout': 0.0,
+                    'attention_pool_size': 4,
+                    'dense_units': 16,
+                    'dense_activation': 'relu',
+                }
+            )
+            yield model
+
+    def test_lstm_transformer_initialization(self, lstm_transformer_model):
+        """Test LSTMTransformer model initialization."""
+        assert lstm_transformer_model.model_name == 'LSTMTransformer'
+        assert lstm_transformer_model.fs == 2000
+
+    def test_lstm_transformer_shapes(self, lstm_transformer_model):
+        """Test LSTMTransformer model input and output shapes."""
+        assert lstm_transformer_model.model.input_shape == (None, None, 1)
+        assert lstm_transformer_model.model.output_shape == (None, None, 1)
+
+    def test_lstm_transformer_invalid_heads(self):
+        """Test LSTMTransformer validates head divisibility."""
+        from models.base_models import LSTMTransformer
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pytest.raises(ValueError) as exc_info:
+                LSTMTransformer(
+                    lstm_units=10,
+                    checkpoint_dir=tmpdir,
+                    model_subcfg={'transformer_num_heads': 3}
+                )
+
+        assert '必须能被 transformer_num_heads' in str(exc_info.value)
+
+    def test_lstm_transformer_invalid_pool_size(self):
+        """Test LSTMTransformer validates attention pool size."""
+        from models.base_models import LSTMTransformer
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pytest.raises(ValueError) as exc_info:
+                LSTMTransformer(
+                    lstm_units=16,
+                    checkpoint_dir=tmpdir,
+                    model_subcfg={'attention_pool_size': 0}
+                )
+
+        assert 'attention_pool_size 必须大于 0' in str(exc_info.value)
+
+
 class TestWaveNet:
     """Test cases for WaveNet model class."""
 

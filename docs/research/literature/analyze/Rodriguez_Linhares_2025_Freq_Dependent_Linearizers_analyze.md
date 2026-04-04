@@ -84,7 +84,7 @@
 >
 > 中文翻译：通常假设ADI非线性失真可以建模为在采样之后发生。如果非线性失真在采样之前发生，则会出现问题。
 
-> 来源文件第65行：
+> 来源文件第65-67行：
 > "a design procedure is proposed in which the parameters (filter coefficients) are obtained through matrix inversion"
 >
 > 中文翻译：提出了一种设计过程，其中通过矩阵求逆获得参数(滤波器系数)。

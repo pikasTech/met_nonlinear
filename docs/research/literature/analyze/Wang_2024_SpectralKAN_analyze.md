@@ -42,12 +42,12 @@
 **论文证明了什么**：
 - WKAN可显著减少参数数量和FLOPs（原文第309行）："a single WKAN layer has approximately n times fewer NP and FLOPs compared to a single KAN layer"
 - MTSF可进一步减少计算量（原文第339行）："The MTSF reduces the NP and FLOPs to approximately (1/b + 1/hw) of those in WKANs"
-- KAN在低维数据上具有效率优势（原文第61行）："KANs require fewer layers to achieve superior feature extraction for low-dimensional data"
+- KAN在低维数据上具有效率优势（原文第55行）："KANs require fewer layers to achieve superior feature extraction for low-dimensional data"（但该优势以per-layer更高参数为代价，且KAN在高维数据上存在劣势）[EN]
 - SpectralKAN在Farmland数据集上OA达到0.9801，Kappa达到0.9514（原文第49行）
 - SpectralKAN仅使用8k参数、0.07M FLOPs、911MB内存（原文第49行）
 - 训练时间13.26秒，测试时间2.52秒（原文第49行）
 - WKAN通过加权激活分布减少冗余信息提取（原文第105-107行）："reduce the number of activation functions per node, use weights to control their size, and distribute activation values to different output nodes"
-- KAN在高维数据处理时参数和FLOPs大幅增加（原文第83行）："KANs utilize a mechanism that involves multiple activations of one input node, leading to a substantial increase in NP and FLOPs for high-dimensional data"
+- KAN在高维数据处理时参数和FLOPs大幅增加（原文第72行）："KANs utilize a mechanism that involves multiple activations of one input node, leading to a substantial increase in NP and FLOPs for high-dimensional data"[EN]
 - WKANs的激活机制允许在不影响准确性的情况下减少参数（原文第309行）："The activation mechanism in WKANs allows them to reduce the NP without compromising accuracy"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
@@ -60,8 +60,8 @@
 | 引用位置 | 内容摘要 |
 |---------|---------|
 | 第49行 | Farmland数据集性能：OA 0.9801, Kappa 0.9514, 8k参数, 0.07M FLOPs, 911MB内存, 13.26s训练, 2.52s测试 |
-| 第61行 | KAN在低维数据上的效率优势 |
-| 第83行 | KAN在高维数据上NP和FLOPs大幅增加 |
+| 第55行 | KAN需要更少层实现低维数据特征提取，但高维数据处理能力有限（效率优势以per-layer更高参数为代价，且存在高维数据劣势）[EN] |
+| 第72行 | KAN利用多激活机制导致高维数据NP和FLOPs大幅增加[EN] |
 | 第101行 | SpectralKAN在准确性和效率上优于最先进方法 |
 | 第105-107行 | WKAN减少激活函数数量，使用权重控制大小 |
 | 第109-111行 | MTSF通过沿不同维度分离张量来解决结构信息丢失 |
@@ -82,8 +82,10 @@
 
 ### 段落3（关于KAN效率特性）
 
-> "KANs require fewer layers to achieve superior feature extraction for low-dimensional data. This leads to a lower overall number of parameters (NP), fewer floating-point operations (FLOPs), reduced GPU memory usage (Memory), shorter training time (TraT) and testing time (TesT)."
-> （第61行）
+> "Although a single KAN layer with the same number of nodes contains significantly more parameters than an MLP layer, KANs require fewer layers to achieve superior feature extraction for low-dimensional data. This leads to a lower overall number of parameters (NP), fewer floating-point operations (FLOPs), reduced GPU memory usage (Memory), shorter training time (TraT) and testing time (TesT). However, KANs fail to perform well in handling high-dimensional data, such as hyperspectral image change detection."
+> （第55行）[EN]
+
+**注意**：该段落的效率优势描述以per-layer更高参数为代价，且紧接着指出KAN在高维数据上的劣势，分析时需同时考虑这两方面。
 
 ## 与其他已分析论文的关联
 

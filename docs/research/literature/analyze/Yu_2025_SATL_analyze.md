@@ -25,8 +25,8 @@
 - **Line 366 (Equation 8)**: Frequency domain loss definition.
   > "L_freq = (1/sqrt(T)) (L_dom + L_noise)"
 
-- **Lines 333-335**: FFT is used to capture periodic patterns.
-  > "The transformation to the frequency domain is performed using the Fast Fourier Transform (FFT)... we select the top-k frequencies from FFT(y), where k is proportional to the sequence length."
+- **Lines 335-337**: FFT is used to capture periodic patterns.
+   > "The transformation to the frequency domain is performed using the Fast Fourier Transform (FFT)... we select the top-k frequencies from FFT(y), where k is proportional to the sequence length."
 
 - **Lines 501-503**: Shows SATL outperforms MSE-trained models.
   > "models trained with SATL consistently achieve superior performance compared to MSE-trained models across all datasets and metrics."
@@ -51,7 +51,7 @@ The paper compares SATL (which includes FFT-based loss) with other loss function
 
 ## 关键引文与行号
 
-1. **Lines 333-335**: FFT for frequency transformation.
+1. **Lines 335-337**: FFT for frequency transformation.
    > "The transformation to the frequency domain is performed using the Fast Fourier Transform (FFT)... we select the top-k frequencies from FFT(y), where k is proportional to the sequence length."
 
 2. **Line 344 (Equation 6)**: Dominant frequency loss.
@@ -66,7 +66,7 @@ The paper compares SATL (which includes FFT-based loss) with other loss function
 5. **Lines 501-503**: SATL outperforms MSE.
    > "models trained with SATL consistently achieve superior performance compared to MSE-trained models across all datasets and metrics."
 
-6. **Lines 509-515**: Comparison with other losses.
+6. **Lines 509-513**: Comparison with other losses.
    > "we compare SATL against various baseline loss functions: MSE, MAE, Root Mean Squared Error(RMSE) and TILDE-Q."
 
 ## 结论汇总表

@@ -73,6 +73,14 @@ def _run_ep_subcommand(args) -> None:
     handle_ep_command(args)
 
 
+def _run_qemu_subcommand(args) -> None:
+    """处理 QEMU 子命令，避免加载重型依赖。"""
+    from core.qemu_cli import handle_qemu_command
+
+    exit_code = handle_qemu_command(args)
+    sys.exit(exit_code)
+
+
 def _run_main_commands(args) -> None:
     """处理非 ep 的主命令，按原顺序加载重型依赖。"""
     # 第二阶段：环境检查（在重型依赖导入前）
@@ -82,6 +90,12 @@ def _run_main_commands(args) -> None:
     except Exception:
         # 环境检查模块缺失不阻塞主流程
         pass
+
+    try:
+        from utils.cuda_preflight import prepare_cuda_visible_devices
+        prepare_cuda_visible_devices(logger)
+    except Exception as exc:
+        logger.warning(f'CUDA preflight failed, continuing with default GPU visibility: {exc}')
 
     # 第三阶段：依赖导入（保持原有导入顺序）
     from models.base_models import ModelEvent, ModelEventType
@@ -111,6 +125,10 @@ if __name__ == '__main__':
     # 子命令优先，若是 ep 则不导入任何重型模块
     if getattr(args, 'command', None) == 'ep':
         _run_ep_subcommand(args)
+        sys.exit(0)
+
+    if getattr(args, 'command', None) == 'qemu':
+        _run_qemu_subcommand(args)
         sys.exit(0)
 
     # 测试命令（不加载重型依赖）

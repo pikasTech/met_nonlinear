@@ -79,7 +79,7 @@
 
 **论文证明了什么**：
 - LUT计算可以实现极低的推理延迟（<20ns）（原文第105行）："On FPGA, the framework achieves inference times under 20 ns while maintaining the following test accuracies: CIFAR-10: 72.3%"
-- LUT-based网络可以用更少的硬件资源达到竞争准确率（原文第105行）："CIFAR-10: 72.3%, ... while attaining sub-20 ns single-sample inference using only LUT resources"
+- LUT-based网络可以用更少的硬件资源达到竞争准确率（原文第57行）："CIFAR-10: 72.3%, ... while attaining sub-20 ns single-sample inference using only LUT resources"
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的FPGA硬件-算法协同设计思路对FRIKAN/Wiener-KAN的硬件实现有参考价值

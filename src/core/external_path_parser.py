@@ -46,6 +46,7 @@ class ExternalPathParser:
         'bias-visualization', 
         'waveform-analysis',
         'wnet5-circuit-validation',
+        'qemu-c-inference',
         'data-analysis',
         'model-export',
         'performance-benchmark',
@@ -337,6 +338,25 @@ class ExternalPathParser:
         """通用路径解析 - 支持任何路径格式"""
         parts = path_str.split('/')
 
+        # 处理 ex_projects/inference/{task_type}/{task_name} 与 ex_projects/visualization/{task_type}/{task_name}
+        if (len(parts) >= 4 and parts[0] in {'ex_projects', 'ep_projects'} and
+                parts[1] in {'inference', 'visualization'} and
+                parts[2] in self.SUPPORTED_TASK_TYPES):
+            task_type = parts[2]
+            task_name = parts[3]
+            project_name = task_name
+            full_path = Path(self.base_dir) / path_str
+            config_path = full_path / 'config.json'
+            output_path = full_path / 'data'
+            return ExternalPath(
+                project_name=project_name,
+                task_type=task_type,
+                task_name=task_name,
+                config_path=config_path,
+                output_path=output_path,
+                full_path=full_path
+            )
+
         # 处理 compare/{task_name} 短格式 (自动转换为 ex_projects/compare/{task_name})
         if len(parts) == 2 and parts[0] in self.SUPPORTED_TASK_TYPES:
             task_type = parts[0]
@@ -355,7 +375,7 @@ class ExternalPathParser:
             )
 
         # 处理 ex_projects/{task_type}/{task_name} 格式 (如 ex_projects/compare/mae_vs_afmae)
-        if len(parts) >= 3 and parts[0] == 'ex_projects' and parts[1] in self.SUPPORTED_TASK_TYPES:
+        if len(parts) >= 3 and parts[0] in {'ex_projects', 'ep_projects'} and parts[1] in self.SUPPORTED_TASK_TYPES:
             task_type = parts[1]
             task_name = parts[2]
             project_name = task_name

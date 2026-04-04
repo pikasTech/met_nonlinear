@@ -45,16 +45,16 @@
 
 **KAN效率特性**:
 - 第29-31行: "KANs通过在网络边缘放置可学习的单变量函数——通常实现为B样条——为MLP提供了一种紧凑的替代方案，以更少的参数实现有竞争力的准确率"
-- 第573-578行: 讨论了LUT编译如何解决KAN的CPU推理效率瓶颈
+- 第315-325行: 讨论了LUT编译如何解决KAN的CPU推理效率瓶颈
 
 **关键引文**:
-> **第9行**: "After LUT compilation with resolution L = 8, the model maintains 98.96% accuracy (F1 degradation < 0.0004) while achieving 68× speedup at batch size 256 and over 5000× speedup at batch size 1"
+> **第9行[EN]**: "After LUT compilation with resolution L = 8, the model maintains 98.96% accuracy (F1 degradation < 0.0004) while achieving 68× speedup at batch size 256 and over 5000× speedup at batch size 1"
 > (在以L=8分辨率进行LUT编译后，该模型保持了98.96%的准确率(F1下降<0.0004)，在批量大小为256时实现了68×的加速，在批量大小为1时实现了超过5000×的加速。)
 
-> **第29-31行**: "KANs offer a promising alternative by leveraging the Kolmogorov-Arnold representation theorem. Unlike Multi-Layer Perceptrons (MLPs) that apply fixed activation functions at nodes, KANs place learnable univariate functions-typically implemented as B-splines-on network edges."
+> **第29-31行[EN]**: "KANs offer a promising alternative by leveraging the Kolmogorov-Arnold representation theorem. Unlike Multi-Layer Perceptrons (MLPs) that apply fixed activation functions at nodes, KANs place learnable univariate functions-typically implemented as B-splines-on network edges."
 > (KANs通过利用Kolmogorov-Arnold表示定理提供了一种有前景的替代方案。与在节点上应用固定激活函数的多层感知器(MLPs)不同，KANs在网络边缘放置可学习的单变量函数——通常实现为B样条。)
 
-> **第33-35行**: "runtime B-spline evaluation requires iterative knot interval search, recursive basis function computation, and coefficient aggregation for each input dimension-operations that dominate inference time on CPU architectures common in IoT gateways."
+> **第33-35行[EN]**: "runtime B-spline evaluation requires iterative knot interval search, recursive basis function computation, and coefficient aggregation for each input dimension-operations that dominate inference time on CPU architectures common in IoT gateways."
 > (运行时B样条评估需要对每个输入维度进行迭代节点区间搜索、递归基函数计算和系数聚合——这些操作在物联网网关中常见的CPU架构上主导推理时间。)
 
 ## GAP支撑结论

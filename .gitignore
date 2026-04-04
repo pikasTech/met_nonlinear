@@ -62,3 +62,14 @@ tmp**
 temp**
 .tmp**
 .temp**
+
+# QEMU build and run artifacts
+**/*.elf
+**/*.dtb
+**/serial*
+**/semiout*
+**/stderr*
+**/stdout*
+**/uart_out*
+**/output*
+**/qemu_out*

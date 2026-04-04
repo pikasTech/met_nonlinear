@@ -43,6 +43,16 @@
 - 剩余时间预测
 - 验证 loss 追踪
 
+## GPU 选择与恢复
+
+训练命令在导入 TensorFlow 之前会执行 CUDA 预检查：
+
+- 多卡健康时，默认优先级为 `RTX 2080 Ti > RTX 3090 > 其他 GPU`
+- 检测到 `GPU is lost` 时，会自动屏蔽异常 GPU 或回退 CPU
+- 当设备进入 `已断开连接` 状态时，应转向设备级重启、冷启动或硬件排查
+
+详见 [docs/reference/gpu_recovery.md](docs/reference/gpu_recovery.md)。
+
 ## 相关命令
 
 - `python cli.py -e PROJECT_NAME` - 评估已训练模型

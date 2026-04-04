@@ -1,0 +1,290 @@
+{
+  "task_type": "qemu-c-inference",
+  "model_type": "lstm",
+  "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+  "weights_json_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.json",
+  "loaded_weights_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.h5",
+  "generated_project_dir": "ex_projects/inference/qemu-c-inference/lstm_u16_base/qemu_project",
+  "benchmark_config": {
+    "iterations": 10,
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "validation": {
+    "dataset": {
+      "dataset_type": "MET",
+      "full_data_path": "F:\\BaiduSyncdisk\\data/M50",
+      "sample_rate": 2000.0
+    },
+    "selection": {
+      "start_time_s": 0.0,
+      "end_time_s": 0.2,
+      "sample_count": 400
+    },
+    "record_count": 1,
+    "seq_len": 400
+  },
+  "qemu_config": {
+    "action": "build-run",
+    "machine": "olimex-stm32-h405",
+    "timeout": 5
+  },
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/target_output.wave",
+    "c_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output.wave",
+    "tf_input_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_input_scaled.wave",
+    "tf_lstm_hidden_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_lstm_hidden.wave",
+    "tf_dense_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_dense_output.wave",
+    "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output_scaled.wave",
+    "c_dense_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_dense_output.wave",
+    "c_input_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_input_scaled.wave",
+    "c_lstm_hidden_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_lstm_hidden.wave",
+    "c_output_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output_scaled.wave"
+  },
+  "build": {
+    "action": "build",
+    "exit_code": 0,
+    "project": {
+      "project_dir": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project",
+      "output_elf": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.elf",
+      "linker_script": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\stm32f405.ld",
+      "source_files": [
+        "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.c",
+        "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\startup.c"
+      ]
+    },
+    "build": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 0.3314135,
+      "timed_out": false
+    }
+  },
+  "runs": [
+    {
+      "run_index": 0,
+      "workflow": {
+        "action": "run",
+        "exit_code": 0,
+        "project": {
+          "project_dir": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project",
+          "output_elf": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.elf",
+          "linker_script": "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\stm32f405.ld",
+          "source_files": [
+            "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\main.c",
+            "ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\qemu_project\\startup.c"
+          ]
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "LSTM_QEMU_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nlstm_units=16\ndense_units=16\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.017555\nbenchmark_complete=1\n",
+          "stderr": "",
+          "elapsed_seconds": 0.7148281000000001,
+          "timed_out": false
+        }
+      },
+      "parsed_output": {
+        "iterations": 10,
+        "record_count": 1,
+        "seq_len": 400,
+        "input_dim": 1,
+        "lstm_units": 16,
+        "dense_units": 16,
+        "dwt_supported": 0,
+        "timer_source": "host_elapsed",
+        "output": -0.017555,
+        "benchmark_complete": 1,
+        "measurement_unit": "seconds",
+        "measurement_total": 0.7148281000000001,
+        "measurement_per_iter": 0.07148281000000001
+      }
+    }
+  ],
+  "aggregated": {
+    "run_count": 1,
+    "avg_host_elapsed_seconds": 0.7148281000000001,
+    "avg_measurement_per_iter": 0.07148281000000001,
+    "measurement_sources": [
+      "host_elapsed"
+    ]
+  },
+  "validation_run": {
+    "workflow": {
+      "exit_code": 0,
+      "timed_out": false,
+      "elapsed_seconds": 0.9995056999999985
+    },
+    "parsed_output": {
+      "iterations": 10,
+      "record_count": 1,
+      "seq_len": 400,
+      "input_dim": 1,
+      "lstm_units": 16,
+      "dense_units": 16,
+      "dwt_supported": 0,
+      "timer_source": "host_elapsed",
+      "output": -0.017555,
+      "benchmark_complete": 1,
+      "measurement_unit": "seconds",
+      "measurement_total": 0.9995056999999985,
+      "measurement_per_iter": 0.09995056999999985
+    },
+    "comparison": {
+      "record_count": 1,
+      "sample_count": 400,
+      "mae": 0.0006196652730802063,
+      "max_abs_error": 0.0021807556428909275,
+      "c_output_stats": {
+        "min": -0.281485,
+        "max": 0.011271,
+        "mean": -0.005701469999999999,
+        "energy": 0.49503338256799995
+      },
+      "tf_output_stats": {
+        "min": -0.28158947825431824,
+        "max": 0.009693564847111702,
+        "mean": -0.00625782411034379,
+        "energy": 0.49513696734643714
+      },
+      "diff_stats": {
+        "min": -0.0018231298549175254,
+        "max": 0.0021807556428909275,
+        "mean": 0.0005563541103437905,
+        "energy": 0.00018897486113085375
+      }
+    },
+    "intermediate_comparison": {
+      "dense_output": {
+        "record_count": 1,
+        "sample_count": 6400,
+        "channel_count": 16,
+        "mae": 3.4246398555310435e-05,
+        "max_abs_error": 0.00030125635081529583,
+        "c_output_stats": {
+          "min": 0.0,
+          "max": 0.038134,
+          "mean": 0.00515628265625,
+          "energy": 0.865599708835
+        },
+        "tf_output_stats": {
+          "min": 0.0,
+          "max": 0.037919968366622925,
+          "mean": 0.005167054691264638,
+          "energy": 0.8634611380611052
+        },
+        "diff_stats": {
+          "min": -0.00030125635081529583,
+          "max": 0.00021416412162780785,
+          "mean": -1.0772035014638671e-05,
+          "energy": 4.315080843660858e-05
+        }
+      },
+      "input_scaled": {
+        "record_count": 1,
+        "sample_count": 400,
+        "channel_count": 1,
+        "mae": 5.120575304802974e-07,
+        "max_abs_error": 9.996619786531563e-07,
+        "c_output_stats": {
+          "min": -0.000428,
+          "max": 0.000224,
+          "mean": -9.630000000000001e-06,
+          "energy": 8.32063e-06
+        },
+        "tf_output_stats": {
+          "min": -0.0004282975008797795,
+          "max": 0.00022443246210433803,
+          "mean": -9.583125592217906e-06,
+          "energy": 8.3648113659685e-06
+        },
+        "diff_stats": {
+          "min": -9.996619786531563e-07,
+          "max": 9.98847357168542e-07,
+          "mean": -4.687440778209312e-08,
+          "energy": 1.3815931507548935e-10
+        }
+      },
+      "lstm_hidden": {
+        "record_count": 1,
+        "sample_count": 6400,
+        "channel_count": 16,
+        "mae": 0.00012590530704128822,
+        "max_abs_error": 0.0007150557034015653,
+        "c_output_stats": {
+          "min": -0.038869,
+          "max": 0.026319,
+          "mean": 0.00167328,
+          "energy": 1.103582676344
+        },
+        "tf_output_stats": {
+          "min": -0.03815601393580437,
+          "max": 0.025804366916418076,
+          "mean": 0.0016671488504186982,
+          "energy": 1.0880950190560377
+        },
+        "diff_stats": {
+          "min": -0.0007150557034015653,
+          "max": 0.0005339044743776326,
+          "mean": 6.1311495813017875e-06,
+          "energy": 0.00017149111479596908
+        }
+      },
+      "output_scaled": {
+        "record_count": 1,
+        "sample_count": 400,
+        "channel_count": 1,
+        "mae": 1.1511214098036287e-05,
+        "max_abs_error": 4.141347450017929e-05,
+        "c_output_stats": {
+          "min": -0.005273,
+          "max": 0.000211,
+          "mean": -0.00010687999999999999,
+          "energy": 0.00017367263000000004
+        },
+        "tf_output_stats": {
+          "min": -0.005275494884699583,
+          "max": 0.00018160603940486908,
+          "mean": -0.00011723846662789583,
+          "energy": 0.00017378764760810246
+        },
+        "diff_stats": {
+          "min": -3.371748661994936e-05,
+          "max": 4.141347450017929e-05,
+          "mean": 1.0358466627895832e-05,
+          "energy": 6.506102762212355e-08
+        }
+      }
+    }
+  },
+  "plot_paths": {
+    "comparison_plot_0": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/plots/mag0_24_freq10_comparison.png"
+  },
+  "comparison": {
+    "record_count": 1,
+    "sample_count": 400,
+    "mae": 0.0006196652730802063,
+    "max_abs_error": 0.0021807556428909275,
+    "c_output_stats": {
+      "min": -0.281485,
+      "max": 0.011271,
+      "mean": -0.005701469999999999,
+      "energy": 0.49503338256799995
+    },
+    "tf_output_stats": {
+      "min": -0.28158947825431824,
+      "max": 0.009693564847111702,
+      "mean": -0.00625782411034379,
+      "energy": 0.49513696734643714
+    },
+    "diff_stats": {
+      "min": -0.0018231298549175254,
+      "max": 0.0021807556428909275,
+      "mean": 0.0005563541103437905,
+      "energy": 0.00018897486113085375
+    }
+  },
+  "comparison_path": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/validation_comparison.json"
+}

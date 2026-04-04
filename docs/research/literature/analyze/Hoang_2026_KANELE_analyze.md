@@ -103,7 +103,7 @@
 
 > "A quantized KAN policy with ~5× fewer parameters than an MLP baseline policy achieves higher rewards, underscoring its suitability for resource-constrained, real-time control systems."
 
-**出处**：第125-127行（贡献4详述）
+**出处**：第125行
 
 ### 4.3 2700x延迟降低与4000x资源节省
 
@@ -115,7 +115,7 @@
 
 > "It sustains clock frequencies above 800 MHz across most benchmarks while achieving a state-of-the-art Area × Delay product."
 
-**出处**：第117-119行
+**出处**：第117行
 
 ### 4.5 KAN与LUT的自然适配
 

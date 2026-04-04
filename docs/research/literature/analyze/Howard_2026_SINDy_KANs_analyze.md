@@ -38,14 +38,23 @@ Key innovation: Rather than post-hoc symbolic regression, SINDy-KANs enforce tha
 
 **理由**：GAP6和GAP7讨论的是前馈补偿架构对地震传感器量程提升的影响，与Howard_2026的SINDy-KANs（符号回归+可解释性）研究完全无关。本文是一篇符号回归论文，与频率响应补偿无直接关联。
 
+**声明修正**：Issue回复中声称GAP7"强支撑"是错误的。GAP7定义是"前馈补偿利用非线性区提升量程"，而SINDy-KANs是符号回归方法，与前馈补偿架构完全无关。
+
 ### GAP 支撑评估汇总
 
 | GAP | 支撑评估 | 说明 |
 |-----|---------|------|
+| GAP1 | 无支撑 | 符号回归论文，非误差源分析 |
+| GAP2 | 无支撑 | 符号回归，非非线性补偿 |
+| GAP3 | 无支撑 | 无计算效率分析 |
+| GAP4 | 无支撑 | 无频率响应分析 |
+| GAP5 | 无支撑 | 无温度特性分析 |
 | GAP6 | 无支撑 | GAP6定义：前馈补偿提升量程；本文研究符号回归 |
 | GAP7 | 无支撑 | GAP7定义：利用非线性区提升量程；本文无此内容 |
 | GAP8 | 无支撑 | 无频率域分析 |
 | GAP9 | 无支撑 | 无计算效率声称 |
+| GAP10 | 无支撑 | 无AFMAE相关内容 |
+| GAP11 | 无支撑 | 无KAN/Wiener结构讨论 |
 
 ## 4. 关键原文摘录
 
@@ -59,7 +68,7 @@ Key innovation: Rather than post-hoc symbolic regression, SINDy-KANs enforce tha
 > "The coefficients Ξ_S should be sparse, so ||Ξ_S||_1 is minimized." (第297行)
 
 ### 与pykan对比
-> "pykan struggles to learn the composition of functions...pykan misses the x² term, resulting in larger errors overall." (第379行)
+> "pykan struggles to learn the composition of functions...pykan misses the x² term, resulting in larger errors overall." (第379、387行)
 
 ### KAN与MLP对比（背景）
 > "Unlike MLPs, which use fixed activation functions with trainable weights, KANs use trainable activation functions." (第95行)

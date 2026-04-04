@@ -18,7 +18,7 @@
 
 **主要发现**：
 - KAN和MLP在函数空间中表示等价，但基于梯度的训练产生根本不同的权重演化
-- 多通道MLP公式强烈优先考虑在样条节点上训练平滑函数（第19行）
+- 多通道MLP公式强烈优先考虑在样条节点上训练平滑函数（第85行）
 - 多级训练方法在函数回归和物理信息神经网络（PINN）上实现了数量级的精度提升
 
 ## GAP 关联分析
@@ -38,8 +38,8 @@
 ### 直接支持
 
 **论文证明了什么**：
-- KAN与多通道MLP通过基变换等价（原文第260行引理3）："A single layer of a KAN... is equivalent to a single layer of a multichannel MLP"
-- 样条基与ReLU基之间的变换矩阵与样条节点上r阶导数的有限差分近似精确匹配（原文第277行引理4）
+- KAN与多通道MLP通过基变换等价（原文第213行引理3）："A single layer of a KAN... is equivalent to a single layer of a multichannel MLP"
+- 样条基与ReLU基之间的变换矩阵与样条节点上r阶导数的有限差分近似精确匹配（原文第237行引理4）
 - 多级训练可实现数量级的精度提升（原文第17行）："multilevel training approach can achieve orders of magnitude improvement in accuracy"
 - KAN比MLP更适合捕捉低正则性解和映射（原文第49行）："KANs are known for being able to better capture low-regularity solutions and mappings than traditional MLPs"
 
@@ -55,36 +55,32 @@
 | 第17行 | Abstract：多级训练通过利用KAN结构实现训练加速，包含"orders of magnitude improvement in accuracy" |
 | 第25行 | 引言：MLP是经典深度学习架构，利用仿射映射与非线性激活函数组合 |
 | 第49行 | KAN比MLP更好捕捉低正则性解和映射 |
-| 第61行 | 贡献1：利用KAN与多通道MLP关系引入基变换映射 |
+| 第61行 | 第5节：贡献1：利用KAN与多通道MLP关系引入基变换映射 |
 | 第65行 | 贡献2：分析基变换如何改变梯度下降动态 |
 | 第69行 | 贡献3：引入适当嵌套层次结构用于多级优化 |
-| 第93行 | 2.1节：多级训练在函数回归和PINN上验证效果（"orders of magnitude"在第17行Abstract） |
-| 第186行(引理1) | B样条基和ReLU基都是S_r(T)的基 |
-| 第260行(引理3) | KAN单层与多通道MLP等价 |
-| 第277行(引理4) | 基变换矩阵与有限差分近似匹配 |
-| 第323行 | 微分算子特征值与傅里叶频率直接相关 |
+| 第93行 | 第5节：多级训练在函数回归和PINN上验证效果（"orders of magnitude"在第17行Abstract） |
+| 第137行(引理1) | B样条基和ReLU基都是S_r(T)的基 |
+| 第213行(引理3) | KAN单层与多通道MLP等价 |
+| 第237行(引理4) | 基变换矩阵与有限差分近似匹配 |
+| 第293行 | 微分算子特征值与傅里叶频率直接相关 |
 
 ## 关键原文段落摘录
 
 ### 段落1（KAN与MLP等价性）
 
-> "A single layer of a KAN in the form of (6), with weight three-tensor ${\widetilde{W}}^{(\ell)}$, is equivalent to a single layer of a multichannel MLP in the form of (7) with weight three-tensor ${W}^{(\ell)} = {\widetilde{W}}^{(\ell)} \times_3 {(A^{[r]})}^T$."
-> （第260行，引理3）
+> **第213行[EN]**: "A single layer of a KAN in the form of (6), with weight three-tensor ${\widetilde{W}}^{(\ell)}$, is equivalent to a single layer of a multichannel MLP in the form of (7) with weight three-tensor ${W}^{(\ell)} = {\widetilde{W}}^{(\ell)} \times_3 {(A^{[r]})}^T$."
 
 ### 段落2（基变换与微分算子）
 
-> "Up to constant scaling by $\pm {(r-1)!/h}$, ${A}^{[r]}$ is a forward finite difference approximation of the $r$th derivative on a 1d uniform grid of mesh spacing $h$."
-> （第277行，引理4）
+> **第237行[EN]**: "Up to constant scaling by $\pm {(r-1)!/h}$, ${A}^{[r]}$ is a forward finite difference approximation of the $r$th derivative on a 1d uniform grid of mesh spacing $h$."
 
 ### 段落3（多级训练效果）
 
-> "Numerical experiments demonstrate that our multilevel training approach can achieve orders of magnitude improvement in accuracy over conventional methods to train comparable KANs or MLPs, particularly for physics informed neural networks."
-> （第17行/第93行）
+> **第17行[EN]**: "Numerical experiments demonstrate that our multilevel training approach can achieve orders of magnitude improvement in accuracy over conventional methods to train comparable KANs or MLPs, particularly for physics informed neural networks."
 
 ### 段落4（KAN优化特性）
 
-> "KANs are known for (i) being more interpretable, as the model output consists of analytical functional composition, and (ii) being able to better capture low-regularity solutions and mappings than traditional MLPs."
-> （第49行）
+> **第49行[EN]**: "KANs are known for (i) being more interpretable, as the model output consists of analytical functional composition, and (ii) being able to better capture low-regularity solutions and mappings than traditional MLPs."
 
 ## 与其他已分析论文的关联
 
