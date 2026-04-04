@@ -88,7 +88,7 @@ KANMixer包含三个主要模块：
 
 > "We observe that KAN achieves its optimal performance at three layers (KAN-3L) with a narrower model width compared to MLP. Stacking of KAN layers provides no additional gains and causes training instability."
 
-**出处**：第287-288行
+**出处**：第287-289行
 
 ### 4.2 KAN预测头的重要性
 
@@ -100,33 +100,33 @@ KANMixer包含三个主要模块：
 
 > "enabling fine-grained local modulation of nonlinearities"
 
-**出处**：第59-61行
+**出处**：第59行(EN)、第61行(CN)
 
 > "We attribute this profound impact to the adaptive plasticity of KAN's learnable basis functions, a property that is maximally exploited at the final, most complex stage of forecasting."
 
-**出处**：第311-312行
+**出处**：第311-313行
 
 ### 4.4 B样条基函数的优越性
 
 > "Under the KANMixer architecture, only the B-spline function consistently maintains superior performance across different forecast lengths."
 
-**出处**：第323行
+**出处**：第323-325行
 
 > "adaptive B-spline consistently outperforming others due to its inherent flexibility"
 
-**出处**：第323行
+**出处**：第323-325行
 
 **B样条优越性与Wiener-KAN设计的关联**：
 - KANMixer的实验证明，在KAN架构中，B样条基函数始终优于其他基函数（切比雪夫、傅里叶、小波）
 - Wiener-KAN采用B样条参数化激活函数，这一选择与KANMixer的实验结论一致
-- 第323行明确指出："adaptive B-spline consistently outperforming others due to its inherent flexibility"（自适应B样条由于其固有灵活性始终优于其他）
+- 第323-325行明确指出："adaptive B-spline consistently outperforming others due to its inherent flexibility"（自适应B样条由于其固有灵活性始终优于其他）
 - 这支撑了Wiener-KAN使用B样条激活函数的设计决策
 
 ### 4.5 基函数比较
 
 > "Both Fourier and Wavelet bases consistently fail to yield improvements over the MLP. Notably, the Wavelet basis experiences severe instability and convergence issues at longer prediction lengths."
 
-**出处**：第323行
+**出处**：第323-325行
 
 ### 4.6 简约架构的优势
 

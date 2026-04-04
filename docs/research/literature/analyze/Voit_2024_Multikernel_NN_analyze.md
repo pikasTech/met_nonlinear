@@ -58,8 +58,9 @@
 - 证明了频域方法相对于时域方法的优势
 
 **行号引用**:
-- 第301-348行: "Frequency-Domain FIR-Block Representation"
+- 第301-347行: "Frequency-Domain FIR-Block Representation"
 - 第305-307行: "Based on the success story of frequency-domain representations for adaptive online learning of FIR filters... this method is here adopted with the hypothesis of potentially advanced learning"
+- 第363-365行: 时域FIR模块描述（"1) Time-Domain FIR-Block: To form the system output with P output channels..."）
 - 第367-369行: 描述频域实现的计算效率优势
 - 第487行(EN英文原文): "With speech input into the plants, as shown by Fig. 7b, the optimisation of the time-domain FIR block gets stuck around mediocre -30dB and merely the frequency-domain FIR block successfully attains the former $- {70}\mathrm{\;{dB}}$ NMSE."
 - 第489行(CN中文翻译): "当语音输入到对象中时，如图7b所示，时域FIR块的优化在中等的 -30dB左右停滞不前，只有频域FIR块成功达到了之前的$- {70}\mathrm{\;{dB}}$ NMSE。"

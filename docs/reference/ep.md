@@ -60,9 +60,9 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 2. 读取 `validation_config.dataset` 指定的项目/数据集配置，并按 `magnitudes`、`frequencies`、`start_time_s`、`end_time_s` 选择 MET 数据子集。
 3. 在对应 EP 目录下生成 `qemu_project/` 裸机工程。
 4. 执行 `build-run`，并把 benchmark 汇总写到 `data/benchmark_summary.json`。
-5. 导出 `tf_output.wave`、`c_output.wave`、`origin_input.wave`、`target_output.wave`，并把波形对比指标写到 `data/validation_comparison.json`。
+5. 导出最终波形与中间层波形到 `data/waves/*.wave`，生成包含 `origin`、`target`、`c_inference`、`tf_inference` 的对比图到 `data/plots/*.png`，并把波形对比指标、`intermediate_comparison` 和 `plot_paths` 写到 `data/validation_comparison.json` 与 `data/benchmark_summary.json`。
 
-其中 `benchmark_summary.json` 会记录 `timer_source`、`measurement_unit`、`measurement_total`、`measurement_per_iter` 等计时字段，并汇总 `comparison.mae`、`max_abs_error`、能量等结果；QEMU 计时回退策略与运行细节详见 [边缘设备推理仿真](edge_device_emulation.md)。
+其中 `benchmark_summary.json` 会记录 `timer_source`、`measurement_unit`、`measurement_total`、`measurement_per_iter` 等计时字段，并汇总 `comparison`、`intermediate_comparison`、`plot_paths` 等结果；QEMU 计时回退策略与运行细节详见 [边缘设备推理仿真](edge_device_emulation.md)。
 
 典型配置结构如下：
 
@@ -89,11 +89,15 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 			"end_time_s": 0.2
 		},
 		"wave_output": {
-			"compress": true
+			"compress": true,
+			"plot_comparison": true,
+			"plot_dpi": 200
 		}
 	}
 }
 ```
+
+其中 `wave_output.plot_comparison` 默认开启，用于在每条 validation record 完成后自动生成一张四曲线叠加 PNG；`plot_dpi` 控制导图分辨率。
 
 ### compare 类任务
 
@@ -111,9 +115,10 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 对于 `ex_projects/inference/qemu-c-inference/...`，会额外生成：
 
 - `.../qemu_project/`：可被 `cli.py qemu` 直接识别的 C 工程
-- `.../data/benchmark_summary.json`：QEMU 运行输出与汇总指标
-- `.../data/validation_comparison.json`：C/TF 波形对比结果，包含 MAE、最大绝对误差、最大值/最小值、均值、能量等统计
-- `.../data/waves/*.wave`：`origin_input`、`target_output`、`tf_output`、`c_output` 四类波形文件
+- `.../data/benchmark_summary.json`：QEMU 运行输出、汇总指标，以及 `comparison`、`intermediate_comparison`、`plot_paths` 等索引字段
+- `.../data/validation_comparison.json`：C/TF 波形对比结果，包含 `overall`、`per_record`、`intermediate` 与 `plot_paths`
+- `.../data/waves/*.wave`：最终输出波形，以及 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` 的 TF/C 中间层波形文件
+- `.../data/plots/*.png`：按 validation record 导出的四曲线对比图，默认叠加 `origin`、`target`、`c_inference`、`tf_inference`
 
 ## 适用场景
 

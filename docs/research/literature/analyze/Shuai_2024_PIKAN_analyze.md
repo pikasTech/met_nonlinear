@@ -54,32 +54,39 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第1-3行 | 论文标题：Physics-Informed Kolmogorov-Arnold Networks for Power System Dynamics |
-| 第9-11行 | 摘要：首次提出KAN用于电力系统应用，PIKAN用于电力系统动态学习 |
-| 第29-31行 | 现有PINN的局限性：相对L2误差2.37%，参数识别误差约50% |
-| 第33-34行 | KAN优势：可学习激活函数在边上，比MLP更准确 |
-| 第447行 | PIKAN性能验证：在SMIB和4节点系统上验证了PIKAN的有效性 |
-| 第553-555行 | PIKAN优势：更小网络规模达到更高精度（41%/58%网络规模） |
-| 第557-559行 | PIKAN以更少参数实现相当或更高精度 |
-| 第69-71行 | Swing方程描述电力系统动态 |
-| 第315-317行 | PIKAN设计目标：减少数据依赖，提高学习准确性 |
+| 第1-3行 [EN] | 论文标题：Physics-Informed Kolmogorov-Arnold Networks for Power System Dynamics |
+| 第9行 | 摘要：首次提出KAN用于电力系统应用，PIKAN用于电力系统动态学习 |
+| 第25-27行 [CN] | 电力系统DL方法背景：数据驱动算法缺乏与底层物理模型集成 |
+| 第29-30行 [CN] | 现有PINN的局限性：相对L2误差2.37%，参数识别误差约50% |
+| 第33行 [EN] | KAN优势：可学习激活函数在边上，比MLP更准确 |
+| 第57-59行 [EN] | PIKAN性能验证：SMIB和4节点系统上验证了有效性 |
+| 第69-71行 [EN] | Swing方程描述电力系统动态 |
+| 第315-317行 [EN] | PIKAN设计目标：减少数据依赖，提高学习准确性 |
+| 第447行 [EN] | PIKAN频率动态性能验证：在SMIB和4节点系统上验证了PIKAN的有效性 |
+| 第553-555行 | PIKANs achieve higher accuracy with smaller network size (41%/58% of PINN's size) |
+| 第135-137行 [EN] | PIKANs用于学习动态和识别不确定惯性与阻尼参数 |
 
 ## 关键原文段落摘录
 
 ### 段落1（KAN优势）
 
 > "KANs [12], promising alternatives to MLPs, also feature fully-connected network structures. Unlike MLPs, KANs place learnable activation functions on the edges, which usually allow much smaller computation graphs than MLPs and could reach more accurate learning results at the same time."
-> （第33行）
+> （第33行）[EN]
 
 ### 段落2（PIKAN目标）
 
 > "To reduce the dependency on training data and enhance the accuracy of the learned model in the PINNs-based power system dynamic model, we designed the PIKAN...increased model learning accuracy, and reduced network size without sacrificing accuracy."
-> （第315-317行）
+> （第315-317行）[EN]
 
 ### 段落3（Swing方程）
 
 > "Power system dynamics are described by swing equations. By assuming the bus voltage magnitudes to be 1 per unit (p.u.), and neglecting the reactive power flows, the frequency dynamics of each generator i can be described by..."
-> （第69-71行）
+> （第69-71行）[EN]
+
+### 段落4（PIKAN研究目标）
+
+> "In this work, we focus on using PIKANs to learn dynamics described by equation 5, and identify uncertain inertia and damping parameters in λ."
+> （第135-137行）[EN]
 
 ## 分析结论
 

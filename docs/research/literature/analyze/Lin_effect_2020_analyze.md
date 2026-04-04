@@ -60,7 +60,6 @@
 
 **论文震级因素研究（批判凸显 GAP3 的核心缺陷）**:
 - 论文完全没有涉及震级（振动幅度）对频率响应的影响
-- 原文第85-87行指出："the working temperature of electrochemical seismic sensor is limited by the boiling point and solidification point of electrolyte in the electrochemical reaction chamber, and the solution viscosity and ion diffusion coefficient change exponentially with temperature"（电化学地震传感器的工作温度受电化学反应腔内电解液的沸点和凝固点限制，且溶液粘度和离子扩散系数随温度呈指数变化），仅考虑温度因素
 - 论文的传递函数模型（公式3.6-3.8）中仅包含温度参数，没有震级参数
 - 补偿公式(3.11)仅基于温度进行补偿，未考虑震级因素的影响
 - 这是 GAP3 的核心缺陷：频率漂移研究仅关注温度，完全缺乏震级因素的研究
@@ -75,7 +74,7 @@
 - 论文建立了温度漂移模型，参照传递函数的理论公式形式（公式3.6-3.8）
 - 公式(3.9)将温度漂移模型表达为频域传递函数形式
 - 论文的传递函数模型（公式3.6-3.8）是线性模型，仅描述线性系统的幅频特性
-- 原文第227-232行公式(3.8)是线性传递函数形式，假设系统是线性的
+- 原文第231-233行公式(3.8)是线性传递函数形式，假设系统是线性的
 - 论文没有建立电化学地震传感器的非线性模型，无法描述非线性效应如谐波失真、互调失真等
 - 论文的温度漂移模型（公式3.9）实际上假设温度对灵敏度的的影响是"线性"的（通过对数线性化），而非真正的非线性建模
 - 论文未考虑传感器输出中的非线性成分，这些非线性成分会随温度和震级变化
@@ -109,13 +108,13 @@
    > "the working temperature of electrochemical seismic sensor is limited by the boiling point and solidification point of electrolyte in the electrochemical reaction chamber, and the solution viscosity and ion diffusion coefficient change exponentially with temperature"（第85-87行）
 
 4. **传递函数理论模型（线性）**:
-   > "From the relation Q(t) = dV(t)/dt, Q(t) is volume flow, and the equation (3.2) is converted from time domain to frequency domain. The mechanical part of the transfer function of electrochemical seismic sensor is obtained as follows... |H_mech(w)| = ρL / sqrt((ρL/S_ch)²((w²-w₀²)²/w²) + R_h²)"（第203-209行）
+   > "From the relation Q(t) = dV(t)/dt, Q(t) is volume flow, and the equation (3.2) is converted from time domain to frequency domain. The mechanical part of the transfer function of electrochemical seismic sensor is obtained as follows... |H_mech(w)| = ρL / sqrt((ρL/S_ch)²((w²-w₀²)²/w²) + R_h²)"（第207-209行，203-205行为英文引导）
 
 5. **温度漂移模型公式**:
-   > "|F(w)| = A₀w / ((1+w²/w₁²)^0.5 × (1+w²/w₂²)^0.5)，w₁, w₂, A₀ is a temperature-dependent coefficient."（第239-243行）
+   > "|F(w)| = A₀w / ((1+w²/w₁²)^0.5 × (1+w²/w₂²)^0.5)，w₁, w₂, A₀ is a temperature-dependent coefficient."（第239-241行）
 
 6. **温度系数与温度的线性关系（对数）**:
-   > "the linear relationship between the logarithm of coefficient A₀ and temperature T is better... lg(A₀) = 0.0076T + 2.9"（第251-257行）
+   > "the linear relationship between the logarithm of coefficient A₀ and temperature T is better... lg(A₀) = 0.0076T + 2.9"（第255-257行）
 
 7. **补偿公式**:
    > "S_TC = A₀(20) × S(T) / A₀(T)"（第263-265行）

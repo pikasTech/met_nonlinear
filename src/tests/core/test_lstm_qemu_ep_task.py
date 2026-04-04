@@ -118,6 +118,24 @@ class TestExecuteLstmQemuInferenceTask:
                     tf_output_sequence=[0.44, 0.55, 0.66],
                 ),
             ],
+            tf_debug_sequences={
+                'input_scaled': [
+                    [[0.05], [0.10], [0.15]],
+                    [[0.20], [0.25], [0.30]],
+                ],
+                'lstm_hidden': [
+                    [[0.01, 0.02], [0.03, 0.04], [0.05, 0.06]],
+                    [[0.07, 0.08], [0.09, 0.10], [0.11, 0.12]],
+                ],
+                'dense_output': [
+                    [[0.10, 0.20], [0.30, 0.40], [0.50, 0.60]],
+                    [[0.70, 0.80], [0.90, 1.00], [1.10, 1.20]],
+                ],
+                'output_scaled': [
+                    [[0.0275], [0.0550], [0.0825]],
+                    [[0.1100], [0.1375], [0.1650]],
+                ],
+            },
         )
 
         model_dir = tmp_path / 'projects' / 'demo_project' / 'data'
@@ -153,7 +171,15 @@ class TestExecuteLstmQemuInferenceTask:
                         'measurement_per_iter=0.0034\n'
                         'output=0.330000\n'
                         'validation_record_0=0.110000,0.220000,0.330000\n'
+                        'validation_input_scaled_0=0.050000;0.100000;0.150000\n'
+                        'validation_lstm_hidden_0=0.010000,0.020000;0.030000,0.040000;0.050000,0.060000\n'
+                        'validation_dense_output_0=0.100000,0.200000;0.300000,0.400000;0.500000,0.600000\n'
+                        'validation_output_scaled_0=0.027500;0.055000;0.082500\n'
                         'validation_record_1=0.440000,0.550000,0.660000\n'
+                        'validation_input_scaled_1=0.200000;0.250000;0.300000\n'
+                        'validation_lstm_hidden_1=0.070000,0.080000;0.090000,0.100000;0.110000,0.120000\n'
+                        'validation_dense_output_1=0.700000,0.800000;0.900000,1.000000;1.100000,1.200000\n'
+                        'validation_output_scaled_1=0.110000;0.137500;0.165000\n'
                         'validation_complete=1\n'
                     ),
                     'stderr': '',
@@ -173,7 +199,15 @@ class TestExecuteLstmQemuInferenceTask:
                         'measurement_per_iter=0.0036\n'
                         'output=0.330000\n'
                         'validation_record_0=0.110000,0.220000,0.330000\n'
+                        'validation_input_scaled_0=0.050000;0.100000;0.150000\n'
+                        'validation_lstm_hidden_0=0.010000,0.020000;0.030000,0.040000;0.050000,0.060000\n'
+                        'validation_dense_output_0=0.100000,0.200000;0.300000,0.400000;0.500000,0.600000\n'
+                        'validation_output_scaled_0=0.027500;0.055000;0.082500\n'
                         'validation_record_1=0.440000,0.550000,0.660000\n'
+                        'validation_input_scaled_1=0.200000;0.250000;0.300000\n'
+                        'validation_lstm_hidden_1=0.070000,0.080000;0.090000,0.100000;0.110000,0.120000\n'
+                        'validation_dense_output_1=0.700000,0.800000;0.900000,1.000000;1.100000,1.200000\n'
+                        'validation_output_scaled_1=0.110000;0.137500;0.165000\n'
                         'validation_complete=1\n'
                     ),
                     'stderr': '',
@@ -228,6 +262,9 @@ class TestExecuteLstmQemuInferenceTask:
         assert (generated_dir / 'model_data.h').exists()
         assert (generated_dir / 'startup.c').exists()
         assert (generated_dir / 'stm32f405.ld').exists()
+        main_c_content = (generated_dir / 'main.c').read_text(encoding='utf-8')
+        assert 'if (scaled < 0)' in main_c_content
+        assert 'validation_input_scaled_' in main_c_content
 
         summary_path = ep_path.output_path / 'benchmark_summary.json'
         assert summary_path.exists()
@@ -240,4 +277,12 @@ class TestExecuteLstmQemuInferenceTask:
         assert summary['aggregated']['avg_host_elapsed_seconds'] == pytest.approx(0.35)
         assert summary['comparison']['mae'] == pytest.approx(0.0)
         assert 'c_output_wave' in summary['wave_paths']
+        assert 'tf_lstm_hidden_wave' in summary['wave_paths']
+        assert 'c_lstm_hidden_wave' in summary['wave_paths']
+        assert 'comparison_plot_0' in summary['plot_paths']
+        assert (tmp_path / summary['plot_paths']['comparison_plot_0']).exists()
+        comparison_path = ep_path.output_path / 'validation_comparison.json'
+        with open(comparison_path, 'r', encoding='utf-8') as file_obj:
+            comparison_payload = json.load(file_obj)
+        assert 'plot_paths' in comparison_payload
         assert mock_execute_qemu_workflow.call_count == 3

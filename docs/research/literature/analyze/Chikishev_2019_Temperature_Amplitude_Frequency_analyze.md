@@ -78,7 +78,7 @@
 
 > "the activation energies coincide well with each other for each approximation parameter, which is a good verification of the correctness of the chosen mathematical model of the temperature behavior of the MET sensors in the 0.1 - 483 Hz frequency band."
 
-**注**：源文件摘要第9行写"0.1-443 Hz"，而第411行写"0.1 - 483 Hz"，此处以第411行为准。
+**注**：源文件摘要第9行和校准描述第239行明确写"0.1-443 Hz"为测量频段。第411行的"0.1-483 Hz"是**验证频段**（用于验证近似参数的活化能），而非测量频段。测量频段应为0.1-443 Hz。
 
 ## 总结
 
@@ -101,8 +101,8 @@
 | 第277-279行 | 温度对幅频响应影响（非线性特性） |
 | 第303-304行 | 高频下传递函数具有恒定温度依赖性 |
 | 第308行 | W = W₀·exp(α/T) 温度-频率依赖关系 |
-| 第411行 | 活化能验证正确性 |
-| 第415-417行 | 0.1-483 Hz频段的实验验证结果 |
+| 第411行 | 活化能验证：在0.1-483 Hz验证频段验证近似参数 |
+| 第415-417行 | 0.1-483 Hz验证频段（注意：实际测量频段为0.1-443 Hz） |
 
 ## 引用信息
 

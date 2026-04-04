@@ -1002,7 +1002,7 @@ We propose an operator-level optimization design for accelerating polynomial KAN
 
 [21] Sidharth SS, Keerthana AR, and Anas KP. 2024. Chebyshev polynomial-based kolmogorov-arnold networks: An efficient architecture for non-
 
-基于[具体内容缺失]的柯尔莫哥洛夫 - 阿诺德网络:一种用于非[具体内容缺失]的高效架构linear function approximation. arXiv preprint arXiv:2405.07200 (2024).
+基于切比雪夫多项式的柯尔莫哥洛夫 - 阿诺德网络:一种用于非线性函数逼近的高效架构。arXiv preprint arXiv:2405.07200 (2024).
 
 [22] SynodicMonth. 2024. ChebyKAN: Kolmogorov-Arnold Networks us-ing Chebyshev polynomials. GitHub repository. Retrieved 2025- 08-13 from https://github.com/SynodicMonth/ChebyKAN commit 5f7efdd18e749bcc99481bd87dc90bdeafb920d8.
 
@@ -1018,17 +1018,17 @@ We propose an operator-level optimization design for accelerating polynomial KAN
 
 [25] Y Wang, J Sun, J Bai, C Anitescu, MS Eshaghi, X Zhuang, T Rabczuk,and Y Liu. 2025. A physics-informed deep learning framework for solving forward and inverse problems based on Kolmogorov-Arnold Networks. Computer Methods in Applied Mechanics and Engineering 433 (2025), 117518.
 
-[作者姓名缺失]和Y·刘。2025年。一种基于柯尔莫哥洛夫 - 阿诺德网络的用于解决正向和反向问题的物理信息深度学习框架。《应用力学与工程中的计算机方法》433(2025)，117518。
+王·Y、孙·J、白·J、阿尼特苏克·C、埃沙吉·MS、庄·X、拉布丘克·T和刘·Y。2025年。一种基于柯尔莫哥洛夫 - 阿诺德网络的用于解决正向和反向问题的物理信息深度学习框架。《应用力学与工程中的计算机方法》433(2025)，117518。
 
 [26] Pete Warden. 2018. Speech commands: A dataset for limited-vocabulary speech recognition. arXiv preprint arXiv:1804.03209 (2018).
 
 [27] Samuel Williams, Andrew Waterman, and David Patterson. 2009.Roofline: an insightful visual performance model for multicore ar-
 
-Roofline:一种用于多核[具体内容缺失]的有洞察力的可视化性能模型chitectures. Commun. ACM 52, 4 (2009), 65-76.
+Roofline:一种用于多核架构的有洞察力的可视化性能模型。Commun. ACM 52, 4 (2009), 65-76.
 
 [28] Jinfeng Xu, Zheyu Chen, Jinze Li, Shuo Yang, Wei Wang, Xiping Hu,and Edith C-H Ngai. 2024. FourierKAN-GCF: Fourier Kolmogorov-Arnold Network-An Effective and Efficient Feature Transformation for
 
-[作者姓名缺失]和伊迪丝·C - H·吴霭仪。2024年。FourierKAN - GCF:傅里叶柯尔莫哥洛夫 - 阿诺德网络——一种用于[具体内容缺失]的有效且高效的特征变换Graph Collaborative Filtering. arXiv preprint arXiv:2406.01034 (2024).
+徐·金凤、陈·哲宇、李·金泽、杨·硕、王·伟、胡·锡平和伊迪丝·C-H·吴霭仪。2024年。FourierKAN-GCF:傅里叶柯尔莫哥洛夫-阿诺德网络——一种用于图协同过滤的有效且高效的特征变换。arXiv preprint arXiv:2406.01034 (2024).
 
 [29] Xingyi Yang and Xinchao Wang. 2024. Kolmogorov-arnold transformer. arXiv preprint arXiv:2409.10594 (2024).
 
@@ -1040,4 +1040,4 @@ Roofline:一种用于多核[具体内容缺失]的有洞察力的可视化性能
 
 [32] Fan Zhang and Xin Zhang. 2024. Graphkan: Enhancing feature ex-traction with graph kolmogorov arnold networks. arXiv preprint
 
-与图柯尔莫哥洛夫 - 阿诺德网络的[具体内容缺失]。arXiv预印本arXiv:2406.13597 (2024).
+利用图柯尔莫哥洛夫 - 阿诺德网络增强特征提取。arXiv预印本arXiv:2406.13597 (2024).

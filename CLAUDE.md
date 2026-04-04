@@ -1,4 +1,4 @@
-# AGENTS.md - Agentic Coding Guidelines
+# Agentic Coding Guidelines
 
 ## 环境配置
 
@@ -23,19 +23,25 @@
 
 ## 项目概述
 
-**MET Nonlinear** - 电化学非线性矫正项目。核心模块: `models/`, `tfkan/`, `analysis/`, `visualization/`, `calibration_analyzer/`
+**MET Nonlinear** - 电化学非线性矫正项目。当前核心代码统一收敛在 `src/` 下，重点模块包括 `src/core/`、`src/models/`、`src/inference/`、`src/analysis/`、`src/visualization/`、`src/calibration_analyzer/`。
+
+参考索引：
+- 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
+- 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。
+- 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
+- 外部项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 
 ---
 
-## AGENTS.md 组织原则
+## CLAUDE.md 组织原则
 
-- `AGENTS.md` 只作为项目级顶级索引，用于快速定位命令、入口和文档。
-- `AGENTS.md` 的具体功能区只保留三个顶级标题：`主命令`、`ep 子命令`、`测试`，不额外拆出新的命令分类标题。
-- 每个命令在 `AGENTS.md` 中保留一条主索引，命令下面可以挂多个功能子列表。
+- `CLAUDE.md` 只作为项目级顶级索引，用于快速定位命令、入口和文档。
+- `CLAUDE.md` 的具体功能区只保留三个顶级标题：`主命令`、`ep 子命令`、`测试`，不额外拆出新的命令分类标题。
+- 每个命令在 `CLAUDE.md` 中保留一条主索引，命令下面可以挂多个功能子列表。
 - 每个子列表只描述一个功能点，并使用一句话概括，不在此处展开实现细节、参数说明或背景分析。
 - 每个子列表应独立对应一个 `docs/reference/` 下的参考文档；如果同一命令包含多个功能，则分别链接到各自文档。
-- 所有功能的详细说明统一写入 `docs/reference/` 下的独立 Markdown 文档，并在 `AGENTS.md` 中提供对应链接索引。
-- 当某项功能需要补充说明时，优先更新 `docs/reference/` 的详细文档，再回到 `AGENTS.md` 维护对应子列表的一句话摘要与链接。
+- 所有功能的详细说明统一写入 `docs/reference/` 下的独立 Markdown 文档，并在 `CLAUDE.md` 中提供对应链接索引。
+- 当某项功能需要补充说明时，优先更新 `docs/reference/` 的详细文档，再回到 `CLAUDE.md` 维护对应子列表的一句话摘要与链接。
 
 ---
 
@@ -94,7 +100,7 @@
 	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"`
 	- LSTM QEMU 校验：基于 MET 数据集子集生成裸机 C 工程，并执行 C/TF26 双路径波形一致性验证，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
-	- 输出产物：生成 `qemu_project/`、`data/benchmark_summary.json`、`data/validation_comparison.json` 与 `data/waves/*.wave`，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+	- 输出产物：生成 `qemu_project/`、`data/benchmark_summary.json`、`data/validation_comparison.json`、`data/waves/*.wave` 与 `data/plots/*.png`，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `python cli.py ep "compare/lr_test_1k_epoch"`

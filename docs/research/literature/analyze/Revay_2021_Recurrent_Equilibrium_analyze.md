@@ -9,10 +9,10 @@
 
 ## 核心内容摘要
 
-**英文摘要**（来源文件第9行）：
+**英文摘要**（来源文件第9行[EN]）：
 "Abstract-This paper introduces recurrent equilibrium networks (RENs), a new class of nonlinear dynamical models for applications in machine learning, system identification and control. The new model class admits 'built in' behavioural guarantees of stability and robustness. All models in the proposed class are contracting - a strong form of nonlinear stability - and models can satisfy prescribed incremental integral quadratic constraints (IQC), including Lipschitz bounds and incremental passivity."
 
-**中文摘要**（来源文件第11行）：
+**中文摘要**（来源文件第11行[CN]）：
 "摘要——本文介绍了递归平衡网络(REN)，这是一类用于机器学习、系统辨识和控制的新型非线性动态模型。新的模型类别具有"内置"的稳定性和鲁棒性行为保证。"
 
 本文提出递归平衡网络(RENs)，一类用于机器学习、系统辨识和控制的新型非线性动态模型。其核心特点是"内置"稳定性和鲁棒性保证：所有模型都是收缩的(contracting)——一种强形式的非线性稳定性。REN可以表示稳定的线性系统、收缩的RNN、回声状态网络、前馈神经网络以及稳定的Wiener/Hammerstein模型。
@@ -50,13 +50,13 @@
 
 ## 关键引文
 
-> **第53行**: "When learning models with feedback it is not uncommon for the model to be unstable even if the data-generating system is stable."
+> **第53行[EN]**: "When learning models with feedback it is not uncommon for the model to be unstable even if the data-generating system is stable."
 > (当学习具有反馈的模型时，即使数据生成系统是稳定的，模型也常常会出现不稳定的情况。)
 
-> **第45行**: "RENs can be constructed to be contracting, a strong form of nonlinear stability."
+> **第45行[EN]**: "RENs can be constructed to be contracting, a strong form of nonlinear stability."
 > (REN可以被构造为收缩的，一种强形式的非线性稳定性。)
 
-> **第9行摘要**: "All models in the proposed class are contracting - a strong form of nonlinear stability - and models can satisfy prescribed incremental integral quadratic constraints (IQC)."
+> **第9行[EN]**: "All models in the proposed class are contracting - a strong form of nonlinear stability - and models can satisfy prescribed incremental integral quadratic constraints (IQC)."
 > (所提出类别中的所有模型都是收缩的——一种强形式的非线性稳定性——并且模型可以满足规定的增量积分二次约束(IQC)。)
 
 ## GAP支撑结论
@@ -78,45 +78,48 @@
 
 | 编号 | 引用位置 | 内容摘要 | 状态 |
 |------|---------|---------|------|
-| 1 | 第9行 | 英文摘要：RENs引入，具有内置稳定性和鲁棒性保证 | ✅ |
-| 2 | 第11行 | 中文摘要：REN是新型非线性动态模型 | ✅ |
-| 3 | 第29行 | RENs高度灵活性，包括DNNs、RNNs、回声状态网络等 | ✅ |
-| 4 | 第33行 | RENs admit built in behavioural guarantees (stability, incremental gain, passivity) | ✅ |
-| 5 | 第37行 | RENs permit direct (smooth, unconstrained) parameterization | ✅ |
-| 6 | 第41行 | REN是结合了平衡网络的动态模型 | ✅ |
-| 7 | 第45行 | RENs can be constructed to be contracting, a strong form of nonlinear stability | ✅ |
-| 8 | 第46行 | 用户可定义的Lipschitz常数约束（增量增益） | ✅ |
-| 9 | 第53行 | 学习具有反馈的模型时模型常常不稳定 | ✅ |
-| 10 | 第327行 | 将REN模型表示为线性系统G和无记忆非线性算子σ的反馈互联 | ✅ (新增) |
+| 1 | 第9行[EN] | 英文摘要：RENs引入，具有内置稳定性和鲁棒性保证 | ✅ |
+| 2 | 第11行[CN] | 中文摘要：REN是新型非线性动态模型 | ✅ |
+| 3 | 第29行[EN] | RENs高度灵活性，包括DNNs、RNNs、回声状态网络等 | ✅ |
+| 4 | 第33行[EN] | RENs admit built in behavioural guarantees (stability, incremental gain, passivity) | ✅ |
+| 5 | 第37行[EN] | RENs permit direct (smooth, unconstrained) parameterization | ✅ |
+| 6 | 第41行[EN] | REN是结合了平衡网络的动态模型 | ✅ |
+| 7 | 第45行[EN] | RENs can be constructed to be contracting, a strong form of nonlinear stability | ✅ |
+| 8 | 第46行[EN] | 用户可定义的Lipschitz常数约束（增量增益） | ✅ |
+| 9 | 第53行[EN] | 学习具有反馈的模型时模型常常不稳定 | ✅ |
+| 10 | 第327行[EN]/第329行[CN] | 将REN模型表示为线性系统G和无记忆非线性算子σ的反馈互联 | ✅ (新增) |
 
 ### 正文引文验证
 
-> **第9行**: "This paper introduces recurrent equilibrium networks (RENs), a new class of nonlinear dynamical models for applications in machine learning, system identification and control."
+> **第9行[EN]**: "This paper introduces recurrent equilibrium networks (RENs), a new class of nonlinear dynamical models for applications in machine learning, system identification and control."
 > (本文介绍了递归平衡网络(REN)，这是一类用于机器学习、系统辨识和控制的新型非线性动态模型。)
 
-> **第11行**: "摘要——本文介绍了递归平衡网络(REN)，这是一类用于机器学习、系统辨识和控制的新型非线性动态模型。"
+> **第11行[CN]**: "摘要——本文介绍了递归平衡网络(REN)，这是一类用于机器学习、系统辨识和控制的新型非线性动态模型。"
 > (中文摘要)
 
-> **第29行**: "RENs are highly flexible and include many established models as special cases, including DNNs, RNNs, echo state networks and stable linear dynamical systems."
+> **第29行[EN]**: "RENs are highly flexible and include many established models as special cases, including DNNs, RNNs, echo state networks and stable linear dynamical systems."
 > (REN具有高度的灵活性，并且包括许多已有的模型作为特殊情况，包括DNN、RNN、回声状态网络和稳定的线性动态系统。)
 
-> **第33行**: "RENs admit built in behavioural guarantees such as stability, incremental gain, passivity, or other properties that are relevant to safety critical systems."
+> **第33行[EN]**: "RENs admit built in behavioural guarantees such as stability, incremental gain, passivity, or other properties that are relevant to safety critical systems."
 > (REN具有内置的行为保证，如稳定性、增量增益、无源性或与安全关键系统相关的其他属性。)
 
-> **第37行**: "RENs are easy to use as they permit a direct (smooth, unconstrained) parameterization enabling learning of large-scale models."
+> **第37行[EN]**: "RENs are easy to use as they permit a direct (smooth, unconstrained) parameterization enabling learning of large-scale models."
 > (REN易于使用，因为它们允许直接(平滑、无约束)参数化，从而能够学习大规模模型。)
 
-> **第41行**: "A REN is a dynamical model incorporating an equilibrium network, a.k.a. implicit network."
+> **第41行[EN]**: "A REN is a dynamical model incorporating an equilibrium network, a.k.a. implicit network."
 > (REN是一种结合了平衡网络的动态模型，也称为隐式网络。)
 
-> **第45行**: "RENs can be constructed to be contracting, a strong form of nonlinear stability."
+> **第45行[EN]**: "RENs can be constructed to be contracting, a strong form of nonlinear stability."
 > (REN可以被构造为收缩的，一种强形式的非线性稳定性。)
 
-> **第46行**: "This class of constraints includes user-definable bounds on the network's Lipschitz constant (incremental gain)."
+> **第46行[EN]**: "This class of constraints includes user-definable bounds on the network's Lipschitz constant (incremental gain)."
 > (这类约束包括用户可定义的网络利普希茨常数(增量增益)的界。)
 
-> **第53行**: "When learning models with feedback it is not uncommon for the model to be unstable even if the data-generating system is stable."
+> **第53行[EN]**: "When learning models with feedback it is not uncommon for the model to be unstable even if the data-generating system is stable."
 > (当学习具有反馈的模型时，即使数据生成系统是稳定的，模型也常常会出现不稳定的情况。)
 
-> **第327行**: "It will be convenient to represent the REN model as a feedback interconnection of a linear system G and a memoryless nonlinear operator σ, as depicted in Fig. 1."
+> **第327行[EN]**: "It will be convenient to represent the REN model as a feedback interconnection of a linear system G and a memoryless nonlinear operator σ, as depicted in Fig. 1."
 > (将REN模型表示为线性系统G和无记忆非线性算子σ的反馈互联会很方便，如图1所示。)
+
+> **第329行[CN]**: "将REN模型表示为线性系统G和无记忆非线性算子σ的反馈互联会很方便，如图1所示。"
+> (中文翻译)

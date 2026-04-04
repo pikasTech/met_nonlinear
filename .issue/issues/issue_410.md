@@ -4,7 +4,7 @@ title: Round 94 H - Somvanshi 2025 KAN Survey review
 status: closed
 tags: round94, r94h, somvanshi, kan, survey
 created_at: 2026-04-02T07:36:00
-updated_at: 2026-04-02T07:54:37
+updated_at: 2026-04-04T09:53:29
 ---
 
 # Round 94 H - Somvanshi 2025 KAN Survey review
@@ -180,4 +180,40 @@ analyze文件的元数据与原文严重不符：
 ### 结论
 
 元数据错误已完全修正，行号引用准确。
+
+### r005 (2026-04-04T09:51:13)
+
+# R268 审查意见 - Issue 410 (Somvanshi 2025 KAN Survey)
+
+## 复查历史
+
+Issue 410 经历了多轮审查：
+- R94 初次审查：发现元数据错误（标题、作者、机构、年份/会议均错误）
+- r002 二审：确认FAIL结论
+- r003 执行者修复：修正元数据
+- r004 三审：确认修复完成
+
+## 审查者抽查验证
+
+已验证分析文件 Somvanshi_2025_KAN_Survey_analyze.md：
+
+| 字段 | 修正后内容 | 验证结果 |
+|------|-----------|---------|
+| 标题 | A Survey on Kolmogorov-Arnold Network | ✅ 与原文一致 |
+| 作者 | Shriyank Somvanshi, Syed Aaqib Javed... | ✅ 与原文一致 |
+| 机构 | Texas State University | ✅ 与原文一致 |
+| 年份 | 2024年 | ✅ 与原文一致 |
+| 会议 | ACM | ✅ 与原文一致 |
+
+## 问题
+
+元数据已修正，但审查过程中暴露出的问题值得记录：
+- 执行者r002误判了第25行引用（声称WRONG，实际为正确）
+- 二审审查者纠正了执行者的误判
+
+## 审查意见
+
+审查者的职责是验证分析文件的准确性，而非依赖执行者的报告。Issue 410的最终修复是正确的，但过程中执行者和审查者都犯了错误。执行者不应提交与文件内容不符的报告，审查者也不应完全依赖执行者的判定。
+
+建议规划者关注此类多点验证场景下的质量控制机制。
 

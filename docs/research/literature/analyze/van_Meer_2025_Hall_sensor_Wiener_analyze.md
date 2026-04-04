@@ -26,16 +26,16 @@
 **批判性支持（GAP 支持）：**
 
 1. **论文做了XXX（和 IDEA 的研究内容相关）：**
-   - 论文明确建立了Wiener系统模型结构：线性系统G(s)与非线性函数g(y0)的串联（第129行）
+   - 论文明确建立了Wiener系统模型结构：线性系统G(s)与非线性函数g(y0)的串联（第129行[EN]）
    - 论文使用线性时不变(LTI)转矩动力学G(s)和周期非线性磁通密度函数g(y0)来建模霍尔传感器（第109-131行）
    - 论文的模型结构包含了线性部分和非线性部分，这与IDEA中提到的Wiener结构一致
-   - 论文指出："The series connection of linear system G(s) and nonlinear functions g_h(y0) is recognized as a single-input multi-output Wiener system"（第129行）
+   - 论文指出："The series connection of linear system G(s) and nonlinear functions g_h(y0) is recognized as a single-input multi-output Wiener system"（第129行[EN]）
 
 2. **论文没有做XXX（批判凸显 IDEA 的 GAP）：**
    - 论文主要关注的是**位置测量**，而非**频率响应漂移**
    - 论文没有讨论**温度对非线性特性和线性特性的漂移影响**
-   - 论文没有讨论**震级(magnitude)对频率漂移的影响**
-   - 论文的Wiener模型用于校准补偿，而非用于分析漂移机理
+   - 论文没有讨论**震级(magnitude)对频率漂移的影响**（第37-38行[EN]）
+   - 论文的Wiener模型用于校准补偿，而非用于分析漂移机理（第39行[CN]）
 
 **直接支持：**
 - 论文提供了Wiener系统建模的具体实例，可作为MET传感器Wiener建模的参考
@@ -54,12 +54,12 @@
    - 论文讨论了高阶谐波对测量精度的影响
 
 2. **论文没有做什么/领域根本不匹配（批判凸显GAP）：**
-   - 论文**明确忽略了温度对测量的影响**（第121行）："Neglecting dependence on temperature"
+   - 论文**明确忽略了温度对测量的影响**（第121行[EN]）："Neglecting dependence on temperature"
    - 论文研究的是**霍尔传感器位置测量校准**，而非地震检波器的**频率响应漂移**
    - 论文的"magnet pole frequency"是**空间频率**（磁极间距），不是地震传感器的**时域频率响应**
    - 两者是**完全不同的领域**：电化学地震检波器 vs 霍尔传感器
    - 论文关注的是位置相关的周期性误差，而非频率随温度/震级的漂移
-   - 关键引用（第121行）："Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density" —— 明确忽略了温度依赖性，但忽略的是位置测量误差的温度依赖，而非频率响应的温度漂移
+   - 关键引用（第121行[EN]）："Neglecting dependence on temperature, each sensor measures a voltage d_h assumed proportional to the local magnetic flux density" —— 明确忽略了温度依赖性，但忽略的是位置测量误差的温度依赖，而非频率响应的温度漂移
 
 ---
 
@@ -79,7 +79,9 @@
 
 ### 关于非线性建模的重要性（第221-223行）
 
-> "Imperfect modeling of g(y0) leads to periodic errors in the reconstructed rotor position y, resulting in ripples that degrade tracking performance and cause vibrations. Assuming Hall signals are purely sinusoidal is inadequate due to manufacturing tolerances, uneven magnetization, and misaligned sensors."
+> "Imperfect modeling of g(y0) leads to periodic errors in the reconstructed rotor position y, resulting in ripples that degrade tracking performance and cause vibrations. Assuming Hall signals are purely sinusoidal is inadequate due to manufacturing tolerances, uneven magnetization, and misaligned sensors."（第221行[EN]）
+
+> ...（第223行[CN]）
 
 ## 总结
 

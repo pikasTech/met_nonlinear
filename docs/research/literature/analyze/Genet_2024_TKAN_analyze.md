@@ -54,11 +54,18 @@
 
 | 引用位置 | 内容摘要 |
 |---------|---------|
-| 第113行（段落） | "The integration of an LSTM cell combined with the RKAN enables the capture of complex nonlinearities with learnable activation functions of RKAN" |
+| 第113行 | "The integration of an LSTM cell combined with the RKAN enables the capture of complex nonlinearities with learnable activation functions of RKAN" |
 | 第134-135行 | RNN隐藏状态更新公式 |
 | 第142-143行 | RKAN输入组合公式：s_{l,t} = W_{l,tilde{x}}x_t + W_{l,tilde{h}}tilde{h}_{l,t-1} |
 | 第331行 | "TKAN stands out with longer time steps, with an R-squared value at least 25% higher than that of GRU" |
-| 第357行（段落靠后部分） | "This stability in the TKAN model's learning process" |
+| 第357行 | "This stability in the TKAN model's learning process" |
+
+**声明修正**：Issue回复中声称"第44-46行确认存在时序KAN架构介绍"是错误的。实际上：
+- 第44行：`---`（分隔符）
+- 第45行：空白
+- 第46行：`## II. KOLMOGOROV-ARNOLD NETWORKS (KANS)`（章节标题，非架构介绍）
+
+实际架构介绍在第113行。
 
 ## 关键原文段落摘录
 
@@ -88,19 +95,19 @@
 
 **理由**：本文提出TKAN架构用于时间序列预测，与MET非线性问题的频率漂移补偿领域关联有限。论文未涉及频率域分析，也未讨论Wiener系统建模，对GAP1-GAP11没有直接支撑作用。
 
-**间接参考价值说明**（原分析过于保守，需补充）：
+**间接参考价值说明**：
 
-1. **架构概念相似性**（第113行）：LSTM+RKAN结合处理序列数据，与FRIKAN的时变信号处理存在架构概念相似性——两者都涉及记忆机制与KAN的结合
+1. **架构概念相似性**（第113行）：LSTM+RKAN结合处理序列数据，与FRIKAN的时变信号处理存在表面相似性——两者都涉及记忆机制与KAN的结合
 
-2. **性能验证参考**（第331行）：R²改进数据（长时间步比GRU高25%以上）说明KAN+记忆机制的有效性，这对FRIKAN处理时变行为有潜在参考价值
+2. **性能验证参考**（第331行）：R²改进数据（长时间步比GRU高25%以上）说明KAN+记忆机制的有效性
 
-3. **结构参考价值**（第137-138行）：RKAN的记忆机制结构（公式8-10）对FRIKAN的架构设计有潜在参考价值
+**间接价值过度声明修正**：
 
-**对IDEA的总体参考价值**：中等
+原分析声称"RKAN为FRIKAN/Wiener-KAN的线性部分选择RNN/IIR结构提供了参考"是过度声明：
+- RKAN是用于时序**记忆管理**的循环结构
+- Wiener-KAN的"线性部分"指用于**频率响应辨识**的线性系统，而非时序记忆
+- 两者功能上完全不同（记忆管理 vs 频率响应建模），不能作为直接架构参考
 
-本文主要价值在于：
-1. 展示了KAN与LSTM结合的可能性，为FRIKAN架构设计提供参考思路
-2. 验证了KAN在时间序列任务上的有效性
-3. 提供了KAN+记忆机制在多步预测上的性能证据
+**对IDEA的总体参考价值**：较低
 
-虽然与IDEA中的 Wiener-KAN 补偿方法缺乏直接关联，但论文对FRIKAN的时序架构设计有间接参考价值，原分析"无直接GAP支撑"的结论过于保守。
+本文主要价值在于展示了KAN与LSTM结合的可能性，但与IDEA中的 Wiener-KAN 补偿方法缺乏直接关联。

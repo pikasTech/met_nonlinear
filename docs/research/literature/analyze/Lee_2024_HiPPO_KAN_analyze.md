@@ -27,9 +27,9 @@
   - KAN在系数空间中对系数向量进行非线性变换：第277-282行
   - 固定维度系数空间作为信息瓶颈，促进高效学习：第365-367行
 
-> "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."（第317-318行）
+> **第293-295行[EN]**: "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."
 
-> "This methodology resembles an auto-encoder architecture, where the encoder (HiPPO transformation) compresses the input time series into a latent coefficient vector..."（第365-367行）
+> **第365-367行[EN]**: "This methodology resembles an auto-encoder architecture, where the encoder (HiPPO transformation) compresses the input time series into a latent coefficient vector..."
 
 - **实验验证**：
   - 窗口大小120/500/1200参数均为4,384（常数）：表1（第477行）
@@ -52,7 +52,7 @@
 
 | 贡献 | 正文引用 | 对应GAP | 关联理由 |
 |------|---------|---------|----------|
-| 参数效率：系数向量维度固定，与序列长度L无关 | 第269行（HiPPO映射）、第317-318行（系数空间R^N与L解耦） | GAP9 | 参数恒定性直接支撑计算效率优势 |
+| 参数效率：系数向量维度固定，与序列长度L无关 | 第269行（HiPPO映射）、第293-295行（系数空间R^N与L解耦） | GAP9 | 参数恒定性直接支撑计算效率优势 |
 | 长期预测性能优于传统KAN | 无直接对应正文 | 无直接对应 | 时间序列预测任务与频率补偿任务不同 |
 | HiPPO系数提供简洁可解释的状态表示 | 无直接对应正文 | 无直接对应 | 可解释性是独立特性，与前馈非线性利用（GAP7）无直接关联 |
 
@@ -62,9 +62,9 @@
 
 第21行摘要指出HiPPO-KAN'在不增加参数数量的情况下实现卓越性能'
 
-> "The HiPPO transformation maps this time series into a coefficient vector c^(L) ∈ R^N via the mapping"（第269行）
+> **第269行[EN]**: "The HiPPO transformation maps this time series into a coefficient vector c^(L) ∈ R^N via the mapping"
 
-> "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."（第317-318行）
+> **第293-295行[EN]**: "By operating within the coefficient space R^N, where N is independent of the sequence length L, our approach maintains parameter efficiency and scalability."
 
 ## 技术细节
 
@@ -75,7 +75,7 @@
 - **状态空间解释**：类似于自动编码器，HiPPO编码器/解码器+ KAN潜空间操作（第365-367行）
 - **HiPPO-KAN vs 标准KAN**：标准KAN参数随窗口线性增长，HiPPO-KAN参数恒定（第261-263行）
 
-> "While these approaches validate the effectiveness of KAN models in time-series prediction...they involve integrating KAN into complex architectures, which can increases model complexity and computational demands."（第261-263行）
+> **第261-263行[EN]**: "While these approaches validate the effectiveness of KAN models in time-series prediction...they involve integrating KAN into complex architectures, which can increases model complexity and computational demands."
 
 ## GAP支撑结论
 

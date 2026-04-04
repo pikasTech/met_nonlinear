@@ -5,10 +5,13 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import numpy as np
 
 from .external_path_parser import ExternalPath
@@ -76,6 +79,7 @@ class ValidationArtifacts:
     output_data_range: float
     loaded_weights_path: Path
     records: List[ValidationRecord]
+    tf_debug_sequences: Dict[str, List[Any]] = field(default_factory=dict)
 
     @property
     def record_count(self) -> int:
@@ -126,7 +130,9 @@ def execute_lstm_qemu_inference_task(ep_path: ExternalPath,
         validation_artifacts=validation_artifacts,
         c_output_sequences=None,
         compress=bool(validation_config['wave_output']['compress']),
+        export_intermediates=bool(validation_config['wave_output'].get('export_intermediates', True)),
     )
+    plot_paths: Dict[str, str] = {}
 
     execution_summary: Dict[str, Any] = {
         'task_type': 'qemu-c-inference',
@@ -179,6 +185,7 @@ def execute_lstm_qemu_inference_task(ep_path: ExternalPath,
     run_results: List[Dict[str, Any]] = []
     build_result: Optional[Dict[str, Any]] = None
     first_c_output_sequences: Optional[List[List[float]]] = None
+    first_c_debug_sequences: Dict[str, List[Any]] = {}
 
     if action in {'build', 'build-run'}:
         build_workflow = execute_qemu_workflow(
@@ -222,15 +229,23 @@ def execute_lstm_qemu_inference_task(ep_path: ExternalPath,
                 benchmark_config,
             )
             c_output_sequences = _extract_validation_outputs(parsed_output, validation_artifacts)
+            c_debug_sequences = _extract_c_debug_sequences(parsed_output, validation_artifacts)
             comparison_payload = _compute_wave_comparison(validation_artifacts, c_output_sequences)
+            intermediate_comparison = _compute_intermediate_comparison(
+                validation_artifacts,
+                c_debug_sequences,
+            )
             if first_c_output_sequences is None:
                 first_c_output_sequences = c_output_sequences
+            if not first_c_debug_sequences:
+                first_c_debug_sequences = c_debug_sequences
 
             run_results.append({
                 'run_index': run_index,
                 'workflow': run_workflow,
                 'parsed_output': parsed_output,
                 'comparison': comparison_payload['overall'],
+                'intermediate_comparison': intermediate_comparison,
             })
             if int(run_workflow.get('exit_code', 1)) != 0:
                 execution_summary['build'] = build_result
@@ -255,11 +270,28 @@ def execute_lstm_qemu_inference_task(ep_path: ExternalPath,
             validation_artifacts=validation_artifacts,
             c_output_sequences=first_c_output_sequences,
             compress=bool(validation_config['wave_output']['compress']),
+            export_intermediates=bool(validation_config['wave_output'].get('export_intermediates', True)),
+            c_debug_sequences=first_c_debug_sequences,
         )
+        if bool(validation_config['wave_output'].get('plot_comparison', True)):
+            plot_paths = _write_validation_comparison_plots(
+                output_root=ep_path.output_path,
+                validation_artifacts=validation_artifacts,
+                c_output_sequences=first_c_output_sequences,
+                dpi=int(validation_config['wave_output'].get('plot_dpi', 200)),
+            )
         comparison_payload = _compute_wave_comparison(validation_artifacts, first_c_output_sequences)
+        comparison_payload['intermediate'] = _compute_intermediate_comparison(
+            validation_artifacts,
+            first_c_debug_sequences,
+        )
         comparison_payload['wave_paths'] = wave_paths
+        if plot_paths:
+            comparison_payload['plot_paths'] = plot_paths
         _write_json(comparison_file, comparison_payload)
         execution_summary['wave_paths'] = wave_paths
+        if plot_paths:
+            execution_summary['plot_paths'] = plot_paths
         execution_summary['comparison'] = comparison_payload['overall']
         execution_summary['comparison_path'] = _relative_or_str(comparison_file)
 
@@ -272,6 +304,7 @@ def execute_lstm_qemu_inference_task(ep_path: ExternalPath,
             generated_project_dir,
             comparison_file,
             *[Path(path) for path in execution_summary.get('wave_paths', {}).values()],
+            *[Path(path) for path in execution_summary.get('plot_paths', {}).values()],
         ),
         'action': action,
     })
@@ -357,6 +390,9 @@ def _normalize_validation_config(config: Dict[str, Any]) -> Dict[str, Any]:
     selection_config.setdefault('start_time_s', 0.0)
     selection_config.setdefault('end_time_s', None)
     wave_output_config.setdefault('compress', True)
+    wave_output_config.setdefault('export_intermediates', True)
+    wave_output_config.setdefault('plot_comparison', True)
+    wave_output_config.setdefault('plot_dpi', 200)
 
     return {
         'dataset': dataset_config,
@@ -407,6 +443,13 @@ def _prepare_validation_artifacts(model_project_name: str,
         input_data_range = float(model_engine.scaler.scaler_x.data_range_)
         output_data_range = float(model_engine.scaler.scaler_y.data_range_)
 
+    tf_debug_sequences = _collect_tf_debug_sequences(
+        model_engine=model_engine,
+        x_input=x_input,
+        batch_size=batch_size,
+        use_scaler=bool(project_manager.config.use_scale),
+    )
+
     return ValidationArtifacts(
         dataset_type=str(project_manager.config.dataset_type),
         full_data_path=str(project_manager.config.full_data_path),
@@ -416,7 +459,52 @@ def _prepare_validation_artifacts(model_project_name: str,
         output_data_range=output_data_range,
         loaded_weights_path=loaded_weights_path,
         records=records,
+        tf_debug_sequences=tf_debug_sequences,
     )
+
+
+def _collect_tf_debug_sequences(model_engine: Any,
+                                x_input: np.ndarray,
+                                batch_size: int,
+                                use_scaler: bool) -> Dict[str, List[Any]]:
+    import tensorflow as tf
+
+    keras_model = model_engine.model_comp.model
+    x_scaled = np.asarray(x_input, dtype=np.float64)
+    if use_scaler and model_engine.scaler is not None:
+        x_scaled = model_engine.scaler.transform_x(
+            x_scaled.reshape(-1, x_scaled.shape[-1])
+        ).reshape(x_scaled.shape)
+
+    intermediate_model = tf.keras.Model(
+        inputs=keras_model.input,
+        outputs=[
+            keras_model.layers[0].output,
+            keras_model.layers[1].output,
+            keras_model.layers[2].output,
+        ],
+    )
+    lstm_hidden, dense_output, output_scaled = intermediate_model.predict(
+        x_scaled,
+        batch_size=max(1, batch_size),
+        verbose=0,
+    )
+
+    return {
+        'input_scaled': _split_batch_sequences(x_scaled),
+        'lstm_hidden': _split_batch_sequences(lstm_hidden),
+        'dense_output': _split_batch_sequences(dense_output),
+        'output_scaled': _split_batch_sequences(output_scaled),
+    }
+
+
+def _split_batch_sequences(array: np.ndarray) -> List[Any]:
+    values = np.asarray(array, dtype=np.float64)
+    if values.ndim == 2:
+        values = values[..., np.newaxis]
+    if values.ndim != 3:
+        raise ValueError(f'中间输出维度非法，期望 3 维张量，实际 {values.ndim}')
+    return [values[index].tolist() for index in range(values.shape[0])]
 
 
 def _normalize_project_path(model_project_name: str) -> str:
@@ -709,6 +797,10 @@ def _render_main_c() -> str:
 #define DWT_CTRL_CYCCNTENA (1u << 0)
 
 static port_float validation_output[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN];
+static port_float debug_scaled_input[VALIDATION_SEQ_LEN][LSTM_INPUT_DIM];
+static port_float debug_lstm_hidden[VALIDATION_SEQ_LEN][LSTM_UNITS];
+static port_float debug_dense_output[VALIDATION_SEQ_LEN][DENSE_UNITS];
+static port_float debug_output_scaled[VALIDATION_SEQ_LEN];
 
 static void uart_init(void)
 {
@@ -770,19 +862,43 @@ static void uart_put_s32(int32_t value)
 static void uart_put_fixed6(port_float value)
 {
     int32_t scaled = (int32_t)(value * 1000000.0f);
-    int32_t integer_part = scaled / 1000000;
-    int32_t fraction = scaled % 1000000;
+    int32_t abs_scaled = scaled;
+    int32_t integer_part;
+    int32_t fraction;
     int32_t divisor = 100000;
 
-    if (fraction < 0) {
-        fraction = -fraction;
+    if (scaled < 0) {
+        uart_putc('-');
+        abs_scaled = -scaled;
     }
 
-    uart_put_s32(integer_part);
+    integer_part = abs_scaled / 1000000;
+    fraction = abs_scaled % 1000000;
+
+    uart_put_u32((uint32_t)integer_part);
     uart_putc('.');
     while (divisor > 0) {
         uart_putc((char)('0' + ((fraction / divisor) % 10)));
         divisor /= 10;
+    }
+}
+
+static void uart_put_matrix_rows(const port_float *values,
+                                 uint32_t row_count,
+                                 uint32_t column_count)
+{
+    uint32_t row_index;
+    for (row_index = 0u; row_index < row_count; ++row_index) {
+        uint32_t column_index;
+        if (row_index > 0u) {
+            uart_putc(';');
+        }
+        for (column_index = 0u; column_index < column_count; ++column_index) {
+            if (column_index > 0u) {
+                uart_putc(',');
+            }
+            uart_put_fixed6(values[row_index * column_count + column_index]);
+        }
     }
 }
 
@@ -892,12 +1008,25 @@ static port_float output_forward_linear(const port_float input[DENSE_UNITS])
 static void lstm_forward_step(const port_float input_step[LSTM_INPUT_DIM],
                               port_float hidden_state[LSTM_UNITS],
                               port_float cell_state[LSTM_UNITS],
+                              port_float *output_scaled_value,
+                              port_float debug_scaled_input_step[LSTM_INPUT_DIM],
+                              port_float debug_hidden_step[LSTM_UNITS],
+                              port_float debug_dense_step[DENSE_UNITS],
                               port_float *output_value)
 {
     uint32_t unit;
+    uint32_t input_index;
     port_float previous_hidden[LSTM_UNITS];
     port_float previous_cell[LSTM_UNITS];
     port_float dense_output[DENSE_UNITS];
+    port_float scaled_input_step[LSTM_INPUT_DIM];
+
+    for (input_index = 0u; input_index < LSTM_INPUT_DIM; ++input_index) {
+        scaled_input_step[input_index] = scale_input(input_step[input_index]);
+        if (debug_scaled_input_step != 0) {
+            debug_scaled_input_step[input_index] = scaled_input_step[input_index];
+        }
+    }
 
     for (unit = 0u; unit < LSTM_UNITS; ++unit) {
         previous_hidden[unit] = hidden_state[unit];
@@ -905,7 +1034,6 @@ static void lstm_forward_step(const port_float input_step[LSTM_INPUT_DIM],
     }
 
     for (unit = 0u; unit < LSTM_UNITS; ++unit) {
-        uint32_t input_index;
         uint32_t hidden_index;
         port_float input_gate_acc = lstm_bias[unit + LSTM_UNITS * 0u];
         port_float forget_gate_acc = lstm_bias[unit + LSTM_UNITS * 1u];
@@ -913,7 +1041,7 @@ static void lstm_forward_step(const port_float input_step[LSTM_INPUT_DIM],
         port_float output_gate_acc = lstm_bias[unit + LSTM_UNITS * 3u];
 
         for (input_index = 0u; input_index < LSTM_INPUT_DIM; ++input_index) {
-            port_float input_value = scale_input(input_step[input_index]);
+            port_float input_value = scaled_input_step[input_index];
             input_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 0u];
             forget_gate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 1u];
             candidate_acc += input_value * lstm_kernel[input_index][unit + LSTM_UNITS * 2u];
@@ -938,18 +1066,37 @@ static void lstm_forward_step(const port_float input_step[LSTM_INPUT_DIM],
 
             cell_state[unit] = cell_value;
             hidden_state[unit] = hidden_value;
+            if (debug_hidden_step != 0) {
+                debug_hidden_step[unit] = hidden_value;
+            }
         }
     }
 
     dense_forward_relu(hidden_state, dense_output);
-    *output_value = inverse_scale_output(output_forward_linear(dense_output));
+    for (unit = 0u; unit < DENSE_UNITS; ++unit) {
+        if (debug_dense_step != 0) {
+            debug_dense_step[unit] = dense_output[unit];
+        }
+    }
+
+    {
+        port_float output_scaled = output_forward_linear(dense_output);
+        if (output_scaled_value != 0) {
+            *output_scaled_value = output_scaled;
+        }
+        *output_value = inverse_scale_output(output_scaled);
+    }
 }
 
 static void run_validation_record(const port_float sequence[VALIDATION_SEQ_LEN][LSTM_INPUT_DIM],
                                   port_float output_sequence[VALIDATION_SEQ_LEN],
                                   uint32_t reset_state_each_run,
                                   port_float hidden_state[LSTM_UNITS],
-                                  port_float cell_state[LSTM_UNITS])
+                                  port_float cell_state[LSTM_UNITS],
+                                  port_float debug_scaled_input_buffer[VALIDATION_SEQ_LEN][LSTM_INPUT_DIM],
+                                  port_float debug_lstm_hidden_buffer[VALIDATION_SEQ_LEN][LSTM_UNITS],
+                                  port_float debug_dense_output_buffer[VALIDATION_SEQ_LEN][DENSE_UNITS],
+                                  port_float debug_output_scaled_buffer[VALIDATION_SEQ_LEN])
 {
     uint32_t step;
     if (reset_state_each_run != 0u) {
@@ -958,7 +1105,34 @@ static void run_validation_record(const port_float sequence[VALIDATION_SEQ_LEN][
     }
 
     for (step = 0u; step < VALIDATION_SEQ_LEN; ++step) {
-        lstm_forward_step(sequence[step], hidden_state, cell_state, &output_sequence[step]);
+        port_float *step_scaled_input = 0;
+        port_float *step_hidden = 0;
+        port_float *step_dense = 0;
+        port_float *step_output_scaled = 0;
+
+        if (debug_scaled_input_buffer != 0) {
+            step_scaled_input = debug_scaled_input_buffer[step];
+        }
+        if (debug_lstm_hidden_buffer != 0) {
+            step_hidden = debug_lstm_hidden_buffer[step];
+        }
+        if (debug_dense_output_buffer != 0) {
+            step_dense = debug_dense_output_buffer[step];
+        }
+        if (debug_output_scaled_buffer != 0) {
+            step_output_scaled = &debug_output_scaled_buffer[step];
+        }
+
+        lstm_forward_step(
+            sequence[step],
+            hidden_state,
+            cell_state,
+            step_output_scaled,
+            step_scaled_input,
+            step_hidden,
+            step_dense,
+            &output_sequence[step]
+        );
     }
 }
 
@@ -991,7 +1165,11 @@ int main(void)
                 validation_output[record_index],
                 BENCHMARK_RESET_STATE_EACH_RUN,
                 hidden_state,
-                cell_state
+                cell_state,
+                0,
+                0,
+                0,
+                0
             );
             output_value = validation_output[record_index][VALIDATION_SEQ_LEN - 1u];
         }
@@ -1010,7 +1188,11 @@ int main(void)
             validation_output[record_index],
             0u,
             hidden_state,
-            cell_state
+            cell_state,
+            debug_scaled_input,
+            debug_lstm_hidden,
+            debug_dense_output,
+            debug_output_scaled
         );
     }
 
@@ -1057,6 +1239,30 @@ int main(void)
             }
             uart_put_fixed6(validation_output[record_index][step_index]);
         }
+        uart_puts("\n");
+
+        uart_puts("validation_input_scaled_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_scaled_input[0u][0u], VALIDATION_SEQ_LEN, LSTM_INPUT_DIM);
+        uart_puts("\n");
+
+        uart_puts("validation_lstm_hidden_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_lstm_hidden[0u][0u], VALIDATION_SEQ_LEN, LSTM_UNITS);
+        uart_puts("\n");
+
+        uart_puts("validation_dense_output_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_dense_output[0u][0u], VALIDATION_SEQ_LEN, DENSE_UNITS);
+        uart_puts("\n");
+
+        uart_puts("validation_output_scaled_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
     }
     uart_puts("validation_complete=1\n");
@@ -1108,6 +1314,55 @@ def _extract_validation_outputs(parsed_output: Dict[str, Any],
     return c_output_sequences
 
 
+def _extract_c_debug_sequences(parsed_output: Dict[str, Any],
+                               validation_artifacts: ValidationArtifacts) -> Dict[str, List[Any]]:
+    stage_keys = {
+        'input_scaled': 'validation_input_scaled_{record_index}',
+        'lstm_hidden': 'validation_lstm_hidden_{record_index}',
+        'dense_output': 'validation_dense_output_{record_index}',
+        'output_scaled': 'validation_output_scaled_{record_index}',
+    }
+    debug_sequences: Dict[str, List[Any]] = {}
+
+    for stage_name, template in stage_keys.items():
+        stage_records: List[Any] = []
+        stage_present = False
+        for record_index in range(validation_artifacts.record_count):
+            key = template.format(record_index=record_index)
+            if key not in parsed_output:
+                stage_records = []
+                break
+            stage_present = True
+            matrix = _parse_float_matrix(str(parsed_output[key]))
+            if matrix.shape[0] != validation_artifacts.seq_len:
+                raise ValueError(
+                    f'{key} 样本数不匹配，期望 {validation_artifacts.seq_len}，实际 {matrix.shape[0]}'
+                )
+            stage_records.append(matrix.tolist())
+        if stage_present and stage_records:
+            debug_sequences[stage_name] = stage_records
+
+    return debug_sequences
+
+
+def _parse_float_matrix(raw_value: str) -> np.ndarray:
+    rows = [row for row in raw_value.split(';') if row]
+    parsed_rows: List[List[float]] = []
+    expected_columns: Optional[int] = None
+
+    for row in rows:
+        values = [float(item) for item in row.split(',') if item]
+        if expected_columns is None:
+            expected_columns = len(values)
+        elif len(values) != expected_columns:
+            raise ValueError(f'矩阵列数不一致，期望 {expected_columns}，实际 {len(values)}')
+        parsed_rows.append(values)
+
+    if not parsed_rows:
+        return np.zeros((0, 0), dtype=np.float64)
+    return np.asarray(parsed_rows, dtype=np.float64)
+
+
 def _enrich_benchmark_output(parsed_output: Dict[str, Any],
                              run_workflow: Dict[str, Any],
                              benchmark_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -1130,7 +1385,9 @@ def _enrich_benchmark_output(parsed_output: Dict[str, Any],
 def _write_validation_wave_files(output_root: Path,
                                  validation_artifacts: ValidationArtifacts,
                                  c_output_sequences: Optional[List[List[float]]],
-                                 compress: bool) -> Dict[str, str]:
+                                 compress: bool,
+                                 export_intermediates: bool,
+                                 c_debug_sequences: Optional[Dict[str, List[Any]]] = None) -> Dict[str, str]:
     wave_dir = output_root / 'waves'
     wave_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1176,14 +1433,74 @@ def _write_validation_wave_files(output_root: Path,
         )
         output_paths['c_output_wave'] = _relative_or_str(c_wave_path)
 
+    if export_intermediates:
+        output_paths.update(_write_intermediate_wave_files(
+            wave_dir=wave_dir,
+            prefix='tf',
+            debug_sequences=validation_artifacts.tf_debug_sequences,
+            validation_artifacts=validation_artifacts,
+            compress=compress,
+        ))
+        if c_debug_sequences:
+            output_paths.update(_write_intermediate_wave_files(
+                wave_dir=wave_dir,
+                prefix='c',
+                debug_sequences=c_debug_sequences,
+                validation_artifacts=validation_artifacts,
+                compress=compress,
+            ))
+
     return output_paths
+
+
+def _write_intermediate_wave_files(wave_dir: Path,
+                                   prefix: str,
+                                   debug_sequences: Dict[str, List[Any]],
+                                   validation_artifacts: ValidationArtifacts,
+                                   compress: bool) -> Dict[str, str]:
+    output_paths: Dict[str, str] = {}
+    for stage_name, sequences in debug_sequences.items():
+        wave_path = wave_dir / f'{prefix}_{stage_name}.wave'
+        _save_wave_file(
+            wave_path,
+            source_name=f'{prefix}_{stage_name}',
+            sequences=sequences,
+            validation_artifacts=validation_artifacts,
+            compress=compress,
+            channel_names=_build_channel_names(stage_name, sequences),
+        )
+        output_paths[f'{prefix}_{stage_name}_wave'] = _relative_or_str(wave_path)
+    return output_paths
+
+
+def _build_channel_names(stage_name: str,
+                         sequences: Sequence[Sequence[Any]]) -> List[str]:
+    if not sequences:
+        return [stage_name]
+
+    first = np.asarray(sequences[0], dtype=np.float64)
+    if first.ndim == 1:
+        channel_count = 1
+    elif first.ndim == 2:
+        channel_count = int(first.shape[1])
+    else:
+        raise ValueError(f'波形维度非法: {first.ndim}')
+
+    if channel_count == 1:
+        return [stage_name]
+    if stage_name == 'lstm_hidden':
+        return [f'hidden_{index}' for index in range(channel_count)]
+    if stage_name == 'dense_output':
+        return [f'dense_{index}' for index in range(channel_count)]
+    return [f'{stage_name}_{index}' for index in range(channel_count)]
 
 
 def _save_wave_file(path: Path,
                     source_name: str,
                     sequences: Sequence[Sequence[float]],
                     validation_artifacts: ValidationArtifacts,
-                    compress: bool) -> None:
+                    compress: bool,
+                    channel_names: Optional[Sequence[str]] = None) -> None:
     target_path = path if path.suffix == '.wave' else path.with_suffix('.wave')
     target_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1208,11 +1525,23 @@ def _save_wave_file(path: Path,
     record_metadata_dict: Dict[str, Dict[str, Any]] = {}
     for index, (record, sequence) in enumerate(zip(validation_artifacts.records, sequences)):
         record_key = f'record_{index}'
-        record_data_dict[record_key] = np.asarray(sequence, dtype=np.float32).reshape(-1, 1)
+        record_values = np.asarray(sequence, dtype=np.float32)
+        if record_values.ndim == 1:
+            record_values = record_values.reshape(-1, 1)
+        if record_values.ndim != 2:
+            raise ValueError(f'Wave 数据维度非法，期望 1 或 2 维，实际 {record_values.ndim}')
+
+        resolved_channel_names = list(channel_names) if channel_names is not None else [source_name]
+        if len(resolved_channel_names) != int(record_values.shape[1]):
+            raise ValueError(
+                f'Wave 通道名数量不匹配，期望 {record_values.shape[1]}，实际 {len(resolved_channel_names)}'
+            )
+
+        record_data_dict[record_key] = record_values
         record_metadata_dict[record_key] = {
             'standard': {
                 'sample_rate': validation_artifacts.sample_rate,
-                'channel_names': [source_name],
+                'channel_names': resolved_channel_names,
                 'record_id': record.record_id,
                 'creation_date': timestamp,
                 'modified_date': timestamp,
@@ -1237,6 +1566,70 @@ def _save_wave_file(path: Path,
     save_func = np.savez_compressed if compress else np.savez
     with open(target_path, 'wb') as file_obj:
         save_func(file_obj, **payload)
+
+
+def _write_validation_comparison_plots(output_root: Path,
+                                       validation_artifacts: ValidationArtifacts,
+                                       c_output_sequences: Sequence[Sequence[float]],
+                                       dpi: int) -> Dict[str, str]:
+    plot_dir = output_root / 'plots'
+    plot_dir.mkdir(parents=True, exist_ok=True)
+
+    output_paths: Dict[str, str] = {}
+    for index, (record, c_sequence) in enumerate(zip(validation_artifacts.records, c_output_sequences)):
+        plot_path = plot_dir / f'{_sanitize_filename(record.record_id)}_comparison.png'
+        _save_validation_comparison_plot(
+            plot_path=plot_path,
+            record=record,
+            c_output_sequence=c_sequence,
+            sample_rate=validation_artifacts.sample_rate,
+            dpi=dpi,
+        )
+        output_paths[f'comparison_plot_{index}'] = _relative_or_str(plot_path)
+
+    return output_paths
+
+
+def _save_validation_comparison_plot(plot_path: Path,
+                                     record: ValidationRecord,
+                                     c_output_sequence: Sequence[float],
+                                     sample_rate: float,
+                                     dpi: int) -> None:
+    origin_values = np.asarray([sample[0] for sample in record.input_sequence], dtype=np.float64)
+    target_values = np.asarray(record.target_sequence, dtype=np.float64)
+    tf_values = np.asarray(record.tf_output_sequence, dtype=np.float64)
+    c_values = np.asarray(c_output_sequence, dtype=np.float64)
+
+    sequence_length = min(len(origin_values), len(target_values), len(tf_values), len(c_values))
+    if sequence_length == 0:
+        raise ValueError(f'记录 {record.record_id} 没有可绘制的波形数据')
+
+    time_axis = np.arange(sequence_length, dtype=np.float64) / float(sample_rate)
+
+    fig, ax = plt.subplots(figsize=(14, 6))
+    try:
+        ax.plot(time_axis, origin_values[:sequence_length], label='origin', color='#1f77b4', linewidth=1.4, alpha=0.90)
+        ax.plot(time_axis, target_values[:sequence_length], label='target', color='#2ca02c', linewidth=1.4, alpha=0.85)
+        ax.plot(time_axis, c_values[:sequence_length], label='c_inference', color='#d62728', linewidth=1.6, alpha=0.85)
+        ax.plot(time_axis, tf_values[:sequence_length], label='tf_inference', color='#ff7f0e', linewidth=1.4, alpha=0.85)
+
+        ax.set_xlabel('Time (s)')
+        ax.set_ylabel('Amplitude')
+        ax.set_title(
+            f'Waveform Comparison: {record.record_id}\n'
+            f'Frequency={record.frequency:.1f} Hz, Magnitude={record.magnitude:.2f}'
+        )
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc='best')
+        fig.tight_layout()
+        fig.savefig(plot_path, dpi=dpi, bbox_inches='tight')
+    finally:
+        plt.close(fig)
+
+
+def _sanitize_filename(value: str) -> str:
+    sanitized = ''.join(character if character.isalnum() or character in {'-', '_'} else '_' for character in value)
+    return sanitized.strip('_') or 'record'
 
 
 def _compute_wave_comparison(validation_artifacts: ValidationArtifacts,
@@ -1277,6 +1670,43 @@ def _compute_wave_comparison(validation_artifacts: ValidationArtifacts,
         'overall': overall,
         'per_record': per_record,
     }
+
+
+def _compute_intermediate_comparison(validation_artifacts: ValidationArtifacts,
+                                     c_debug_sequences: Dict[str, List[Any]]) -> Dict[str, Any]:
+    comparisons: Dict[str, Any] = {}
+    tf_debug_sequences = validation_artifacts.tf_debug_sequences
+
+    for stage_name in sorted(set(tf_debug_sequences) & set(c_debug_sequences)):
+        c_arrays = [np.asarray(sequence, dtype=np.float64) for sequence in c_debug_sequences[stage_name]]
+        tf_arrays = [np.asarray(sequence, dtype=np.float64) for sequence in tf_debug_sequences[stage_name]]
+
+        if len(c_arrays) != len(tf_arrays):
+            raise ValueError(f'{stage_name} 记录数不匹配，TF={len(tf_arrays)}，C={len(c_arrays)}')
+
+        diff_arrays: List[np.ndarray] = []
+        for c_array, tf_array in zip(c_arrays, tf_arrays):
+            if c_array.shape != tf_array.shape:
+                raise ValueError(f'{stage_name} 形状不匹配，TF={tf_array.shape}，C={c_array.shape}')
+            diff_arrays.append(c_array - tf_array)
+
+        c_flat = np.concatenate([array.reshape(-1) for array in c_arrays]) if c_arrays else np.asarray([], dtype=np.float64)
+        tf_flat = np.concatenate([array.reshape(-1) for array in tf_arrays]) if tf_arrays else np.asarray([], dtype=np.float64)
+        diff_flat = np.concatenate([array.reshape(-1) for array in diff_arrays]) if diff_arrays else np.asarray([], dtype=np.float64)
+        channel_count = int(c_arrays[0].shape[1]) if c_arrays and c_arrays[0].ndim == 2 else 1
+
+        comparisons[stage_name] = {
+            'record_count': len(c_arrays),
+            'sample_count': int(diff_flat.size),
+            'channel_count': channel_count,
+            'mae': float(np.mean(np.abs(diff_flat))) if diff_flat.size else 0.0,
+            'max_abs_error': float(np.max(np.abs(diff_flat))) if diff_flat.size else 0.0,
+            'c_output_stats': _compute_signal_stats(c_flat),
+            'tf_output_stats': _compute_signal_stats(tf_flat),
+            'diff_stats': _compute_signal_stats(diff_flat),
+        }
+
+    return comparisons
 
 
 def _compute_signal_stats(values: np.ndarray) -> Dict[str, float]:

@@ -10,7 +10,16 @@
     "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output.wave",
     "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/origin_input.wave",
     "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/target_output.wave",
-    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output.wave"
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/plots/mag0_24_freq10_comparison.png"
   ],
   "action": "build-run"
 }

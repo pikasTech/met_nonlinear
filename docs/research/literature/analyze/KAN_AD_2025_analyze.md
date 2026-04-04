@@ -78,35 +78,35 @@ KAN-AD包含三个主要阶段：
 
 > "Remarkably, it requires fewer than 1,000 trainable parameters, resulting in a 50% faster inference speed compared to the original KAN, demonstrating the approach's efficiency and practical viability."
 
-**出处**：第13行（摘要）
+**出处**：第13行[EN]（摘要）
 
 > "KAN-AD achieves an average 15% improvement in detection accuracy (with peaks exceeding 27%) over state-of-the-art baselines."
 
-**出处**：第13行（摘要）
+**出处**：第13行[EN]（摘要）
 
 ### 4.2 FD机制对计算效率的影响
 
 > "The function deconstruction (FD) mechanism addresses this challenge by transforming the modeling of normal patterns into a weighted combination of univariate functions. This transformation substantially reduces the model's parameter quantity — instead of requiring numerous parameters for fine-grained feature modeling, FD mechanism achieves efficient representation through estimating coefficients of a small number of univariate functions."
 
-**出处**：第221-222行(英)
+**出处**：第221行[EN]，第222行[CN]
 
 ### 4.3 傅里叶 vs B样条
 
 > "Formally, we employ Fourier series for normal pattern representation, motivated by two key advantages over alternative approaches such as B-spline functions. First, the constituent sine and cosine functions exhibit superior local smoothness, avoiding the potential overfitting to local noise. Second, Fourier series naturally capture global patterns, particularly excelling at modeling periodic behaviors in time series."
 
-**出处**：第157行
+**出处**：第157行[EN]
 
 ### 4.4 KAN局限性
 
 > "Since anomalous patterns typically manifest as localized features (Xu et al., 2022), B-splines may inadvertently fit these outliers, potentially compromising model accuracy."
 
-**出处**：第118-119行（英）
+**出处**：第119行[EN]，第120行[CN]
 
 ### 4.5 架构对比
 
 > "KAN-AD learns the coefficients on edges with fixed univariate functions, and performs weighted sum operations on nodes. Blue lines indicate edges with weights."
 
-**出处**：第181行
+**出处**：第181行[EN]
 
 ## 5. 方法论总结
 

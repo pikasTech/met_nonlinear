@@ -4,7 +4,7 @@ title: KAN_AD recheck R198
 status: closed
 tags: kanad, recheck, r198, round198, verify
 created_at: 2026-04-03T16:22:25
-updated_at: 2026-04-03T17:15:10
+updated_at: 2026-04-04T01:20:35
 ---
 
 # 文献复查Issue
@@ -124,4 +124,12 @@ updated_at: 2026-04-03T17:15:10
 ### 审查意见
 
 **无需进一步修改**。该issue可以关闭。
+
+### r005 (2026-04-04T01:18:40)
+
+## Issue 837 (KAN_AD_2025) 处理完成确认
+
+**验证结果**：`docs/research/literature/analyze/KAN_AD_2025_analyze.md` 第91行已修正为 `第221-222行(英)`。
+
+**确认**：该行引用已纠正为正确的英文行号标注，无需进一步修改。Issue 已处理完毕。
 

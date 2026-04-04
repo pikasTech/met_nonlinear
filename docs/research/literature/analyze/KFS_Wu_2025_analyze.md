@@ -28,7 +28,7 @@
 - 第129-131行：论文通过频谱均匀性将时间序列转换到频域处理，选择能量集中的频带作为主导时序特征
 - 第191行：核心挑战在于解决通道无关信息的序列建模同时有效降低噪声影响，KFS通过FreK模块和多尺度框架应对
 - 第207-209行：FreK模块使用FFT变换，选择top-K频带进行信号重建，有效衰减噪声
-- 第139-144行：使用Parseval定理证明频域处理的合理性
+- 第139-144行[EN]：使用Parseval定理陈述（Theorem 1 states）频域处理的理论依据
 
 **论文没有做什么/没有做好什么**:
 - 聚焦于通用时间序列预测，与地震传感器频率漂移补偿无直接关联
@@ -59,20 +59,20 @@
 
 **关键引文**:
 
-> **第37行**: "It is worth noting that time series contain multiple frequency components, including noise that interferes with model learning. This inherent noise affects different frequencies unevenly, causing lower signal-to-noise ratios at lower-amplitude frequencies and consequently impairing model predictive performance."
+> **第37行[EN]**: "It is worth noting that time series contain multiple frequency components, including noise that interferes with model learning. This inherent noise affects different frequencies unevenly, causing lower signal-to-noise ratios at lower-amplitude frequencies and consequently impairing model predictive performance."
 > (值得注意的是，时间序列包含多个频率分量，包括干扰模型学习的噪声。这种固有噪声对不同频率的影响不均匀，导致低幅度频率处的信噪比降低，从而损害模型的预测性能。)
 
-> **第113行**: "In the physical world, time series data originate from sensors on physical devices or recordings of real-world relationships. These measurements inherently contain varying levels of noise interference due to factors including acquisition methods, mechanical transmission processes, and recording mechanisms."
+> **第113行[EN]**: "In the physical world, time series data originate from sensors on physical devices or recordings of real-world relationships. These measurements inherently contain varying levels of noise interference due to factors including acquisition methods, mechanical transmission processes, and recording mechanisms."
 > (在现实世界中，时间序列数据源自物理设备上的传感器或现实世界关系的记录。由于采集方法、机械传输过程和记录机制等因素，这些测量数据本身包含不同程度的噪声干扰。)
 
-> **第191行**: "The core challenge lies in resolving sequence modeling for channel-independent information while effectively reducing the influence of noise."
+> **第191行[EN]**: "The core challenge lies in resolving sequence modeling for channel-independent information while effectively reducing the influence of noise."
 > (核心挑战在于解决通道无关信息的序列建模问题，同时有效降低噪声的影响。)
 
-> **第139-144行**: Theorem 1 (Parseval's Theorem) 表明时间序列的总能量在频域和时域中等效
+> **第139-144行[EN]**: Theorem 1 (Parseval's Theorem) states that the total energy of a time series is equivalent in the frequency domain and the time domain
 
-> **第365-367行**: "L_F = (1/K)Σ||F{ỹ(t)}_i - F{y(t)}_i||" (频域对齐损失)
+> **第365-367行[EN]**: "L_F = (1/K)Σ||F{ỹ(t)}_i - F{y(t)}_i||" (频域对齐损失)
 
-> **第373-375行**: "L = αL_F + (1-α)L_MSE" (复合损失函数)
+> **第373-375行[EN]**: "L = αL_F + (1-α)L_MSE" (复合损失函数)
 
 ## KFS与AFMAE/FIRE方法的对比分析
 

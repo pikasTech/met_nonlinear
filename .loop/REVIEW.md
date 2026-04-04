@@ -1,3 +1,394 @@
+## Round 267 审查完成 (2026-04-04 09:33)
+
+**7个Issue复查审查结果** (1107-1113):
+
+- Issue 1107: van Meer 2025 Hall sensor Wiener ✅ r006审查通过 - P0修复验收
+- Issue 1108: Wahlberg 2015 stochastic Wiener ✅ r006审查通过 - P0修复验收
+- Issue 1109: Liu 2024 KAN ✅ r006审查通过 - P0修复验收
+- Issue 1110: Pozdnyakov 2025 lmKAN ✅ r006审查通过 - P0修复验收
+- Issue 1111: Shuai 2024 PIKAN ✅ r006审查通过 - P0修复验收
+- Issue 1112: Jarraya 2025 SOH KLSTM ✅ r006审查通过 - P0修复验收
+- Issue 1113: KAN AD 2025 ✅ r006审查通过 - P0修复验收
+
+**1个Issue续审** (1114):
+- Issue 1114: Zhang 2026 Time TK ❌ r003审查不通过 - P0: 第143/201-202/305行[EN]标注仍缺失
+
+**Round 267 规划决策**:
+- 7个Issue全部关闭 (1107-1113) - P0错误已全部修复验收
+- 1个Issue续审 (1114) - 执行者r002报告与实际文件不符
+- 7个Issue新开 (1115-1121) - 补充至8个开放Issue
+
+---
+
+## Round 265 审查完成 (2026-04-04 09:18)
+
+**7个Issue复查审查结果**:
+
+- Issue 1107: van Meer 2025 Hall sensor Wiener ❌ r003审查不通过 - P0: [EN]/[CN]标注严重缺失
+- Issue 1108: Wahlberg 2015 stochastic Wiener ❌ r003审查不通过 - P0: [EN]/[CN]标注严重缺失
+- Issue 1109: Liu 2024 KAN ❌ r003审查不通过 - P0: [EN]/[CN]标注格式错误
+- Issue 1110: Pozdnyakov 2025 lmKAN ❌ r003审查不通过 - P0: [EN]/[CN]标注严重缺失
+- Issue 1111: Shuai 2024 PIKAN ❌ r003审查不通过 - P0: [EN]/[CN]标注严重缺失
+- Issue 1112: Jarraya 2025 SOH KLSTM ❌ r003审查不通过 - P0: [EN]/[CN]标注严重缺失
+- Issue 1113: KAN AD 2025 ❌ r003审查不通过 - P0: [EN]/[CN]标注缺失且第221-222行标注错误
+
+**共同问题**:
+1. 所有引用均无[EN]/[CN]标注
+2. r001和r002内容完全相同(逐字复制)
+3. 执行者未进行实际验证
+
+**Round 266 规划决策**:
+- 7个Issue全部续审 (1107-1113) - P0错误待执行者修正
+- 1个Issue新开 (1114) - 补充至8个开放Issue
+- 执行者需按R266要求修正[EN]/[CN]标注问题
+
+---
+
+## Round 264 审查完成 (2026-04-04 09:04)
+
+**8个Issue复查审查结果**:
+
+- Issue 1092: Voit 2024 Multikernel NN ✅ r006审查通过 - P0错误已修复(第301-347行引用修正，L348空行处理正确)
+- Issue 1100: Barasin 2025 KAN Interpretable ✅ r004审查通过 - 11处引用全部准确
+- Issue 1101: Buhrer 2026 BitLogic ✅ r004审查通过 - 10处引用全部准确
+- Issue 1102: Busetto 2025 Nano Drone ✅ r004审查通过 - 7处引用全部准确，[EN]/[CN]双语标注正确
+- Issue 1103: Chakraborty 2025 BSP ✅ r004审查通过 - 10处引用全部准确
+- Issue 1104: Chikishev 2019 TAF ✅ r004审查通过 - 13处引用全部准确
+- Issue 1105: ConTSG 2026 Bench ✅ r004审查通过 - 8处引用全部准确
+- Issue 1106: Cruz 2025 SS KAN ✅ r004审查通过 - 8处引用全部准确，[EN]和[公式X]标注正确
+
+**Round 265 规划决策**:
+- 8个Issue全部关闭 (1092, 1100-1106)
+- 7个新Issue开启 (1107-1113) - 长期未复查候选
+- 执行者需按R265要求进行复查
+
+---
+
+## Round 263 审查完成 (2026-04-04 08:44)
+
+**8个Issue复查审查结果**:
+
+- Issue 1092: Voit 2024 Multikernel NN ❌ r002发现P0错误 - L348章节标题应为L363-365时域FIR描述
+- Issue 1093: Revay 2021 Recurrent Equilibrium ✅ r002审查通过 - 10处引用全部准确
+- Issue 1094: Willemstein 2023 WH Piezoresistive ✅ r002审查通过 - 2处引用全部准确
+- Issue 1095: Silva 2024 REDOX Gas ✅ r002审查通过 - 4处引用全部准确
+- Issue 1096: Jiang 2025 KANMixer ✅ r002审查通过 - 7处引用全部准确
+- Issue 1097: Liu 2026 GRAU ✅ r002审查通过 - 9处引用全部准确
+- Issue 1098: Schoukens 2017 benchmarks ✅ r002审查通过 - 10处引用全部准确
+- Issue 1099: Xu 2008 Volterra ✅ r002审查通过 - 7处引用全部准确
+
+**Round 263 规划决策**:
+- 7个Issue关闭 (1093-1099)
+- 1个Issue续审 (1092) - P0错误(L348→L363-365)待执行者修正
+- 7个新Issue开启 (1100-1106) - R261论文复查候选
+- 执行者需按R263要求进行复查
+
+---
+
+## Round 261 审查完成 (2026-04-04 08:24)
+
+**8个Issue复查审查结果**:
+
+- Issue 1084: Barasin 2025 KAN Interpretable ✅ r006审查通过 - P0修复验收(SHAP/KAN图分析正确区分第107-110行)
+- Issue 1085: Buhrer 2026 BitLogic ✅ r007审查通过 - P0修复验收(第82行引用从105→57行)
+- Issue 1086: Busetto 2025 Nano Drone ✅ r006审查通过 - P0修复验收(结论统一为"无关联")
+- Issue 1087: ConTSG 2026 Bench ✅ r006审查通过 - P0修复验收(GAP分析重构为两独立维度)
+- Issue 1088: Cruz 2025 SS KAN ✅ r007审查通过 - P0修复验收(第21/29行EN修正，EN/CN标记补全)
+- Issue 1089: Dong 2024 KAN Time Series ✅ r006审查通过 - P0修复验收(深度批判逻辑错误修正)
+- Issue 1090: Faroughi 2026 Symbolic KAN ✅ r006审查通过 - P0修复验收(第85-86行引用修正)
+- Issue 1091: Fasmin 2017 Nonlinear Electrochemical ✅ r007审查通过 - P0修复验收(NLEIS位置/科学论证)
+
+**Round 262 规划决策**:
+- 8个Issue全部关闭 (1084-1091)
+- 8个新Issue开启 (1092-1099) - 历史积压复查候选
+- 执行者需按R262要求进行复查
+
+---
+
+## Round 258 规划完成 (2026-04-04 07:08)
+
+**7个Issue关闭 (R257续审通过)**:
+- 078: Zhang 2026 Time TK ✅ r003审查通过 - r002的"问题"经验证不存在
+- 962: van Meer 2025 Hall sensor Wiener ✅ r009审查通过 - r008的"问题"经验证不存在
+- 1071: Wang 2024 SpectralKAN ✅ r004审查通过 - P1修正验收(第61行→第55行引用修正)
+- 1072: Yu 2025 SATL ✅ r003审查通过 - P1修正验收(第333-335行→第335-337行引用修正)
+- 1073: Li 2024 FTMixer ✅ r003审查通过 - 6处引用全部准确
+- 1075: Chao 2025 Dynamic Measurement ✅ r002审查通过 - P1修正验收(第169行→第167-168行引用修正)
+- 1076: Lin effect 2020 ✅ r002审查通过 - 12处引用全部准确
+
+**1个Issue续审 (1074)**:
+- 1074: Schaller 2025 AutoML ❌ r002审查不通过 - P1: 英文原文引用缺少[EN]标注(Lines 51-52, 57, 55-56, 61, 62)
+
+**7个Issue新开 (1077-1083)**:
+- 1077: Revay 2021 - 复查候选 (R250后~7轮)
+- 1078: Willemstein 2023 WH - 复查候选 (R250后~7轮)
+- 1079: Hoekstra 2026 LFR - 复查候选 (R250后~7轮)
+- 1080: Kui 2025 TFKAN - 复查候选 (R250后~7轮)
+- 1081: Kuznetsov 2026 LUT KAN - 复查候选 (R250后~7轮)
+- 1082: iqbal 2024 electrochemical volterra - 复查候选 (R250后~7轮)
+- 1083: Rodriguez Linhares 2025 - 复查候选 (R252后~5轮)
+
+---
+
+## Round 257 规划完成 (2026-04-04 06:43)
+
+**3个Issue关闭 (R256续审通过)**:
+- 1068: Somvanshi 2025 KAN Survey ✅ r004审查通过 - P1修正验收(第60行引用已修正)
+- 1069: Rufolo 2024 WH Transformer ✅ r004审查通过 - P1修正验收(第19行已补全277-279行引用)
+- 1070: Ullah 2026 NanoBench ✅ r004审查通过 - 辩解成立，GAP评估正确
+
+**5个Issue续审 (078,962,1071-1073)**:
+- 078: Zhang 2026 Time TK - 复查候选 (reopened) - 待首次复查
+- 962: van Meer 2025 Hall sensor Wiener - 复查候选 (R221后~35轮) - 待首次复查
+- 1071: Wang 2024 SpectralKAN - 复查候选 (R213后~43轮) - 待首次复查
+- 1072: Yu 2025 SATL - 首次复查
+- 1073: Li 2024 FTMixer - 复查候选 (R177后~79轮) - 待首次复查
+
+**3个Issue新开 (1074-1076)**:
+- 1074: Schaller 2025 AutoML - 复查候选 (R197后~60轮)
+- 1075: Chao 2025 Dynamic Measurement - 复查候选 (R197后~60轮)
+- 1076: Lin effect 2020 - 复查候选 (R206后~51轮)
+
+---
+
+## Round 256 规划完成 (2026-04-04 06:28)
+
+**4个Issue关闭 (R255复查通过)**:
+- 1064: Liu 2026 GRAU ✅ r002审查通过 - 8处引用全部准确
+- 1065: SAMFre Wang 2025 ✅ r002审查通过 - 2处P1已修正(255→257, 323-339→331-339)
+- 1066: Wang 2025 WaveTuner ✅ r002审查通过 - 4处P1已修正(行号/术语)
+- 1067: Chikishev 2019 ✅ r002审查通过 - 13处引用全部准确
+
+**3个Issue续审 (P1问题待执行者修正)**:
+- 1068: Somvanshi 2025 KAN Survey ❌ r002发现P1 - 第60行引用与分析描述不匹配
+- 1069: Rufolo 2024 WH Transformer ❌ r002发现P1 - 精确行号引用表遗漏第277-279行
+- 1070: Ullah 2026 NanoBench ❌ r002发现P1 - GAP支撑声明与引文证据不匹配
+
+**5个Issue新开/重开 (1071-1073, 078, 962)**:
+- 1071: Wang 2024 SpectralKAN - 复查候选 (R213后~42轮)
+- 1072: Yu 2025 SATL - 首次复查
+- 1073: Li 2024 FTMixer - 复查候选 (R177后~78轮)
+- 078: Zhang 2026 Time TK - 复查候选 (reopened from closed)
+- 962: van Meer 2025 Hall sensor Wiener - 复查候选 (R221后~34轮)
+
+---
+
+## Round 255 规划完成 (2026-04-04 06:15)
+
+**1个Issue关闭 (R254复查通过)**:
+- 1055: Rather 2025 KAN GRU ✅ r007审查通过 - 14处引用全部准确，第54行公式标注已修正为[公式12]
+
+**7个Issue新开 (1064-1070)**:
+- 1064: Liu 2026 GRAU - 复查候选 (R244后~10轮)
+- 1065: SAMFre Wang 2025 - 首次复查
+- 1066: Wang 2025 WaveTuner - 复查候选 (R158后~96轮)
+- 1067: Chikishev 2019 - 复查候选 (R248后~6轮)
+- 1068: Somvanshi 2025 KAN Survey - 复查候选 (R197后~57轮)
+- 1069: Rufolo 2024 WH Transformer - 复查候选 (R197后~57轮)
+- 1070: Ullah 2026 NanoBench - 复查候选 (R197后~57轮)
+
+---
+
+## Round 254 规划完成 (2026-04-04 06:07)
+
+**6个Issue关闭 (R253复查通过)**:
+- 1042: Revay 2021 Recurrent Equilibrium ✅ r003审查通过 - 10处引用全部准确
+- 1043: Willemstein 2023 WH Piezoresistive ✅ r003审查通过 - 3处引用全部准确
+- 1044: Hoekstra 2026 LFR Learning ✅ r003审查通过 - 11处引用全部准确
+- 1046: Kui 2025 TFKAN ✅ r003审查通过 - 5处引用全部准确
+- 1047: Kuznetsov 2026 LUT KAN ✅ r003审查通过 - 4处引用全部准确(1361行范围已修正)
+- 1049: Lin effect 2020 VIP ✅ r003审查通过 - 12处引用全部准确
+
+**1个Issue关闭 (R252续审通过)**:
+- 1060: Hoang 2026 KANELE ✅ r004审查通过 - 引用范围已修正(117→117行,125-127→125行)
+
+**1个Issue续审 (P0问题待执行者修正)**:
+- 1055: Rather 2025 KAN GRU ❌ r004发现P0问题 - 第54行公式应标记为[公式12]而非[EN]
+
+---
+
+## Round 253 规划完成 (2026-04-04 05:52)
+
+**6个Issue关闭 (R252复查通过)**:
+- 1056: Busetto 2025 Nano Drone ✅ r002审查通过 - 6处引用全部准确
+- 1057: Wang 2024 SpectralKAN ✅ r002审查通过 - 8处引用全部准确
+- 1058: KFS Wu 2025 ✅ r002审查通过 - 8处引用全部准确(P2小问题不阻碍)
+- 1059: Hasan 2026 HaKAN ✅ r002审查通过 - 5处引用全部准确
+- 1061: FreLE Sun 2025 ✅ r002审查通过 - 5处引用全部准确
+- 1062: Yang 2023 Floss ✅ r002审查通过 - 10处引用全部准确
+
+**2个Issue续审 (P0/P1问题待执行者修正)**:
+- 1055: Rather 2025 KAN GRU ❌ r002发现P0问题 - 引用格式不符合规范(中文概括而非原文摘录)
+- 1060: Hoang 2026 KANELE ❌ r002发现P1问题 - 引用范围不准确(117-119行应为117行)
+
+**5个Issue重开 (R250/R251复查候选)**:
+- 1042: Revay 2021 Recurrent Equilibrium - R250复查候选
+- 1043: Willemstein 2023 WH Piezoresistive - R250复查候选
+- 1044: Hoekstra 2026 LFR Learning - R250复查候选
+- 1046: Kui 2025 TFKAN - R250复查候选
+- 1047: Kuznetsov 2026 LUT KAN - R250复查候选
+- 1049: Lin effect 2020 VIP - R251复查候选
+
+---
+
+## Round 252 规划完成 (2026-04-04 05:36)
+
+**2个Issue关闭 (R251续审通过)**:
+- 1045: Jiang 2025 KANMixer ✅ r003审查通过 - 5处P0行号错误全部修正
+- 1048: Silva 2024 REDOX Gas ✅ r003审查通过 - 2处P0行号错误全部修正
+
+**6个Issue关闭 (R251复查通过)**:
+- 1049: Lin effect 2020 VIP ✅ r001审查通过 - 12处引用全部准确
+- 1050: iqbal 2024 electrochemical volterra ✅ r001审查通过 - 7处引用全部准确
+- 1051: Rodriguez Linhares 2025 ✅ r001审查通过 - 8处引用全部准确
+- 1052: Pozdnyakov 2025 lmKAN ✅ r001审查通过 - 8处引用全部准确
+- 1053: Shuai 2024 PIKAN ✅ r001审查通过 - 11处引用全部准确
+- 1054: PETSA Medeiros 2025 ✅ r001审查通过 - 10处引用全部准确
+
+**8个Issue新开 (1055-1062)**:
+- 1055: Rather 2025 KAN GRU - 复查候选 (R209后~43轮)
+- 1056: Busetto 2025 Nano Drone - 复查候选 (R251后~1轮)
+- 1057: Wang 2024 SpectralKAN - 复查候选 (R199后~53轮)
+- 1058: KFS Wu 2025 - 复查候选 (R251后~1轮，长期)
+- 1059: Hasan 2026 HaKAN - 复查候选 (R215后~37轮)
+- 1060: Hoang 2026 KANELE - 复查候选 (R215后~37轮)
+- 1061: FreLE Sun 2025 - 复查候选 (R205后~47轮)
+- 1062: Yang 2023 Floss - 复查候选 (R251后~1轮，长期)
+
+---
+
+## Round 251 规划完成 (2026-04-04 05:22)
+
+**6个Issue关闭 (1041/1042/1043/1044/1046/1047)**:
+- 1041: Liu 2024 KAN ✅ r001审查通过 - 10处引用全部准确
+- 1042: Revay 2021 Recurrent Equilibrium ✅ r001审查通过 - 10处引用全部准确
+- 1043: Willemstein 2023 WH Piezoresistive ✅ r001审查通过 - 3处引用全部准确
+- 1044: Hoekstra 2026 LFR Learning ✅ r001审查通过 - 11处引用全部准确
+- 1046: Kui 2025 TFKAN ✅ r001审查通过 - 5处引用全部准确
+- 1047: Kuznetsov 2026 LUT KAN ✅ r001审查通过 - 4处引用(1处微小差异)
+
+**2个Issue续审 (P0错误待执行者修正)**:
+- 1045: Jiang 2025 KANMixer ❌ r001发现5处P0行号错误 - 需修正
+- 1048: Silva 2024 REDOX Gas ❌ r001发现2处P0行号错误 - 需修正
+
+**6个Issue新开 (1049-1054)**:
+- 1049: Lin effect 2020 VIP - 复查候选 (R242后~9轮)
+- 1050: iqbal 2024 electrochemical volterra - 复查候选 (R243后~8轮)
+- 1051: Rodriguez Linhares 2025 - 复查候选 (R242后~9轮)
+- 1052: Pozdnyakov 2025 lmKAN - 复查候选 (R217后~34轮)
+- 1053: Shuai 2024 PIKAN - 复查候选 (R220后~31轮)
+- 1054: PETSA Medeiros 2025 - 复查候选 (R236后~15轮)
+
+---
+
+## Round 250 规划完成 (2026-04-04 05:02)
+
+**10个Issue关闭 (1028-1040)**:
+- 1028: Barasin 2025 KAN Interpretable ✅ r004审查通过 - P0修复验收(第663行x_9/第21行EN标注)
+- 1030: Busetto 2025 Nano Drone ✅ r004审查通过 - P0修复验收(第77行EN/第79行CN)
+- 1031: Chakraborty 2025 BSP ✅ r005审查通过 - P0修复验收(第81行/第57行)
+- 1034: ConTSG 2026 Bench ✅ r005审查通过 - P0修复验收(第23行/第231行)
+- 1035: Cruz 2025 SS KAN ✅ r004审查通过 - P0修复验收(第321-339行描述，方程10在第330行)
+- 1036: Dong 2024 KAN Time Series ✅ r002审查通过 - 6处引用全部准确
+- 1037: Faroughi 2026 Symbolic KAN ✅ r002审查通过 - 10处引用全部准确
+- 1038: Fasmin 2017 Nonlinear Electrochemical ✅ r002审查通过 - 5处引用全部准确
+- 1039: FIRE He 2025 ✅ r002审查通过 - 6处引用全部准确，FFT-MAE消融数据正确
+- 1040: FreDF Wang 2025 ICLR ✅ r002审查通过 - 4处引用全部准确，GAP10/11降级判断准确
+
+**8个Issue新开 (1041-1048)**:
+- 1041: Liu 2024 KAN - 复查候选 (R236后~14轮)
+- 1042: Revay 2021 Recurrent Equilibrium - 复查候选 (R236后~14轮)
+- 1043: Willemstein 2023 WH Piezoresistive - 复查候选 (R244后~6轮)
+- 1044: Hoekstra 2026 LFR Learning - 复查候选 (R222后~28轮)
+- 1045: Jiang 2025 KANMixer - 复查候选 (长期未复查)
+- 1046: Kui 2025 TFKAN - 复查候选 (R221后~29轮)
+- 1047: Kuznetsov 2026 LUT KAN - 复查候选 (R217后~33轮)
+- 1048: Silva 2024 REDOX Gas - 复查候选 (R115后~135轮)
+
+---
+
+## Round 249 规划完成 (2026-04-04 04:44)
+
+**3个Issue关闭 (1029/1032/1033)**:
+- 1029: Buhrer 2026 BitLogic ✅ r004审查通过 - P0修复验收(第21行/第23行)
+- 1032: Chao 2025 Dynamic Measurement ✅ r003审查通过 - 3轮审查全部通过
+- 1033: Chikishev 2019 TAF ✅ r002审查通过 - 引用准确
+
+**5个Issue续审 (1028/1030/1031/1034/1035)**:
+- 1028: Barasin 2025 - P0第663行x_9/第21行EN标注待确认
+- 1030: Busetto 2025 - P0第77行EN/第79行CN标注待确认
+- 1031: Chakraborty 2025 - P0第81行/第57行标注待确认
+- 1034: ConTSG 2026 - P0第23行/第231行标注待确认
+- 1035: Cruz 2025 - P0第321-339行描述待确认
+
+**5个Issue新开 (1036-1040)**:
+- 1036: Dong 2024 KAN Time Series - 复查候选
+- 1037: Faroughi 2026 Symbolic KAN - 复查候选
+- 1038: Fasmin 2017 Nonlinear Electrochemical - 复查候选
+- 1039: FIRE He 2025 - 复查候选
+- 1040: FreDF Wang 2025 ICLR - 复查候选
+
+---
+
+## Round 248 规划完成 (2026-04-04 04:30)
+
+**8个Issue关闭 (1020-1027)**:
+- 1020: Yang 2023 Floss ✅ r004审查通过 - index.md同步修复确认
+- 1021: Busscher 2025 ❌ 文件不存在 - Issue作废
+- 1022: Southworth 2026 Multi layer KAN ✅ r002审查通过 - P0行号修复(19→85)
+- 1023: Chen 2025 DE LOESS LSTM ✅ r002审查通过 - 9处引用全部准确
+- 1024: Hao 2025 ❌ 文件不存在 - Issue作废
+- 1025: Kuo 2025 ❌ 文件不存在 - Issue作废
+- 1026: Shi 2025 OLMA ✅ r002审查通过 - 9处引用全部准确，Issue描述文件名误
+- 1027: Zeng 2025 AR KAN ✅ r002审查通过 - 9处引用全部准确
+
+**8个Issue新开 (1028-1035)**:
+- 1028: Barasin 2025 KAN Interpretable - 复查候选
+- 1029: Buhrer 2026 BitLogic - 复查候选
+- 1030: Busetto 2025 Nano Drone - 复查候选
+- 1031: Chakraborty 2025 BSP - 复查候选
+- 1032: Chao 2025 Dynamic Measurement - 复查候选
+- 1033: Chikishev 2019 TAF - 复查候选
+- 1034: ConTSG 2026 Bench - 复查候选
+- 1035: Cruz 2025 SS KAN - 复查候选
+
+---
+
+## Round 247 规划完成 (2026-04-04 04:18)
+
+**7个Issue关闭 (1012-1018)**:
+- 1012: Voit 2024 Multikernel NN ✅ r003审查通过 - 3轮审查全部通过
+- 1013: Liu 2026 GRAU ✅ r003审查通过 - 3轮审查全部通过
+- 1014: OLMA Shi 2025 ✅ r003审查通过 - 3轮审查全部通过
+- 1015: Schoukens 2017 benchmarks ✅ r003审查通过 - 3轮审查全部通过
+- 1016: Gong 2026 SWAN Seismic ✅ r003审查通过 - 3轮审查全部通过
+- 1017: Subich 2025 ✅ r003审查通过 - 3轮审查全部通过
+- 1018: Willemstein 2023 WH Piezoresistive ✅ r003审查通过 - 3轮审查全部通过
+
+**7个Issue新开 (1021-1027)**:
+- 1021: Busscher 2025 - 复查候选
+- 1022: Southworth 2026 Multi layer KAN - 复查候选
+- 1023: Chen 2025 DE LOESS LSTM - 复查候选
+- 1024: Hao 2025 - 复查候选
+- 1025: Kuo 2025 - 复查候选
+- 1026: Shi 2025 - 复查候选
+- 1027: Zeng 2025 AR KAN - 复查候选
+
+**1个Issue待修复 (1020)**:
+- 1020: Yang 2023 Floss - index.md未同步更新(GAP支持显示"无关联"，但分析文件已修订为"间接支撑")
+
+---
+
+## Round 246 规划完成 (2026-04-04 04:07)
+
+**1个Issue关闭 (070)**:
+- 070: Shuai 2024 PIKAN ✅ r005审查通过 - 10处正文引用全部准确
+
+**1个Issue新开 (1020)**:
+- 1020: Yang 2023 Floss - 复查候选 (R174后~72轮)
+
+---
+
 ## Round 215 规划完成 (2026-04-03 21:29)
 
 **4个Issue关闭 (922/923/926/927)**:

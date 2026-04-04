@@ -33,7 +33,7 @@
 ### 直接支持
 
 **论文证明了什么**：
-- GRU-KAN和LSTM-KAN在贷款违约预测任务上验证了混合架构的有效性（第53行）："To introduce innovative KAN-based GRU and LSTM models that flexibly optimize activation functions for adaptable modeling of complex nonlinear relationships in time series data."
+- GRU-KAN和LSTM-KAN在贷款违约预测任务上验证了混合架构的有效性（第53行[EN]）
 
 **为XXX方法的选择/XXX架构的选择提供理论支持/思路启发**：
 - 本文的KAN-GRU混合架构为FRIKAN/Wiener-KAN的设计提供了参考
@@ -41,34 +41,22 @@
 
 ## 精确行号引用
 
-| 引用位置 | 内容摘要 |
-|---------|---------|
-| 第25行 | 模型预测精度>92%/88%，提前3个月和8个月预测 |
-| 第53行 | 本文创新点：提出LSTM-KAN和GRU-KAN两种基于KAN的模型 |
-| 第101-103行 | LSTM和GRU在时间序列研究中的应用，作为KAN混合架构基础 |
-| 第157-161行 | GRU-KAN和LSTM-KAN的混合架构设计概述 |
-| 第269-335行 | LSTM门控机制公式（遗忘门、输入门、细胞状态、输出门） |
-| 第381-455行 | GRU门控机制公式（更新门、重置门、候选隐藏状态） |
-| 第461-467行 | KAN核心思想：多变量函数分解为单变量函数组合 |
-| 第473行 | KAN层用可学习激活函数替代MLP固定激活 |
-| 第477-479行 | KAN输出公式(12)：单变量函数组合表示 |
-| 第529-535行 | 数据集：Freddie Mac单户贷款级别数据集，违约定义（CLDS≥3） |
-| 第539-540行 | 训练集(2019年)和测试集(2020年)划分及统计信息 |
-| 第565行 | 评估指标：准确率、精确率、召回率、F1分数、AUC |
-| 第601-605行 | 实验1：不同特征窗口长度对模型性能的影响 |
-| 第637-646行 | 实验2：空白间隔设置，模拟违约早期预测 |
-
-## 关键原文段落摘录
-
-### 段落1（关于性能）
-
-> "The results demonstrate that the proposed model achieves a prediction accuracy of over 92% three months in advance and over 88% eight months in advance, significantly outperforming existing baselines."
-> （第25行）
-
-### 段落2（关于创新点）
-
-> "To introduce innovative KAN-based GRU and LSTM models that flexibly optimize activation functions for adaptable modeling of complex nonlinear relationships in time series data."
-> （第53行）
+| 引用位置 | [EN] 英文原文摘录 | 内容摘要 |
+|---------|------------------|---------|
+| 第25行 | "The results demonstrate that the proposed model achieves a prediction accuracy of over 92% three months in advance and over 88% eight months in advance, significantly outperforming existing baselines." | 模型预测精度>92%/88%，提前3个月和8个月预测 |
+| 第53行 | "To introduce innovative KAN-based GRU and LSTM models that flexibly optimize activation functions for adaptable modeling of complex nonlinear relationships in time series data." | 本文创新点：提出LSTM-KAN和GRU-KAN两种基于KAN的模型 |
+| 第101行 | "GRU and LSTM are commonly used in time series research [9], serving as a solid basis for our proposed improvements. This section reviews research utilizing LSTM and GRU algorithms, with LSTM often preferred for time series due to its ability to capture long-term dependencies and contextual information." [EN] | LSTM和GRU在时间序列研究中的应用，作为KAN混合架构基础 |
+| 第161行 | "This study explores the interaction between different feature extraction methods and the KAN model, proposing a hybrid architecture that integrates GRU-KAN and LSTM-KAN to enhance the ability to capture complex patterns in time series data. Specifically, both models share a similar architecture comprising a data preprocessing layer, a masking layer, a feature extraction layer, a KAN layer, a fully connected layer, and an output layer." [EN] | GRU-KAN和LSTM-KAN的混合架构设计概述 |
+| 第269行 | "LSTM (Long Short-Term Memory) is a variant of RNN (Recurrent Neural Network) that introduces a gating mechanism and memory cells to mitigate the vanishing gradient problem, thereby slowing down memory decay during back-propagation." [EN] | LSTM门控机制公式（遗忘门、输入门、细胞状态、输出门） |
+| 第381行 | "GRU (Gated Recurrent Unit) is a type of Recurrent Neural Network (RNN) that simplifies the structure of Long Short-Term Memory (LSTM) while effectively addressing the vanishing gradient problem. Unlike standard RNNs, which struggle with long-term dependencies due to gradient decay, GRU introduces two gates: the reset gate and the update gate." [EN] | GRU门控机制公式（更新门、重置门、候选隐藏状态） |
+| 第465行 | "The key idea behind Kolmogorov-Arnold Networks (KAN) is that any multi-variable function f(x_1,...,x_n) can be transformed into a combination of multiple single-variable functions. By leveraging non-linear transformation functions, KAN is capable of capturing intricate non-linear interactions between different variables." [EN] | KAN核心思想：多变量函数分解为单变量函数组合 |
+| 第473行 | "KAN addresses this challenge by decomposing the complex relationships embedded in the hidden state vector. Unlike MLPs, which employ fixed node activation functions, KAN utilizes edge-based learnable activation functions [34]. Specifically, each weight in MLP is replaced by a univariate function parameterized as a spline function." [EN] | KAN层用可学习激活函数替代MLP固定激活 |
+| 第477行 | "KAN_output = Σ_{q=1}^{2n+1} Φ_q(Σ_{p=1}^{n} φ_{p,q}(x_p))" [公式12] | KAN输出公式(12)：单变量函数组合表示 |
+| 第529行 | "The experiment utilizes the Single-Family Loan-Level dataset from Freddie Mac [35]. This dataset includes comprehensive details on loan dates, overdue status, and vital information for fraud detection. The target variable, known as default, is binary, based on the current loan delinquency status (CLDS), indicating days overdue since the last installment was due. A CLDS value of 3 or more results in a default value of 1, otherwise 0." [EN] | 数据集：Freddie Mac单户贷款级别数据集，违约定义（CLDS≥3） |
+| 第539行 | "The study uses data from the first quarter of 2019 for training and the first quarter of 2020 for testing. This setup mimics real-world situations where predictions are made on future events using past data, despite potential shifts in data distribution over time." [EN] | 训练集(2019年)和测试集(2020年)划分及统计信息 |
+| 第565行 | "The performance of the model is assessed through standard metrics such as accuracy[39], precision[39], recall [39], F1 score [40], and AUC [40], offering a thorough evaluation of classification effectiveness." [EN] | 评估指标：准确率、精确率、召回率、F1分数、AUC |
+| 第605行 | "To assess how different feature window lengths affect the proposed model, the lengths of x are set to 12,15,18,21,24, and 27 months. These windows serve as inputs to predict defaults within the next 3 months, with this 3-month observation period acting as the target variable y." [EN] | 实验1：不同特征窗口长度对模型性能的影响 |
+| 第639行 | "The 'early prediction' condition is created by introducing a gap between x and y, where x represents the window of input characteristics, and y is the observation period for forecasting. Blank interval gradients are established at 3,4,5,6,7, and 8 months to assess the ability of models to forecast defaults by analyzing repayment behavior 3 to 8 months in advance." [EN] | 实验2：空白间隔设置，模拟违约早期预测 |
 
 ## 分析结论
 

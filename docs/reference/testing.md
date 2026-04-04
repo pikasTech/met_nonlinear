@@ -36,6 +36,15 @@ python -m pytest TEST_PATH --timeout SECONDS --workers N
 
 默认测试路径为 `src/tests`，默认超时 300 秒，默认并行 worker 为 4。
 
+## 导入路径约定
+
+测试应从仓库根目录启动。根目录 `conftest.py` 会在 pytest 启动时自动将 `src/` 插入 `sys.path`，因此测试代码应直接使用包名导入：
+
+- `from calibration_analyzer.exam_class import System`
+- `from analysis.metrics import compute_mae`
+
+不建议写成 `from src.xxx import ...`。当前仓库的真实主代码目录是 `src/`，其中 `calibration_analyzer` 的唯一保留实现为 `src/calibration_analyzer/`。
+
 ## 直接使用 pytest
 
 ```bash
@@ -58,3 +67,4 @@ pytest -m "not slow"
 ## 相关文档
 
 - [pytest.ini](../../pytest.ini)
+- [项目结构与导入路径](project_structure.md)

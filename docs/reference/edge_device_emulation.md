@@ -93,7 +93,7 @@ Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\M
 2. 按 `magnitudes`、`frequencies`、`start_time_s`、`end_time_s` 选择 MET 数据集子集。
 3. 导出 C 端所需的模型参数、缩放参数和验证输入序列到 `qemu_project/model_data.h`。
 4. 运行 QEMU，捕获逐样本 `validation_record_*` 输出。
-5. 生成 `data/benchmark_summary.json`、`data/validation_comparison.json` 和 `data/waves/*.wave`。
+5. 生成 `data/benchmark_summary.json`、`data/validation_comparison.json`、`data/waves/*.wave` 和 `data/plots/*.png`。
 
 该入口在 EP 索引中归类为 `qemu-c-inference` 任务，路径格式与模板生成规则见 [ep 子命令说明](ep.md)。
 
@@ -115,12 +115,14 @@ validation_complete=1
 
 | 文件 | 作用 |
 |------|------|
-| `data/benchmark_summary.json` | 记录 QEMU build/run 结果、计时字段和汇总后的对比指标 |
-| `data/validation_comparison.json` | 记录每条波形的 MAE、最大绝对误差、最大值、最小值、均值、能量等统计 |
+| `data/benchmark_summary.json` | 记录 QEMU build/run 结果、计时字段，以及 `comparison`、`intermediate_comparison`、`plot_paths` 等汇总信息 |
+| `data/validation_comparison.json` | 记录每条波形的 MAE、最大绝对误差、最大值、最小值、均值、能量，以及中间层对比结果 |
 | `data/waves/origin_input.wave` | 输入波形 |
 | `data/waves/target_output.wave` | 目标输出波形 |
 | `data/waves/tf_output.wave` | TF26 参考输出波形 |
 | `data/waves/c_output.wave` | QEMU C 推理输出波形 |
+| `data/waves/tf_*.wave` / `data/waves/c_*.wave` | `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` 的 TF/C 中间层调试波形 |
+| `data/plots/*.png` | 每条 validation record 的四曲线对比图，叠加 `origin`、`target`、`c_inference`、`tf_inference` |
 
 当前实现里，`benchmark_summary.json` 和 `validation_comparison.json` 都会汇总以下指标：
 
@@ -130,7 +132,12 @@ validation_complete=1
 - `tf_output_stats.min/max/mean/energy`
 - `diff_stats.min/max/mean/energy`
 
-如果 `c_output` 与 `tf_output` 偏差明显，说明当前 C 侧实现与 TensorFlow 参考实现仍存在数值不一致，通常应优先排查激活函数近似、gate 顺序和缩放参数处理。
+此外：
+
+- `plot_paths` 会指向自动生成的 PNG 对比图。
+- `intermediate_comparison` 会给出 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` 的逐层误差统计。
+
+如果 `c_output` 与 `tf_output` 偏差明显，说明当前 C 侧实现与 TensorFlow 参考实现仍存在数值不一致，通常应优先查看四曲线对比图，并结合中间层 wave 与 `intermediate_comparison` 排查激活函数近似、gate 顺序、缩放参数或输出格式化链路。
 
 ## 本机工具链
 
