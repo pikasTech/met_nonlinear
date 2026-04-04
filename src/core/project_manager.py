@@ -54,7 +54,7 @@ class ProjectManager:
             model_engine.evaluate_training_info()
         if sys.platform.startswith('win'):
             plt.ioff()
-            plt.show()
+            plt.close('all')
         if self.config.adjust_weight:
             while True:
                 plt.pause(0.1)

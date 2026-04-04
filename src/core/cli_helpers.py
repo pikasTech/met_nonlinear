@@ -32,7 +32,7 @@ def met_comp_with_project(project_path):
         project.process()
     if sys.platform.startswith('win'):
         plt.ioff()
-        plt.show()
+        plt.close('all')
 
 
 # get_all_project_dirs 函数已移动到 cli_parser.py 中以避免循环依赖

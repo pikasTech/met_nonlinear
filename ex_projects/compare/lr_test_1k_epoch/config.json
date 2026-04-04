@@ -6,28 +6,103 @@
   "projects": [
     {
       "name": "FRIKANh8u6l6_base",
-      "label": "Base (MAE)",
+      "label": "余弦衰减 (0.002→1.6e-5)",
       "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
     },
     {
-      "name": "FRIKANh6u6l6_e1k_1",
-      "label": "LR=0.01",
-      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_1"
+      "name": "FRIKANh8u6l6_e1k_lr5e4",
+      "label": "固定 LR=0.0005",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr5e4"
     },
     {
-      "name": "FRIKANh6u6l6_e1k_2",
-      "label": "LR=0.002",
-      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_2"
+      "name": "FRIKANh8u6l6_e1k_lr1e3",
+      "label": "固定 LR=0.001",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr1e3"
     },
     {
-      "name": "FRIKANh6u6l6_e1k_3",
-      "label": "LR=0.001",
-      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_3"
+      "name": "FRIKANh8u6l6_e1k_lr7e4",
+      "label": "固定 LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
     },
     {
-      "name": "FRIKANh6u6l6_e1k_4",
-      "label": "LR=0.003",
-      "path": "01_EPOCH1000/FRIKANh6u6l6_e1k_4"
+      "name": "FRIKANh8u6l6_e1k_lr4e4",
+      "label": "固定 LR=0.0004",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr4e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr6e4",
+      "label": "固定 LR=0.0006",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr6e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr2e4",
+      "label": "固定 LR=0.0002",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr2e4"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4",
+      "label": "LSTM 固定 LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e1k_lr7e4"
+    },
+    {
+      "name": "GRNu16_e1k_lr7e4",
+      "label": "GRN 固定 LR=0.0007",
+      "path": "01_LR_STUDY/GRNu16_e1k_lr7e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e3k_lr7e4",
+      "label": "FRIKAN 3k LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e3k_lr7e4"
+    },
+    {
+      "name": "LSTMu16_e3k_lr7e4",
+      "label": "LSTM 3k LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e3k_lr7e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e2k_lr7e4",
+      "label": "FRIKAN 2k LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e2k_lr7e4"
+    },
+    {
+      "name": "LSTMu16_e2k_lr7e4",
+      "label": "LSTM 2k LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e2k_lr7e4"
+    },
+    {
+      "name": "GRNu16_e2k_lr7e4",
+      "label": "GRN 2k LR=0.0007",
+      "path": "01_LR_STUDY/GRNu16_e2k_lr7e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_r2",
+      "label": "FRIKAN r2 LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_r2"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_r3",
+      "label": "FRIKAN r3 LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_r3"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r2",
+      "label": "LSTM r2 LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e1k_lr7e4_r2"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r3",
+      "label": "LSTM r3 LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e1k_lr7e4_r3"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r4",
+      "label": "FRIKAN nosym r4 LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
+      "label": "FRIKAN nosym r5 LR=0.0007",
+      "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
     }
   ],
   "metrics": {

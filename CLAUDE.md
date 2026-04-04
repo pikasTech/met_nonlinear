@@ -5,7 +5,7 @@
 - 训练环境：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
 - CLI训练命令：`C:\Users\lyon\MiniConda3\envs\tf26\python.exe cli.py -t PROJECT_NAME`
 
-> **PROJECT_NAME 路径格式**：主命令（`-t`、`-e`、`-m` 等）传入相对路径，格式为 `projects/项目路径`，如 `projects\01_EPOCH1000\FRIKANh6u6l6_e1k_1` 或 `projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base`。
+> **PROJECT_NAME 路径格式**：主命令（`-t`、`-e`、`-m` 等）传入相对路径，格式为 `projects/项目路径`，如 `projects\01_LR_STUDY\FRIKANh6u6l6_e1k_1` 或 `projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base`。
 
 > **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
 
@@ -18,7 +18,7 @@
 ## AGENTS.md 组织原则
 
 - `AGENTS.md` 只作为项目级顶级索引，用于快速定位命令、入口和文档。
-- `AGENTS.md` 的具体功能区只保留三个顶级标题：`主命令`、`ep 子命令`、`测试`，不额外拆出新的命令分类标题。
+- `AGENTS.md` 的具体功能区只保留四个顶级标题：`主命令`、`ep 子命令`、`projects/ex_projects`、`测试`，不额外拆出新的命令分类标题。
 - 每个命令在 `AGENTS.md` 中保留一条主索引，命令下面可以挂多个功能子列表。
 - 每个子列表只描述一个功能点，并使用一句话概括，不在此处展开实现细节、参数说明或背景分析。
 - 每个子列表应独立对应一个 `docs/reference/` 下的参考文档；如果同一命令包含多个功能，则分别链接到各自文档。
@@ -33,6 +33,7 @@
 
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
+
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
@@ -79,10 +80,13 @@
 - `python cli.py ep "PROJECT/freq-response-compensator/test"`
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
-- `python cli.py ep "compare/mae_vs_afmae"`
-	- MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
-- `python cli.py ep "compare/lr_test_1k_epoch"`
-	- LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
+
+### projects/ex_projects
+
+- `projects\01_LR_STUDY\` 系列 - `固定 LR vs 余弦衰减`：固定学习率尝试达到或优于余弦衰减效果，最优固定 LR 约 0.0005，还未达到。详见 [docs/reference/lr_tuning_fixed_vs_cosine.md](docs/reference/lr_tuning_fixed_vs_cosine.md)。
+- `ex_projects/compare/mae_vs_afmae` - MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
+- `ex_projects/compare/lr_test_1k_epoch` - LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
+
 
 ### 测试命令
 
