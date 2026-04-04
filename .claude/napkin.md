@@ -4,6 +4,7 @@
 | Date | Source | What Went Wrong | What To Do Instead |
 |------|--------|----------------|-------------------|
 | 2026-04-03 | user | 在 QEMU 问题上先开始本地复现，没先做外部资料调研 | 这类工具链/仿真器卡点先做广泛联网调研，再回仓库落地 |
+| 2026-04-04 | self | 在 `src/core/lstm_qemu_ep_task.py` 里给 GRN 加 SiLU 时改到了相邻的 LSTM 模板片段，导致源码里看似有修复但生成结果仍旧错误 | 这类生成器文件含重复 C 模板片段时，修改后必须同时核对真正的模板分支和重新生成出的 `qemu_project/main.c` |
 
 ## User Preferences
 - (none recorded)
@@ -21,6 +22,7 @@
 - 2026-04-04: FRIKAN 的 LUT 优化不要把“模板默认 no-interpolation”和“当前样例配置”混为一谈；模板可以默认 `lut_interpolation=false`，但 `frikan_h8u6l6_nosym` 在 `lut_points=769` 下必须显式保留 `lut_interpolation=true` 才能把 MAE 维持在 `3.9e-5` 量级
 - 2026-04-04: FRIKAN 性能优先版若改成“按层编译期固化 LUT scale/offset + `lut_interpolation=false`”，`frikan_h8u6l6_nosym` 的 benchmark-only 可降到约 `0.0434 s/iter`，但最终 MAE 会升到约 `0.0806`；这时误差主因在 KAN/LUT 近似，不在 IIR（IIR 中间层 MAE 仍约 `4.9e-7`）
 - 2026-04-04: FRIKAN LUT 热路径若继续把按层 helper 强制 `always_inline`，当前 STM32F405 QEMU 工程会再度触发 ROM 溢出；性能版要保持可链接时，按层特化 helper 用 `noinline` 更稳
+- 2026-04-04: GRNu16 的 QEMU C 推理不能复用 LSTM 路径里的 Dense+ReLU；该模型实际结构是 `GRU -> Dense(silu) -> Dense(1)`。若中间层误用 ReLU，`gru_hidden` 会接近 TF，但 `dense_output` 与最终输出会整体偏正，最终 MSE 会升到约 `5.6e-3`
 - 2026-04-03: 当前机器可用的 tf26 解释器是 `C:\Users\liang\.conda\envs\tf26\python.exe`，不要照抄 CLAUDE.md 里的旧绝对路径
 - 2026-04-03: 若 QEMU C/TF 最终波形看起来“能量接近但符号明显不对”，先检查 UART 数值格式化链；本仓库曾出现 `uart_put_fixed6()` 对 `(-1, 0)` 负数丢失负号，导致输出文本看似全正，但中间层实际计算基本正确
 - 2026-04-03: 排查 QEMU 数值偏差时，优先同时导出 TF/C 的 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` wave，再判断是解析问题、缩放问题还是核心算子误差

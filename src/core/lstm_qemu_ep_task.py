@@ -57,6 +57,26 @@ class LstmModelSpec:
 
 
 @dataclass
+class GrnModelSpec:
+    """GRN(GRU) C 生成所需的模型规格。"""
+
+    model_project_name: str
+    weights_json_path: Path
+    input_dim: int
+    gru_units: int
+    dense_units: int
+    output_units: int
+    gru_kernel: List[List[float]]
+    gru_recurrent_kernel: List[List[float]]
+    gru_input_bias: List[float]
+    gru_recurrent_bias: List[float]
+    dense_kernel: List[List[float]]
+    dense_bias: List[float]
+    output_kernel: List[List[float]]
+    output_bias: List[float]
+
+
+@dataclass
 class FrikanIirSpec:
     """单个 FRIKAN 特征通道对应的二阶 IIR 系数。"""
 
@@ -428,6 +448,9 @@ def generate_qemu_project(output_dir: Path,
     if isinstance(model_spec, LstmModelSpec):
         main_c = _render_main_c()
         model_header = _render_model_data_header(model_spec, benchmark_config, validation_artifacts)
+    elif isinstance(model_spec, GrnModelSpec):
+        main_c = _render_grn_main_c()
+        model_header = _render_grn_model_data_header(model_spec, benchmark_config, validation_artifacts)
     elif isinstance(model_spec, FrikanModelSpec):
         main_c = _render_frikan_main_c(model_spec)
         model_header = _render_frikan_model_data_header(model_spec, benchmark_config, validation_artifacts)
@@ -625,9 +648,11 @@ def _collect_tf_debug_sequences(model_engine: Any,
         verbose=0,
     )
 
+    recurrent_stage_name = 'gru_hidden' if model_type == 'grn' else 'lstm_hidden'
+
     return {
         'input_scaled': _split_batch_sequences(x_scaled),
-        'lstm_hidden': _split_batch_sequences(lstm_hidden),
+        recurrent_stage_name: _split_batch_sequences(lstm_hidden),
         'dense_output': _split_batch_sequences(dense_output),
         'output_scaled': _split_batch_sequences(output_scaled),
     }
@@ -880,6 +905,8 @@ def _detect_model_type(model_project_name: str,
             return 'frikan'
         if use_model == 'LSTM':
             return 'lstm'
+        if use_model in {'GRN', 'GRU'}:
+            return 'grn'
 
     with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
         weights = json.load(file_obj)
@@ -887,6 +914,8 @@ def _detect_model_type(model_project_name: str,
     weight_names = [str(item.get('name', '')).replace('\\', '/') for item in weights]
     if any('lstm_cell/' in name for name in weight_names):
         return 'lstm'
+    if any('gru_cell/' in name for name in weight_names):
+        return 'grn'
     if any('dense_kan' in name for name in weight_names) and any('simple_rnn' in name for name in weight_names):
         return 'frikan'
 
@@ -900,6 +929,8 @@ def _load_model_spec(model_project_name: str,
                      generation_config: Dict[str, Any]) -> Any:
     if model_type == 'lstm':
         return _load_lstm_model_spec(model_project_name, weights_json_path)
+    if model_type == 'grn':
+        return _load_grn_model_spec(model_project_name, weights_json_path)
     if model_type == 'frikan':
         return _load_frikan_model_spec(
             model_project_name=model_project_name,
@@ -952,6 +983,64 @@ def _load_lstm_model_spec(model_project_name: str,
         lstm_kernel=_to_float_matrix(lstm_kernel['value']),
         lstm_recurrent_kernel=_to_float_matrix(lstm_recurrent_kernel['value']),
         lstm_bias=_to_float_vector(lstm_bias['value']),
+        dense_kernel=_to_float_matrix(dense_kernel['value']),
+        dense_bias=_to_float_vector(dense_bias['value']),
+        output_kernel=_to_float_matrix(output_kernel['value']),
+        output_bias=_to_float_vector(output_bias['value']),
+    )
+
+
+def _load_grn_model_spec(model_project_name: str,
+                         weights_json_path: Path) -> GrnModelSpec:
+    with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
+        weights = json.load(file_obj)
+
+    gru_kernel = _find_weight_entry(weights, 'gru_cell/kernel')
+    gru_recurrent_kernel = _find_weight_entry(weights, 'gru_cell/recurrent_kernel')
+    gru_bias = _find_weight_entry(weights, 'gru_cell/bias')
+    dense_kernel = _find_weight_entry(weights, 'dense/kernel')
+    dense_bias = _find_weight_entry(weights, 'dense/bias')
+    output_kernel = _find_weight_entry(weights, 'dense_1/kernel')
+    output_bias = _find_weight_entry(weights, 'dense_1/bias')
+
+    input_dim = int(gru_kernel['shape'][0])
+    gru_units = int(gru_recurrent_kernel['shape'][0])
+    dense_units = int(dense_bias['shape'][0])
+    output_units = int(output_bias['shape'][0])
+
+    if int(gru_kernel['shape'][1]) != gru_units * 3:
+        raise ValueError('GRU kernel 形状非法，第二维必须等于 3 * gru_units')
+    if int(gru_recurrent_kernel['shape'][1]) != gru_units * 3:
+        raise ValueError('GRU recurrent kernel 形状非法，第二维必须等于 3 * gru_units')
+
+    bias_values = np.asarray(gru_bias['value'], dtype=np.float64)
+    if bias_values.shape == (2, gru_units * 3):
+        gru_input_bias = bias_values[0]
+        gru_recurrent_bias = bias_values[1]
+    elif bias_values.shape == (gru_units * 3,):
+        gru_input_bias = bias_values
+        gru_recurrent_bias = np.zeros_like(gru_input_bias)
+    else:
+        raise ValueError(f'GRU bias 形状非法: {bias_values.shape}')
+
+    if int(dense_kernel['shape'][0]) != gru_units:
+        raise ValueError('Dense kernel 输入维度必须与 GRU units 一致')
+    if int(output_kernel['shape'][0]) != dense_units:
+        raise ValueError('输出层 kernel 输入维度必须与 dense units 一致')
+    if output_units != 1:
+        raise ValueError(f'当前仅支持单输出 GRN，实际 output_units={output_units}')
+
+    return GrnModelSpec(
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        input_dim=input_dim,
+        gru_units=gru_units,
+        dense_units=dense_units,
+        output_units=output_units,
+        gru_kernel=_to_float_matrix(gru_kernel['value']),
+        gru_recurrent_kernel=_to_float_matrix(gru_recurrent_kernel['value']),
+        gru_input_bias=_to_float_vector(gru_input_bias.tolist()),
+        gru_recurrent_bias=_to_float_vector(gru_recurrent_bias.tolist()),
         dense_kernel=_to_float_matrix(dense_kernel['value']),
         dense_bias=_to_float_vector(dense_bias['value']),
         output_kernel=_to_float_matrix(output_kernel['value']),
@@ -1323,6 +1412,55 @@ def _render_model_data_header(model_spec: LstmModelSpec,
         f'static const port_float lstm_bias[LSTM_UNITS * 4u] = {_render_initializer(model_spec.lstm_bias)};',
         '',
         f'static const port_float dense_kernel[LSTM_UNITS][DENSE_UNITS] = {_render_initializer(model_spec.dense_kernel)};',
+        '',
+        f'static const port_float dense_bias[DENSE_UNITS] = {_render_initializer(model_spec.dense_bias)};',
+        '',
+        f'static const port_float output_kernel[DENSE_UNITS][OUTPUT_UNITS] = {_render_initializer(model_spec.output_kernel)};',
+        '',
+        f'static const port_float output_bias[OUTPUT_UNITS] = {_render_initializer(model_spec.output_bias)};',
+        '',
+        '#endif',
+        '',
+    ]
+    return '\n'.join(lines)
+
+
+def _render_grn_model_data_header(model_spec: GrnModelSpec,
+                                  benchmark_config: Dict[str, Any],
+                                  validation_artifacts: ValidationArtifacts) -> str:
+    validation_input = [record.input_sequence for record in validation_artifacts.records]
+    lines = [
+        '#ifndef GENERATED_GRN_MODEL_DATA_H',
+        '#define GENERATED_GRN_MODEL_DATA_H',
+        '',
+        '#include <stdint.h>',
+        '',
+        'typedef float port_float;',
+        '',
+        f'#define GRU_INPUT_DIM {model_spec.input_dim}u',
+        f'#define GRU_UNITS {model_spec.gru_units}u',
+        f'#define DENSE_UNITS {model_spec.dense_units}u',
+        f'#define OUTPUT_UNITS {model_spec.output_units}u',
+        f'#define BENCHMARK_ITERATIONS {int(benchmark_config["iterations"])}u',
+        f'#define BENCHMARK_REPEAT_RUNS {int(benchmark_config["repeat_runs"])}u',
+        f'#define BENCHMARK_RESET_STATE_EACH_RUN {1 if benchmark_config.get("reset_state_each_run", True) else 0}u',
+        f'#define VALIDATION_RECORD_COUNT {validation_artifacts.record_count}u',
+        f'#define VALIDATION_SEQ_LEN {validation_artifacts.seq_len}u',
+        '',
+        f'#define SCALER_INPUT_DATA_RANGE {_format_c_float(validation_artifacts.input_data_range)}',
+        f'#define SCALER_OUTPUT_DATA_RANGE {_format_c_float(validation_artifacts.output_data_range)}',
+        '',
+        f'static const port_float validation_input[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN][GRU_INPUT_DIM] = {_render_initializer(validation_input)};',
+        '',
+        f'static const port_float gru_kernel[GRU_INPUT_DIM][GRU_UNITS * 3u] = {_render_initializer(model_spec.gru_kernel)};',
+        '',
+        f'static const port_float gru_recurrent_kernel[GRU_UNITS][GRU_UNITS * 3u] = {_render_initializer(model_spec.gru_recurrent_kernel)};',
+        '',
+        f'static const port_float gru_input_bias[GRU_UNITS * 3u] = {_render_initializer(model_spec.gru_input_bias)};',
+        '',
+        f'static const port_float gru_recurrent_bias[GRU_UNITS * 3u] = {_render_initializer(model_spec.gru_recurrent_bias)};',
+        '',
+        f'static const port_float dense_kernel[GRU_UNITS][DENSE_UNITS] = {_render_initializer(model_spec.dense_kernel)};',
         '',
         f'static const port_float dense_bias[DENSE_UNITS] = {_render_initializer(model_spec.dense_bias)};',
         '',
@@ -2053,6 +2191,490 @@ int main(void)
     )
 
 
+def _render_grn_main_c() -> str:
+    return r"""#include <stdint.h>
+
+#include "model_data.h"
+
+#define RCC_BASE 0x40023800u
+#define DEMCR (*(volatile uint32_t *)0xE000EDFCu)
+#define DWT_CTRL (*(volatile uint32_t *)0xE0001000u)
+#define DWT_CYCCNT (*(volatile uint32_t *)0xE0001004u)
+
+#define USART1_BASE 0x40011000u
+#define RCC_APB2ENR (*(volatile uint32_t *)(RCC_BASE + 0x44u))
+#define USART1_SR (*(volatile uint32_t *)(USART1_BASE + 0x00u))
+#define USART1_DR (*(volatile uint32_t *)(USART1_BASE + 0x04u))
+#define USART1_BRR (*(volatile uint32_t *)(USART1_BASE + 0x08u))
+#define USART1_CR1 (*(volatile uint32_t *)(USART1_BASE + 0x0Cu))
+
+#define RCC_APB2ENR_USART1EN (1u << 4)
+#define USART_SR_TXE (1u << 7)
+#define USART_CR1_TE (1u << 3)
+#define USART_CR1_UE (1u << 13)
+#define DEMCR_TRCENA (1u << 24)
+#define DWT_CTRL_CYCCNTENA (1u << 0)
+
+static port_float validation_output[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN];
+static port_float debug_scaled_input[VALIDATION_SEQ_LEN][GRU_INPUT_DIM];
+static port_float debug_gru_hidden[VALIDATION_SEQ_LEN][GRU_UNITS];
+static port_float debug_dense_output[VALIDATION_SEQ_LEN][DENSE_UNITS];
+static port_float debug_output_scaled[VALIDATION_SEQ_LEN];
+
+static void uart_init(void)
+{
+    RCC_APB2ENR |= RCC_APB2ENR_USART1EN;
+    USART1_BRR = 0x05B2u;
+    USART1_CR1 = USART_CR1_UE | USART_CR1_TE;
+}
+
+static void uart_putc(char ch)
+{
+    while ((USART1_SR & USART_SR_TXE) == 0u) {
+    }
+
+    USART1_DR = (uint32_t)ch;
+}
+
+static void uart_puts(const char *message)
+{
+    while (*message != '\0') {
+        if (*message == '\n') {
+            uart_putc('\r');
+        }
+
+        uart_putc(*message++);
+    }
+}
+
+static void uart_put_u32(uint32_t value)
+{
+    char buffer[11];
+    uint32_t index = 0u;
+
+    if (value == 0u) {
+        uart_putc('0');
+        return;
+    }
+
+    while (value > 0u && index < (uint32_t)sizeof(buffer)) {
+        buffer[index++] = (char)('0' + (value % 10u));
+        value /= 10u;
+    }
+
+    while (index > 0u) {
+        uart_putc(buffer[--index]);
+    }
+}
+
+static void uart_put_fixed6(port_float value)
+{
+    int32_t scaled = (int32_t)(value * 1000000.0f);
+    int32_t abs_scaled = scaled;
+    int32_t integer_part;
+    int32_t fraction;
+    int32_t divisor = 100000;
+
+    if (scaled < 0) {
+        uart_putc('-');
+        abs_scaled = -scaled;
+    }
+
+    integer_part = abs_scaled / 1000000;
+    fraction = abs_scaled % 1000000;
+
+    uart_put_u32((uint32_t)integer_part);
+    uart_putc('.');
+    while (divisor > 0) {
+        uart_putc((char)('0' + ((fraction / divisor) % 10)));
+        divisor /= 10;
+    }
+}
+
+static void uart_put_matrix_rows(const port_float *values,
+                                 uint32_t row_count,
+                                 uint32_t column_count)
+{
+    uint32_t row_index;
+    for (row_index = 0u; row_index < row_count; ++row_index) {
+        uint32_t column_index;
+        if (row_index > 0u) {
+            uart_putc(';');
+        }
+        for (column_index = 0u; column_index < column_count; ++column_index) {
+            if (column_index > 0u) {
+                uart_putc(',');
+            }
+            uart_put_fixed6(values[row_index * column_count + column_index]);
+        }
+    }
+}
+
+static void dwt_init(void)
+{
+    DEMCR |= DEMCR_TRCENA;
+    DWT_CYCCNT = 0u;
+    DWT_CTRL |= DWT_CTRL_CYCCNTENA;
+}
+
+static uint32_t dwt_read_cycles(void)
+{
+    return DWT_CYCCNT;
+}
+
+static uint32_t dwt_is_counting(void)
+{
+    volatile uint32_t spin;
+    uint32_t before;
+    uint32_t after;
+
+    dwt_init();
+    before = dwt_read_cycles();
+    for (spin = 0u; spin < 64u; ++spin) {
+        __asm volatile ("nop");
+    }
+    after = dwt_read_cycles();
+    return after > before ? 1u : 0u;
+}
+
+static port_float tanh_approx(port_float value)
+{
+    port_float squared;
+
+    if (value > 3.0f) {
+        return 0.99505478f;
+    }
+    if (value < -3.0f) {
+        return -0.99505478f;
+    }
+
+    squared = value * value;
+    return value * (27.0f + squared) / (27.0f + 9.0f * squared);
+}
+
+static port_float sigmoid_approx(port_float value)
+{
+    if (value > 8.0f) {
+        return 0.99966466f;
+    }
+    if (value < -8.0f) {
+        return 0.00033535f;
+    }
+    return 0.5f * (tanh_approx(value * 0.5f) + 1.0f);
+}
+
+static port_float relu(port_float value)
+{
+    return value > 0.0f ? value : 0.0f;
+}
+
+static port_float silu_approx(port_float value)
+{
+    return value * sigmoid_approx(value);
+}
+
+static void zero_buffer(port_float *buffer, uint32_t length)
+{
+    uint32_t index;
+    for (index = 0u; index < length; ++index) {
+        buffer[index] = 0.0f;
+    }
+}
+
+static port_float scale_input(port_float value)
+{
+    if (SCALER_INPUT_DATA_RANGE == 0.0f) {
+        return value;
+    }
+    return value / SCALER_INPUT_DATA_RANGE;
+}
+
+static port_float inverse_scale_output(port_float value)
+{
+    return value * SCALER_OUTPUT_DATA_RANGE;
+}
+
+static void dense_forward_silu(const port_float input[GRU_UNITS],
+                               port_float output[DENSE_UNITS])
+{
+    uint32_t out_index;
+    for (out_index = 0u; out_index < DENSE_UNITS; ++out_index) {
+        uint32_t input_index;
+        port_float sum = dense_bias[out_index];
+        for (input_index = 0u; input_index < GRU_UNITS; ++input_index) {
+            sum += input[input_index] * dense_kernel[input_index][out_index];
+        }
+        output[out_index] = silu_approx(sum);
+    }
+}
+
+static port_float output_forward_linear(const port_float input[DENSE_UNITS])
+{
+    uint32_t input_index;
+    port_float sum = output_bias[0u];
+    for (input_index = 0u; input_index < DENSE_UNITS; ++input_index) {
+        sum += input[input_index] * output_kernel[input_index][0u];
+    }
+    return sum;
+}
+
+static void gru_forward_step(const port_float input_step[GRU_INPUT_DIM],
+                             port_float hidden_state[GRU_UNITS],
+                             port_float *output_scaled_value,
+                             port_float debug_scaled_input_step[GRU_INPUT_DIM],
+                             port_float debug_hidden_step[GRU_UNITS],
+                             port_float debug_dense_step[DENSE_UNITS],
+                             port_float *output_value)
+{
+    uint32_t unit;
+    uint32_t input_index;
+    port_float previous_hidden[GRU_UNITS];
+    port_float dense_output[DENSE_UNITS];
+    port_float scaled_input_step[GRU_INPUT_DIM];
+
+    for (input_index = 0u; input_index < GRU_INPUT_DIM; ++input_index) {
+        scaled_input_step[input_index] = scale_input(input_step[input_index]);
+        if (debug_scaled_input_step != 0) {
+            debug_scaled_input_step[input_index] = scaled_input_step[input_index];
+        }
+    }
+
+    for (unit = 0u; unit < GRU_UNITS; ++unit) {
+        previous_hidden[unit] = hidden_state[unit];
+    }
+
+    for (unit = 0u; unit < GRU_UNITS; ++unit) {
+        uint32_t hidden_index;
+        port_float update_gate_input = gru_input_bias[unit + GRU_UNITS * 0u];
+        port_float reset_gate_input = gru_input_bias[unit + GRU_UNITS * 1u];
+        port_float candidate_input = gru_input_bias[unit + GRU_UNITS * 2u];
+        port_float update_gate_recurrent = gru_recurrent_bias[unit + GRU_UNITS * 0u];
+        port_float reset_gate_recurrent = gru_recurrent_bias[unit + GRU_UNITS * 1u];
+        port_float candidate_recurrent = gru_recurrent_bias[unit + GRU_UNITS * 2u];
+        port_float update_gate;
+        port_float reset_gate;
+        port_float candidate;
+        port_float hidden_value;
+
+        for (input_index = 0u; input_index < GRU_INPUT_DIM; ++input_index) {
+            port_float input_value = scaled_input_step[input_index];
+            update_gate_input += input_value * gru_kernel[input_index][unit + GRU_UNITS * 0u];
+            reset_gate_input += input_value * gru_kernel[input_index][unit + GRU_UNITS * 1u];
+            candidate_input += input_value * gru_kernel[input_index][unit + GRU_UNITS * 2u];
+        }
+
+        for (hidden_index = 0u; hidden_index < GRU_UNITS; ++hidden_index) {
+            port_float prev_value = previous_hidden[hidden_index];
+            update_gate_recurrent += prev_value * gru_recurrent_kernel[hidden_index][unit + GRU_UNITS * 0u];
+            reset_gate_recurrent += prev_value * gru_recurrent_kernel[hidden_index][unit + GRU_UNITS * 1u];
+            candidate_recurrent += prev_value * gru_recurrent_kernel[hidden_index][unit + GRU_UNITS * 2u];
+        }
+
+        update_gate = sigmoid_approx(update_gate_input + update_gate_recurrent);
+        reset_gate = sigmoid_approx(reset_gate_input + reset_gate_recurrent);
+        candidate = tanh_approx(candidate_input + reset_gate * candidate_recurrent);
+        hidden_value = update_gate * previous_hidden[unit] + (1.0f - update_gate) * candidate;
+
+        hidden_state[unit] = hidden_value;
+        if (debug_hidden_step != 0) {
+            debug_hidden_step[unit] = hidden_value;
+        }
+    }
+
+    dense_forward_silu(hidden_state, dense_output);
+    for (unit = 0u; unit < DENSE_UNITS; ++unit) {
+        if (debug_dense_step != 0) {
+            debug_dense_step[unit] = dense_output[unit];
+        }
+    }
+
+    {
+        port_float output_scaled = output_forward_linear(dense_output);
+        if (output_scaled_value != 0) {
+            *output_scaled_value = output_scaled;
+        }
+        *output_value = inverse_scale_output(output_scaled);
+    }
+}
+
+static void run_validation_record(const port_float sequence[VALIDATION_SEQ_LEN][GRU_INPUT_DIM],
+                                  port_float output_sequence[VALIDATION_SEQ_LEN],
+                                  uint32_t reset_state_each_run,
+                                  port_float hidden_state[GRU_UNITS],
+                                  port_float debug_scaled_input_buffer[VALIDATION_SEQ_LEN][GRU_INPUT_DIM],
+                                  port_float debug_gru_hidden_buffer[VALIDATION_SEQ_LEN][GRU_UNITS],
+                                  port_float debug_dense_output_buffer[VALIDATION_SEQ_LEN][DENSE_UNITS],
+                                  port_float debug_output_scaled_buffer[VALIDATION_SEQ_LEN])
+{
+    uint32_t step;
+    if (reset_state_each_run != 0u) {
+        zero_buffer(hidden_state, GRU_UNITS);
+    }
+
+    for (step = 0u; step < VALIDATION_SEQ_LEN; ++step) {
+        port_float *step_scaled_input = 0;
+        port_float *step_hidden = 0;
+        port_float *step_dense = 0;
+        port_float *step_output_scaled = 0;
+
+        if (debug_scaled_input_buffer != 0) {
+            step_scaled_input = debug_scaled_input_buffer[step];
+        }
+        if (debug_gru_hidden_buffer != 0) {
+            step_hidden = debug_gru_hidden_buffer[step];
+        }
+        if (debug_dense_output_buffer != 0) {
+            step_dense = debug_dense_output_buffer[step];
+        }
+        if (debug_output_scaled_buffer != 0) {
+            step_output_scaled = &debug_output_scaled_buffer[step];
+        }
+
+        gru_forward_step(
+            sequence[step],
+            hidden_state,
+            step_output_scaled,
+            step_scaled_input,
+            step_hidden,
+            step_dense,
+            &output_sequence[step]
+        );
+    }
+}
+
+int main(void)
+{
+    uint32_t iteration;
+    uint32_t record_index;
+    uint32_t step_index;
+    uint32_t dwt_supported;
+    port_float hidden_state[GRU_UNITS];
+    port_float output_value = 0.0f;
+    uint32_t start_cycles;
+    uint32_t end_cycles;
+    uint32_t total_cycles = 0u;
+
+    uart_init();
+    dwt_supported = dwt_is_counting();
+    zero_buffer(hidden_state, GRU_UNITS);
+
+    if (dwt_supported != 0u) {
+        start_cycles = dwt_read_cycles();
+    }
+
+    for (iteration = 0u; iteration < BENCHMARK_ITERATIONS; ++iteration) {
+        for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+            run_validation_record(
+                validation_input[record_index],
+                validation_output[record_index],
+                BENCHMARK_RESET_STATE_EACH_RUN,
+                hidden_state,
+                0,
+                0,
+                0,
+                0
+            );
+            output_value = validation_output[record_index][VALIDATION_SEQ_LEN - 1u];
+        }
+    }
+
+    if (dwt_supported != 0u) {
+        end_cycles = dwt_read_cycles();
+        total_cycles = end_cycles - start_cycles;
+    }
+
+    uart_puts("GRN_QEMU_VALIDATION\n");
+    uart_puts("iterations=");
+    uart_put_u32(BENCHMARK_ITERATIONS);
+    uart_puts("\nrecord_count=");
+    uart_put_u32(VALIDATION_RECORD_COUNT);
+    uart_puts("\nseq_len=");
+    uart_put_u32(VALIDATION_SEQ_LEN);
+    uart_puts("\ninput_dim=");
+    uart_put_u32(GRU_INPUT_DIM);
+    uart_puts("\ngru_units=");
+    uart_put_u32(GRU_UNITS);
+    uart_puts("\ndense_units=");
+    uart_put_u32(DENSE_UNITS);
+    uart_puts("\ndwt_supported=");
+    uart_put_u32(dwt_supported);
+    uart_puts("\ntimer_source=");
+    uart_puts(dwt_supported != 0u ? "dwt" : "host_elapsed");
+    if (dwt_supported != 0u) {
+        uart_puts("\nmeasurement_unit=");
+        uart_puts("cycles");
+        uart_puts("\nmeasurement_total=");
+        uart_put_u32(total_cycles);
+        uart_puts("\nmeasurement_per_iter=");
+        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));
+        uart_puts("\ncycles_total=");
+        uart_put_u32(total_cycles);
+        uart_puts("\ncycles_per_iter=");
+        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));
+    }
+    uart_puts("\noutput=");
+    uart_put_fixed6(output_value);
+    uart_puts("\n");
+    uart_puts("benchmark_complete=1\n");
+
+    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+        zero_buffer(hidden_state, GRU_UNITS);
+        run_validation_record(
+            validation_input[record_index],
+            validation_output[record_index],
+            0u,
+            hidden_state,
+            debug_scaled_input,
+            debug_gru_hidden,
+            debug_dense_output,
+            debug_output_scaled
+        );
+    }
+
+    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+        uart_puts("validation_record_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {
+            if (step_index > 0u) {
+                uart_putc(',');
+            }
+            uart_put_fixed6(validation_output[record_index][step_index]);
+        }
+        uart_puts("\n");
+
+        uart_puts("validation_input_scaled_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_scaled_input[0u][0u], VALIDATION_SEQ_LEN, GRU_INPUT_DIM);
+        uart_puts("\n");
+
+        uart_puts("validation_gru_hidden_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_gru_hidden[0u][0u], VALIDATION_SEQ_LEN, GRU_UNITS);
+        uart_puts("\n");
+
+        uart_puts("validation_dense_output_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_dense_output[0u][0u], VALIDATION_SEQ_LEN, DENSE_UNITS);
+        uart_puts("\n");
+
+        uart_puts("validation_output_scaled_");
+        uart_put_u32(record_index);
+        uart_puts("=");
+        uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
+        uart_puts("\n");
+    }
+    uart_puts("validation_complete=1\n");
+
+    while (1) {
+    }
+}
+"""
+
+
 def _render_main_c() -> str:
     return r"""#include <stdint.h>
 
@@ -2263,7 +2885,7 @@ static port_float inverse_scale_output(port_float value)
 }
 
 static void dense_forward_relu(const port_float input[LSTM_UNITS],
-                              port_float output[DENSE_UNITS])
+                               port_float output[DENSE_UNITS])
 {
     uint32_t out_index;
     for (out_index = 0u; out_index < DENSE_UNITS; ++out_index) {
@@ -2773,6 +3395,8 @@ def _build_channel_names(stage_name: str,
         return [f'iir_{index}' for index in range(channel_count)]
     if stage_name == 'lstm_hidden':
         return [f'hidden_{index}' for index in range(channel_count)]
+    if stage_name == 'gru_hidden':
+        return [f'hidden_{index}' for index in range(channel_count)]
     if stage_name == 'dense_output':
         return [f'dense_{index}' for index in range(channel_count)]
     if stage_name.startswith('kan_layer_'):
@@ -2933,6 +3557,7 @@ def _compute_wave_comparison(validation_artifacts: ValidationArtifacts,
             'magnitude': record.magnitude,
             'frequency': record.frequency,
             'mae': float(np.mean(np.abs(diff))),
+            'mse': float(np.mean(np.square(diff))),
             'max_abs_error': float(np.max(np.abs(diff))),
             'c_output_stats': _compute_signal_stats(c_array),
             'tf_output_stats': _compute_signal_stats(tf_array),
@@ -2946,6 +3571,7 @@ def _compute_wave_comparison(validation_artifacts: ValidationArtifacts,
         'record_count': len(per_record),
         'sample_count': int(diff_flat.size),
         'mae': float(np.mean(np.abs(diff_flat))) if diff_flat.size else 0.0,
+        'mse': float(np.mean(np.square(diff_flat))) if diff_flat.size else 0.0,
         'max_abs_error': float(np.max(np.abs(diff_flat))) if diff_flat.size else 0.0,
         'c_output_stats': _compute_signal_stats(c_flat),
         'tf_output_stats': _compute_signal_stats(tf_flat),
@@ -2985,6 +3611,7 @@ def _compute_intermediate_comparison(validation_artifacts: ValidationArtifacts,
             'sample_count': int(diff_flat.size),
             'channel_count': channel_count,
             'mae': float(np.mean(np.abs(diff_flat))) if diff_flat.size else 0.0,
+            'mse': float(np.mean(np.square(diff_flat))) if diff_flat.size else 0.0,
             'max_abs_error': float(np.max(np.abs(diff_flat))) if diff_flat.size else 0.0,
             'c_output_stats': _compute_signal_stats(c_flat),
             'tf_output_stats': _compute_signal_stats(tf_flat),
