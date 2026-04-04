@@ -13,8 +13,14 @@
 - Only status updates needed for STEP3 - no content changes required
 - R33 confirmed Luo KANLoc exclusion (domain mismatch: robot vision vs sensor drift compensation)
 - 2026-04-03: `qemu-c-inference` 应直接从 `best_val.weights.json` 生成专用 bare-metal C 工程，不要复用桌面版 `src/inference/cimpl/lstm.c`；后者依赖 `printf/math.h`，在 `-nostdlib` 的 QEMU 构建里不稳
+- 2026-04-04: FRIKAN 的 LUT 精度调参先看 ROM 上限；`lut_points=1025` 会让 STM32F405 链接溢出，`lut_points=769` 在当前 `frikan_h8u6l6_nosym` 上仍可链接且能把最终 MAE 从 `2.09e-4` 压到 `3.89e-5`
 - 2026-04-03: 生成 C 源码模板时若包含 `\n`/`\r`/`\0`，优先用原始字符串保留转义；但 `#include "..."` 不能保留反斜杠，否则会生成非法源码
 - 2026-04-03: QEMU 的 Cortex-M4 场景下不要把 `DWT_CYCCNT` 当成可靠 benchmark 来源；应先探测 DWT 是否真正递增，当前仓库在 DWT 不可用时以 host-side elapsed time 作为回退计时，避免在 guest 内伪造 cycle/tick 指标
+- 2026-04-04: 做 QEMU/C 代码生成性能优化前，先保存一份成功运行的 benchmark 摘要快照；否则后续即使能确认 MAE 与 ELF 大小变化，也无法可靠量化优化前后的 host_elapsed 差异
+- 2026-04-04: `benchmark_summary.json` 里的 `host_elapsed` 只有在 success pattern 停在 `benchmark_complete=1` 时才是纯 benchmark；若停在 `validation_complete=1`，UART validation 输出也会被算进 wall time，不能拿来和 benchmark-only 结果直接比较
+- 2026-04-04: FRIKAN 的 LUT 优化不要把“模板默认 no-interpolation”和“当前样例配置”混为一谈；模板可以默认 `lut_interpolation=false`，但 `frikan_h8u6l6_nosym` 在 `lut_points=769` 下必须显式保留 `lut_interpolation=true` 才能把 MAE 维持在 `3.9e-5` 量级
+- 2026-04-04: FRIKAN 性能优先版若改成“按层编译期固化 LUT scale/offset + `lut_interpolation=false`”，`frikan_h8u6l6_nosym` 的 benchmark-only 可降到约 `0.0434 s/iter`，但最终 MAE 会升到约 `0.0806`；这时误差主因在 KAN/LUT 近似，不在 IIR（IIR 中间层 MAE 仍约 `4.9e-7`）
+- 2026-04-04: FRIKAN LUT 热路径若继续把按层 helper 强制 `always_inline`，当前 STM32F405 QEMU 工程会再度触发 ROM 溢出；性能版要保持可链接时，按层特化 helper 用 `noinline` 更稳
 - 2026-04-03: 当前机器可用的 tf26 解释器是 `C:\Users\liang\.conda\envs\tf26\python.exe`，不要照抄 CLAUDE.md 里的旧绝对路径
 - 2026-04-03: 若 QEMU C/TF 最终波形看起来“能量接近但符号明显不对”，先检查 UART 数值格式化链；本仓库曾出现 `uart_put_fixed6()` 对 `(-1, 0)` 负数丢失负号，导致输出文本看似全正，但中间层实际计算基本正确
 - 2026-04-03: 排查 QEMU 数值偏差时，优先同时导出 TF/C 的 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` wave，再判断是解析问题、缩放问题还是核心算子误差

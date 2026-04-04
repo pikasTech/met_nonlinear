@@ -171,17 +171,19 @@ def _create_wnet5_circuit_validation_template(ep_path: ExternalPath) -> dict:
 
 
 def _create_qemu_c_inference_template(ep_path: ExternalPath) -> dict:
-    """创建 LSTM QEMU C 推理模板。"""
+    """创建 QEMU C 推理模板。"""
     return {
         "task_info": {
             "task_type": "qemu-c-inference",
-            "description": "使用 MET 数据集子集执行 LSTM 的 C/TF26 波形一致性验证"
+            "description": "自动识别模型类型并执行 C/TF26 波形一致性验证"
         },
         "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
         "weights_file": "best_val.weights.json",
         "generation_config": {
             "project_dir": "qemu_project",
-            "overwrite": True
+            "overwrite": True,
+            "lut_points": 513,
+            "lut_interpolation": False
         },
         "benchmark_config": {
             "iterations": 10,
@@ -689,12 +691,12 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
 
 
 def _execute_qemu_c_inference_task(ep_path: ExternalPath, config: dict) -> bool:
-    """执行 LSTM QEMU C 推理任务。"""
+    """执行自动识别模型类型的 QEMU C 推理任务。"""
     try:
-        from .lstm_qemu_ep_task import execute_lstm_qemu_inference_task
+        from .lstm_qemu_ep_task import execute_qemu_inference_task
 
         logger.info(f"执行 QEMU C 推理任务: {ep_path.task_name}")
-        return execute_lstm_qemu_inference_task(ep_path, config)
+        return execute_qemu_inference_task(ep_path, config)
     except ImportError as e:
         logger.error(f"无法导入 QEMU C 推理模块: {e}")
         return False

@@ -540,6 +540,14 @@ class VisualizationConfigValidator:
                     },
                     "overwrite": {
                         "type": "boolean"
+                    },
+                    "lut_points": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 65536
+                    },
+                    "lut_interpolation": {
+                        "type": "boolean"
                     }
                 }
             },

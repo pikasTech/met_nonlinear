@@ -405,22 +405,6 @@ int main(void)
         total_cycles = end_cycles - start_cycles;
     }
 
-    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
-        zero_buffer(hidden_state, LSTM_UNITS);
-        zero_buffer(cell_state, LSTM_UNITS);
-        run_validation_record(
-            validation_input[record_index],
-            validation_output[record_index],
-            0u,
-            hidden_state,
-            cell_state,
-            debug_scaled_input,
-            debug_lstm_hidden,
-            debug_dense_output,
-            debug_output_scaled
-        );
-    }
-
     uart_puts("LSTM_QEMU_VALIDATION\n");
     uart_puts("iterations=");
     uart_put_u32(BENCHMARK_ITERATIONS);
@@ -453,6 +437,23 @@ int main(void)
     uart_puts("\noutput=");
     uart_put_fixed6(output_value);
     uart_puts("\n");
+    uart_puts("benchmark_complete=1\n");
+
+    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
+        zero_buffer(hidden_state, LSTM_UNITS);
+        zero_buffer(cell_state, LSTM_UNITS);
+        run_validation_record(
+            validation_input[record_index],
+            validation_output[record_index],
+            0u,
+            hidden_state,
+            cell_state,
+            debug_scaled_input,
+            debug_lstm_hidden,
+            debug_dense_output,
+            debug_output_scaled
+        );
+    }
 
     for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {
         uart_puts("validation_record_");

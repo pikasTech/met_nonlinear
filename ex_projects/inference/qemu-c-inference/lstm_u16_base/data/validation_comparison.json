@@ -161,9 +161,9 @@
     "tf_lstm_hidden_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_lstm_hidden.wave",
     "tf_dense_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_dense_output.wave",
     "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/tf_output_scaled.wave",
+    "c_dense_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_dense_output.wave",
     "c_input_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_input_scaled.wave",
     "c_lstm_hidden_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_lstm_hidden.wave",
-    "c_dense_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_dense_output.wave",
     "c_output_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/waves/c_output_scaled.wave"
   },
   "plot_paths": {

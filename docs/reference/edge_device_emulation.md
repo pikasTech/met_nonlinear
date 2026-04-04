@@ -55,12 +55,14 @@ python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 ```
 
-### LSTM QEMU 推理验证
+### qemu-c-inference 模型感知验证
 
-如果要从已训练的 LSTM 项目直接生成裸机 C 工程并运行，可使用：
+如果要从已训练项目直接生成裸机 C 工程并运行，可使用：
 
 ```powershell
 python cli.py ep ex_projects/inference/qemu-c-inference/lstm_u16_base
+python cli.py ep ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym_interp
+python cli.py ep ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym
 ```
 
 如果当前默认 `python` 不是 TensorFlow 2.6 环境，应改为显式使用 `tf26` 的解释器运行，例如：
@@ -85,26 +87,57 @@ where conda
 Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\MiniConda3\envs\tf26\python.exe","$env:USERPROFILE\miniconda3\envs\tf26\python.exe" -ErrorAction SilentlyContinue
 ```
 
+`qemu-c-inference` 当前会自动识别模型类型，已支持：
+
+- `lstm`：生成经典 LSTM + Dense 的裸机 C 推理工程。
+- `frikan`：将前端 FRIRNN 导出为经典二阶 IIR 级联，将 KAN 部分导出为静态 LUT 数组并生成专用裸机 C 工程。
+
+FRIKAN 任务可在 `generation_config` 中继续调节 LUT 相关参数，例如 `lut_points` 和 `lut_interpolation`。
+
+当前模板默认 `lut_interpolation=false`，以减少查表热路径开销；但像 `frikan_h8u6l6_nosym` 这类已经验证过精度的样例，如果需要把 C/TF 误差继续压低，仍可在该 EP 的 `config.json` 中显式设置为 `true`。
+
+当前仓库内已经提供一组可直接复现实验口径的三模型样例：
+
+- `lstm_u16_base`：LSTM 基线。
+- `frikan_h8u6l6_nosym_interp`：FRIKAN 插值版，侧重精度。
+- `frikan_h8u6l6_nosym`：FRIKAN 非插值版，侧重性能。
+
 该命令会读取 `validation_config` 中指定的 MET 数据集和筛选条件，先在 Python/TensorFlow 侧生成参考输出，再在对应 EP 目录下生成 `qemu_project/` 并调用现有 `cli.py qemu` 工作流进行构建与运行。
 
 默认流程包括：
 
-1. 从 `best_val.weights.json` 和对应 `.h5` 权重加载 LSTM。
+1. 从 `best_val.weights.json` 和对应 `.h5` 权重加载模型，并自动识别 `model_type`。
 2. 按 `magnitudes`、`frequencies`、`start_time_s`、`end_time_s` 选择 MET 数据集子集。
 3. 导出 C 端所需的模型参数、缩放参数和验证输入序列到 `qemu_project/model_data.h`。
-4. 运行 QEMU，捕获逐样本 `validation_record_*` 输出。
-5. 生成 `data/benchmark_summary.json`、`data/validation_comparison.json`、`data/waves/*.wave` 和 `data/plots/*.png`。
+4. 先执行 benchmark-only 运行，在捕获到 `benchmark_complete=1` 后立即结束 QEMU，得到纯推理计时。
+5. 再执行完整 validation 运行，在捕获到 `validation_complete=1` 后导出逐样本输出与中间层调试信息。
+6. 生成 `data/benchmark_summary.json`、`data/validation_comparison.json`、`data/waves/*.wave` 和 `data/plots/*.png`。
 
 该入口在 EP 索引中归类为 `qemu-c-inference` 任务，路径格式与模板生成规则见 [ep 子命令说明](ep.md)。
 
-需要注意：QEMU 当前不能可靠提供 Cortex-M4 的 `DWT_CYCCNT` 计数，直接读 DWT 往往恒为 `0`。当前仓库的生成代码会先探测 DWT；若 DWT 不可用，则不再伪造 guest 内 cycle/tick 计数，而是由 EP 任务在捕获到完整 benchmark 输出后立即结束 QEMU，并把 host 侧 elapsed time 作为回退计时来源。因此汇总里应优先看 `timer_source`、`measurement_unit`、`measurement_per_iter`。
+需要注意：QEMU 当前不能可靠提供 Cortex-M4 的 `DWT_CYCCNT` 计数，直接读 DWT 往往恒为 `0`。当前仓库的生成代码会先探测 DWT；若 DWT 不可用，则不再伪造 guest 内 cycle/tick 计数，而是使用 host 侧 elapsed time 作为回退计时来源。
+
+这里有一个关键口径：
+
+- `benchmark_summary.json` 的 `runs[].parsed_output.measurement_per_iter` 和 `aggregated.avg_measurement_per_iter`，只有在 success pattern 停在 `benchmark_complete=1` 时才表示纯推理 benchmark。
+- `benchmark_summary.json` 的 `validation_run.parsed_output.measurement_per_iter` 包含完整 validation/UART 输出时间，不能直接拿来和 benchmark-only 结果做跨模型性能对比。
 
 预期输出中应包含类似：
 
 ```text
 LSTM_QEMU_VALIDATION
-dwt_supported=0
 timer_source=host_elapsed
+benchmark_complete=1
+validation_record_0=...
+validation_complete=1
+```
+
+或：
+
+```text
+FRIKAN_QEMU_VALIDATION
+timer_source=host_elapsed
+benchmark_complete=1
 validation_record_0=...
 validation_complete=1
 ```
@@ -115,13 +148,13 @@ validation_complete=1
 
 | 文件 | 作用 |
 |------|------|
-| `data/benchmark_summary.json` | 记录 QEMU build/run 结果、计时字段，以及 `comparison`、`intermediate_comparison`、`plot_paths` 等汇总信息 |
+| `data/benchmark_summary.json` | 记录 QEMU build/run 结果、模型类型、benchmark-only 计时字段，以及完整 validation 运行摘要 |
 | `data/validation_comparison.json` | 记录每条波形的 MAE、最大绝对误差、最大值、最小值、均值、能量，以及中间层对比结果 |
 | `data/waves/origin_input.wave` | 输入波形 |
 | `data/waves/target_output.wave` | 目标输出波形 |
 | `data/waves/tf_output.wave` | TF26 参考输出波形 |
 | `data/waves/c_output.wave` | QEMU C 推理输出波形 |
-| `data/waves/tf_*.wave` / `data/waves/c_*.wave` | `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` 的 TF/C 中间层调试波形 |
+| `data/waves/tf_*.wave` / `data/waves/c_*.wave` | 模型相关的 TF/C 中间层调试波形；LSTM 通常包含 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，FRIKAN 通常包含 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled` |
 | `data/plots/*.png` | 每条 validation record 的四曲线对比图，叠加 `origin`、`target`、`c_inference`、`tf_inference` |
 
 当前实现里，`benchmark_summary.json` 和 `validation_comparison.json` 都会汇总以下指标：
@@ -132,12 +165,46 @@ validation_complete=1
 - `tf_output_stats.min/max/mean/energy`
 - `diff_stats.min/max/mean/energy`
 
+若需要跨模型比较 MSE，当前推荐统一使用：
+
+$$
+MSE = \frac{\text{overall.diff\_stats.energy}}{\text{overall.sample\_count}}
+$$
+
+这样可以直接基于 `validation_comparison.json` 的现有字段计算，而无需额外修改导出格式。
+
 此外：
 
+- `benchmark_summary.json` 会显式记录 `model_type`，并将纯 benchmark 结果放在 `runs` / `aggregated`，将完整 validation 运行结果放在 `validation_run`。
 - `plot_paths` 会指向自动生成的 PNG 对比图。
-- `intermediate_comparison` 会给出 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` 的逐层误差统计。
+- `validation_comparison.json` 的 `intermediate` 或 `benchmark_summary.json` 的 `intermediate_comparison` 会给出模型相关的逐层误差统计。
 
-如果 `c_output` 与 `tf_output` 偏差明显，说明当前 C 侧实现与 TensorFlow 参考实现仍存在数值不一致，通常应优先查看四曲线对比图，并结合中间层 wave 与 `intermediate_comparison` 排查激活函数近似、gate 顺序、缩放参数或输出格式化链路。
+如果 `c_output` 与 `tf_output` 偏差明显，说明当前 C 侧实现与 TensorFlow 参考实现仍存在数值不一致，通常应优先查看四曲线对比图，并结合中间层 wave 与 `intermediate_comparison` 排查激活函数近似、缩放参数、输出格式化链路，或 FRIKAN 的 IIR/LUT 配置。
+
+### 跨模型比较口径
+
+如果要对比不同 `qemu-c-inference` 项目的推理性能，建议统一以下条件：
+
+1. `benchmark_config.iterations`、`reset_state_each_run`、`repeat_runs` 保持一致。
+2. `qemu_config.machine` 保持一致，例如统一使用 `olimex-stm32-h405`。
+3. 性能只比较 `benchmark_summary.json` 里的纯 benchmark 字段，例如 `aggregated.avg_measurement_per_iter`。
+4. 一致性则比较 `validation_comparison.json` 里的 `overall.mae` 和 `overall.max_abs_error`。
+
+不要把 `validation_run.parsed_output.measurement_per_iter` 当成纯推理耗时，因为它会把 validation 阶段的 UART 输出时间一并算进去。
+
+在当前仓库 2026-04-04 已验证的三样例上，同一条 validation record（`mag0.24_freq10`，`sample_count=400`）的结果如下：
+
+| 模型 | benchmark-only 耗时 | validation run 耗时 | MAE | MSE |
+|------|---------------------|---------------------|-----|-----|
+| `lstm_u16_base` | `0.07148281 s/iter` | `0.09995057 s/iter` | `0.0006196653` | `4.7243715e-07` |
+| `frikan_h8u6l6_nosym_interp` | `0.06392591 s/iter` | `0.09929439 s/iter` | `3.8875193e-05` | `4.2627435e-09` |
+| `frikan_h8u6l6_nosym` | `0.04341357 s/iter` | `0.08093242 s/iter` | `0.0805903773` | `0.0098489184` |
+
+可以据此快速判断当前实现的权衡：
+
+- 纯性能最高的是 `frikan_h8u6l6_nosym`，但误差也最大。
+- 综合速度与精度表现最好的是 `frikan_h8u6l6_nosym_interp`，它比 LSTM 更快，同时 MSE 也显著更低。
+- `lstm_u16_base` 仍适合作为结构简单、行为稳定的对照基线。
 
 ## 本机工具链
 

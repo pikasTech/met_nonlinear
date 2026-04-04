@@ -1,0 +1,37 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "使用 MET 数据集子集执行 FRIKANh8u6l6_nosym 的 C/TF26 波形一致性验证"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/qemu_project",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_iir_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_0.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_1.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_2.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_3.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_4.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_5.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/tf_kan_layer_6.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_iir_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_0.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_1.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_2.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_3.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_4.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_5.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_kan_layer_6.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/waves/c_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym/data/plots/mag0_24_freq10_comparison.png"
+  ],
+  "action": "build-run"
+}
