@@ -61,6 +61,7 @@ python cli.py qemu build-run src/tests/qemu/stm32f405_hello --timeout 5
 
 ```powershell
 python cli.py ep ex_projects/inference/qemu-c-inference/lstm_u16_base
+python cli.py ep ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1
 python cli.py ep ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym_interp
 python cli.py ep ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym
 ```
@@ -90,15 +91,18 @@ Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\M
 `qemu-c-inference` 当前会自动识别模型类型，已支持：
 
 - `lstm`：生成经典 LSTM + Dense 的裸机 C 推理工程。
+- `lstm_transformer`：生成 LSTM backbone + pooled multi-head attention + FFN 的裸机 C 推理工程，并导出 Transformer 中间层对齐波形。
+- `grn`：生成 GRU + Dense 的裸机 C 推理工程。
 - `frikan`：将前端 FRIRNN 导出为经典二阶 IIR 级联，将 KAN 部分导出为静态 LUT 数组并生成专用裸机 C 工程。
 
 FRIKAN 任务可在 `generation_config` 中继续调节 LUT 相关参数，例如 `lut_points` 和 `lut_interpolation`。
 
 当前模板默认 `lut_interpolation=false`，以减少查表热路径开销；但像 `frikan_h8u6l6_nosym` 这类已经验证过精度的样例，如果需要把 C/TF 误差继续压低，仍可在该 EP 的 `config.json` 中显式设置为 `true`。
 
-当前仓库内已经提供一组可直接复现实验口径的三模型样例：
+当前仓库内已经提供一组可直接复现实验口径的四模型样例：
 
 - `lstm_u16_base`：LSTM 基线。
+- `lstm_transformeru6_e1k_1`：LSTMTransformer，侧重在保持较低误差的同时降低纯推理耗时。
 - `frikan_h8u6l6_nosym_interp`：FRIKAN 插值版，侧重精度。
 - `frikan_h8u6l6_nosym`：FRIKAN 非插值版，侧重性能。
 
@@ -142,6 +146,16 @@ validation_record_0=...
 validation_complete=1
 ```
 
+或：
+
+```text
+LSTM_TRANSFORMER_QEMU_VALIDATION
+timer_source=host_elapsed
+benchmark_complete=1
+validation_record_0=...
+validation_complete=1
+```
+
 ### 验证输出说明
 
 执行完成后，重点看以下产物：
@@ -154,7 +168,7 @@ validation_complete=1
 | `data/waves/target_output.wave` | 目标输出波形 |
 | `data/waves/tf_output.wave` | TF26 参考输出波形 |
 | `data/waves/c_output.wave` | QEMU C 推理输出波形 |
-| `data/waves/tf_*.wave` / `data/waves/c_*.wave` | 模型相关的 TF/C 中间层调试波形；LSTM 通常包含 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，FRIKAN 通常包含 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled` |
+| `data/waves/tf_*.wave` / `data/waves/c_*.wave` | 模型相关的 TF/C 中间层调试波形；LSTM 通常包含 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，LSTMTransformer 通常包含 `input_scaled`、`lstm_hidden`、`transformer_ln_attn_*`、`transformer_ln_ffn_*`、`post_dense`、`output_scaled`，FRIKAN 通常包含 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled` |
 | `data/plots/*.png` | 每条 validation record 的四曲线对比图，叠加 `origin`、`target`、`c_inference`、`tf_inference` |
 
 当前实现里，`benchmark_summary.json` 和 `validation_comparison.json` 都会汇总以下指标：
@@ -192,11 +206,12 @@ $$
 
 不要把 `validation_run.parsed_output.measurement_per_iter` 当成纯推理耗时，因为它会把 validation 阶段的 UART 输出时间一并算进去。
 
-在当前仓库 2026-04-04 已验证的三样例上，同一条 validation record（`mag0.24_freq10`，`sample_count=400`）的结果如下：
+在当前仓库 2026-04-04 已验证的四样例上，同一条 validation record（`mag0.24_freq10`，`sample_count=400`）的结果如下：
 
 | 模型 | benchmark-only 耗时 | validation run 耗时 | MAE | MSE |
 |------|---------------------|---------------------|-----|-----|
 | `lstm_u16_base` | `0.07148281 s/iter` | `0.09995057 s/iter` | `0.0006196653` | `4.7243715e-07` |
+| `lstm_transformeru6_e1k_1` | `0.05666988 s/iter` | `0.08594735 s/iter` | `0.0007818976` | `6.2663243e-07` |
 | `frikan_h8u6l6_nosym_interp` | `0.06392591 s/iter` | `0.09929439 s/iter` | `3.8875193e-05` | `4.2627435e-09` |
 | `frikan_h8u6l6_nosym` | `0.04341357 s/iter` | `0.08093242 s/iter` | `0.0805903773` | `0.0098489184` |
 
@@ -204,6 +219,7 @@ $$
 
 - 纯性能最高的是 `frikan_h8u6l6_nosym`，但误差也最大。
 - 综合速度与精度表现最好的是 `frikan_h8u6l6_nosym_interp`，它比 LSTM 更快，同时 MSE 也显著更低。
+- `lstm_transformeru6_e1k_1` 相比 `lstm_u16_base` 的 benchmark-only 耗时约下降 `20.7%`，validation run 耗时约下降 `14.0%`，MAE 仍保持在 `1e-3` 以内，适合作为“比传统 LSTM 更快、又明显比性能优先 FRIKAN 更准”的折中样例。
 - `lstm_u16_base` 仍适合作为结构简单、行为稳定的对照基线。
 
 ## 本机工具链

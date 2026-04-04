@@ -99,9 +99,9 @@
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "ex_projects/inference/qemu-c-inference/MODEL_NAME"`
-	- 模型感知转换：自动识别 LSTM 与 FRIKAN，分别生成 LSTM 裸机 C 或 IIR + LUT KAN 工程，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+	- 模型感知转换：自动识别 LSTM、LSTMTransformer、GRN 与 FRIKAN，生成对应裸机 C 推理工程，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 	- 双阶段计时：先在 `benchmark_complete=1` 处截断纯推理 benchmark，再在 `validation_complete=1` 处完成完整验证，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
-	- 样例对比：仓库内置 `lstm_u16_base`、`frikan_h8u6l6_nosym_interp`、`frikan_h8u6l6_nosym` 三组对比样例，可直接查看耗时与 MSE 权衡，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+	- 样例对比：仓库内置 `lstm_u16_base`、`lstm_transformeru6_e1k_1`、`frikan_h8u6l6_nosym_interp`、`frikan_h8u6l6_nosym` 四组对比样例，可直接查看耗时与 MSE 权衡，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 	- 输出产物：生成 `qemu_project/`、`data/benchmark_summary.json`、`data/validation_comparison.json`、`data/waves/*.wave` 与 `data/plots/*.png`，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。

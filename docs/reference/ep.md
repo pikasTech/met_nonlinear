@@ -11,6 +11,7 @@ python cli.py ep "LSTMu32al_rs300/freq-response-compare/baseline-comparison"
 python cli.py ep "LSTMu32al_rs300/wnet5-circuit-validation/layer2"
 python cli.py ep "LSTMu32al_rs300/freq-response-compensator/test"
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
+python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 ```
 
@@ -47,12 +48,13 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 
 ### qemu-c-inference 类任务
 
-`qemu-c-inference` 用于把已训练项目的 `best_val.weights.json` 转成裸机 C 语言 QEMU 工程，并基于配置的数据集子集执行 C/TF26 双路径一致性验证。当前任务会自动识别模型类型，已支持 `lstm` 与 `frikan`。
+`qemu-c-inference` 用于把已训练项目的 `best_val.weights.json` 转成裸机 C 语言 QEMU 工程，并基于配置的数据集子集执行 C/TF26 双路径一致性验证。当前任务会自动识别模型类型，已支持 `lstm`、`lstm_transformer`、`grn` 与 `frikan`。
 
 示例：
 
 ```bash
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
+python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym_interp"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 ```
@@ -114,10 +116,11 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 当前仓库内可直接复用的 `qemu-c-inference` 对比样例包括：
 
 - `lstm_u16_base`：LSTM 基线。
+- `lstm_transformeru6_e1k_1`：LSTMTransformer 基线，当前 benchmark-only 约 `0.05666988 s/iter`，MAE 约 `7.8189757e-04`。
 - `frikan_h8u6l6_nosym_interp`：FRIKAN 插值版，`lut_points=769` 且 `lut_interpolation=true`，用于低误差对齐。
 - `frikan_h8u6l6_nosym`：FRIKAN 非插值版，`lut_points=769` 且 `lut_interpolation=false`，用于性能优先验证。
 
-三者的统一 benchmark-only / validation run / MSE 对比口径，详见 [边缘设备推理仿真](edge_device_emulation.md) 的跨模型比较章节。
+四者的统一 benchmark-only / validation run / MSE 对比口径，详见 [边缘设备推理仿真](edge_device_emulation.md) 的跨模型比较章节。
 
 ### compare 类任务
 
@@ -137,10 +140,10 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 - `.../qemu_project/`：可被 `cli.py qemu` 直接识别的 C 工程
 - `.../data/benchmark_summary.json`：QEMU 运行输出、`model_type`、纯 benchmark 结果、完整 validation 结果，以及 `comparison`、`intermediate_comparison`、`plot_paths` 等索引字段
 - `.../data/validation_comparison.json`：C/TF 波形对比结果，包含 `overall`、`per_record`、`intermediate` 与 `plot_paths`
-- `.../data/waves/*.wave`：最终输出波形，以及模型相关的 TF/C 中间层波形文件；LSTM 常见为 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，FRIKAN 常见为 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled`
+- `.../data/waves/*.wave`：最终输出波形，以及模型相关的 TF/C 中间层波形文件；LSTM 常见为 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，LSTMTransformer 常见为 `input_scaled`、`lstm_hidden`、`transformer_ln_attn_*`、`transformer_ln_ffn_*`、`post_dense`、`output_scaled`，FRIKAN 常见为 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled`
 - `.../data/plots/*.png`：按 validation record 导出的四曲线对比图，默认叠加 `origin`、`target`、`c_inference`、`tf_inference`
 
-若需要统一比较 MSE，可直接用 `validation_comparison.json` 的 `overall.diff_stats.energy / overall.sample_count` 计算；当前三样例的参考数值已同步写入 [边缘设备推理仿真](edge_device_emulation.md)。
+若需要统一比较 MSE，可直接用 `validation_comparison.json` 的 `overall.diff_stats.energy / overall.sample_count` 计算；当前四样例的参考数值已同步写入 [边缘设备推理仿真](edge_device_emulation.md)。
 
 ## 适用场景
 

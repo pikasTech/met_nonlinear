@@ -1,0 +1,74 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "pytest-qemu-task",
+			"type": "shell",
+			"command": "C:\\Users\\liang\\.conda\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_lstm_qemu_ep_task.py",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "qemu-generate-lstm-transformer",
+			"type": "shell",
+			"command": "C:\\Users\\liang\\.conda\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"ep",
+				"ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-qemu-task",
+			"type": "shell",
+			"command": "C:\\Users\\liang\\.conda\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_lstm_qemu_ep_task.py",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "qemu-generate-lstm-transformer",
+			"type": "shell",
+			"command": "C:\\Users\\liang\\.conda\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"ep",
+				"ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "pytest-qemu-task",
+			"type": "shell",
+			"command": "C:\\Users\\liang\\.conda\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_lstm_qemu_ep_task.py",
+				"-q"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "qemu-generate-lstm-transformer",
+			"type": "shell",
+			"command": "C:\\Users\\liang\\.conda\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"ep",
+				"ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
+			],
+			"isBackground": false
+		}
+	]
+}

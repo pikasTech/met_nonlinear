@@ -5,6 +5,9 @@
 |------|--------|----------------|-------------------|
 | 2026-04-03 | user | 在 QEMU 问题上先开始本地复现，没先做外部资料调研 | 这类工具链/仿真器卡点先做广泛联网调研，再回仓库落地 |
 | 2026-04-04 | self | 在 `src/core/lstm_qemu_ep_task.py` 里给 GRN 加 SiLU 时改到了相邻的 LSTM 模板片段，导致源码里看似有修复但生成结果仍旧错误 | 这类生成器文件含重复 C 模板片段时，修改后必须同时核对真正的模板分支和重新生成出的 `qemu_project/main.c` |
+| 2026-04-04 | self | 做 `ModelEngine.build_model()` 轻量冒烟测试时忘了训练流程会先准备 scaler，导致 `set_scaler` 直接报错 | 如果跳过 `prepare_training_data()`，就临时设 `config.use_scale=False` 或手动注入 `CombinedScaler` 再测构建链路 |
+| 2026-04-04 | self | 长序列 LSTM+Transformer 直接全长自注意力在 `4000` 步输入、batch `70` 下会在初始 `evaluate()` 阶段因 `MultiHeadAttention` OOM 退出 | 对长序列时序任务给 Transformer 加可配置的降采样 K/V 路径（如 `attention_pool_size=128`），保留时序长度给 query，显著降低显存占用 |
+| 2026-04-04 | self | 排查 LSTMTransformer 第一层 `transformer_ln_attn_0` 大偏差时，把 `exact_exp_approx_sqrt` / `approx_exp_exact_sqrt` 的命名看反，误以为 softmax `exp` 是主因 | 看近似消融报告时先按“哪个近似被保留”逐项解释；本案真正主因是 layer norm 的 `sqrt_approx()`，旧实现从 `guess=1` 开始对小方差会严重高估分母 |
 
 ## User Preferences
 - (none recorded)
@@ -26,6 +29,7 @@
 - 2026-04-03: 当前机器可用的 tf26 解释器是 `C:\Users\liang\.conda\envs\tf26\python.exe`，不要照抄 CLAUDE.md 里的旧绝对路径
 - 2026-04-03: 若 QEMU C/TF 最终波形看起来“能量接近但符号明显不对”，先检查 UART 数值格式化链；本仓库曾出现 `uart_put_fixed6()` 对 `(-1, 0)` 负数丢失负号，导致输出文本看似全正，但中间层实际计算基本正确
 - 2026-04-03: 排查 QEMU 数值偏差时，优先同时导出 TF/C 的 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled` wave，再判断是解析问题、缩放问题还是核心算子误差
+- 2026-04-04: 解析 Keras 导出的 Transformer 权重时，`output/kernel` 不能用包含或后缀匹配；`transformer_mha_x/attention_output/kernel:0` 会误命中，必须按完整权重名精确匹配顶层 `output/kernel:0`
 - 2026-04-03: `src/calibration_analyzer/datastruct.py` 与根目录同名文件里对 `exam_class` 的反向导入是无用且会触发循环导入；遇到 `DataRecord from partially initialized module` 先检查这行
 
 ## Patterns That Don't Work
@@ -38,6 +42,7 @@
 - 2026-04-03: 面向 STM32F405 的 QEMU 最小冒烟验证应优先用 `olimex-stm32-h405 + USART1(0x40011000)`；`mps2-an386` 仅保留给通用 Cortex-M4 参考板场景
 - 2026-04-03: 迁移 QEMU 示例目录前先确认没有残留 `qemu-system-arm.exe` 进程；它会锁住根目录下的 `stdout.txt/stderr.txt` 临时文件，导致 Windows 上 `Move-Item` 失败
 - 2026-04-03: `cli.py qemu run` 必须默认带超时并在超时后终止 QEMU，否则裸机固件无限循环会造成 CLI 长时阻塞
+- 2026-04-04: 若 LSTMTransformer 里只有第一层 `transformer_ln_attn_0` 明显失真、而 `transformer_ln_ffn_0`/后续层已接近 TF，优先检查 layer norm 的开方近似；小方差场景下需要先按 `4^k` 归一化再做 Newton 迭代，不能直接从 `guess=1` 硬迭代
 - 2026-04-03: 若 nvidia-smi 报某块卡 `GPU is lost`，Windows 的 WMI `Status: OK` 仍可能误导；以 nvidia-smi 为准
 - 2026-04-03: 当前机器在 3090 lost、2080 正常时，可在 TensorFlow 导入前设置 `CUDA_VISIBLE_DEVICES=1` 继续训练；设备级 `pnputil /restart-device` 需要管理员权限
 - 2026-04-03: 多卡默认优先级改为 `RTX 2080 Ti > RTX 3090 > 其他 GPU`，逻辑在 `src/utils/cuda_preflight.py`
