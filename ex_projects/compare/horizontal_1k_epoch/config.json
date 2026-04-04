@@ -23,6 +23,11 @@
       "name": "GRNu16_e1k_lr7e4",
       "label": "GRN",
       "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"
+    },
+    {
+      "name": "LSTMu16_e1k_puremae_r7",
+      "label": "LSTM-PureMAE",
+      "path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r7"
     }
   ],
   "metrics": {

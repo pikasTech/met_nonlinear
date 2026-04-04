@@ -1,5 +1,5 @@
 {
-  "timestamp": "20260405_000618",
+  "timestamp": "20260405_002622",
   "projects": [
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4",
@@ -20,6 +20,11 @@
       "name": "GRNu16_e1k_lr7e4",
       "label": "GRN",
       "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"
+    },
+    {
+      "name": "LSTMu16_e1k_puremae_r7",
+      "label": "LSTM-PureMAE",
+      "path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r7"
     }
   ],
   "metrics": {
@@ -54,6 +59,14 @@
         "max": 41.170768128048934,
         "median": 33.4043239442213,
         "suppression": -299.14221000041056
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "drift": 7.514473400002053,
+        "unit": "Hz",
+        "min": 27.383748615762535,
+        "max": 36.06694958154661,
+        "median": 34.89822201576459,
+        "suppression": -221.59727182946338
       }
     },
     "sensitivity_drift": {
@@ -87,6 +100,14 @@
         "max": 80.80261522963627,
         "median": 59.65857235328015,
         "suppression": -285.2756367852516
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "drift": 25.81068973495097,
+        "unit": "%",
+        "min": 40.58046235995275,
+        "max": 68.24847650278893,
+        "median": 66.39115209490372,
+        "suppression": -183.86999403471108
       }
     },
     "linearity": {
@@ -112,6 +133,12 @@
         "mean": 2.389910778587821,
         "max": 9.23479267977918,
         "min": 0.44097590349647664,
+        "unit": "%"
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "mean": 0.6044742470763602,
+        "max": 2.281371369124696,
+        "min": 0.10218583665377867,
         "unit": "%"
       }
     },
@@ -159,6 +186,17 @@
         "weighted_additions": 272.0,
         "weighted_multiplications": 272.0,
         "weighted_maps": 96.0
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "total_params": 1441,
+        "additions": 1376,
+        "multiplications": 1408,
+        "maps": 96,
+        "total_ops": 2880,
+        "weighted_total": 3360.0,
+        "weighted_additions": 1376.0,
+        "weighted_multiplications": 1408.0,
+        "weighted_maps": 576.0
       }
     },
     "mae_afmae": {
@@ -177,6 +215,10 @@
       "GRNu16_e1k_lr7e4": {
         "val_mae": 0.01768304780125618,
         "val_afmae": 0.14020094275474548
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "val_mae": 0.00816777627915144,
+        "val_afmae": 0.00816777627915144
       }
     },
     "natural_frequency_drift_origin": {},

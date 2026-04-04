@@ -2,7 +2,7 @@
 外部项目CLI处理器
 
 处理ep子命令的所有操作，实现智能执行逻辑：
-- 配置文件不存在时自动创建模板
+- 配置文件不存在时报错退出（不自动创建模板）
 - 配置文件存在时直接执行任务
 """
 
@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 def handle_ep_command(args: CLIArgs) -> None:
     """
     处理ep子命令（简化版本）
-    
+
     智能执行逻辑：
     1. 解析外部项目路径
     2. 检查配置文件是否存在
-    3. 如果不存在，创建配置模板并提示用户编辑
+    3. 如果不存在，报错退出
     4. 如果存在，直接执行外部项目任务
-    
+
     Args:
         args: CLI参数对象
     """
@@ -56,11 +56,11 @@ def handle_ep_command(args: CLIArgs) -> None:
 def execute_external_task_auto(ep_path: ExternalPath) -> None:
     """
     智能执行外部项目任务
-    
+
     根据配置文件存在性自动选择行为：
-    - 配置不存在：创建模板并提示编辑
+    - 配置不存在：报错退出
     - 配置存在：直接执行任务
-    
+
     Args:
         ep_path: 外部项目路径对象
     """
@@ -68,12 +68,9 @@ def execute_external_task_auto(ep_path: ExternalPath) -> None:
     
     # 检查配置文件是否存在
     if not ep_path.config_path.exists():
-        logger.info(f"📝 配置文件不存在，创建模板: {ep_path.config_path}")
-        create_external_template(ep_path)
-        logger.info("[OK] 配置模板已创建")
-        logger.info("📋 请编辑配置文件后重新运行相同命令")
-        logger.info(f"   配置文件位置: {ep_path.config_path}")
-        return
+        logger.error(f"[ERROR] 配置文件不存在: {ep_path.config_path}")
+        logger.error("[HINT] 请确认项目路径是否正确，或手动创建配置文件")
+        sys.exit(1)
     
     # 执行任务
     logger.info(f"[RUN] 执行外部项目任务...")
@@ -660,9 +657,8 @@ ep 命令使用说明：
   - performance-benchmark: 性能基准测试
 
 工作流程：
-  1. 首次运行：自动创建配置模板
-  2. 编辑配置文件设置参数
-  3. 再次运行：执行外部项目任务
+  1. 手动创建配置文件（参考文档或示例）
+  2. 运行命令执行外部项目任务
     """
     print(help_text)
 
