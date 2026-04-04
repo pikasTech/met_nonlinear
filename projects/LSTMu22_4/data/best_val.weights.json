@@ -1,6 +1,6 @@
 [
     {
-        "name": "lstm_4/lstm_cell_4/kernel:0",
+        "name": "lstm/lstm_cell/kernel:0",
         "shape": [
             1,
             88
@@ -100,7 +100,7 @@
         ]
     },
     {
-        "name": "lstm_4/lstm_cell_4/recurrent_kernel:0",
+        "name": "lstm/lstm_cell/recurrent_kernel:0",
         "shape": [
             22,
             88
@@ -2090,7 +2090,7 @@
         ]
     },
     {
-        "name": "lstm_4/lstm_cell_4/bias:0",
+        "name": "lstm/lstm_cell/bias:0",
         "shape": [
             88
         ],
@@ -2187,7 +2187,7 @@
         ]
     },
     {
-        "name": "dense_8/kernel:0",
+        "name": "dense/kernel:0",
         "shape": [
             22,
             22
@@ -2725,7 +2725,7 @@
         ]
     },
     {
-        "name": "dense_8/bias:0",
+        "name": "dense/bias:0",
         "shape": [
             22
         ],
@@ -2756,7 +2756,7 @@
         ]
     },
     {
-        "name": "dense_9/kernel:0",
+        "name": "dense_1/kernel:0",
         "shape": [
             22,
             1
@@ -2832,7 +2832,7 @@
         ]
     },
     {
-        "name": "dense_9/bias:0",
+        "name": "dense_1/bias:0",
         "shape": [
             1
         ],

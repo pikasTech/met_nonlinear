@@ -1,0 +1,53 @@
+{
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "Horizontal Comparison: FRIKAN vs LSTM vs Transformer vs GRN"
+  },
+  "projects": [
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4",
+      "label": "FRIKAN",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r2",
+      "label": "LSTM",
+      "path": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r2"
+    },
+    {
+      "name": "LSTMTransformeru6_e1k_1",
+      "label": "LSTM-Transformer",
+      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1"
+    },
+    {
+      "name": "GRNu16_e1k_lr7e4",
+      "label": "GRN",
+      "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "enabled": true,
+      "reference": "FRIKANh8u6l6_e1k_lr7e4"
+    },
+    "sensitivity_drift": {
+      "enabled": true,
+      "reference": "FRIKANh8u6l6_e1k_lr7e4",
+      "frequency_hz": 100
+    },
+    "linearity": {
+      "enabled": true
+    },
+    "compute_cost": {
+      "enabled": true,
+      "show_details": true
+    },
+    "mae_afmae": {
+      "enabled": true
+    }
+  },
+  "output": {
+    "format": ["json", "markdown"],
+    "output_dir": "ex_projects/compare/horizontal/results"
+  }
+}

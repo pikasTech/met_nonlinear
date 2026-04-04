@@ -1,0 +1,11 @@
+{
+  "execution_time": "2026-04-04T23:53:42.310847",
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "LSTM vs FRIKAN 多运行对比"
+  },
+  "output_files": [
+    "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\compare\\lstm_vs_frikan\\data"
+  ],
+  "config_hash": "3fcd94fc243d2017341e807b69a05d79"
+}

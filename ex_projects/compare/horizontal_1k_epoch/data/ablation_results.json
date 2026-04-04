@@ -1,0 +1,186 @@
+{
+  "timestamp": "20260405_000618",
+  "projects": [
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4",
+      "label": "FRIKAN",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r2",
+      "label": "LSTM",
+      "path": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r2"
+    },
+    {
+      "name": "LSTMTransformeru6_e1k_1",
+      "label": "LSTM-Transformer",
+      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1"
+    },
+    {
+      "name": "GRNu16_e1k_lr7e4",
+      "label": "GRN",
+      "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "drift": 2.336609809298018,
+        "unit": "Hz",
+        "min": 30.750621675155834,
+        "max": 34.50759680055925,
+        "median": 33.08723148445385
+      },
+      "LSTMu16_e1k_lr7e4_r2": {
+        "drift": 4.366664889791444,
+        "unit": "Hz",
+        "min": 31.664800605988432,
+        "max": 37.7297954258539,
+        "median": 33.36313053606246,
+        "suppression": -86.88036284086775
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "drift": 2.542504120077716,
+        "unit": "Hz",
+        "min": 32.671157707671526,
+        "max": 36.68999267091124,
+        "median": 34.14748855083352,
+        "suppression": -8.811668510522692
+      },
+      "GRNu16_e1k_lr7e4": {
+        "drift": 9.326396031918488,
+        "unit": "Hz",
+        "min": 24.07792791230281,
+        "max": 41.170768128048934,
+        "median": 33.4043239442213,
+        "suppression": -299.14221000041056
+      }
+    },
+    "sensitivity_drift": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "drift": 9.092433253722085,
+        "unit": "%",
+        "min": 52.16228377006349,
+        "max": 67.64889934855479,
+        "median": 61.254717023785574
+      },
+      "LSTMu16_e1k_lr7e4_r2": {
+        "drift": 17.37697410396101,
+        "unit": "%",
+        "min": 52.7059019823892,
+        "max": 76.91325136877954,
+        "median": 59.53627726481853,
+        "suppression": -91.11467325699158
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "drift": 5.332297665459812,
+        "unit": "%",
+        "min": 58.024395910656196,
+        "max": 66.96520240959411,
+        "median": 63.35669357611601,
+        "suppression": 41.3545580521366
+      },
+      "GRNu16_e1k_lr7e4": {
+        "drift": 35.03093011755173,
+        "unit": "%",
+        "min": 24.627642235728413,
+        "max": 80.80261522963627,
+        "median": 59.65857235328015,
+        "suppression": -285.2756367852516
+      }
+    },
+    "linearity": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "mean": 0.8901915453417206,
+        "max": 3.8631908324797237,
+        "min": 0.10629528112641173,
+        "unit": "%"
+      },
+      "LSTMu16_e1k_lr7e4_r2": {
+        "mean": 0.6625280935774366,
+        "max": 2.1359165938588554,
+        "min": 0.1754506468086281,
+        "unit": "%"
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "mean": 0.6575120276587377,
+        "max": 2.29135207227128,
+        "min": 0.1421279675969389,
+        "unit": "%"
+      },
+      "GRNu16_e1k_lr7e4": {
+        "mean": 2.389910778587821,
+        "max": 9.23479267977918,
+        "min": 0.44097590349647664,
+        "unit": "%"
+      }
+    },
+    "compute_cost": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "total_params": 2569,
+        "additions": 266,
+        "multiplications": 40,
+        "maps": 234,
+        "total_ops": 540,
+        "weighted_total": 1710.0,
+        "weighted_additions": 266.0,
+        "weighted_multiplications": 40.0,
+        "weighted_maps": 1404.0
+      },
+      "LSTMu16_e1k_lr7e4_r2": {
+        "total_params": 1441,
+        "additions": 1376,
+        "multiplications": 1408,
+        "maps": 96,
+        "total_ops": 2880,
+        "weighted_total": 3360.0,
+        "weighted_additions": 1376.0,
+        "weighted_multiplications": 1408.0,
+        "weighted_maps": 576.0
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "total_params": 1261,
+        "additions": 792,
+        "multiplications": 804,
+        "maps": 84,
+        "total_ops": 1680,
+        "weighted_total": 2100.0,
+        "weighted_additions": 792.0,
+        "weighted_multiplications": 804.0,
+        "weighted_maps": 504.0
+      },
+      "GRNu16_e1k_lr7e4": {
+        "total_params": 1201,
+        "additions": 272,
+        "multiplications": 272,
+        "maps": 16,
+        "total_ops": 560,
+        "weighted_total": 640.0,
+        "weighted_additions": 272.0,
+        "weighted_multiplications": 272.0,
+        "weighted_maps": 96.0
+      }
+    },
+    "mae_afmae": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "val_mae": 0.022468162700533867,
+        "val_afmae": 0.03790934011340141
+      },
+      "LSTMu16_e1k_lr7e4_r2": {
+        "val_mae": 0.01779812015593052,
+        "val_afmae": 0.04650729522109032
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "val_mae": 0.01577722653746605,
+        "val_afmae": 0.03150922805070877
+      },
+      "GRNu16_e1k_lr7e4": {
+        "val_mae": 0.01768304780125618,
+        "val_afmae": 0.14020094275474548
+      }
+    },
+    "natural_frequency_drift_origin": {},
+    "sensitivity_drift_origin": {},
+    "linearity_origin": {}
+  }
+}

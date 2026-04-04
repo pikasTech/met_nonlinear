@@ -1,11 +1,11 @@
 {
-  "execution_time": "2026-04-04T20:41:54.603186",
+  "execution_time": "2026-04-04T23:34:20.042470",
   "task_info": {
     "task_type": "ablation-study",
     "description": "Learning Rate 消融实验对比 (1k epochs)"
   },
   "output_files": [
-    "C:\\work\\met_nonlinear_master\\ex_projects\\compare\\lr_test_1k_epoch\\data"
+    "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\compare\\lr_test_1k_epoch\\data"
   ],
-  "config_hash": "d904cfebdc190e4c1417057accaa7355"
+  "config_hash": "4c94dee85af32940a75b281519c339dc"
 }

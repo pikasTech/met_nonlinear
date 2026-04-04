@@ -15,9 +15,9 @@ class SimpleProjectResult:
 
     def __init__(self, project_path: str):
         self.project_path = project_path
-        self.raw_data_path = Path('projects') / project_path / 'data' / 'linear_response.json'
-        self.compute_analysis_path = Path('projects') / project_path / 'data' / 'compute_analysis.json'
-        self.training_info_path = Path('projects') / project_path / 'data' / 'training_info.json'
+        self.raw_data_path = Path(project_path) / 'data' / 'linear_response.json'
+        self.compute_analysis_path = Path(project_path) / 'data' / 'compute_analysis.json'
+        self.training_info_path = Path(project_path) / 'data' / 'training_info.json'
         self.raw_data = {}
         self.processed_data = {}
         self.compute_data = {}
@@ -177,7 +177,7 @@ class AblationStudyAnalyzer:
             raise ValueError(f"项目未加载: {project_name}")
 
         proj = self.projects[project_name]
-        path = Path('projects') / proj.project_path / 'data' / 'linearity_by_frequency.json'
+        path = Path(proj.project_path) / 'data' / 'linearity_by_frequency.json'
         if not path.exists():
             return {'error': 'linearity_by_frequency.json not available', 'hint': 'run python cli.py -e PROJECT_NAME to generate'}
 
@@ -481,19 +481,6 @@ class AblationStudyAnalyzer:
         ]
 
         metrics = self.results.get('metrics', {})
-
-        if 'natural_frequency_drift' in metrics:
-            lines.extend(self._format_natural_frequency_section(metrics['natural_frequency_drift']))
-
-        if 'sensitivity_drift' in metrics:
-            freq_hz = self.config.get('metrics', {}).get('sensitivity_drift', {}).get('frequency_hz', 100)
-            lines.extend(self._format_sensitivity_section(metrics['sensitivity_drift'], freq_hz))
-
-        if 'linearity' in metrics:
-            lines.extend(self._format_linearity_section(metrics['linearity']))
-
-        if 'compute_cost' in metrics:
-            lines.extend(self._format_compute_cost_section(metrics['compute_cost']))
 
         lines.extend(self._format_summary_section(metrics))
 

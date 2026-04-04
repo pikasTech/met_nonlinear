@@ -1,0 +1,88 @@
+{
+  "task_info": {
+    "task_type": "ablation-study",
+    "description": "LSTM vs FRIKAN 多运行对比"
+  },
+  "projects": [
+    {
+      "name": "FRIKANh8u6l6",
+      "label": "FRIKAN r1",
+      "path": "FRIKANh8u6l6"
+    },
+    {
+      "name": "FRIKANh8u6l6_2",
+      "label": "FRIKAN r2",
+      "path": "FRIKANh8u6l6_2"
+    },
+    {
+      "name": "FRIKANh8u6l6_4",
+      "label": "FRIKAN r4",
+      "path": "FRIKANh8u6l6_4"
+    },
+    {
+      "name": "FRIKANh8u6l6_5",
+      "label": "FRIKAN r5",
+      "path": "FRIKANh8u6l6_5"
+    },
+    {
+      "name": "FRIKANh8u6l6_6",
+      "label": "FRIKAN r6",
+      "path": "FRIKANh8u6l6_6"
+    },
+    {
+      "name": "LSTMu22",
+      "label": "LSTM r1",
+      "path": "LSTMu22"
+    },
+    {
+      "name": "LSTMu22_2",
+      "label": "LSTM r2",
+      "path": "LSTMu22_2"
+    },
+    {
+      "name": "LSTMu22_3",
+      "label": "LSTM r3",
+      "path": "LSTMu22_3"
+    },
+    {
+      "name": "LSTMu22_4",
+      "label": "LSTM r4",
+      "path": "LSTMu22_4"
+    },
+    {
+      "name": "LSTMu22_5",
+      "label": "LSTM r5",
+      "path": "LSTMu22_5"
+    },
+    {
+      "name": "LSTMu22_6",
+      "label": "LSTM r6",
+      "path": "LSTMu22_6"
+    }
+  ],
+  "metrics": {
+    "natural_frequency_drift": {
+      "enabled": true,
+      "reference": "FRIKANh8u6l6"
+    },
+    "sensitivity_drift": {
+      "enabled": true,
+      "reference": "FRIKANh8u6l6",
+      "frequency_hz": 100
+    },
+    "linearity": {
+      "enabled": true
+    },
+    "compute_cost": {
+      "enabled": true,
+      "show_details": true
+    },
+    "mae_afmae": {
+      "enabled": true
+    }
+  },
+  "output": {
+    "format": ["json", "markdown"],
+    "output_dir": "ex_projects/compare/lstm_vs_frikan/results"
+  }
+}

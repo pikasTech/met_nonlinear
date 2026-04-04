@@ -1,5 +1,5 @@
 {
-  "timestamp": "20260404_204154",
+  "timestamp": "20260404_233420",
   "projects": [
     {
       "name": "FRIKANh8u6l6_base",
@@ -100,6 +100,51 @@
       "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
       "label": "FRIKAN nosym r5 LR=0.0007",
       "path": "01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_1",
+      "label": "FRIKANh6 e1k r1 LR=0.01",
+      "path": "01_LR_STUDY/FRIKANh6u6l6_e1k_1"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_2",
+      "label": "FRIKANh6 e1k r2 LR=0.01",
+      "path": "01_LR_STUDY/FRIKANh6u6l6_e1k_2"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_3",
+      "label": "FRIKANh6 e1k r3 LR=0.01",
+      "path": "01_LR_STUDY/FRIKANh6u6l6_e1k_3"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_4",
+      "label": "FRIKANh6 e1k r4 LR=0.01",
+      "path": "01_LR_STUDY/FRIKANh6u6l6_e1k_4"
+    },
+    {
+      "name": "FRIKANh6u6l6_e1k_5",
+      "label": "FRIKANh6 e1k r5 LR=0.01",
+      "path": "01_LR_STUDY/FRIKANh6u6l6_e1k_5"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r4",
+      "label": "LSTM r4 LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e1k_lr7e4_r4"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r5",
+      "label": "LSTM r5 LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e1k_lr7e4_r5"
+    },
+    {
+      "name": "LSTMu16_e1k_lr7e4_r6",
+      "label": "LSTM r6 LR=0.0007",
+      "path": "01_LR_STUDY/LSTMu16_e1k_lr7e4_r6"
+    },
+    {
+      "name": "LSTMTransformeru6_e1k_1",
+      "label": "LSTM Transformer e1k LR=0.01",
+      "path": "01_LR_STUDY/LSTMTransformeru6_e1k_1"
     }
   ],
   "metrics": {
@@ -262,6 +307,54 @@
         "max": 47.99852934094665,
         "median": 37.08574820729405,
         "suppression": -195.086617656663
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "drift": 3.4561064899754967,
+        "unit": "Hz",
+        "min": 29.716082143100884,
+        "max": 35.99559209738415,
+        "median": 33.17218863307638,
+        "suppression": 6.545291993154913
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "drift": 3.0944465230579716,
+        "unit": "Hz",
+        "min": 30.676018664476867,
+        "max": 35.99133732379848,
+        "median": 33.77046518753484,
+        "suppression": 16.32474372708635
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "drift": 3.2977696444085254,
+        "unit": "Hz",
+        "min": 29.612333812447375,
+        "max": 36.05933510120159,
+        "median": 32.9101034568559,
+        "suppression": 10.826793073085799
+      },
+      "FRIKANh6u6l6_e1k_4": {
+        "drift": 3.626858198806204,
+        "unit": "Hz",
+        "min": 30.32492328545516,
+        "max": 36.65768872378264,
+        "median": 33.03083052497644,
+        "suppression": 1.9280873043732591
+      },
+      "LSTMu16_e1k_lr7e4_r4": {
+        "drift": 5.07397458457384,
+        "unit": "Hz",
+        "min": 30.460226929543303,
+        "max": 37.79965469506167,
+        "median": 32.72568011048783,
+        "suppression": -37.20260489973016
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "drift": 2.7789019273121127,
+        "unit": "Hz",
+        "min": 32.20649646490314,
+        "max": 36.667849909680235,
+        "median": 33.88894798236812,
+        "suppression": 24.857214628692244
       }
     },
     "sensitivity_drift": {
@@ -423,6 +516,54 @@
         "max": 63.508839017118,
         "median": 54.257122670479475,
         "suppression": 42.003066731804466
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "drift": 15.632595328655498,
+        "unit": "%",
+        "min": 46.50949935998696,
+        "max": 71.50197525042363,
+        "median": 62.14209468864246,
+        "suppression": 14.576252372054244
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "drift": 15.645729818469732,
+        "unit": "%",
+        "min": 46.30649298228112,
+        "max": 70.8736094754371,
+        "median": 61.95222280075085,
+        "suppression": 14.50447943099587
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "drift": 17.419946302668073,
+        "unit": "%",
+        "min": 43.94045913794254,
+        "max": 70.21865580473883,
+        "median": 61.36040544061061,
+        "suppression": 4.809338093480328
+      },
+      "FRIKANh6u6l6_e1k_4": {
+        "drift": 16.65559463484353,
+        "unit": "%",
+        "min": 42.85744590411228,
+        "max": 73.62182898881622,
+        "median": 59.51304053895581,
+        "suppression": 8.98610993452937
+      },
+      "LSTMu16_e1k_lr7e4_r4": {
+        "drift": 11.555251130655108,
+        "unit": "%",
+        "min": 48.29517141948248,
+        "max": 67.1928044050531,
+        "median": 59.85042255013759,
+        "suppression": 36.8567511913255
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "drift": 3.544542764377738,
+        "unit": "%",
+        "min": 58.31979430338358,
+        "max": 65.07001190859565,
+        "median": 61.86433706776132,
+        "suppression": 80.63097520309785
       }
     },
     "linearity": {
@@ -544,6 +685,42 @@
         "mean": 2.199637131948052,
         "max": 4.4166318518121255,
         "min": 0.6419620624860567,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "mean": 0.5544557905184077,
+        "max": 1.2470877742196684,
+        "min": 0.12738754880972092,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "mean": 0.7136619869097249,
+        "max": 2.4435662552487525,
+        "min": 0.08849050242527579,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "mean": 0.8143145040413349,
+        "max": 2.2944643857076508,
+        "min": 0.10828613090937411,
+        "unit": "%"
+      },
+      "FRIKANh6u6l6_e1k_4": {
+        "mean": 0.8392985511280158,
+        "max": 2.574688221926791,
+        "min": 0.1291524291113677,
+        "unit": "%"
+      },
+      "LSTMu16_e1k_lr7e4_r4": {
+        "mean": 0.8888192401516004,
+        "max": 2.5786357813380234,
+        "min": 0.16637104043816242,
+        "unit": "%"
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "mean": 0.6053101613135968,
+        "max": 1.9239822936744089,
+        "min": 0.08619153489825004,
         "unit": "%"
       }
     },
@@ -767,6 +944,48 @@
         "weighted_additions": 266.0,
         "weighted_multiplications": 40.0,
         "weighted_maps": 1404.0
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "total_params": 2401,
+        "additions": 246,
+        "multiplications": 30,
+        "maps": 222,
+        "total_ops": 498,
+        "weighted_total": 1608.0,
+        "weighted_additions": 246.0,
+        "weighted_multiplications": 30.0,
+        "weighted_maps": 1332.0
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "total_params": 2401,
+        "additions": 246,
+        "multiplications": 30,
+        "maps": 222,
+        "total_ops": 498,
+        "weighted_total": 1608.0,
+        "weighted_additions": 246.0,
+        "weighted_multiplications": 30.0,
+        "weighted_maps": 1332.0
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "total_params": 2401,
+        "additions": 246,
+        "multiplications": 30,
+        "maps": 222,
+        "total_ops": 498,
+        "weighted_total": 1608.0,
+        "weighted_additions": 246.0,
+        "weighted_multiplications": 30.0,
+        "weighted_maps": 1332.0
+      },
+      "FRIKANh6u6l6_e1k_4": {
+        "error": "compute_analysis not available"
+      },
+      "LSTMu16_e1k_lr7e4_r4": {
+        "error": "compute_analysis not available"
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "error": "compute_analysis not available"
       }
     },
     "mae_afmae": {
@@ -849,6 +1068,30 @@
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "val_mae": 0.14828214049339294,
         "val_afmae": 0.050500333309173584
+      },
+      "FRIKANh6u6l6_e1k_1": {
+        "val_mae": 0.019152969121932983,
+        "val_afmae": 0.05256755277514458
+      },
+      "FRIKANh6u6l6_e1k_2": {
+        "val_mae": 0.019213130697607994,
+        "val_afmae": 0.042818572372198105
+      },
+      "FRIKANh6u6l6_e1k_3": {
+        "error": "evaluation_metrics not available",
+        "hint": "run python cli.py -e PROJECT_NAME to generate"
+      },
+      "FRIKANh6u6l6_e1k_4": {
+        "error": "evaluation_metrics not available",
+        "hint": "run python cli.py -e PROJECT_NAME to generate"
+      },
+      "LSTMu16_e1k_lr7e4_r4": {
+        "error": "evaluation_metrics not available",
+        "hint": "run python cli.py -e PROJECT_NAME to generate"
+      },
+      "LSTMTransformeru6_e1k_1": {
+        "error": "evaluation_metrics not available",
+        "hint": "run python cli.py -e PROJECT_NAME to generate"
       }
     },
     "natural_frequency_drift_origin": {

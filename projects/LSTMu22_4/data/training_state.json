@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "LSTM",
+  "training_alive": false,
+  "timestamp": "20260404235229.2",
+  "best_weights_file": "projects/LSTMu22_4/data\\LSTMu22_4_best_weights.h5",
+  "best_val_weights_file": "projects/LSTMu22_4/data\\LSTMu22_4_best_val_weights.h5"
+}

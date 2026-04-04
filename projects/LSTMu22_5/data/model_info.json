@@ -15,7 +15,7 @@
     "non_trainable_params": 0,
     "model_summary": [
         {
-            "name": "lstm_5",
+            "name": "lstm",
             "type": "LSTM",
             "output_shape": [
                 null,
@@ -26,7 +26,7 @@
             "num_params": 2112
         },
         {
-            "name": "dense_10",
+            "name": "dense",
             "type": "Dense",
             "output_shape": [
                 null,
@@ -37,7 +37,7 @@
             "num_params": 506
         },
         {
-            "name": "dense_11",
+            "name": "dense_1",
             "type": "Dense",
             "output_shape": [
                 null,
