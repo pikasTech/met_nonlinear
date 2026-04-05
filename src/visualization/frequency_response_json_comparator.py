@@ -85,11 +85,13 @@ class LinearResponseDataLoader:
         # 选择对应状态的数据
         gains_key = "gains_comped" if spec.state == DataState.COMPENSATION else "gains_origin"
         
+        safe_project_name = spec.project_name.replace('/', '_').replace('\\', '_')
+        
         return {
             'gains': project_data[gains_key],
             'magnitudes': project_data['magnitudes'],
             'frequencies': project_data['frequencies'],
-            'project_name': spec.project_name,
+            'project_name': safe_project_name,
             'state': spec.state.value,
             'label': str(spec)
         }

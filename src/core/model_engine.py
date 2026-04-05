@@ -16,6 +16,7 @@ from calibration_analyzer.exam_process import find_data_info
 from . import data_processing
 from .data_processing import Dataset_COMP_MET, Dataset_COMP_PE,  CustomScaler, Dataset_COMP_AliasSimu, Dataset_COMP_Alias
 from visualization.model_analysis import FR_for_comp_real_data
+from visualization.frequency_response_json_comparator import quick_compare
 from .data_processing import augment_data
 from .loss_functions import af_mse_loss, power_log_mae_loss, power_log_loss, pure_power_log_mae_loss, pure_mae_metric
 from .training import RealTimeTrainingCallback, CosineAnnealingWithDecayFixedPeriod
@@ -774,6 +775,35 @@ class ModelEngine:
             )
         else:
             raise ValueError(f'未知的数据集类型: {self.config.dataset_type}')
+        
+        if USE_PREDICT_LINEAR:
+            checkpoint_dir_normalized = self.checkpoint_dir.replace('\\', '/')
+            if checkpoint_dir_normalized.endswith('/data'):
+                project_path = checkpoint_dir_normalized[:-5]
+            else:
+                project_path = os.path.dirname(os.path.dirname(self.checkpoint_dir.replace('\\', '/')))
+            if project_path.startswith('projects/'):
+                projects_root = 'projects'
+                project_rel_path = project_path[len('projects/'):]
+            else:
+                parts = project_path.split('/')
+                projects_root = '/'.join(parts[:-1])
+                project_rel_path = parts[-1]
+            try:
+                logger.info(f'生成频响补偿对比图...')
+                quick_compare(
+                    project1=project_rel_path,
+                    project2=project_rel_path,
+                    state1='origin',
+                    state2='compensation',
+                    layout='overlay',
+                    output_dir=self.checkpoint_dir,
+                    projects_root=projects_root,
+                    dpi=150
+                )
+                logger.info(f'频响补偿对比图已保存到 {self.checkpoint_dir}')
+            except Exception as e:
+                logger.warning(f'生成频响补偿对比图失败: {e}')
 
     def predict_TR(self):
         # 时域响应预测
