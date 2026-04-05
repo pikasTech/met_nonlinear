@@ -1,0 +1,1420 @@
+{
+    "analysis_type": "single_timestep_inference_compute",
+    "analysis_method": "Counts are derived from TensorFlow/Keras layer classes, actual weight tensor shapes, and layer parameter counts.",
+    "model_type": "LSTMTransformer",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 1261,
+    "trainable_params": 1261,
+    "non_trainable_params": 0,
+    "assumptions": {
+        "batch_size": 1,
+        "time_steps": 1,
+        "dropout_active": false,
+        "maps_definition": "Each nonlinear activation evaluation counts as one MAP."
+    },
+    "analysis_target": "keras_model",
+    "platform_cost_model": {
+        "platform": "stm32f405",
+        "unit": "add_equivalent",
+        "add_weight": 1.0,
+        "mul_weight": 1.0,
+        "map_weight": 6.0,
+        "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+        "source_notes": [
+            "STM32F405 uses an ARM Cortex-M4F core.",
+            "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+            "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+        ]
+    },
+    "estimated_cost": {
+        "platform": "stm32f405",
+        "unit": "add_equivalent",
+        "weights": {
+            "additions": 1.0,
+            "multiplications": 1.0,
+            "maps": 6.0
+        },
+        "weighted_units": {
+            "additions": 792.0,
+            "multiplications": 804.0,
+            "maps": 504.0,
+            "total": 2100.0
+        },
+        "weighted_share_pct": {
+            "additions": 37.714285714285715,
+            "multiplications": 38.285714285714285,
+            "maps": 24.0
+        },
+        "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+        "source_notes": [
+            "STM32F405 uses an ARM Cortex-M4F core.",
+            "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+            "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+        ]
+    },
+    "totals": {
+        "additions": 792,
+        "multiplications": 804,
+        "maps": 84,
+        "total": 1680
+    },
+    "layers": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "trainable": true,
+            "input_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "input_layer"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Input layer does not perform arithmetic operations.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "lstm_backbone",
+            "type": "LSTM",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                1
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 192,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 1,
+                "units": 6,
+                "return_sequences": true,
+                "use_bias": true,
+                "activation": "tanh",
+                "recurrent_activation": "sigmoid",
+                "kernel_shape": [
+                    1,
+                    24
+                ],
+                "recurrent_kernel_shape": [
+                    6,
+                    24
+                ],
+                "bias_shape": [
+                    24
+                ]
+            },
+            "compute": {
+                "additions": 174,
+                "multiplications": 186,
+                "maps": 30,
+                "total": 390
+            },
+            "formula": "LSTM(single timestep): 4 gates for input/recurrent affine transforms, cell update f*c_prev + i*g contributes 2 multiplications + 1 addition per unit, hidden update o*activation(c_t) contributes 1 multiplication per unit, MAP counts 3 recurrent activations + 2 main activations per unit.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 174.0,
+                    "multiplications": 186.0,
+                    "maps": 180.0,
+                    "total": 540.0
+                },
+                "weighted_share_pct": {
+                    "additions": 32.22222222222222,
+                    "multiplications": 34.44444444444444,
+                    "maps": 33.333333333333336
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_context_pool_0",
+            "type": "AveragePooling1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_mha_0",
+            "type": "MultiHeadAttention",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 168,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_dropout_attn_0",
+            "type": "Dropout",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "dropout_inactive_in_inference"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Dropout is inactive during inference.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "tf.__operators__.add",
+            "type": "TFOpLambda",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ln_attn_0",
+            "type": "LayerNormalization",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 12,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ffn_expand_0",
+            "type": "Dense",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "num_params": 168,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 6,
+                "output_dim": 24,
+                "use_bias": true,
+                "activation": "relu"
+            },
+            "compute": {
+                "additions": 144,
+                "multiplications": 144,
+                "maps": 24,
+                "total": 312
+            },
+            "formula": "Dense: output_dim * input_dim multiplications, output_dim * ((input_dim - 1) + bias) additions, nonlinear activation per output element counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 144.0,
+                    "multiplications": 144.0,
+                    "maps": 144.0,
+                    "total": 432.0
+                },
+                "weighted_share_pct": {
+                    "additions": 33.333333333333336,
+                    "multiplications": 33.333333333333336,
+                    "maps": 33.333333333333336
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_dropout_ffn_0",
+            "type": "Dropout",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                24
+            ],
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "dropout_inactive_in_inference"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Dropout is inactive during inference.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ffn_project_0",
+            "type": "Dense",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                24
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 150,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 24,
+                "output_dim": 6,
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 144,
+                "multiplications": 144,
+                "maps": 0,
+                "total": 288
+            },
+            "formula": "Dense: output_dim * input_dim multiplications, output_dim * ((input_dim - 1) + bias) additions, nonlinear activation per output element counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 144.0,
+                    "multiplications": 144.0,
+                    "maps": 0.0,
+                    "total": 288.0
+                },
+                "weighted_share_pct": {
+                    "additions": 50.0,
+                    "multiplications": 50.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "tf.__operators__.add_1",
+            "type": "TFOpLambda",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ln_ffn_0",
+            "type": "LayerNormalization",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 12,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_context_pool_1",
+            "type": "AveragePooling1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_mha_1",
+            "type": "MultiHeadAttention",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 168,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_dropout_attn_1",
+            "type": "Dropout",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "dropout_inactive_in_inference"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Dropout is inactive during inference.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "tf.__operators__.add_2",
+            "type": "TFOpLambda",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ln_attn_1",
+            "type": "LayerNormalization",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 12,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ffn_expand_1",
+            "type": "Dense",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "num_params": 168,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 6,
+                "output_dim": 24,
+                "use_bias": true,
+                "activation": "relu"
+            },
+            "compute": {
+                "additions": 144,
+                "multiplications": 144,
+                "maps": 24,
+                "total": 312
+            },
+            "formula": "Dense: output_dim * input_dim multiplications, output_dim * ((input_dim - 1) + bias) additions, nonlinear activation per output element counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 144.0,
+                    "multiplications": 144.0,
+                    "maps": 144.0,
+                    "total": 432.0
+                },
+                "weighted_share_pct": {
+                    "additions": 33.333333333333336,
+                    "multiplications": 33.333333333333336,
+                    "maps": 33.333333333333336
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_dropout_ffn_1",
+            "type": "Dropout",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                24
+            ],
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "dropout_inactive_in_inference"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Dropout is inactive during inference.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ffn_project_1",
+            "type": "Dense",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                24
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 150,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 24,
+                "output_dim": 6,
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 144,
+                "multiplications": 144,
+                "maps": 0,
+                "total": 288
+            },
+            "formula": "Dense: output_dim * input_dim multiplications, output_dim * ((input_dim - 1) + bias) additions, nonlinear activation per output element counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 144.0,
+                    "multiplications": 144.0,
+                    "maps": 0.0,
+                    "total": 288.0
+                },
+                "weighted_share_pct": {
+                    "additions": 50.0,
+                    "multiplications": 50.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "tf.__operators__.add_3",
+            "type": "TFOpLambda",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 0,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "transformer_ln_ffn_1",
+            "type": "LayerNormalization",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 12,
+            "supported": false,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "unsupported_layer_type"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "No compute formula is implemented for this layer type yet.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "post_dense",
+            "type": "Dense",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                6
+            ],
+            "num_params": 42,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 6,
+                "output_dim": 6,
+                "use_bias": true,
+                "activation": "relu"
+            },
+            "compute": {
+                "additions": 36,
+                "multiplications": 36,
+                "maps": 6,
+                "total": 78
+            },
+            "formula": "Dense: output_dim * input_dim multiplications, output_dim * ((input_dim - 1) + bias) additions, nonlinear activation per output element counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 36.0,
+                    "multiplications": 36.0,
+                    "maps": 36.0,
+                    "total": 108.0
+                },
+                "weighted_share_pct": {
+                    "additions": 33.333333333333336,
+                    "multiplications": 33.333333333333336,
+                    "maps": 33.333333333333336
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        },
+        {
+            "name": "output",
+            "type": "Dense",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                6
+            ],
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "num_params": 7,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "input_dim": 6,
+                "output_dim": 1,
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 6,
+                "multiplications": 6,
+                "maps": 0,
+                "total": 12
+            },
+            "formula": "Dense: output_dim * input_dim multiplications, output_dim * ((input_dim - 1) + bias) additions, nonlinear activation per output element counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 1.0,
+                    "maps": 6.0
+                },
+                "weighted_units": {
+                    "additions": 6.0,
+                    "multiplications": 6.0,
+                    "maps": 0.0,
+                    "total": 12.0
+                },
+                "weighted_share_pct": {
+                    "additions": 50.0,
+                    "multiplications": 50.0,
+                    "maps": 0.0
+                },
+                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
+                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                ]
+            }
+        }
+    ],
+    "unsupported_layers": [
+        "transformer_context_pool_0",
+        "transformer_mha_0",
+        "tf.__operators__.add",
+        "transformer_ln_attn_0",
+        "tf.__operators__.add_1",
+        "transformer_ln_ffn_0",
+        "transformer_context_pool_1",
+        "transformer_mha_1",
+        "tf.__operators__.add_2",
+        "transformer_ln_attn_1",
+        "tf.__operators__.add_3",
+        "transformer_ln_ffn_1"
+    ]
+}
