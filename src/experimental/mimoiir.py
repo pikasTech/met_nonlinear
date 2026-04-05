@@ -3,6 +3,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
+
+def _build_iir_state_space_matrices(a1, a2, b0, b1, b2):
+    A = np.array([
+        [-a1, -a2, b1, b2],
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0]
+    ], dtype=np.float32)
+
+    B = np.array([
+        [b0],
+        [0.0],
+        [1.0],
+        [0.0]
+    ], dtype=np.float32)
+
+    C = np.array([[1.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+    return A, B, C
+
+
+def _generate_random_stable_iir_coeff_lists(units, seed=None):
+    rng = np.random.default_rng(seed)
+    coeffs = {
+        'a1_list': [],
+        'a2_list': [],
+        'b0_list': [],
+        'b1_list': [],
+        'b2_list': [],
+    }
+    for _ in range(units):
+        pole_1 = rng.uniform(-0.85, 0.85)
+        pole_2 = rng.uniform(-0.85, 0.85)
+        coeffs['a1_list'].append(-(pole_1 + pole_2))
+        coeffs['a2_list'].append(pole_1 * pole_2)
+        coeffs['b0_list'].append(rng.uniform(-0.25, 0.25))
+        coeffs['b1_list'].append(rng.uniform(-0.25, 0.25))
+        coeffs['b2_list'].append(rng.uniform(-0.25, 0.25))
+    return coeffs
+
 # 原始的每通道 IIRFilterLayer 实现
 
 
@@ -88,6 +127,7 @@ class DIAGIIR(tf.keras.layers.Layer):
                  learning_rate=0.1,
                  trainable=False,
                  init_by_system=True,
+                 random_seed=None,
                  fs=2000,
                  debug=False,
                  **kwargs):
@@ -104,6 +144,7 @@ class DIAGIIR(tf.keras.layers.Layer):
         self.trainable = trainable
         self.debug = debug
         self.init_by_system = init_by_system
+        self.random_seed = random_seed
         self.built = False
 
     def build(self, input_shape):
@@ -114,28 +155,26 @@ class DIAGIIR(tf.keras.layers.Layer):
         B_blocks = []
         C_blocks = []
 
+        if self.init_by_system:
+            coeffs = {
+                'a1_list': self.a1_list,
+                'a2_list': self.a2_list,
+                'b0_list': self.b0_list,
+                'b1_list': self.b1_list,
+                'b2_list': self.b2_list,
+            }
+        else:
+            coeffs = _generate_random_stable_iir_coeff_lists(
+                self.units, seed=self.random_seed)
+
         for i in range(self.units):
-            a1 = self.a1_list[i]
-            a2 = self.a2_list[i]
-            b0 = self.b0_list[i]
-            b1 = self.b1_list[i]
-            b2 = self.b2_list[i]
-
-            A = np.array([
-                [-a1, -a2, b1, b2],
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0]
-            ], dtype=np.float32)
-
-            B = np.array([
-                [b0],
-                [0.0],
-                [1.0],
-                [0.0]
-            ], dtype=np.float32)
-
-            C = np.array([[1.0, 0.0, 0.0, 0.0]], dtype=np.float32)
+            A, B, C = _build_iir_state_space_matrices(
+                coeffs['a1_list'][i],
+                coeffs['a2_list'][i],
+                coeffs['b0_list'][i],
+                coeffs['b1_list'][i],
+                coeffs['b2_list'][i],
+            )
 
             A_blocks.append(A)
             B_blocks.append(B)
@@ -176,10 +215,9 @@ class DIAGIIR(tf.keras.layers.Layer):
             self.units, activation=None, use_bias=False, trainable=False))
 
         self.filter_model.build(input_shape=(None, None, self.units))
-        # 设置权重
-        if self.init_by_system:
-            self.filter_model.layers[0].set_weights([W_xh, W_hh])
-            self.filter_model.layers[1].set_weights([W_dense])
+        # 无注入模式也保持相同的块对角 FRIRNN 结构，只是改为随机稳定初始化。
+        self.filter_model.layers[0].set_weights([W_xh, W_hh])
+        self.filter_model.layers[1].set_weights([W_dense])
 
         if self.debug:
             self.filter_model.summary()
@@ -203,6 +241,7 @@ class SIMOIIR(tf.keras.layers.Layer):
                  b2_list=None,
                  trainable=False,
                  init_by_system=True,
+                 random_seed=None,
                  fs=2000,
                  **kwargs):
         super(SIMOIIR, self).__init__(**kwargs)
@@ -214,6 +253,7 @@ class SIMOIIR(tf.keras.layers.Layer):
         self.b2_list = b2_list if b2_list is not None else [0.3]*units
         self.trainable = trainable
         self.init_by_system = init_by_system
+        self.random_seed = random_seed
         self.fs = fs
         self.filters = []
         self.need_expansion = False
@@ -228,17 +268,35 @@ class SIMOIIR(tf.keras.layers.Layer):
         if input_dim != 1:
             self.need_expansion = True
 
+        random_coeffs = None
+        if not self.init_by_system:
+            random_coeffs = _generate_random_stable_iir_coeff_lists(
+                self.units, seed=self.random_seed)
+
         for i in range(self.units):
+            if self.init_by_system:
+                a1_list = [self.a1_list[i]]
+                a2_list = [self.a2_list[i]]
+                b0_list = [self.b0_list[i]]
+                b1_list = [self.b1_list[i]]
+                b2_list = [self.b2_list[i]]
+            else:
+                a1_list = [random_coeffs['a1_list'][i]]
+                a2_list = [random_coeffs['a2_list'][i]]
+                b0_list = [random_coeffs['b0_list'][i]]
+                b1_list = [random_coeffs['b1_list'][i]]
+                b2_list = [random_coeffs['b2_list'][i]]
+
             # 针对每个通道创建一个DIAGIIR(units=1)实例
             f = DIAGIIR(
                 units=1,
-                a1_list=[self.a1_list[i]],
-                a2_list=[self.a2_list[i]],
-                b0_list=[self.b0_list[i]],
-                b1_list=[self.b1_list[i]],
-                b2_list=[self.b2_list[i]],
+                a1_list=a1_list,
+                a2_list=a2_list,
+                b0_list=b0_list,
+                b1_list=b1_list,
+                b2_list=b2_list,
                 trainable=self.trainable,
-                init_by_system=self.init_by_system,
+                init_by_system=True,
                 fs=self.fs
             )
             # build单通道输入

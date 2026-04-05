@@ -104,6 +104,7 @@
 ### projects/ex_projects
 
 - `projects\01_LR_STUDY\` 系列 - `固定 LR vs 余弦衰减`：固定学习率尝试达到或优于余弦衰减效果，最优固定 LR 约 0.0005，还未达到。详见 [docs/reference/lr_tuning_fixed_vs_cosine.md](docs/reference/lr_tuning_fixed_vs_cosine.md)。
+- `projects\01_LR_STUDY\CNNKANh8u6l6_e1k_lr14e5_stable` - CNNKAN 替换消融稳定版：在默认旧 batch-size 行为下可跑满 1000 epoch，并保留旧项目复现约束。详见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md)。
 - `ex_projects/compare/mae_vs_afmae` - MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `ex_projects/compare/lr_test_1k_epoch` - LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
 

@@ -1,13 +1,18 @@
 {
   "task_info": {
     "task_type": "ablation-study",
-    "description": "Horizontal Comparison: FRIKAN vs LSTM vs Transformer vs GRN"
+    "description": "Horizontal Comparison: FRIKAN vs LSTM-PureMAE"
   },
   "projects": [
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4",
       "label": "FRIKAN",
       "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
+      "label": "FRIKAN-NoSym-r5",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
     },
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4_puremae",
@@ -20,29 +25,19 @@
       "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
     },
     {
-      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
-      "label": "FRIKAN-NoSym",
-      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
-    },
-    {
-      "name": "LSTMu16_e1k_lr7e4_r2",
-      "label": "LSTM",
-      "path": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r2"
-    },
-    {
-      "name": "LSTMTransformeru6_e1k_1",
-      "label": "LSTM-Transformer",
-      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1"
-    },
-    {
-      "name": "GRNu16_e1k_lr7e4",
-      "label": "GRN",
-      "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"
+      "name": "LSTMTransformeru6_e1k_puremae",
+      "label": "LSTM-Transformer-PureMAE",
+      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae"
     },
     {
       "name": "LSTMu16_e1k_puremae_r7",
-      "label": "LSTM-PureMAE",
+      "label": "LSTM-PureMAE-r7",
       "path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r7"
+    },
+    {
+      "name": "GRNu16_e1k_puremae",
+      "label": "GRN-PureMAE",
+      "path": "projects/01_LR_STUDY/GRNu16_e1k_puremae"
     }
   ],
   "metrics": {
@@ -68,6 +63,6 @@
   },
   "output": {
     "format": ["json", "markdown"],
-    "output_dir": "ex_projects/compare/horizontal/results"
+    "output_dir": "ex_projects/compare/horizontal_1k_epoch/results"
   }
 }

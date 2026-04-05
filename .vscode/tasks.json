@@ -69,6 +69,54 @@
 				"ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
 			],
 			"isBackground": false
+		},
+		{
+			"label": "train-cnnkan-h8u6l6-e1k-stable",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr14e5_stable"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-h8u6l6-e1k-stable",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr14e5_stable"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-h8u6l6-e1k-stable-r2",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr14e5_stable"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-h8u6l6-e1k-stable-r3",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr14e5_stable"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

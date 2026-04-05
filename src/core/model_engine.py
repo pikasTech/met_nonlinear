@@ -227,7 +227,7 @@ class ModelEngine:
             print(f'y_test shape: {self.y_test_shuffle.shape}')
 
         seq_num = self.x_train_shuffle.shape[0] * self.x_train_shuffle.shape[1]
-        self.batch_size = int(seq_num / self.config.step_per_epoch)
+        self.batch_size = max(1, int(seq_num / self.config.step_per_epoch))
         print(f'seq_num: {seq_num}')
         print(f'batch_size: {self.batch_size}')
 

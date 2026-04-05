@@ -8,6 +8,7 @@
 | 2026-04-04 | self | 做 `ModelEngine.build_model()` 轻量冒烟测试时忘了训练流程会先准备 scaler，导致 `set_scaler` 直接报错 | 如果跳过 `prepare_training_data()`，就临时设 `config.use_scale=False` 或手动注入 `CombinedScaler` 再测构建链路 |
 | 2026-04-04 | self | 长序列 LSTM+Transformer 直接全长自注意力在 `4000` 步输入、batch `70` 下会在初始 `evaluate()` 阶段因 `MultiHeadAttention` OOM 退出 | 对长序列时序任务给 Transformer 加可配置的降采样 K/V 路径（如 `attention_pool_size=128`），保留时序长度给 query，显著降低显存占用 |
 | 2026-04-04 | self | 排查 LSTMTransformer 第一层 `transformer_ln_attn_0` 大偏差时，把 `exact_exp_approx_sqrt` / `approx_exp_exact_sqrt` 的命名看反，误以为 softmax `exp` 是主因 | 看近似消融报告时先按“哪个近似被保留”逐项解释；本案真正主因是 layer norm 的 `sqrt_approx()`，旧实现从 `guess=1` 开始对小方差会严重高估分母 |
+| 2026-04-05 | self | CNNKAN 替代消融一开始只盯学习率不稳，漏掉了 `ModelEngine` 把长序列 batch 按 `序列数 × 序列长度` 估大，导致初始 `evaluate()` 和训练阶段都可能 OOM | 长序列模型先核对 batch 估算是否基于 `np.prod(shape[:-1])` 的真实样本数，并给实验配置预留 `MAX_BATCH_SIZE` 上限；当前 `CNNKANh8u6l6` 稳定 1k epoch 组合是固定 LR `1.4e-4`、`step_per_epoch=5`、`CNN_DROPOUT_RATE=0.1`、`MAX_BATCH_SIZE=4` |
 
 ## User Preferences
 - (none recorded)
@@ -21,6 +22,7 @@
 - 2026-04-03: 生成 C 源码模板时若包含 `\n`/`\r`/`\0`，优先用原始字符串保留转义；但 `#include "..."` 不能保留反斜杠，否则会生成非法源码
 - 2026-04-03: QEMU 的 Cortex-M4 场景下不要把 `DWT_CYCCNT` 当成可靠 benchmark 来源；应先探测 DWT 是否真正递增，当前仓库在 DWT 不可用时以 host-side elapsed time 作为回退计时，避免在 guest 内伪造 cycle/tick 指标
 - 2026-04-04: 做 QEMU/C 代码生成性能优化前，先保存一份成功运行的 benchmark 摘要快照；否则后续即使能确认 MAE 与 ELF 大小变化，也无法可靠量化优化前后的 host_elapsed 差异
+- 2026-04-05: CNNKAN 在当前 8k 长序列 Alias 任务上不能沿用旧的高 LR + auto cosine/restart 配方；稳定跑满 1000 epoch 需要固定低 LR、较小 dropout，并显式限制 `MAX_BATCH_SIZE=4`
 - 2026-04-04: `benchmark_summary.json` 里的 `host_elapsed` 只有在 success pattern 停在 `benchmark_complete=1` 时才是纯 benchmark；若停在 `validation_complete=1`，UART validation 输出也会被算进 wall time，不能拿来和 benchmark-only 结果直接比较
 - 2026-04-04: FRIKAN 的 LUT 优化不要把“模板默认 no-interpolation”和“当前样例配置”混为一谈；模板可以默认 `lut_interpolation=false`，但 `frikan_h8u6l6_nosym` 在 `lut_points=769` 下必须显式保留 `lut_interpolation=true` 才能把 MAE 维持在 `3.9e-5` 量级
 - 2026-04-04: FRIKAN 性能优先版若改成“按层编译期固化 LUT scale/offset + `lut_interpolation=false`”，`frikan_h8u6l6_nosym` 的 benchmark-only 可降到约 `0.0434 s/iter`，但最终 MAE 会升到约 `0.0806`；这时误差主因在 KAN/LUT 近似，不在 IIR（IIR 中间层 MAE 仍约 `4.9e-7`）

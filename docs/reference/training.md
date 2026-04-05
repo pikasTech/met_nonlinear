@@ -25,6 +25,14 @@
 | `use_train_model` | 是否使用训练模式 | true |
 | `adjust_weight` | 是否启用交互式权重调整 | false |
 
+## 复现约束
+
+- 历史 project 原样复跑优先保持旧行为，默认训练路径不为单个实验引入新的 batch-size 估算逻辑。
+- 不在共享代码路径中增加 `MAX_BATCH_SIZE`、兼容开关或仅针对单个项目生效的 batch-size 特判。
+- 如果需要探索新的 batch-size 策略，应复制新项目或在独立分支中验证，避免破坏旧实验对比。
+- 已归档实验的复盘以项目 `config.json`、`training_log.jsonl` 和 `training_info.json` 为准。
+- CNNKAN 替换稳定案例详见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md)。
+
 ## 输出文件
 
 训练完成后在 `projects/PROJECT_NAME/data/` 目录下生成：

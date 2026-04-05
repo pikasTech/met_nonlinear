@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -16,12 +17,21 @@ from core.training_log import TrainingLogger
 from models.base_models import BaseModel, ModelEvent, ModelEventType
 
 
+logger = logging.getLogger(__name__)
+
+
 class RealTimeTrainingCallback(Callback):
     def __init__(self, model_engine):
         super().__init__()
         self.project = model_engine
-        self.scrolling_log_handler = ScrollingLogHandler(log_queue=Queue())
-        self.scrolling_log_handler.start()
+        self.console_ui_enabled = bool(getattr(sys.stdout, 'isatty', lambda: False)()) and bool(
+            getattr(sys.stdin, 'isatty', lambda: False)())
+        self.scrolling_log_handler = None
+        if self.console_ui_enabled:
+            self.scrolling_log_handler = ScrollingLogHandler(log_queue=Queue())
+            self.scrolling_log_handler.start()
+        else:
+            logger.info('检测到非交互终端，禁用滚动训练日志与键盘停止热键。')
         self.state_manager = model_engine.state_manager
         self.min_loss = self.state_manager['min_loss']
         origin_min_val_loss = self.state_manager['val_loss']
@@ -105,7 +115,8 @@ class RealTimeTrainingCallback(Callback):
             f"AFMAE: {power_log_loss:.4f}/{val_power_log_loss:.4f} | "
             f"{self.smoothed_speed:.1f}/{current_speed:.1f} epochs/h]")
 
-        self.scrolling_log_handler.update_log(log_message)
+        if self.scrolling_log_handler is not None:
+            self.scrolling_log_handler.update_log(log_message)
 
         data = {
             "epoch": int(completed_epoch) + 1,
@@ -157,7 +168,8 @@ class RealTimeTrainingCallback(Callback):
                 f"PLog: {power_log_loss:.4f}/{val_power_log_loss:.4f} | "
                 f"Epoch: {epoch + 1} | "
                 f"{self.format_time(elapsed_time)}")
-            self.scrolling_log_handler.print_message(best_loss_message)
+            if self.scrolling_log_handler is not None:
+                self.scrolling_log_handler.print_message(best_loss_message)
             # 保存最佳权重或其他操作
             self.user_model.exec_callback(
                 ModelEvent(
@@ -179,7 +191,8 @@ class RealTimeTrainingCallback(Callback):
                 f"PLog: {power_log_loss:.4f}/{val_power_log_loss:.4f} | "
                 f"Epoch: {epoch + 1} | "
                 f"{self.format_time(elapsed_time)}")
-            self.scrolling_log_handler.print_message(best_val_loss_message)
+            if self.scrolling_log_handler is not None:
+                self.scrolling_log_handler.print_message(best_val_loss_message)
             # 保存最佳权重或其他操作
             self.user_model.exec_callback(
                 ModelEvent(
@@ -194,19 +207,23 @@ class RealTimeTrainingCallback(Callback):
                 self.user_model.best_val_weights_file)
 
         # 检查是否有停止按键
-        if sys.platform.startswith('win'):
-            if keyboard.is_pressed('s') and keyboard.is_pressed('t'):
-                self.scrolling_log_handler.print_message(
-                    "Training stopped by user.")
-                # self.IPC_queue.put('STOP')
-                self.user_model.exec_callback(
-                    ModelEvent(ModelEventType.STOP))
-                self.user_model.stop_training = True
+        if self.console_ui_enabled and sys.platform.startswith('win'):
+            try:
+                if keyboard.is_pressed('s') and keyboard.is_pressed('t'):
+                    if self.scrolling_log_handler is not None:
+                        self.scrolling_log_handler.print_message(
+                            "Training stopped by user.")
+                    self.user_model.exec_callback(
+                        ModelEvent(ModelEventType.STOP))
+                    self.user_model.stop_training = True
+            except Exception as exc:
+                logger.warning(f'键盘热键检测失败，已跳过本轮检测: {exc}')
 
     def on_train_end(self, logs=None):
         # 训练结束时停止滚动日志处理器
-        self.scrolling_log_handler.stop()
-        self.scrolling_log_handler.join()
+        if self.scrolling_log_handler is not None:
+            self.scrolling_log_handler.stop()
+            self.scrolling_log_handler.join()
         self.user_model.exec_callback(
             ModelEvent(ModelEventType.STOP))
 

@@ -110,6 +110,10 @@ class FRIKAN(BaseModel):
             self.only_positive = True
             self.use_even = False
             self.use_symmetry = True
+        if isinstance(model_subcfg, dict):
+            self.random_iir_seed = model_subcfg.get('random_iir_seed', 20260405)
+        else:
+            self.random_iir_seed = 20260405
         # model_subcfg 配置组合效果:
         # | use_symmetry | only_positive | use_even | 效果                   |
         # |--------------|---------------|----------|------------------------|
@@ -133,7 +137,8 @@ class FRIKAN(BaseModel):
                 b2_list=b2_list,
                 fs=fs,
                 trainable=iir_trainable,
-                init_by_system=iir_init_by_system
+                init_by_system=iir_init_by_system,
+                random_seed=self.random_iir_seed
             )
             fast_iir = DIAGIIR(
                 units=features_num,
@@ -144,7 +149,8 @@ class FRIKAN(BaseModel):
                 b2_list=b2_list,
                 fs=fs,
                 trainable=iir_trainable,
-                init_by_system=iir_init_by_system
+                init_by_system=iir_init_by_system,
+                random_seed=self.random_iir_seed
             )
         else:
             features_num = 1
@@ -157,7 +163,8 @@ class FRIKAN(BaseModel):
                 b1_list=[0.0],
                 b2_list=[0.0],
                 trainable=iir_trainable,
-                init_by_system=iir_init_by_system
+                init_by_system=iir_init_by_system,
+                random_seed=self.random_iir_seed
             )
 
             fast_iir = DIAGIIR(
@@ -169,7 +176,8 @@ class FRIKAN(BaseModel):
                 b1_list=[0.0],
                 b2_list=[0.0],
                 trainable=iir_trainable,
-                init_by_system=iir_init_by_system
+                init_by_system=iir_init_by_system,
+                random_seed=self.random_iir_seed
             )
         kan = DenseKAN(
             units=1,

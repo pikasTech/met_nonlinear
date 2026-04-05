@@ -1,0 +1,60 @@
+{
+    "total_epochs": 1000,
+    "min_loss": 0.17082,
+    "params@min_loss": {
+        "epoch": 991,
+        "val_loss": 0.17737,
+        "mae": 0.0,
+        "val_mae": 0.0,
+        "power_log_loss": 0.45664,
+        "val_power_log_loss": 0.48777
+    },
+    "min_val_loss": 0.17414,
+    "params@min_val_loss": {
+        "epoch": 988,
+        "val_loss": 0.17414,
+        "mae": 0.0,
+        "val_mae": 0.0,
+        "power_log_loss": 0.45865,
+        "val_power_log_loss": 0.47463
+    },
+    "min_mae": 0.0,
+    "params@min_mae": {
+        "epoch": 1,
+        "val_loss": 0.76477,
+        "mae": 0.0,
+        "val_mae": 0.0,
+        "power_log_loss": 1.2612,
+        "val_power_log_loss": 1.2512
+    },
+    "min_val_mae": 0.0,
+    "params@min_val_mae": {
+        "epoch": 1,
+        "val_loss": 0.76477,
+        "mae": 0.0,
+        "val_mae": 0.0,
+        "power_log_loss": 1.2612,
+        "val_power_log_loss": 1.2512
+    },
+    "min_power_log_loss": 0.45269,
+    "params@min_power_log_loss": {
+        "epoch": 1000,
+        "val_loss": 0.17446,
+        "mae": 0.0,
+        "val_mae": 0.0,
+        "power_log_loss": 0.45269,
+        "val_power_log_loss": 0.46883
+    },
+    "min_val_power_log_loss": 0.46829,
+    "params@min_val_power_log_loss": {
+        "epoch": 998,
+        "val_loss": 0.17434,
+        "mae": 0.0,
+        "val_mae": 0.0,
+        "power_log_loss": 0.45946,
+        "val_power_log_loss": 0.46829
+    },
+    "learning_rate_max": 0.00014,
+    "learning_rate_min": 0.00014,
+    "learning_rate_mean": 0.00013999999999999996
+}

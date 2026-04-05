@@ -1,10 +1,15 @@
 {
-  "timestamp": "20260405_104525",
+  "timestamp": "20260405_105750",
   "projects": [
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4",
       "label": "FRIKAN",
       "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
+      "label": "FRIKAN-NoSym-r5",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
     },
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4_puremae",
@@ -17,29 +22,19 @@
       "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
     },
     {
-      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
-      "label": "FRIKAN-NoSym",
-      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
-    },
-    {
-      "name": "LSTMu16_e1k_lr7e4_r2",
-      "label": "LSTM",
-      "path": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r2"
-    },
-    {
-      "name": "LSTMTransformeru6_e1k_1",
-      "label": "LSTM-Transformer",
-      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1"
-    },
-    {
-      "name": "GRNu16_e1k_lr7e4",
-      "label": "GRN",
-      "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"
+      "name": "LSTMTransformeru6_e1k_puremae",
+      "label": "LSTM-Transformer-PureMAE",
+      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae"
     },
     {
       "name": "LSTMu16_e1k_puremae_r7",
-      "label": "LSTM-PureMAE",
+      "label": "LSTM-PureMAE-r7",
       "path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r7"
+    },
+    {
+      "name": "GRNu16_e1k_puremae",
+      "label": "GRN-PureMAE",
+      "path": "projects/01_LR_STUDY/GRNu16_e1k_puremae"
     }
   ],
   "metrics": {
@@ -51,22 +46,6 @@
         "max": 34.50759680055925,
         "median": 33.08723148445385
       },
-      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
-        "drift": 6.5538252080134285,
-        "unit": "Hz",
-        "min": 27.393701899237627,
-        "max": 36.20578846370087,
-        "median": 33.947527107251055,
-        "suppression": -180.48436593623555
-      },
-      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
-        "drift": 31.177406992564315,
-        "unit": "Hz",
-        "min": 24.583518872032393,
-        "max": 59.18484259955293,
-        "median": 28.007435606988615,
-        "suppression": -1234.3009546780456
-      },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "drift": 10.912781133652594,
         "unit": "Hz",
@@ -75,29 +54,29 @@
         "median": 37.08574820729405,
         "suppression": -367.0348078753933
       },
-      "LSTMu16_e1k_lr7e4_r2": {
-        "drift": 4.366664889791444,
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "drift": 13.00249038942325,
         "unit": "Hz",
-        "min": 31.664800605988432,
-        "max": 37.7297954258539,
-        "median": 33.36313053606246,
-        "suppression": -86.88036284086775
+        "min": 28.179206380086455,
+        "max": 47.38280836719804,
+        "median": 34.38031797777479,
+        "suppression": -456.4681932637079
       },
-      "LSTMTransformeru6_e1k_1": {
-        "drift": 2.542504120077716,
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "drift": 7.145648960226016,
         "unit": "Hz",
-        "min": 32.671157707671526,
-        "max": 36.68999267091124,
-        "median": 34.14748855083352,
-        "suppression": -8.811668510522692
+        "min": 24.0183033974083,
+        "max": 34.77455417956281,
+        "median": 27.628905219336797,
+        "suppression": -205.81267491865768
       },
-      "GRNu16_e1k_lr7e4": {
-        "drift": 9.326396031918488,
+      "LSTMTransformeru6_e1k_puremae": {
+        "drift": 4.720569735129416,
         "unit": "Hz",
-        "min": 24.07792791230281,
-        "max": 41.170768128048934,
-        "median": 33.4043239442213,
-        "suppression": -299.14221000041056
+        "min": 30.764318111250127,
+        "max": 35.94249923824354,
+        "median": 35.48488784637954,
+        "suppression": -102.02644516619594
       },
       "LSTMu16_e1k_puremae_r7": {
         "drift": 7.514473400002053,
@@ -106,6 +85,14 @@
         "max": 36.06694958154661,
         "median": 34.89822201576459,
         "suppression": -221.59727182946338
+      },
+      "GRNu16_e1k_puremae": {
+        "drift": 8.573044842353013,
+        "unit": "Hz",
+        "min": 25.47900962587353,
+        "max": 37.747186568599204,
+        "median": 34.052054468226544,
+        "suppression": -266.9010036779993
       }
     },
     "sensitivity_drift": {
@@ -116,22 +103,6 @@
         "max": 67.64889934855479,
         "median": 61.254717023785574
       },
-      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
-        "drift": 30.39926394708828,
-        "unit": "%",
-        "min": 33.14004354332113,
-        "max": 69.80591425237594,
-        "median": 63.539307490409406,
-        "suppression": -234.33584936841868
-      },
-      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
-        "drift": 76.4847115417416,
-        "unit": "%",
-        "min": 23.38073342892642,
-        "max": 117.45407807945996,
-        "median": 40.96936653771836,
-        "suppression": -741.1907946690923
-      },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "drift": 10.613472403874454,
         "unit": "%",
@@ -140,29 +111,29 @@
         "median": 54.257122670479475,
         "suppression": -16.728625965219102
       },
-      "LSTMu16_e1k_lr7e4_r2": {
-        "drift": 17.37697410396101,
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "drift": 20.283908250776427,
         "unit": "%",
-        "min": 52.7059019823892,
-        "max": 76.91325136877954,
-        "median": 59.53627726481853,
-        "suppression": -91.11467325699158
+        "min": 42.29073335046047,
+        "max": 74.00281163503396,
+        "median": 62.5746416012369,
+        "suppression": -123.08558869511626
       },
-      "LSTMTransformeru6_e1k_1": {
-        "drift": 5.332297665459812,
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "drift": 47.05390364796287,
         "unit": "%",
-        "min": 58.024395910656196,
-        "max": 66.96520240959411,
-        "median": 63.35669357611601,
-        "suppression": 41.3545580521366
+        "min": 23.32176172824264,
+        "max": 84.46971279474258,
+        "median": 37.41580914677971,
+        "suppression": -417.5061761239858
       },
-      "GRNu16_e1k_lr7e4": {
-        "drift": 35.03093011755173,
+      "LSTMTransformeru6_e1k_puremae": {
+        "drift": 18.384936629729403,
         "unit": "%",
-        "min": 24.627642235728413,
-        "max": 80.80261522963627,
-        "median": 59.65857235328015,
-        "suppression": -285.2756367852516
+        "min": 48.99017917619543,
+        "max": 71.8821738686823,
+        "median": 67.37511580592484,
+        "suppression": -102.2004024302662
       },
       "LSTMu16_e1k_puremae_r7": {
         "drift": 25.81068973495097,
@@ -171,6 +142,14 @@
         "max": 68.24847650278893,
         "median": 66.39115209490372,
         "suppression": -183.86999403471108
+      },
+      "GRNu16_e1k_puremae": {
+        "drift": 33.73452628525024,
+        "unit": "%",
+        "min": 24.726785323764023,
+        "max": 69.83996167539166,
+        "median": 58.46131160901427,
+        "suppression": -271.0175851050724
       }
     },
     "linearity": {
@@ -180,46 +159,40 @@
         "min": 0.10629528112641173,
         "unit": "%"
       },
-      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
-        "mean": 1.1870147521410903,
-        "max": 5.513857406171152,
-        "min": 0.11766267341161152,
-        "unit": "%"
-      },
-      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
-        "mean": 2.0944087509312044,
-        "max": 14.826377990996997,
-        "min": 0.292001921694629,
-        "unit": "%"
-      },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "mean": 2.199637131948052,
         "max": 4.4166318518121255,
         "min": 0.6419620624860567,
         "unit": "%"
       },
-      "LSTMu16_e1k_lr7e4_r2": {
-        "mean": 0.6625280935774366,
-        "max": 2.1359165938588554,
-        "min": 0.1754506468086281,
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "mean": 1.3688869012911902,
+        "max": 5.107721650644925,
+        "min": 0.10595599248981458,
         "unit": "%"
       },
-      "LSTMTransformeru6_e1k_1": {
-        "mean": 0.6575120276587377,
-        "max": 2.29135207227128,
-        "min": 0.1421279675969389,
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "mean": 2.788582690074852,
+        "max": 21.433628672380344,
+        "min": 0.3067490619568125,
         "unit": "%"
       },
-      "GRNu16_e1k_lr7e4": {
-        "mean": 2.389910778587821,
-        "max": 9.23479267977918,
-        "min": 0.44097590349647664,
+      "LSTMTransformeru6_e1k_puremae": {
+        "mean": 1.6165623225430168,
+        "max": 10.757824491630874,
+        "min": 0.14023612265189334,
         "unit": "%"
       },
       "LSTMu16_e1k_puremae_r7": {
         "mean": 0.6044742470763602,
         "max": 2.281371369124696,
         "min": 0.10218583665377867,
+        "unit": "%"
+      },
+      "GRNu16_e1k_puremae": {
+        "mean": 1.9101025859225889,
+        "max": 7.46095519828579,
+        "min": 0.39405851854443785,
         "unit": "%"
       }
     },
@@ -235,12 +208,6 @@
         "weighted_multiplications": 40.0,
         "weighted_maps": 1404.0
       },
-      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
-        "error": "compute_analysis not available"
-      },
-      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
-        "error": "compute_analysis not available"
-      },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "total_params": 2569,
         "additions": 266,
@@ -252,18 +219,29 @@
         "weighted_multiplications": 40.0,
         "weighted_maps": 1404.0
       },
-      "LSTMu16_e1k_lr7e4_r2": {
-        "total_params": 1441,
-        "additions": 1376,
-        "multiplications": 1408,
-        "maps": 96,
-        "total_ops": 2880,
-        "weighted_total": 3360.0,
-        "weighted_additions": 1376.0,
-        "weighted_multiplications": 1408.0,
-        "weighted_maps": 576.0
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "total_params": 2569,
+        "additions": 266,
+        "multiplications": 40,
+        "maps": 234,
+        "total_ops": 540,
+        "weighted_total": 1710.0,
+        "weighted_additions": 266.0,
+        "weighted_multiplications": 40.0,
+        "weighted_maps": 1404.0
       },
-      "LSTMTransformeru6_e1k_1": {
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "total_params": 2569,
+        "additions": 266,
+        "multiplications": 40,
+        "maps": 234,
+        "total_ops": 540,
+        "weighted_total": 1710.0,
+        "weighted_additions": 266.0,
+        "weighted_multiplications": 40.0,
+        "weighted_maps": 1404.0
+      },
+      "LSTMTransformeru6_e1k_puremae": {
         "total_params": 1261,
         "additions": 792,
         "multiplications": 804,
@@ -274,17 +252,6 @@
         "weighted_multiplications": 804.0,
         "weighted_maps": 504.0
       },
-      "GRNu16_e1k_lr7e4": {
-        "total_params": 1201,
-        "additions": 272,
-        "multiplications": 272,
-        "maps": 16,
-        "total_ops": 560,
-        "weighted_total": 640.0,
-        "weighted_additions": 272.0,
-        "weighted_multiplications": 272.0,
-        "weighted_maps": 96.0
-      },
       "LSTMu16_e1k_puremae_r7": {
         "total_params": 1441,
         "additions": 1376,
@@ -295,6 +262,17 @@
         "weighted_additions": 1376.0,
         "weighted_multiplications": 1408.0,
         "weighted_maps": 576.0
+      },
+      "GRNu16_e1k_puremae": {
+        "total_params": 1201,
+        "additions": 272,
+        "multiplications": 272,
+        "maps": 16,
+        "total_ops": 560,
+        "weighted_total": 640.0,
+        "weighted_additions": 272.0,
+        "weighted_multiplications": 272.0,
+        "weighted_maps": 96.0
       }
     },
     "mae_afmae": {
@@ -302,33 +280,29 @@
         "val_mae": 0.022468162700533867,
         "val_afmae": 0.03790934011340141
       },
-      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
-        "error": "evaluation_metrics not available",
-        "hint": "run python cli.py -e PROJECT_NAME to generate"
-      },
-      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
-        "error": "evaluation_metrics not available",
-        "hint": "run python cli.py -e PROJECT_NAME to generate"
-      },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "val_mae": 0.14828214049339294,
         "val_afmae": 0.050500333309173584
       },
-      "LSTMu16_e1k_lr7e4_r2": {
-        "val_mae": 0.01779812015593052,
-        "val_afmae": 0.04650729522109032
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "val_mae": 0.010465160012245178,
+        "val_afmae": 0.010465160012245178
       },
-      "LSTMTransformeru6_e1k_1": {
-        "val_mae": 0.01577722653746605,
-        "val_afmae": 0.03150922805070877
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "val_mae": 0.037976570427417755,
+        "val_afmae": 0.037976570427417755
       },
-      "GRNu16_e1k_lr7e4": {
-        "val_mae": 0.01768304780125618,
-        "val_afmae": 0.14020094275474548
+      "LSTMTransformeru6_e1k_puremae": {
+        "val_mae": 0.006884773261845112,
+        "val_afmae": 0.006884773261845112
       },
       "LSTMu16_e1k_puremae_r7": {
         "val_mae": 0.00816777627915144,
         "val_afmae": 0.00816777627915144
+      },
+      "GRNu16_e1k_puremae": {
+        "val_mae": 0.012697124853730202,
+        "val_afmae": 0.012697124853730202
       }
     },
     "natural_frequency_drift_origin": {},
