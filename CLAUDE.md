@@ -51,6 +51,8 @@
 
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
+	  - 一次只训练一个项目，避免同时训练多个导致系统资源爆满
+	  - 在前台训练，不要后台训练
 
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。

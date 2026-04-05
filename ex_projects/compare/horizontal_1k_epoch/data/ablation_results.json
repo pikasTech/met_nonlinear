@@ -1,10 +1,25 @@
 {
-  "timestamp": "20260405_002622",
+  "timestamp": "20260405_104525",
   "projects": [
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4",
       "label": "FRIKAN",
       "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_puremae",
+      "label": "FRIKAN-PureMAE",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_pureafmae",
+      "label": "FRIKAN-PureAFMAE",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
+      "label": "FRIKAN-NoSym",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
     },
     {
       "name": "LSTMu16_e1k_lr7e4_r2",
@@ -35,6 +50,30 @@
         "min": 30.750621675155834,
         "max": 34.50759680055925,
         "median": 33.08723148445385
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "drift": 6.5538252080134285,
+        "unit": "Hz",
+        "min": 27.393701899237627,
+        "max": 36.20578846370087,
+        "median": 33.947527107251055,
+        "suppression": -180.48436593623555
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "drift": 31.177406992564315,
+        "unit": "Hz",
+        "min": 24.583518872032393,
+        "max": 59.18484259955293,
+        "median": 28.007435606988615,
+        "suppression": -1234.3009546780456
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
+        "drift": 10.912781133652594,
+        "unit": "Hz",
+        "min": 30.78837638646289,
+        "max": 47.99852934094665,
+        "median": 37.08574820729405,
+        "suppression": -367.0348078753933
       },
       "LSTMu16_e1k_lr7e4_r2": {
         "drift": 4.366664889791444,
@@ -77,6 +116,30 @@
         "max": 67.64889934855479,
         "median": 61.254717023785574
       },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "drift": 30.39926394708828,
+        "unit": "%",
+        "min": 33.14004354332113,
+        "max": 69.80591425237594,
+        "median": 63.539307490409406,
+        "suppression": -234.33584936841868
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "drift": 76.4847115417416,
+        "unit": "%",
+        "min": 23.38073342892642,
+        "max": 117.45407807945996,
+        "median": 40.96936653771836,
+        "suppression": -741.1907946690923
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
+        "drift": 10.613472403874454,
+        "unit": "%",
+        "min": 43.64365026660502,
+        "max": 63.508839017118,
+        "median": 54.257122670479475,
+        "suppression": -16.728625965219102
+      },
       "LSTMu16_e1k_lr7e4_r2": {
         "drift": 17.37697410396101,
         "unit": "%",
@@ -117,6 +180,24 @@
         "min": 0.10629528112641173,
         "unit": "%"
       },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "mean": 1.1870147521410903,
+        "max": 5.513857406171152,
+        "min": 0.11766267341161152,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "mean": 2.0944087509312044,
+        "max": 14.826377990996997,
+        "min": 0.292001921694629,
+        "unit": "%"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
+        "mean": 2.199637131948052,
+        "max": 4.4166318518121255,
+        "min": 0.6419620624860567,
+        "unit": "%"
+      },
       "LSTMu16_e1k_lr7e4_r2": {
         "mean": 0.6625280935774366,
         "max": 2.1359165938588554,
@@ -144,6 +225,23 @@
     },
     "compute_cost": {
       "FRIKANh8u6l6_e1k_lr7e4": {
+        "total_params": 2569,
+        "additions": 266,
+        "multiplications": 40,
+        "maps": 234,
+        "total_ops": 540,
+        "weighted_total": 1710.0,
+        "weighted_additions": 266.0,
+        "weighted_multiplications": 40.0,
+        "weighted_maps": 1404.0
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "error": "compute_analysis not available"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "error": "compute_analysis not available"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "total_params": 2569,
         "additions": 266,
         "multiplications": 40,
@@ -203,6 +301,18 @@
       "FRIKANh8u6l6_e1k_lr7e4": {
         "val_mae": 0.022468162700533867,
         "val_afmae": 0.03790934011340141
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "error": "evaluation_metrics not available",
+        "hint": "run python cli.py -e PROJECT_NAME to generate"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "error": "evaluation_metrics not available",
+        "hint": "run python cli.py -e PROJECT_NAME to generate"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
+        "val_mae": 0.14828214049339294,
+        "val_afmae": 0.050500333309173584
       },
       "LSTMu16_e1k_lr7e4_r2": {
         "val_mae": 0.01779812015593052,

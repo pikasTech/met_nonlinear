@@ -10,6 +10,21 @@
       "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4"
     },
     {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_puremae",
+      "label": "FRIKAN-PureMAE",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_puremae"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_pureafmae",
+      "label": "FRIKAN-PureAFMAE",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
+    },
+    {
+      "name": "FRIKANh8u6l6_e1k_lr7e4_nosym_r5",
+      "label": "FRIKAN-NoSym",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5"
+    },
+    {
       "name": "LSTMu16_e1k_lr7e4_r2",
       "label": "LSTM",
       "path": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r2"
