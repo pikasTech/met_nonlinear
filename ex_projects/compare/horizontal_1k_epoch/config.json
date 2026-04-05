@@ -20,6 +20,16 @@
       "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1"
     },
     {
+      "name": "LSTMTransformeru6_e1k_puremae",
+      "label": "LSTM-Transformer-PureMAE",
+      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae"
+    },
+    {
+      "name": "GRNu16_e1k_puremae",
+      "label": "GRN-PureMAE",
+      "path": "projects/01_LR_STUDY/GRNu16_e1k_puremae"
+    },
+    {
       "name": "GRNu16_e1k_lr7e4",
       "label": "GRN",
       "path": "projects/01_LR_STUDY/GRNu16_e1k_lr7e4"

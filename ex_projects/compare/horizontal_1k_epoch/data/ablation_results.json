@@ -1,5 +1,5 @@
 {
-  "timestamp": "20260405_000618",
+  "timestamp": "20260405_021542",
   "projects": [
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4",
@@ -15,6 +15,16 @@
       "name": "LSTMTransformeru6_e1k_1",
       "label": "LSTM-Transformer",
       "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1"
+    },
+    {
+      "name": "LSTMTransformeru6_e1k_puremae",
+      "label": "LSTM-Transformer-PureMAE",
+      "path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae"
+    },
+    {
+      "name": "GRNu16_e1k_puremae",
+      "label": "GRN-PureMAE",
+      "path": "projects/01_LR_STUDY/GRNu16_e1k_puremae"
     },
     {
       "name": "GRNu16_e1k_lr7e4",
@@ -46,6 +56,22 @@
         "max": 36.68999267091124,
         "median": 34.14748855083352,
         "suppression": -8.811668510522692
+      },
+      "LSTMTransformeru6_e1k_puremae": {
+        "drift": 4.720569735129416,
+        "unit": "Hz",
+        "min": 30.764318111250127,
+        "max": 35.94249923824354,
+        "median": 35.48488784637954,
+        "suppression": -102.02644516619594
+      },
+      "GRNu16_e1k_puremae": {
+        "drift": 8.573044842353013,
+        "unit": "Hz",
+        "min": 25.47900962587353,
+        "max": 37.747186568599204,
+        "median": 34.052054468226544,
+        "suppression": -266.9010036779993
       },
       "GRNu16_e1k_lr7e4": {
         "drift": 9.326396031918488,
@@ -80,6 +106,22 @@
         "median": 63.35669357611601,
         "suppression": 41.3545580521366
       },
+      "LSTMTransformeru6_e1k_puremae": {
+        "drift": 18.384936629729403,
+        "unit": "%",
+        "min": 48.99017917619543,
+        "max": 71.8821738686823,
+        "median": 67.37511580592484,
+        "suppression": -102.2004024302662
+      },
+      "GRNu16_e1k_puremae": {
+        "drift": 33.73452628525024,
+        "unit": "%",
+        "min": 24.726785323764023,
+        "max": 69.83996167539166,
+        "median": 58.46131160901427,
+        "suppression": -271.0175851050724
+      },
       "GRNu16_e1k_lr7e4": {
         "drift": 35.03093011755173,
         "unit": "%",
@@ -106,6 +148,18 @@
         "mean": 0.6575120276587377,
         "max": 2.29135207227128,
         "min": 0.1421279675969389,
+        "unit": "%"
+      },
+      "LSTMTransformeru6_e1k_puremae": {
+        "mean": 1.6165623225430168,
+        "max": 10.757824491630874,
+        "min": 0.14023612265189334,
+        "unit": "%"
+      },
+      "GRNu16_e1k_puremae": {
+        "mean": 1.9101025859225889,
+        "max": 7.46095519828579,
+        "min": 0.39405851854443785,
         "unit": "%"
       },
       "GRNu16_e1k_lr7e4": {
@@ -149,6 +203,28 @@
         "weighted_multiplications": 804.0,
         "weighted_maps": 504.0
       },
+      "LSTMTransformeru6_e1k_puremae": {
+        "total_params": 1261,
+        "additions": 792,
+        "multiplications": 804,
+        "maps": 84,
+        "total_ops": 1680,
+        "weighted_total": 2100.0,
+        "weighted_additions": 792.0,
+        "weighted_multiplications": 804.0,
+        "weighted_maps": 504.0
+      },
+      "GRNu16_e1k_puremae": {
+        "total_params": 1201,
+        "additions": 272,
+        "multiplications": 272,
+        "maps": 16,
+        "total_ops": 560,
+        "weighted_total": 640.0,
+        "weighted_additions": 272.0,
+        "weighted_multiplications": 272.0,
+        "weighted_maps": 96.0
+      },
       "GRNu16_e1k_lr7e4": {
         "total_params": 1201,
         "additions": 272,
@@ -173,6 +249,14 @@
       "LSTMTransformeru6_e1k_1": {
         "val_mae": 0.01577722653746605,
         "val_afmae": 0.03150922805070877
+      },
+      "LSTMTransformeru6_e1k_puremae": {
+        "val_mae": 0.006884773261845112,
+        "val_afmae": 0.006884773261845112
+      },
+      "GRNu16_e1k_puremae": {
+        "val_mae": 0.012697124853730202,
+        "val_afmae": 0.012697124853730202
       },
       "GRNu16_e1k_lr7e4": {
         "val_mae": 0.01768304780125618,

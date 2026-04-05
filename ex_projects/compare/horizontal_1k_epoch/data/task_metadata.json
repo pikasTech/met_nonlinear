@@ -1,5 +1,5 @@
 {
-  "execution_time": "2026-04-05T00:06:18.258896",
+  "execution_time": "2026-04-05T02:15:42.547369",
   "task_info": {
     "task_type": "ablation-study",
     "description": "Horizontal Comparison: FRIKAN vs LSTM vs Transformer vs GRN"
@@ -7,5 +7,5 @@
   "output_files": [
     "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\compare\\horizontal_1k_epoch\\data"
   ],
-  "config_hash": "4a515f4a7dbd765e6b2c4ece5ec3317d"
+  "config_hash": "e0d752b71767cd5eed6d849a1271aeb5"
 }
