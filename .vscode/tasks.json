@@ -117,6 +117,226 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr30e5-c8k9d00",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr30e5_c8k9d00"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "query-gpu-status",
+			"type": "shell",
+			"command": "nvidia-smi",
+			"isBackground": false
+		},
+		{
+			"label": "inspect-tf26-python-procs",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-CimInstance Win32_Process | Where-Object { $_.ExecutablePath -like '*MiniConda3\\envs\\tf26\\python.exe' } | Select-Object ProcessId, CommandLine | Format-List | Out-String -Width 220"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "kill-our-cnnkan-procs",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Stop-Process -Id 26404,58108 -Force; Get-Process -Id 26404,58108 -ErrorAction SilentlyContinue | Select-Object Id, ProcessName | Out-String"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-cnnkan-procs-after-kill",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -in 26404,58108 } | Select-Object ProcessId, CommandLine | Format-List | Out-String -Width 220"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "query-gpu-status-after-kill",
+			"type": "shell",
+			"command": "nvidia-smi",
+			"isBackground": false
+		},
+		{
+			"label": "train-cnnkan-lr30e5-c8k9d00-rerun",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr30e5_c8k9d00"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr25e5-c8k3d05",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr25e5_c8k3d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr25e5-c8k3d05-capped",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr25e5_c8k3d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "inspect-current-cnnkan-proc",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*CNNKANh8u6l6_e1k_lr25e5_c8k3d05*' } | Select-Object ProcessId, CommandLine | Format-List | Out-String -Width 220"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "inspect-duplicate-cnnkan-procs",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*CNNKANh8u6l6_e1k_lr25e5_c8k3d05*' -and $_.Name -eq 'python.exe' } | Select-Object ProcessId, CreationDate, CommandLine | Sort-Object CreationDate | Format-List | Out-String -Width 220"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "train-cnnkan-lr22e5-c8k3d05",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr22e5_c8k3d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr28e5-c8k3d05",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k3d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr28e5-c8k3d05-resume",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k3d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr29e5-c8k3d05",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr29e5_c8k3d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr28e5-c8k3d03",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k3d03"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "train-cnnkan-lr28e5-c8k5d05",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "write-archive-marker",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Content -LiteralPath 'c:\\work\\met_nonlinear_master\\projects\\01_LR_STUDY\\archive_cnnkan_h8u6l6_20260407\\_move_test.txt' -Value 'ok'"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "archive-nonbest-cnnkan-h8u6l6",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$base='c:\\work\\met_nonlinear_master\\projects\\01_LR_STUDY'; $archive=Join-Path $base 'archive_cnnkan_h8u6l6_20260407'; $items=@('CNNKANh8u6l6_e1k_lr14e5_stable','CNNKANh8u6l6_e1k_lr22e5_c8k3d05','CNNKANh8u6l6_e1k_lr25e5_c10k3d05','CNNKANh8u6l6_e1k_lr25e5_c8k3d00','CNNKANh8u6l6_e1k_lr25e5_c8k3d05','CNNKANh8u6l6_e1k_lr25e5_c8k5d05','CNNKANh8u6l6_e1k_lr28e5_c8k3d03','CNNKANh8u6l6_e1k_lr28e5_c8k3d05','CNNKANh8u6l6_e1k_lr29e5_c8k3d05','CNNKANh8u6l6_e1k_lr30e5_c8k5d03','CNNKANh8u6l6_e1k_lr30e5_c8k9d00','CNNKANh8u6l6_e1k_lr35e5_c12k5d05','CNNKANh8u6l6_e1k_lr40e5_c16k5d03','CNNKANh8u6l6_e1k_lr45e5_c12k7d03'); foreach($name in $items){ $src=Join-Path $base $name; if(Test-Path $src){ Move-Item -LiteralPath $src -Destination $archive -Force } }"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "cleanup-archive-marker",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Remove-Item -LiteralPath 'c:\\work\\met_nonlinear_master\\projects\\01_LR_STUDY\\archive_cnnkan_h8u6l6_20260407\\_move_test.txt' -Force"
+			],
+			"isBackground": false
 		}
 	]
 }

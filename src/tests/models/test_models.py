@@ -1542,6 +1542,70 @@ class TestFRIKANDropoutPositions:
             assert model.dropout_layer is None
 
 
+class TestCNNKANSubcfg:
+    """Test cases for CNNKAN subcfg handling."""
+
+    def test_cnnkan_subcfg_merge(self):
+        """Test CNNKAN correctly applies model_subcfg overrides."""
+        from models.frikan_models import CNNKAN
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = CNNKAN(
+                grid_size=5,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                model_subcfg={
+                    'cnn_filters': 12,
+                    'cnn_kernel_size': 7,
+                    'dropout_rate': 0.05,
+                    'dropout_position': 'cnn',
+                    'use_symmetry': False,
+                }
+            )
+
+            assert model.subcfg['cnn_filters'] == 12
+            assert model.subcfg['cnn_kernel_size'] == 7
+            assert model.subcfg['dropout_rate'] == 0.05
+            assert model.dropout_position == 'cnn'
+            assert model.cnn_filters == 12
+            assert model.cnn_kernel_size == 7
+            assert model.dropout_rate == 0.05
+            assert model.use_symmetry is False
+
+    def test_cnnkan_legacy_args_still_work(self):
+        """Test CNNKAN still supports legacy top-level CNN args."""
+        from models.frikan_models import CNNKAN
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = CNNKAN(
+                grid_size=5,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                cnn_filters=10,
+                cnn_kernel_size=9,
+                dropout_rate=0.15,
+            )
+
+            assert model.cnn_filters == 10
+            assert model.cnn_kernel_size == 9
+            assert model.dropout_rate == 0.15
+
+    def test_cnnkan_unknown_subcfg_raises_error(self):
+        """Test CNNKAN rejects unknown model_subcfg keys."""
+        from models.frikan_models import CNNKAN
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pytest.raises(ValueError) as exc_info:
+                CNNKAN(
+                    grid_size=5,
+                    fs=2000,
+                    checkpoint_dir=tmpdir,
+                    model_subcfg={'unknown_cnn_param': 1}
+                )
+
+            assert '未知模型子配置项' in str(exc_info.value)
+
+
 class TestFRIKANGridMethods:
     """Test cases for FRIKAN grid assignment methods."""
 

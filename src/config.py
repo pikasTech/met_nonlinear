@@ -84,6 +84,7 @@ class Config:
         self.base_project = ""  # 默认为空字符串表示不使用base模型
         self.AUG_TIMES = 1  # 数据增广倍数
         self.AUG_N = 4
+        self.MAX_BATCH_SIZE = None
         self.RVTDCNN_memory_depth = 32
         self.RVTDCNN_nonlinearity_order = 4
         self.RVTDCNN_kernel_size = (5, 3)

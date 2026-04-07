@@ -12,6 +12,7 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from .base_models import BaseModel
+from .utils import merge_config
 from calibration_analyzer.exam_class import System
 
 
@@ -914,24 +915,34 @@ class CNNKAN(BaseModel):
             kan_log_grid: 是否使用对数网格
             kan_grid_expand: 是否扩展网格
             save_each_epoch: 是否每个周期保存
-            model_subcfg: 模型子配置
+            model_subcfg: 模型子配置，可包含 only_positive、use_even、use_symmetry、
+                cnn_filters、cnn_kernel_size、dropout_rate、dropout_position
         """
         self.model_name = 'CNNKAN'
         self.callback = None
-        if isinstance(model_subcfg, dict):
-            self.only_positive = model_subcfg.get('only_positive', True)
-            self.use_even = model_subcfg.get('use_even', False)
-            self.use_symmetry = model_subcfg.get('use_symmetry', True)
-        else:
-            self.only_positive = True
-            self.use_even = False
-            self.use_symmetry = True
+        default_subcfg = {
+            'only_positive': True,
+            'use_even': False,
+            'use_symmetry': True,
+            'cnn_filters': cnn_filters,
+            'cnn_kernel_size': cnn_kernel_size,
+            'dropout_rate': dropout_rate,
+            'dropout_position': 'input',
+        }
+        self.subcfg = merge_config(
+            default_subcfg,
+            model_subcfg if isinstance(model_subcfg, dict) else {}
+        )
+        self.model_subcfg = self.subcfg
 
-        self.cnn_filters = cnn_filters
-        self.cnn_kernel_size = cnn_kernel_size
+        self.only_positive = bool(self.subcfg['only_positive'])
+        self.use_even = bool(self.subcfg['use_even'])
+        self.use_symmetry = bool(self.subcfg['use_symmetry'])
+        self.cnn_filters = int(self.subcfg['cnn_filters'])
+        self.cnn_kernel_size = int(self.subcfg['cnn_kernel_size'])
         self.cnn = tf.keras.layers.Conv1D(
-            filters=cnn_filters,
-            kernel_size=cnn_kernel_size,
+            filters=self.cnn_filters,
+            kernel_size=self.cnn_kernel_size,
             strides=1,
             padding='same',
             activation='linear',
@@ -972,12 +983,12 @@ class CNNKAN(BaseModel):
             ) for _ in range(inner_kan_layers)
         ]
 
-        self.dropout_rate = dropout_rate
+        self.dropout_rate = float(self.subcfg['dropout_rate'])
         self.dropout_layer = tf.keras.layers.Dropout(
             self.dropout_rate) if self.dropout_rate > 0.0 else None
         self.fs = fs
-        self.features_num = cnn_filters
-        self.dropout_position = 'input'
+        self.features_num = self.cnn_filters
+        self.dropout_position = str(self.subcfg['dropout_position'])
         self.save_each_epoch = save_each_epoch
         self.use_fast_model = False
         self.init_checkpoint(checkpoint_dir)

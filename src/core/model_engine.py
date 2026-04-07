@@ -229,6 +229,12 @@ class ModelEngine:
 
         seq_num = self.x_train_shuffle.shape[0] * self.x_train_shuffle.shape[1]
         self.batch_size = max(1, int(seq_num / self.config.step_per_epoch))
+        max_batch_size = getattr(self.config, 'MAX_BATCH_SIZE', None)
+        if max_batch_size is not None:
+            max_batch_size = int(max_batch_size)
+            if max_batch_size <= 0:
+                raise ValueError('MAX_BATCH_SIZE 必须大于 0')
+            self.batch_size = min(self.batch_size, max_batch_size)
         print(f'seq_num: {seq_num}')
         print(f'batch_size: {self.batch_size}')
 
@@ -405,6 +411,8 @@ class ModelEngine:
                 kernel_size=self.config.RVTDCNN_kernel_size,                model_subcfg=self.config.model_subcfg,
             )
         elif self.config.use_model == 'CNNKAN':
+            cnn_subcfg = self.config.model_subcfg if isinstance(
+                self.config.model_subcfg, dict) else {}
             self.model_comp = CNNKAN(
                 fs=self.config.sample_rate,
                 grid_size=self.config.GRID_SIZE,
@@ -419,10 +427,13 @@ class ModelEngine:
                 kan_log_grid=self.config.kan_log_grid,
                 kan_grid_expand=self.config.kan_grid_expand,
                 save_each_epoch=self.config.save_each_epoch,
-                model_subcfg=self.config.model_subcfg,
-                cnn_filters=self.config.CNN_FILTERS,
-                cnn_kernel_size=self.config.CNN_KERNEL_SIZE,
-                dropout_rate=self.config.CNN_DROPOUT_RATE,
+                model_subcfg=cnn_subcfg,
+                cnn_filters=cnn_subcfg.get(
+                    'cnn_filters', self.config.CNN_FILTERS),
+                cnn_kernel_size=cnn_subcfg.get(
+                    'cnn_kernel_size', self.config.CNN_KERNEL_SIZE),
+                dropout_rate=cnn_subcfg.get(
+                    'dropout_rate', self.config.CNN_DROPOUT_RATE),
             )
         else:
             raise ValueError(f'未知的模型类型: {self.config.use_model}')
@@ -689,14 +700,16 @@ class ModelEngine:
         # 断点续训
         if self.config.resume_training:
             print(f'加载断点...')
-            if os.path.exists(self.model_comp.best_weights_file):
-                try:
+            try:
+                if getattr(self.config, 'use_best_val_weights', False):
+                    self.load_val_best_weights()
+                elif os.path.exists(self.model_comp.best_weights_file):
                     self.load_best_weights()
-                except Exception as e:
-                    print("加载最佳权重失败，将从头开始训练。")
-                    print(e)
-            else:
-                print(f"未找到最佳权重文件，将从头开始训练。")
+                else:
+                    print(f"未找到最佳权重文件，将从头开始训练。")
+            except Exception as e:
+                print("加载断点权重失败，将从头开始训练。")
+                print(e)
         else:
             print(f"将从头开始训练。")
         print(f'评估初始权重...')

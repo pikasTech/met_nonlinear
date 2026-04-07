@@ -1,0 +1,17 @@
+{
+  "completed_epoch": 0,
+  "min_loss": 1.4763535261154175,
+  "min_val_loss": 1.5222214460372925,
+  "current_epoch": 0,
+  "model_name": "CNNKAN",
+  "training_alive": false,
+  "timestamp": "20260406112051.2",
+  "best_weights_file": "projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr45e5_c12k7d03/data\\CNNKANh8u6l6_e1k_lr45e5_c12k7d03_best_weights.h5",
+  "best_val_weights_file": "projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr45e5_c12k7d03/data\\CNNKANh8u6l6_e1k_lr45e5_c12k7d03_best_val_weights.h5",
+  "loss": 1.4763535261154175,
+  "val_loss": 1.5222214460372925,
+  "mae": 0.3430432677268982,
+  "afmae": 1.779416799545288,
+  "val_mae": 0.3410376310348511,
+  "val_afmae": 1.7657798528671265
+}
