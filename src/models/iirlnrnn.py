@@ -85,9 +85,9 @@ class IIR_LRNN:
             x_input, output_target, epochs=epochs, verbose=1)
         return history
 
-    def predict(self, x_input, batch_size=1000):
+    def predict(self, x_input, batch_size=1000, **kwargs):
         # 使用训练后的模型进行预测
-        y_pred = self.model.predict(x_input, batch_size=batch_size)
+        y_pred = self.model.predict(x_input, batch_size=batch_size, **kwargs)
         return y_pred
 
     def plot_weights(self):
@@ -313,10 +313,10 @@ class IIR_LNRNN_Compensator(IIR_LNRNN):
         self.model = tf.keras.Model(
             inputs=[input_estimate, real_output], outputs=h_n)
 
-    def predict(self, input_estimate, real_output, batch_size=1000):
+    def predict(self, input_estimate, real_output, batch_size=1000, **kwargs):
         # 使用补偿器模型进行预测
         y_pred = self.model.predict(
-            [input_estimate, real_output], batch_size=batch_size)
+            [input_estimate, real_output], batch_size=batch_size, **kwargs)
         return y_pred
 
     def time_response(self,

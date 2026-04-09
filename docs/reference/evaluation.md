@@ -26,10 +26,23 @@ python cli.py -e PROJECT_NAME
 
 - `compute_analysis.json`：单步推理计算量和平台加权耗时估算。
 - `model_info.json`：模型结构与参数信息。
+- `training_info.json`：训练摘要、权重来源以及训练/验证集 loss、MAE、AFMAE。
 - `linear_response.json`：频率响应对比使用的数据源。
+- `linearity_by_frequency.json`：按频点导出的线性度明细，供 `--metrics` 统一汇总使用。
 - `inference_baseline/`、`inference_c123/`：推理或评估阶段产生的结果目录。
 
 具体生成内容取决于项目 `config.json` 中启用的预测项。
+
+## 兼容性约定
+
+- `model_engine` 会通过 `self.model_comp.predict(..., verbose=0)` 计算评估指标，因此自定义模型包装类的 `predict()` 需要兼容并透传 Keras `predict()` 的额外参数，不要只保留固定签名。
+- 评估阶段在计算 MAE、AFMAE 前会将 `y_true` 和 `y_pred` 统一转换为 `float32`，避免旧项目或缩放器路径混入 `float64` 后触发 TensorFlow dtype 冲突。
+
+## 常见故障
+
+- 如果 `-e` 失败并报 `predict() got an unexpected keyword argument 'verbose'`，优先检查对应模型包装类的 `predict()` 是否支持 `**kwargs` 或显式支持 `verbose`。
+- 如果 `-e` 失败并报 `cannot compute Sub as input #1 was expected to be a double tensor but is a float tensor`，优先检查评估指标计算链上的输入/预测张量是否在进入 loss/metric 前统一为 `float32`。
+- 如果评估完成但 `metrics.json` 仍为 `partial`，通常表示 `linear_response.json`、`linearity_by_frequency.json` 或 `training_info.json` 未完整生成，应先重新执行 `python cli.py -e PROJECT_NAME`，再执行 `python cli.py --metrics PROJECT_NAME`。
 
 ## 终端输出指标
 
@@ -41,7 +54,7 @@ python cli.py -e PROJECT_NAME
 
 ## 相关命令
 
-- `python cli.py --metrics PROJECT_NAME`：从 `-e` 已生成的 `training_info.json`、`compute_analysis.json`、`linear_response.json` 中提取表格指标并导出 `metrics.json`。
+- `python cli.py --metrics PROJECT_NAME`：从 `-e` 已生成的 `training_info.json`、`compute_analysis.json`、`linear_response.json`、`linearity_by_frequency.json` 中按消融实验同口径提取统一指标并导出 `metrics.json`。
 - `python cli.py -m PROJECT_NAME`：只导出模型信息和计算量。
 - `python cli.py -i PROJECT_NAME`：只运行推理，不计算完整评估指标。
 - `python cli.py -a PROJECT_NAME`：在推理结果基础上做误差分析。

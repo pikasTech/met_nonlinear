@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Project, LinearityByFrequency, ProjectMetricsSummary } from '../types';
+import { Project, ProjectMetricsSummary } from '../types';
 import ChartView from './ChartView';
 import TableView from './TableView';
 
@@ -7,7 +7,6 @@ interface ProjectData {
   name: string;
   project: Project;
   data: {
-    linearity?: LinearityByFrequency;
     summary?: ProjectMetricsSummary;
   };
 }

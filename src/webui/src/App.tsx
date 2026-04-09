@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Project, LinearityByFrequency, ProjectMetricsSummary } from './types';
-import { fetchProjects, fetchLinearityByFrequency, fetchProjectMetricsSummary } from './api';
+import { Project, ProjectMetricsSummary } from './types';
+import { fetchProjects, fetchProjectMetricsSummary } from './api';
 import ProjectList from './components/ProjectList';
 import ComparisonView from './components/ComparisonView';
 import './App.css';
@@ -10,7 +10,7 @@ export default function App() {
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [projectData, setProjectData] = useState<Map<string, { linearity?: LinearityByFrequency; summary?: ProjectMetricsSummary }>>(new Map());
+  const [projectData, setProjectData] = useState<Map<string, { summary?: ProjectMetricsSummary }>>(new Map());
 
   useEffect(() => {
     fetchProjects()
@@ -21,15 +21,11 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const newData = new Map<string, { linearity?: LinearityByFrequency; summary?: ProjectMetricsSummary }>();
+      const newData = new Map<string, { summary?: ProjectMetricsSummary }>();
       for (const path of selectedProjects) {
         try {
-          const [linearity, summary] = await Promise.all([
-            fetchLinearityByFrequency(path).catch(() => null),
-            fetchProjectMetricsSummary(path).catch(() => null),
-          ]);
+          const summary = await fetchProjectMetricsSummary(path).catch(() => null);
           newData.set(path, {
-            linearity: linearity ?? undefined,
             summary: summary ?? undefined
           });
         } catch {

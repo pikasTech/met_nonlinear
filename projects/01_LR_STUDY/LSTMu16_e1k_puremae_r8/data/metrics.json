@@ -1,44 +1,109 @@
 {
   "project_name": "LSTMu16_e1k_puremae_r8",
-  "generated_at": "2026-04-09T23:48:48.824530+08:00",
-  "status": "partial",
+  "generated_at": "2026-04-10T00:55:37.469741+08:00",
+  "status": "complete",
+  "calculation_standard": "ablation-study-v1",
   "sources": {
-    "training_info": false,
-    "compute_analysis": false,
+    "training_info": true,
+    "compute_analysis": true,
     "model_info": true,
-    "linear_response": false
+    "linear_response": true,
+    "linearity_by_frequency": true
   },
-  "missing_sources": [
-    "training_info.json",
-    "compute_analysis.json",
-    "linear_response.json"
-  ],
+  "missing_sources": [],
   "missing_sections": [],
-  "epochs": null,
-  "min_loss": null,
-  "min_val_loss": null,
-  "train_loss": null,
-  "val_loss": null,
-  "train_mae": null,
-  "train_afmae": null,
-  "val_mae": null,
-  "val_afmae": null,
-  "weights_source": null,
-  "freq_drift_hz": null,
-  "sens_drift_percent": null,
-  "linearity_percent": null,
-  "compute_cost": null,
+  "epochs": 919,
+  "min_loss": 0.0081376,
+  "min_val_loss": 0.0080591,
+  "train_loss": 0.008076362311840057,
+  "val_loss": 0.00805904995650053,
+  "train_mae": 0.09552571177482605,
+  "train_afmae": 0.7585120797157288,
+  "val_mae": 0.09617600589990616,
+  "val_afmae": 0.7597328424453735,
+  "weights_source": "best_val",
+  "freq_drift_hz": 5.593376063724275,
+  "sens_drift_percent": 16.38269555898534,
+  "linearity_percent": 0.5652529911445666,
+  "compute_cost": 3360.0,
   "total_params": 1441,
+  "metric_details": {
+    "natural_frequency_drift": {
+      "min": 29.096227734827036,
+      "max": 35.80657990396502,
+      "median": 34.68960379855131,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_comped",
+      "drift": 5.593376063724275
+    },
+    "sensitivity_drift": {
+      "min": 47.37986188024169,
+      "max": 67.90092525917889,
+      "median": 63.76255743922703,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+      "drift": 16.38269555898534,
+      "frequency_hz": 100.0
+    },
+    "linearity": {
+      "mean": 0.5652529911445666,
+      "max": 2.7074592227373517,
+      "min": 0.12186749627858262,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    },
+    "natural_frequency_drift_origin": {
+      "min": 34.24511188160566,
+      "max": 93.39109038646993,
+      "median": 58.89345106524416,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_origin",
+      "drift": 34.49763932122577
+    },
+    "sensitivity_drift_origin": {
+      "min": 60.001934754356135,
+      "max": 203.37127543336493,
+      "median": 144.5628340451216,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+      "drift": 84.56089929076546,
+      "frequency_hz": 100.0
+    },
+    "linearity_origin": {
+      "mean": 2.5499568401843997,
+      "max": 6.418887454843169,
+      "min": 0.359242046082775,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    }
+  },
+  "compute_details": {
+    "total_params": 1441,
+    "additions": 1376,
+    "multiplications": 1408,
+    "maps": 96,
+    "total_ops": 2880,
+    "weighted_total": 3360.0,
+    "weighted_additions": 1376.0,
+    "weighted_multiplications": 1408.0,
+    "weighted_maps": 576.0
+  },
   "display_metrics": {
-    "TRAIN_MAE": null,
-    "TRAIN_AFMAE": null,
-    "VAL_MAE": null,
-    "VAL_AFMAE": null,
-    "Freq Drift (Hz)": null,
-    "Sens Drift (%)": null,
-    "Linearity (%)": null,
-    "Compute Cost": null,
+    "TRAIN_MAE": 0.09552571177482605,
+    "TRAIN_AFMAE": 0.7585120797157288,
+    "VAL_MAE": 0.09617600589990616,
+    "VAL_AFMAE": 0.7597328424453735,
+    "Freq Drift (Hz)": 5.593376063724275,
+    "Sens Drift (%)": 16.38269555898534,
+    "Linearity (%)": 0.5652529911445666,
+    "Compute Cost": 3360.0,
     "Total Params": 1441,
-    "Epochs": null
+    "Epochs": 919
   }
 }

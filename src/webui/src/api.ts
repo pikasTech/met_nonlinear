@@ -1,4 +1,4 @@
-import { Project, ProjectsResponse, TrainingInfo, ModelInfo, ComputeAnalysis, LinearityByFrequency, ProjectMetricsSummary } from './types';
+import { Project, ProjectsResponse, TrainingInfo, ModelInfo, ComputeAnalysis, ProjectMetricsSummary } from './types';
 
 const API_BASE = '/api';
 
@@ -27,10 +27,6 @@ export async function fetchModelInfo(projectName: string): Promise<ModelInfo> {
 
 export async function fetchComputeAnalysis(projectName: string): Promise<ComputeAnalysis> {
   return fetchProjectData<ComputeAnalysis>(projectName, 'compute_analysis.json');
-}
-
-export async function fetchLinearityByFrequency(projectName: string): Promise<LinearityByFrequency> {
-  return fetchProjectData<LinearityByFrequency>(projectName, 'linearity_by_frequency.json');
 }
 
 export async function fetchProjectMetricsSummary(projectName: string): Promise<ProjectMetricsSummary> {

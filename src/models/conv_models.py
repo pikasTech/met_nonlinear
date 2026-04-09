@@ -265,7 +265,7 @@ class RVTDCNN(LSTM):
         return self.model.fit(*args, **kwargs)
 
     def predict(self, x_input, batch_size=1000*10, use_debug=False,
-                use_scaler=True):
+                use_scaler=True, **kwargs):
         """
         使用模型进行预测
 
@@ -274,6 +274,7 @@ class RVTDCNN(LSTM):
             batch_size: 批次大小
             use_debug: 是否开启调试模式
             use_scaler: 是否使用归一化
+            **kwargs: 透传到底层 Keras predict 的额外参数，例如 verbose
 
         Returns:
             预测结果，形状为 (B, T, 1)
@@ -298,8 +299,9 @@ class RVTDCNN(LSTM):
         T = x_input.shape[1]
         # adjust batchsize
         batch_size = batch_size * T
+        verbose = kwargs.pop('verbose', 1)
         y_pred = self.model.predict(
-            x_images, batch_size=batch_size, verbose=1)  # (B * T, 1)
+            x_images, batch_size=batch_size, verbose=verbose, **kwargs)  # (B * T, 1)
         # reshape to (B, T, 1)
         y_pred = y_pred.reshape(-1, T, 1)
 

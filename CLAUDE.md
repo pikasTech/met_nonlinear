@@ -57,11 +57,14 @@
 
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
+	- 兼容性约定：自定义模型包装类的 `predict()` 需兼容 Keras `verbose` 等参数，评估指标按 `float32` 口径计算以避免 dtype 冲突，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
 - `python cli.py --metrics PROJECT_NAME`
-	- 指标提取：从 `-e` 已生成的评估产物提取表格指标并导出 `metrics.json`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 指标提取：统一按消融实验口径计算 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 并导出 `metrics.json`，其他模块只读取该文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+- `python cli.py --metrics --all-projects`
+	- 批量重算指标：递归遍历 `projects/` 下所有项目并全量重算统一指标文件 `metrics.json`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py --metrics --all-projects --missing-only`
-	- 批量补齐指标：递归遍历 `projects/` 下所有项目，只为缺失 `metrics.json` 的项目补生成指标文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 缺失补齐：仅为缺失 `metrics.json` 的项目补生成统一指标文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py -m PROJECT_NAME`
 	- 模型结构导出：导出模型结构、参数和配置信息，详见 [docs/reference/model_info.md](docs/reference/model_info.md)。
 	- 计算量估算：同步生成模型的计算量分析结果，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。

@@ -60,7 +60,7 @@ class BaseModel:
     def __init__(self):
         self.use_fast_model = False
 
-    def predict(self, x_input, batch_size=1000*10, use_debug=False, use_scaler=True):
+    def predict(self, x_input, batch_size=1000*10, use_debug=False, use_scaler=True, **kwargs):
         """
         使用模型进行预测
 
@@ -69,6 +69,7 @@ class BaseModel:
             batch_size: 批处理大小
             use_debug: 是否启用调试
             use_scaler: 是否使用缩放
+            **kwargs: 透传到底层 Keras predict 的额外参数，例如 verbose
 
         Returns:
             预测结果
@@ -88,14 +89,15 @@ class BaseModel:
             print(
                 f'{self.model_name} predict x_range(scaled): {x_input.min()} to {x_input.max()}')
             print(f'{self.model_name} predict x shape: {x_input.shape}')
+        verbose = kwargs.pop('verbose', 1)
         if 'fast_model' in dir(self):
             print(f'Using fast model to predict')
             iir_out = self.fast_iir(x_input)
             y_pred = self.fast_model.predict(
-                iir_out, batch_size=batch_size, verbose=1)
+                iir_out, batch_size=batch_size, verbose=verbose, **kwargs)
         else:
             y_pred = self.model.predict(
-                x_input, batch_size=batch_size, verbose=1)
+                x_input, batch_size=batch_size, verbose=verbose, **kwargs)
         if use_debug:
             print(f'{self.model_name} predict y shape: {y_pred.shape}')
             plt.figure(figsize=(12, 8))

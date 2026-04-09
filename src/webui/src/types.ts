@@ -6,7 +6,6 @@ export interface Project {
   hasLinearResponse: boolean;
   hasModelInfo: boolean;
   hasComputeAnalysis: boolean;
-  hasLinearityByFrequency: boolean;
   hasMetricsSummary?: boolean;
 }
 
@@ -66,15 +65,6 @@ export interface LinearResponseData {
   gains_origin?: number[][];
   gains_compensated?: number[][];
   frequencies?: number[];
-}
-
-export interface LinearityByFrequency {
-  linearity_by_frequency: Array<{
-    frequency_hz: number;
-    r_squared_origin: number;
-    r_squared_comped: number;
-    improvement: number;
-  }>;
 }
 
 export interface DriftMetrics {

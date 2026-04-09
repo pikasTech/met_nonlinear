@@ -436,7 +436,7 @@ def predict_and_plot(model, input_data, output_data, start_s, view_length_s, fre
     # 只对需要绘制的部分数据进行预测
     logger.info("Predicting...")
     logger.info(f"Test data shape: {test_X.shape}, {test_Y.shape}")
-    predected_Y = model.predict(test_X, verbose=1, batch_size=128*128)
+    predected_Y = model.predict(test_X, batch_size=128*128)
 
     plt.plot(input_data[start_index:end_index], label='Input')
     plt.plot(test_Y, label='True')

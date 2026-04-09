@@ -638,8 +638,8 @@ class ModelEngine:
             batch_size=self.batch_size,
             verbose=0
         )
-        y_true = tf.convert_to_tensor(y_data)
-        y_pred = tf.convert_to_tensor(predictions)
+        y_true = tf.cast(tf.convert_to_tensor(y_data), tf.float32)
+        y_pred = tf.cast(tf.convert_to_tensor(predictions), tf.float32)
         mae = float(pure_mae_metric(y_true, y_pred).numpy())
         afmae = float(power_log_loss(y_true, y_pred).numpy())
         return mae, afmae

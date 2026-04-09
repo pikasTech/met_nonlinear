@@ -1,44 +1,109 @@
 {
   "project_name": "FRIKANh6u6l6_e1k_5",
-  "generated_at": "2026-04-09T23:48:48.406288+08:00",
-  "status": "partial",
+  "generated_at": "2026-04-10T00:43:01.213162+08:00",
+  "status": "complete",
+  "calculation_standard": "ablation-study-v1",
   "sources": {
-    "training_info": false,
-    "compute_analysis": false,
+    "training_info": true,
+    "compute_analysis": true,
     "model_info": true,
-    "linear_response": false
+    "linear_response": true,
+    "linearity_by_frequency": true
   },
-  "missing_sources": [
-    "training_info.json",
-    "compute_analysis.json",
-    "linear_response.json"
-  ],
+  "missing_sources": [],
   "missing_sections": [],
-  "epochs": null,
-  "min_loss": null,
-  "min_val_loss": null,
-  "train_loss": null,
-  "val_loss": null,
-  "train_mae": null,
-  "train_afmae": null,
-  "val_mae": null,
-  "val_afmae": null,
-  "weights_source": null,
-  "freq_drift_hz": null,
-  "sens_drift_percent": null,
-  "linearity_percent": null,
-  "compute_cost": null,
+  "epochs": 32,
+  "min_loss": 1.6196,
+  "min_val_loss": 1.6649,
+  "train_loss": 1.6132383346557617,
+  "val_loss": 1.6648575067520142,
+  "train_mae": 0.36307960748672485,
+  "train_afmae": 1.9410991668701172,
+  "val_mae": 0.3617101311683655,
+  "val_afmae": 1.933287262916565,
+  "weights_source": "best_val",
+  "freq_drift_hz": 757484.6683772157,
+  "sens_drift_percent": 6081.869616621712,
+  "linearity_percent": 69.95723396536687,
+  "compute_cost": 1608.0,
   "total_params": 2401,
+  "metric_details": {
+    "natural_frequency_drift": {
+      "min": 236.69860859099603,
+      "max": 1357329.0781720094,
+      "median": 757721.3669858067,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_comped",
+      "drift": 757484.6683772157
+    },
+    "sensitivity_drift": {
+      "min": 298.57959093830436,
+      "max": 6635.74954870858,
+      "median": 553.8799320868676,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+      "drift": 6081.869616621712,
+      "frequency_hz": 100.0
+    },
+    "linearity": {
+      "mean": 69.95723396536687,
+      "max": 99.60087272182602,
+      "min": 29.35715437209887,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    },
+    "natural_frequency_drift_origin": {
+      "min": 34.24511188160566,
+      "max": 93.39109038646993,
+      "median": 58.89345106524416,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_origin",
+      "drift": 34.49763932122577
+    },
+    "sensitivity_drift_origin": {
+      "min": 60.001934754356135,
+      "max": 203.37127543336493,
+      "median": 144.5628340451216,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+      "drift": 84.56089929076546,
+      "frequency_hz": 100.0
+    },
+    "linearity_origin": {
+      "mean": 2.5499568401843997,
+      "max": 6.418887454843169,
+      "min": 0.359242046082775,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    }
+  },
+  "compute_details": {
+    "total_params": 2401,
+    "additions": 246,
+    "multiplications": 30,
+    "maps": 222,
+    "total_ops": 498,
+    "weighted_total": 1608.0,
+    "weighted_additions": 246.0,
+    "weighted_multiplications": 30.0,
+    "weighted_maps": 1332.0
+  },
   "display_metrics": {
-    "TRAIN_MAE": null,
-    "TRAIN_AFMAE": null,
-    "VAL_MAE": null,
-    "VAL_AFMAE": null,
-    "Freq Drift (Hz)": null,
-    "Sens Drift (%)": null,
-    "Linearity (%)": null,
-    "Compute Cost": null,
+    "TRAIN_MAE": 0.36307960748672485,
+    "TRAIN_AFMAE": 1.9410991668701172,
+    "VAL_MAE": 0.3617101311683655,
+    "VAL_AFMAE": 1.933287262916565,
+    "Freq Drift (Hz)": 757484.6683772157,
+    "Sens Drift (%)": 6081.869616621712,
+    "Linearity (%)": 69.95723396536687,
+    "Compute Cost": 1608.0,
     "Total Params": 2401,
-    "Epochs": null
+    "Epochs": 32
   }
 }

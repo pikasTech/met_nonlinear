@@ -39,10 +39,10 @@ python cli.py server start
 如果要给仓库里的旧项目批量补齐指标文件，推荐先执行：
 
 ```bash
-python cli.py --metrics --all-projects --missing-only
+python cli.py --metrics --all-projects
 ```
 
-该命令会递归扫描 `projects/` 下所有真实项目目录，并只补生成缺失的 `metrics.json`。
+该命令会递归扫描 `projects/` 下所有真实项目目录，并全量重算 `metrics.json`。
 
 ## 服务管理命令
 
@@ -75,7 +75,6 @@ GET /api/projects
       "hasLinearResponse": true,
       "hasModelInfo": true,
       "hasComputeAnalysis": true,
-      "hasLinearityByFrequency": true,
       "hasMetricsSummary": true
     }
   ],
@@ -91,10 +90,9 @@ GET /api/projects/{name}/data/{filename}
 
 获取指定项目的 `data/` 目录下的 JSON 文件，如 `training_info.json`、`model_info.json` 等。
 
-对于新的汇总链路，前端优先读取：
+对于统一指标链路，前端只读取：
 
-- `metrics.json`：表格视图和部分摘要图表的统一指标来源
-- `linearity_by_frequency.json`：R² 频点曲线和 improvement 图仍使用该文件
+- `metrics.json`：表格视图、图表视图和摘要指标的统一来源
 
 ## 前端功能
 
@@ -105,7 +103,7 @@ GET /api/projects/{name}/data/{filename}
 
 ### 多项目对比
 - 支持多选项目进行横向对比
-- **图表视图**：R² 曲线继续读取 `linearity_by_frequency.json`，评估指标和计算成本摘要优先读取 `metrics.json`
+- **图表视图**：直接读取 `metrics.json`，展示统一漂移指标、计算量与评估指标
 - **表格视图**：直接读取 `metrics.json`，支持筛选、排序（TanStack Table）
 
 ## 开发命令

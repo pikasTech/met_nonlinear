@@ -40,7 +40,6 @@ app.get('/api/projects', (_req, res) => {
               hasLinearResponse: fs.existsSync(path.join(dataDir, 'linear_response.json')),
               hasModelInfo: fs.existsSync(path.join(dataDir, 'model_info.json')),
               hasComputeAnalysis: fs.existsSync(path.join(dataDir, 'compute_analysis.json')),
-              hasLinearityByFrequency: fs.existsSync(path.join(dataDir, 'linearity_by_frequency.json')),
               hasMetricsSummary: fs.existsSync(path.join(dataDir, 'metrics.json')),
             });
           } catch (e) {

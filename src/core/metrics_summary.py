@@ -34,94 +34,194 @@ def _to_int(value: Any) -> Optional[int]:
         return None
 
 
-def _compute_drift_metrics(linear_response: Optional[Dict[str, Any]]) -> Dict[str, Optional[float]]:
+def _calculate_median(values: List[float]) -> Optional[float]:
+    if not values:
+        return None
+    sorted_values = sorted(values)
+    middle = len(sorted_values) // 2
+    if len(sorted_values) % 2 == 1:
+        return sorted_values[middle]
+    return (sorted_values[middle - 1] + sorted_values[middle]) / 2.0
+
+
+def _calculate_drift(metric: Dict[str, float]) -> float:
+    median = metric['median']
+    return max(abs(metric['max'] - median), abs(median - metric['min']))
+
+
+def _build_distribution_metric(
+    values: List[float],
+    unit: str,
+    method: str,
+    extra: Optional[Dict[str, Any]] = None,
+) -> Optional[Dict[str, Any]]:
+    if not values:
+        return None
+
+    metric: Dict[str, Any] = {
+        'min': min(values),
+        'max': max(values),
+        'median': _calculate_median(values),
+        'count': len(values),
+        'unit': unit,
+        'method': method,
+    }
+    if metric['median'] is None:
+        return None
+
+    metric['drift'] = _calculate_drift(metric)
+    if extra:
+        metric.update(extra)
+    return metric
+
+
+def _interpolate_value(x_values: List[float], y_values: List[float], target_x: float) -> Optional[float]:
+    if len(x_values) != len(y_values) or not x_values:
+        return None
+    if len(x_values) == 1:
+        return y_values[0]
+    if target_x <= x_values[0]:
+        return y_values[0]
+    if target_x >= x_values[-1]:
+        return y_values[-1]
+
+    for idx in range(1, len(x_values)):
+        left_x = x_values[idx - 1]
+        right_x = x_values[idx]
+        if target_x <= right_x:
+            left_y = y_values[idx - 1]
+            right_y = y_values[idx]
+            if right_x == left_x:
+                return right_y
+            ratio = (target_x - left_x) / (right_x - left_x)
+            return left_y + ratio * (right_y - left_y)
+    return y_values[-1]
+
+
+def _extract_natural_frequency_values(
+    linear_response: Optional[Dict[str, Any]],
+    use_origin: bool,
+) -> List[float]:
     if not linear_response:
-        return {
-            'freq_drift_hz': None,
-            'sens_drift_percent': None,
-            'linearity_percent': None,
-        }
+        return []
 
-    gains_origin = linear_response.get('gains_origin')
-    gains_comped = linear_response.get('gains_comped') or linear_response.get('gains_compensated')
-    frequencies = linear_response.get('frequencies')
+    fit_params_key = 'fit_params_origin' if use_origin else 'fit_params_comped'
+    fit_params = linear_response.get(fit_params_key) or []
+    values: List[float] = []
+    for params in fit_params:
+        if not isinstance(params, list) or len(params) < 3:
+            continue
+        b_value = _to_float(params[1])
+        if b_value is None or b_value <= 0:
+            continue
+        values.append(math.sqrt(b_value) / (2.0 * math.pi))
+    return values
 
-    if not gains_origin or not gains_comped or not frequencies:
-        return {
-            'freq_drift_hz': None,
-            'sens_drift_percent': None,
-            'linearity_percent': None,
-        }
 
-    num_freqs = len(frequencies)
-    num_mags = len(gains_origin)
-    if num_freqs == 0 or num_mags == 0:
-        return {
-            'freq_drift_hz': None,
-            'sens_drift_percent': None,
-            'linearity_percent': None,
-        }
+def _extract_sensitivity_values(
+    linear_response: Optional[Dict[str, Any]],
+    use_origin: bool,
+    frequency_hz: float,
+) -> List[float]:
+    if not linear_response:
+        return []
 
-    mean_gain_origin: List[float] = []
-    mean_gain_comped: List[float] = []
-    for freq_idx in range(num_freqs):
-        origin_sum = 0.0
-        comped_sum = 0.0
-        for mag_idx in range(num_mags):
-            origin_sum += float(gains_origin[mag_idx][freq_idx])
-            comped_sum += float(gains_comped[mag_idx][freq_idx])
-        mean_gain_origin.append(origin_sum / num_mags)
-        mean_gain_comped.append(comped_sum / num_mags)
+    frequencies_raw = linear_response.get('frequencies') or []
+    gain_key = 'gains_origin' if use_origin else 'gains_comped'
+    gains_raw = linear_response.get(gain_key) or linear_response.get('gains_compensated') or []
 
-    peak_idx_origin = max(range(num_freqs), key=lambda idx: mean_gain_origin[idx])
-    peak_idx_comped = max(range(num_freqs), key=lambda idx: mean_gain_comped[idx])
-    peak_freq_origin = float(frequencies[peak_idx_origin])
-    peak_freq_comped = float(frequencies[peak_idx_comped])
-    freq_drift = abs(peak_freq_comped - peak_freq_origin)
+    frequencies = [_to_float(freq) for freq in frequencies_raw]
+    if any(freq is None for freq in frequencies):
+        return []
 
-    window_size = 3
-    origin_region = mean_gain_origin[
-        max(0, peak_idx_origin - window_size): min(num_freqs, peak_idx_origin + window_size + 1)
-    ]
-    comped_region = mean_gain_comped[
-        max(0, peak_idx_comped - window_size): min(num_freqs, peak_idx_comped + window_size + 1)
-    ]
+    values: List[float] = []
+    for gain_curve in gains_raw:
+        if not isinstance(gain_curve, list):
+            continue
+        gain_values = [_to_float(value) for value in gain_curve]
+        if any(value is None for value in gain_values):
+            continue
+        if len(gain_values) != len(frequencies):
+            continue
+        interpolated = _interpolate_value(frequencies, gain_values, frequency_hz)
+        if interpolated is not None:
+            values.append(interpolated)
+    return values
 
-    avg_origin = sum(origin_region) / len(origin_region) if origin_region else 0.0
-    avg_comped = sum(comped_region) / len(comped_region) if comped_region else 0.0
-    sens_drift = abs((avg_comped - avg_origin) / avg_origin) * 100.0 if avg_origin > 0 else 0.0
 
-    if num_freqs < 2:
-        return {
-            'freq_drift_hz': freq_drift,
-            'sens_drift_percent': sens_drift,
-            'linearity_percent': None,
-        }
+def _extract_linearity_values(
+    linearity_by_frequency: Optional[Dict[str, Any]],
+    use_origin: bool,
+) -> List[float]:
+    if not linearity_by_frequency:
+        return []
 
-    log_freq = [math.log10(float(freq)) for freq in frequencies]
-    log_gain = [math.log10(max(float(gain), 0.001)) for gain in mean_gain_comped]
-    count = len(log_freq)
-    sum_x = sum(log_freq)
-    sum_y = sum(log_gain)
-    sum_xy = sum(x * y for x, y in zip(log_freq, log_gain))
-    sum_x2 = sum(x * x for x in log_freq)
-    denominator = count * sum_x2 - sum_x * sum_x
-    if denominator == 0:
-        linearity = None
-    else:
-        slope = (count * sum_xy - sum_x * sum_y) / denominator
-        intercept = (sum_y - slope * sum_x) / count
-        predicted = [slope * x + intercept for x in log_freq]
-        ss_res = sum((y - pred) ** 2 for y, pred in zip(log_gain, predicted))
-        mean_y = sum_y / count
-        ss_tot = sum((y - mean_y) ** 2 for y in log_gain)
-        r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0.0
-        linearity = max(0.0, min(100.0, r_squared * 100.0))
+    key = 'r_squared_origin' if use_origin else 'r_squared_comped'
+    values: List[float] = []
+    for item in linearity_by_frequency.get('linearity_by_frequency') or []:
+        if not isinstance(item, dict):
+            continue
+        r_squared = _to_float(item.get(key))
+        if r_squared is None:
+            continue
+        values.append(1.0 - r_squared)
+    return values
+
+
+def _build_linearity_metric(
+    linearity_by_frequency: Optional[Dict[str, Any]],
+    use_origin: bool,
+) -> Optional[Dict[str, Any]]:
+    nonlinearity_values = _extract_linearity_values(linearity_by_frequency, use_origin)
+    if not nonlinearity_values:
+        return None
+
+    mean_value = sum(nonlinearity_values) / len(nonlinearity_values)
+    return {
+        'mean': mean_value * 100.0,
+        'max': max(nonlinearity_values) * 100.0,
+        'min': min(nonlinearity_values) * 100.0,
+        'count': len(nonlinearity_values),
+        'unit': '%',
+        'method': 'mean(1 - R^2) across frequency points',
+    }
+
+
+def _build_metric_details(
+    linear_response: Optional[Dict[str, Any]],
+    linearity_by_frequency: Optional[Dict[str, Any]],
+    sensitivity_frequency_hz: float = 100.0,
+) -> Dict[str, Optional[Dict[str, Any]]]:
+    natural_frequency_drift = _build_distribution_metric(
+        _extract_natural_frequency_values(linear_response, use_origin=False),
+        unit='Hz',
+        method='max(|max-median|, |median-min|) from fn_comped',
+    )
+    natural_frequency_drift_origin = _build_distribution_metric(
+        _extract_natural_frequency_values(linear_response, use_origin=True),
+        unit='Hz',
+        method='max(|max-median|, |median-min|) from fn_origin',
+    )
+    sensitivity_drift = _build_distribution_metric(
+        _extract_sensitivity_values(linear_response, use_origin=False, frequency_hz=sensitivity_frequency_hz),
+        unit='%',
+        method='max(|max-median|, |median-min|) from interpolated sensitivity',
+        extra={'frequency_hz': sensitivity_frequency_hz},
+    )
+    sensitivity_drift_origin = _build_distribution_metric(
+        _extract_sensitivity_values(linear_response, use_origin=True, frequency_hz=sensitivity_frequency_hz),
+        unit='%',
+        method='max(|max-median|, |median-min|) from interpolated origin sensitivity',
+        extra={'frequency_hz': sensitivity_frequency_hz},
+    )
 
     return {
-        'freq_drift_hz': freq_drift,
-        'sens_drift_percent': sens_drift,
-        'linearity_percent': linearity,
+        'natural_frequency_drift': natural_frequency_drift,
+        'sensitivity_drift': sensitivity_drift,
+        'linearity': _build_linearity_metric(linearity_by_frequency, use_origin=False),
+        'natural_frequency_drift_origin': natural_frequency_drift_origin,
+        'sensitivity_drift_origin': sensitivity_drift_origin,
+        'linearity_origin': _build_linearity_metric(linearity_by_frequency, use_origin=True),
     }
 
 
@@ -130,11 +230,13 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
     compute_analysis_path = os.path.join(checkpoint_dir, 'compute_analysis.json')
     model_info_path = os.path.join(checkpoint_dir, 'model_info.json')
     linear_response_path = os.path.join(checkpoint_dir, 'linear_response.json')
+    linearity_by_frequency_path = os.path.join(checkpoint_dir, 'linearity_by_frequency.json')
 
     training_info = _load_json_if_exists(training_info_path)
     compute_analysis = _load_json_if_exists(compute_analysis_path)
     model_info = _load_json_if_exists(model_info_path)
     linear_response = _load_json_if_exists(linear_response_path)
+    linearity_by_frequency = _load_json_if_exists(linearity_by_frequency_path)
 
     missing_sources: List[str] = []
     missing_sections: List[str] = []
@@ -142,6 +244,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         ('training_info.json', training_info),
         ('compute_analysis.json', compute_analysis),
         ('linear_response.json', linear_response),
+        ('linearity_by_frequency.json', linearity_by_frequency),
     ):
         if data is None:
             missing_sources.append(name)
@@ -150,9 +253,21 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
     if training_info is not None and not evaluation_metrics:
         missing_sections.append('training_info.evaluation_metrics')
 
-    drift_metrics = _compute_drift_metrics(linear_response)
-    if linear_response is not None and all(value is None for value in drift_metrics.values()):
-        missing_sections.append('linear_response.derived_metrics')
+    metric_details = _build_metric_details(linear_response, linearity_by_frequency)
+    if linear_response is not None:
+        if metric_details['natural_frequency_drift'] is None:
+            missing_sections.append('linear_response.fit_params_comped')
+        if metric_details['natural_frequency_drift_origin'] is None:
+            missing_sections.append('linear_response.fit_params_origin')
+        if metric_details['sensitivity_drift'] is None:
+            missing_sections.append('linear_response.gains_comped_or_frequencies')
+        if metric_details['sensitivity_drift_origin'] is None:
+            missing_sections.append('linear_response.gains_origin_or_frequencies')
+    if linearity_by_frequency is not None:
+        if metric_details['linearity'] is None:
+            missing_sections.append('linearity_by_frequency.r_squared_comped')
+        if metric_details['linearity_origin'] is None:
+            missing_sections.append('linearity_by_frequency.r_squared_origin')
 
     total_params = None
     if compute_analysis is not None:
@@ -168,15 +283,33 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
             .get('total')
         )
 
+    compute_details = None
+    if compute_analysis is not None:
+        totals = compute_analysis.get('totals') or {}
+        weighted_units = compute_analysis.get('estimated_cost', {}).get('weighted_units', {})
+        compute_details = {
+            'total_params': total_params,
+            'additions': _to_int(totals.get('additions')),
+            'multiplications': _to_int(totals.get('multiplications')),
+            'maps': _to_int(totals.get('maps')),
+            'total_ops': _to_int(totals.get('total')),
+            'weighted_total': _to_float(weighted_units.get('total')),
+            'weighted_additions': _to_float(weighted_units.get('additions')),
+            'weighted_multiplications': _to_float(weighted_units.get('multiplications')),
+            'weighted_maps': _to_float(weighted_units.get('maps')),
+        }
+
     summary: Dict[str, Any] = {
         'project_name': project_name,
         'generated_at': datetime.now().astimezone().isoformat(),
         'status': 'complete',
+        'calculation_standard': 'ablation-study-v1',
         'sources': {
             'training_info': training_info is not None,
             'compute_analysis': compute_analysis is not None,
             'model_info': model_info is not None,
             'linear_response': linear_response is not None,
+            'linearity_by_frequency': linearity_by_frequency is not None,
         },
         'missing_sources': missing_sources,
         'missing_sections': missing_sections,
@@ -190,11 +323,13 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'val_mae': _to_float(evaluation_metrics.get('val_mae')),
         'val_afmae': _to_float(evaluation_metrics.get('val_afmae')),
         'weights_source': evaluation_metrics.get('weights_source'),
-        'freq_drift_hz': drift_metrics['freq_drift_hz'],
-        'sens_drift_percent': drift_metrics['sens_drift_percent'],
-        'linearity_percent': drift_metrics['linearity_percent'],
+        'freq_drift_hz': (metric_details['natural_frequency_drift'] or {}).get('drift'),
+        'sens_drift_percent': (metric_details['sensitivity_drift'] or {}).get('drift'),
+        'linearity_percent': (metric_details['linearity'] or {}).get('mean'),
         'compute_cost': compute_cost,
         'total_params': total_params,
+        'metric_details': metric_details,
+        'compute_details': compute_details,
     }
 
     summary['display_metrics'] = {

@@ -4,6 +4,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 # Add src to path
 _SRC_DIR = Path(__file__).parent.parent.parent
 if str(_SRC_DIR) not in sys.path:
@@ -32,21 +34,56 @@ def test_build_project_metrics_summary_complete(tmp_path):
     }), encoding='utf-8')
     (checkpoint_dir / 'compute_analysis.json').write_text(json.dumps({
         'total_params': 4567,
+        'totals': {
+            'additions': 11,
+            'multiplications': 22,
+            'maps': 33,
+            'total': 66,
+        },
         'estimated_cost': {
             'weighted_units': {
                 'total': 9876.5,
+                'additions': 1.5,
+                'multiplications': 2.5,
+                'maps': 3.5,
             },
         },
     }), encoding='utf-8')
     (checkpoint_dir / 'linear_response.json').write_text(json.dumps({
-        'frequencies': [10, 20, 40, 80],
+        'frequencies': [50, 100, 150],
         'gains_origin': [
-            [1, 2, 4, 8],
-            [1, 2, 4, 8],
+            [1, 2.0, 3],
+            [1, 2.0, 3],
+            [1, 2.0, 3],
         ],
         'gains_comped': [
-            [1, 2, 4, 8],
-            [1, 2, 4, 8],
+            [1, 2.0, 3],
+            [1, 2.5, 3],
+            [1, 1.5, 3],
+        ],
+        'fit_params_origin': [
+            [1, (2 * 3.141592653589793 * 9) ** 2, 1],
+            [1, (2 * 3.141592653589793 * 11) ** 2, 1],
+            [1, (2 * 3.141592653589793 * 13) ** 2, 1],
+        ],
+        'fit_params_comped': [
+            [1, (2 * 3.141592653589793 * 10) ** 2, 1],
+            [1, (2 * 3.141592653589793 * 12) ** 2, 1],
+            [1, (2 * 3.141592653589793 * 14) ** 2, 1],
+        ],
+    }), encoding='utf-8')
+    (checkpoint_dir / 'linearity_by_frequency.json').write_text(json.dumps({
+        'linearity_by_frequency': [
+            {
+                'frequency_hz': 50,
+                'r_squared_origin': 0.80,
+                'r_squared_comped': 0.90,
+            },
+            {
+                'frequency_hz': 100,
+                'r_squared_origin': 0.85,
+                'r_squared_comped': 0.95,
+            },
         ],
     }), encoding='utf-8')
 
@@ -61,9 +98,12 @@ def test_build_project_metrics_summary_complete(tmp_path):
     assert summary['val_afmae'] == 0.52
     assert summary['compute_cost'] == 9876.5
     assert summary['total_params'] == 4567
-    assert summary['freq_drift_hz'] == 0.0
-    assert summary['sens_drift_percent'] == 0.0
-    assert summary['linearity_percent'] == 100.0
+    assert summary['freq_drift_hz'] == pytest.approx(2.0)
+    assert summary['sens_drift_percent'] == pytest.approx(0.5)
+    assert summary['linearity_percent'] == pytest.approx(7.5)
+    assert summary['metric_details']['natural_frequency_drift']['median'] == pytest.approx(12.0)
+    assert summary['metric_details']['linearity']['max'] == pytest.approx(10.0)
+    assert summary['compute_details']['weighted_maps'] == 3.5
     assert summary['display_metrics']['TRAIN_MAE'] == 0.41
 
 
@@ -83,5 +123,6 @@ def test_save_project_metrics_summary_partial(tmp_path):
     assert summary['status'] == 'partial'
     assert 'compute_analysis.json' in summary['missing_sources']
     assert 'linear_response.json' in summary['missing_sources']
+    assert 'linearity_by_frequency.json' in summary['missing_sources']
     assert 'training_info.evaluation_metrics' in summary['missing_sections']
     assert output_path.exists()

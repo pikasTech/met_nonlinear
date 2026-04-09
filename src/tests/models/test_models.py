@@ -2550,6 +2550,18 @@ class TestBaseModelPredict:
 
         assert result is not None
 
+    def test_predict_accepts_verbose_kwarg(self, base_model_with_mock):
+        """Test predict method accepts Keras kwargs like verbose."""
+        import numpy as np
+
+        x_input = np.random.randn(2, 20, 1).astype(np.float32)
+
+        result = base_model_with_mock.predict(
+            x_input, use_scaler=False, verbose=0)
+
+        assert result is not None
+        assert result.shape == x_input.shape
+
     def test_predict_with_debug(self, base_model_with_mock, tmp_path):
         """Test predict method with debug enabled."""
         import numpy as np

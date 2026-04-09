@@ -53,7 +53,10 @@ pytest src/analysis/tests/test_analysis_comprehensive.py -v
 pytest src/analysis/tests/test_analysis_comprehensive.py::TestAliasSuppression::test_module_import -v
 pytest -k "test_module_import"
 pytest -m "not slow"
+pytest src/tests/models/test_models.py -k "predict_accepts_verbose_kwarg" -v
 ```
+
+其中 `predict_accepts_verbose_kwarg` 这类定向用例适合在修改模型包装类 `predict()` 签名、评估链兼容性或 legacy 项目评估行为后做快速回归。
 
 ## 配置位置
 

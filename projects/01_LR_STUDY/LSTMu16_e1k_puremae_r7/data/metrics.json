@@ -1,12 +1,14 @@
 {
   "project_name": "LSTMu16_e1k_puremae_r7",
-  "generated_at": "2026-04-09T23:48:48.813927+08:00",
+  "generated_at": "2026-04-10T00:36:26.295714+08:00",
   "status": "complete",
+  "calculation_standard": "ablation-study-v1",
   "sources": {
     "training_info": true,
     "compute_analysis": true,
     "model_info": true,
-    "linear_response": true
+    "linear_response": true,
+    "linearity_by_frequency": true
   },
   "missing_sources": [],
   "missing_sections": [],
@@ -20,19 +22,86 @@
   "val_mae": 0.00816777627915144,
   "val_afmae": 0.00816777627915144,
   "weights_source": null,
-  "freq_drift_hz": 32.0,
-  "sens_drift_percent": 29.281250361839735,
-  "linearity_percent": 26.543433878195323,
+  "freq_drift_hz": 7.514473400002053,
+  "sens_drift_percent": 25.81068973495097,
+  "linearity_percent": 0.6044742470763602,
   "compute_cost": 3360.0,
   "total_params": 1441,
+  "metric_details": {
+    "natural_frequency_drift": {
+      "min": 27.383748615762535,
+      "max": 36.06694958154661,
+      "median": 34.89822201576459,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_comped",
+      "drift": 7.514473400002053
+    },
+    "sensitivity_drift": {
+      "min": 40.58046235995275,
+      "max": 68.24847650278893,
+      "median": 66.39115209490372,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+      "drift": 25.81068973495097,
+      "frequency_hz": 100.0
+    },
+    "linearity": {
+      "mean": 0.6044742470763602,
+      "max": 2.281371369124696,
+      "min": 0.10218583665377867,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    },
+    "natural_frequency_drift_origin": {
+      "min": 34.24511188160566,
+      "max": 93.39109038646993,
+      "median": 58.89345106524416,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_origin",
+      "drift": 34.49763932122577
+    },
+    "sensitivity_drift_origin": {
+      "min": 60.001934754356135,
+      "max": 203.37127543336493,
+      "median": 144.5628340451216,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+      "drift": 84.56089929076546,
+      "frequency_hz": 100.0
+    },
+    "linearity_origin": {
+      "mean": 2.5499568401843997,
+      "max": 6.418887454843169,
+      "min": 0.359242046082775,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    }
+  },
+  "compute_details": {
+    "total_params": 1441,
+    "additions": 1376,
+    "multiplications": 1408,
+    "maps": 96,
+    "total_ops": 2880,
+    "weighted_total": 3360.0,
+    "weighted_additions": 1376.0,
+    "weighted_multiplications": 1408.0,
+    "weighted_maps": 576.0
+  },
   "display_metrics": {
     "TRAIN_MAE": 0.008193239569664001,
     "TRAIN_AFMAE": 0.008193239569664001,
     "VAL_MAE": 0.00816777627915144,
     "VAL_AFMAE": 0.00816777627915144,
-    "Freq Drift (Hz)": 32.0,
-    "Sens Drift (%)": 29.281250361839735,
-    "Linearity (%)": 26.543433878195323,
+    "Freq Drift (Hz)": 7.514473400002053,
+    "Sens Drift (%)": 25.81068973495097,
+    "Linearity (%)": 0.6044742470763602,
     "Compute Cost": 3360.0,
     "Total Params": 1441,
     "Epochs": 1000

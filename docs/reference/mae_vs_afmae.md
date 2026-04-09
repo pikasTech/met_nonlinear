@@ -7,8 +7,12 @@
 ## 基本用法
 
 ```bash
+python cli.py -e PROJECT_NAME
+python cli.py --metrics PROJECT_NAME
 python cli.py ep "compare/mae_vs_afmae"
 ```
+
+执行对比前，应先为参与项目生成统一指标文件 `metrics.json`。
 
 ## 任务配置
 
@@ -31,7 +35,7 @@ python cli.py ep "compare/mae_vs_afmae"
 
 - **自然频率漂移 (Natural Frequency Drift)**: 以 `LSTMu16_base` 为参考
 - **灵敏度漂移 (Sensitivity Drift)**: 在 100Hz 频率点，以 `LSTMu16_base` 为参考
-- **线性度 (Linearity)**: 使用 1 - R² 度量
+- **线性度 (Linearity)**: 使用 `mean(1 - R²) * 100` 的统一消融实验口径
 
 ### 输出格式
 
@@ -42,7 +46,7 @@ python cli.py ep "compare/mae_vs_afmae"
 ## 执行流程
 
 1. 读取 `ex_projects/compare/mae_vs_afmae/config.json` 配置
-2. 遍历配置中的所有项目，加载对应的评估结果
+2. 遍历配置中的所有项目，读取对应的 `metrics.json`
 3. 计算各指标相对于参考项目的漂移量
 4. 生成 JSON 和 Markdown 格式的对比报告
 
