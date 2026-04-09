@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "RNNu64",
+  "training_alive": false,
+  "timestamp": "20260409234649.4",
+  "best_weights_file": "projects/RNNu64/data\\RNNu64_best_weights.h5",
+  "best_val_weights_file": "projects/RNNu64/data\\RNNu64_best_val_weights.h5"
+}

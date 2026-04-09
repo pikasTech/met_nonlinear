@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "LSTM",
   "training_alive": false,
-  "timestamp": "20260404221829.3",
+  "timestamp": "20260409203121.5",
   "best_weights_file": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r4/data\\LSTMu16_e1k_lr7e4_r4_best_weights.h5",
   "best_val_weights_file": "projects/01_LR_STUDY/LSTMu16_e1k_lr7e4_r4/data\\LSTMu16_e1k_lr7e4_r4_best_val_weights.h5",
   "loss": 0.030740797519683838,

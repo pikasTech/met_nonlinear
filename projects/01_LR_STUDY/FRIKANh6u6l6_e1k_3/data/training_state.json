@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "FRIKAN",
   "training_alive": false,
-  "timestamp": "20260403160210.0",
+  "timestamp": "20260409203255.8",
   "best_weights_file": "projects/FRIKANh6u6l6_e1k_3/data\\FRIKANh6u6l6_e1k_3_best_weights.h5",
   "best_val_weights_file": "projects/FRIKANh6u6l6_e1k_3/data\\FRIKANh6u6l6_e1k_3_best_val_weights.h5",
   "loss": 0.023218978196382523,

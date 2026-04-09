@@ -73,3 +73,7 @@ temp**
 **/uart_out*
 **/output*
 **/qemu_out*
+screenshots/
+scripts/
+**/dist/
+**/node_modules/

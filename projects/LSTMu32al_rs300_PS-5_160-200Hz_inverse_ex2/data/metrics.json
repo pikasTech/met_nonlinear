@@ -1,0 +1,44 @@
+{
+  "project_name": "LSTMu32al_rs300_PS-5_160-200Hz_inverse_ex2",
+  "generated_at": "2026-04-09T23:46:49.218024+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 30000,
+  "min_loss": 0.0008198,
+  "min_val_loss": 0.00081906,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 15.5,
+  "sens_drift_percent": 1.3653821891891011,
+  "linearity_percent": 1.158609642428976,
+  "compute_cost": null,
+  "total_params": 5441,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 15.5,
+    "Sens Drift (%)": 1.3653821891891011,
+    "Linearity (%)": 1.158609642428976,
+    "Compute Cost": null,
+    "Total Params": 5441,
+    "Epochs": 30000
+  }
+}

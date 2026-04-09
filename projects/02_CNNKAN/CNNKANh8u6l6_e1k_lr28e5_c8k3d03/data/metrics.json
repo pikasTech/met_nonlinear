@@ -1,0 +1,44 @@
+{
+  "project_name": "CNNKANh8u6l6_e1k_lr28e5_c8k3d03",
+  "generated_at": "2026-04-09T23:48:48.965680+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 1000,
+  "min_loss": 0.12862,
+  "min_val_loss": 0.12905,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 136.0,
+  "sens_drift_percent": 96.60670742063057,
+  "linearity_percent": 69.99847454897248,
+  "compute_cost": null,
+  "total_params": 2409,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 136.0,
+    "Sens Drift (%)": 96.60670742063057,
+    "Linearity (%)": 69.99847454897248,
+    "Compute Cost": null,
+    "Total Params": 2409,
+    "Epochs": 1000
+  }
+}

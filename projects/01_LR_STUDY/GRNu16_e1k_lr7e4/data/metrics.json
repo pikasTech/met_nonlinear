@@ -1,0 +1,40 @@
+{
+  "project_name": "GRNu16_e1k_lr7e4",
+  "generated_at": "2026-04-09T23:48:48.676960+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 1000,
+  "min_loss": 0.048461,
+  "min_val_loss": 0.048862,
+  "train_loss": 0.04850832745432854,
+  "val_loss": 0.04886150732636452,
+  "train_mae": 0.017304617911577225,
+  "train_afmae": 0.1404130756855011,
+  "val_mae": 0.01768304780125618,
+  "val_afmae": 0.14020094275474548,
+  "weights_source": null,
+  "freq_drift_hz": 32.0,
+  "sens_drift_percent": 29.02678343355006,
+  "linearity_percent": 34.57704998274773,
+  "compute_cost": 640.0,
+  "total_params": 1201,
+  "display_metrics": {
+    "TRAIN_MAE": 0.017304617911577225,
+    "TRAIN_AFMAE": 0.1404130756855011,
+    "VAL_MAE": 0.01768304780125618,
+    "VAL_AFMAE": 0.14020094275474548,
+    "Freq Drift (Hz)": 32.0,
+    "Sens Drift (%)": 29.02678343355006,
+    "Linearity (%)": 34.57704998274773,
+    "Compute Cost": 640.0,
+    "Total Params": 1201,
+    "Epochs": 1000
+  }
+}

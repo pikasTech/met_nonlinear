@@ -1,0 +1,44 @@
+{
+  "project_name": "WNET2u4d2k2_noinit",
+  "generated_at": "2026-04-09T23:46:49.967410+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 30000,
+  "min_loss": 0.021222,
+  "min_val_loss": 0.022271,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 24.0,
+  "sens_drift_percent": 27.77014630554418,
+  "linearity_percent": 24.671409136837497,
+  "compute_cost": null,
+  "total_params": 213,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 24.0,
+    "Sens Drift (%)": 27.77014630554418,
+    "Linearity (%)": 24.671409136837497,
+    "Compute Cost": null,
+    "Total Params": 213,
+    "Epochs": 30000
+  }
+}

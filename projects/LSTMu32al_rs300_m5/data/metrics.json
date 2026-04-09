@@ -1,0 +1,44 @@
+{
+  "project_name": "LSTMu32al_rs300_m5",
+  "generated_at": "2026-04-09T23:46:49.368292+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 6199,
+  "min_loss": 0.0012006,
+  "min_val_loss": 0.0012841,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 0.75,
+  "sens_drift_percent": 9.409649343439707,
+  "linearity_percent": 1.3470559864151022,
+  "compute_cost": null,
+  "total_params": 5441,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 0.75,
+    "Sens Drift (%)": 9.409649343439707,
+    "Linearity (%)": 1.3470559864151022,
+    "Compute Cost": null,
+    "Total Params": 5441,
+    "Epochs": 6199
+  }
+}

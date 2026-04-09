@@ -632,6 +632,18 @@ class ModelEngine:
                 print(f'Error: {e}')
                 raise
 
+    def _compute_eval_metrics_from_predictions(self, x_data, y_data):
+        predictions = self.model_comp.predict(
+            x_data,
+            batch_size=self.batch_size,
+            verbose=0
+        )
+        y_true = tf.convert_to_tensor(y_data)
+        y_pred = tf.convert_to_tensor(predictions)
+        mae = float(pure_mae_metric(y_true, y_pred).numpy())
+        afmae = float(power_log_loss(y_true, y_pred).numpy())
+        return mae, afmae
+
     def evaluate_loss(self, use_shifting=False):
         # (magn_num, freq_num, point_num) -> (magn_num * freq_num, point_num, 1)
         if use_shifting:
@@ -670,20 +682,14 @@ class ModelEngine:
             val_metrics = list(val_result[1:])
         if isinstance(metrics, list) and len(metrics) >= 2:
             mae, afmae = metrics[0], metrics[1]
-        elif isinstance(metrics, list) and len(metrics) == 1:
-            mae = metrics[0]
-            afmae = metrics[0]
         else:
-            mae = metrics
-            afmae = metrics
+            mae, afmae = self._compute_eval_metrics_from_predictions(
+                x_train, y_train)
         if isinstance(val_metrics, list) and len(val_metrics) >= 2:
             val_mae, val_afmae = val_metrics[0], val_metrics[1]
-        elif isinstance(val_metrics, list) and len(val_metrics) == 1:
-            val_mae = val_metrics[0]
-            val_afmae = val_metrics[0]
         else:
-            val_mae = val_metrics
-            val_afmae = val_metrics
+            val_mae, val_afmae = self._compute_eval_metrics_from_predictions(
+                x_test, y_test)
         return loss, mae, afmae, val_loss, val_mae, val_afmae
 
     def train_model(self):

@@ -161,7 +161,7 @@ class FrequencyResponseComparator:
             ax.set_ylim(gain_range[0], gain_range[1])
         
         # 保存图像
-        filename = f'bode_plot_overlay_{source1_data["project_name"]}_{source1_data["state"]}_vs_{source2_data["project_name"]}_{source2_data["state"]}.png'
+        filename = 'bode_plot_overlay.png'
         output_path = os.path.join(output_folder, filename)
         fig.savefig(output_path, dpi=dpi, bbox_inches='tight')
         
@@ -215,7 +215,7 @@ class FrequencyResponseComparator:
         plt.tight_layout()
         
         # 保存图像
-        filename = f'bode_plot_sidebyside_{source1_data["project_name"]}_{source1_data["state"]}_vs_{source2_data["project_name"]}_{source2_data["state"]}.png'
+        filename = 'bode_plot_sidebyside.png'
         output_path = os.path.join(output_folder, filename)
         fig.savefig(output_path, dpi=dpi, bbox_inches='tight')
         

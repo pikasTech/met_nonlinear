@@ -41,6 +41,7 @@ python cli.py -e PROJECT_NAME
 
 ## 相关命令
 
+- `python cli.py --metrics PROJECT_NAME`：从 `-e` 已生成的 `training_info.json`、`compute_analysis.json`、`linear_response.json` 中提取表格指标并导出 `metrics.json`。
 - `python cli.py -m PROJECT_NAME`：只导出模型信息和计算量。
 - `python cli.py -i PROJECT_NAME`：只运行推理，不计算完整评估指标。
 - `python cli.py -a PROJECT_NAME`：在推理结果基础上做误差分析。

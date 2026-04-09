@@ -6,6 +6,7 @@ import pytest
 import sys
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 # Add src to path
 _SRC_DIR = Path(__file__).parent.parent.parent
@@ -32,6 +33,7 @@ class TestTaskType:
         """Test that all expected task types exist"""
         assert TaskType.TRAIN.value == "train"
         assert TaskType.EVALUATE.value == "evaluate"
+        assert TaskType.METRICS.value == "metrics"
         assert TaskType.CLEAN.value == "clean"
         assert TaskType.MODEL_INFO.value == "model_info"
         assert TaskType.LUT.value == "lut"
@@ -46,7 +48,7 @@ class TestTaskType:
 
     def test_task_type_count(self):
         """Test that expected number of task types exist"""
-        assert len(TaskType) == 13
+        assert len(TaskType) == 15
 
 
 class TestCLIArgs:
@@ -237,14 +239,30 @@ class TestGetAllProjectDirs:
             # Create some project directories
             os.makedirs(os.path.join(tmpdir, 'project1'))
             os.makedirs(os.path.join(tmpdir, 'project2'))
-            os.makedirs(os.path.join(tmpdir, 'not_a_project'))  # File, not directory
+            os.makedirs(os.path.join(tmpdir, 'not_a_project'))
+            Path(os.path.join(tmpdir, 'project1', 'config.json')).write_text('{}', encoding='utf-8')
+            Path(os.path.join(tmpdir, 'project2', 'config.json')).write_text('{}', encoding='utf-8')
 
             result = get_all_project_dirs(tmpdir)
 
             assert 'project1' in result
             assert 'project2' in result
-            # Note: Only directories are returned
-            assert 'not_a_project' not in result or os.path.isdir(os.path.join(tmpdir, 'not_a_project'))
+            assert 'not_a_project' not in result
+
+    def test_with_recursive_projects(self):
+        """Test recursive project discovery only returns dirs with config.json"""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.makedirs(os.path.join(tmpdir, 'group_a', 'project1'))
+            os.makedirs(os.path.join(tmpdir, 'group_b', 'project2'))
+            os.makedirs(os.path.join(tmpdir, 'group_b', 'container_only'))
+            Path(os.path.join(tmpdir, 'group_a', 'project1', 'config.json')).write_text('{}', encoding='utf-8')
+            Path(os.path.join(tmpdir, 'group_b', 'project2', 'config.json')).write_text('{}', encoding='utf-8')
+
+            result = get_all_project_dirs(tmpdir)
+
+            assert result == ['group_a/project1', 'group_b/project2']
 
 
 class TestParseArguments:
@@ -261,6 +279,24 @@ class TestParseArguments:
         args = parse_arguments(['-e', 'test_project'])
         assert args.task_type == TaskType.EVALUATE
         assert args.project_names == ['test_project']
+
+    def test_parse_metrics_task(self):
+        """Test parsing metrics extraction task arguments"""
+        args = parse_arguments(['--metrics', 'test_project'])
+        assert args.task_type == TaskType.METRICS
+        assert args.project_names == ['test_project']
+
+    @patch('core.cli_parser.get_all_project_dirs')
+    def test_parse_metrics_all_projects_missing_only(self, mock_get_all_project_dirs):
+        """Test parsing recursive metrics batch command"""
+        mock_get_all_project_dirs.return_value = ['group_a/project1', 'group_b/project2']
+
+        args = parse_arguments(['--metrics', '--all-projects', '--missing-only'])
+
+        assert args.task_type == TaskType.METRICS
+        assert args.project_names == ['group_a/project1', 'group_b/project2']
+        assert args.missing_only is True
+        assert args.recursive_projects is True
 
     def test_parse_inference_task(self):
         """Test parsing inference task arguments"""

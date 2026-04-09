@@ -1,0 +1,40 @@
+{
+  "project_name": "LSTMu22_3",
+  "generated_at": "2026-04-09T23:46:49.064739+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 30000,
+  "min_loss": 0.010763,
+  "min_val_loss": 0.014986,
+  "train_loss": 0.08652044832706451,
+  "val_loss": 0.08708973228931427,
+  "train_mae": 0.03811570256948471,
+  "train_afmae": 0.2230779230594635,
+  "val_mae": 0.03786340728402138,
+  "val_afmae": 0.2255905568599701,
+  "weights_source": null,
+  "freq_drift_hz": 32.0,
+  "sens_drift_percent": 34.06337336898074,
+  "linearity_percent": 0.6654376600763956,
+  "compute_cost": 5940.0,
+  "total_params": 2641,
+  "display_metrics": {
+    "TRAIN_MAE": 0.03811570256948471,
+    "TRAIN_AFMAE": 0.2230779230594635,
+    "VAL_MAE": 0.03786340728402138,
+    "VAL_AFMAE": 0.2255905568599701,
+    "Freq Drift (Hz)": 32.0,
+    "Sens Drift (%)": 34.06337336898074,
+    "Linearity (%)": 0.6654376600763956,
+    "Compute Cost": 5940.0,
+    "Total Params": 2641,
+    "Epochs": 30000
+  }
+}

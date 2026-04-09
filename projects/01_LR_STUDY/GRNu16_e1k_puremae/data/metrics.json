@@ -1,0 +1,40 @@
+{
+  "project_name": "GRNu16_e1k_puremae",
+  "generated_at": "2026-04-09T23:48:48.689560+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 281,
+  "min_loss": 0.012695,
+  "min_val_loss": 0.012697,
+  "train_loss": 0.012638038955628872,
+  "val_loss": 0.012697124853730202,
+  "train_mae": 0.012638038024306297,
+  "train_afmae": 0.012638038024306297,
+  "val_mae": 0.012697124853730202,
+  "val_afmae": 0.012697124853730202,
+  "weights_source": null,
+  "freq_drift_hz": 32.0,
+  "sens_drift_percent": 30.447202482231916,
+  "linearity_percent": 30.367010128607586,
+  "compute_cost": 640.0,
+  "total_params": 1201,
+  "display_metrics": {
+    "TRAIN_MAE": 0.012638038024306297,
+    "TRAIN_AFMAE": 0.012638038024306297,
+    "VAL_MAE": 0.012697124853730202,
+    "VAL_AFMAE": 0.012697124853730202,
+    "Freq Drift (Hz)": 32.0,
+    "Sens Drift (%)": 30.447202482231916,
+    "Linearity (%)": 30.367010128607586,
+    "Compute Cost": 640.0,
+    "Total Params": 1201,
+    "Epochs": 281
+  }
+}

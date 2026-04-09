@@ -1,0 +1,42 @@
+{
+  "project_name": "LSTMu12_puremae",
+  "generated_at": "2026-04-09T23:48:48.306873+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 1000,
+  "min_loss": 0.0061299,
+  "min_val_loss": 0.0061297,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 32.0,
+  "sens_drift_percent": 28.498602911696207,
+  "linearity_percent": 25.807256581908533,
+  "compute_cost": 2040.0,
+  "total_params": 841,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 32.0,
+    "Sens Drift (%)": 28.498602911696207,
+    "Linearity (%)": 25.807256581908533,
+    "Compute Cost": 2040.0,
+    "Total Params": 841,
+    "Epochs": 1000
+  }
+}

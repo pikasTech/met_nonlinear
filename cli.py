@@ -14,6 +14,7 @@ sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 import subprocess
 import time
+import json
 
 # 将 src 目录加入 Python 路径，实现模块兼容
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -81,6 +82,37 @@ def _run_qemu_subcommand(args) -> None:
     sys.exit(exit_code)
 
 
+def _run_server_subcommand(args) -> None:
+    """处理 server 子命令，启动可视化服务器。"""
+    import importlib.util
+    from pathlib import Path
+    manager_path = Path(_SCRIPT_DIR) / 'src' / 'webui' / 'server' / 'src' / 'manager.py'
+    spec = importlib.util.spec_from_file_location("manager", str(manager_path))
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    manager = module.ServerManager()
+
+    if args.server_action == 'start':
+        result = manager.start()
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        sys.exit(0 if result.get('status') == 'started' else 1)
+    elif args.server_action == 'stop':
+        result = manager.stop()
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        sys.exit(0 if result.get('status') in ('stopped', 'not_running') else 1)
+    elif args.server_action == 'status':
+        result = manager.status()
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        sys.exit(0 if result.get('status') == 'running' else 1)
+    elif args.server_action == 'logs':
+        result = manager.logs(args.server_lines)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        sys.exit(0)
+    else:
+        print(json.dumps({'status': 'error', 'message': f'Unknown server action: {args.server_action}'}))
+        sys.exit(1)
+
+
 def _run_main_commands(args) -> None:
     """处理非 ep 的主命令，按原顺序加载重型依赖。"""
     # 第二阶段：环境检查（在重型依赖导入前）
@@ -129,6 +161,10 @@ if __name__ == '__main__':
 
     if getattr(args, 'command', None) == 'qemu':
         _run_qemu_subcommand(args)
+        sys.exit(0)
+
+    if getattr(args, 'command', None) == 'server':
+        _run_server_subcommand(args)
         sys.exit(0)
 
     # 测试命令（不加载重型依赖）

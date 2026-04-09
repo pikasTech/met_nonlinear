@@ -1,0 +1,44 @@
+{
+  "project_name": "WNET5_FreqTest_50_100Hz",
+  "generated_at": "2026-04-09T23:46:50.298170+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 30000,
+  "min_loss": 0.016177,
+  "min_val_loss": 0.017199,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 14.0,
+  "sens_drift_percent": 42.906230890217266,
+  "linearity_percent": 97.06172305173206,
+  "compute_cost": null,
+  "total_params": 997,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 14.0,
+    "Sens Drift (%)": 42.906230890217266,
+    "Linearity (%)": 97.06172305173206,
+    "Compute Cost": null,
+    "Total Params": 997,
+    "Epochs": 30000
+  }
+}

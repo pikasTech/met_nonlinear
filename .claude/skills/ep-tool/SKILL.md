@@ -1,7 +1,6 @@
 ---
 name: ep-tool
 description: 当用户需要查询外部项目、执行 EP 任务、了解 ex_projects 结构，或寻求电路验证、频率响应对比、补偿器可视化等方面的帮助时使用此技能。
-version: 1.0.0
 ---
 
 # 外部项目 (EP) 工具技能

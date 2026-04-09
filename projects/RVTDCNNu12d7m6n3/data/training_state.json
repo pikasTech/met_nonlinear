@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "RVTDCNNu12d7m6n3",
+  "training_alive": false,
+  "timestamp": "20260409234649.5",
+  "best_weights_file": "projects/RVTDCNNu12d7m6n3/data\\RVTDCNNu12d7m6n3_best_weights.h5",
+  "best_val_weights_file": "projects/RVTDCNNu12d7m6n3/data\\RVTDCNNu12d7m6n3_best_val_weights.h5"
+}

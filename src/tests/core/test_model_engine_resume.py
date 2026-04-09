@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+import pytest
 
 
 _SRC_DIR = Path(__file__).parent.parent.parent
@@ -38,6 +39,10 @@ def _build_engine(use_best_val_weights):
     engine.y_train_shuffle = np.zeros((1, 1, 2), dtype=np.float32)
     engine.x_test_shuffle = np.zeros((1, 1, 2), dtype=np.float32)
     engine.y_test_shuffle = np.zeros((1, 1, 2), dtype=np.float32)
+    engine.x_train = np.zeros((1, 1, 2), dtype=np.float32)
+    engine.y_train = np.zeros((1, 1, 2), dtype=np.float32)
+    engine.x_test = np.zeros((1, 1, 2), dtype=np.float32)
+    engine.y_test = np.zeros((1, 1, 2), dtype=np.float32)
     engine.batch_size = 1
     engine.evaluate_loss = MagicMock(return_value=(1.0, 0.0, 0.0, 1.1, 0.0, 0.0))
     engine.model_comp = SimpleNamespace(
@@ -71,3 +76,63 @@ def test_resume_training_uses_best_weights_when_best_val_disabled():
     engine.load_best_weights.assert_called_once_with()
     engine.load_val_best_weights.assert_not_called()
     assert engine.model_comp.fit.call_args.kwargs['epochs'] == 7
+
+
+def test_evaluate_loss_recomputes_missing_afmae_for_pure_mae_runs():
+    from core.model_engine import ModelEngine
+
+    engine = _build_engine(use_best_val_weights=False)
+    engine.x_train = np.array([[[1.0, 2.0]]], dtype=np.float32)
+    engine.y_train = np.array([[[1.0, 2.0]]], dtype=np.float32)
+    engine.x_test = np.array([[[2.0, 1.0]]], dtype=np.float32)
+    engine.y_test = np.array([[[2.0, 1.0]]], dtype=np.float32)
+    engine.evaluate_loss = ModelEngine.evaluate_loss.__get__(engine, ModelEngine)
+    engine.model_comp = MagicMock()
+    engine.model_comp.evaluate.side_effect = [
+        [0.5, 0.5],
+        [0.6, 0.25],
+    ]
+    engine.model_comp.predict.side_effect = [
+        np.array([[[1.5], [1.5]]], dtype=np.float32),
+        np.array([[[2.5], [0.5]]], dtype=np.float32),
+    ]
+
+    loss, mae, afmae, val_loss, val_mae, val_afmae = engine.evaluate_loss()
+
+    assert loss == pytest.approx(0.5)
+    assert mae == pytest.approx(0.5)
+    assert afmae == pytest.approx(0.0)
+    assert val_loss == pytest.approx(0.6)
+    assert val_mae == pytest.approx(0.5)
+    assert val_afmae == pytest.approx(0.0)
+    assert engine.model_comp.predict.call_count == 2
+
+
+def test_evaluate_loss_recomputes_missing_mae_for_pure_afmae_runs():
+    from core.model_engine import ModelEngine
+
+    engine = _build_engine(use_best_val_weights=False)
+    engine.x_train = np.array([[[1.0, 2.0]]], dtype=np.float32)
+    engine.y_train = np.array([[[1.0, 2.0]]], dtype=np.float32)
+    engine.x_test = np.array([[[2.0, 1.0]]], dtype=np.float32)
+    engine.y_test = np.array([[[2.0, 1.0]]], dtype=np.float32)
+    engine.evaluate_loss = ModelEngine.evaluate_loss.__get__(engine, ModelEngine)
+    engine.model_comp = MagicMock()
+    engine.model_comp.evaluate.side_effect = [
+        [0.1, 0.0],
+        [0.2, 0.0],
+    ]
+    engine.model_comp.predict.side_effect = [
+        np.array([[[1.5], [1.5]]], dtype=np.float32),
+        np.array([[[2.5], [0.5]]], dtype=np.float32),
+    ]
+
+    loss, mae, afmae, val_loss, val_mae, val_afmae = engine.evaluate_loss()
+
+    assert loss == pytest.approx(0.1)
+    assert mae == pytest.approx(0.5)
+    assert afmae == pytest.approx(0.0)
+    assert val_loss == pytest.approx(0.2)
+    assert val_mae == pytest.approx(0.5)
+    assert val_afmae == pytest.approx(0.0)
+    assert engine.model_comp.predict.call_count == 2

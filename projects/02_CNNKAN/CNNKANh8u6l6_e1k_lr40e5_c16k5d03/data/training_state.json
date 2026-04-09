@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "CNNKANh8u6l6_e1k_lr40e5_c16k5d03",
+  "training_alive": false,
+  "timestamp": "20260409234849.0",
+  "best_weights_file": "projects/02_CNNKAN/CNNKANh8u6l6_e1k_lr40e5_c16k5d03/data\\CNNKANh8u6l6_e1k_lr40e5_c16k5d03_best_weights.h5",
+  "best_val_weights_file": "projects/02_CNNKAN/CNNKANh8u6l6_e1k_lr40e5_c16k5d03/data\\CNNKANh8u6l6_e1k_lr40e5_c16k5d03_best_val_weights.h5"
+}

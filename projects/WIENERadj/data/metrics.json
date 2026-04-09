@@ -1,0 +1,44 @@
+{
+  "project_name": "WIENERadj",
+  "generated_at": "2026-04-09T23:46:49.736888+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 518,
+  "min_loss": 0.1108,
+  "min_val_loss": 0.11143,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 0.0,
+  "sens_drift_percent": 3.588287921727999,
+  "linearity_percent": 0.0771408974078458,
+  "compute_cost": null,
+  "total_params": 28,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 0.0,
+    "Sens Drift (%)": 3.588287921727999,
+    "Linearity (%)": 0.0771408974078458,
+    "Compute Cost": null,
+    "Total Params": 28,
+    "Epochs": 518
+  }
+}

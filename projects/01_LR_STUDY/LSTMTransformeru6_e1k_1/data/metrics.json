@@ -1,0 +1,40 @@
+{
+  "project_name": "LSTMTransformeru6_e1k_1",
+  "generated_at": "2026-04-09T23:48:48.713758+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 1000,
+  "min_loss": 0.01892,
+  "min_val_loss": 0.016535,
+  "train_loss": 0.016216689720749855,
+  "val_loss": 0.01653454825282097,
+  "train_mae": 0.01585397496819496,
+  "train_afmae": 0.02970450557768345,
+  "val_mae": 0.01577722653746605,
+  "val_afmae": 0.03150922805070877,
+  "weights_source": null,
+  "freq_drift_hz": 24.0,
+  "sens_drift_percent": 27.909905962895472,
+  "linearity_percent": 25.969707789980767,
+  "compute_cost": 2100.0,
+  "total_params": 1261,
+  "display_metrics": {
+    "TRAIN_MAE": 0.01585397496819496,
+    "TRAIN_AFMAE": 0.02970450557768345,
+    "VAL_MAE": 0.01577722653746605,
+    "VAL_AFMAE": 0.03150922805070877,
+    "Freq Drift (Hz)": 24.0,
+    "Sens Drift (%)": 27.909905962895472,
+    "Linearity (%)": 25.969707789980767,
+    "Compute Cost": 2100.0,
+    "Total Params": 1261,
+    "Epochs": 1000
+  }
+}

@@ -28,6 +28,7 @@ class TestTaskDispatcherStructure:
             _get_arg_value,
             _handle_train_task,
             _handle_evaluate_task,
+            _handle_metrics_task,
             _handle_clean_task,
             _handle_model_info_task,
             _handle_lut_task,
@@ -120,6 +121,26 @@ class TestDispatchTask:
         dispatch_task("evaluate", ["test_project"], args)
 
         mock_handler.assert_called_once()
+
+    @patch('core.task_dispatcher._handle_metrics_task')
+    def test_dispatch_task_metrics(self, mock_handler):
+        """Test dispatch_task with metrics task"""
+        from core.task_dispatcher import dispatch_task
+
+        args = SimpleNamespace()
+        dispatch_task("metrics", ["test_project"], args)
+
+        mock_handler.assert_called_once()
+
+    @patch('core.task_dispatcher._handle_metrics_task')
+    def test_dispatch_task_metrics_nested_project(self, mock_handler):
+        """Test dispatch_task normalizes nested relative project paths under projects/"""
+        from core.task_dispatcher import dispatch_task
+
+        args = SimpleNamespace()
+        dispatch_task("metrics", ["group_a/project1"], args)
+
+        mock_handler.assert_called_once_with("projects/group_a/project1", ["group_a/project1"], args)
 
     @patch('core.task_dispatcher._handle_clean_task')
     def test_dispatch_task_clean(self, mock_handler):
@@ -276,6 +297,42 @@ class TestHandleEvaluateTask:
 
         mock_pm.evaluate.assert_called_once()
         mock_show.assert_not_called()
+
+
+class TestHandleMetricsTask:
+    """Test _handle_metrics_task function"""
+
+    @patch('core.task_dispatcher.ProjectManager')
+    def test_handle_metrics_task(self, mock_pm_class):
+        """Test _handle_metrics_task exports metrics summary"""
+        from core.task_dispatcher import _handle_metrics_task
+
+        mock_pm = MagicMock()
+        mock_pm.project_name = 'test_project'
+        mock_pm.checkpoint_dir = 'projects/test_project/data'
+        mock_pm.export_metrics_summary.return_value = {'status': 'complete'}
+        mock_pm_class.return_value = mock_pm
+
+        _handle_metrics_task("projects/test_project", ["test_project"], SimpleNamespace())
+
+        mock_pm_class.assert_called_once_with("projects/test_project")
+        mock_pm.export_metrics_summary.assert_called_once()
+
+    @patch('core.task_dispatcher.os.path.exists')
+    @patch('core.task_dispatcher.ProjectManager')
+    def test_handle_metrics_task_missing_only_skips_existing(self, mock_pm_class, mock_exists):
+        """Test _handle_metrics_task skips project when metrics.json already exists"""
+        from core.task_dispatcher import _handle_metrics_task
+
+        mock_exists.return_value = True
+
+        _handle_metrics_task(
+            "projects/test_project",
+            ["test_project"],
+            SimpleNamespace(missing_only=True)
+        )
+
+        mock_pm_class.assert_not_called()
 
 
 class TestHandleCleanTask:

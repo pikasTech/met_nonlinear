@@ -1,0 +1,40 @@
+{
+  "project_name": "FRIKANh6u6l4_5",
+  "generated_at": "2026-04-09T23:46:48.658278+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 30000,
+  "min_loss": 0.012741,
+  "min_val_loss": 0.015461,
+  "train_loss": 0.013481301255524158,
+  "val_loss": 0.01545498427003622,
+  "train_mae": 0.014417663216590881,
+  "train_afmae": 0.01687479391694069,
+  "val_mae": 0.014785232953727245,
+  "val_afmae": 0.026430362835526466,
+  "weights_source": null,
+  "freq_drift_hz": 32.0,
+  "sens_drift_percent": 26.81240754564,
+  "linearity_percent": 26.441255851206733,
+  "compute_cost": 1104.0,
+  "total_params": 1669,
+  "display_metrics": {
+    "TRAIN_MAE": 0.014417663216590881,
+    "TRAIN_AFMAE": 0.01687479391694069,
+    "VAL_MAE": 0.014785232953727245,
+    "VAL_AFMAE": 0.026430362835526466,
+    "Freq Drift (Hz)": 32.0,
+    "Sens Drift (%)": 26.81240754564,
+    "Linearity (%)": 26.441255851206733,
+    "Compute Cost": 1104.0,
+    "Total Params": 1669,
+    "Epochs": 30000
+  }
+}

@@ -30,6 +30,7 @@
 - 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。
 - 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - 外部项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+- WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
 ---
 
@@ -57,6 +58,10 @@
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
+- `python cli.py --metrics PROJECT_NAME`
+	- 指标提取：从 `-e` 已生成的评估产物提取表格指标并导出 `metrics.json`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+- `python cli.py --metrics --all-projects --missing-only`
+	- 批量补齐指标：递归遍历 `projects/` 下所有项目，只为缺失 `metrics.json` 的项目补生成指标文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py -m PROJECT_NAME`
 	- 模型结构导出：导出模型结构、参数和配置信息，详见 [docs/reference/model_info.md](docs/reference/model_info.md)。
 	- 计算量估算：同步生成模型的计算量分析结果，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
@@ -100,6 +105,17 @@
 - `python cli.py ep "PROJECT/freq-response-compensator/test"`
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+
+### server 子命令 (WebUI 可视化服务)
+
+- `python cli.py server start`
+	- 服务启动：启动 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- `python cli.py server stop`
+	- 服务停止：停止 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- `python cli.py server status`
+	- 服务状态：查看服务器运行状态和日志路径，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- `python cli.py server logs`
+	- 服务日志：查看服务器日志输出，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
 ### projects/ex_projects
 

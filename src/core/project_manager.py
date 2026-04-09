@@ -10,6 +10,7 @@ import os
 import traceback
 import sys
 import shutil
+import json
 from analysis.model_compute_analysis import save_model_compute_analysis
 from models.base_models import ModelEvent, ModelEventType
 from calibration_analyzer import exam_class
@@ -146,6 +147,36 @@ class ProjectManager:
             traceback.print_exc()
             return False
 
+    def load_trained_weights_for_offline_task(self, model_engine):
+        """为评估类离线任务加载已训练权重。"""
+        prefer_val_weights = bool(getattr(self.config, 'use_best_val_weights', False))
+        loaders = []
+        if prefer_val_weights:
+            loaders = [
+                ('best_val', model_engine.load_val_best_weights),
+                ('best', model_engine.load_best_weights),
+            ]
+        else:
+            loaders = [
+                ('best', model_engine.load_best_weights),
+                ('best_val', model_engine.load_val_best_weights),
+            ]
+
+        errors = []
+        for weight_type, loader in loaders:
+            try:
+                loader()
+                logger.info(f'离线任务已加载 {weight_type} 权重')
+                return weight_type
+            except Exception as e:
+                errors.append(f'{weight_type}: {e}')
+                logger.warning(f'加载 {weight_type} 权重失败: {e}')
+
+        raise RuntimeError(
+            '评估任务未能加载任何已训练权重，请确认项目已训练完成并存在 best.weights.h5 '
+            f'或 best_val.weights.h5。尝试结果: {"; ".join(errors)}'
+        )
+
     def evaluate(self):
         model_engine = ModelEngine(self, checkpoint_dir=self.checkpoint_dir)
         model_engine = self.prepare_dataset_and_model(model_engine)
@@ -156,8 +187,7 @@ class ProjectManager:
                 error_msg = f'Evaluate training info failed: {e}'
                 logger.error(error_msg)
                 traceback.print_exc()
-        if self.config.use_best_val_weights:
-            model_engine.load_val_best_weights()
+        loaded_weight_type = self.load_trained_weights_for_offline_task(model_engine)
         compute_analysis_path = os.path.join(
             self.checkpoint_dir,
             'compute_analysis.json'
@@ -179,10 +209,10 @@ class ProjectManager:
 
         training_info_path = os.path.join(self.checkpoint_dir, 'training_info.json')
         if os.path.exists(training_info_path):
-            import json
             with open(training_info_path, 'r') as f:
                 training_info = json.load(f)
             training_info['evaluation_metrics'] = {
+                'weights_source': loaded_weight_type,
                 'train_loss': float(loss),
                 'val_loss': float(val_loss),
                 'train_mae': float(mae),
@@ -194,6 +224,19 @@ class ProjectManager:
                 json.dump(training_info, f, indent=4)
 
         logger.info(f'评估完成，结果保存在 {self.checkpoint_dir} 中。')
+
+    def export_metrics_summary(self, output_path=None):
+        """从评估产物提取表格指标并导出 metrics.json。"""
+        from core.metrics_summary import save_project_metrics_summary
+
+        if output_path is None:
+            output_path = os.path.join(self.checkpoint_dir, 'metrics.json')
+
+        return save_project_metrics_summary(
+            checkpoint_dir=self.checkpoint_dir,
+            output_path=output_path,
+            project_name=self.project_name,
+        )
 
     def lut(self):
         from experimental import kan_lut

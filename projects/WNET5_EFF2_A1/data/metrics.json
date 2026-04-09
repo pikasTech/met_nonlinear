@@ -1,0 +1,44 @@
+{
+  "project_name": "WNET5_EFF2_A1",
+  "generated_at": "2026-04-09T23:46:50.188963+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 30000,
+  "min_loss": 0.0021066,
+  "min_val_loss": 0.0023292,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 169.75,
+  "sens_drift_percent": 1.8136281776202638,
+  "linearity_percent": 7.3530054501750435,
+  "compute_cost": null,
+  "total_params": 8477,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 169.75,
+    "Sens Drift (%)": 1.8136281776202638,
+    "Linearity (%)": 7.3530054501750435,
+    "Compute Cost": null,
+    "Total Params": 8477,
+    "Epochs": 30000
+  }
+}

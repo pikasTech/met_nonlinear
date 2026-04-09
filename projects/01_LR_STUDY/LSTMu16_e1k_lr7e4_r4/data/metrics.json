@@ -1,0 +1,40 @@
+{
+  "project_name": "LSTMu16_e1k_lr7e4_r4",
+  "generated_at": "2026-04-09T23:48:48.774241+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 1000,
+  "min_loss": 0.030469,
+  "min_val_loss": 0.031009,
+  "train_loss": 0.030528640374541283,
+  "val_loss": 0.031008977442979813,
+  "train_mae": 0.019111013039946556,
+  "train_afmae": 0.062244962900877,
+  "val_mae": 0.019468192011117935,
+  "val_afmae": 0.06447867304086685,
+  "weights_source": "best_val",
+  "freq_drift_hz": 32.0,
+  "sens_drift_percent": 27.640224132148923,
+  "linearity_percent": 27.133519977467067,
+  "compute_cost": 3360.0,
+  "total_params": 1441,
+  "display_metrics": {
+    "TRAIN_MAE": 0.019111013039946556,
+    "TRAIN_AFMAE": 0.062244962900877,
+    "VAL_MAE": 0.019468192011117935,
+    "VAL_AFMAE": 0.06447867304086685,
+    "Freq Drift (Hz)": 32.0,
+    "Sens Drift (%)": 27.640224132148923,
+    "Linearity (%)": 27.133519977467067,
+    "Compute Cost": 3360.0,
+    "Total Params": 1441,
+    "Epochs": 1000
+  }
+}

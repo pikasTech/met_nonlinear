@@ -21,6 +21,7 @@ class TaskType(Enum):
     """任务类型枚举"""
     TRAIN = "train"
     EVALUATE = "evaluate"
+    METRICS = "metrics"
     CLEAN = "clean"
     MODEL_INFO = "model_info"
     LUT = "lut"
@@ -78,6 +79,13 @@ class CLIArgs:
     test_workers: int = 4
     test_timeout: int = 300
     no_parallel: bool = False
+    recursive_projects: bool = False
+    missing_only: bool = False
+
+    # 服务器相关参数
+    server_action: Optional[str] = None
+    server_port: int = 3000
+    server_lines: int = 100
 
 
 @dataclass
@@ -164,7 +172,7 @@ def load_config() -> CLIConfig:
     return CLIConfig()
 
 
-def get_all_project_dirs(base_path: str = 'projects') -> List[str]:
+def get_all_project_dirs(base_path: str = 'projects', recursive: bool = True) -> List[str]:
     """
     获取所有项目目录
     
@@ -172,11 +180,28 @@ def get_all_project_dirs(base_path: str = 'projects') -> List[str]:
         base_path: 项目基础路径，默认为 'projects'
         
     Returns:
-        List[str]: 项目目录名称列表
+        List[str]: 项目目录相对路径列表（相对于 base_path）
     """
     if not os.path.exists(base_path):
         return []
-    return [f.name for f in os.scandir(base_path) if f.is_dir()]
+
+    project_dirs: List[str] = []
+
+    if not recursive:
+        for entry in os.scandir(base_path):
+            if entry.is_dir() and os.path.exists(os.path.join(entry.path, 'config.json')):
+                project_dirs.append(entry.name)
+        return sorted(project_dirs)
+
+    for current_root, dir_names, file_names in os.walk(base_path):
+        if 'config.json' not in file_names:
+            continue
+        relative_path = os.path.relpath(current_root, base_path).replace('\\', '/')
+        if relative_path == '.':
+            continue
+        project_dirs.append(relative_path)
+
+    return sorted(project_dirs)
 
 
 def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
@@ -188,6 +213,7 @@ def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
 任务类型说明：
   train         训练模型
   evaluate      评估模型性能
+    metrics       从评估产物提取表格指标并导出 metrics.json
   clean         清理项目数据
   model_info    显示模型信息
   lut           生成查找表
@@ -200,6 +226,7 @@ def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
 示例用法：
   python cli.py -t PROJECT_NAME
   python cli.py -e PROJECT_NAME
+    python cli.py --metrics PROJECT_NAME
   python cli.py -i PROJECT_NAME --layers 5
   python cli.py -a PROJECT_NAME --bias-method auto
   python cli.py --loss-plot PROJECT_NAME
@@ -273,6 +300,19 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
     qemu_build_run_parser = qemu_subparsers.add_parser('build-run', help='编译并运行指定 QEMU 工程')
     _add_qemu_common_arguments(qemu_build_run_parser)
 
+    server_parser = subparsers.add_parser('server', help='可视化服务器管理')
+    server_subparsers = server_parser.add_subparsers(dest='server_action', help='服务器操作')
+    
+    server_start_parser = server_subparsers.add_parser('start', help='启动可视化服务器')
+    server_start_parser.add_argument('--port', type=int, default=3000, help='服务器端口，默认: 3000')
+    
+    server_stop_parser = server_subparsers.add_parser('stop', help='停止可视化服务器')
+    
+    server_status_parser = server_subparsers.add_parser('status', help='查看服务器状态')
+    
+    server_logs_parser = server_subparsers.add_parser('logs', help='查看服务器日志')
+    server_logs_parser.add_argument('--lines', type=int, default=100, dest='server_lines', help='日志行数，默认: 100')
+
     return parser
 
 
@@ -296,6 +336,9 @@ def _add_main_arguments(parser: argparse.ArgumentParser, config: CLIConfig) -> N
     task_group.add_argument('-e', '--evaluate', action='store_const',
                            const=TaskType.EVALUATE, dest='task_type',
                            help='评估模型')
+    task_group.add_argument('--metrics', action='store_const',
+                           const=TaskType.METRICS, dest='task_type',
+                           help='从 -e 生成的产物提取表格指标到 data/metrics.json')
     task_group.add_argument('-c', '--clean', action='store_const',
                            const=TaskType.CLEAN, dest='task_type',
                            help='清理项目数据')
@@ -342,6 +385,8 @@ def _add_main_arguments(parser: argparse.ArgumentParser, config: CLIConfig) -> N
                        help=f'项目名称（支持通配符），默认: {config.default_project}')
     parser.add_argument('-all', '--all-projects', action='store_true',
                        help='处理所有项目')
+    parser.add_argument('--missing-only', action='store_true',
+                       help='仅处理缺失目标产物的项目（当前主要用于 --metrics）')
     
     # 通用标志
     parser.add_argument('-f', '--force', action='store_true',
@@ -456,7 +501,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
         argv = sys.argv[1:]  # 跳过脚本名称
 
     # 预处理：检测是否为轻量子命令
-    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu'}
+    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu', 'server'}
 
     # 根据是否为轻量子命令选择不同的解析器
     if is_lightweight_subcommand:
@@ -495,6 +540,17 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 qemu_linker_script=getattr(args, 'qemu_linker_script', None)
             )
 
+        is_server_subcommand = getattr(args, 'command', None) == 'server'
+        if is_server_subcommand:
+            return CLIArgs(
+                task_type=TaskType.INFERENCE,
+                project_names=[],
+                command='server',
+                server_action=getattr(args, 'server_action', None),
+                server_port=getattr(args, 'port', 3000),
+                server_lines=getattr(args, 'server_lines', 100)
+            )
+
         # 检查是否为测试任务
         is_test_task = getattr(args, 'task_type', None) == TaskType.TEST
 
@@ -512,7 +568,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
         if is_test_task:
             project_names = []
         elif args.all_projects:
-            project_names = get_all_project_dirs(config.projects_dir)
+            project_names = get_all_project_dirs(config.projects_dir, recursive=True)
             if not project_names:
                 raise ArgumentParsingError(f"在目录 '{config.projects_dir}' 中没有找到任何项目")
         else:
@@ -564,7 +620,9 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             test_path=getattr(args, 'test_path', None),
             test_workers=getattr(args, 'test_workers', 4),
             test_timeout=getattr(args, 'test_timeout', 300),
-            no_parallel=getattr(args, 'no_parallel', False)
+            no_parallel=getattr(args, 'no_parallel', False),
+            recursive_projects=True,
+            missing_only=getattr(args, 'missing_only', False)
         )
         
     except SystemExit as e:

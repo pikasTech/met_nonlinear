@@ -1269,6 +1269,43 @@ class TestProjectManagerProcessEvaluate:
         assert pm.config.use_best_val_weights is True
         assert hasattr(mock_engine, 'load_val_best_weights')
 
+    def test_evaluate_loads_best_weights_when_best_val_disabled(self, mock_pm_for_evaluate):
+        """Test evaluate loads best training weights when best val is disabled"""
+        pm = mock_pm_for_evaluate
+        pm.config.use_best_val_weights = False
+
+        mock_engine = MagicMock()
+        mock_engine.evaluate_loss = MagicMock(return_value=(0.5, 0.3, 0.35, 0.4, 0.43, 0.45))
+        mock_engine.load_best_weights = MagicMock()
+        mock_engine.load_val_best_weights = MagicMock()
+
+        with patch.object(pm, 'prepare_dataset_and_model', return_value=mock_engine):
+            with patch.object(pm, 'run_prediction'):
+                with patch('core.project_manager.save_model_compute_analysis'):
+                    with patch('core.project_manager.os.path.exists', return_value=False):
+                        pm.evaluate()
+
+        mock_engine.load_best_weights.assert_called_once()
+        mock_engine.load_val_best_weights.assert_not_called()
+
+    def test_evaluate_loads_best_val_weights_when_enabled(self, mock_pm_for_evaluate):
+        """Test evaluate loads best validation weights when enabled"""
+        pm = mock_pm_for_evaluate
+        pm.config.use_best_val_weights = True
+
+        mock_engine = MagicMock()
+        mock_engine.evaluate_loss = MagicMock(return_value=(0.5, 0.3, 0.35, 0.4, 0.43, 0.45))
+        mock_engine.load_best_weights = MagicMock()
+        mock_engine.load_val_best_weights = MagicMock()
+
+        with patch.object(pm, 'prepare_dataset_and_model', return_value=mock_engine):
+            with patch.object(pm, 'run_prediction'):
+                with patch('core.project_manager.save_model_compute_analysis'):
+                    with patch('core.project_manager.os.path.exists', return_value=False):
+                        pm.evaluate()
+
+        mock_engine.load_val_best_weights.assert_called_once()
+
 
 class TestProjectManagerLUT:
     """Test lut method - simplified tests"""

@@ -1,0 +1,40 @@
+{
+  "project_name": "CNNKANh8u6l6_e1k_lr14e5_stable",
+  "generated_at": "2026-04-09T23:48:48.869407+08:00",
+  "status": "complete",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 1000,
+  "min_loss": 0.058259,
+  "min_val_loss": 0.051821,
+  "train_loss": 2.001600742340088,
+  "val_loss": 2.063436508178711,
+  "train_mae": 0.6742437481880188,
+  "train_afmae": 2.072761058807373,
+  "val_mae": 0.6749866008758545,
+  "val_afmae": 2.0670151710510254,
+  "weights_source": null,
+  "freq_drift_hz": 136.0,
+  "sens_drift_percent": 78.19128732121618,
+  "linearity_percent": 92.65598094629368,
+  "compute_cost": 1638.0,
+  "total_params": 2409,
+  "display_metrics": {
+    "TRAIN_MAE": 0.6742437481880188,
+    "TRAIN_AFMAE": 2.072761058807373,
+    "VAL_MAE": 0.6749866008758545,
+    "VAL_AFMAE": 2.0670151710510254,
+    "Freq Drift (Hz)": 136.0,
+    "Sens Drift (%)": 78.19128732121618,
+    "Linearity (%)": 92.65598094629368,
+    "Compute Cost": 1638.0,
+    "Total Params": 2409,
+    "Epochs": 1000
+  }
+}

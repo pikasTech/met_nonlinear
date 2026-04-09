@@ -53,10 +53,13 @@ def dispatch_task(task_type, project_names, args):
         return
     
     for project_name in project_names:
-        if '/' in project_name or '\\' in project_name:
+        normalized_project_name = project_name.replace('\\', '/')
+        if os.path.isabs(project_name):
             project_path = project_name
+        elif normalized_project_name.startswith('projects/'):
+            project_path = normalized_project_name
         else:
-            project_path = f'projects/{project_name}'
+            project_path = f'projects/{normalized_project_name}'
         logger.info(f'Project path: {project_path}')
         
         try:
@@ -64,6 +67,8 @@ def dispatch_task(task_type, project_names, args):
                 _handle_train_task(project_path)
             elif task_type == 'evaluate':
                 _handle_evaluate_task(project_path, project_names, args)
+            elif task_type == 'metrics':
+                _handle_metrics_task(project_path, project_names, args)
             elif task_type == 'clean':
                 _handle_clean_task(project_path, project_name)
             elif task_type == 'model_info':
@@ -106,6 +111,20 @@ def _handle_evaluate_task(project_path, project_names, args):
     """处理评估任务"""
     project = ProjectManager(project_path)
     project.evaluate()
+
+
+def _handle_metrics_task(project_path, project_names, args):
+    """处理指标提取任务。"""
+    metrics_path = os.path.join(project_path, 'data', 'metrics.json')
+    if _get_arg_value(args, 'missing_only', False) and os.path.exists(metrics_path):
+        logger.info(f"[skip] Metrics export for '{project_path}' (metrics.json already exists)")
+        return
+
+    project = ProjectManager(project_path)
+    summary = project.export_metrics_summary()
+    logger.info(f"[ok] Metrics summary exported for project '{project.project_name}'")
+    logger.info(f"   Status: {summary.get('status', 'unknown')}")
+    logger.info(f"   Output file: {metrics_path}")
 
 
 def _handle_clean_task(project_path, project_name):

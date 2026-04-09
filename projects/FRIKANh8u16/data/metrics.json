@@ -1,0 +1,44 @@
+{
+  "project_name": "FRIKANh8u16",
+  "generated_at": "2026-04-09T23:46:48.728891+08:00",
+  "status": "partial",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": false,
+    "model_info": true,
+    "linear_response": true
+  },
+  "missing_sources": [
+    "compute_analysis.json"
+  ],
+  "missing_sections": [
+    "training_info.evaluation_metrics"
+  ],
+  "epochs": 29991,
+  "min_loss": 0.015623,
+  "min_val_loss": 0.017952,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 136.0,
+  "sens_drift_percent": 3273.976635110217,
+  "linearity_percent": 96.0178316385225,
+  "compute_cost": null,
+  "total_params": 1649,
+  "display_metrics": {
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 136.0,
+    "Sens Drift (%)": 3273.976635110217,
+    "Linearity (%)": 96.0178316385225,
+    "Compute Cost": null,
+    "Total Params": 1649,
+    "Epochs": 29991
+  }
+}
