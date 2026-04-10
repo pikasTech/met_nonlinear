@@ -51,6 +51,45 @@ def _shape_to_list(shape: Any) -> Optional[List[Optional[int]]]:
     return None
 
 
+def _shape_product(shape: Any) -> Optional[int]:
+    """计算形状中已知维度的乘积。"""
+    dims = _shape_to_list(shape)
+    if dims is None:
+        return None
+
+    product = 1
+    has_known_dim = False
+    for dim in dims:
+        if dim is None:
+            continue
+        product *= int(dim)
+        has_known_dim = True
+
+    if not has_known_dim:
+        return None
+    return product
+
+
+def _single_sample_timestep_elements(shape: Any) -> int:
+    """估计单样本、单时间步下的输出元素数量。"""
+    dims = _shape_to_list(shape)
+    if dims is None:
+        return 1
+
+    relevant_dims = dims[2:] if len(dims) >= 3 else dims[1:]
+    product = 1
+    has_known_dim = False
+    for dim in relevant_dims:
+        if dim is None:
+            continue
+        product *= int(dim)
+        has_known_dim = True
+
+    if has_known_dim:
+        return product
+    return 1
+
+
 def _convert_np_types(obj: Any) -> Any:
     """递归转换 NumPy 类型，确保 JSON 可序列化。"""
     if isinstance(obj, np.ndarray):
@@ -215,6 +254,56 @@ def _analyze_densekan_layer(layer: DenseKAN) -> Dict[str, Any]:
     }
 
 
+def _analyze_conv1d_layer(layer: tf.keras.layers.Conv1D) -> Dict[str, Any]:
+    """统计 Conv1D 层单个输出时间步的运算量。"""
+    kernel_shape = layer.kernel.shape.as_list()
+    kernel_size = int(kernel_shape[0])
+    input_channels_per_group = int(kernel_shape[1])
+    output_channels = int(kernel_shape[2])
+    groups = int(getattr(layer, 'groups', 1) or 1)
+    input_channels = input_channels_per_group * groups
+    receptive_field_size = kernel_size * input_channels_per_group
+    use_bias = bool(layer.use_bias)
+    activation_name = _activation_name(layer.activation)
+
+    multiplications = receptive_field_size * output_channels
+    additions = output_channels * max(receptive_field_size - 1, 0)
+    if use_bias:
+        additions += output_channels
+    maps = _map_count_for_activation(activation_name, output_channels)
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'kernel_size': kernel_size,
+            'input_channels': input_channels,
+            'input_channels_per_group': input_channels_per_group,
+            'output_channels': output_channels,
+            'groups': groups,
+            'strides': int(layer.strides[0]),
+            'dilation_rate': int(layer.dilation_rate[0]),
+            'padding': layer.padding,
+            'use_bias': use_bias,
+            'activation': activation_name,
+        },
+        'compute': {
+            'additions': additions,
+            'multiplications': multiplications,
+            'maps': maps,
+            'total': additions + multiplications + maps,
+        },
+        'formula': (
+            'Conv1D(single output timestep): each output channel computes one '
+            'kernel_size * in_channels_per_group dot product, so the layer uses '
+            'kernel_size * in_channels_per_group * output_channels '
+            'multiplications and output_channels * '
+            '((kernel_size * in_channels_per_group - 1) + bias) additions; '
+            'nonlinear activation per output element counts as one MAP.'
+        ),
+    }
+
+
 def _analyze_lstm_layer(layer: tf.keras.layers.LSTM) -> Dict[str, Any]:
     """统计 Keras LSTM 层单时间步的运算量。"""
     kernel_shape = layer.cell.kernel.shape.as_list()
@@ -269,6 +358,66 @@ def _analyze_lstm_layer(layer: tf.keras.layers.LSTM) -> Dict[str, Any]:
             'cell update f*c_prev + i*g contributes 2 multiplications + 1 addition '
             'per unit, hidden update o*activation(c_t) contributes 1 multiplication '
             'per unit, MAP counts 3 recurrent activations + 2 main activations per unit.'
+        ),
+    }
+
+
+def _analyze_gru_layer(layer: tf.keras.layers.GRU) -> Dict[str, Any]:
+    """统计 Keras GRU 层单时间步的运算量。"""
+    kernel_shape = layer.cell.kernel.shape.as_list()
+    recurrent_shape = layer.cell.recurrent_kernel.shape.as_list()
+    input_dim = int(kernel_shape[0])
+    units = int(layer.units)
+    recurrent_units = int(recurrent_shape[0])
+    bias_shape = None
+    if getattr(layer.cell, 'bias', None) is not None:
+        bias_shape = layer.cell.bias.shape.as_list()
+
+    recurrent_activation = _activation_name(layer.recurrent_activation)
+    activation_name = _activation_name(layer.activation)
+
+    gate_outputs = 3 * units
+    multiplications = gate_outputs * input_dim
+    multiplications += gate_outputs * recurrent_units
+    multiplications += 3 * units
+
+    additions = gate_outputs * ((input_dim - 1) + (recurrent_units - 1))
+    if bias_shape is not None:
+        if len(bias_shape) > 1:
+            additions += gate_outputs * int(bias_shape[0])
+        else:
+            additions += gate_outputs
+    additions += 5 * units
+
+    maps = units * 3
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'input_dim': input_dim,
+            'units': units,
+            'return_sequences': bool(layer.return_sequences),
+            'use_bias': bias_shape is not None,
+            'activation': activation_name,
+            'recurrent_activation': recurrent_activation,
+            'kernel_shape': kernel_shape,
+            'recurrent_kernel_shape': recurrent_shape,
+            'bias_shape': bias_shape,
+            'reset_after': bool(getattr(layer, 'reset_after', False)),
+        },
+        'compute': {
+            'additions': additions,
+            'multiplications': multiplications,
+            'maps': maps,
+            'total': additions + multiplications + maps,
+        },
+        'formula': (
+            'GRU(single timestep): 3 gates for input/recurrent affine transforms, '
+            'reset gate modulation contributes 1 multiplication per unit, final '
+            'state blend contributes 2 multiplications + 2 additions per unit, '
+            'and recurrent activations count as 2 sigmoid + 1 main activation '
+            'per unit.'
         ),
     }
 
@@ -343,6 +492,191 @@ def _analyze_simple_rnn_layer(layer: tf.keras.layers.SimpleRNN) -> Dict[str, Any
     }
 
 
+def _analyze_average_pooling1d_layer(
+        layer: tf.keras.layers.AveragePooling1D) -> Dict[str, Any]:
+    """统计 AveragePooling1D 单个输出时间步的运算量。"""
+    input_shape = _shape_to_list(getattr(layer, 'input_shape', None)) or []
+    channels = int(input_shape[-1]) if input_shape and input_shape[-1] is not None else 1
+    pool_size_raw = layer.pool_size
+    pool_size = int(pool_size_raw[0] if isinstance(pool_size_raw, (list, tuple)) else pool_size_raw)
+
+    additions = channels * max(pool_size - 1, 0)
+    multiplications = channels if pool_size > 1 else 0
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'channels': channels,
+            'pool_size': pool_size,
+            'strides': int(layer.strides[0] if isinstance(layer.strides, (list, tuple)) else layer.strides),
+            'padding': layer.padding,
+        },
+        'compute': {
+            'additions': additions,
+            'multiplications': multiplications,
+            'maps': 0,
+            'total': additions + multiplications,
+        },
+        'formula': (
+            'AveragePooling1D(single output timestep): each channel sums pool_size '
+            'samples and multiplies once by the reciprocal average factor.'
+        ),
+    }
+
+
+def _analyze_layer_normalization_layer(
+        layer: tf.keras.layers.LayerNormalization) -> Dict[str, Any]:
+    """统计 LayerNormalization 单时间步的运算量。"""
+    normalized_size = _shape_product(getattr(layer, 'gamma', None).shape) if getattr(layer, 'gamma', None) is not None else None
+    if normalized_size is None:
+        normalized_size = _shape_product(getattr(layer, 'beta', None).shape) if getattr(layer, 'beta', None) is not None else None
+    if normalized_size is None:
+        normalized_size = _single_sample_timestep_elements(getattr(layer, 'input_shape', None))
+
+    additions = max(normalized_size - 1, 0)
+    additions += normalized_size
+    additions += max(normalized_size - 1, 0)
+    additions += 1
+    if layer.center:
+        additions += normalized_size
+
+    multiplications = 1
+    multiplications += normalized_size
+    multiplications += normalized_size
+    if layer.scale:
+        multiplications += normalized_size
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'normalized_size': normalized_size,
+            'epsilon': float(layer.epsilon),
+            'center': bool(layer.center),
+            'scale': bool(layer.scale),
+            'axis': list(layer.axis) if isinstance(layer.axis, (list, tuple)) else [int(layer.axis)],
+        },
+        'compute': {
+            'additions': additions,
+            'multiplications': multiplications,
+            'maps': 1,
+            'total': additions + multiplications + 1,
+        },
+        'formula': (
+            'LayerNormalization(single timestep): estimate mean/variance reduction '
+            'over the normalized feature vector, one rsqrt-style MAP, then '
+            'elementwise normalization with optional scale and bias.'
+        ),
+    }
+
+
+def _analyze_multi_head_attention_layer(
+        layer: tf.keras.layers.MultiHeadAttention) -> Dict[str, Any]:
+    """统计单查询、单上下文 token 的 MultiHeadAttention 运算量。"""
+    query_kernel_shape = layer._query_dense.kernel.shape.as_list()
+    key_kernel_shape = layer._key_dense.kernel.shape.as_list()
+    value_kernel_shape = layer._value_dense.kernel.shape.as_list()
+    output_kernel_shape = layer._output_dense.kernel.shape.as_list()
+
+    query_dim = int(query_kernel_shape[0])
+    context_dim = int(key_kernel_shape[0])
+    num_heads = int(query_kernel_shape[1])
+    key_dim = int(query_kernel_shape[2])
+    value_dim = int(value_kernel_shape[2])
+    output_dim = int(output_kernel_shape[2])
+
+    projected_query_dim = num_heads * key_dim
+    projected_value_dim = num_heads * value_dim
+
+    use_query_bias = getattr(layer._query_dense, 'bias', None) is not None
+    use_key_bias = getattr(layer._key_dense, 'bias', None) is not None
+    use_value_bias = getattr(layer._value_dense, 'bias', None) is not None
+    use_output_bias = getattr(layer._output_dense, 'bias', None) is not None
+
+    multiplications = query_dim * projected_query_dim
+    multiplications += context_dim * projected_query_dim
+    multiplications += context_dim * projected_value_dim
+    multiplications += num_heads * key_dim
+    multiplications += num_heads
+    multiplications += projected_value_dim
+    multiplications += projected_value_dim * output_dim
+
+    additions = projected_query_dim * max(query_dim - 1, 0)
+    additions += projected_query_dim * max(context_dim - 1, 0)
+    additions += projected_value_dim * max(context_dim - 1, 0)
+    additions += num_heads * max(key_dim - 1, 0)
+    additions += output_dim * max(projected_value_dim - 1, 0)
+
+    if use_query_bias:
+        additions += projected_query_dim
+    if use_key_bias:
+        additions += projected_query_dim
+    if use_value_bias:
+        additions += projected_value_dim
+    if use_output_bias:
+        additions += output_dim
+
+    maps = num_heads
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'query_dim': query_dim,
+            'context_dim': context_dim,
+            'num_heads': num_heads,
+            'key_dim': key_dim,
+            'value_dim': value_dim,
+            'output_dim': output_dim,
+            'query_kernel_shape': query_kernel_shape,
+            'key_kernel_shape': key_kernel_shape,
+            'value_kernel_shape': value_kernel_shape,
+            'output_kernel_shape': output_kernel_shape,
+        },
+        'compute': {
+            'additions': additions,
+            'multiplications': multiplications,
+            'maps': maps,
+            'total': additions + multiplications + maps,
+        },
+        'formula': (
+            'MultiHeadAttention(single timestep estimate): one query token and one '
+            'context token are projected to Q/K/V, per-head dot product and '
+            'single-score softmax are applied, then the attended value is '
+            'projected back to the output dimension.'
+        ),
+    }
+
+
+def _analyze_tfoplambda_add_layer(layer: tf.keras.layers.Layer) -> Dict[str, Any]:
+    """统计 Keras 图中由 TFOpLambda 表示的逐元素加法。"""
+    output_elements = _single_sample_timestep_elements(getattr(layer, 'output_shape', None))
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'reason': 'elementwise_add',
+            'output_elements': output_elements,
+        },
+        'compute': {
+            'additions': output_elements,
+            'multiplications': 0,
+            'maps': 0,
+            'total': output_elements,
+        },
+        'formula': 'Elementwise residual add: one addition per output element.',
+    }
+
+
+def _supports_tfoplambda_layer(layer: tf.keras.layers.Layer) -> bool:
+    """识别当前已覆盖的 TFOpLambda 算子。"""
+    if layer.__class__.__name__ != 'TFOpLambda':
+        return False
+    return layer.name.startswith('tf.__operators__.add')
+
+
 def _unsupported_layer_analysis(layer: tf.keras.layers.Layer) -> Dict[str, Any]:
     """生成不支持层的占位分析结果。"""
     return {
@@ -402,16 +736,28 @@ def _analyze_layers(layers: List[tf.keras.layers.Layer],
                 },
                 'formula': 'Dropout is inactive during inference.',
             }
+        elif isinstance(layer, tf.keras.layers.Conv1D):
+            layer_analysis = _analyze_conv1d_layer(layer)
         elif isinstance(layer, tf.keras.layers.Dense):
             layer_analysis = _analyze_dense_layer(layer)
         elif isinstance(layer, DenseKAN):
             layer_analysis = _analyze_densekan_layer(layer)
         elif isinstance(layer, tf.keras.layers.LSTM):
             layer_analysis = _analyze_lstm_layer(layer)
+        elif isinstance(layer, tf.keras.layers.GRU):
+            layer_analysis = _analyze_gru_layer(layer)
         elif isinstance(layer, tf.keras.layers.SimpleRNN):
             layer_analysis = _analyze_simple_rnn_layer(layer)
+        elif isinstance(layer, tf.keras.layers.AveragePooling1D):
+            layer_analysis = _analyze_average_pooling1d_layer(layer)
+        elif isinstance(layer, tf.keras.layers.LayerNormalization):
+            layer_analysis = _analyze_layer_normalization_layer(layer)
+        elif isinstance(layer, tf.keras.layers.MultiHeadAttention):
+            layer_analysis = _analyze_multi_head_attention_layer(layer)
         elif isinstance(layer, (DIAGIIR, SIMOIIR)):
             layer_analysis = _analyze_iir_layer(layer)
+        elif _supports_tfoplambda_layer(layer):
+            layer_analysis = _analyze_tfoplambda_add_layer(layer)
         else:
             layer_analysis = _unsupported_layer_analysis(layer)
             unsupported_layers.append(layer.name)
@@ -433,6 +779,15 @@ def _analyze_layers(layers: List[tf.keras.layers.Layer],
         'totals': totals,
         'layers': layer_entries,
         'unsupported_layers': unsupported_layers,
+        'unsupported_layer_details': [
+            {
+                'name': layer['name'],
+                'type': layer['type'],
+                'reason': (layer.get('details') or {}).get('reason', 'unsupported_layer_type'),
+            }
+            for layer in layer_entries
+            if not layer.get('supported', False)
+        ],
     }
 
 
@@ -472,10 +827,24 @@ def analyze_model_compute(model: tf.keras.Model,
             layer_analysis['totals'],
             resolved_cost_model,
         ),
+        'estimate_status': 'partial' if layer_analysis['unsupported_layers'] else 'complete',
         'totals': layer_analysis['totals'],
         'layers': layer_analysis['layers'],
         'unsupported_layers': layer_analysis['unsupported_layers'],
+        'has_unsupported_layers': bool(layer_analysis['unsupported_layers']),
+        'unsupported_layer_count': len(layer_analysis['unsupported_layers']),
+        'unsupported_layer_details': layer_analysis['unsupported_layer_details'],
     }
+    if analysis['has_unsupported_layers']:
+        unsupported_names = ', '.join(analysis['unsupported_layers'][:5])
+        if analysis['unsupported_layer_count'] > 5:
+            unsupported_names += ', ...'
+        analysis['estimate_warning'] = (
+            'Compute cost may be underestimated because unsupported layers were '
+            f'detected: {unsupported_names}.'
+        )
+    else:
+        analysis['estimate_warning'] = None
     return _convert_np_types(analysis)
 
 

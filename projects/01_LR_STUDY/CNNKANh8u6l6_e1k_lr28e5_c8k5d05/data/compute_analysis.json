@@ -44,15 +44,15 @@
             "maps": 6.0
         },
         "weighted_units": {
-            "additions": 234.0,
-            "multiplications": 0.0,
+            "additions": 274.0,
+            "multiplications": 40.0,
             "maps": 1404.0,
-            "total": 1638.0
+            "total": 1718.0
         },
         "weighted_share_pct": {
-            "additions": 14.285714285714286,
-            "multiplications": 0.0,
-            "maps": 85.71428571428571
+            "additions": 15.948777648428406,
+            "multiplications": 2.3282887077997674,
+            "maps": 81.72293364377182
         },
         "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
         "source_notes": [
@@ -61,11 +61,12 @@
             "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
         ]
     },
+    "estimate_status": "complete",
     "totals": {
-        "additions": 234,
-        "multiplications": 0,
+        "additions": 274,
+        "multiplications": 40,
         "maps": 234,
-        "total": 468
+        "total": 548
     },
     "layers": [
         {
@@ -195,18 +196,27 @@
                 8
             ],
             "num_params": 48,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "kernel_size": 5,
+                "input_channels": 1,
+                "input_channels_per_group": 1,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 1,
+                "padding": "same",
+                "use_bias": true,
+                "activation": "linear"
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
+                "additions": 40,
+                "multiplications": 40,
                 "maps": 0,
-                "total": 0
+                "total": 80
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -216,14 +226,14 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
+                    "additions": 40.0,
+                    "multiplications": 40.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 80.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
+                    "additions": 50.0,
+                    "multiplications": 50.0,
                     "maps": 0.0
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
@@ -648,7 +658,9 @@
             }
         }
     ],
-    "unsupported_layers": [
-        "cnn_filter"
-    ]
+    "unsupported_layers": [],
+    "has_unsupported_layers": false,
+    "unsupported_layer_count": 0,
+    "unsupported_layer_details": [],
+    "estimate_warning": null
 }

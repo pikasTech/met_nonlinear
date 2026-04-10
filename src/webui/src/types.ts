@@ -40,6 +40,26 @@ export interface TrainingInfo {
   learning_rate_min?: number;
 }
 
+export interface TrainingLogEntry {
+  timestamp?: number;
+  epoch: number;
+  loss?: number;
+  val_loss?: number;
+  mae?: number;
+  val_mae?: number;
+  power_log_loss?: number;
+  val_power_log_loss?: number;
+  lr?: number;
+}
+
+export interface TrainingLogResponse {
+  projectPath: string;
+  projectName: string;
+  total: number;
+  availableMetrics: string[];
+  entries: TrainingLogEntry[];
+}
+
 export interface ModelInfo {
   model_type: string;
   total_params: number;
@@ -94,6 +114,12 @@ export interface ProjectMetricsSummary {
   sens_drift_percent: number | null;
   linearity_percent: number | null;
   compute_cost: number | null;
+  compute_cost_status?: string | null;
+  compute_has_unsupported_layers?: boolean;
+  compute_unsupported_layer_count?: number;
+  compute_unsupported_layers?: string[];
+  compute_unsupported_layer_details?: Array<Record<string, unknown>>;
+  compute_cost_warning?: string | null;
   total_params: number | null;
   lr: number | null;
   use_cosine_annealing: boolean | null;

@@ -97,6 +97,10 @@ def test_build_project_metrics_summary_complete(tmp_path):
     assert summary['val_mae'] == 0.51
     assert summary['val_afmae'] == 0.52
     assert summary['compute_cost'] == 9876.5
+    assert summary['compute_cost_status'] == 'complete'
+    assert summary['compute_has_unsupported_layers'] is False
+    assert summary['compute_unsupported_layer_count'] == 0
+    assert summary['compute_cost_warning'] is None
     assert summary['total_params'] == 4567
     assert summary['freq_drift_hz'] == pytest.approx(2.0)
     assert summary['sens_drift_percent'] == pytest.approx(0.5)
@@ -126,3 +130,44 @@ def test_save_project_metrics_summary_partial(tmp_path):
     assert 'linearity_by_frequency.json' in summary['missing_sources']
     assert 'training_info.evaluation_metrics' in summary['missing_sections']
     assert output_path.exists()
+
+
+def test_build_project_metrics_summary_marks_compute_warning(tmp_path):
+    checkpoint_dir = tmp_path / 'data'
+    checkpoint_dir.mkdir()
+
+    (checkpoint_dir / 'compute_analysis.json').write_text(json.dumps({
+        'total_params': 100,
+        'totals': {
+            'additions': 1,
+            'multiplications': 2,
+            'maps': 3,
+            'total': 6,
+        },
+        'estimated_cost': {
+            'weighted_units': {
+                'total': 21.0,
+                'additions': 1.0,
+                'multiplications': 2.0,
+                'maps': 18.0,
+            },
+        },
+        'unsupported_layers': ['transformer_mha_0'],
+        'unsupported_layer_details': [
+            {
+                'name': 'transformer_mha_0',
+                'type': 'MultiHeadAttention',
+                'reason': 'unsupported_layer_type',
+            }
+        ],
+    }), encoding='utf-8')
+
+    summary = build_project_metrics_summary(str(checkpoint_dir), project_name='demo')
+
+    assert summary['compute_cost'] == 21.0
+    assert summary['compute_cost_status'] == 'partial'
+    assert summary['compute_has_unsupported_layers'] is True
+    assert summary['compute_unsupported_layer_count'] == 1
+    assert summary['compute_unsupported_layers'] == ['transformer_mha_0']
+    assert summary['compute_unsupported_layer_details'][0]['type'] == 'MultiHeadAttention'
+    assert 'transformer_mha_0' in summary['compute_cost_warning']

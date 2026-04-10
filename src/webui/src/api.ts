@@ -1,4 +1,4 @@
-import { Project, ProjectsResponse, TrainingInfo, ModelInfo, ComputeAnalysis, ProjectMetricsSummary } from './types';
+import { Project, ProjectsResponse, TrainingInfo, TrainingLogResponse, ModelInfo, ComputeAnalysis, ProjectMetricsSummary } from './types';
 
 const API_BASE = '/api';
 
@@ -21,6 +21,14 @@ export async function fetchTrainingInfo(projectName: string): Promise<TrainingIn
   return fetchProjectData<TrainingInfo>(projectName, 'training_info.json');
 }
 
+export async function fetchTrainingLog(projectName: string): Promise<TrainingLogResponse> {
+  const pathSegments = projectName.split('/');
+  const encodedPath = pathSegments.map(seg => encodeURIComponent(seg)).join('/');
+  const res = await fetch(`${API_BASE}/projects/${encodedPath}/training-log`);
+  if (!res.ok) throw new Error('Failed to fetch training log');
+  return res.json();
+}
+
 export async function fetchModelInfo(projectName: string): Promise<ModelInfo> {
   return fetchProjectData<ModelInfo>(projectName, 'model_info.json');
 }
@@ -34,6 +42,18 @@ export async function fetchProjectMetricsSummary(projectName: string): Promise<P
 }
 
 // Preset types
+export interface LossCurvesState {
+  normalize: boolean;
+  xLogScale: boolean;
+  yLogScale: boolean;
+}
+
+export const defaultLossCurvesState: LossCurvesState = {
+  normalize: false,
+  xLogScale: false,
+  yLogScale: false,
+};
+
 export interface PresetState {
   selectedProjects: string[];
   globalFilter: string;
@@ -43,6 +63,8 @@ export interface PresetState {
   expandedFolders: string[];
   showFilters: boolean;
   showColumnPanel: boolean;
+  sidebarCollapsed?: boolean;
+  lossCurves?: LossCurvesState;
 }
 
 export interface PresetInfo {

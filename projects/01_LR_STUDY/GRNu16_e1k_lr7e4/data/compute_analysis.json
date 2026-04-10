@@ -44,15 +44,15 @@
             "maps": 6.0
         },
         "weighted_units": {
-            "additions": 272.0,
-            "multiplications": 272.0,
-            "maps": 96.0,
-            "total": 640.0
+            "additions": 1168.0,
+            "multiplications": 1136.0,
+            "maps": 384.0,
+            "total": 2688.0
         },
         "weighted_share_pct": {
-            "additions": 42.5,
-            "multiplications": 42.5,
-            "maps": 15.0
+            "additions": 43.45238095238095,
+            "multiplications": 42.26190476190476,
+            "maps": 14.285714285714286
         },
         "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
         "source_notes": [
@@ -61,11 +61,12 @@
             "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
         ]
     },
+    "estimate_status": "complete",
     "totals": {
-        "additions": 272,
-        "multiplications": 272,
-        "maps": 16,
-        "total": 560
+        "additions": 1168,
+        "multiplications": 1136,
+        "maps": 64,
+        "total": 2368
     },
     "layers": [
         {
@@ -83,18 +84,36 @@
                 16
             ],
             "num_params": 912,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "input_dim": 1,
+                "units": 16,
+                "return_sequences": true,
+                "use_bias": true,
+                "activation": "tanh",
+                "recurrent_activation": "sigmoid",
+                "kernel_shape": [
+                    1,
+                    48
+                ],
+                "recurrent_kernel_shape": [
+                    16,
+                    48
+                ],
+                "bias_shape": [
+                    2,
+                    48
+                ],
+                "reset_after": true
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 896,
+                "multiplications": 864,
+                "maps": 48,
+                "total": 1808
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "GRU(single timestep): 3 gates for input/recurrent affine transforms, reset gate modulation contributes 1 multiplication per unit, final state blend contributes 2 multiplications + 2 additions per unit, and recurrent activations count as 2 sigmoid + 1 main activation per unit.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -104,15 +123,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 896.0,
+                    "multiplications": 864.0,
+                    "maps": 288.0,
+                    "total": 2048.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 43.75,
+                    "multiplications": 42.1875,
+                    "maps": 14.0625
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -237,7 +256,9 @@
             }
         }
     ],
-    "unsupported_layers": [
-        "gru"
-    ]
+    "unsupported_layers": [],
+    "has_unsupported_layers": false,
+    "unsupported_layer_count": 0,
+    "unsupported_layer_details": [],
+    "estimate_warning": null
 }

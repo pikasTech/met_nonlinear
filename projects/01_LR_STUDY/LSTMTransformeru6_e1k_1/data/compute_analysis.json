@@ -44,15 +44,15 @@
             "maps": 6.0
         },
         "weighted_units": {
-            "additions": 792.0,
-            "multiplications": 804.0,
-            "maps": 504.0,
-            "total": 2100.0
+            "additions": 2728.0,
+            "multiplications": 1208.0,
+            "maps": 552.0,
+            "total": 4488.0
         },
         "weighted_share_pct": {
-            "additions": 37.714285714285715,
-            "multiplications": 38.285714285714285,
-            "maps": 24.0
+            "additions": 60.78431372549019,
+            "multiplications": 26.916221033868094,
+            "maps": 12.29946524064171
         },
         "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
         "source_notes": [
@@ -61,11 +61,12 @@
             "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
         ]
     },
+    "estimate_status": "complete",
     "totals": {
-        "additions": 792,
-        "multiplications": 804,
-        "maps": 84,
-        "total": 1680
+        "additions": 2728,
+        "multiplications": 1208,
+        "maps": 92,
+        "total": 4028
     },
     "layers": [
         {
@@ -211,18 +212,21 @@
                 6
             ],
             "num_params": 0,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "channels": 6,
+                "pool_size": 128,
+                "strides": 128,
+                "padding": "same"
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
+                "additions": 762,
+                "multiplications": 6,
                 "maps": 0,
-                "total": 0
+                "total": 768
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "AveragePooling1D(single output timestep): each channel sums pool_size samples and multiplies once by the reciprocal average factor.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -232,14 +236,14 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
+                    "additions": 762.0,
+                    "multiplications": 6.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 768.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
+                    "additions": 99.21875,
+                    "multiplications": 0.78125,
                     "maps": 0.0
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
@@ -265,18 +269,43 @@
                 6
             ],
             "num_params": 168,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "query_dim": 6,
+                "context_dim": 6,
+                "num_heads": 2,
+                "key_dim": 3,
+                "value_dim": 3,
+                "output_dim": 6,
+                "query_kernel_shape": [
+                    6,
+                    2,
+                    3
+                ],
+                "key_kernel_shape": [
+                    6,
+                    2,
+                    3
+                ],
+                "value_kernel_shape": [
+                    6,
+                    2,
+                    3
+                ],
+                "output_kernel_shape": [
+                    2,
+                    3,
+                    6
+                ]
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 148,
+                "multiplications": 158,
+                "maps": 2,
+                "total": 308
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "MultiHeadAttention(single timestep estimate): one query token and one context token are projected to Q/K/V, per-head dot product and single-score softmax are applied, then the attended value is projected back to the output dimension.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -286,15 +315,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 148.0,
+                    "multiplications": 158.0,
+                    "maps": 12.0,
+                    "total": 318.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 46.540880503144656,
+                    "multiplications": 49.685534591194966,
+                    "maps": 3.7735849056603774
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -373,18 +402,19 @@
                 6
             ],
             "num_params": 0,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "reason": "elementwise_add",
+                "output_elements": 6
             },
             "compute": {
-                "additions": 0,
+                "additions": 6,
                 "multiplications": 0,
                 "maps": 0,
-                "total": 0
+                "total": 6
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "Elementwise residual add: one addition per output element.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -394,13 +424,13 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
+                    "additions": 6.0,
                     "multiplications": 0.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 6.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
+                    "additions": 100.0,
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
@@ -427,18 +457,24 @@
                 6
             ],
             "num_params": 12,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "normalized_size": 6,
+                "epsilon": 1e-06,
+                "center": true,
+                "scale": true,
+                "axis": [
+                    2
+                ]
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 23,
+                "multiplications": 19,
+                "maps": 1,
+                "total": 43
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "LayerNormalization(single timestep): estimate mean/variance reduction over the normalized feature vector, one rsqrt-style MAP, then elementwise normalization with optional scale and bias.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -448,15 +484,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 23.0,
+                    "multiplications": 19.0,
+                    "maps": 6.0,
+                    "total": 48.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 47.916666666666664,
+                    "multiplications": 39.583333333333336,
+                    "maps": 12.5
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -649,18 +685,19 @@
                 6
             ],
             "num_params": 0,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "reason": "elementwise_add",
+                "output_elements": 6
             },
             "compute": {
-                "additions": 0,
+                "additions": 6,
                 "multiplications": 0,
                 "maps": 0,
-                "total": 0
+                "total": 6
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "Elementwise residual add: one addition per output element.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -670,13 +707,13 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
+                    "additions": 6.0,
                     "multiplications": 0.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 6.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
+                    "additions": 100.0,
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
@@ -703,18 +740,24 @@
                 6
             ],
             "num_params": 12,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "normalized_size": 6,
+                "epsilon": 1e-06,
+                "center": true,
+                "scale": true,
+                "axis": [
+                    2
+                ]
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 23,
+                "multiplications": 19,
+                "maps": 1,
+                "total": 43
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "LayerNormalization(single timestep): estimate mean/variance reduction over the normalized feature vector, one rsqrt-style MAP, then elementwise normalization with optional scale and bias.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -724,15 +767,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 23.0,
+                    "multiplications": 19.0,
+                    "maps": 6.0,
+                    "total": 48.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 47.916666666666664,
+                    "multiplications": 39.583333333333336,
+                    "maps": 12.5
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -757,18 +800,21 @@
                 6
             ],
             "num_params": 0,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "channels": 6,
+                "pool_size": 128,
+                "strides": 128,
+                "padding": "same"
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
+                "additions": 762,
+                "multiplications": 6,
                 "maps": 0,
-                "total": 0
+                "total": 768
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "AveragePooling1D(single output timestep): each channel sums pool_size samples and multiplies once by the reciprocal average factor.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -778,14 +824,14 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
+                    "additions": 762.0,
+                    "multiplications": 6.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 768.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
+                    "additions": 99.21875,
+                    "multiplications": 0.78125,
                     "maps": 0.0
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
@@ -811,18 +857,43 @@
                 6
             ],
             "num_params": 168,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "query_dim": 6,
+                "context_dim": 6,
+                "num_heads": 2,
+                "key_dim": 3,
+                "value_dim": 3,
+                "output_dim": 6,
+                "query_kernel_shape": [
+                    6,
+                    2,
+                    3
+                ],
+                "key_kernel_shape": [
+                    6,
+                    2,
+                    3
+                ],
+                "value_kernel_shape": [
+                    6,
+                    2,
+                    3
+                ],
+                "output_kernel_shape": [
+                    2,
+                    3,
+                    6
+                ]
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 148,
+                "multiplications": 158,
+                "maps": 2,
+                "total": 308
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "MultiHeadAttention(single timestep estimate): one query token and one context token are projected to Q/K/V, per-head dot product and single-score softmax are applied, then the attended value is projected back to the output dimension.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -832,15 +903,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 148.0,
+                    "multiplications": 158.0,
+                    "maps": 12.0,
+                    "total": 318.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 46.540880503144656,
+                    "multiplications": 49.685534591194966,
+                    "maps": 3.7735849056603774
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -919,18 +990,19 @@
                 6
             ],
             "num_params": 0,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "reason": "elementwise_add",
+                "output_elements": 6
             },
             "compute": {
-                "additions": 0,
+                "additions": 6,
                 "multiplications": 0,
                 "maps": 0,
-                "total": 0
+                "total": 6
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "Elementwise residual add: one addition per output element.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -940,13 +1012,13 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
+                    "additions": 6.0,
                     "multiplications": 0.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 6.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
+                    "additions": 100.0,
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
@@ -973,18 +1045,24 @@
                 6
             ],
             "num_params": 12,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "normalized_size": 6,
+                "epsilon": 1e-06,
+                "center": true,
+                "scale": true,
+                "axis": [
+                    2
+                ]
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 23,
+                "multiplications": 19,
+                "maps": 1,
+                "total": 43
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "LayerNormalization(single timestep): estimate mean/variance reduction over the normalized feature vector, one rsqrt-style MAP, then elementwise normalization with optional scale and bias.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -994,15 +1072,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 23.0,
+                    "multiplications": 19.0,
+                    "maps": 6.0,
+                    "total": 48.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 47.916666666666664,
+                    "multiplications": 39.583333333333336,
+                    "maps": 12.5
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -1195,18 +1273,19 @@
                 6
             ],
             "num_params": 0,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "reason": "elementwise_add",
+                "output_elements": 6
             },
             "compute": {
-                "additions": 0,
+                "additions": 6,
                 "multiplications": 0,
                 "maps": 0,
-                "total": 0
+                "total": 6
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "Elementwise residual add: one addition per output element.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -1216,13 +1295,13 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
+                    "additions": 6.0,
                     "multiplications": 0.0,
                     "maps": 0.0,
-                    "total": 0.0
+                    "total": 6.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
+                    "additions": 100.0,
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
@@ -1249,18 +1328,24 @@
                 6
             ],
             "num_params": 12,
-            "supported": false,
+            "supported": true,
             "operation_scope": "single_timestep_single_sample",
             "details": {
-                "reason": "unsupported_layer_type"
+                "normalized_size": 6,
+                "epsilon": 1e-06,
+                "center": true,
+                "scale": true,
+                "axis": [
+                    2
+                ]
             },
             "compute": {
-                "additions": 0,
-                "multiplications": 0,
-                "maps": 0,
-                "total": 0
+                "additions": 23,
+                "multiplications": 19,
+                "maps": 1,
+                "total": 43
             },
-            "formula": "No compute formula is implemented for this layer type yet.",
+            "formula": "LayerNormalization(single timestep): estimate mean/variance reduction over the normalized feature vector, one rsqrt-style MAP, then elementwise normalization with optional scale and bias.",
             "estimated_cost": {
                 "platform": "stm32f405",
                 "unit": "add_equivalent",
@@ -1270,15 +1355,15 @@
                     "maps": 6.0
                 },
                 "weighted_units": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0,
-                    "total": 0.0
+                    "additions": 23.0,
+                    "multiplications": 19.0,
+                    "maps": 6.0,
+                    "total": 48.0
                 },
                 "weighted_share_pct": {
-                    "additions": 0.0,
-                    "multiplications": 0.0,
-                    "maps": 0.0
+                    "additions": 47.916666666666664,
+                    "multiplications": 39.583333333333336,
+                    "maps": 12.5
                 },
                 "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
                 "source_notes": [
@@ -1403,18 +1488,9 @@
             }
         }
     ],
-    "unsupported_layers": [
-        "transformer_context_pool_0",
-        "transformer_mha_0",
-        "tf.__operators__.add",
-        "transformer_ln_attn_0",
-        "tf.__operators__.add_1",
-        "transformer_ln_ffn_0",
-        "transformer_context_pool_1",
-        "transformer_mha_1",
-        "tf.__operators__.add_2",
-        "transformer_ln_attn_1",
-        "tf.__operators__.add_3",
-        "transformer_ln_ffn_1"
-    ]
+    "unsupported_layers": [],
+    "has_unsupported_layers": false,
+    "unsupported_layer_count": 0,
+    "unsupported_layer_details": [],
+    "estimate_warning": null
 }

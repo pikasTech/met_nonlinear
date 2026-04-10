@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "CNNKAN",
   "training_alive": false,
-  "timestamp": "20260410095518.1",
+  "timestamp": "20260410190712.6",
   "best_weights_file": "projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05/data\\CNNKANh8u6l6_e1k_lr28e5_c8k5d05_best_weights.h5",
   "best_val_weights_file": "projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05/data\\CNNKANh8u6l6_e1k_lr28e5_c8k5d05_best_val_weights.h5",
   "loss": 0.0327177569270134,

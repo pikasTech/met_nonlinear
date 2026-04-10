@@ -5,6 +5,8 @@
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
 - **严格按用户指令执行**：当用户说"调整 X，其他不变"时，只改 X，不要自作主张改其他配置。如果认为有更好的方向，应先询问确认。
 
+  - **案例（2026-04-10）**：用户说"只调整 lr"，但我擅自尝试了更改 epochs、模型结构（INNER_KAN_UNITS/LAYERS、H_UNITS）、use_points、basis_activation、use_auto_lr 等参数，导致多项目 OOM 或指标恶化，且创建了多个不符合要求的项目。正确做法是：只改 lr 这一个参数，其他配置保持原样。
+
 ## 项目概述
 
 **MET Nonlinear** - 电化学非线性矫正项目。当前核心代码统一收敛在 `src/` 下，重点模块包括 `src/core/`、`src/models/`、`src/inference/`、`src/analysis/`、`src/visualization/`、`src/calibration_analyzer/`。
@@ -55,6 +57,7 @@
 	- 频响异常排查：如果 MAE/AFMAE 正常但频响三项极差，优先检查模型包装类 `predict()` 是否遗漏缩放/反缩放，以及 `linear_response.json.gains_comped` 是否仍停留在归一化量级，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 写回时机：`training_info.json.evaluation_metrics` 在预测与频响产物生成后才最终写回，只有命令完整结束并出现评估完成日志，才能认为评估指标已落盘；中断后需重跑 `-e`，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
+	- 漏算诊断：如果 `compute_analysis.json` 出现 `unsupported_layer_type`、`estimate_status = partial` 或 `unsupported_layers` 非空，当前项目的 compute cost 仍可能被低估；`GRN(GRU)`、`LSTMTransformer` 与 `CNNKAN(Conv1D)` 的旧产物都应重跑新分析确认，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
 - `python cli.py --metrics PROJECT_NAME`
 	- 指标提取：统一按消融实验口径计算 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 并导出 `metrics.json`，其他模块只读取该文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 前置条件：`--metrics` 只汇总现有评估产物，不会自行补算 `evaluation_metrics`；如果项目在评估后又继续训练，或 `-e` 在频率响应阶段被中断，应先完整重跑 `-e`，再执行 `--metrics`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
@@ -115,6 +118,8 @@
 
 - `python cli.py server start`
 	- 服务启动：启动 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+	- 视图约定：WebUI 对比页当前只保留 `Loss Curves` 和 `Table`，其中 `Loss Curves` 基于 `training_log.jsonl` 交互查看 train/val loss，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+	- 前端构建：修改 `src/webui/src/` 后必须重新执行 `cd src/webui && npm run build`，否则服务仍会提供旧的 `dist` 静态资源，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 - `python cli.py server stop`
 	- 服务停止：停止 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 - `python cli.py server status`

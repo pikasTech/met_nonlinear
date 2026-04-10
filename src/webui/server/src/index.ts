@@ -24,6 +24,25 @@ const app: Express = express();
 app.use(cors());
 app.use(express.json());
 
+function readJsonlFile(filePath: string): Array<Record<string, unknown>> {
+  if (!fs.existsSync(filePath)) {
+    return [];
+  }
+
+  return fs
+    .readFileSync(filePath, 'utf-8')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .flatMap((line) => {
+      try {
+        return [JSON.parse(line) as Record<string, unknown>];
+      } catch {
+        return [];
+      }
+    });
+}
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
@@ -105,6 +124,30 @@ app.get('/api/projects/*/metrics', (req, res) => {
   return res.status(404).json({ error: 'metrics.json not found' });
 });
 
+app.get('/api/projects/*/training-log', (req, res) => {
+  const routeParams = req.params as Record<string, string | undefined>;
+  const wildcardPath = typeof routeParams['0'] === 'string' ? routeParams['0'] : '';
+  const pathParts = wildcardPath.split('/').filter(Boolean);
+  const logPath = path.join(ROOT_DIR, 'projects', ...pathParts, 'data', 'training_log.jsonl');
+
+  if (!fs.existsSync(logPath)) {
+    return res.status(404).json({ error: 'training_log.jsonl not found' });
+  }
+
+  const entries = readJsonlFile(logPath);
+  const availableMetrics = Array.from(
+    new Set(entries.flatMap((entry) => Object.keys(entry).filter((key) => key !== 'timestamp' && key !== 'epoch')))
+  );
+
+  return res.json({
+    projectPath: wildcardPath,
+    projectName: pathParts[pathParts.length - 1] ?? wildcardPath,
+    total: entries.length,
+    availableMetrics,
+    entries,
+  });
+});
+
 // Preset endpoints
 app.get('/api/presets', (_req, res) => {
   try {
@@ -163,9 +206,11 @@ app.get('/api/state', (_req, res) => {
 
 app.post('/api/state', (req, res) => {
   try {
+    console.log('[State] POST /api/state received, selectedProjects:', req.body.selectedProjects);
     fs.writeFileSync(STATE_FILE, JSON.stringify(req.body, null, 2));
     res.json({ success: true });
   } catch (e) {
+    console.error('[State] Failed to save state:', e);
     res.status(500).json({ error: 'Failed to save state' });
   }
 });

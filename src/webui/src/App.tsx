@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Project, ProjectMetricsSummary } from './types';
-import { fetchProjects, fetchProjectMetricsSummary, fetchState, saveState, fetchPresets, fetchPreset, savePreset, deletePreset, PresetState, PresetInfo } from './api';
+import { fetchProjects, fetchProjectMetricsSummary, fetchState, saveState, fetchPresets, fetchPreset, savePreset, deletePreset, PresetState, PresetInfo, LossCurvesState, defaultLossCurvesState } from './api';
 import ProjectList from './components/ProjectList';
 import ComparisonView from './components/ComparisonView';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
@@ -21,13 +21,17 @@ export default function App() {
   const [showFilters, setShowFilters] = useState(false);
   const [showColumnPanel, setShowColumnPanel] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Preset management state
   const [presets, setPresets] = useState<PresetInfo[]>([]);
   const [presetName, setPresetName] = useState('');
   const [showPresetPanel, setShowPresetPanel] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [initialized, setInitialized] = useState(false);
+
+  // Loss curves state
+  const [lossCurvesState, setLossCurvesState] = useState<LossCurvesState>(defaultLossCurvesState);
 
   const showStatus = useCallback((msg: string) => {
     setStatusMsg(msg);
@@ -47,12 +51,20 @@ export default function App() {
     fetchPresets().then((data) => setPresets(data.presets)).catch(() => {});
   }, []);
 
-  // Load saved state on startup
+  // Load saved state on startup (depends on projects loaded to validate selected projects)
   useEffect(() => {
+    if (projects.length === 0) return; // Wait for projects to load
     const loadSavedState = async () => {
       try {
         const state = await fetchState();
+        console.log('[State] Loaded state:', state);
         if (state) {
+          // Filter to only valid project paths
+          const validSelected = (state.selectedProjects ?? []).filter(
+            (path: string) => projects.some((p) => p.path === path)
+          );
+          console.log('[State] Valid selected projects:', validSelected);
+          setSelectedProjects(new Set(validSelected));
           setGlobalFilter(state.globalFilter ?? '');
           setColumnFilters(state.columnFilters ?? []);
           setSorting(state.sorting ?? []);
@@ -60,37 +72,38 @@ export default function App() {
           setShowFilters(state.showFilters ?? false);
           setShowColumnPanel(state.showColumnPanel ?? false);
           setExpandedFolders(new Set(state.expandedFolders ?? []));
+          setSidebarCollapsed(state.sidebarCollapsed ?? false);
+          setLossCurvesState({ ...defaultLossCurvesState, ...state.lossCurves });
         }
+        setInitialized(true);
       } catch (e) {
-        console.error('Failed to load saved state:', e);
+        console.error('[State] Failed to load saved state:', e);
+        setInitialized(true);
       }
     };
     loadSavedState();
-  }, []);
+  }, [projects]);
 
-  // Auto-save on state change (debounced)
+  // Auto-save on state change (only after initialization is complete)
   useEffect(() => {
-    if (saveTimerRef.current) {
-      clearTimeout(saveTimerRef.current);
-    }
-    saveTimerRef.current = setTimeout(async () => {
-      const state: PresetState = {
-        selectedProjects: Array.from(selectedProjects),
-        globalFilter,
-        columnFilters,
-        sorting,
-        columnVisibility,
-        expandedFolders: Array.from(expandedFolders),
-        showFilters,
-        showColumnPanel,
-      };
-      try {
-        await saveState(state);
-      } catch (e) {
-        console.error('Failed to auto-save state:', e);
-      }
-    }, 1000);
-  }, [selectedProjects, globalFilter, columnFilters, sorting, columnVisibility, expandedFolders, showFilters, showColumnPanel]);
+    if (!initialized) return; // Don't save until we've loaded the initial state
+    const state: PresetState = {
+      selectedProjects: Array.from(selectedProjects),
+      globalFilter,
+      columnFilters,
+      sorting,
+      columnVisibility,
+      expandedFolders: Array.from(expandedFolders),
+      showFilters,
+      showColumnPanel,
+      sidebarCollapsed,
+      lossCurves: lossCurvesState,
+    };
+    console.log('[State] Auto-saving state, selectedProjects:', state.selectedProjects);
+    saveState(state).catch((e) => {
+      console.error('[State] Failed to auto-save state:', e);
+    });
+  }, [initialized, selectedProjects, globalFilter, columnFilters, sorting, columnVisibility, expandedFolders, showFilters, showColumnPanel, lossCurvesState]);
 
   // Load project data for selected projects
   useEffect(() => {
@@ -149,6 +162,8 @@ export default function App() {
         expandedFolders: Array.from(expandedFolders),
         showFilters,
         showColumnPanel,
+        sidebarCollapsed,
+        lossCurves: lossCurvesState,
       };
       await savePreset(presetName.trim(), state);
       const data = await fetchPresets();
@@ -171,8 +186,12 @@ export default function App() {
         expandedFolders: Array.from(expandedFolders),
         showFilters,
         showColumnPanel,
+        sidebarCollapsed,
+        lossCurves: lossCurvesState,
       };
       await savePreset(name, state);
+      const data = await fetchPresets();
+      setPresets(data.presets);
       showStatus(`Preset "${name}" updated`);
     } catch (e) {
       showStatus('Failed to update preset');
@@ -200,6 +219,8 @@ export default function App() {
         setExpandedFolders(new Set(state.expandedFolders ?? []));
         setShowFilters(state.showFilters ?? false);
         setShowColumnPanel(state.showColumnPanel ?? false);
+        setSidebarCollapsed(state.sidebarCollapsed ?? false);
+        setLossCurvesState({ ...defaultLossCurvesState, ...state.lossCurves });
 
         if (missingProjects.length > 0) {
           showStatus(`Preset "${name}" loaded (${missingProjects.length} project(s) not found)`);
@@ -232,6 +253,13 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
+        <button
+          className="btn-sidebar-toggle"
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          title={sidebarCollapsed ? 'Show sidebar' : 'Hide sidebar'}
+        >
+          {sidebarCollapsed ? '☰' : '◀'}
+        </button>
         <h1>MET Nonlinear - Project Visualizer</h1>
         <div className="header-stats">
           {projects.length} projects | {selectedProjects.size} selected
@@ -265,7 +293,7 @@ export default function App() {
                 <span className="preset-item-name" onClick={() => handleLoadPreset(p.name)}>
                   {p.name}
                 </span>
-                <span className="preset-item-date">{new Date(p.createdAt).toLocaleDateString()}</span>
+                <span className="preset-item-date">{new Date(p.createdAt).toLocaleString()}</span>
                 <button
                   className="btn-update-preset"
                   onClick={() => handleUpdatePreset(p.name)}
@@ -287,18 +315,20 @@ export default function App() {
       )}
       {statusMsg && <div className="status-toast">{statusMsg}</div>}
       <main className="main">
-        <aside className="sidebar">
-          <ProjectList
-            projects={projects}
-            selectedProjects={selectedProjects}
-            onToggle={toggleProject}
-            onSelectAll={selectAll}
-            onDeselectAll={deselectAll}
-            filter={globalFilter}
-            onFilterChange={setGlobalFilter}
-            expandedFolders={expandedFolders}
-            onExpandedFoldersChange={setExpandedFolders}
-          />
+        <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+          {!sidebarCollapsed && (
+            <ProjectList
+              projects={projects}
+              selectedProjects={selectedProjects}
+              onToggle={toggleProject}
+              onSelectAll={selectAll}
+              onDeselectAll={deselectAll}
+              filter={globalFilter}
+              onFilterChange={setGlobalFilter}
+              expandedFolders={expandedFolders}
+              onExpandedFoldersChange={setExpandedFolders}
+            />
+          )}
         </aside>
         <section className="content">
           {selectedProjects.size > 0 ? (
@@ -327,6 +357,8 @@ export default function App() {
               onShowFiltersChange={setShowFilters}
               showColumnPanel={showColumnPanel}
               onShowColumnPanelChange={setShowColumnPanel}
+              lossCurvesState={lossCurvesState}
+              onLossCurvesStateChange={setLossCurvesState}
             />
           ) : (
             <div className="placeholder">Select projects to compare</div>

@@ -42,9 +42,19 @@
 
 ## 当前支持范围
 
-- 标准层已覆盖 `Dense`、`LSTM`、`SimpleRNN`、推理态 `Dropout`。
+- 标准层已覆盖 `Dense`、`Conv1D`、`LSTM`、`GRU`、`SimpleRNN`、`AveragePooling1D`、`LayerNormalization`、`MultiHeadAttention`、推理态 `Dropout`。
+- Keras 函数式残差加法若以 `TFOpLambda(tf.__operators__.add*)` 形式出现，也会按逐元素加法计入。
 - FRIKAN 已覆盖 `SIMOIIR` / `DIAGIIR` 的 IIR 语义估算与 `DenseKAN` 的 LUT 语义估算。
 - `fast_iir` 与 `fast_model` 只影响实现形式，不改变统计口径。
+
+## 已知限制与排查
+
+- `compute_analysis.json` 中若出现 `unsupported_layer_type` 或 `unsupported_layers` 非空，通常表示该模型的 `compute_cost` 偏低，不能直接拿来做横向比较。
+- 新产物会额外写出 `estimate_status`、`estimate_warning`、`has_unsupported_layers`、`unsupported_layer_count` 与 `unsupported_layer_details`，便于脚本和 WebUI 直接提示风险。
+- `CNNKAN` 前端 `Conv1D` 已纳入单时间步统计，旧产物若曾把 `cnn_filter` 标成 unsupported，需要重跑 `python cli.py -e PROJECT_NAME` 或 `python cli.py -m PROJECT_NAME` 再同步执行 `python cli.py --metrics PROJECT_NAME`。
+- `GRN` 当前实际使用 `GRU` 作为主干；如果产物生成于本次修复之前，需要重跑 `python cli.py -e PROJECT_NAME` 或 `python cli.py -m PROJECT_NAME` 更新 compute cost。
+- `LSTMTransformer` 当前已覆盖 pooling / attention / layer norm / residual add 的主干路径；如果旧产物里这些层仍显示 unsupported，需要重跑生成。
+- 排查时优先打开 `projects/PROJECT_NAME/data/compute_analysis.json`，检查是否存在 `supported: false` 的层，以及这些层是否正好位于模型主干路径上。
 
 ## 结果解读
 

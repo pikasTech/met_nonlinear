@@ -367,6 +367,44 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "pytest-compute-and-metrics",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/analysis/tests/test_model_compute_analysis.py",
+				"src/tests/core/test_metrics_summary.py",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "recompute-grn-u16-model-and-metrics",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Location 'c:\\work\\met_nonlinear_master'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py -m 'projects/01_LR_STUDY/GRNu16_e1k_lr7e4'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py --metrics 'projects/01_LR_STUDY/GRNu16_e1k_lr7e4'"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "recompute-lstmtransformer-u6-model-and-metrics",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Location 'c:\\work\\met_nonlinear_master'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py -m 'projects/01_LR_STUDY/LSTMTransformeru6_e1k_1'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py --metrics 'projects/01_LR_STUDY/LSTMTransformeru6_e1k_1'"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

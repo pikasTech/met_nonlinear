@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Project, ProjectMetricsSummary } from '../types';
-import ChartView from './ChartView';
+import { LossCurvesState } from '../api';
+import LossCurvesView from './LossCurvesView';
 import TableView from './TableView';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
 
@@ -28,9 +29,12 @@ interface Props {
   onShowFiltersChange?: (show: boolean) => void;
   showColumnPanel?: boolean;
   onShowColumnPanelChange?: (show: boolean) => void;
+  // Loss curves state props for preset support
+  lossCurvesState?: LossCurvesState;
+  onLossCurvesStateChange?: (state: LossCurvesState) => void;
 }
 
-type ViewMode = 'chart' | 'table';
+type ViewMode = 'loss' | 'table';
 
 export default function ComparisonView({
   projects,
@@ -47,17 +51,19 @@ export default function ComparisonView({
   onShowFiltersChange,
   showColumnPanel,
   onShowColumnPanelChange,
+  lossCurvesState,
+  onLossCurvesStateChange,
 }: Props) {
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
+  const [viewMode, setViewMode] = useState<ViewMode>('loss');
 
   return (
     <div className="comparison">
       <div className="view-tabs">
         <button
-          className={`tab ${viewMode === 'chart' ? 'active' : ''}`}
-          onClick={() => setViewMode('chart')}
+          className={`tab ${viewMode === 'loss' ? 'active' : ''}`}
+          onClick={() => setViewMode('loss')}
         >
-          Charts
+          Loss Curves
         </button>
         <button
           className={`tab ${viewMode === 'table' ? 'active' : ''}`}
@@ -67,8 +73,12 @@ export default function ComparisonView({
         </button>
       </div>
       <div className="view-content">
-        {viewMode === 'chart' ? (
-          <ChartView projects={projects} />
+        {viewMode === 'loss' ? (
+          <LossCurvesView
+            projects={projects}
+            lossCurvesState={lossCurvesState}
+            onLossCurvesStateChange={onLossCurvesStateChange}
+          />
         ) : (
           <TableView
             projects={projects}

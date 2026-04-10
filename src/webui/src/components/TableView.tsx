@@ -50,6 +50,9 @@ type RowData = {
   valAFMAE: number | null;
   totalParams: number | null;
   computeCost: number | null;
+  computeHasUnsupportedLayers: boolean;
+  computeUnsupportedLayerCount: number;
+  computeCostWarning: string | null;
   freqDrift: number | null;
   sensDrift: number | null;
   linearity: number | null;
@@ -157,6 +160,9 @@ export default function TableView({
       valAFMAE: p.data.summary?.val_afmae ?? null,
       totalParams: p.data.summary?.total_params ?? null,
       computeCost: p.data.summary?.compute_cost ?? null,
+      computeHasUnsupportedLayers: p.data.summary?.compute_has_unsupported_layers ?? false,
+      computeUnsupportedLayerCount: p.data.summary?.compute_unsupported_layer_count ?? 0,
+      computeCostWarning: p.data.summary?.compute_cost_warning ?? null,
       freqDrift: p.data.summary?.freq_drift_hz ?? null,
       sensDrift: p.data.summary?.sens_drift_percent ?? null,
       linearity: p.data.summary?.linearity_percent ?? null,
@@ -216,7 +222,27 @@ export default function TableView({
     }),
     columnHelper.accessor('computeCost', {
       header: 'Compute Cost',
-      cell: (info) => formatCell(info.getValue()),
+      cell: (info) => {
+        const value = info.getValue();
+        const row = info.row.original;
+        if (value === null || value === undefined) {
+          return '(no data)';
+        }
+
+        const warningSuffix = row.computeHasUnsupportedLayers
+          ? ` (${row.computeUnsupportedLayerCount} unsupported)`
+          : '';
+
+        return (
+          <span
+            title={row.computeCostWarning ?? undefined}
+            style={row.computeHasUnsupportedLayers ? { color: '#c62828', fontWeight: 700 } : undefined}
+          >
+            {formatCell(value)}
+            {warningSuffix}
+          </span>
+        );
+      },
       filterFn: numberFilter,
     }),
     columnHelper.accessor('freqDrift', {

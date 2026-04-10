@@ -225,6 +225,56 @@ def _build_metric_details(
     }
 
 
+def _build_compute_status(
+    compute_analysis: Optional[Dict[str, Any]],
+) -> Dict[str, Any]:
+    if compute_analysis is None:
+        return {
+            'compute_cost_status': None,
+            'compute_has_unsupported_layers': False,
+            'compute_unsupported_layer_count': 0,
+            'compute_unsupported_layers': [],
+            'compute_unsupported_layer_details': [],
+            'compute_cost_warning': None,
+        }
+
+    unsupported_layers = compute_analysis.get('unsupported_layers') or []
+    unsupported_details = compute_analysis.get('unsupported_layer_details') or [
+        {'name': name, 'reason': 'unsupported_layer_type'}
+        for name in unsupported_layers
+    ]
+    has_unsupported_layers = bool(
+        compute_analysis.get('has_unsupported_layers') or unsupported_layers
+    )
+    unsupported_layer_count = _to_int(compute_analysis.get('unsupported_layer_count'))
+    if unsupported_layer_count is None:
+        unsupported_layer_count = len(unsupported_details)
+
+    compute_cost_status = compute_analysis.get('estimate_status')
+    if compute_cost_status is None:
+        compute_cost_status = 'partial' if has_unsupported_layers else 'complete'
+
+    compute_cost_warning = compute_analysis.get('estimate_warning')
+    if compute_cost_warning is None and has_unsupported_layers:
+        names = [detail.get('name') for detail in unsupported_details if detail.get('name')]
+        preview = ', '.join(names[:5])
+        if unsupported_layer_count > 5:
+            preview += ', ...'
+        compute_cost_warning = (
+            'Compute cost may be underestimated because unsupported layers were '
+            f'detected: {preview}.'
+        )
+
+    return {
+        'compute_cost_status': compute_cost_status,
+        'compute_has_unsupported_layers': has_unsupported_layers,
+        'compute_unsupported_layer_count': unsupported_layer_count,
+        'compute_unsupported_layers': unsupported_layers,
+        'compute_unsupported_layer_details': unsupported_details,
+        'compute_cost_warning': compute_cost_warning,
+    }
+
+
 def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[str] = None) -> Dict[str, Any]:
     training_info_path = os.path.join(checkpoint_dir, 'training_info.json')
     compute_analysis_path = os.path.join(checkpoint_dir, 'compute_analysis.json')
@@ -302,6 +352,8 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
             'weighted_maps': _to_float(weighted_units.get('maps')),
         }
 
+    compute_status = _build_compute_status(compute_analysis)
+
     summary: Dict[str, Any] = {
         'project_name': project_name,
         'generated_at': datetime.now().astimezone().isoformat(),
@@ -336,6 +388,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'use_cosine_annealing': config.get('use_auto_lr') if config else None,
         'metric_details': metric_details,
         'compute_details': compute_details,
+        **compute_status,
     }
 
     summary['display_metrics'] = {
