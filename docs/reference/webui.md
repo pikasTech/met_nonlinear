@@ -113,8 +113,12 @@ GET /api/projects/{name}/data/{filename}
 - **自动保存**：选择项目、筛选、排序等操作会在 1 秒后自动保存到 `cache/webui/state.json`
 - **手动保存**：点击 "Presets" 按钮可保存/加载预设到 `cache/webui/presets/` 目录
 - 预设保存内容：选中项目、全局筛选、列筛选、排序、列可见性、展开文件夹状态
+- **加载容错**：加载预设时，会自动过滤掉当前项目列表中不存在的项目路径，并显示提示；若部分项目未找到，会显示"Preset loaded (N project(s) not found)"
+- **更新预设**：已保存的预设支持点击"↻"按钮用当前配置覆盖更新
 
 ## 开发命令
+
+> **npm 路径说明**：Windows 环境下若 `npm` 命令未在 PATH 中，需使用完整路径调用，如 `D:/Program Files/nodejs/npm.cmd` 或 `npm.cmd`。
 
 ```bash
 # 安装依赖
@@ -126,6 +130,8 @@ cd src/webui/server && npx tsx watch src/index.ts
 
 # 构建前端（构建产物输出到 src/webui/dist/）
 cd src/webui && npm run build
+# Windows PATH 未配置时：
+# D:/Program Files/nodejs/npm.cmd run build
 ```
 
 ## 端口说明

@@ -160,12 +160,39 @@ export default function App() {
     }
   };
 
+  const handleUpdatePreset = async (name: string) => {
+    try {
+      const state: PresetState = {
+        selectedProjects: Array.from(selectedProjects),
+        globalFilter,
+        columnFilters,
+        sorting,
+        columnVisibility,
+        expandedFolders: Array.from(expandedFolders),
+        showFilters,
+        showColumnPanel,
+      };
+      await savePreset(name, state);
+      showStatus(`Preset "${name}" updated`);
+    } catch (e) {
+      showStatus('Failed to update preset');
+    }
+  };
+
   const handleLoadPreset = async (name: string) => {
     try {
       const data = await fetchPreset(name);
       const state = data.state;
       if (state) {
-        setSelectedProjects(new Set(state.selectedProjects ?? []));
+        // Filter out project paths that don't exist in the current projects list
+        const validSelectedProjects = (state.selectedProjects ?? []).filter(
+          (path: string) => projects.some((p) => p.path === path)
+        );
+        const missingProjects = (state.selectedProjects ?? []).filter(
+          (path: string) => !projects.some((p) => p.path === path)
+        );
+
+        setSelectedProjects(new Set(validSelectedProjects));
         setGlobalFilter(state.globalFilter ?? '');
         setColumnFilters(state.columnFilters ?? []);
         setSorting(state.sorting ?? []);
@@ -173,7 +200,12 @@ export default function App() {
         setExpandedFolders(new Set(state.expandedFolders ?? []));
         setShowFilters(state.showFilters ?? false);
         setShowColumnPanel(state.showColumnPanel ?? false);
-        showStatus(`Preset "${name}" loaded`);
+
+        if (missingProjects.length > 0) {
+          showStatus(`Preset "${name}" loaded (${missingProjects.length} project(s) not found)`);
+        } else {
+          showStatus(`Preset "${name}" loaded`);
+        }
         setShowPresetPanel(false);
       }
     } catch (e) {
@@ -235,6 +267,13 @@ export default function App() {
                 </span>
                 <span className="preset-item-date">{new Date(p.createdAt).toLocaleDateString()}</span>
                 <button
+                  className="btn-update-preset"
+                  onClick={() => handleUpdatePreset(p.name)}
+                  title="Update preset with current settings"
+                >
+                  ↻
+                </button>
+                <button
                   className="btn-delete-preset"
                   onClick={() => handleDeletePreset(p.name)}
                   title="Delete preset"
@@ -264,11 +303,17 @@ export default function App() {
         <section className="content">
           {selectedProjects.size > 0 ? (
             <ComparisonView
-              projects={selectedArray.map((path) => ({
-                name: projects.find((p) => p.path === path)?.name ?? path,
-                project: projects.find((p) => p.path === path)!,
-                data: projectData.get(path) ?? {}
-              }))}
+              projects={selectedArray
+                .map((path) => {
+                  const project = projects.find((p) => p.path === path);
+                  if (!project) return null;
+                  return {
+                    name: project.name,
+                    project,
+                    data: projectData.get(path) ?? {}
+                  };
+                })
+                .filter((p): p is NonNullable<typeof p> => p !== null)}
               onRemove={(path) => toggleProject(path)}
               globalFilter={globalFilter}
               onGlobalFilterChange={setGlobalFilter}

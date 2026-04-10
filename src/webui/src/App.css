@@ -220,6 +220,26 @@ body {
   background: #cc0000;
 }
 
+.btn-update-preset {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  border: none;
+  background: #2196F3;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-update-preset:hover {
+  background: #1976D2;
+}
+
 /* Status toast */
 .status-toast {
   position: fixed;
