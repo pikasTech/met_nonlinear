@@ -369,7 +369,20 @@ class TestParseArguments:
         """Test parsing ep subcommand"""
         args = parse_arguments(['ep', 'project/task-type/task-name'])
         assert args.command == 'ep'
+        assert args.ep_action == 'run'
         assert args.ep_project_path == 'project/task-type/task-name'
+
+    def test_parse_ep_create_command(self):
+        """Test parsing ep create subcommand"""
+        args = parse_arguments(['ep', 'create', 'project/task-type/task-name'])
+        assert args.command == 'ep'
+        assert args.ep_action == 'create'
+        assert args.ep_project_path == 'project/task-type/task-name'
+
+    def test_parse_ep_command_invalid(self):
+        """Test parsing invalid ep subcommand arguments"""
+        with pytest.raises(ArgumentParsingError):
+            parse_arguments(['ep', 'create'])
 
 
 class TestCreateParser:

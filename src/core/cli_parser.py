@@ -64,6 +64,7 @@ class CLIArgs:
     
     # 子命令支持（简化设计）
     command: Optional[str] = None
+    ep_action: Optional[str] = None
     ep_project_path: Optional[str] = None
     qemu_action: Optional[str] = None
     qemu_project_dir: Optional[str] = None
@@ -231,6 +232,7 @@ def _create_main_parser_only(config: CLIConfig) -> argparse.ArgumentParser:
   python cli.py -a PROJECT_NAME --bias-method auto
   python cli.py --loss-plot PROJECT_NAME
   python cli.py ep project/freq-response-compare/task-name
+    python cli.py ep create project/freq-response-compare/task-name
 
 配置文件：
   可以在以下位置创建 cli_config.yaml 文件来设置默认值：
@@ -269,6 +271,7 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
         epilog="""
 示例用法：
   python cli.py ep project/freq-response-compare/task-name
+    python cli.py ep create project/freq-response-compare/task-name
   python cli.py ep LSTMu32al_rs300/freq-response-compare/test
   python cli.py qemu list
     python cli.py qemu build src/tests/qemu/stm32f405_hello
@@ -278,9 +281,12 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest='command', help='可用命令')
 
-    ep_parser = subparsers.add_parser('ep', help='外部项目管理 (External Project)')
-    ep_parser.add_argument('ep_project_path',
-                            help='外部项目路径，格式: project/task-type/task-name 或 project/task-name')
+    ep_parser = subparsers.add_parser('ep', help='拓展项目管理 (External Project)')
+    ep_parser.add_argument(
+        'ep_args',
+        nargs='+',
+        help='执行格式: ep <path>；创建模板格式: ep create <path>'
+    )
 
     qemu_parser = subparsers.add_parser('qemu', help='QEMU 边缘设备仿真工具')
     qemu_subparsers = qemu_parser.add_subparsers(dest='qemu_action', help='QEMU 操作')
@@ -518,11 +524,26 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
 
         # 如果是 ep 子命令，跳过主命令的验证逻辑
         if is_ep_subcommand:
+            ep_args = list(getattr(args, 'ep_args', []) or [])
+            ep_action = 'run'
+            ep_project_path = None
+
+            if len(ep_args) == 1 and ep_args[0] != 'create':
+                ep_project_path = ep_args[0]
+            elif len(ep_args) == 2 and ep_args[0] == 'create':
+                ep_action = 'create'
+                ep_project_path = ep_args[1]
+            else:
+                raise ArgumentParsingError(
+                    'ep 子命令格式错误，应使用 "ep <path>" 或 "ep create <path>"'
+                )
+
             return CLIArgs(
                 task_type=TaskType.INFERENCE,  # 子命令实际不会用到
                 project_names=[],
                 command='ep',
-                ep_project_path=getattr(args, 'ep_project_path', None)
+                ep_action=ep_action,
+                ep_project_path=ep_project_path
             )
 
         if is_qemu_subcommand:
@@ -608,6 +629,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             bom_package=args.bom_package if hasattr(args, 'bom_package') else '0805',
             bom_standardize=args.bom_standardize if hasattr(args, 'bom_standardize') else None,
             command=getattr(args, 'command', None),
+            ep_action=getattr(args, 'ep_action', None),
             ep_project_path=getattr(args, 'ep_project_path', None),
             qemu_action=getattr(args, 'qemu_action', None),
             qemu_project_dir=getattr(args, 'qemu_project_dir', None),

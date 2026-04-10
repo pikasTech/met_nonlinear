@@ -77,3 +77,8 @@ screenshots/
 scripts/
 **/dist/
 **/node_modules/
+.state/
+**/screenshot/
+**/*.lock
+**/*.pid
+*.png

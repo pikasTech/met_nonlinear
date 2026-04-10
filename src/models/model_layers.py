@@ -164,6 +164,7 @@ class BaseLayerModel:
         """
         转发调用到模型的预测方法
         """
+        kwargs.pop('use_scaler', None)
         return self.model.predict(*args, **kwargs)
 
     def get_inner_layers(self) -> List[layers.Layer]:

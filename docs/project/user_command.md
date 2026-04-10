@@ -36,15 +36,15 @@ error_file: logs/20250917_100040_cli_errors.log
 
 [INFO 0.12s] cli.py start... | cli.py:50
 [INFO 0.15s] 加载配置文件: core/cli_defaults.yaml | cli_parser.py:144
-[INFO 0.17s] 🎯 开始处理外部项目: ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3 | external_cli_handler.py:35
+[INFO 0.17s] 🎯 开始处理拓展项目: ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3 | external_cli_handler.py:35
 [INFO 0.17s] 📂 项目信息: | external_cli_handler.py:41
 [INFO 0.17s] 项目名称: inference | external_cli_handler.py:42
 [INFO 0.17s] 任务类型: wnet5-circuit-validation | external_cli_handler.py:43
 [INFO 0.17s] 任务名称: WNET5q1h2u6l3 | external_cli_handler.py:44
 [INFO 0.17s] 配置文件: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\config.json | external_cli_handler.py:45
 [INFO 0.17s] 输出目录: C:\work\met_nonlinear\ep_projects\inference\wnet5-circuit-validation\WNET5q1h2u6l3\data | external_cli_handler.py:46
-[INFO 0.17s] 📊 开始处理外部项目任务: WNET5q1h2u6l3 | external_cli_handler.py:68
-[INFO 0.18s] 🚀 执行外部项目任务... | external_cli_handler.py:80
+[INFO 0.17s] 📊 开始处理拓展项目任务: WNET5q1h2u6l3 | external_cli_handler.py:68
+[INFO 0.18s] 🚀 执行拓展项目任务... | external_cli_handler.py:80
 [INFO 0.18s] ✅ 配置验证通过: wnet5-circuit-validation | config_validator.py:354
 [INFO 0.18s] ✅ 配置验证通过: wnet5-circuit-validation | external_cli_handler.py:287
 [INFO 0.88s] 执行WNET5电路验证任务: WNET5q1h2u6l3 | external_cli_handler.py:442

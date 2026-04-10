@@ -87,6 +87,7 @@ class IIR_LRNN:
 
     def predict(self, x_input, batch_size=1000, **kwargs):
         # 使用训练后的模型进行预测
+        kwargs.pop('use_scaler', None)
         y_pred = self.model.predict(x_input, batch_size=batch_size, **kwargs)
         return y_pred
 
@@ -315,6 +316,7 @@ class IIR_LNRNN_Compensator(IIR_LNRNN):
 
     def predict(self, input_estimate, real_output, batch_size=1000, **kwargs):
         # 使用补偿器模型进行预测
+        kwargs.pop('use_scaler', None)
         y_pred = self.model.predict(
             [input_estimate, real_output], batch_size=batch_size, **kwargs)
         return y_pred

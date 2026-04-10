@@ -2,11 +2,14 @@
 
 ## 功能概述
 
-`python cli.py ep "PROJECT/task-type/task-name"` 是外部项目任务入口，用于创建或执行配置驱动的扩展任务。若配置文件不存在，命令会先自动生成模板；若配置已存在，则直接执行任务。
+`python cli.py ep "PROJECT/task-type/task-name"` 是拓展项目任务入口，只负责执行已有配置的扩展任务。
+
+`python cli.py ep create "PROJECT/task-type/task-name"` 是显式模板创建入口，仅在需要新建拓展项目模板时使用。
 
 ## 基本用法
 
 ```bash
+python cli.py ep create "LSTMu32al_rs300/freq-response-compare/baseline-comparison"
 python cli.py ep "LSTMu32al_rs300/freq-response-compare/baseline-comparison"
 python cli.py ep "LSTMu32al_rs300/wnet5-circuit-validation/layer2"
 python cli.py ep "LSTMu32al_rs300/freq-response-compensator/test"
@@ -15,12 +18,37 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 ```
 
-## 智能执行流程
+## 仓库内 EP 索引
+
+当前仓库内的 EP 任务主要分布在以下路径下，查询项目时优先从这些目录定位：
+
+| 路径前缀 | 任务类型 | 说明 | 典型项目 |
+|------|------|------|------|
+| `ex_projects/visualization/freq-response-compare/` | `freq-response-compare` | 频率响应对比与可视化 | `LSTMu32al_rs300_PS-5`、`PS-5-190_vs_PS-5-360`、`WNET5_EFF2_A1_PS-5_360` |
+| `ex_projects/visualization/freq-response-compensator/` | `freq-response-compensator` | 补偿器频率响应可视化 | `WNET5q1h2u6l3` |
+| `ex_projects/inference/wnet5-circuit-validation/` | `wnet5-circuit-validation` | WNET5/SPICE 电路验证，包含整体验证和分层验证 | `WNET5q1h2u6l3`、`WNET5_EFF2_A1`、`WNET5_EFF2_B1` |
+| `ex_projects/wnet5-circuit-validation/` | `wnet5-circuit-validation` | 通用层级验证模板 | `layer1`、`layer2`、`layer3` |
+| `ex_projects/inference/qemu-c-inference/` | `qemu-c-inference` | 裸机 C/QEMU 推理一致性验证 | `lstm_u16_base`、`grnu16`、`frikan_h8u6l6_nosym` |
+
+其中当前可直接复用的 `freq-response-compare` 项目包括：
+
+- `LSTMu32al_rs300_ex2`
+- `LSTMu32al_rs300_PS-5`
+- `LSTMu32al_rs300_PS-5_160-200Hz`
+- `LSTMu32al_rs300_PS-5_160-200Hz_inverse`
+- `LSTMu32al_rs300_PS-5_160-200Hz_inverse_ex2`
+- `LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3`
+- `LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3_vs_ex4`
+- `LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex4`
+- `PS-5-190_vs_PS-5-360`
+- `WNET5_EFF2_A1_PS-5_360`
+
+## 执行流程
 
 1. 解析 `ep_project_path`。
 2. 确定任务目录、配置文件和输出目录。
-3. 若 `config.json` 不存在，则自动创建模板并提示编辑。
-4. 若 `config.json` 已存在，则验证配置并执行任务。
+3. 若执行 `python cli.py ep create "..."`，则创建模板；若目标 `config.json` 已存在，则拒绝覆盖。
+4. 若执行 `python cli.py ep "..."`，则要求 `config.json` 已存在；若不存在，则直接报错退出。
 
 ## 路径格式
 
@@ -30,8 +58,8 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 |------|------|------|
 | 训练项目完整格式 | `LSTMu32al_rs300/freq-response-compare/baseline-comparison` | 常用形式 |
 | 简化格式 | `PROJECT/task-name` | 自动检测任务类型 |
-| inference 外部项目格式 | `ex_projects/inference/qemu-c-inference/lstm_u16_base` | 适用于推理类外部任务 |
-| 外部项目格式 | `external/projects/freq-response-compare/PS-5-190_vs_PS-5-360` | 适用于独立外部工程 |
+| inference 拓展项目格式 | `ex_projects/inference/qemu-c-inference/lstm_u16_base` | 适用于推理类外部任务 |
+| 拓展项目格式 | `external/projects/freq-response-compare/PS-5-190_vs_PS-5-360` | 适用于独立外部工程 |
 
 ## 支持的任务类型
 
@@ -130,6 +158,12 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 
 ## 配置文件与输出目录
 
+推荐工作流：
+
+1. 运行 `python cli.py ep create "..."` 创建模板。
+2. 编辑生成的 `config.json`。
+3. 运行 `python cli.py ep "..."` 执行任务。
+
 对于训练项目路径，通常会生成：
 
 - `projects/PROJECT_NAME/external/TASK_TYPE/TASK_NAME/config.json`
@@ -144,6 +178,32 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 - `.../data/plots/*.png`：按 validation record 导出的四曲线对比图，默认叠加 `origin`、`target`、`c_inference`、`tf_inference`
 
 若需要统一比较 MSE，可直接用 `validation_comparison.json` 的 `overall.diff_stats.energy / overall.sample_count` 计算；当前四样例的参考数值已同步写入 [边缘设备推理仿真](edge_device_emulation.md)。
+
+## WNET5 电路验证频响图产物
+
+WNET5 分层电路验证的频率响应图必须通过 `cli.py ep` 生成，不应额外写临时脚本或直接调用可视化模块。
+
+常用命令：
+
+```bash
+python cli.py ep "ex_projects/wnet5-circuit-validation/layer1"
+python cli.py ep "ex_projects/wnet5-circuit-validation/layer2"
+python cli.py ep "ex_projects/wnet5-circuit-validation/layer3"
+```
+
+对应产物路径：
+
+- `ex_projects/wnet5-circuit-validation/layer1/data/plots/frequency_response_comparison.png`
+- `ex_projects/wnet5-circuit-validation/layer2/data/plots/frequency_response_comparison.png`
+- `ex_projects/wnet5-circuit-validation/layer3/data/plots/frequency_response_comparison.png`
+
+这些图的共同约定如下：
+
+- 默认输出 PNG，典型分辨率为 `300 DPI`、约 `3600 x 2400` 像素。
+- 坐标系使用 `semilogx`，横轴为频率，纵轴为线性增益。
+- 图中对比理论频率响应和实验测量频率响应，常见频率范围为 `2 - 500 Hz`。
+- 典型 WNET5 Dense 层验证为 6 通道输出，对应 `layer1`、`layer2`、`layer3` 三组实验 sheet。
+- 这类图适合用来核对层级 SPICE 实现是否与理论响应一致；若需要项目级综合频响对比，优先使用 `freq-response-compare` 类 EP。
 
 ## 适用场景
 

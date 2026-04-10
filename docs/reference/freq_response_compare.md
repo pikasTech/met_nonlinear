@@ -60,4 +60,4 @@ python cli.py --vis-freq-response-compare PROJECT1 PROJECT2 --layout side_by_sid
 ## 相关文档
 
 - 若需要配置驱动的外部任务工作流，使用 [ep 子命令说明](ep.md)
-- EP 架构详见 [外部项目管理](../project/ep.md)
+- EP 架构详见 [拓展项目管理](../project/ep.md)

@@ -32,3 +32,72 @@ export async function fetchComputeAnalysis(projectName: string): Promise<Compute
 export async function fetchProjectMetricsSummary(projectName: string): Promise<ProjectMetricsSummary> {
   return fetchProjectData<ProjectMetricsSummary>(projectName, 'metrics.json');
 }
+
+// Preset types
+export interface PresetState {
+  selectedProjects: string[];
+  globalFilter: string;
+  columnFilters: Array<{ id: string; value: any }>;
+  sorting: Array<{ id: string; desc: boolean }>;
+  columnVisibility: Record<string, boolean>;
+  expandedFolders: string[];
+  showFilters: boolean;
+  showColumnPanel: boolean;
+}
+
+export interface PresetInfo {
+  name: string;
+  state: PresetState;
+  createdAt: string;
+  description?: string;
+}
+
+export interface PresetsResponse {
+  presets: PresetInfo[];
+  total: number;
+}
+
+// Preset API
+export async function fetchPresets(): Promise<PresetsResponse> {
+  const res = await fetch(`${API_BASE}/presets`);
+  if (!res.ok) throw new Error('Failed to fetch presets');
+  return res.json();
+}
+
+export async function fetchPreset(name: string): Promise<PresetInfo> {
+  const res = await fetch(`${API_BASE}/presets/${encodeURIComponent(name)}`);
+  if (!res.ok) throw new Error(`Failed to fetch preset: ${name}`);
+  return res.json();
+}
+
+export async function savePreset(name: string, state: PresetState, description?: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/presets/${encodeURIComponent(name)}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state, createdAt: new Date().toISOString(), description }),
+  });
+  if (!res.ok) throw new Error(`Failed to save preset: ${name}`);
+}
+
+export async function deletePreset(name: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/presets/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+  });
+  if (!res.ok) throw new Error(`Failed to delete preset: ${name}`);
+}
+
+// State persistence API
+export async function fetchState(): Promise<PresetState | null> {
+  const res = await fetch(`${API_BASE}/state`);
+  if (!res.ok) throw new Error('Failed to fetch state');
+  return res.json();
+}
+
+export async function saveState(state: PresetState): Promise<void> {
+  const res = await fetch(`${API_BASE}/state`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state),
+  });
+  if (!res.ok) throw new Error('Failed to save state');
+}

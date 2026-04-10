@@ -2,11 +2,11 @@
 
 ## 概述
 
-EP (External Project) 是 MET Nonlinear 项目中的外部项目管理系统，通过 `python cli.py ep` 命令提供工程化的外部项目解决方案。该系统采用基于配置文件的智能执行机制，实现了外部项目任务的标准化管理和自动化执行。
+EP (External Project) 是 MET Nonlinear 项目中的拓展项目管理系统，通过 `python cli.py ep` 命令提供工程化的拓展项目解决方案。该系统采用基于配置文件的智能执行机制，实现了拓展项目任务的标准化管理和自动化执行。
 
 ## 设计目标
 
-1. **工程化外部项目管理**：提供标准化的外部项目结构和配置管理
+1. **工程化拓展项目管理**：提供标准化的拓展项目结构和配置管理
 2. **智能执行**：自动检测配置文件，不存在时创建模板，存在时直接执行
 3. **拓展工程支持**：不仅负责可视化，还负责除了神经网络本身工程之外的所有拓展工程
 3. **多格式路径支持**：支持完整路径、相对路径、简化路径等多种输入格式
@@ -61,9 +61,9 @@ if hasattr(args, 'command') and args.command == 'ep':
     handle_ep_command(args)
 
 # core/cli_parser.py
-ep_parser = subparsers.add_parser('ep', help='外部项目管理 (External Project)')
+ep_parser = subparsers.add_parser('ep', help='拓展项目管理 (External Project)')
 ep_parser.add_argument('ep_project_path', 
-                        help='外部项目路径，格式: project/task-type/task-name 或 project/task-name')
+                        help='拓展项目路径，格式: project/task-type/task-name 或 project/task-name')
 ```
 
 #### 2.2 命令处理层 (Command Processing Layer)
@@ -79,7 +79,7 @@ ep_parser.add_argument('ep_project_path',
 ```python
 def handle_ep_command(args: CLIArgs) -> None:
     """智能执行逻辑：
-    1. 解析外部项目路径
+    1. 解析拓展项目路径
     2. 检查配置文件是否存在
     3. 如果不存在，创建配置模板并提示用户编辑
     4. 如果存在，直接执行可视化任务
@@ -90,7 +90,7 @@ def handle_ep_command(args: CLIArgs) -> None:
 1. **完整训练项目格式**: `projects/{project_name}/external/{task_type}/{task_name}`
 2. **相对训练项目格式**: `{project_name}/{task_type}/{task_name}`
 3. **简化训练项目格式**: `{project_name}/{task_name}`
-4. **独立外部项目格式**: `external/projects/{task_type}/{task_name}`
+4. **独立拓展项目格式**: `external/projects/{task_type}/{task_name}`
 5. **绝对路径格式**: 任意绝对路径
 
 #### 2.3 配置管理层 (Configuration Management Layer)
@@ -182,7 +182,7 @@ python cli.py ep LSTMu32al_rs300_ex2/freq-response-compare/baseline-comparison
 # 2. 编辑配置文件
 # 系统提示编辑: projects/LSTMu32al_rs300_ex2/external/freq-response-compare/baseline-comparison/config.json
 
-# 3. 执行外部项目任务
+# 3. 执行拓展项目任务
 python cli.py ep LSTMu32al_rs300_ex2/freq-response-compare/baseline-comparison
 ```
 
@@ -365,7 +365,7 @@ Data Flow Architecture
 
 ```python
 logger = logging.getLogger('ep')
-logger.info(f"🎯 开始处理外部项目: {args.ep_project_path}")
+logger.info(f"🎯 开始处理拓展项目: {args.ep_project_path}")
 logger.info(f"📂 项目信息:")
 logger.info(f"   项目名称: {ep_path.project_name}")
 logger.info(f"   任务类型: {ep_path.task_type}")
@@ -386,7 +386,7 @@ logger.info(f"✅ 任务执行完成")
 
 ## 总结
 
-EP系统是一个设计良好的工程化外部项目解决方案，具有以下核心优势：
+EP系统是一个设计良好的工程化拓展项目解决方案，具有以下核心优势：
 
 1. **工程化标准**: 标准化的项目结构和配置管理
 2. **智能化执行**: 自动模板生成和智能执行流程

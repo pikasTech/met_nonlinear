@@ -96,23 +96,39 @@ class ProjectManager:
         """执行所有预测和评估任务的公共方法"""
         model_engine.model_comp.exec_callback(ModelEvent(ModelEventType.PREDICT_START))
         if self.config.use_spline and self.config.use_model == 'FRIKAN':
-            model_engine.plot_spline()
+            self._run_prediction_step('样条可视化', model_engine.plot_spline)
         if self.config.use_predict_fr:
-            logger.info(f'预测频率响应...')
-            model_engine.predict_FR(self.config.USE_PREDICT_LINEAR)
+            self._run_prediction_step(
+                '频率响应预测',
+                model_engine.predict_FR,
+                self.config.USE_PREDICT_LINEAR,
+            )
         if self.config.USE_PREDICT_LINSPACE:
-            model_engine.predict_linspace()
+            self._run_prediction_step('Linspace 预测', model_engine.predict_linspace)
         if self.config.use_predict_tr:
-            logger.info(f'预测时域响应...')
-            model_engine.predict_TR()
+            self._run_prediction_step('时域响应预测', model_engine.predict_TR)
         if self.config.use_predict_features:
-            model_engine.predict_features()
+            self._run_prediction_step('特征预测导出', model_engine.predict_features)
         if self.config.use_sin_fr:
-            model_engine.predict_SIN()
+            self._run_prediction_step('正弦频响预测', model_engine.predict_SIN)
         if self.config.use_predict_tr_from_file:
-            logger.info(f'预测文件中的时域响应...')
-            model_engine.predict_TR_from_file(self.config.get_full_path(self.config.PREDICT_TR_FILE_PATH))
+            self._run_prediction_step(
+                '文件时域响应预测',
+                model_engine.predict_TR_from_file,
+                self.config.get_full_path(self.config.PREDICT_TR_FILE_PATH),
+            )
         model_engine.model_comp.exec_callback(ModelEvent(ModelEventType.PREDICT_END))
+
+    def _run_prediction_step(self, step_name, step_func, *args, **kwargs):
+        """执行单个预测步骤，记录日志并隔离失败，避免阻断评估收尾。"""
+        logger.info(f'{step_name}开始...')
+        try:
+            result = step_func(*args, **kwargs)
+        except BaseException as e:
+            logger.exception(f'{step_name}失败: {e}')
+            return None
+        logger.info(f'{step_name}完成。')
+        return result
 
     def load_base_model_weights(self, model_engine):
         """从基础模型加载权重"""

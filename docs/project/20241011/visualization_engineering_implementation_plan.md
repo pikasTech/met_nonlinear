@@ -1,8 +1,8 @@
-# CLI外部项目工程化实施计划
+# CLI拓展项目工程化实施计划
 
 ## 实施概述
 
-本文档详细规划了CLI外部项目工程化系统的具体实施步骤，以支持新的 `cli.py ep path/to/the/ep-project` 子命令格式，包括文件创建、代码修改和测试验证的完整流程。
+本文档详细规划了CLI拓展项目工程化系统的具体实施步骤，以支持新的 `cli.py ep path/to/the/ep-project` 子命令格式，包括文件创建、代码修改和测试验证的完整流程。
 
 ## 新命令格式设计
 
@@ -132,8 +132,8 @@ EP 项目路径解析器将支持以下路径格式：
    # ... 现有的所有参数 ...
    
     # 新增 ep 子命令（简化设计）
-    ep_parser = subparsers.add_parser('ep', help='外部项目管理 (External Project)')
-    ep_parser.add_argument('ep_project_path', help='外部项目路径，格式: project/task-type/task-name 或统一路径')
+    ep_parser = subparsers.add_parser('ep', help='拓展项目管理 (External Project)')
+    ep_parser.add_argument('ep_project_path', help='拓展项目路径，格式: project/task-type/task-name 或统一路径')
    # 无额外参数，直接执行
    ```
 
@@ -286,9 +286,9 @@ EP 项目路径解析器将支持以下路径格式：
    conda run -n tf26 python cli.py ep projects/LSTMu32al_rs300_ex2/external/freq-response-compare/test-comparison
    ```
 
-2. **智能行为测试**: 验证配置文件不存在时自动创建模板，然后提示用户编辑配置
+2. **模板创建测试**: 验证必须通过 `python cli.py ep create ...` 显式创建模板
 3. **路径解析测试**: 验证各种路径格式的正确解析（完整路径、相对路径、简化路径）  
-4. **配置创建测试**: 验证首次运行时自动创建配置模板
+4. **缺配置报错测试**: 验证直接运行 `python cli.py ep ...` 且配置缺失时立即报错退出
 5. **重复执行测试**: 验证配置存在时直接执行任务
 
 ### 3.3 向后兼容性测试
@@ -374,9 +374,9 @@ def create_parser(config: Optional[CLIConfig] = None) -> argparse.ArgumentParser
                                        add_help=False, help='主要功能命令')
     
     # ep 子命令（简化设计）
-    ep_parser = subparsers.add_parser('ep', help='外部项目管理 (External Project)')
+    ep_parser = subparsers.add_parser('ep', help='拓展项目管理 (External Project)')
     ep_parser.add_argument('ep_project_path', 
-                           help='外部项目路径，格式: project/task-type/task-name 或统一路径')
+                           help='拓展项目路径，格式: project/task-type/task-name 或统一路径')
     # 无额外参数，直接执行任务
     
     return parser

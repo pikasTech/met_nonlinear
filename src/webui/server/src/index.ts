@@ -7,7 +7,18 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '../../../..');
-const DIST_WEBUI = path.join(ROOT_DIR, 'dist', 'webui');
+const DIST_WEBUI = path.join(ROOT_DIR, 'src', 'webui', 'dist');
+const CACHE_WEBUI_DIR = path.join(ROOT_DIR, 'cache', 'webui');
+const PRESETS_DIR = path.join(CACHE_WEBUI_DIR, 'presets');
+const STATE_FILE = path.join(CACHE_WEBUI_DIR, 'state.json');
+
+// Ensure directories exist
+if (!fs.existsSync(CACHE_WEBUI_DIR)) {
+  fs.mkdirSync(CACHE_WEBUI_DIR, { recursive: true });
+}
+if (!fs.existsSync(PRESETS_DIR)) {
+  fs.mkdirSync(PRESETS_DIR, { recursive: true });
+}
 
 const app: Express = express();
 app.use(cors());
@@ -92,6 +103,71 @@ app.get('/api/projects/*/metrics', (req, res) => {
   }
 
   return res.status(404).json({ error: 'metrics.json not found' });
+});
+
+// Preset endpoints
+app.get('/api/presets', (_req, res) => {
+  try {
+    const files = fs.readdirSync(PRESETS_DIR).filter(f => f.endsWith('.json'));
+    const presets = files.map(f => {
+      const name = f.replace('.json', '');
+      const content = JSON.parse(fs.readFileSync(path.join(PRESETS_DIR, f), 'utf-8'));
+      return { name, ...content };
+    });
+    res.json({ presets, total: presets.length });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to list presets' });
+  }
+});
+
+app.get('/api/presets/:name', (req, res) => {
+  const safeName = path.basename(req.params.name);
+  const filePath = path.join(PRESETS_DIR, safeName + '.json');
+  if (fs.existsSync(filePath)) {
+    res.json(JSON.parse(fs.readFileSync(filePath, 'utf-8')));
+  } else {
+    res.status(404).json({ error: 'Preset not found' });
+  }
+});
+
+app.post('/api/presets/:name', (req, res) => {
+  const safeName = path.basename(req.params.name);
+  const filePath = path.join(PRESETS_DIR, safeName + '.json');
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
+    res.json({ success: true, name: safeName });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save preset' });
+  }
+});
+
+app.delete('/api/presets/:name', (req, res) => {
+  const safeName = path.basename(req.params.name);
+  const filePath = path.join(PRESETS_DIR, safeName + '.json');
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    res.json({ success: true });
+  } else {
+    res.status(404).json({ error: 'Preset not found' });
+  }
+});
+
+// Auto-save state endpoint
+app.get('/api/state', (_req, res) => {
+  if (fs.existsSync(STATE_FILE)) {
+    res.json(JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8')));
+  } else {
+    res.json(null);
+  }
+});
+
+app.post('/api/state', (req, res) => {
+  try {
+    fs.writeFileSync(STATE_FILE, JSON.stringify(req.body, null, 2));
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save state' });
+  }
 });
 
 if (fs.existsSync(DIST_WEBUI)) {

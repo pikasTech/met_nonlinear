@@ -1,6 +1,6 @@
 {
   "project_name": "FRIKANh8u6l6_nosym_puremae",
-  "generated_at": "2026-04-10T00:36:25.614104+08:00",
+  "generated_at": "2026-04-10T09:47:32.829042+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -17,11 +17,11 @@
   "min_val_loss": 0.045251,
   "train_loss": 0.04576285928487778,
   "val_loss": 0.04525075480341911,
-  "train_mae": 0.04576285928487778,
-  "train_afmae": 0.04576285928487778,
+  "train_mae": 0.045762863010168076,
+  "train_afmae": 0.28685644268989563,
   "val_mae": 0.04525075480341911,
-  "val_afmae": 0.04525075480341911,
-  "weights_source": null,
+  "val_afmae": 0.285444051027298,
+  "weights_source": "best_val",
   "freq_drift_hz": 26.082335925898057,
   "sens_drift_percent": 62.16291243641195,
   "linearity_percent": 10.61646895376723,
@@ -95,10 +95,10 @@
     "weighted_maps": 1404.0
   },
   "display_metrics": {
-    "TRAIN_MAE": 0.04576285928487778,
-    "TRAIN_AFMAE": 0.04576285928487778,
+    "TRAIN_MAE": 0.045762863010168076,
+    "TRAIN_AFMAE": 0.28685644268989563,
     "VAL_MAE": 0.04525075480341911,
-    "VAL_AFMAE": 0.04525075480341911,
+    "VAL_AFMAE": 0.285444051027298,
     "Freq Drift (Hz)": 26.082335925898057,
     "Sens Drift (%)": 62.16291243641195,
     "Linearity (%)": 10.61646895376723,

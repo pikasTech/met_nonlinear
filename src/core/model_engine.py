@@ -636,13 +636,31 @@ class ModelEngine:
         predictions = self.model_comp.predict(
             x_data,
             batch_size=self.batch_size,
-            verbose=0
+            verbose=0,
+            use_scaler=False,
         )
         y_true = tf.cast(tf.convert_to_tensor(y_data), tf.float32)
         y_pred = tf.cast(tf.convert_to_tensor(predictions), tf.float32)
+        loss_fn = self._get_eval_loss_fn()
+        loss = float(loss_fn(y_true, y_pred).numpy())
         mae = float(pure_mae_metric(y_true, y_pred).numpy())
         afmae = float(power_log_loss(y_true, y_pred).numpy())
-        return mae, afmae
+        return loss, mae, afmae
+
+    def _get_eval_loss_fn(self):
+        loss_type = getattr(self.config, 'loss_type', None)
+        loss_map = {
+            'afmse': af_mse_loss,
+            'power_log_mae': power_log_mae_loss,
+            'pure_power_log_mae': pure_power_log_mae_loss,
+        }
+        if loss_type is not None:
+            return loss_map[loss_type]
+        if getattr(self.config, 'use_pure_power_loss', False):
+            return pure_power_log_mae_loss
+        if getattr(self.config, 'use_power_loss', False):
+            return power_log_mae_loss
+        return pure_mae_metric
 
     def evaluate_loss(self, use_shifting=False):
         # (magn_num, freq_num, point_num) -> (magn_num * freq_num, point_num, 1)
@@ -660,36 +678,10 @@ class ModelEngine:
             x_test = self.x_test.reshape(-1, self.x_test.shape[2], 1)
             y_train = self.y_train.reshape(-1, self.y_train.shape[2], 1)
             y_test = self.y_test.reshape(-1, self.y_test.shape[2], 1)
-        result = self.model_comp.evaluate(
-            x_train, y_train, batch_size=self.batch_size
-        )
-        val_result = self.model_comp.evaluate(
-            x_test, y_test, batch_size=self.batch_size
-        )
-        if len(result) == 2:
-            loss, metrics = result
-            if not isinstance(metrics, list):
-                metrics = [metrics]
-        elif len(result) >= 3:
-            loss = result[0]
-            metrics = list(result[1:])
-        if len(val_result) == 2:
-            val_loss, val_metrics = val_result
-            if not isinstance(val_metrics, list):
-                val_metrics = [val_metrics]
-        elif len(val_result) >= 3:
-            val_loss = val_result[0]
-            val_metrics = list(val_result[1:])
-        if isinstance(metrics, list) and len(metrics) >= 2:
-            mae, afmae = metrics[0], metrics[1]
-        else:
-            mae, afmae = self._compute_eval_metrics_from_predictions(
-                x_train, y_train)
-        if isinstance(val_metrics, list) and len(val_metrics) >= 2:
-            val_mae, val_afmae = val_metrics[0], val_metrics[1]
-        else:
-            val_mae, val_afmae = self._compute_eval_metrics_from_predictions(
-                x_test, y_test)
+        loss, mae, afmae = self._compute_eval_metrics_from_predictions(
+            x_train, y_train)
+        val_loss, val_mae, val_afmae = self._compute_eval_metrics_from_predictions(
+            x_test, y_test)
         return loss, mae, afmae, val_loss, val_mae, val_afmae
 
     def train_model(self):
@@ -940,8 +932,9 @@ class ModelEngine:
         """
         self.model_comp.predict_linspace()
 
-    def predict_features(self, post_filter=False):
+    def predict_features(self, post_filter=False, preview_count=10, export_full_json=False):
         # 特征预测
+        logger.info('开始导出特征预测结果...')
         # (magn_num, freq_num, point_num) -> (magn_num * freq_num, point_num, 1)
         x = self.x_test.reshape(-1, self.x_test.shape[2], 1)
         y = self.y_test.reshape(-1, self.y_test.shape[2], 1)
@@ -957,24 +950,36 @@ class ModelEngine:
         y = y.reshape(y.shape[0], y.shape[1])
         y_pred = y_pred.reshape(y_pred.shape[0], y_pred.shape[1])
         # save to json with {"freq": freq, "magn":, "data":{"origin": x, "comped": y_pred, "target": y}}
-        json_data = []
+        preview_items = []
+        total_items = len(self.freq_select) * len(self.magn_select)
+        preview_limit = total_items if export_full_json else min(preview_count, total_items)
+        current_index = 0
         for i, freq in enumerate(self.freq_select):
             for j, magn in enumerate(self.magn_select):
                 x_item = x[j*len(self.freq_select) + i].tolist()
                 y_pred_item = y_pred[j*len(self.freq_select) + i].tolist()
                 y_item = y[j*len(self.freq_select) + i].tolist()
-                data_item = {
-                    "freq": freq,
-                    "magn": magn,
-                    "data": {
-                        "origin": x_item,
-                        "comped": y_pred_item,
-                        "target": y_item
+                if current_index < preview_limit:
+                    data_item = {
+                        "freq": freq,
+                        "magn": magn,
+                        "data": {
+                            "origin": x_item,
+                            "comped": y_pred_item,
+                            "target": y_item
+                        }
                     }
-                }
-                json_data.append(data_item)
-        with open(f'cache/predict_features.json', 'w') as f:
-            json.dump(json_data, f, indent=1)
+                    preview_items.append(data_item)
+                current_index += 1
+        predict_features_cache = 'cache/predict_features.json'
+        with open(predict_features_cache, 'w') as f:
+            json.dump({
+                'total_items': total_items,
+                'export_full_json': export_full_json,
+                'preview_count': len(preview_items),
+                'preview_items': preview_items,
+            }, f, separators=(',', ':'))
+        logger.info(f'特征预测缓存已保存到 {predict_features_cache}')
 
         # 抽取前 10 个 batch 的数据
         x = x[:10]
@@ -1000,13 +1005,17 @@ class ModelEngine:
         x = x.reshape(-1)
         y_pred = y_pred.reshape(-1)
         y = y.reshape(-1)
-        plt.figure(figsize=(12, 8))
+        fig = plt.figure(figsize=(12, 8))
         plt.plot(x, label='origin')
         plt.plot(y_pred, label='comped')
         plt.plot(y, label='target')
         plt.title('Predict features')
         plt.legend()
         plt.tight_layout()
+        overview_path = os.path.join(self.checkpoint_dir, 'predict_features_overview.png')
+        fig.savefig(overview_path, dpi=150, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f'特征预测概览图已保存到 {overview_path}')
 
     def plot_spline(self):
         self.model_comp.plot_spline(feature_range=self.config.feature_range)

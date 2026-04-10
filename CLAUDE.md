@@ -27,9 +27,9 @@
 
 参考索引：
 - 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
-- 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。
+- 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。其中训练前检查、止损规则和 CNNKAN 调参经验统一收敛在 `training.md`。
 - 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
-- 外部项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
+- 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
 ---
@@ -42,6 +42,7 @@
 - 每个子列表只描述一个功能点，并使用一句话概括，不在此处展开实现细节、参数说明或背景分析。
 - 每个子列表应独立对应一个 `docs/reference/` 下的参考文档；如果同一命令包含多个功能，则分别链接到各自文档。
 - 所有功能的详细说明统一写入 `docs/reference/` 下的独立 Markdown 文档，并在 `CLAUDE.md` 中提供对应链接索引。
+- 仓库级使用说明不再维护 `.claude/skills/`；原本的本地技能文档统一并入 `docs/reference/`，由 `CLAUDE.md` 负责总索引。
 - 当某项功能需要补充说明时，优先更新 `docs/reference/` 的详细文档，再回到 `CLAUDE.md` 维护对应子列表的一句话摘要与链接。
 
 ---
@@ -57,10 +58,15 @@
 
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
-	- 兼容性约定：自定义模型包装类的 `predict()` 需兼容 Keras `verbose` 等参数，评估指标按 `float32` 口径计算以避免 dtype 冲突，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
+	- 统一指标路径：`-e` 下的 loss、MAE、AFMAE 固定通过预测结果单一路径重算，不依赖训练时 compile 挂了几个 metrics，也绕过部分旧项目在 `model.evaluate()` 层的崩点，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
+	- 兼容性约定：自定义模型包装类的 `predict()` 需兼容 Keras `verbose`、`use_scaler` 等参数，评估指标按 `float32` 口径计算以避免 dtype 冲突，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
+	- 频响异常排查：如果 MAE/AFMAE 正常但频响三项极差，优先检查模型包装类 `predict()` 是否遗漏缩放/反缩放，以及 `linear_response.json.gains_comped` 是否仍停留在归一化量级，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
+	- 写回时机：`training_info.json.evaluation_metrics` 在预测与频响产物生成后才最终写回，只有命令完整结束并出现评估完成日志，才能认为评估指标已落盘；中断后需重跑 `-e`，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
 - `python cli.py --metrics PROJECT_NAME`
 	- 指标提取：统一按消融实验口径计算 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 并导出 `metrics.json`，其他模块只读取该文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 前置条件：`--metrics` 只汇总现有评估产物，不会自行补算 `evaluation_metrics`；如果项目在评估后又继续训练，或 `-e` 在频率响应阶段被中断，应先完整重跑 `-e`，再执行 `--metrics`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 诊断口径：如果 `metrics.json` 里时域误差正常但频响三项异常，先回看 `linear_response.json` 的物理量级，不要直接把问题归因于模型能力，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py --metrics --all-projects`
 	- 批量重算指标：递归遍历 `projects/` 下所有项目并全量重算统一指标文件 `metrics.json`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py --metrics --all-projects --missing-only`
@@ -96,18 +102,22 @@
 	- 频响直连对比：直接基于 `linear_response.json` 生成频率响应对比图，无需进入 ep 工作流，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。
 	- 布局模式：支持叠加和左右并排两种布局，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。
 
-### ep 子命令 (外部项目)
+### ep 子命令 (拓展项目)
 
-> **注意**：创建外部项目时，**不要手动创建目录**。直接运行 `python cli.py ep "路径"` 命令，配置不存在时会自动创建模板。
+拓展项目区分于直接的训练项目，常用于横向评估，推理性能分析等基于训练项目产物的二次开发任务。
 
+> **注意**：创建拓展项目时，**不要手动创建目录**。必须先运行 `python cli.py ep create "路径"` 创建模板；直接运行 `python cli.py ep "路径"` 时，如果配置不存在会直接报错退出。
+
+- `python cli.py ep create "PROJECT/task-type/task-name"`
+	- 模板生成：显式创建拓展项目模板，若配置已存在则拒绝覆盖，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "PROJECT/task-type/task-name"`
-	- 模板生成：创建或执行外部项目任务，配置不存在时自动生成模板，详见 [docs/reference/ep.md](docs/reference/ep.md)。
-	- 配置驱动执行：配置存在时直接验证并执行外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+	- 配置驱动执行：仅执行已有配置的外部任务，若配置缺失则直接报错退出，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+	- 项目索引：仓库内常见 EP 路径、典型项目名和 WNET5 图产物约定统一维护在 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "PROJECT/wnet5-circuit-validation/layer2"`
 	- 电路验证：执行 WNET5 电路验证类外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 - `python cli.py ep "PROJECT/freq-response-compensator/test"`
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
-	- 路径格式：支持外部项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+	- 路径格式：支持拓展项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 
 ### server 子命令 (WebUI 可视化服务)
 

@@ -548,6 +548,40 @@ class TestProjectManagerRunPrediction:
         mock_engine.predict_TR.assert_called()
         mock_engine.predict_SIN.assert_called()
 
+    def test_run_prediction_continues_when_optional_step_fails(self, mock_pm_for_run_prediction):
+        """Test run_prediction continues to finish callbacks when an optional step fails."""
+        pm = mock_pm_for_run_prediction
+        pm.config.use_predict_fr = True
+        pm.config.use_predict_features = True
+
+        mock_engine = MagicMock()
+        mock_engine.predict_FR.side_effect = RuntimeError('predict fr failed')
+
+        pm.run_prediction(mock_engine)
+
+        mock_engine.predict_FR.assert_called_once()
+        mock_engine.predict_features.assert_called_once()
+
+        calls = mock_engine.model_comp.exec_callback.call_args_list
+        assert len(calls) >= 2
+
+    def test_run_prediction_continues_when_optional_step_raises_keyboard_interrupt(self, mock_pm_for_run_prediction):
+        """Test run_prediction still finishes callbacks when an optional step is interrupted."""
+        pm = mock_pm_for_run_prediction
+        pm.config.use_predict_fr = True
+        pm.config.use_predict_features = True
+
+        mock_engine = MagicMock()
+        mock_engine.predict_features.side_effect = KeyboardInterrupt('predict features interrupted')
+
+        pm.run_prediction(mock_engine)
+
+        mock_engine.predict_FR.assert_called_once()
+        mock_engine.predict_features.assert_called_once()
+
+        calls = mock_engine.model_comp.exec_callback.call_args_list
+        assert len(calls) >= 2
+
 
 class TestProjectManagerCallback:
     """Test callback event handling in run_prediction"""

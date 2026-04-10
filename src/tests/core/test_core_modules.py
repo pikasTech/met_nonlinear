@@ -672,10 +672,12 @@ class TestExternalCLIHandler:
             project_name = 'TestProject'
             task_type = 'freq-response-compare'
 
-        with caplog.at_level(logging.INFO):
-            execute_external_task_auto(MockPath())
+        with pytest.raises(SystemExit):
+            with caplog.at_level(logging.INFO):
+                execute_external_task_auto(MockPath())
 
-        assert '配置文件不存在' in caplog.text or '创建模板' in caplog.text
+        assert '配置文件不存在' in caplog.text
+        assert 'ep create' in caplog.text
 
     def test_create_external_template_creates_directories(self, temp_dir):
         """Test create_external_template creates necessary directories"""

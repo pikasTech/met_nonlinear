@@ -29,6 +29,12 @@ python cli.py --metrics --all-projects --missing-only
 - `linear_response.json`
 - `linearity_by_frequency.json`
 
+其中 `training_info.json.evaluation_metrics` 由 `python cli.py -e PROJECT_NAME` 统一写入，loss、MAE、AFMAE 在评估阶段都固定通过单一预测路径重算，与训练时具体挂了哪些 compile metrics 无关。
+
+注意：`--metrics` 不会自行补算 `training_info.json.evaluation_metrics`。如果项目在上一次评估后又继续训练，或 `-e` 在预测/频率响应阶段中断，`training_info.json` 里的该节可能缺失，或者仍然保留旧权重对应的历史快照。
+
+同时，`--metrics` 默认信任 `linear_response.json` 和 `linearity_by_frequency.json` 已经是正确量纲的最终产物；它不会识别“补偿输出仍停留在归一化空间”这类上游推理错误，只会如实汇总错误输入。
+
 建议先运行：
 
 ```bash
@@ -105,3 +111,9 @@ $$
 如果部分输入文件缺失，命令仍会生成 `metrics.json`，但会将 `status` 标为 `partial`，并在 `missing_sources` / `missing_sections` 中记录缺失项。
 
 `missing_sections` 用于区分“文件存在但内部不完整”的情况。例如 `training_info.json` 存在，但其中缺少 `evaluation_metrics`，此时不会记入 `missing_sources`，而会记入 `missing_sections`。
+
+如果 `evaluation_metrics` 缺失或过旧，应优先重新执行 `python cli.py -e PROJECT_NAME`，让评估阶段按统一口径重写 MAE/AFMAE，再执行 `python cli.py --metrics PROJECT_NAME`。
+
+如果 `metrics.json` 显示 `VAL_MAE`、`VAL_AFMAE` 尚可，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 极差，先不要直接下结论说模型频响能力差；应回看 `linear_response.json` 的 `gains_comped` 是否与 `gains_origin` 处于同一物理量级。若两者量级明显不一致，优先排查模型包装类 `predict()` 是否正确执行了反缩放。
+
+如果需要批量修复历史项目，建议使用“单项目完整跑完 `-e`，再执行 `--metrics`”的顺序，而不要在前一个项目还停留在“预测频率响应...”阶段时并发启动后续项目；否则最容易得到 `metrics.json=status=partial` 或混入旧评估快照。

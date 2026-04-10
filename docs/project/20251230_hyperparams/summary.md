@@ -256,7 +256,7 @@ cli.py → task_dispatcher.py → ResistanceTaskHandler → WeightResistorBOMGen
 ## 📊 项目阶段历史
 
 ### 第八阶段：WNET5频率响应理论计算（EP框架集成） 🚀 进行中
-**目标**：将WNET5频率响应理论计算功能集成到EP框架，实现工程化的外部项目管理
+**目标**：将WNET5频率响应理论计算功能集成到EP框架，实现工程化的拓展项目管理
 
 **技术方案**：
 - **EP框架扩展**：新增`transfer-function-analysis`任务类型支持

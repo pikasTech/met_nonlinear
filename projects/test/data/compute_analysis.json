@@ -1,0 +1,4 @@
+{
+    "analysis_type": "single_timestep_inference_compute",
+    "analysis_method": "Counts are derived from TensorFlow/Keras layer classes, actual weight tensor shapes, and layer parameter counts.",
+    "model_type": 

@@ -28,6 +28,7 @@ class TestExternalCLIHandlerStructure:
         from core.external_cli_handler import (
             handle_ep_command,
             execute_external_task_auto,
+            create_external_template_command,
             create_external_template,
             _execute_task,
             _load_config,
@@ -50,6 +51,7 @@ class TestExternalCLIHandlerStructure:
         # All functions should be callable
         assert callable(handle_ep_command)
         assert callable(execute_external_task_auto)
+        assert callable(create_external_template_command)
         assert callable(create_external_template)
 
 
@@ -630,12 +632,10 @@ class TestExecuteExternalTaskAuto:
         """Test execute_external_task_auto when config doesn't exist"""
         from core.external_cli_handler import execute_external_task_auto
 
-        # Config file doesn't exist
-        result = execute_external_task_auto(mock_ep_path)
+        with pytest.raises(SystemExit):
+            execute_external_task_auto(mock_ep_path)
 
-        # Should return None and create template
-        assert result is None
-        assert mock_ep_path.config_path.exists()
+        assert not mock_ep_path.config_path.exists()
 
     @patch('core.external_cli_handler._execute_task')
     def test_execute_task_auto_config_exists_success(self, mock_execute, mock_ep_path):
@@ -677,6 +677,7 @@ class TestHandleEPCommand:
         """Create mock CLIArgs object"""
         args = MagicMock()
         args.ep_project_path = "test_project/test_task"
+        args.ep_action = 'run'
         return args
 
     def test_handle_ep_command_success(self, mock_args, tmp_path):
@@ -689,6 +690,17 @@ class TestHandleEPCommand:
             handle_ep_command(mock_args)
 
             mock_execute.assert_called_once()
+
+    def test_handle_ep_command_create_success(self, mock_args):
+        """Test handle_ep_command routes create action correctly"""
+        from core.external_cli_handler import handle_ep_command
+
+        mock_args.ep_action = 'create'
+
+        with patch('core.external_cli_handler.create_external_template_command') as mock_create:
+            handle_ep_command(mock_args)
+
+            mock_create.assert_called_once()
 
     def test_handle_ep_command_invalid_path(self, mock_args):
         """Test handle_ep_command with invalid path"""
@@ -710,3 +722,37 @@ class TestHandleEPCommand:
 
         with pytest.raises(SystemExit):
             handle_ep_command(mock_args)
+
+
+class TestCreateExternalTemplateCommand:
+    """Test create_external_template_command function"""
+
+    @pytest.fixture
+    def mock_ep_path(self, tmp_path):
+        from core.external_path_parser import ExternalPath
+
+        return ExternalPath(
+            project_name="test_project",
+            task_type="freq-response-compare",
+            task_name="test_task",
+            full_path=tmp_path / "test_task",
+            config_path=tmp_path / "test_task" / "config.json",
+            output_path=tmp_path / "test_task" / "data"
+        )
+
+    @patch('core.external_cli_handler.create_external_template')
+    def test_create_external_template_command_success(self, mock_create, mock_ep_path):
+        from core.external_cli_handler import create_external_template_command
+
+        create_external_template_command(mock_ep_path)
+
+        mock_create.assert_called_once_with(mock_ep_path)
+
+    def test_create_external_template_command_rejects_existing_config(self, mock_ep_path):
+        from core.external_cli_handler import create_external_template_command
+
+        mock_ep_path.config_path.parent.mkdir(parents=True, exist_ok=True)
+        mock_ep_path.config_path.write_text('{}', encoding='utf-8')
+
+        with pytest.raises(SystemExit):
+            create_external_template_command(mock_ep_path)

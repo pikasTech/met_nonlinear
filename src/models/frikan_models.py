@@ -1058,10 +1058,14 @@ class CNNKAN(BaseModel):
         """
         return self.model.save_weights(*args, **kwargs)
 
-    def predict(self, x_input, batch_size=None, verbose=1, **kwargs):
-        """
-        预测
-        """
-        kwargs.pop('use_scaler', None)
-        return self.model.predict(x_input, batch_size=batch_size, verbose=verbose, **kwargs)
+    def predict(self, x_input, batch_size=None, use_debug=False, use_scaler=True, verbose=1, **kwargs):
+        """保持与 BaseModel 一致的缩放/反缩放预测行为。"""
+        return super().predict(
+            x_input,
+            batch_size=batch_size,
+            use_debug=use_debug,
+            use_scaler=use_scaler,
+            verbose=verbose,
+            **kwargs,
+        )
 

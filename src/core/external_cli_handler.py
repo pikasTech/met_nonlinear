@@ -1,9 +1,9 @@
 """
-外部项目CLI处理器
+拓展项目CLI处理器
 
-处理ep子命令的所有操作，实现智能执行逻辑：
-- 配置文件不存在时报错退出（不自动创建模板）
-- 配置文件存在时直接执行任务
+处理ep子命令的所有操作：
+- `ep <path>` 仅执行已有配置
+- `ep create <path>` 显式创建模板
 """
 
 import sys
@@ -20,19 +20,24 @@ logger = logging.getLogger(__name__)
 
 def handle_ep_command(args: CLIArgs) -> None:
     """
-    处理ep子命令（简化版本）
+    处理ep子命令
 
-    智能执行逻辑：
-    1. 解析外部项目路径
-    2. 检查配置文件是否存在
-    3. 如果不存在，报错退出
-    4. 如果存在，直接执行外部项目任务
+    执行逻辑：
+    1. 解析拓展项目路径
+    2. 根据 ep action 选择创建模板或执行任务
 
     Args:
         args: CLI参数对象
     """
     try:
-        logger.info(f"[EP] 开始处理外部项目: {args.ep_project_path}")
+        ep_action = args.ep_action or 'run'
+        logger.info(f"[EP] 开始处理拓展项目: action={ep_action}, path={args.ep_project_path}")
+
+        if not args.ep_project_path:
+            logger.error("[ERROR] 缺少拓展项目路径")
+            _show_ep_help()
+            sys.exit(1)
+
         # 解析路径
         parser = ExternalPathParser()
         ep_project_path = args.ep_project_path or ""
@@ -45,8 +50,17 @@ def handle_ep_command(args: CLIArgs) -> None:
         logger.info(f"   配置文件: {ep_path.config_path}")
         logger.info(f"   输出目录: {ep_path.output_path}")
 
-        # 智能执行：检查配置文件，不存在则创建，然后执行任务
-        execute_external_task_auto(ep_path)
+        if ep_action == 'create':
+            create_external_template_command(ep_path)
+            return
+
+        if ep_action == 'run':
+            execute_external_task_auto(ep_path)
+            return
+
+        logger.error(f"[ERROR] 不支持的 ep action: {ep_action}")
+        _show_ep_help()
+        sys.exit(1)
     except Exception as e:
         logger.error(f"[ERROR] ep命令执行失败: {e}")
         _show_ep_help()
@@ -55,25 +69,26 @@ def handle_ep_command(args: CLIArgs) -> None:
 
 def execute_external_task_auto(ep_path: ExternalPath) -> None:
     """
-    智能执行外部项目任务
+    执行拓展项目任务
 
-    根据配置文件存在性自动选择行为：
-    - 配置不存在：报错退出
-    - 配置存在：直接执行任务
+    要求配置文件必须预先存在；若不存在则直接报错退出。
 
     Args:
-        ep_path: 外部项目路径对象
+        ep_path: 拓展项目路径对象
     """
-    logger.info(f"[TASK] 开始处理外部项目任务: {ep_path.task_name}")
+    logger.info(f"[TASK] 开始处理拓展项目任务: {ep_path.task_name}")
     
     # 检查配置文件是否存在
     if not ep_path.config_path.exists():
+        template_target = getattr(ep_path, 'full_path', ep_path.config_path.parent)
         logger.error(f"[ERROR] 配置文件不存在: {ep_path.config_path}")
-        logger.error("[HINT] 请确认项目路径是否正确，或手动创建配置文件")
+        logger.error(
+            f"[HINT] 如需创建模板，请执行: python cli.py ep create \"{template_target}\""
+        )
         sys.exit(1)
     
     # 执行任务
-    logger.info(f"[RUN] 执行外部项目任务...")
+    logger.info(f"[RUN] 执行拓展项目任务...")
     result = _execute_task(ep_path)
     
     if result:
@@ -84,14 +99,28 @@ def execute_external_task_auto(ep_path: ExternalPath) -> None:
         sys.exit(1)
 
 
+def create_external_template_command(ep_path: ExternalPath) -> None:
+    """显式创建拓展项目配置模板。"""
+    logger.info(f"[CREATE] 开始创建拓展项目模板: {ep_path.task_name}")
+
+    if ep_path.config_path.exists():
+        logger.error(f"[ERROR] 配置文件已存在，拒绝覆盖: {ep_path.config_path}")
+        logger.error("[HINT] 如需修改模板，请直接编辑现有配置文件")
+        sys.exit(1)
+
+    create_external_template(ep_path)
+    logger.info(f"[OK] 配置模板已创建: {ep_path.config_path}")
+    logger.info(f"   输出目录: {ep_path.output_path}")
+
+
 def create_external_template(ep_path: ExternalPath) -> None:
     """
-    创建外部项目配置模板
+    创建拓展项目配置模板
     
     根据任务类型创建相应的配置模板文件
     
     Args:
-        ep_path: 外部项目路径对象
+        ep_path: 拓展项目路径对象
     """
     # 确保目录存在
     ep_path.config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -329,10 +358,10 @@ def _create_generic_template(ep_path: ExternalPath) -> dict:
 
 def _execute_task(ep_path: ExternalPath) -> bool:
     """
-    执行外部项目任务
+    执行拓展项目任务
     
     Args:
-        ep_path: 外部项目路径对象
+        ep_path: 拓展项目路径对象
         
     Returns:
         bool: 执行是否成功
@@ -631,16 +660,18 @@ def _show_ep_help() -> None:
 ep 命令使用说明：
 
 命令格式：
-  cli.py ep <外部项目路径>
+  cli.py ep <拓展项目路径>
+    cli.py ep create <拓展项目路径>
 
 路径格式：
-  1. 独立外部项目: external/projects/任务类型/任务名
+  1. 独立拓展项目: external/projects/任务类型/任务名
   2. 完整训练项目: projects/项目名/external/任务类型/任务名  
   3. 相对训练项目: 项目名/任务类型/任务名
   4. 简化训练项目: 项目名/任务名 (自动检测任务类型)
   5. 绝对路径: 任意绝对路径
 
 示例：
+    cli.py ep create external/projects/freq-response-compare/PS-5-190_vs_PS-5-360
   cli.py ep external/projects/freq-response-compare/PS-5-190_vs_PS-5-360
   cli.py ep LSTMu32al_rs300_ex2/freq-response-compare/baseline-comparison
   cli.py ep LSTMu32al_rs300_ex2/baseline-comparison
@@ -657,8 +688,9 @@ ep 命令使用说明：
   - performance-benchmark: 性能基准测试
 
 工作流程：
-  1. 手动创建配置文件（参考文档或示例）
-  2. 运行命令执行外部项目任务
+    1. 首次创建模板：cli.py ep create <路径>
+    2. 编辑生成的 config.json
+    3. 运行 cli.py ep <路径> 执行拓展项目任务
     """
     print(help_text)
 

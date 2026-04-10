@@ -6,7 +6,7 @@ export default defineConfig({
   root: './src',
   base: './',
   build: {
-    outDir: '../../../dist/webui',
+    outDir: '../dist',
     emptyOutDir: true
   },
   server: {

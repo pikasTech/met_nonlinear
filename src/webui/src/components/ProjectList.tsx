@@ -7,6 +7,11 @@ interface Props {
   onToggle: (path: string) => void;
   onSelectAll: () => void;
   onDeselectAll: () => void;
+  // External state props for preset support
+  filter?: string;
+  onFilterChange?: (filter: string) => void;
+  expandedFolders?: Set<string>;
+  onExpandedFoldersChange?: (folders: Set<string>) => void;
 }
 
 interface TreeNode {
@@ -16,21 +21,37 @@ interface TreeNode {
   project?: Project;
 }
 
-export default function ProjectList({ projects, selectedProjects, onToggle, onSelectAll, onDeselectAll }: Props) {
-  const [filter, setFilter] = useState('');
+export default function ProjectList({
+  projects,
+  selectedProjects,
+  onToggle,
+  onSelectAll,
+  onDeselectAll,
+  filter: externalFilter,
+  onFilterChange: externalOnFilterChange,
+  expandedFolders: externalExpandedFolders,
+  onExpandedFoldersChange: externalOnExpandedFoldersChange,
+}: Props) {
+  // Internal state with external override capability
+  const [internalFilter, setInternalFilter] = useState('');
   const [modelFilter, setModelFilter] = useState<string>('all');
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [internalExpandedFolders, setInternalExpandedFolders] = useState<Set<string>>(new Set());
+
+  // Use external state if provided, otherwise use internal
+  const filter = externalFilter ?? internalFilter;
+  const setFilter = externalOnFilterChange ?? setInternalFilter;
+  const expandedFolders = externalExpandedFolders ?? internalExpandedFolders;
+  const setExpandedFolders = externalOnExpandedFoldersChange ?? setInternalExpandedFolders;
 
   const toggleFolder = (path: string) => {
-    setExpandedFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) {
-        next.delete(path);
-      } else {
-        next.add(path);
-      }
-      return next;
-    });
+    const current = expandedFolders;
+    const next = new Set(current);
+    if (next.has(path)) {
+      next.delete(path);
+    } else {
+      next.add(path);
+    }
+    setExpandedFolders(next);
   };
 
   // Expand all folders

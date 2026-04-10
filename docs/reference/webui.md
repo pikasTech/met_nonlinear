@@ -13,12 +13,15 @@ src/webui/
 │   │   ├── index.ts    # Express 服务器入口
 │   │   └── manager.py  # Python 服务管理脚本
 │   └── package.json
-└── src/                # React 前端
-    ├── components/      # React 组件
-    ├── api.ts          # API 调用层
-    ├── types.ts        # TypeScript 类型定义
-    └── App.tsx         # 主应用组件
+├── src/                # React 前端
+│   ├── components/      # React 组件
+│   ├── api.ts          # API 调用层
+│   ├── types.ts        # TypeScript 类型定义
+│   └── App.tsx         # 主应用组件
+└── dist/               # 构建产物（由 vite 生成）
 ```
+
+**注意**：项目根目录不允许有 `package.json`、`package-lock.json`、`node_modules` 等 npm 相关文件，这些只允许存在于 `src/webui/` 目录下。
 
 ## 启动服务
 
@@ -106,6 +109,11 @@ GET /api/projects/{name}/data/{filename}
 - **图表视图**：直接读取 `metrics.json`，展示统一漂移指标、计算量与评估指标
 - **表格视图**：直接读取 `metrics.json`，支持筛选、排序（TanStack Table）
 
+### 预设持久化
+- **自动保存**：选择项目、筛选、排序等操作会在 1 秒后自动保存到 `cache/webui/state.json`
+- **手动保存**：点击 "Presets" 按钮可保存/加载预设到 `cache/webui/presets/` 目录
+- 预设保存内容：选中项目、全局筛选、列筛选、排序、列可见性、展开文件夹状态
+
 ## 开发命令
 
 ```bash
@@ -116,7 +124,7 @@ cd src/webui && npm install
 # 开发模式
 cd src/webui/server && npx tsx watch src/index.ts
 
-# 构建前端
+# 构建前端（构建产物输出到 src/webui/dist/）
 cd src/webui && npm run build
 ```
 

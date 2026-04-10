@@ -4,6 +4,7 @@
 | Date | Source | What Went Wrong | What To Do Instead |
 |------|--------|----------------|-------------------|
 | 2026-04-09 | self | `ProjectManager.evaluate()` 把 `use_best_val_weights` 误当成“是否加载离线权重”的总开关，导致配置为 `false` 时直接评估随机初始化模型 | 离线评估/导出任务必须始终加载已训练权重；`use_best_val_weights` 只控制优先用 `best_val.weights.h5` 还是 `best.weights.h5` |
+| 2026-04-10 | self | CNNKAN 自己覆盖了 `predict()` 却把 `use_scaler` 直接丢掉，导致训练/验证 loss 看着正常，但 `linear_response.json` 写出的频响仍停留在归一化量纲 | 任何模型包装类重写 `predict()` 时都必须复用 `BaseModel.predict()` 的缩放/反缩放逻辑，并对 `linear_response.json.gains_comped` 的物理量级做一次抽查 |
 | 2026-04-03 | user | 在 QEMU 问题上先开始本地复现，没先做外部资料调研 | 这类工具链/仿真器卡点先做广泛联网调研，再回仓库落地 |
 | 2026-04-04 | self | 在 `src/core/lstm_qemu_ep_task.py` 里给 GRN 加 SiLU 时改到了相邻的 LSTM 模板片段，导致源码里看似有修复但生成结果仍旧错误 | 这类生成器文件含重复 C 模板片段时，修改后必须同时核对真正的模板分支和重新生成出的 `qemu_project/main.c` |
 | 2026-04-04 | self | 做 `ModelEngine.build_model()` 轻量冒烟测试时忘了训练流程会先准备 scaler，导致 `set_scaler` 直接报错 | 如果跳过 `prepare_training_data()`，就临时设 `config.use_scale=False` 或手动注入 `CombinedScaler` 再测构建链路 |
@@ -15,6 +16,7 @@
 - (none recorded)
 
 ## Patterns That Work
+- 2026-04-10: 新建 EP 模板必须显式运行 `python cli.py ep create "..."`；直接运行 `python cli.py ep "..."` 只用于执行已有配置，缺少 `config.json` 时应直接报错而不是补建模板
 - STEP3 documents (key_references.md, theory_framework.md, paper_draft_segments.md, SUMMARY.md) are already comprehensive after R32/R33 analysis
 - Only status updates needed for STEP3 - no content changes required
 - R33 confirmed Luo KANLoc exclusion (domain mismatch: robot vision vs sensor drift compensation)

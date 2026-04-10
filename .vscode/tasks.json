@@ -337,6 +337,36 @@
 				"Remove-Item -LiteralPath 'c:\\work\\met_nonlinear_master\\projects\\01_LR_STUDY\\archive_cnnkan_h8u6l6_20260407\\_move_test.txt' -Force"
 			],
 			"isBackground": false
+		},
+		{
+			"label": "pytest-ep-cli-regression",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_cli_parser.py",
+				"src/tests/core/test_external_cli_handler.py",
+				"src/tests/core/test_core_modules.py",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "pytest-ep-cli-regression",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_cli_parser.py",
+				"src/tests/core/test_external_cli_handler.py",
+				"src/tests/core/test_core_modules.py",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

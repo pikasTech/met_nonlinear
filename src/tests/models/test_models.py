@@ -1605,6 +1605,36 @@ class TestCNNKANSubcfg:
 
             assert '未知模型子配置项' in str(exc_info.value)
 
+    def test_cnnkan_predict_applies_scaler(self):
+        """Test CNNKAN predict uses scaler transform and inverse transform."""
+        from models.frikan_models import CNNKAN
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = CNNKAN(
+                grid_size=5,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+            )
+
+            x_input = np.array([[[2.0], [4.0]]], dtype=np.float32)
+            scaled_input = np.array([[0.2], [0.4]], dtype=np.float32)
+            scaled_output = np.array([[[0.5], [0.75]]], dtype=np.float32)
+            restored_output = np.array([[50.0], [75.0]], dtype=np.float32)
+
+            scaler = Mock()
+            scaler.transform_x.return_value = scaled_input
+            scaler.inverse_transform_y.return_value = restored_output
+            model.scaler = scaler
+            model.model = MagicMock()
+            model.model.predict.return_value = scaled_output
+
+            result = model.predict(x_input, batch_size=2, verbose=0)
+
+            scaler.transform_x.assert_called_once()
+            scaler.inverse_transform_y.assert_called_once()
+            model.model.predict.assert_called_once()
+            np.testing.assert_allclose(result, restored_output.reshape(1, 2, 1))
+
 
 class TestFRIKANGridMethods:
     """Test cases for FRIKAN grid assignment methods."""

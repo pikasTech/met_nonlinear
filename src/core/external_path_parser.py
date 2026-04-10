@@ -1,5 +1,5 @@
 """
-外部项目路径解析器
+拓展项目路径解析器
 
 支持多种路径格式：
 1. 完整路径: projects/project/external/task-type/task-name
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ExternalPath:
-    """外部项目路径数据结构"""
+    """拓展项目路径数据结构"""
     project_name: str
     task_type: str
     task_name: str
@@ -28,7 +28,7 @@ class ExternalPath:
 
     @property
     def external_dir(self) -> Path:
-        """获取外部项目根目录"""
+        """获取拓展项目根目录"""
         return Path("projects") / self.project_name / "external"
 
     @property
@@ -38,7 +38,7 @@ class ExternalPath:
 
 
 class ExternalPathParser:
-    """外部项目路径解析器"""
+    """拓展项目路径解析器"""
     
     SUPPORTED_TASK_TYPES = [
         'freq-response-compare',
@@ -466,9 +466,9 @@ class ExternalPathParser:
     def _show_path_format_help(self):
         """显示路径格式帮助信息"""
         help_text = """
-外部项目路径格式说明：
+拓展项目路径格式说明：
 
-1. 独立外部项目格式：
+1. 独立拓展项目格式：
    external/projects/{task_type}/{task_name}
    例: external/projects/freq-response-compare/PS-5-190_vs_PS-5-360
 

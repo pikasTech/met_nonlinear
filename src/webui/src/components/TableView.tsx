@@ -22,6 +22,19 @@ interface ProjectData {
 interface Props {
   projects: ProjectData[];
   onRemove?: (path: string) => void;
+  // External state props for preset support
+  sorting?: SortingState;
+  onSortingChange?: (sorting: SortingState) => void;
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: (filters: ColumnFiltersState) => void;
+  globalFilter?: string;
+  onGlobalFilterChange?: (filter: string) => void;
+  columnVisibility?: Record<string, boolean>;
+  onColumnVisibilityChange?: (visibility: Record<string, boolean>) => void;
+  showFilters?: boolean;
+  onShowFiltersChange?: (show: boolean) => void;
+  showColumnPanel?: boolean;
+  onShowColumnPanelChange?: (show: boolean) => void;
 }
 
 type RowData = {
@@ -74,13 +87,59 @@ function numberFilter(row: any, columnId: string, filterValue: any) {
 
 const columnHelper = createColumnHelper<RowData>();
 
-export default function TableView({ projects, onRemove }: Props) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState('');
-  const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>({});
-  const [showColumnPanel, setShowColumnPanel] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+export default function TableView({
+  projects,
+  onRemove,
+  sorting: externalSorting,
+  onSortingChange: externalOnSortingChange,
+  columnFilters: externalColumnFilters,
+  onColumnFiltersChange: externalOnColumnFiltersChange,
+  globalFilter: externalGlobalFilter,
+  onGlobalFilterChange: externalOnGlobalFilterChange,
+  columnVisibility: externalColumnVisibility,
+  onColumnVisibilityChange: externalOnColumnVisibilityChange,
+  showFilters: externalShowFilters,
+  onShowFiltersChange: externalOnShowFiltersChange,
+  showColumnPanel: externalShowColumnPanel,
+  onShowColumnPanelChange: externalOnShowColumnPanelChange,
+}: Props) {
+  // Internal state with external override capability
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
+  const [internalColumnFilters, setInternalColumnFilters] = useState<ColumnFiltersState>([]);
+  const [internalGlobalFilter, setInternalGlobalFilter] = useState('');
+  const [internalColumnVisibility, setInternalColumnVisibility] = useState<Record<string, boolean>>({});
+  const [internalShowColumnPanel, setInternalShowColumnPanel] = useState(false);
+  const [internalShowFilters, setInternalShowFilters] = useState(false);
+
+  // Use external state if provided, otherwise use internal
+  const sorting = externalSorting ?? internalSorting;
+  // Wrap external setters to handle TanStack Table's Updater pattern
+  const setSorting = externalOnSortingChange
+    ? (updaterOrValue: any) => {
+        const value = typeof updaterOrValue === 'function' ? updaterOrValue(externalSorting) : updaterOrValue;
+        externalOnSortingChange(value);
+      }
+    : setInternalSorting;
+  const columnFilters = externalColumnFilters ?? internalColumnFilters;
+  const setColumnFilters = externalOnColumnFiltersChange
+    ? (updaterOrValue: any) => {
+        const value = typeof updaterOrValue === 'function' ? updaterOrValue(externalColumnFilters) : updaterOrValue;
+        externalOnColumnFiltersChange(value);
+      }
+    : setInternalColumnFilters;
+  const globalFilter = externalGlobalFilter ?? internalGlobalFilter;
+  const setGlobalFilter = externalOnGlobalFilterChange ?? setInternalGlobalFilter;
+  const columnVisibility = externalColumnVisibility ?? internalColumnVisibility;
+  const setColumnVisibility = externalOnColumnVisibilityChange
+    ? (updaterOrValue: any) => {
+        const value = typeof updaterOrValue === 'function' ? updaterOrValue(externalColumnVisibility) : updaterOrValue;
+        externalOnColumnVisibilityChange(value);
+      }
+    : setInternalColumnVisibility;
+  const showColumnPanel = externalShowColumnPanel ?? internalShowColumnPanel;
+  const setShowColumnPanel = externalOnShowColumnPanelChange ?? setInternalShowColumnPanel;
+  const showFilters = externalShowFilters ?? internalShowFilters;
+  const setShowFilters = externalOnShowFiltersChange ?? setInternalShowFilters;
 
   const rowData: RowData[] = useMemo(() => {
     return projects.map((p) => ({
