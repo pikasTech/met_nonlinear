@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Project, ProjectMetricsSummary } from './types';
-import { fetchProjects, fetchProjectMetricsSummary, fetchState, saveState, fetchPresets, fetchPreset, savePreset, deletePreset, PresetState, PresetInfo, LossCurvesState, defaultLossCurvesState } from './api';
+import { fetchProjects, fetchProjectMetricsSummary, fetchState, saveState, fetchPresets, fetchPreset, savePreset, deletePreset, renamePreset, PresetState, PresetInfo, LossCurvesState, defaultLossCurvesState } from './api';
 import ProjectList from './components/ProjectList';
 import ComparisonView from './components/ComparisonView';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';
@@ -29,6 +29,8 @@ export default function App() {
   const [showPresetPanel, setShowPresetPanel] = useState(false);
   const [statusMsg, setStatusMsg] = useState('');
   const [initialized, setInitialized] = useState(false);
+  const [renamingPreset, setRenamingPreset] = useState<string | null>(null);
+  const [renameInput, setRenameInput] = useState('');
 
   // Loss curves state
   const [lossCurvesState, setLossCurvesState] = useState<LossCurvesState>(defaultLossCurvesState);
@@ -245,6 +247,29 @@ export default function App() {
     }
   };
 
+  const handleRenamePreset = async (oldName: string) => {
+    if (!renameInput.trim() || renameInput.trim() === oldName) {
+      setRenamingPreset(null);
+      setRenameInput('');
+      return;
+    }
+    try {
+      await renamePreset(oldName, renameInput.trim());
+      const data = await fetchPresets();
+      setPresets(data.presets);
+      setRenamingPreset(null);
+      setRenameInput('');
+      showStatus(`Preset renamed to "${renameInput.trim()}"`);
+    } catch (e) {
+      showStatus('Failed to rename preset');
+    }
+  };
+
+  const startRename = (name: string) => {
+    setRenamingPreset(name);
+    setRenameInput(name);
+  };
+
   const selectedArray = useMemo(() => Array.from(selectedProjects), [selectedProjects]);
 
   if (loading) return <div className="loading">Loading projects...</div>;
@@ -290,24 +315,60 @@ export default function App() {
             {presets.length === 0 && <div className="preset-empty">No saved presets</div>}
             {presets.map((p) => (
               <div key={p.name} className="preset-item">
-                <span className="preset-item-name" onClick={() => handleLoadPreset(p.name)}>
-                  {p.name}
-                </span>
-                <span className="preset-item-date">{new Date(p.createdAt).toLocaleString()}</span>
-                <button
-                  className="btn-update-preset"
-                  onClick={() => handleUpdatePreset(p.name)}
-                  title="Update preset with current settings"
-                >
-                  ↻
-                </button>
-                <button
-                  className="btn-delete-preset"
-                  onClick={() => handleDeletePreset(p.name)}
-                  title="Delete preset"
-                >
-                  ×
-                </button>
+                {renamingPreset === p.name ? (
+                  <>
+                    <input
+                      type="text"
+                      className="preset-rename-input"
+                      value={renameInput}
+                      onChange={(e) => setRenameInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleRenamePreset(p.name)}
+                      autoFocus
+                    />
+                    <button
+                      className="btn-rename-confirm"
+                      onClick={() => handleRenamePreset(p.name)}
+                      title="Confirm rename"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      className="btn-rename-cancel"
+                      onClick={() => { setRenamingPreset(null); setRenameInput(''); }}
+                      title="Cancel rename"
+                    >
+                      ×
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="preset-item-name" onClick={() => handleLoadPreset(p.name)}>
+                      {p.name}
+                    </span>
+                    <span className="preset-item-date">{new Date(p.createdAt).toLocaleString()}</span>
+                    <button
+                      className="btn-rename-preset"
+                      onClick={() => startRename(p.name)}
+                      title="Rename preset"
+                    >
+                      ✎
+                    </button>
+                    <button
+                      className="btn-update-preset"
+                      onClick={() => handleUpdatePreset(p.name)}
+                      title="Update preset with current settings"
+                    >
+                      ↻
+                    </button>
+                    <button
+                      className="btn-delete-preset"
+                      onClick={() => handleDeletePreset(p.name)}
+                      title="Delete preset"
+                    >
+                      ×
+                    </button>
+                  </>
+                )}
               </div>
             ))}
           </div>

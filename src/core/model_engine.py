@@ -337,7 +337,7 @@ class ModelEngine:
 
     def build_model(self):
         # 构建模型
-        if 'FRIKAN' in self.config.use_model:
+        if 'FRIKAN' in self.config.use_model or self.config.use_model == 'FRIMLP':
             mod_class = eval(self.config.use_model)
             self.model_comp = mod_class.fromSystem(
                 self.E,

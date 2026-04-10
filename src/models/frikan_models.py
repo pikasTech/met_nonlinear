@@ -479,12 +479,236 @@ class FRIKAN(BaseModel):
         return x
 
 
-class FRIKAND(FRIKAN):
+def _normalize_dense_activation(activation):
+    if activation in (None, 'linear'):
+        return None
+    return activation
+
+
+class FRIMLP(FRIKAN):
+    """
+    FRIMLP (Frequency-response IIR-MLP) 模型
+
+    保留 FRIKAN 的 IIR 前端，并用可调 MLP 替换 KAN 部分。
+    """
+
+    def __init__(self,
+                 iir_params_list,
+                 grid_size=5,
+                 grid_range=(-1.0, 1.0),
+                 spline_order=3,
+                 basis_activation='silu',
+                 fs=2000,
+                 checkpoint_dir='data',
+                 fix_scale_factor=True,
+                 disable_basis_activation=True,
+                 inner_kan_units=4,
+                 inner_kan_layers=1,
+                 use_fast_model=True,
+                 iir_trainable=False,
+                 iir_init_by_system=True,
+                 dropout_rate=0.2,
+                 kan_log_grid=False,
+                 kan_grid_expand=True,
+                 save_each_epoch=False,
+                 model_subcfg={}):
+        if not isinstance(model_subcfg, dict):
+            raise TypeError('model_subcfg must be dict')
+
+        default_subcfg = {
+            'mlp_hidden_units': inner_kan_units,
+            'mlp_hidden_layers': inner_kan_layers,
+            'mlp_activation': 'relu',
+            'output_activation': 'linear',
+            'dropout_rate': dropout_rate,
+            'dropout_position': 'input',
+            'use_layer_norm': False,
+            'use_residual': False,
+            'residual_projection': True,
+            'random_iir_seed': 20260405,
+        }
+        self.subcfg = merge_config(default_subcfg, model_subcfg)
+
+        hidden_units = int(self.subcfg['mlp_hidden_units'])
+        hidden_layers = int(self.subcfg['mlp_hidden_layers'])
+        resolved_dropout_rate = float(self.subcfg['dropout_rate'])
+        dropout_position = self.subcfg['dropout_position']
+        use_residual = bool(self.subcfg['use_residual'])
+        residual_projection = bool(self.subcfg['residual_projection'])
+
+        if hidden_units <= 0:
+            raise ValueError("model_subcfg['mlp_hidden_units'] must be > 0")
+        if hidden_layers < 0:
+            raise ValueError("model_subcfg['mlp_hidden_layers'] must be >= 0")
+        if resolved_dropout_rate < 0.0 or resolved_dropout_rate >= 1.0:
+            raise ValueError("model_subcfg['dropout_rate'] must be in [0, 1)")
+        if dropout_position not in {'input', 'iir', 'inner', 'output'}:
+            raise ValueError(
+                "model_subcfg['dropout_position'] must be one of input, iir, inner, output")
+        if use_residual and hidden_layers == 0:
+            raise ValueError("model_subcfg['use_residual'] requires mlp_hidden_layers > 0")
+        if not isinstance(residual_projection, bool):
+            raise TypeError("model_subcfg['residual_projection'] must be bool")
+
+        self.model_name = 'FRIMLP'
+        self.callback = None
+        self.layer_prefix = 'frimlp'
+        self.random_iir_seed = self.subcfg['random_iir_seed']
+
+        if iir_params_list is not None:
+            features_num = len(iir_params_list)
+            a1_list = [iir_param['a1'] for iir_param in iir_params_list]
+            a2_list = [iir_param['a2'] for iir_param in iir_params_list]
+            b0_list = [iir_param['b0'] for iir_param in iir_params_list]
+            b1_list = [iir_param['b1'] for iir_param in iir_params_list]
+            b2_list = [iir_param['b2'] for iir_param in iir_params_list]
+            iir = SIMOIIR(
+                units=features_num,
+                a1_list=a1_list,
+                a2_list=a2_list,
+                b0_list=b0_list,
+                b1_list=b1_list,
+                b2_list=b2_list,
+                fs=fs,
+                trainable=iir_trainable,
+                init_by_system=iir_init_by_system,
+                random_seed=self.random_iir_seed
+            )
+        else:
+            features_num = 1
+            iir = SIMOIIR(
+                units=features_num,
+                fs=fs,
+                a1_list=[0.0],
+                a2_list=[0.0],
+                b0_list=[1.0],
+                b1_list=[0.0],
+                b2_list=[0.0],
+                trainable=iir_trainable,
+                init_by_system=iir_init_by_system,
+                random_seed=self.random_iir_seed
+            )
+
+        self.iir = iir
+        self.fast_iir = None
+        self.fs = fs
+        self.features_num = features_num
+        self.use_fast_model = False
+        self.kan_log_grid = kan_log_grid
+        self.save_each_epoch = save_each_epoch
+        self.model_name = 'FRIMLP'
+        self.layer_prefix = 'frimlp'
+        self.dropout_rate = resolved_dropout_rate
+        self.dropout_layer = tf.keras.layers.Dropout(
+            self.dropout_rate) if self.dropout_rate > 0.0 else None
+        self.dropout_position = dropout_position
+        self.init_checkpoint(checkpoint_dir)
+        self._configure_mlp_layers()
+        self.build_model()
+
+    def _configure_mlp_layers(self):
+        hidden_units = int(self.subcfg['mlp_hidden_units'])
+        hidden_layers = int(self.subcfg['mlp_hidden_layers'])
+        hidden_activation = self.subcfg['mlp_activation']
+        use_layer_norm = bool(self.subcfg['use_layer_norm'])
+        use_residual = bool(self.subcfg['use_residual'])
+        use_residual_projection = bool(self.subcfg['residual_projection'])
+        output_activation = _normalize_dense_activation(
+            self.subcfg['output_activation'])
+
+        self.kan = tf.keras.layers.Dense(
+            units=1,
+            activation=output_activation,
+            name=f'{self.layer_prefix}_output'
+        )
+
+        self.kan_inner_layers = []
+        self.residual_projection_layers = []
+        current_units = self.features_num
+        for i in range(hidden_layers):
+            dense_layer = tf.keras.layers.Dense(
+                units=hidden_units,
+                activation=hidden_activation,
+                name=f'{self.layer_prefix}_dense_{i}'
+            )
+            if use_layer_norm:
+                block = tf.keras.Sequential([
+                    dense_layer,
+                    tf.keras.layers.LayerNormalization(
+                        axis=-1,
+                        name=f'{self.layer_prefix}_ln_{i}'
+                    )
+                ], name=f'{self.layer_prefix}_block_{i}')
+                self.kan_inner_layers.append(block)
+            else:
+                self.kan_inner_layers.append(dense_layer)
+
+            if use_residual and use_residual_projection and current_units != hidden_units:
+                self.residual_projection_layers.append(
+                    tf.keras.layers.Dense(
+                        units=hidden_units,
+                        activation=None,
+                        use_bias=False,
+                        name=f'{self.layer_prefix}_res_proj_{i}'
+                    )
+                )
+            else:
+                self.residual_projection_layers.append(None)
+            current_units = hidden_units
+
+    def build_model(self):
+        input_layer = tf.keras.layers.Input(shape=(None, 1), name='input')
+        if self.dropout_layer is not None and self.dropout_position == 'input':
+            input_drop_out = self.dropout_layer(input_layer)
+        else:
+            input_drop_out = input_layer
+
+        iir_out = self.iir(input_drop_out)
+
+        if self.dropout_layer is not None and self.dropout_position == 'iir':
+            iir_drop_out = self.dropout_layer(iir_out)
+        else:
+            iir_drop_out = iir_out
+
+        mlp_inner_output = self.build_kan_inner_layers(iir_drop_out)
+
+        if self.dropout_layer is not None and self.dropout_position == 'output':
+            mlp_inner_output = self.dropout_layer(mlp_inner_output)
+
+        output = self.kan(mlp_inner_output)
+
+        self.model = tf.keras.Model(
+            inputs=input_layer,
+            outputs=output,
+            name=self.model_name
+        )
+        self.model.build(input_shape=(None, None, 1))
+
+    def build_kan_inner_layers(self, iir_out):
+        x = iir_out
+        use_residual = bool(self.subcfg['use_residual'])
+        for i, dense_layer in enumerate(self.kan_inner_layers):
+            residual = x
+            x = dense_layer(x)
+            if use_residual:
+                projection_layer = self.residual_projection_layers[i]
+                if projection_layer is not None:
+                    residual = projection_layer(residual)
+                if residual.shape[-1] == x.shape[-1]:
+                    x = tf.keras.layers.Add(name=f'{self.layer_prefix}_res_add_{i}')([
+                        x, residual
+                    ])
+            if i + 1 == len(self.kan_inner_layers) // 2:
+                if self.dropout_layer is not None and self.dropout_position == 'inner':
+                    x = self.dropout_layer(x)
+        return x
+
+
+class FRIKAND(FRIMLP):
     """
     FRIKAND (FRIKAN Dense) 模型
 
-    用普通 Dense 层替换原有的 DenseKAN，实现对 FRIKAN 的消融。
-    与 FRIKAN2 类似，通过继承 FRIKAN 并重写必要部分来切换网络结构。
+    向后兼容旧名称；内部实现与 FRIMLP 相同。
     """
 
     def __init__(self,
@@ -506,127 +730,33 @@ class FRIKAND(FRIKAN):
                  kan_log_grid=False,
                  kan_grid_expand=True,
                  save_each_epoch=False
-                 ):
-        """
-        这里和 FRIKAN 的构造函数保持同样的参数签名，方便直接替换。
-        重点是：我们会在构造函数中把 self.kan 换成 Dense，把 self.kan_inner_layers
-        换成普通 Dense 层列表，然后保持其它逻辑不变。
-        """
-        # 先调用父类构造函数，完成 IIR 初始化、checkpoint 初始化等
-        super().__init__(iir_params_list=iir_params_list,
-                         grid_size=grid_size,
-                         grid_range=grid_range,
-                         spline_order=spline_order,
-                         basis_activation=basis_activation,
-                         fs=fs,
-                         checkpoint_dir=checkpoint_dir,
-                         fix_scale_factor=fix_scale_factor,
-                         disable_basis_activation=disable_basis_activation,
-                         inner_kan_units=inner_kan_units,
-                         inner_kan_layers=inner_kan_layers,
-                         use_fast_model=use_fast_model,
-                         iir_trainable=iir_trainable,
-                         iir_init_by_system=iir_init_by_system,
-                         dropout_rate=dropout_rate,
-                         kan_log_grid=kan_log_grid,
-                         kan_grid_expand=kan_grid_expand,
-                         save_each_epoch=save_each_epoch)
-
-        # 注意：父类 __init__() 里已经 build_model() 过一次了，其中用的还是 KAN。
-        # 我们要覆盖掉 self.kan、self.kan_inner_layers 然后再重建模型。
-
+                 ,
+                 model_subcfg={}):
+        super().__init__(
+            iir_params_list=iir_params_list,
+            grid_size=grid_size,
+            grid_range=grid_range,
+            spline_order=spline_order,
+            basis_activation=basis_activation,
+            fs=fs,
+            checkpoint_dir=checkpoint_dir,
+            fix_scale_factor=fix_scale_factor,
+            disable_basis_activation=disable_basis_activation,
+            inner_kan_units=inner_kan_units,
+            inner_kan_layers=inner_kan_layers,
+            use_fast_model=use_fast_model,
+            iir_trainable=iir_trainable,
+            iir_init_by_system=iir_init_by_system,
+            dropout_rate=dropout_rate,
+            kan_log_grid=kan_log_grid,
+            kan_grid_expand=kan_grid_expand,
+            save_each_epoch=save_each_epoch,
+            model_subcfg=model_subcfg
+        )
         self.model_name = 'FRIDENSE'
-
-        # 1) 覆盖掉原先的 self.kan，改用普通的 Dense 作为输出层
-        self.kan = tf.keras.layers.Dense(
-            units=1,
-            activation=None,    # 或 'linear'
-            name='final_dense'
-        )
-
-        # 2) 覆盖掉原先的 self.kan_inner_layers，用普通 Dense 列表来替代
-        self.kan_inner_layers = []
-        for i in range(inner_kan_layers):
-            # 可以根据自己需求定激活函数
-            dense_layer = tf.keras.layers.Dense(
-                units=inner_kan_units,
-                activation='relu',
-                name=f'fridense_inner_{i}'
-            )
-            self.kan_inner_layers.append(dense_layer)
-
-        # 3) 重新 build 一遍模型（不再使用父类的 build_model 内容）
+        self.layer_prefix = 'fridense'
+        self._configure_mlp_layers()
         self.build_model()
-
-    def build_model(self):
-        """
-        直接复制 FRIKAN 的 build_model 逻辑，但把"KAN部分"改为普通 Dense。
-        """
-        # 输入层
-        input_layer = tf.keras.layers.Input(shape=(None, 1), name='input')
-        if self.dropout_layer is not None and self.dropout_position == 'input':
-            input_drop_out = self.dropout_layer(input_layer)
-        else:
-            input_drop_out = input_layer
-
-        # IIR 层
-        iir_out = self.iir(input_drop_out)
-        fast_iir_out = tf.keras.layers.Input(
-            shape=(None, iir_out.shape[2]), name='fast_input')
-
-        # dropout
-        if self.dropout_layer is not None and self.dropout_position == 'iir':
-            iir_drop_out = self.dropout_layer(iir_out)
-            fast_iir_drop_out = self.dropout_layer(fast_iir_out)
-        else:
-            iir_drop_out = iir_out
-            fast_iir_drop_out = fast_iir_out
-
-        # 中间若干层（原先是 KAN 内层，这里改为 Dense）
-        kan_inner_output = self.build_kan_inner_layers(iir_drop_out)
-        fast_kan_inner_output = self.build_kan_inner_layers(fast_iir_drop_out)
-
-        # dropout
-        if self.dropout_layer is not None and self.dropout_position == 'output':
-            kan_inner_output = self.dropout_layer(kan_inner_output)
-            fast_kan_inner_output = self.dropout_layer(fast_kan_inner_output)
-
-        # 最终输出层（self.kan 已经被普通 Dense 覆盖）
-        output = self.kan(kan_inner_output)
-        fast_output = self.kan(fast_kan_inner_output)
-
-        # 建立完整模型
-        self.model = tf.keras.Model(
-            inputs=input_layer,
-            outputs=output,
-            name='FRIDENSE'
-        )
-        self.model.build(input_shape=(None, None, 1))
-
-        if self.use_fast_model:
-            self.fast_model = tf.keras.Model(
-                inputs=fast_iir_out,
-                outputs=fast_output,
-                name='fast_FRIDENSE'
-            )
-            self.fast_model.build(
-                input_shape=(None, None, iir_out.shape[2])
-            )
-
-    def build_kan_inner_layers(self, iir_out):
-        """
-        用普通 Dense 实现原先的 KAN 中间层。
-        """
-        x = iir_out
-        for i, dense_layer in enumerate(self.kan_inner_layers):
-            x = dense_layer(x)
-
-            # 如果要在中间插入 dropout，可以根据自身需要来加：
-            # if i + 1 == len(self.kan_inner_layers) // 2:
-            #     if self.dropout_layer is not None and self.dropout_position == 'inner':
-            #         x = self.dropout_layer(x)
-
-        return x
 
 
 class FRIKAN2(FRIKAN):

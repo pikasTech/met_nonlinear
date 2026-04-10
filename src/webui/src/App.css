@@ -205,6 +205,8 @@ body {
   padding: 0.6rem 0.75rem;
   border-bottom: 1px solid #f0f0f0;
   gap: 0.5rem;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .preset-item:hover {
@@ -216,6 +218,10 @@ body {
   font-size: 0.85rem;
   cursor: pointer;
   color: #2c3e50;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .preset-item-name:hover {
@@ -225,6 +231,8 @@ body {
 .preset-item-date {
   font-size: 0.7rem;
   color: #999;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-delete-preset {
@@ -241,6 +249,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .btn-delete-preset:hover {
@@ -261,10 +270,82 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .btn-update-preset:hover {
   background: #1976D2;
+}
+
+.btn-rename-preset {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  border: none;
+  background: #9E9E9E;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-rename-preset:hover {
+  background: #757575;
+}
+
+.btn-rename-confirm {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-rename-confirm:hover {
+  background: #388E3C;
+}
+
+.btn-rename-cancel {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  border: none;
+  background: #9E9E9E;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-rename-cancel:hover {
+  background: #757575;
+}
+
+.preset-rename-input {
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.85rem;
 }
 
 /* Status toast */

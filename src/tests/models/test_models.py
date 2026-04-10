@@ -14,6 +14,7 @@ import sys
 import os
 import tempfile
 import numpy as np
+import tensorflow as tf
 from pathlib import Path
 from unittest.mock import Mock, MagicMock, patch
 
@@ -1225,6 +1226,80 @@ class TestFRIKAN:
         assert isinstance(frikan_model.fast_model, keras.Model)
 
 
+class TestFRIMLP:
+    """Test cases for FRIMLP model class."""
+
+    @pytest.fixture
+    def frimlp_model(self):
+        """Create a FRIMLP model instance for testing."""
+        from models.frikan_models import FRIMLP
+
+        iir_params = [
+            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = FRIMLP(
+                iir_params_list=iir_params,
+                grid_size=5,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                use_fast_model=False,
+                model_subcfg={
+                    'mlp_hidden_units': 3,
+                    'mlp_hidden_layers': 2,
+                    'mlp_activation': 'tanh',
+                    'dropout_rate': 0.0,
+                    'dropout_position': 'inner',
+                    'use_layer_norm': True,
+                }
+            )
+            yield model
+
+    def test_frimlp_initialization(self, frimlp_model):
+        """Test FRIMLP model initialization."""
+        assert frimlp_model.model_name == 'FRIMLP'
+        assert frimlp_model.subcfg['mlp_hidden_units'] == 3
+        assert frimlp_model.subcfg['mlp_hidden_layers'] == 2
+        assert frimlp_model.dropout_position == 'inner'
+
+    def test_frimlp_uses_layer_norm_blocks(self, frimlp_model):
+        """Test FRIMLP can build MLP blocks with layer norm."""
+        block = frimlp_model.kan_inner_layers[0]
+        assert isinstance(block, tf.keras.Sequential)
+        assert any(
+            isinstance(layer, tf.keras.layers.LayerNormalization)
+            for layer in block.layers
+        )
+
+    def test_frimlp_supports_residual_projection(self):
+        """Test FRIMLP can enable residual connections with projection."""
+        from models.frikan_models import FRIMLP
+
+        iir_params = [
+            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = FRIMLP(
+                iir_params_list=iir_params,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                use_fast_model=False,
+                model_subcfg={
+                    'mlp_hidden_units': 4,
+                    'mlp_hidden_layers': 2,
+                    'mlp_activation': 'tanh',
+                    'dropout_rate': 0.0,
+                    'use_residual': True,
+                    'residual_projection': True,
+                }
+            )
+
+        assert model.residual_projection_layers[0] is not None
+        assert model.residual_projection_layers[1] is None
+
+
 class TestFRIKAND:
     """Test cases for FRIKAND (FRIKAN Dense) model class."""
 
@@ -1243,13 +1318,19 @@ class TestFRIKAND:
                 grid_size=5,
                 fs=2000,
                 checkpoint_dir=tmpdir,
-                use_fast_model=False
+                use_fast_model=False,
+                model_subcfg={
+                    'mlp_hidden_units': 2,
+                    'mlp_hidden_layers': 1,
+                    'dropout_rate': 0.0,
+                }
             )
             yield model
 
     def test_frikand_initialization(self, frikand_model):
         """Test FRIKAND model initialization."""
         assert frikand_model.model_name == 'FRIDENSE'
+        assert frikand_model.subcfg['mlp_hidden_units'] == 2
 
     def test_frikand_has_model(self, frikand_model):
         """Test FRIKAND model has underlying tf.keras model."""

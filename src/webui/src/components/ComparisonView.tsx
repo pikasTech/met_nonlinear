@@ -104,7 +104,7 @@ export default function ComparisonView({
         .tab { padding: 0.75rem 1.5rem; border: none; background: none; cursor: pointer; font-size: 1rem; color: #666; border-bottom: 2px solid transparent; margin-bottom: -2px; }
         .tab:hover { color: #333; }
         .tab.active { color: #2c3e50; border-bottom-color: #2c3e50; font-weight: 600; }
-        .view-content { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: auto; max-height: calc(100vh - 250px); }
+        .view-content { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: auto; flex: 1; min-height: 0; }
       `}</style>
     </div>
   );

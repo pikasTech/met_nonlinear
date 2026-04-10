@@ -108,6 +108,15 @@ export async function deletePreset(name: string): Promise<void> {
   if (!res.ok) throw new Error(`Failed to delete preset: ${name}`);
 }
 
+export async function renamePreset(oldName: string, newName: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/presets/${encodeURIComponent(oldName)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ newName }),
+  });
+  if (!res.ok) throw new Error(`Failed to rename preset: ${oldName}`);
+}
+
 // State persistence API
 export async function fetchState(): Promise<PresetState | null> {
   const res = await fetch(`${API_BASE}/state`);

@@ -1,0 +1,6 @@
+{"timestamp": 20260410224956.8, "epoch": 1, "loss": 2.7914e-01, "val_loss": 2.5023e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 1.1107e00, "val_power_log_loss": 9.2894e-01, "lr": 1.4000e-04}
+{"timestamp": 20260410225003.9, "epoch": 2, "loss": 2.3885e-01, "val_loss": 2.2562e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 8.6737e-01, "val_power_log_loss": 8.0589e-01, "lr": 1.4000e-04}
+{"timestamp": 20260410225011.0, "epoch": 3, "loss": 2.1052e-01, "val_loss": 1.9355e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5757e-01, "val_power_log_loss": 7.0806e-01, "lr": 1.4000e-04}
+{"timestamp": 20260410225018.3, "epoch": 4, "loss": 1.8306e-01, "val_loss": 1.7720e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 6.7964e-01, "val_power_log_loss": 6.6587e-01, "lr": 1.4000e-04}
+{"timestamp": 20260410225025.3, "epoch": 5, "loss": 1.7042e-01, "val_loss": 1.5897e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 6.3340e-01, "val_power_log_loss": 5.7124e-01, "lr": 1.4000e-04}
+{"timestamp": 20260410225032.5, "epoch": 6, "loss": 1.5750e-01, "val_loss": 1.5356e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 5.4842e-01, "val_power_log_loss": 5.1698e-01, "lr": 1.4000e-04}

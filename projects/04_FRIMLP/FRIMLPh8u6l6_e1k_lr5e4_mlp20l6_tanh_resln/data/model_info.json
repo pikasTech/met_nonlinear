@@ -1,0 +1,196 @@
+{
+    "model_type": "FRIMLP",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 2445,
+    "trainable_params": 2421,
+    "non_trainable_params": 24,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "simoiir",
+            "type": "SIMOIIR",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": false,
+            "num_params": 24
+        },
+        {
+            "name": "frimlp_block_0",
+            "type": "Sequential",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 80
+        },
+        {
+            "name": "frimlp_res_proj_0",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 20
+        },
+        {
+            "name": "frimlp_res_add_0",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "frimlp_block_1",
+            "type": "Sequential",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 460
+        },
+        {
+            "name": "frimlp_res_add_1",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "frimlp_block_2",
+            "type": "Sequential",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 460
+        },
+        {
+            "name": "frimlp_res_add_2",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "frimlp_block_3",
+            "type": "Sequential",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 460
+        },
+        {
+            "name": "frimlp_res_add_3",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "frimlp_block_4",
+            "type": "Sequential",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 460
+        },
+        {
+            "name": "frimlp_res_add_4",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "frimlp_block_5",
+            "type": "Sequential",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 460
+        },
+        {
+            "name": "frimlp_res_add_5",
+            "type": "Add",
+            "output_shape": [
+                null,
+                null,
+                20
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "frimlp_output",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 21
+        }
+    ]
+}

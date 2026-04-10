@@ -195,6 +195,38 @@ app.delete('/api/presets/:name', (req, res) => {
   }
 });
 
+app.patch('/api/presets/:name', (req, res) => {
+  const oldName = path.basename(req.params.name);
+  const newName = req.body.newName;
+  if (!newName || typeof newName !== 'string' || newName.trim() === '') {
+    res.status(400).json({ error: 'Invalid new name' });
+    return;
+  }
+  const safeOldName = path.basename(oldName);
+  const safeNewName = path.basename(newName.trim());
+  const oldFilePath = path.join(PRESETS_DIR, safeOldName + '.json');
+  const newFilePath = path.join(PRESETS_DIR, safeNewName + '.json');
+  if (!fs.existsSync(oldFilePath)) {
+    res.status(404).json({ error: 'Preset not found' });
+    return;
+  }
+  if (fs.existsSync(newFilePath) && safeOldName !== safeNewName) {
+    res.status(409).json({ error: 'Preset with new name already exists' });
+    return;
+  }
+  try {
+    const content = JSON.parse(fs.readFileSync(oldFilePath, 'utf-8'));
+    content.name = safeNewName;
+    fs.writeFileSync(newFilePath, JSON.stringify(content, null, 2));
+    if (safeOldName !== safeNewName) {
+      fs.unlinkSync(oldFilePath);
+    }
+    res.json({ success: true, name: safeNewName });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to rename preset' });
+  }
+});
+
 // Auto-save state endpoint
 app.get('/api/state', (_req, res) => {
   if (fs.existsSync(STATE_FILE)) {

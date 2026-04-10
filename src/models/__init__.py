@@ -7,7 +7,7 @@
 # 从各个子模块导入模型类
 from .utils import merge_config
 from .frikan_models import (
-    FRIKAN, FRIKAND, FRIKAN2, FRIKAN3, FRIKAN4, 
+    FRIKAN, FRIMLP, FRIKAND, FRIKAN2, FRIKAN3, FRIKAN4, 
     FRIKAN5, FRIKAN6, FRIKAN23, CNNKAN
 )
 from .base_models import LSTM, GRN, RNN, LSTMTransformer
