@@ -405,6 +405,135 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "train-frimlp-16x6-full-1k",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Set-Location 'c:\\work\\met_nonlinear_master'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py -t 'projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp16l6_tanh_d00'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py -e 'projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp16l6_tanh_d00'; & 'C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe' cli.py --metrics 'projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp16l6_tanh_d00'"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "train-frimlp-mlp20l6-lr7e4-full",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "kill-frimlp-training-procs",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$targets = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'projects/04_FRIMLP' }; $targets | Select-Object ProcessId, Name, CommandLine | Format-List | Out-String; foreach ($proc in $targets) { Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue }"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "clear-all-frimlp-data",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Get-ChildItem -Path 'c:\\work\\met_nonlinear_master\\projects\\04_FRIMLP' -Directory | ForEach-Object { $dataDir = Join-Path $_.FullName 'data'; if (Test-Path $dataDir) { Remove-Item -LiteralPath $dataDir -Recurse -Force; Write-Output \"REMOVED $dataDir\" } else { Write-Output \"SKIP $dataDir\" } }"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "pytest-frimlp-model-fixes",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/models/test_models.py",
+				"-k",
+				"frimlp or frikand or frikan_use_fast_model",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "pytest-frimlp-project-manager-fix",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_project_manager.py",
+				"-k",
+				"frimlp",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "pytest-frimlp-model-fixes-rerun",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/models/test_models.py",
+				"-k",
+				"frimlp or frikand or frikan_use_fast_model",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "retrain-frimlp-mlp20l6-fixed",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-t",
+				"projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "eval-frimlp-mlp20l6-fixed",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"-e",
+				"projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "metrics-frimlp-mlp20l6-fixed",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"cli.py",
+				"--metrics",
+				"projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

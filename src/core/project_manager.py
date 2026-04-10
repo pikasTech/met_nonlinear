@@ -83,7 +83,8 @@ class ProjectManager:
         """初始化模型，包括加载数据集、准备数据、构建模型和加载基础模型权重"""
         model_engine.load_dataset(self.config.dataset_type)
         model_engine.prepare_training_data()
-        if 'FRIKAN' in self.config.use_model and 'MET' in self.config.dataset_type and (self.config.H_UNITS > 0):
+        use_fri_frontend = ('FRIKAN' in self.config.use_model) or (self.config.use_model in {'FRIMLP', 'FRIKAND'})
+        if use_fri_frontend and 'MET' in self.config.dataset_type and (self.config.H_UNITS > 0):
             model_engine.prepare_systems()
         model_engine.build_model()
         model_engine.dump_model_info(output_folder=self.checkpoint_dir)

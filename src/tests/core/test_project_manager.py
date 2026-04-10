@@ -97,6 +97,35 @@ class TestProjectManagerStructure:
             assert path.split('/')[-1] == expected_name
 
 
+class TestProjectManagerFRIFrontendPreparation:
+    """Test FRI frontend models trigger system preparation."""
+
+    def test_prepare_dataset_and_model_prepares_systems_for_frimlp(self):
+        with patch('config.Config') as mock_config_class:
+            mock_config = MagicMock()
+            mock_config_class.load_from_json.return_value = mock_config
+
+            mock_config.use_model = 'FRIMLP'
+            mock_config.dataset_type = 'MET'
+            mock_config.H_UNITS = 8
+            mock_config.base_project = None
+
+            with patch('core.training_state.TrainingStateManager'):
+                with patch('core.training_log.TrainingLogger'):
+                    from core.project_manager import ProjectManager
+
+                    pm = ProjectManager('projects/test_project')
+                    engine = MagicMock()
+
+                    pm.prepare_dataset_and_model(engine)
+
+                    engine.load_dataset.assert_called_once_with('MET')
+                    engine.prepare_training_data.assert_called_once()
+                    engine.prepare_systems.assert_called_once()
+                    engine.build_model.assert_called_once()
+                    engine.dump_model_info.assert_called_once_with(output_folder=pm.checkpoint_dir)
+
+
 class TestProjectManagerInferenceManager:
     """Test inference_manager property"""
 

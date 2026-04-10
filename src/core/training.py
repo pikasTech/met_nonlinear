@@ -65,8 +65,8 @@ class RealTimeTrainingCallback(Callback):
         self.epoch_start_time = current_time  # 更新下一 epoch 的开始时间
 
         total_epochs = self.project.config.epoch_train
-        completed_epoch = self.state_manager['completed_epoch']
-        remaining_epochs = total_epochs - completed_epoch
+        current_epoch = int(epoch) + 1
+        remaining_epochs = max(total_epochs - current_epoch, 0)
 
         # 1. 计算当前 epoch 的速度（每小时完成的 epoch 数）
         if epoch_duration > 0:
@@ -108,7 +108,7 @@ class RealTimeTrainingCallback(Callback):
         # 构建滚动日志信息，包含训练速度
         log_message = (
             f"[{self.project_name} | "
-            f"{completed_epoch + 1}/{total_epochs} | "
+            f"{current_epoch}/{total_epochs} | "
             f"{self.format_time(elapsed_time)}/{self.format_time(remaining_time)}/{expected_finish_time.strftime('%Y-%m-%d %H:%M:%S')} | "
             f"Loss: {loss:.4f}/{val_loss:.4f} | "
             f"MAE: {mae:.4f}/{val_mae:.4f} | "
@@ -119,7 +119,7 @@ class RealTimeTrainingCallback(Callback):
             self.scrolling_log_handler.update_log(log_message)
 
         data = {
-            "epoch": int(completed_epoch) + 1,
+            "epoch": current_epoch,
             "loss": float(loss),
             "val_loss": float(val_loss),
             "mae": float(mae),
@@ -143,7 +143,9 @@ class RealTimeTrainingCallback(Callback):
         self.state_manager['expected_finish_time'] = expected_finish_time.strftime(
             '%Y-%m-%d %H:%M:%S')
         self.state_manager['smoothed_speed'] = self.smoothed_speed
-        self.state_manager['completed_epoch'] += 1
+        self.state_manager['training_alive'] = True
+        self.state_manager['completed_epoch'] = current_epoch
+        self.state_manager['current_epoch'] = current_epoch
         self.training_logger.append_data(data)
         self.user_model.exec_callback(
             ModelEvent(
@@ -221,6 +223,7 @@ class RealTimeTrainingCallback(Callback):
 
     def on_train_end(self, logs=None):
         # 训练结束时停止滚动日志处理器
+        self.state_manager['training_alive'] = False
         if self.scrolling_log_handler is not None:
             self.scrolling_log_handler.stop()
             self.scrolling_log_handler.join()

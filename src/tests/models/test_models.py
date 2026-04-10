@@ -1235,7 +1235,8 @@ class TestFRIMLP:
         from models.frikan_models import FRIMLP
 
         iir_params = [
-            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0}
+            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0},
+            {'a1': -1.2, 'a2': 0.5, 'b0': 0.3, 'b1': 0.0, 'b2': 0.0}
         ]
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -1244,7 +1245,7 @@ class TestFRIMLP:
                 grid_size=5,
                 fs=2000,
                 checkpoint_dir=tmpdir,
-                use_fast_model=False,
+                use_fast_model=True,
                 model_subcfg={
                     'mlp_hidden_units': 3,
                     'mlp_hidden_layers': 2,
@@ -1259,9 +1260,13 @@ class TestFRIMLP:
     def test_frimlp_initialization(self, frimlp_model):
         """Test FRIMLP model initialization."""
         assert frimlp_model.model_name == 'FRIMLP'
+        assert frimlp_model.features_num == 2
         assert frimlp_model.subcfg['mlp_hidden_units'] == 3
         assert frimlp_model.subcfg['mlp_hidden_layers'] == 2
         assert frimlp_model.dropout_position == 'inner'
+        assert frimlp_model.use_fast_model is True
+        assert hasattr(frimlp_model, 'fast_iir')
+        assert hasattr(frimlp_model, 'fast_model')
 
     def test_frimlp_uses_layer_norm_blocks(self, frimlp_model):
         """Test FRIMLP can build MLP blocks with layer norm."""
@@ -1298,6 +1303,11 @@ class TestFRIMLP:
 
         assert model.residual_projection_layers[0] is not None
         assert model.residual_projection_layers[1] is None
+
+    def test_frimlp_fast_model_tracks_iir_feature_count(self, frimlp_model):
+        """Test FRIMLP fast model input width follows the FRIKAN IIR feature count."""
+        assert frimlp_model.fast_iir.units == 2
+        assert frimlp_model.fast_model.input_shape[-1] == 2
 
 
 class TestFRIKAND:

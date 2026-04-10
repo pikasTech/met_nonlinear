@@ -141,7 +141,7 @@ body {
   position: absolute;
   top: 60px;
   right: 2rem;
-  width: 320px;
+  min-width: 320px;
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -214,14 +214,10 @@ body {
 }
 
 .preset-item-name {
-  flex: 1;
   font-size: 0.85rem;
   cursor: pointer;
   color: #2c3e50;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
 }
 
 .preset-item-name:hover {

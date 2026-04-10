@@ -10,9 +10,9 @@
         null,
         1
     ],
-    "total_params": 2185,
-    "trainable_params": 2161,
-    "non_trainable_params": 24,
+    "total_params": 2493,
+    "trainable_params": 2301,
+    "non_trainable_params": 192,
     "model_summary": [
         {
             "name": "input",
@@ -33,10 +33,10 @@
             "output_shape": [
                 null,
                 null,
-                1
+                8
             ],
             "trainable": false,
-            "num_params": 24
+            "num_params": 192
         },
         {
             "name": "frimlp_dense_0",
@@ -47,7 +47,7 @@
                 20
             ],
             "trainable": true,
-            "num_params": 40
+            "num_params": 180
         },
         {
             "name": "frimlp_dense_1",

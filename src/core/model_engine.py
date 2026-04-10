@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import traceback
 import os
 import logging
+import portalocker
 from config import Config
 import tensorflow as tf
 import json
@@ -694,7 +695,42 @@ class ModelEngine:
             -1, self.x_test_shuffle.shape[2], 1)
         y_test_feature = self.y_test_shuffle.reshape(
             -1, self.y_test_shuffle.shape[2], 1)
-        self.state_manager['training_alive'] = True
+        completed_epoch = int(self.state_manager.get('completed_epoch', 0) or 0)
+        if completed_epoch > self.config.epoch_train:
+            logger.warning(
+                '训练状态中的 completed_epoch=%s 超过目标 epoch_train=%s，已按上限截断。',
+                completed_epoch,
+                self.config.epoch_train,
+            )
+            completed_epoch = self.config.epoch_train
+            self.state_manager.update_state(
+                completed_epoch=completed_epoch,
+                current_epoch=completed_epoch,
+                training_alive=False,
+                remaining_time=0,
+            )
+
+        epochs_remaining = self.config.epoch_train - completed_epoch
+        if epochs_remaining <= 0:
+            logger.info(
+                '项目 %s 已达到目标训练轮数 %s，跳过训练阶段。',
+                self.project_name,
+                self.config.epoch_train,
+            )
+            self.state_manager.update_state(
+                completed_epoch=completed_epoch,
+                current_epoch=completed_epoch,
+                training_alive=False,
+                remaining_time=0,
+            )
+            return
+
+        self.state_manager.update_state(
+            completed_epoch=completed_epoch,
+            current_epoch=completed_epoch,
+            training_alive=True,
+        )
+        training_lock_path = os.path.join(self.checkpoint_dir, 'training.lock')
         # 断点续训
         if self.config.resume_training:
             print(f'加载断点...')
@@ -731,18 +767,26 @@ class ModelEngine:
         # 开始训练
         print(f'x_train_feature shape: {x_train_feature.shape}')
         print(f'y_train_feature shape: {y_train_feature.shape}')
-        self.model_comp.fit(
-            x_train_feature,
-            y_train_feature,
-            validation_data=(x_test_feature, y_test_feature),
-            epochs=self.config.epoch_train -
-            self.state_manager.get('completed_epoch', 0),
-            batch_size=self.batch_size,
-            verbose=0,
-            callbacks=[real_time_plotting_callback],
-            shuffle=False  # RVTDCNN 模型的时序会被shuffle打乱
-        )
-        self.state_manager['training_alive'] = False
+        try:
+            with portalocker.Lock(training_lock_path, mode='w', timeout=0):
+                self.model_comp.fit(
+                    x_train_feature,
+                    y_train_feature,
+                    validation_data=(x_test_feature, y_test_feature),
+                    initial_epoch=completed_epoch,
+                    epochs=self.config.epoch_train,
+                    batch_size=self.batch_size,
+                    verbose=0,
+                    callbacks=[real_time_plotting_callback],
+                    shuffle=False  # RVTDCNN 模型的时序会被shuffle打乱
+                )
+        except portalocker.exceptions.LockException as exc:
+            self.state_manager['training_alive'] = False
+            raise RuntimeError(
+                f'项目 {self.project_name} 已有训练进程在运行，请勿并发训练同一项目。'
+            ) from exc
+        finally:
+            self.state_manager['training_alive'] = False
 
     def predict_FR(self, USE_PREDICT_LINEAR=True):
         # 频率响应预测

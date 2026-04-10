@@ -39,6 +39,7 @@ class TrainingStateManager:
     def _normalize_legacy_state(self):
         """兼容旧版训练状态字段，确保断点续训可用。"""
         updated = False
+        training_lock_file = os.path.join(self.checkpoint_dir, 'training.lock')
 
         if 'completed_epoch' not in self.state:
             self.state['completed_epoch'] = self.state.get('current_epoch', 0)
@@ -53,6 +54,10 @@ class TrainingStateManager:
             updated = True
 
         if 'training_alive' not in self.state:
+            self.state['training_alive'] = False
+            updated = True
+
+        if self.state.get('training_alive') and not os.path.exists(training_lock_file):
             self.state['training_alive'] = False
             updated = True
 
