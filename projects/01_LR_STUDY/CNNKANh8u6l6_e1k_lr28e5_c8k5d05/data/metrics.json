@@ -1,6 +1,6 @@
 {
   "project_name": "CNNKANh8u6l6_e1k_lr28e5_c8k5d05",
-  "generated_at": "2026-04-10T09:44:02.402230+08:00",
+  "generated_at": "2026-04-10T12:56:21.403542+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -8,7 +8,8 @@
     "compute_analysis": true,
     "model_info": true,
     "linear_response": true,
-    "linearity_by_frequency": true
+    "linearity_by_frequency": true,
+    "config": true
   },
   "missing_sources": [],
   "missing_sections": [],
@@ -16,7 +17,7 @@
   "min_loss": 0.031675,
   "min_val_loss": 0.028127,
   "train_loss": 0.027760609984397888,
-  "val_loss": 0.028126556426286697,
+  "val_loss": 0.028126554563641548,
   "train_mae": 0.04182855039834976,
   "train_afmae": 0.043353430926799774,
   "val_mae": 0.04207340255379677,
@@ -27,6 +28,8 @@
   "linearity_percent": 0.9501903861474703,
   "compute_cost": 1638.0,
   "total_params": 2425,
+  "lr": 0.00028,
+  "use_cosine_annealing": false,
   "metric_details": {
     "natural_frequency_drift": {
       "min": 32.46211817540865,
@@ -104,6 +107,8 @@
     "Linearity (%)": 0.9501903861474703,
     "Compute Cost": 1638.0,
     "Total Params": 2425,
-    "Epochs": 1000
+    "Epochs": 1000,
+    "LR": 0.00028,
+    "Cosine Annealing": false
   }
 }

@@ -231,12 +231,15 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
     model_info_path = os.path.join(checkpoint_dir, 'model_info.json')
     linear_response_path = os.path.join(checkpoint_dir, 'linear_response.json')
     linearity_by_frequency_path = os.path.join(checkpoint_dir, 'linearity_by_frequency.json')
+    # config.json is in the project root (parent of data/), not in data/
+    config_path = os.path.join(os.path.dirname(checkpoint_dir), 'config.json')
 
     training_info = _load_json_if_exists(training_info_path)
     compute_analysis = _load_json_if_exists(compute_analysis_path)
     model_info = _load_json_if_exists(model_info_path)
     linear_response = _load_json_if_exists(linear_response_path)
     linearity_by_frequency = _load_json_if_exists(linearity_by_frequency_path)
+    config = _load_json_if_exists(config_path)
 
     missing_sources: List[str] = []
     missing_sections: List[str] = []
@@ -310,6 +313,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
             'model_info': model_info is not None,
             'linear_response': linear_response is not None,
             'linearity_by_frequency': linearity_by_frequency is not None,
+            'config': config is not None,
         },
         'missing_sources': missing_sources,
         'missing_sections': missing_sections,
@@ -328,6 +332,8 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'linearity_percent': (metric_details['linearity'] or {}).get('mean'),
         'compute_cost': compute_cost,
         'total_params': total_params,
+        'lr': _to_float(config.get('learning_rate')) if config else None,
+        'use_cosine_annealing': config.get('use_auto_lr') if config else None,
         'metric_details': metric_details,
         'compute_details': compute_details,
     }
@@ -343,6 +349,8 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'Compute Cost': summary['compute_cost'],
         'Total Params': summary['total_params'],
         'Epochs': summary['epochs'],
+        'LR': summary['lr'],
+        'Cosine Annealing': summary['use_cosine_annealing'],
     }
 
     if missing_sources or missing_sections:

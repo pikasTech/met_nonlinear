@@ -1,6 +1,6 @@
 {
   "project_name": "FRIKANh8u6l6_e1k_lr14e5_randfrirnn",
-  "generated_at": "2026-04-10T00:43:54.156452+08:00",
+  "generated_at": "2026-04-10T12:56:21.496243+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -8,7 +8,8 @@
     "compute_analysis": true,
     "model_info": true,
     "linear_response": true,
-    "linearity_by_frequency": true
+    "linearity_by_frequency": true,
+    "config": true
   },
   "missing_sources": [],
   "missing_sections": [],
@@ -27,6 +28,8 @@
   "linearity_percent": 72.52253327236087,
   "compute_cost": 1710.0,
   "total_params": 2569,
+  "lr": 0.00014,
+  "use_cosine_annealing": false,
   "metric_details": {
     "natural_frequency_drift": {
       "min": 145.61052725812314,
@@ -104,6 +107,8 @@
     "Linearity (%)": 72.52253327236087,
     "Compute Cost": 1710.0,
     "Total Params": 2569,
-    "Epochs": 8
+    "Epochs": 8,
+    "LR": 0.00014,
+    "Cosine Annealing": false
   }
 }

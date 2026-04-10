@@ -95,5 +95,7 @@ export interface ProjectMetricsSummary {
   linearity_percent: number | null;
   compute_cost: number | null;
   total_params: number | null;
-  display_metrics?: Record<string, number | null>;
+  lr: number | null;
+  use_cosine_annealing: boolean | null;
+  display_metrics?: Record<string, number | null | boolean>;
 }

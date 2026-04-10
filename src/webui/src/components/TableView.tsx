@@ -53,6 +53,8 @@ type RowData = {
   freqDrift: number | null;
   sensDrift: number | null;
   linearity: number | null;
+  lr: number | null;
+  useCosineAnnealing: boolean | null;
 };
 
 function formatCell(val: number | null): string {
@@ -158,6 +160,8 @@ export default function TableView({
       freqDrift: p.data.summary?.freq_drift_hz ?? null,
       sensDrift: p.data.summary?.sens_drift_percent ?? null,
       linearity: p.data.summary?.linearity_percent ?? null,
+      lr: p.data.summary?.lr ?? null,
+      useCosineAnnealing: p.data.summary?.use_cosine_annealing ?? null,
     }));
   }, [projects]);
 
@@ -228,6 +232,24 @@ export default function TableView({
     columnHelper.accessor('linearity', {
       header: 'Linearity (%)',
       cell: (info) => formatPercent(info.getValue()),
+      filterFn: numberFilter,
+    }),
+    columnHelper.accessor('lr', {
+      header: 'LR',
+      cell: (info) => {
+        const val = info.getValue();
+        if (val === null || val === undefined) return '(no data)';
+        return val.toExponential(2);
+      },
+      filterFn: numberFilter,
+    }),
+    columnHelper.accessor('useCosineAnnealing', {
+      header: 'Cosine',
+      cell: (info) => {
+        const val = info.getValue();
+        if (val === null || val === undefined) return '(no data)';
+        return val ? 'Yes' : 'No';
+      },
       filterFn: numberFilter,
     }),
     columnHelper.display({

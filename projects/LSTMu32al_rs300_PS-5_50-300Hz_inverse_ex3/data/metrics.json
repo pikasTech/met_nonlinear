@@ -1,6 +1,6 @@
 {
   "project_name": "LSTMu32al_rs300_PS-5_50-300Hz_inverse_ex3",
-  "generated_at": "2026-04-10T00:36:27.410273+08:00",
+  "generated_at": "2026-04-10T12:56:22.957455+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -8,7 +8,8 @@
     "compute_analysis": false,
     "model_info": true,
     "linear_response": true,
-    "linearity_by_frequency": false
+    "linearity_by_frequency": false,
+    "config": true
   },
   "missing_sources": [
     "training_info.json",
@@ -31,6 +32,8 @@
   "linearity_percent": null,
   "compute_cost": null,
   "total_params": 5441,
+  "lr": 0.0003,
+  "use_cosine_annealing": true,
   "metric_details": {
     "natural_frequency_drift": {
       "min": 0.4596298129351079,
@@ -84,6 +87,8 @@
     "Linearity (%)": null,
     "Compute Cost": null,
     "Total Params": 5441,
-    "Epochs": null
+    "Epochs": null,
+    "LR": 0.0003,
+    "Cosine Annealing": true
   }
 }

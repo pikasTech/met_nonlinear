@@ -1,23 +1,9 @@
 # Agentic Coding Guidelines
 
-## 环境配置
+## 最高原则
 
-- 训练环境：使用名为 `tf26` 的 Conda 环境 Python，而不是硬编码某台机器的绝对路径。
-  - 常见路径规律：
-	- `C:\Users\<用户名>\.conda\envs\tf26\python.exe`
-	- `C:\Users\<用户名>\MiniConda3\envs\tf26\python.exe`
-	- `C:\Users\<用户名>\miniconda3\envs\tf26\python.exe`
-  - 当前主机实例：`C:\Users\liang\.conda\envs\tf26\python.exe`
-
-  - **定位规律**：先找 `tf26` 这个环境名，再拼接到对应的 Conda 根目录，不要先假设用户名或 Conda 安装目录固定。
-  - **推荐定位命令**：
-    - `conda env list`
-    - `where conda`
-    - `Get-ChildItem "$env:USERPROFILE\.conda\envs\tf26\python.exe","$env:USERPROFILE\MiniConda3\envs\tf26\python.exe","$env:USERPROFILE\miniconda3\envs\tf26\python.exe" -ErrorAction SilentlyContinue`
-- **PROJECT_NAME 路径格式**：主命令（`-t`、`-e`、`-m` 等）传入相对路径，格式为 `projects/项目路径`，如 `projects\01_LR_STUDY\FRIKANh6u6l6_e1k_1` 或 `projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base`。
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
 - **严格按用户指令执行**：当用户说"调整 X，其他不变"时，只改 X，不要自作主张改其他配置。如果认为有更好的方向，应先询问确认。
-- **npm 路径规律**：Windows 环境下 `npm` 可能不在 PATH 中，调用时需使用完整路径 `D:/Program Files/nodejs/npm.cmd` 或通过 `npm.cmd` 调用。npm 相关文件（`package.json`、`node_modules`）只允许存在于 `src/webui/` 目录下，仓库根目录禁止放置。
 
 ## 项目概述
 
@@ -30,6 +16,14 @@
 - 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
+## 环境配置
+
+- py 环境：使用名为 `tf26` 的 Conda 环境 Python，而不是硬编码某台机器的绝对路径。
+  - 已知主机实例：
+    - `C:\Users\liang\.conda\envs\tf26\python.exe`
+    - `C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
+  - 详见 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)
+- **npm 路径规律**：Windows 环境下 `npm` 可能不在 PATH 中，调用时需使用完整路径 `D:/Program Files/nodejs/npm.cmd` 或通过 `npm.cmd` 调用。npm 相关文件（`package.json`、`node_modules`）只允许存在于 `src/webui/` 目录下，仓库根目录禁止放置。
 
 ## CLAUDE.md 组织原则
 
@@ -46,6 +40,8 @@
 ## CLI 命令 (cli.py)
 
 ### 主命令
+
+- **PROJECT_NAME 路径格式**：主命令（`-t`、`-e`、`-m` 等）传入相对路径，格式为 `projects/项目路径`，如 `projects\01_LR_STUDY\FRIKANh6u6l6_e1k_1` 或 `projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base`。
 
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。

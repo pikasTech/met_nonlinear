@@ -1,6 +1,6 @@
 {
   "project_name": "LSTMu12_puremae",
-  "generated_at": "2026-04-10T00:36:25.660976+08:00",
+  "generated_at": "2026-04-10T12:56:21.374856+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -8,7 +8,8 @@
     "compute_analysis": true,
     "model_info": true,
     "linear_response": true,
-    "linearity_by_frequency": true
+    "linearity_by_frequency": true,
+    "config": true
   },
   "missing_sources": [],
   "missing_sections": [
@@ -29,6 +30,8 @@
   "linearity_percent": 0.32983370523905686,
   "compute_cost": 2040.0,
   "total_params": 841,
+  "lr": 0.01,
+  "use_cosine_annealing": true,
   "metric_details": {
     "natural_frequency_drift": {
       "min": 32.50823069005403,
@@ -106,6 +109,8 @@
     "Linearity (%)": 0.32983370523905686,
     "Compute Cost": 2040.0,
     "Total Params": 841,
-    "Epochs": 1000
+    "Epochs": 1000,
+    "LR": 0.01,
+    "Cosine Annealing": true
   }
 }

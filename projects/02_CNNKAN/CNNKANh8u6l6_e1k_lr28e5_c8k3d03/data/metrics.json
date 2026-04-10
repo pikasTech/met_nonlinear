@@ -1,6 +1,6 @@
 {
   "project_name": "CNNKANh8u6l6_e1k_lr28e5_c8k3d03",
-  "generated_at": "2026-04-10T00:36:26.479088+08:00",
+  "generated_at": "2026-04-10T12:56:22.027393+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -8,7 +8,8 @@
     "compute_analysis": false,
     "model_info": true,
     "linear_response": true,
-    "linearity_by_frequency": true
+    "linearity_by_frequency": true,
+    "config": true
   },
   "missing_sources": [
     "compute_analysis.json"
@@ -31,6 +32,8 @@
   "linearity_percent": 74.82091043336241,
   "compute_cost": null,
   "total_params": 2409,
+  "lr": 0.00028,
+  "use_cosine_annealing": false,
   "metric_details": {
     "natural_frequency_drift": {
       "min": 42.93887717834719,
@@ -98,6 +101,8 @@
     "Linearity (%)": 74.82091043336241,
     "Compute Cost": null,
     "Total Params": 2409,
-    "Epochs": 1000
+    "Epochs": 1000,
+    "LR": 0.00028,
+    "Cosine Annealing": false
   }
 }
