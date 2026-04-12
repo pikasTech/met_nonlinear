@@ -31,6 +31,12 @@ python cli.py -m PROJECT_NAME
 
 详见 [计算量估算说明](compute_analysis.md)
 
+## 自动刷新 summary
+
+- `python cli.py -m PROJECT_NAME` 成功生成 `model_info.json` 与 `compute_analysis.json` 后，会自动刷新 `projects/PROJECT_NAME/data/metrics.json`。
+- 这样可以让只消费 `metrics.json` 的 WebUI 和对比脚本立即看到最新的 compute cost、参数量等字段，而不必再额外手动执行一次 `--metrics`。
+- 如果项目尚未完成评估，自动刷新的 `metrics.json` 仍可能是 `partial`；这表示 summary 已同步，但上游评估产物本身还不完整。
+
 ## 相关命令
 
 - `python cli.py -e PROJECT_NAME` - 评估模式

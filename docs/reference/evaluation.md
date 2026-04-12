@@ -19,6 +19,7 @@ python cli.py -e PROJECT_NAME
 3. 根据配置选择权重，通常优先加载 `best_val.weights.h5`。
 4. 通过统一的预测重算路径计算训练集与验证集上的 loss、MAE、AFMAE。
 5. 执行预测流程，生成频率响应、时域响应或特征输出。
+6. 在评估成功结束后，自动刷新 `metrics.json`，将当前评估产物汇总为统一表格指标。
 
 只有上述流程完整跑到结束，`training_info.json.evaluation_metrics` 才会作为最终评估结果写回磁盘；如果命令在频率响应拟合、预测导出或其他后处理阶段被中断，`training_info.json` 可能已经被部分刷新，但 `evaluation_metrics` 仍然缺失或保留旧值。
 
@@ -34,6 +35,8 @@ python cli.py -e PROJECT_NAME
 - `inference_baseline/`、`inference_c123/`：推理或评估阶段产生的结果目录。
 
 以 `training_info.json.evaluation_metrics` 为例，只有在终端出现“评估完成”并正常返回后，才应认为该字段已与当前权重、当前推理产物保持一致。
+
+同一次 `-e` 成功结束后，CLI 还会立即重写 `projects/PROJECT_NAME/data/metrics.json`，因此 WebUI 和其他只消费 `metrics.json` 的模块会直接看到最新评估结果，而不需要再手动补一次 `--metrics`。
 
 具体生成内容取决于项目 `config.json` 中启用的预测项。
 
@@ -57,6 +60,7 @@ python cli.py -e PROJECT_NAME
 - 如果 `-e` 失败并报 `predict() got an unexpected keyword argument 'use_scaler'`，优先检查对应模型包装类的 `predict()` 是否兼容 `use_scaler` 参数；不使用缩放的模型也应显式忽略该参数。
 - 如果某些旧项目在评估阶段使用 `model.evaluate()` 会出现无日志退出、卡死或仅部分数据集可评估的现象，优先确认仓库版本是否已切换到统一预测重算路径；该路径会绕过这类 `evaluate()` 层的 TensorFlow 崩点。
 - 如果 `-e` 跑完后 `linear_response.json` 已更新，但 `training_info.json.evaluation_metrics` 仍缺失或保留旧值，说明命令在最终写回前中断；此时不能直接信任旧的 `metrics.json`，应重新完成一次 `-e` 后再导出 `--metrics`。
+- 如果 `-e` 成功结束但自动刷新 `metrics.json` 失败，CLI 会直接报错，不会默默保留旧 summary；应先修复错误后重跑 `-e` 或单独执行 `--metrics`。
 - 如果 `-e` 失败并报 `cannot compute Sub as input #1 was expected to be a double tensor but is a float tensor`，优先检查评估指标计算链上的输入/预测张量是否在进入 loss/metric 前统一为 `float32`。
 - 如果评估完成但 `metrics.json` 仍为 `partial`，通常表示 `linear_response.json`、`linearity_by_frequency.json` 或 `training_info.json` 未完整生成，应先重新执行 `python cli.py -e PROJECT_NAME`，再执行 `python cli.py --metrics PROJECT_NAME`。
 - 如果终端停在“预测频率响应...”或频率拟合阶段较久，不要并发再启动新的 `-e` 或 `--metrics`；应等待当前命令完整结束。中断或并发覆盖后，最常见的现象是 `training_info.json.evaluation_metrics` 缺失，或者 `metrics.json` 仍然读取到旧快照。
@@ -71,7 +75,7 @@ python cli.py -e PROJECT_NAME
 
 ## 相关命令
 
-- `python cli.py --metrics PROJECT_NAME`：从 `-e` 已生成的 `training_info.json`、`compute_analysis.json`、`linear_response.json`、`linearity_by_frequency.json` 中按消融实验同口径提取统一指标并导出 `metrics.json`。
+- `python cli.py --metrics PROJECT_NAME`：从 `-e` 已生成的 `training_info.json`、`compute_analysis.json`、`linear_response.json`、`linearity_by_frequency.json` 中按消融实验同口径提取统一指标并导出 `metrics.json`；通常用于单独重算或批量修复历史项目。
 - `python cli.py -m PROJECT_NAME`：只导出模型信息和计算量。
 - `python cli.py -i PROJECT_NAME`：只运行推理，不计算完整评估指标。
 - `python cli.py -a PROJECT_NAME`：在推理结果基础上做误差分析。

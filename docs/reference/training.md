@@ -10,7 +10,8 @@
 2. **模型构建** - 初始化模型结构（FRIKAN/WNET5/LSTM等）
 3. **训练执行** - 使用 TensorFlow Keras 进行训练，支持实时回调
 4. **权重保存** - 自动保存最佳验证权重和最终权重
-5. **评估输出** - 输出训练集/验证集的 loss、MAE、AFMAE 指标
+5. **下游评估** - 训练成功结束后自动串联执行一次 `-e`，生成当前权重对应的评估产物
+6. **统一汇总** - 评估成功结束后自动刷新 `metrics.json`
 
 ## 配置参数
 
@@ -78,6 +79,13 @@
 - `training_info.json` - 训练统计摘要
 - `model_info.json` - 模型结构信息
 
+## 下游串联
+
+- `python cli.py -t PROJECT_NAME` 成功结束后，会先清理当前项目中已经过期的评估汇总快照，包括 `metrics.json`、`linear_response.json`、`linearity_by_frequency.json`，并移除 `training_info.json.evaluation_metrics`。
+- 随后 CLI 会自动串联执行一次评估流程，相当于对同一项目继续执行 `python cli.py -e PROJECT_NAME`。
+- 由于 `-e` 已内置自动刷新 `metrics.json`，因此 `-t` 完整成功后也会得到与当前权重一致的最新统一指标，不需要再额外手动补跑 `--metrics`。
+- 如果训练成功但下游评估失败，旧 summary 已经被失效，CLI 会直接报错，此时应按评估失败处理，而不是继续信任旧的 `metrics.json`。
+
 ## 训练监控
 
 训练过程支持：
@@ -98,5 +106,5 @@
 
 ## 相关命令
 
-- `python cli.py -e PROJECT_NAME` - 评估已训练模型
+- `python cli.py -e PROJECT_NAME` - 单独评估已训练模型
 - `python cli.py --loss-plot PROJECT_NAME` - 绘制训练 loss 曲线

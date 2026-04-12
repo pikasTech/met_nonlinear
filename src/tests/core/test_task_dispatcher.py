@@ -257,21 +257,59 @@ class TestHandleTrainTask:
     """Test _handle_train_task function"""
 
     @patch('core.task_dispatcher.met_comp_with_project')
-    def test_handle_train_task(self, mock_met_comp):
+    @patch('core.task_dispatcher._invalidate_downstream_artifacts_after_training')
+    @patch('core.task_dispatcher._handle_evaluate_task')
+    def test_handle_train_task(self, mock_evaluate, mock_invalidate, mock_met_comp):
         """Test _handle_train_task function"""
         from core.task_dispatcher import _handle_train_task
 
         _handle_train_task("projects/test_project")
 
         mock_met_comp.assert_called_once_with("projects/test_project")
+        mock_invalidate.assert_called_once_with("projects/test_project")
+        mock_evaluate.assert_called_once_with("projects/test_project", ["projects/test_project"], {})
+
+
+class TestInvalidateDownstreamArtifactsAfterTraining:
+    """Test training downstream invalidation helpers."""
+
+    def test_invalidate_downstream_artifacts_after_training(self, tmp_path):
+        """Test stale evaluation artifacts are removed after training."""
+        from core.task_dispatcher import _invalidate_downstream_artifacts_after_training
+
+        project_dir = tmp_path / 'projects' / 'test_project'
+        data_dir = project_dir / 'data'
+        data_dir.mkdir(parents=True)
+
+        training_info_path = data_dir / 'training_info.json'
+        training_info_path.write_text(
+            '{\n'
+            '    "epochs": 100,\n'
+            '    "evaluation_metrics": {\n'
+            '        "val_mae": 0.1\n'
+            '    }\n'
+            '}\n',
+            encoding='utf-8'
+        )
+
+        for artifact_name in ('metrics.json', 'linear_response.json', 'linearity_by_frequency.json'):
+            (data_dir / artifact_name).write_text('{}\n', encoding='utf-8')
+
+        _invalidate_downstream_artifacts_after_training(str(project_dir))
+
+        training_info = training_info_path.read_text(encoding='utf-8')
+        assert 'evaluation_metrics' not in training_info
+        assert not (data_dir / 'metrics.json').exists()
+        assert not (data_dir / 'linear_response.json').exists()
+        assert not (data_dir / 'linearity_by_frequency.json').exists()
 
 
 class TestHandleEvaluateTask:
     """Test _handle_evaluate_task function"""
 
     @patch('core.task_dispatcher.ProjectManager')
-    @patch('matplotlib.pyplot.show')
-    def test_handle_evaluate_task_single_project(self, mock_show, mock_pm_class):
+    @patch('core.task_dispatcher._refresh_metrics_summary')
+    def test_handle_evaluate_task_single_project(self, mock_refresh, mock_pm_class):
         """Test _handle_evaluate_task with single project"""
         from core.task_dispatcher import _handle_evaluate_task
 
@@ -282,11 +320,11 @@ class TestHandleEvaluateTask:
 
         mock_pm_class.assert_called_once_with("projects/test_project")
         mock_pm.evaluate.assert_called_once()
-        mock_show.assert_called_once()
+        mock_refresh.assert_called_once_with(mock_pm, 'evaluation')
 
     @patch('core.task_dispatcher.ProjectManager')
-    @patch('matplotlib.pyplot.show')
-    def test_handle_evaluate_task_multiple_projects(self, mock_show, mock_pm_class):
+    @patch('core.task_dispatcher._refresh_metrics_summary')
+    def test_handle_evaluate_task_multiple_projects(self, mock_refresh, mock_pm_class):
         """Test _handle_evaluate_task with multiple projects"""
         from core.task_dispatcher import _handle_evaluate_task
 
@@ -296,7 +334,7 @@ class TestHandleEvaluateTask:
         _handle_evaluate_task("projects/test_project", ["proj1", "proj2"], SimpleNamespace())
 
         mock_pm.evaluate.assert_called_once()
-        mock_show.assert_not_called()
+        mock_refresh.assert_called_once_with(mock_pm, 'evaluation')
 
 
 class TestHandleMetricsTask:
@@ -352,7 +390,8 @@ class TestHandleModelInfoTask:
     """Test _handle_model_info_task function"""
 
     @patch('core.task_dispatcher.ProjectManager')
-    def test_handle_model_info_task(self, mock_pm_class):
+    @patch('core.task_dispatcher._refresh_metrics_summary')
+    def test_handle_model_info_task(self, mock_refresh, mock_pm_class):
         """Test _handle_model_info_task function"""
         from core.task_dispatcher import _handle_model_info_task
 
@@ -363,6 +402,7 @@ class TestHandleModelInfoTask:
 
         mock_pm_class.assert_called_once_with("projects/test_project")
         mock_pm.model_info.assert_called_once()
+        mock_refresh.assert_called_once_with(mock_pm, 'model info export')
 
 
 class TestHandleLutTask:

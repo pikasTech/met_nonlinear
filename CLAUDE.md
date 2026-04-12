@@ -49,12 +49,14 @@
 
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
+	- 自动串联：训练完成后会先失效旧评估快照，再自动执行下游 `-e` / `metrics` 对应功能，直接生成当前权重的最新统一指标，详见 [docs/reference/training.md](docs/reference/training.md)。
 	  - 一次只训练一个项目，避免同时训练多个导致系统资源爆满
 	  - 在前台训练，不要后台训练
 	  - FRIMLP/FRIKAND 这类 FRIKAN 消融变体，训练前先确认 `prepare_systems()` 已执行且 `simoiir` 输出维度与 `H_UNITS` 一致，详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
+	- 自动汇总：评估成功结束后会立即刷新 `metrics.json`，让 WebUI 和统一指标表直接看到最新结果，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 统一指标路径：`-e` 下的 loss、MAE、AFMAE 固定通过预测结果单一路径重算，不依赖训练时 compile 挂了几个 metrics，也绕过部分旧项目在 `model.evaluate()` 层的崩点，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 兼容性约定：自定义模型包装类的 `predict()` 需兼容 Keras `verbose`、`use_scaler` 等参数，评估指标按 `float32` 口径计算以避免 dtype 冲突，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
 	- 频响异常排查：如果 MAE/AFMAE 正常但频响三项极差，优先检查模型包装类 `predict()` 是否遗漏缩放/反缩放，以及 `linear_response.json.gains_comped` 是否仍停留在归一化量级，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
@@ -63,6 +65,7 @@
 	- 漏算诊断：如果 `compute_analysis.json` 出现 `unsupported_layer_type`、`estimate_status = partial` 或 `unsupported_layers` 非空，当前项目的 compute cost 仍可能被低估；`GRN(GRU)`、`LSTMTransformer` 与 `CNNKAN(Conv1D)` 的旧产物都应重跑新分析确认，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
 - `python cli.py --metrics PROJECT_NAME`
 	- 指标提取：统一按消融实验口径计算 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 并导出 `metrics.json`，其他模块只读取该文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 显式重算：`-t`、`-e` 和 `-m` 现已自动刷新 `metrics.json`；保留该命令主要用于手动重算、批量补齐和历史项目修复，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 前置条件：`--metrics` 只汇总现有评估产物，不会自行补算 `evaluation_metrics`；如果项目在评估后又继续训练，或 `-e` 在频率响应阶段被中断，应先完整重跑 `-e`，再执行 `--metrics`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 诊断口径：如果 `metrics.json` 里时域误差正常但频响三项异常，先回看 `linear_response.json` 的物理量级，不要直接把问题归因于模型能力，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py --metrics --all-projects`
@@ -72,6 +75,7 @@
 - `python cli.py -m PROJECT_NAME`
 	- 模型结构导出：导出模型结构、参数和配置信息，详见 [docs/reference/model_info.md](docs/reference/model_info.md)。
 	- 计算量估算：同步生成模型的计算量分析结果，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
+	- 自动汇总：模型信息导出完成后会同步刷新 `metrics.json`，详见 [docs/reference/model_info.md](docs/reference/model_info.md)。
 - `python cli.py -l PROJECT_NAME`
 	- LUT 导出：生成 LUT 形式的模型表示用于快速验证或部署前分析，详见 [docs/reference/lut.md](docs/reference/lut.md)。
 - `python cli.py -i PROJECT_NAME --layers 5`

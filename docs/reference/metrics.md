@@ -39,8 +39,9 @@ python cli.py --metrics --all-projects --missing-only
 
 ```bash
 python cli.py -e PROJECT_NAME
-python cli.py --metrics PROJECT_NAME
 ```
+
+当前 CLI 在 `-e` 成功结束后会自动刷新一次 `metrics.json`；而 `-t` 现在又会在训练后自动串联一次 `-e`。因此单项目日常流程通常只需要跑完 `-t`，或在已有权重基础上单独跑完 `-e`。`python cli.py --metrics PROJECT_NAME` 仍然保留，主要用于手动重算、批量补齐、或在不重复执行评估的前提下刷新 summary。
 
 ## 统一计算方法
 
@@ -99,6 +100,13 @@ $$
 - `freq_drift_hz`、`sens_drift_percent`、`linearity_percent`：供表格/图表直接消费的主字段
 - `metric_details`：上述三项指标及其 origin 版本的详细统计
 - `compute_details`：计算量明细，供其他模块直接读取
+
+## 自动刷新与手动重算
+
+- `python cli.py -e PROJECT_NAME` 成功结束后会自动调用同一套汇总逻辑刷新 `metrics.json`。
+- `python cli.py -t PROJECT_NAME` 成功结束后会自动串联执行一次 `-e`，因此也会间接刷新 `metrics.json` 并生成最新评估汇总。
+- `python cli.py -m PROJECT_NAME` 在更新 `model_info.json` 与 `compute_analysis.json` 后，也会自动刷新 `metrics.json`，确保 compute cost 等字段同步更新。
+- `python cli.py --metrics PROJECT_NAME` 仍是显式重算入口，适合批量修复、历史项目补齐或只想刷新 summary 不想重跑完整评估的场景。
 
 ## 统一消费方式
 

@@ -534,6 +534,20 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "pytest-train-chain-core",
+			"type": "shell",
+			"command": "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+			"args": [
+				"-m",
+				"pytest",
+				"src/tests/core/test_task_dispatcher.py",
+				"src/tests/core/test_core_modules.py",
+				"-q"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

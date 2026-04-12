@@ -9,12 +9,20 @@ import logging
 import traceback
 import shutil
 import os
+import json
 import matplotlib.pyplot as plt
 from core.project_manager import ProjectManager
 from core.cli_helpers import met_comp_with_project
 from core.tasks.resistance_task import ResistanceTaskHandler
 
 logger = logging.getLogger(__name__)
+
+
+_TRAIN_INVALIDATED_ARTIFACTS = (
+    'metrics.json',
+    'linear_response.json',
+    'linearity_by_frequency.json',
+)
 
 
 def _get_arg_value(args, key, default=None):
@@ -35,6 +43,59 @@ def _get_arg_value(args, key, default=None):
         return args.get(key, default)
     else:
         return default
+
+
+def _invalidate_downstream_artifacts_after_training(project_path):
+    """清理训练后已过期的评估/汇总产物，避免下游读取旧快照。"""
+    data_dir = os.path.join(project_path, 'data')
+    training_info_path = os.path.join(data_dir, 'training_info.json')
+
+    if os.path.exists(training_info_path):
+        try:
+            with open(training_info_path, 'r', encoding='utf-8') as file:
+                training_info = json.load(file)
+            if 'evaluation_metrics' in training_info:
+                del training_info['evaluation_metrics']
+                with open(training_info_path, 'w', encoding='utf-8') as file:
+                    json.dump(training_info, file, indent=4)
+                logger.info(
+                    "[invalidate] Removed stale training_info.json.evaluation_metrics for '%s'",
+                    project_path,
+                )
+        except Exception as error:
+            logger.warning(
+                "[invalidate] Failed to clear evaluation_metrics for '%s': %s",
+                project_path,
+                error,
+            )
+
+    for artifact_name in _TRAIN_INVALIDATED_ARTIFACTS:
+        artifact_path = os.path.join(data_dir, artifact_name)
+        if not os.path.exists(artifact_path):
+            continue
+        try:
+            os.remove(artifact_path)
+            logger.info("[invalidate] Removed stale artifact: %s", artifact_path)
+        except Exception as error:
+            logger.warning(
+                "[invalidate] Failed to remove stale artifact '%s': %s",
+                artifact_path,
+                error,
+            )
+
+
+def _refresh_metrics_summary(project, reason):
+    """在上游产物更新后立即刷新 metrics.json。"""
+    metrics_path = os.path.join(project.checkpoint_dir, 'metrics.json')
+    summary = project.export_metrics_summary()
+    logger.info(
+        "[ok] Metrics summary refreshed for project '%s' after %s",
+        project.project_name,
+        reason,
+    )
+    logger.info(f"   Status: {summary.get('status', 'unknown')}")
+    logger.info(f"   Output file: {metrics_path}")
+    return summary
 
 
 def dispatch_task(task_type, project_names, args):
@@ -105,12 +166,16 @@ def dispatch_task(task_type, project_names, args):
 def _handle_train_task(project_path):
     """处理训练任务"""
     met_comp_with_project(project_path)
+    _invalidate_downstream_artifacts_after_training(project_path)
+    logger.info("[chain] Training completed for '%s', starting downstream evaluation", project_path)
+    _handle_evaluate_task(project_path, [project_path], {})
 
 
 def _handle_evaluate_task(project_path, project_names, args):
     """处理评估任务"""
     project = ProjectManager(project_path)
     project.evaluate()
+    _refresh_metrics_summary(project, 'evaluation')
 
 
 def _handle_metrics_task(project_path, project_names, args):
@@ -121,10 +186,7 @@ def _handle_metrics_task(project_path, project_names, args):
         return
 
     project = ProjectManager(project_path)
-    summary = project.export_metrics_summary()
-    logger.info(f"[ok] Metrics summary exported for project '{project.project_name}'")
-    logger.info(f"   Status: {summary.get('status', 'unknown')}")
-    logger.info(f"   Output file: {metrics_path}")
+    _refresh_metrics_summary(project, 'metrics export')
 
 
 def _handle_clean_task(project_path, project_name):
@@ -137,6 +199,7 @@ def _handle_model_info_task(project_path, project_name):
     """处理模型信息任务"""
     project = ProjectManager(project_path)
     project.model_info()
+    _refresh_metrics_summary(project, 'model info export')
 
 
 def _handle_lut_task(project_path):

@@ -371,15 +371,20 @@ class TestHandleFunctions:
     """Test individual task handler functions"""
 
     @patch('core.task_dispatcher.met_comp_with_project')
-    def test_handle_train_task(self, mock_met):
+    @patch('core.task_dispatcher._invalidate_downstream_artifacts_after_training')
+    @patch('core.task_dispatcher._handle_evaluate_task')
+    def test_handle_train_task(self, mock_evaluate, mock_invalidate, mock_met):
         """Test _handle_train_task"""
         from core.task_dispatcher import _handle_train_task
 
         _handle_train_task('projects/test_project')
         mock_met.assert_called_once_with('projects/test_project')
+        mock_invalidate.assert_called_once_with('projects/test_project')
+        mock_evaluate.assert_called_once_with('projects/test_project', ['projects/test_project'], {})
 
     @patch('core.task_dispatcher.ProjectManager')
-    def test_handle_evaluate_task(self, mock_pm):
+    @patch('core.task_dispatcher._refresh_metrics_summary')
+    def test_handle_evaluate_task(self, mock_refresh, mock_pm):
         """Test _handle_evaluate_task"""
         from core.task_dispatcher import _handle_evaluate_task
 
@@ -388,9 +393,11 @@ class TestHandleFunctions:
 
         _handle_evaluate_task('projects/project1', ['project1'], MagicMock())
         mock_instance.evaluate.assert_called_once()
+        mock_refresh.assert_called_once_with(mock_instance, 'evaluation')
 
     @patch('core.task_dispatcher.ProjectManager')
-    def test_handle_model_info_task(self, mock_pm):
+    @patch('core.task_dispatcher._refresh_metrics_summary')
+    def test_handle_model_info_task(self, mock_refresh, mock_pm):
         """Test _handle_model_info_task"""
         from core.task_dispatcher import _handle_model_info_task
 
@@ -399,6 +406,7 @@ class TestHandleFunctions:
 
         _handle_model_info_task('projects/project1', 'project1')
         mock_instance.model_info.assert_called_once()
+        mock_refresh.assert_called_once_with(mock_instance, 'model info export')
 
     @patch('core.task_dispatcher.ProjectManager')
     def test_handle_lut_task(self, mock_pm):
