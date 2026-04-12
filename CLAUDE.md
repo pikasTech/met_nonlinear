@@ -15,9 +15,21 @@
 
 参考索引：
 - 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
+- 问题定义与建模原则：详见 [docs/reference/modeling_principles.md](docs/reference/modeling_principles.md)。
+- 模型结构演化与取舍：详见 [docs/reference/model_architecture_selection.md](docs/reference/model_architecture_selection.md)。
+- 数据集设计与覆盖边界：详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
+- 实验验证与外推边界：详见 [docs/reference/validation_boundaries.md](docs/reference/validation_boundaries.md)。
+- 模拟电路实现与 SPICE 验证：详见 [docs/reference/circuit_realization.md](docs/reference/circuit_realization.md)。
+- 多后端逐层推理与 wave 桥接：详见 [docs/reference/wave_layered_inference.md](docs/reference/wave_layered_inference.md)。
+- WNET5 电路分层验证：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
+- 器件选型、SPICE 收敛与偏置排查：详见 [docs/reference/spice_device_bias_practices.md](docs/reference/spice_device_bias_practices.md)。
+- 时域数据与频响测量：详见 [docs/reference/timeseries_frequency_analysis.md](docs/reference/timeseries_frequency_analysis.md)。
+- 仿真系统与非线性基：详见 [docs/reference/nonlinear_basis_simulation.md](docs/reference/nonlinear_basis_simulation.md)。
+- 损失函数设计：详见 [docs/reference/loss_design.md](docs/reference/loss_design.md)。
 - 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。其中训练前检查、止损规则和 CNNKAN 调参经验统一收敛在 `training.md`。
 - 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
+- WNET5 分层验证中的 Project 权重加载、E96 量化误差仿真、SVF 拟合误差建模与报告约束：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
 ## 环境配置
@@ -50,6 +62,7 @@
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
 	- 自动串联：训练完成后会先失效旧评估快照，再自动执行下游 `-e` / `metrics` 对应功能，直接生成当前权重的最新统一指标，详见 [docs/reference/training.md](docs/reference/training.md)。
+	- 特征缓存与起始段：如果训练与评估只在特定机器或旧 cache 上复现，优先检查特征缓存键是否覆盖全部特征参数，以及是否错误保留了序列开头的不完整窗口，详见 [docs/reference/training.md](docs/reference/training.md)。
 	  - 一次只训练一个项目，避免同时训练多个导致系统资源爆满
 	  - 在前台训练，不要后台训练
 	  - FRIMLP/FRIKAND 这类 FRIKAN 消融变体，训练前先确认 `prepare_systems()` 已执行且 `simoiir` 输出维度与 `H_UNITS` 一致，详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
@@ -100,6 +113,17 @@
 - `python cli.py --loss-plot PROJECT_NAME`
 	- 损失曲线：根据训练日志生成 loss/lr 曲线图，详见 [docs/reference/loss_plot.md](docs/reference/loss_plot.md)。
 
+- `python cli.py server start`
+	- 服务启动：启动 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+	- 视图约定：WebUI 对比页当前只保留 `Loss Curves` 和 `Table`，其中 `Loss Curves` 基于 `training_log.jsonl` 交互查看 train/val loss，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+	- 前端构建：修改 `src/webui/src/` 后必须重新执行 `cd src/webui && npm run build`，否则服务仍会提供旧的 `dist` 静态资源，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- `python cli.py server stop`
+	- 服务停止：停止 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- `python cli.py server status`
+	- 服务状态：查看服务器运行状态和日志路径，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- `python cli.py server logs`
+	- 服务日志：查看服务器日志输出，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+
 - `python cli.py --vis-freq-response-compare PROJECT[@STATE] [PROJECT[@STATE]]`
 	- 频响直连对比：直接基于 `linear_response.json` 生成频率响应对比图，无需进入 ep 工作流，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。
 	- 布局模式：支持叠加和左右并排两种布局，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。
@@ -115,24 +139,15 @@
 - `python cli.py ep "PROJECT/task-type/task-name"`
 	- 配置驱动执行：仅执行已有配置的外部任务，若配置缺失则直接报错退出，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 项目索引：仓库内常见 EP 路径、典型项目名和 WNET5 图产物约定统一维护在 [docs/reference/ep.md](docs/reference/ep.md)。
+	- WNET5 长期约束：分层验证的权重来源、E96 量化误差仿真、SVF 拟合与报告产物规则统一维护在 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
+- `python cli.py ep "compare/mae_vs_afmae"`
+	- 损失函数消融对比：配置驱动读取多个 project 的 `metrics.json` 做统一横向比较，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `python cli.py ep "PROJECT/wnet5-circuit-validation/layer2"`
 	- 电路验证：执行 WNET5 电路验证类外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
+	- 电路验证规则：通道映射、环境变量路径、E96 热力图和频响对照口径详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
 - `python cli.py ep "PROJECT/freq-response-compensator/test"`
 	- 频响补偿任务：执行频率响应补偿器外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 路径格式：支持拓展项目、训练项目和简化格式，详见 [docs/reference/ep.md](docs/reference/ep.md)。
-
-### server 子命令 (WebUI 可视化服务)
-
-- `python cli.py server start`
-	- 服务启动：启动 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
-	- 视图约定：WebUI 对比页当前只保留 `Loss Curves` 和 `Table`，其中 `Loss Curves` 基于 `training_log.jsonl` 交互查看 train/val loss，详见 [docs/reference/webui.md](docs/reference/webui.md)。
-	- 前端构建：修改 `src/webui/src/` 后必须重新执行 `cd src/webui && npm run build`，否则服务仍会提供旧的 `dist` 静态资源，详见 [docs/reference/webui.md](docs/reference/webui.md)。
-- `python cli.py server stop`
-	- 服务停止：停止 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
-- `python cli.py server status`
-	- 服务状态：查看服务器运行状态和日志路径，详见 [docs/reference/webui.md](docs/reference/webui.md)。
-- `python cli.py server logs`
-	- 服务日志：查看服务器日志输出，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
 ### projects/ex_projects
 
@@ -147,10 +162,12 @@
 
 - `python cli.py --test`
 	- CLI 测试入口：通过 CLI 入口运行测试集，详见 [docs/reference/testing.md](docs/reference/testing.md)。
+	- 环境约定：Windows 下优先通过 `conda.bat run --no-capture-output -n tf26` 启动，详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - `python cli.py --test --test-path src/logger/tests`
 	- 路径筛选：指定测试目录，详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - `python cli.py --test --test-workers 4 --test-timeout 300`
 	- 并行与超时：配置并行数和超时时间，详见 [docs/reference/testing.md](docs/reference/testing.md)。
+	- 卡死边界：`1` 分钟无输出更适合作为排障信号，长期硬约束仍以 pytest timeout 为准，详见 [docs/reference/testing.md](docs/reference/testing.md)。
 
 - `pytest`
 	- 默认测试集：直接运行仓库默认测试集，详见 [docs/reference/testing.md](docs/reference/testing.md)。

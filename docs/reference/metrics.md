@@ -9,6 +9,8 @@
 - 三个主指标 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 的定义以消融实验实现为准。
 - 其他模块只读取 `metrics.json`，不再各自直接读取 `linear_response.json` 或 `linearity_by_frequency.json` 重新计算。
 
+其中 compare / 消融任务对这些指标的消费方式，统一以 [mae_vs_afmae.md](mae_vs_afmae.md) 这类专题文档为准；本文件只负责说明 `metrics.json` 如何生成与如何解释。
+
 ## 基本用法
 
 ```bash
@@ -114,6 +116,20 @@ $$
 - 消融实验对比只读取 `metrics.json`
 - 如需查看原始评估产物，仅将 `linear_response.json`、`linearity_by_frequency.json` 视为 `metrics.json` 的上游输入，而不是下游展示入口
 
+## metrics 与 compare 的分工
+
+长期上，统一指标链路应按下面方式理解：
+
+1. `python cli.py -e PROJECT_NAME` 或 `python cli.py --metrics PROJECT_NAME` 负责为单个项目生成 `metrics.json`。
+2. compare 类任务再读取多个项目的 `metrics.json`，生成横向表格或 Markdown 报告。
+
+因此：
+
+- 如果单个项目指标明显异常，优先先回查本文件描述的上游评估产物与重算流程。
+- 如果单个项目 `metrics.json` 正常，但横向报告异常，再去检查 compare 配置和参考项目选择。
+
+不要把 compare 层的异常和单项目评估链异常混为一谈。
+
 ## 缺失产物时的行为
 
 如果部分输入文件缺失，命令仍会生成 `metrics.json`，但会将 `status` 标为 `partial`，并在 `missing_sources` / `missing_sections` 中记录缺失项。
@@ -125,3 +141,12 @@ $$
 如果 `metrics.json` 显示 `VAL_MAE`、`VAL_AFMAE` 尚可，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 极差，先不要直接下结论说模型频响能力差；应回看 `linear_response.json` 的 `gains_comped` 是否与 `gains_origin` 处于同一物理量级。若两者量级明显不一致，优先排查模型包装类 `predict()` 是否正确执行了反缩放。
 
 如果需要批量修复历史项目，建议使用“单项目完整跑完 `-e`，再执行 `--metrics`”的顺序，而不要在前一个项目还停留在“预测频率响应...”阶段时并发启动后续项目；否则最容易得到 `metrics.json=status=partial` 或混入旧评估快照。
+
+若后续要执行 `compare/mae_vs_afmae` 一类多项目对比，建议先把参与项目全部重算到 `metrics.json=status=complete`，再启动 compare 任务；这样最容易把问题隔离在单项目链路，而不是在横向报告阶段才发现上游产物混杂新旧快照。
+
+## 相关文档
+
+- [evaluation.md](evaluation.md)
+- [training.md](training.md)
+- [model_info.md](model_info.md)
+- [mae_vs_afmae.md](mae_vs_afmae.md)

@@ -32,6 +32,14 @@
 - 做超参数搜索时优先一次只跑一个项目，避免 GPU/IO 争抢导致结论失真。
 - 调参优先做单因素变更，确保结果可解释且便于回退。
 - 新增训练经验时优先沉淀可复用规律、限制条件和止损信号，而不是一次性流水账。
+- 数据集覆盖、稳态片段、低震级样本平衡和外推边界的长期规则，详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
+
+## 特征缓存与序列起始段
+
+- 特征缓存键必须覆盖所有会影响特征结果的参数；如果改了时间步、频点列表、数据裁剪长度或其他特征生成条件，却仍命中旧 cache，训练与评估就可能在不同机器上出现“同配置不同结果”的假复现。
+- 如果 `-t` 的结果在训练后看起来正常，但 `-e` 只能在某台机器或某份旧 cache 上复现，优先排查特征缓存来源和生成口径，不要先把问题归因于模型随机性。
+- 序列开头若缺少足够历史窗口，最前面的特征往往天然不完整；遇到扫频结果起始段异常时，优先在特征生成阶段跳过不完整窗口，而不是直接继续调模型。
+- 对带明显历史依赖的模型，序列起始段的异常通常属于冷启动或上下文不足问题，验收时不要只盯最开始那一小段波形。
 
 ## 复现约束
 
@@ -51,23 +59,18 @@
 
 ## FRIMLP / FRIKAND 消融经验
 
-- FRIMLP 的正确语义是“保留 FRIKAN 的 FRI 前端，只把 KAN 主体替换为 MLP”，不能顺手改掉前端构建方式或推理路径。
-- `H_UNITS` 对 FRIMLP/FRIKAND 仍表示前端输出通道数；如果 `model_info.json` 里 `simoiir` 只有 1 路输出，优先检查是否漏走 `prepare_systems()`。
-- 不要把 fast_model 当成默认嫌疑对象；如果基线使用 `USE_FAST_MODEL=true`，FRIMLP 也应保持一致，先排查是不是架构接线错误。
+- 做 FRIKAN 系列局部消融时，先守住语义等价：前端、fast_model 和系统初始化路径不要顺手改掉。
+- `H_UNITS` 对 FRIMLP/FRIKAND 仍表示前端输出通道数；如果结构输出和这个语义不一致，先检查 `prepare_systems()` 与前端接线。
 - 一旦确认历史训练产物来自错误架构，必须先清空项目 `data/` 再重训，不能直接续训或沿用旧指标。
-- FRIMLP 真消融的完整修复过程、达标项目和验收信号详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
+- 通用结构取舍规则见 [docs/reference/model_architecture_selection.md](docs/reference/model_architecture_selection.md)，FRIMLP 真消融修复过程见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 
 ## CNNKAN h8u6l6 调参经验
 
 - CNNKAN 变体的卷积超参应优先写入 `model_subcfg`，不要依赖顶层硬编码参数。
 - 8k 长序列在 RTX 2060 6GB 上训练时必须设置 `MAX_BATCH_SIZE=4`，否则初始评估或训练阶段很容易 OOM。
-- `projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr25e5_c8k3d05` 跑满 1000 epoch 后 `min_val_loss=0.044458`，可作为该系列的稳定早期基线。
-- `projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k3d05` 通过修复后的断点续训跑满后 `min_val_loss=0.03916`，说明 `0.00028` 比 `0.00025` 更有潜力。
-- `projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr29e5_c8k3d05` 最终仅到 `min_val_loss=0.075819`，说明继续上调学习率已越过当前最优区间。
-- `projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k3d03` 最终仅到 `min_val_loss=0.12905`，说明当前配置下减小 `dropout_rate` 会明显恶化结果。
 - 把 `cnn_kernel_size` 从 `3` 提到 `5` 是这一轮最有效的单因素改动。
-- `projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05` 跑满 1000 epoch 后 `min_val_loss=0.028127`，是当前已验证的最佳配置。
-- 相关背景与实验上下文可结合 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md) 和 [docs/reference/lr_tuning_fixed_vs_cosine.md](docs/reference/lr_tuning_fixed_vs_cosine.md) 一起阅读。
+- 结构定位上，CNNKAN 更适合作为主体替换或局部模式提取实验，不应默认替代线性谐振先验；详见 [docs/reference/model_architecture_selection.md](docs/reference/model_architecture_selection.md)。
+- 具体稳定项目、学习率区间和调参背景见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md) 与 [docs/reference/lr_tuning_fixed_vs_cosine.md](docs/reference/lr_tuning_fixed_vs_cosine.md)。
 
 ## 输出文件
 

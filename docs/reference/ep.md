@@ -6,6 +6,8 @@
 
 `python cli.py ep create "PROJECT/task-type/task-name"` 是显式模板创建入口，仅在需要新建拓展项目模板时使用。
 
+这份文档负责 EP 的入口、路径、目录和产物总览；具体任务内部的长期规则应交叉引用到对应专题文档，而不是在这里重复展开。
+
 ## 基本用法
 
 ```bash
@@ -156,6 +158,12 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 
 - `compare/mae_vs_afmae` - MAE 与 AFMAE 损失函数消融对比
 
+长期约束：
+
+- compare 任务应优先复用已有 `metrics.json`，而不是在 EP 层重新实现指标计算。
+- 做损失函数消融时，应固定数据与结构，只改变 loss 相关变量。
+- `mae_vs_afmae` 的具体配置驱动模式与结果口径，详见 [mae_vs_afmae.md](mae_vs_afmae.md)。
+
 ## 配置文件与输出目录
 
 推荐工作流：
@@ -205,6 +213,15 @@ python cli.py ep "ex_projects/wnet5-circuit-validation/layer3"
 - 典型 WNET5 Dense 层验证为 6 通道输出，对应 `layer1`、`layer2`、`layer3` 三组实验 sheet。
 - 这类图适合用来核对层级 SPICE 实现是否与理论响应一致；若需要项目级综合频响对比，优先使用 `freq-response-compare` 类 EP。
 
+WNET5 分层验证的长期规则，例如通道映射、SVF 自测试补偿和 Q 值口径，详见 [wnet5_circuit_validation.md](wnet5_circuit_validation.md)。
+
+WNET5 分层验证的其他关键约束也统一收敛在 [wnet5_circuit_validation.md](wnet5_circuit_validation.md)，包括：
+
+- Dense 权重应优先从 project 导出的 JSON 权重读取，而不是手工写入 EP 配置。
+- 仓库外实验数据路径应通过 `MET_DATA_BASE` 等环境变量展开。
+- E96 量化误差仿真应沿用“权重 -> 电阻 -> E96 -> 回算权重 -> 仿真”的统一链路。
+- 热力图、频响图和 Markdown 总报告的产物约束应按专题文档执行。
+
 ## 适用场景
 
 - 需要可复用、可版本化的外部分析任务时使用 `ep`。
@@ -215,3 +232,4 @@ python cli.py ep "ex_projects/wnet5-circuit-validation/layer3"
 - [频率响应对比功能说明](freq_response_compare.md)
 - [边缘设备推理仿真](edge_device_emulation.md)
 - [EP 架构文档](../project/ep.md)
+- [wnet5_circuit_validation.md](wnet5_circuit_validation.md)

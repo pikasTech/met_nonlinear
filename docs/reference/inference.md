@@ -39,6 +39,8 @@ python cli.py -i PROJECT_NAME --layers 5
 | `spice_backend` | SPICE 仿真后端 |
 | `batch_backend` | 批量推理后端 |
 
+多后端逐层推理、`WaveData` 桥接和 `use_scaler` 的统一口径，详见 [wave_layered_inference.md](wave_layered_inference.md)。
+
 ## 输出文件
 
 推理完成后在 `projects/PROJECT_NAME/data/` 目录下生成：
@@ -63,3 +65,8 @@ python cli.py -i PROJECT_NAME --layers 5
 - `python cli.py -e PROJECT_NAME` - 评估模式（推理+指标计算）
 - `python cli.py -a PROJECT_NAME` - 误差分析
 - `python cli.py --bias-viz PROJECT_NAME` - 偏置可视化
+
+## 相关文档
+
+- [wave_layered_inference.md](wave_layered_inference.md)
+- [circuit_realization.md](circuit_realization.md)
