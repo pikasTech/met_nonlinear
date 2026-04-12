@@ -1,0 +1,11 @@
+{
+  "task_info": {
+    "task_type": "wnet5-circuit-validation",
+    "description": "WNET5电路频率响应理论验证"
+  },
+  "model_project_name": "04_FRIMLP",
+  "frequency_range": {
+    "start_freq": 0.1,
+    "stop_freq": 1000
+  }
+}

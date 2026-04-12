@@ -48,6 +48,14 @@
 - 如果某个变体在前几十个 epoch 已明显落后于当前最优同区间轨迹，应及时止损，不必机械跑满预设 epoch。
 - 只有在单轮结果已经稳定领先时，才值得继续向周边超参数扩展搜索。
 
+## FRIMLP / FRIKAND 消融经验
+
+- FRIMLP 的正确语义是“保留 FRIKAN 的 FRI 前端，只把 KAN 主体替换为 MLP”，不能顺手改掉前端构建方式或推理路径。
+- `H_UNITS` 对 FRIMLP/FRIKAND 仍表示前端输出通道数；如果 `model_info.json` 里 `simoiir` 只有 1 路输出，优先检查是否漏走 `prepare_systems()`。
+- 不要把 fast_model 当成默认嫌疑对象；如果基线使用 `USE_FAST_MODEL=true`，FRIMLP 也应保持一致，先排查是不是架构接线错误。
+- 一旦确认历史训练产物来自错误架构，必须先清空项目 `data/` 再重训，不能直接续训或沿用旧指标。
+- FRIMLP 真消融的完整修复过程、达标项目和验收信号详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
+
 ## CNNKAN h8u6l6 调参经验
 
 - CNNKAN 变体的卷积超参应优先写入 `model_subcfg`，不要依赖顶层硬编码参数。

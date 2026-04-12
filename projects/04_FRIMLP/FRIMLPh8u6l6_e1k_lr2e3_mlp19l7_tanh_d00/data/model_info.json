@@ -1,0 +1,130 @@
+{
+    "model_type": "FRIMLP",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 2663,
+    "trainable_params": 2471,
+    "non_trainable_params": 192,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "simoiir",
+            "type": "SIMOIIR",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": false,
+            "num_params": 192
+        },
+        {
+            "name": "frimlp_dense_0",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 171
+        },
+        {
+            "name": "frimlp_dense_1",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 380
+        },
+        {
+            "name": "frimlp_dense_2",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 380
+        },
+        {
+            "name": "frimlp_dense_3",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 380
+        },
+        {
+            "name": "frimlp_dense_4",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 380
+        },
+        {
+            "name": "frimlp_dense_5",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 380
+        },
+        {
+            "name": "frimlp_dense_6",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                19
+            ],
+            "trainable": true,
+            "num_params": 380
+        },
+        {
+            "name": "frimlp_output",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 20
+        }
+    ]
+}

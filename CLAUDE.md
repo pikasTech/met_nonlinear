@@ -4,8 +4,10 @@
 
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
 - **严格按用户指令执行**：当用户说"调整 X，其他不变"时，只改 X，不要自作主张改其他配置。如果认为有更好的方向，应先询问确认。
+- **做消融时先守住语义等价**：像 FRIMLP 这类“只替换局部结构”的消融，必须保留基线的其余关键路径；不能为了省事把前端、fast_model 或系统初始化一并改掉，否则结论无效。
 
   - **案例（2026-04-10）**：用户说"只调整 lr"，但我擅自尝试了更改 epochs、模型结构（INNER_KAN_UNITS/LAYERS、H_UNITS）、use_points、basis_activation、use_auto_lr 等参数，导致多项目 OOM 或指标恶化，且创建了多个不符合要求的项目。正确做法是：只改 lr 这一个参数，其他配置保持原样。
+	- **案例（2026-04-11）**：FRIMLP 的正确语义是“保留 FRIKAN 前端，只把 KAN 替换成 MLP”。此前把它实现成独立分支并关闭 `USE_FAST_MODEL`，再加上 `prepare_systems()` 未覆盖 FRIMLP，导致 `h8` 实际退化成 1 路 `SIMOIIR`，训练结论全部失真。正确做法是：复用 FRIKAN 前端与 fast_model 路径，确认 `simoiir` 输出维度与 `H_UNITS` 一致，旧产物清空后再重训。
 
 ## 项目概述
 
@@ -49,6 +51,7 @@
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
 	  - 一次只训练一个项目，避免同时训练多个导致系统资源爆满
 	  - 在前台训练，不要后台训练
+	  - FRIMLP/FRIKAND 这类 FRIKAN 消融变体，训练前先确认 `prepare_systems()` 已执行且 `simoiir` 输出维度与 `H_UNITS` 一致，详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 
 - `python cli.py -e PROJECT_NAME`
 	- 评估流程：评估已训练模型并生成推理结果与误差指标，详见 [docs/reference/evaluation.md](docs/reference/evaluation.md)。
@@ -131,6 +134,7 @@
 
 - `projects\01_LR_STUDY\` 系列 - `固定 LR vs 余弦衰减`：固定学习率尝试达到或优于余弦衰减效果，最优固定 LR 约 0.0005，还未达到。详见 [docs/reference/lr_tuning_fixed_vs_cosine.md](docs/reference/lr_tuning_fixed_vs_cosine.md)。
 - `projects\01_LR_STUDY\CNNKANh8u6l6_e1k_lr14e5_stable` - CNNKAN 替换消融稳定版：在默认旧 batch-size 行为下可跑满 1000 epoch，并保留旧项目复现约束。详见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md)。
+- `projects\04_FRIMLP\FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00` - FRIMLP 真消融达标案例：修复前端与 fast_model 接线后，1000 epoch 达到 `Freq Drift = 5.8179 Hz`。详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 - `ex_projects/compare/mae_vs_afmae` - MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `ex_projects/compare/lr_test_1k_epoch` - LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
 
