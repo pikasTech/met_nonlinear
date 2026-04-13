@@ -12,7 +12,8 @@ from tensorflow.keras.layers import Conv2D, Flatten, Dense, Input
 from tensorflow.keras.models import Model
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from .base_models import LSTM
+from .base_models import BaseModel, LSTM
+from .utils import merge_config
 from config import CONF_DROPOUT
 
 
@@ -340,3 +341,272 @@ class RVTDCNN(LSTM):
                 f"Invalid y_out shape: {y_out.shape}, expected (B*T, 1)")
         args = (x_image, y_out, *args[2:])
         return self.model.evaluate(*args, **kwargs)
+
+
+
+def _validate_positive_int(value, field_name):
+    value = int(value)
+    if value <= 0:
+        raise ValueError(f"{field_name} must be greater than 0")
+    return value
+
+
+def _validate_non_negative_float(value, field_name):
+    value = float(value)
+    if value < 0:
+        raise ValueError(f"{field_name} must be non-negative")
+    return value
+
+
+def _maybe_apply_activation(x, activation, name):
+    if activation:
+        return tf.keras.layers.Activation(activation, name=name)(x)
+    return x
+
+
+def _maybe_apply_dropout(x, dropout_rate, name):
+    if dropout_rate > 0:
+        return tf.keras.layers.Dropout(dropout_rate, name=name)(x)
+    return x
+
+
+def _build_post_dense_stack(x, subcfg):
+    if not subcfg['post_dense']:
+        return x
+
+    for layer_idx in range(subcfg['post_dense_layers']):
+        x = tf.keras.layers.Conv1D(
+            filters=subcfg['post_dense_units'],
+            kernel_size=1,
+            padding='same',
+            name=f'post_dense_{layer_idx + 1}'
+        )(x)
+        x = _maybe_apply_activation(
+            x,
+            subcfg['post_dense_activation'],
+            name=f'post_dense_activation_{layer_idx + 1}'
+        )
+    return x
+
+
+class OneDCNN(BaseModel):
+    """A plain causal 1D CNN baseline for sequence modeling."""
+
+    def __init__(self,
+                 kernel_units=64,
+                 fs=2000,
+                 activation='relu',
+                 checkpoint_dir='data',
+                 model_subcfg={},
+                 inference_config=None,
+                 ):
+        super().__init__()
+
+        default_subcfg = {
+            'conv_layers': 2,
+            'init_conv_units': 4,
+            'kernel_size': 8,
+            'conv_activation': None,
+            'dropout_rate': 0.0,
+            'post_dense': False,
+            'post_dense_units': 1,
+            'post_dense_activation': None,
+            'post_dense_layers': 1,
+            'final_activation': None,
+        }
+
+        self.subcfg = merge_config(default_subcfg, model_subcfg)
+        self.model_name = '1DCNN'
+        self.fs = fs
+        self.kernel_units = _validate_positive_int(kernel_units, 'kernel_units')
+        self.conv_layers = _validate_positive_int(self.subcfg['conv_layers'], 'conv_layers')
+        self.init_conv_units = _validate_positive_int(self.subcfg['init_conv_units'], 'init_conv_units')
+        self.kernel_size = _validate_positive_int(self.subcfg['kernel_size'], 'kernel_size')
+        self.dropout_rate = _validate_non_negative_float(self.subcfg['dropout_rate'], 'dropout_rate')
+        self.subcfg['post_dense_units'] = _validate_positive_int(self.subcfg['post_dense_units'], 'post_dense_units')
+        self.subcfg['post_dense_layers'] = _validate_positive_int(self.subcfg['post_dense_layers'], 'post_dense_layers')
+        self.activation = self.subcfg['conv_activation'] or activation
+        self.inference_config = inference_config or {}
+
+        self.model = self.build_model()
+        self.init_checkpoint(checkpoint_dir)
+
+    def build_model(self):
+        inputs = tf.keras.layers.Input(shape=(None, 1), name='input')
+        x = inputs
+
+        for layer_idx in range(self.conv_layers):
+            filters = self.init_conv_units if layer_idx == 0 else self.kernel_units
+            x = tf.keras.layers.Conv1D(
+                filters=filters,
+                kernel_size=self.kernel_size,
+                padding='causal',
+                name=f'conv_{layer_idx + 1}'
+            )(x)
+            x = _maybe_apply_activation(x, self.activation, name=f'conv_activation_{layer_idx + 1}')
+            x = _maybe_apply_dropout(x, self.dropout_rate, name=f'conv_dropout_{layer_idx + 1}')
+
+        x = _build_post_dense_stack(x, self.subcfg)
+        x = _maybe_apply_activation(x, self.subcfg['final_activation'], name='final_activation')
+
+        outputs = tf.keras.layers.Conv1D(
+            filters=1,
+            kernel_size=1,
+            padding='same',
+            name='output_conv'
+        )(x)
+
+        return tf.keras.Model(inputs=inputs, outputs=outputs, name=self.model_name)
+
+
+class TCN(BaseModel):
+    """A temporal convolutional network built from dilated residual blocks."""
+
+    def __init__(self,
+                 kernel_units=64,
+                 fs=2000,
+                 activation='relu',
+                 checkpoint_dir='data',
+                 model_subcfg={},
+                 inference_config=None,
+                 ):
+        super().__init__()
+
+        default_subcfg = {
+            'dilations': [1, 2, 4, 8],
+            'kernel_size': 3,
+            'skip_initial_conv': False,
+            'init_conv_units': 8,
+            'skip_output_conv': False,
+            'use_gating': False,
+            'final_activation': None,
+            'block_activation': None,
+            'gate_activation': 'relu',
+            'dropout_rate': 0.0,
+            'use_residual': True,
+            'block_dense': False,
+            'block_dense_units': 1,
+            'combine_blocks_by_add': False,
+            'post_dense': False,
+            'post_dense_units': 1,
+            'post_dense_activation': None,
+            'post_dense_layers': 1,
+            'use_parallel_blocks': False,
+        }
+
+        self.subcfg = merge_config(default_subcfg, model_subcfg)
+        if self.subcfg['use_gating']:
+            raise ValueError('TCN does not support WaveNet-style gating')
+        if self.subcfg['use_parallel_blocks']:
+            raise ValueError('TCN does not support parallel WaveNet blocks')
+        if self.subcfg['combine_blocks_by_add']:
+            raise ValueError('TCN does not support combine_blocks_by_add')
+
+        self.model_name = 'TCN'
+        self.fs = fs
+        self.kernel_units = _validate_positive_int(kernel_units, 'kernel_units')
+        self.kernel_size = _validate_positive_int(self.subcfg['kernel_size'], 'kernel_size')
+        self.init_conv_units = _validate_positive_int(self.subcfg['init_conv_units'], 'init_conv_units')
+        self.dropout_rate = _validate_non_negative_float(self.subcfg['dropout_rate'], 'dropout_rate')
+        self.subcfg['block_dense_units'] = _validate_positive_int(self.subcfg['block_dense_units'], 'block_dense_units')
+        self.subcfg['post_dense_units'] = _validate_positive_int(self.subcfg['post_dense_units'], 'post_dense_units')
+        self.subcfg['post_dense_layers'] = _validate_positive_int(self.subcfg['post_dense_layers'], 'post_dense_layers')
+        self.dilations = [
+            _validate_positive_int(dilation, 'dilation')
+            for dilation in self.subcfg['dilations']
+        ]
+        self.block_activation = self.subcfg['block_activation'] or activation
+        self.inference_config = inference_config or {}
+
+        self.model = self.build_model()
+        self.init_checkpoint(checkpoint_dir)
+
+    def _temporal_block(self, x, dilation_rate, block_idx):
+        residual = x
+        block_channels = self.kernel_units
+        if self.subcfg['block_dense']:
+            block_channels = self.subcfg['block_dense_units']
+
+        for conv_idx in range(2):
+            x = tf.keras.layers.Conv1D(
+                filters=self.kernel_units,
+                kernel_size=self.kernel_size,
+                dilation_rate=dilation_rate,
+                padding='causal',
+                name=f'temporal_block_{block_idx}_conv_{conv_idx + 1}'
+            )(x)
+            x = _maybe_apply_activation(
+                x,
+                self.block_activation,
+                name=f'temporal_block_{block_idx}_activation_{conv_idx + 1}'
+            )
+            x = _maybe_apply_dropout(
+                x,
+                self.dropout_rate,
+                name=f'temporal_block_{block_idx}_dropout_{conv_idx + 1}'
+            )
+
+        if self.subcfg['block_dense']:
+            x = tf.keras.layers.Conv1D(
+                filters=block_channels,
+                kernel_size=1,
+                padding='same',
+                name=f'temporal_block_{block_idx}_dense'
+            )(x)
+
+        if self.subcfg['use_residual']:
+            if residual.shape[-1] != block_channels:
+                residual = tf.keras.layers.Conv1D(
+                    filters=block_channels,
+                    kernel_size=1,
+                    padding='same',
+                    name=f'temporal_block_{block_idx}_residual_projection'
+                )(residual)
+            x = tf.keras.layers.Add(name=f'temporal_block_{block_idx}_residual_add')([x, residual])
+
+        x = _maybe_apply_activation(
+            x,
+            self.block_activation,
+            name=f'temporal_block_{block_idx}_output_activation'
+        )
+        return x
+
+    def build_model(self):
+        inputs = tf.keras.layers.Input(shape=(None, 1), name='input')
+
+        if self.subcfg['skip_initial_conv']:
+            x = inputs
+        else:
+            x = tf.keras.layers.Conv1D(
+                filters=self.init_conv_units,
+                kernel_size=1,
+                padding='same',
+                name='initial_projection'
+            )(inputs)
+            x = _maybe_apply_activation(x, self.block_activation, name='initial_projection_activation')
+
+        if x.shape[-1] != self.kernel_units:
+            x = tf.keras.layers.Conv1D(
+                filters=self.kernel_units,
+                kernel_size=1,
+                padding='same',
+                name='channel_projection'
+            )(x)
+
+        for block_idx, dilation_rate in enumerate(self.dilations, start=1):
+            x = self._temporal_block(x, dilation_rate, block_idx)
+
+        x = _build_post_dense_stack(x, self.subcfg)
+        x = _maybe_apply_activation(x, self.subcfg['final_activation'], name='final_activation')
+
+        if self.subcfg['skip_output_conv']:
+            outputs = tf.keras.layers.Dense(1, name='output_dense')(x)
+        else:
+            outputs = tf.keras.layers.Conv1D(
+                filters=1,
+                kernel_size=1,
+                padding='same',
+                name='output_conv'
+            )(x)
+
+        return tf.keras.Model(inputs=inputs, outputs=outputs, name=self.model_name)

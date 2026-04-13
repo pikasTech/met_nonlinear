@@ -61,6 +61,7 @@
             "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
         ]
     },
+    "estimate_status": "complete",
     "totals": {
         "additions": 1376,
         "multiplications": 1408,
@@ -253,5 +254,9 @@
             }
         }
     ],
-    "unsupported_layers": []
+    "unsupported_layers": [],
+    "has_unsupported_layers": false,
+    "unsupported_layer_count": 0,
+    "unsupported_layer_details": [],
+    "estimate_warning": null
 }

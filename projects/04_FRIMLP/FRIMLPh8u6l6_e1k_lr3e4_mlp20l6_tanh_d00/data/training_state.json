@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "FRIMLPh8u6l6_e1k_lr3e4_mlp20l6_tanh_d00",
+  "training_alive": false,
+  "timestamp": "20260413101210.0",
+  "best_weights_file": "projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr3e4_mlp20l6_tanh_d00/data\\FRIMLPh8u6l6_e1k_lr3e4_mlp20l6_tanh_d00_best_weights.h5",
+  "best_val_weights_file": "projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr3e4_mlp20l6_tanh_d00/data\\FRIMLPh8u6l6_e1k_lr3e4_mlp20l6_tanh_d00_best_val_weights.h5"
+}

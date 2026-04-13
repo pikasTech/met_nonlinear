@@ -384,6 +384,24 @@ class ModelEngine:
                 activation=self.config.activation,
                 model_subcfg=self.config.model_subcfg
             )
+        elif self.config.use_model in {'1DCNN', 'OneDCNN'}:
+            self.model_comp = OneDCNN(
+                fs=self.config.sample_rate,
+                checkpoint_dir=self.checkpoint_dir,
+                kernel_units=self.config.kernal_units,
+                activation=self.config.activation,
+                model_subcfg=self.config.model_subcfg,
+                inference_config=self.config.inference_config,
+            )
+        elif self.config.use_model == 'TCN':
+            self.model_comp = TCN(
+                fs=self.config.sample_rate,
+                checkpoint_dir=self.checkpoint_dir,
+                kernel_units=self.config.kernal_units,
+                activation=self.config.activation,
+                model_subcfg=self.config.model_subcfg,
+                inference_config=self.config.inference_config,
+            )
         elif 'WaveNet' in self.config.use_model:
             mod_class = eval(self.config.use_model)
             self.model_comp = mod_class(

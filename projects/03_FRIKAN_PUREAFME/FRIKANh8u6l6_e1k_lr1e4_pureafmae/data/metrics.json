@@ -1,6 +1,6 @@
 {
   "project_name": "FRIKANh8u6l6_e1k_lr1e4_pureafmae",
-  "generated_at": "2026-04-10T18:22:43.463674+08:00",
+  "generated_at": "2026-04-13T10:12:09.201590+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -103,7 +103,11 @@
   "compute_unsupported_layers": [],
   "compute_unsupported_layer_details": [],
   "compute_cost_warning": null,
+  "loss_function": "AFMAE",
+  "loss_function_key": "pure_power_log_mae",
+  "loss_function_source": "config.use_pure_power_loss",
   "display_metrics": {
+    "Loss Function": "AFMAE",
     "TRAIN_MAE": 0.05918514356017113,
     "TRAIN_AFMAE": 0.016644245013594627,
     "VAL_MAE": 0.05988650768995285,

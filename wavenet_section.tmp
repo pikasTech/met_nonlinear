@@ -1,0 +1,721 @@
+def _load_wavenet_model_spec(model_project_name: str,
+                             model_dir: Path,
+                             weights_json_path: Path,
+                             model_type: str) -> WaveNetModelSpec:
+    with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
+        weights = json.load(file_obj)
+
+    project_config = _load_project_config(model_dir)
+    model_subcfg = project_config.get('model_subcfg', {}) if isinstance(project_config.get('model_subcfg', {}), dict) else {}
+
+    if bool(model_subcfg.get('skip_initial_conv', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 skip_initial_conv=True 的 WaveNet 模型')
+    if bool(model_subcfg.get('use_gating', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 use_gating=True 的 WaveNet 模型')
+    if bool(model_subcfg.get('use_residual', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 use_residual=True 的 WaveNet 模型')
+    if bool(model_subcfg.get('block_dense', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 block_dense=True 的 WaveNet 模型')
+
+    final_activation = str(model_subcfg.get('final_activation', 'linear') or 'linear').strip().lower()
+    if final_activation not in {'linear', 'identity', 'none'}:
+        raise ValueError(f'当前 qemu-c-inference 暂不支持 final_activation={final_activation}')
+
+    initial_conv = _load_wavenet_conv1d_layer(weights, 'initial_conv', activation='linear', dilation=1)
+    block_activation = str(model_subcfg.get('block_activation', 'linear') or 'linear').strip().lower()
+    post_activation = str(model_subcfg.get('post_dense_activation', 'linear') or 'linear').strip().lower()
+    block_layers = _load_wavenet_block_layers(
+        weights,
+        dilations=list(model_subcfg.get('dilations', [])),
+        activation=block_activation,
+    ) if model_type == 'wavenet2' else []
+    post_layers = _load_wavenet_post_layers(weights, activation=post_activation)
+
+    merge_mode = 'concat'
+    if model_type == 'wavenet2' and bool(model_subcfg.get('combine_blocks_by_add', True)):
+        merge_mode = 'add'
+
+    output_layer: Optional[WaveNetConv1DLayerSpec] = None
+    output_dense_kernel = _zero_matrix(initial_conv.output_channels, 1)
+    output_dense_bias = [0.0]
+    if model_type == 'wavenet2':
+        if bool(model_subcfg.get('skip_output_conv', False)):
+            raise ValueError('当前 qemu-c-inference 暂不支持 skip_output_conv=True 的 WaveNet2 模型')
+        output_layer = _load_wavenet_conv1d_layer(weights, 'output_conv', activation='linear', dilation=1)
+    else:
+        output_kernel = _find_weight_entry(weights, 'dense_1/kernel')
+        output_bias = _find_weight_entry(weights, 'dense_1/bias')
+        if list(output_bias['shape']) != [1]:
+            raise ValueError(f'WaveNet3 输出 bias 形状非法: {output_bias["shape"]}')
+        if list(output_kernel['shape'])[1] != 1:
+            raise ValueError(f'WaveNet3 输出 kernel 形状非法: {output_kernel["shape"]}')
+        output_dense_kernel = _to_float_matrix(output_kernel['value'])
+        output_dense_bias = _to_float_vector(output_bias['value'])
+
+    model_spec = WaveNetModelSpec(
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        model_type=model_type,
+        input_dim=1,
+        initial_conv=initial_conv,
+        block_layers=block_layers,
+        post_layers=post_layers,
+        output_layer=output_layer,
+        output_dense_kernel=output_dense_kernel,
+        output_dense_bias=output_dense_bias,
+        use_parallel_blocks=bool(model_subcfg.get('use_parallel_blocks', False)),
+        merge_mode=merge_mode,
+        output_units=1,
+    )
+    _validate_wavenet_model_spec(model_spec)
+    return model_spec
+
+
+
+def _validate_wavenet_model_spec(model_spec: WaveNetModelSpec) -> None:
+    if model_spec.merge_mode == 'add' and model_spec.block_layers:
+        expected_channels = model_spec.block_layers[0].output_channels
+        for layer in model_spec.block_layers[1:]:
+            if layer.output_channels != expected_channels:
+                raise ValueError('WaveNet 按 add 合并时，各 block 输出通道数必须一致')
+
+    expected_channels = model_spec.merged_channels if model_spec.block_layers else model_spec.initial_conv.output_channels
+    for layer in model_spec.post_layers:
+        if layer.kernel_size != 1:
+            raise ValueError(f'当前 qemu-c-inference 仅支持 kernel_size=1 的 post_dense 层，实际 {layer.name}={layer.kernel_size}')
+        if layer.input_channels != expected_channels:
+            raise ValueError(
+                f'{layer.name} 输入通道数非法，期望 {expected_channels}，实际 {layer.input_channels}'
+            )
+        expected_channels = layer.output_channels
+
+    if model_spec.output_layer is not None:
+        if model_spec.output_layer.kernel_size != 1:
+            raise ValueError(f'当前 qemu-c-inference 仅支持 kernel_size=1 的 output_conv，实际 {model_spec.output_layer.kernel_size}')
+        if model_spec.output_layer.input_channels != expected_channels:
+            raise ValueError(
+                f'output_conv 输入通道数非法，期望 {expected_channels}，实际 {model_spec.output_layer.input_channels}'
+            )
+        if model_spec.output_layer.output_channels != model_spec.output_units:
+            raise ValueError(
+                f'output_conv 输出通道数非法，期望 {model_spec.output_units}，实际 {model_spec.output_layer.output_channels}'
+            )
+    else:
+        if len(model_spec.output_dense_kernel) != expected_channels:
+            raise ValueError(
+                f'WaveNet3 输出层输入通道数非法，期望 {expected_channels}，实际 {len(model_spec.output_dense_kernel)}'
+            )
+        if any(len(row) != model_spec.output_units for row in model_spec.output_dense_kernel):
+            raise ValueError('WaveNet3 输出层 kernel 形状非法')
+        if len(model_spec.output_dense_bias) != model_spec.output_units:
+            raise ValueError('WaveNet3 输出层 bias 形状非法')
+
+
+
+def _get_wavenet_stage_names(model_spec: WaveNetModelSpec) -> List[str]:
+    stage_names = ['input_scaled', 'initial_conv']
+    stage_names.extend(f'conv_block_{index}' for index in range(len(model_spec.block_layers)))
+    stage_names.extend(f'post_dense_{index + 1}' for index in range(len(model_spec.post_layers)))
+    stage_names.append('output_scaled')
+    return stage_names
+
+
+
+def _resolve_wavenet_stage_channels(model_spec: WaveNetModelSpec,
+                                    stage_name: str) -> int:
+    if stage_name == 'input_scaled':
+        return model_spec.input_dim
+    if stage_name == 'initial_conv':
+        return model_spec.initial_conv.output_channels
+    if stage_name.startswith('conv_block_'):
+        layer_index = int(stage_name.rsplit('_', 1)[1])
+        return model_spec.block_layers[layer_index].output_channels
+    if stage_name.startswith('post_dense_'):
+        layer_index = int(stage_name.rsplit('_', 1)[1]) - 1
+        return model_spec.post_layers[layer_index].output_channels
+    if stage_name == 'output_scaled':
+        return model_spec.output_units
+    raise ValueError(f'未知的 WaveNet 调试阶段: {stage_name}')
+
+
+
+def _load_wavenet_block_layers(weights: Iterable[Dict[str, Any]],
+                               dilations: Sequence[Any],
+                               activation: str) -> List[WaveNetConv1DLayerSpec]:
+    layer_names = sorted({
+        str(item.get('name', '')).replace('\\', '/').split('/')[0]
+        for item in weights
+        if re.fullmatch(r'conv1d_\d+/kernel:0', str(item.get('name', '')).replace('\\', '/'))
+    }, key=_wavenet_conv_block_sort_key)
+    layers: List[WaveNetConv1DLayerSpec] = []
+    for index, layer_name in enumerate(layer_names):
+        dilation = int(dilations[index]) if index < len(dilations) else 1
+        layers.append(_load_wavenet_conv1d_layer(weights, layer_name, activation=activation, dilation=dilation))
+    return layers
+
+
+
+def _load_wavenet_post_layers(weights: Iterable[Dict[str, Any]],
+                              activation: str) -> List[WaveNetConv1DLayerSpec]:
+    layer_names = sorted({
+        str(item.get('name', '')).replace('\\', '/').split('/')[0]
+        for item in weights
+        if re.fullmatch(r'post_dense_\d+/kernel:0', str(item.get('name', '')).replace('\\', '/'))
+    }, key=_wavenet_post_layer_sort_key)
+    return [
+        _load_wavenet_conv1d_layer(weights, layer_name, activation=activation, dilation=1)
+        for layer_name in layer_names
+    ]
+
+
+
+def _load_wavenet_conv1d_layer(weights: Iterable[Dict[str, Any]],
+                               layer_name: str,
+                               activation: str,
+                               dilation: int) -> WaveNetConv1DLayerSpec:
+    kernel_entry = _find_weight_entry_exact_name(weights, f'{layer_name}/kernel:0')
+    bias_entry = _find_weight_entry_exact_name(weights, f'{layer_name}/bias:0')
+    kernel_shape = list(kernel_entry['shape'])
+    if len(kernel_shape) != 3:
+        raise ValueError(f'{layer_name} kernel 维度非法: {kernel_shape}')
+    if list(bias_entry['shape']) != [kernel_shape[2]]:
+        raise ValueError(f'{layer_name} bias 形状非法: {bias_entry["shape"]}')
+    return WaveNetConv1DLayerSpec(
+        name=layer_name,
+        input_channels=int(kernel_shape[1]),
+        output_channels=int(kernel_shape[2]),
+        kernel_size=int(kernel_shape[0]),
+        dilation=int(dilation),
+        activation=str(activation),
+        kernel=_to_float_tensor3(kernel_entry['value']),
+        bias=_to_float_vector(bias_entry['value']),
+    )
+
+
+
+def _wavenet_conv_block_sort_key(layer_name: str) -> int:
+    match = re.fullmatch(r'conv1d_(\d+)', layer_name)
+    if match is None:
+        return 1_000_000
+    return int(match.group(1))
+
+
+
+def _wavenet_post_layer_sort_key(layer_name: str) -> int:
+    match = re.fullmatch(r'post_dense_(\d+)', layer_name)
+    if match is None:
+        return 1_000_000
+    return int(match.group(1))
+
+
+
+def _format_c_identifier(name: str) -> str:
+    return re.sub(r'[^0-9A-Za-z_]', '_', str(name))
+
+
+
+def _render_wavenet_model_data_header(model_spec: WaveNetModelSpec,
+                                      benchmark_config: Dict[str, Any],
+                                      validation_artifacts: ValidationArtifacts) -> str:
+    validation_input = [record.input_sequence for record in validation_artifacts.records]
+    lines = [
+        '#ifndef GENERATED_WAVENET_MODEL_DATA_H',
+        '#define GENERATED_WAVENET_MODEL_DATA_H',
+        '',
+        '#include <stdint.h>',
+        '',
+        'typedef float port_float;',
+        '',
+        '#define ACT_LINEAR 0u',
+        '#define ACT_RELU 1u',
+        '#define ACT_TANH 2u',
+        '#define ACT_SIGMOID 3u',
+        '#define ACT_SILU 4u',
+        '',
+        f'#define WAVENET_INPUT_DIM {model_spec.input_dim}u',
+        f'#define BENCHMARK_ITERATIONS {int(benchmark_config["iterations"])}u',
+        f'#define BENCHMARK_REPEAT_RUNS {int(benchmark_config["repeat_runs"])}u',
+        f'#define BENCHMARK_RESET_STATE_EACH_RUN {1 if benchmark_config.get("reset_state_each_run", True) else 0}u',
+        f'#define VALIDATION_RECORD_COUNT {validation_artifacts.record_count}u',
+        f'#define VALIDATION_SEQ_LEN {validation_artifacts.seq_len}u',
+        '',
+        f'#define SCALER_INPUT_DATA_RANGE {_format_c_float(validation_artifacts.input_data_range)}',
+        f'#define SCALER_OUTPUT_DATA_RANGE {_format_c_float(validation_artifacts.output_data_range)}',
+        '',
+        f'static const port_float validation_input[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN][WAVENET_INPUT_DIM] = {_render_initializer(validation_input)};',
+        '',
+        f'static const port_float wavenet_initial_kernel[{model_spec.initial_conv.kernel_size}u][{model_spec.initial_conv.input_channels}u][{model_spec.initial_conv.output_channels}u] = {_render_initializer(model_spec.initial_conv.kernel)};',
+        '',
+        f'static const port_float wavenet_initial_bias[{model_spec.initial_conv.output_channels}u] = {_render_initializer(model_spec.initial_conv.bias)};',
+        '',
+    ]
+
+    for layer_spec in model_spec.block_layers:
+        identifier = _format_c_identifier(layer_spec.name)
+        lines.extend([
+            f'static const port_float {identifier}_kernel[{layer_spec.kernel_size}u][{layer_spec.input_channels}u][{layer_spec.output_channels}u] = {_render_initializer(layer_spec.kernel)};',
+            '',
+            f'static const port_float {identifier}_bias[{layer_spec.output_channels}u] = {_render_initializer(layer_spec.bias)};',
+            '',
+        ])
+
+    for layer_spec in model_spec.post_layers:
+        identifier = _format_c_identifier(layer_spec.name)
+        lines.extend([
+            f'static const port_float {identifier}_kernel[{layer_spec.kernel_size}u][{layer_spec.input_channels}u][{layer_spec.output_channels}u] = {_render_initializer(layer_spec.kernel)};',
+            '',
+            f'static const port_float {identifier}_bias[{layer_spec.output_channels}u] = {_render_initializer(layer_spec.bias)};',
+            '',
+        ])
+
+    if model_spec.output_layer is not None:
+        identifier = _format_c_identifier(model_spec.output_layer.name)
+        lines.extend([
+            f'static const port_float {identifier}_kernel[{model_spec.output_layer.kernel_size}u][{model_spec.output_layer.input_channels}u][{model_spec.output_layer.output_channels}u] = {_render_initializer(model_spec.output_layer.kernel)};',
+            '',
+            f'static const port_float {identifier}_bias[{model_spec.output_layer.output_channels}u] = {_render_initializer(model_spec.output_layer.bias)};',
+            '',
+        ])
+    else:
+        lines.extend([
+            f'static const port_float wavenet_output_dense_kernel[{model_spec.final_input_channels}u][{model_spec.output_units}u] = {_render_initializer(model_spec.output_dense_kernel)};',
+            '',
+            f'static const port_float wavenet_output_dense_bias[{model_spec.output_units}u] = {_render_initializer(model_spec.output_dense_bias)};',
+            '',
+        ])
+
+    lines.extend([
+        '#endif',
+        '',
+    ])
+    return '\n'.join(lines)
+
+
+
+def _render_wavenet_main_c(model_spec: WaveNetModelSpec) -> str:
+    stage_names = _get_wavenet_stage_names(model_spec)
+    stage_decls = [
+        f'static port_float debug_{stage_name}[VALIDATION_SEQ_LEN][{_resolve_wavenet_stage_channels(model_spec, stage_name)}u];'
+        for stage_name in stage_names
+    ]
+    clear_lines = [
+        f'    zero_buffer(&debug_{stage_name}[0u][0u], VALIDATION_SEQ_LEN * {_resolve_wavenet_stage_channels(model_spec, stage_name)}u);'
+        for stage_name in stage_names
+    ]
+    print_lines: List[str] = []
+    for stage_name in stage_names:
+        channels = _resolve_wavenet_stage_channels(model_spec, stage_name)
+        print_lines.extend([
+            f'        uart_puts("validation_{stage_name}_");',
+            '        uart_put_u32(record_index);',
+            '        uart_puts("=");',
+            f'        uart_put_matrix_rows(&debug_{stage_name}[0u][0u], VALIDATION_SEQ_LEN, {channels}u);',
+            '        uart_puts("\\n");',
+            '',
+        ])
+
+    max_merge_channels = max(1, model_spec.merged_channels)
+    lines: List[str] = [
+        '#include <stdint.h>',
+        '',
+        '#include "model_data.h"',
+        '',
+        '#define RCC_BASE 0x40023800u',
+        '#define DEMCR (*(volatile uint32_t *)0xE000EDFCu)',
+        '#define DWT_CTRL (*(volatile uint32_t *)0xE0001000u)',
+        '#define DWT_CYCCNT (*(volatile uint32_t *)0xE0001004u)',
+        '',
+        '#define USART1_BASE 0x40011000u',
+        '#define RCC_APB2ENR (*(volatile uint32_t *)(RCC_BASE + 0x44u))',
+        '#define USART1_SR (*(volatile uint32_t *)(USART1_BASE + 0x00u))',
+        '#define USART1_DR (*(volatile uint32_t *)(USART1_BASE + 0x04u))',
+        '#define USART1_BRR (*(volatile uint32_t *)(USART1_BASE + 0x08u))',
+        '#define USART1_CR1 (*(volatile uint32_t *)(USART1_BASE + 0x0Cu))',
+        '',
+        '#define RCC_APB2ENR_USART1EN (1u << 4)',
+        '#define USART_SR_TXE (1u << 7)',
+        '#define USART_CR1_TE (1u << 3)',
+        '#define USART_CR1_UE (1u << 13)',
+        '#define DEMCR_TRCENA (1u << 24)',
+        '#define DWT_CTRL_CYCCNTENA (1u << 0)',
+        '',
+        'static port_float validation_output[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN];',
+        *stage_decls,
+        '',
+        'static void uart_init(void)',
+        '{',
+        '    RCC_APB2ENR |= RCC_APB2ENR_USART1EN;',
+        '    USART1_BRR = 0x05B2u;',
+        '    USART1_CR1 = USART_CR1_UE | USART_CR1_TE;',
+        '}',
+        '',
+        'static void uart_putc(char ch)',
+        '{',
+        '    while ((USART1_SR & USART_SR_TXE) == 0u) {',
+        '    }',
+        '    USART1_DR = (uint32_t)ch;',
+        '}',
+        '',
+        'static void uart_puts(const char *message)',
+        '{',
+        "    while (*message != '\\0') {",
+        "        if (*message == '\\n') {",
+        "            uart_putc('\\r');",
+        '        }',
+        '        uart_putc(*message++);',
+        '    }',
+        '}',
+        '',
+        'static void uart_put_u32(uint32_t value)',
+        '{',
+        '    char buffer[11];',
+        '    uint32_t index = 0u;',
+        '    if (value == 0u) {',
+        "        uart_putc('0');",
+        '        return;',
+        '    }',
+        '    while (value > 0u && index < (uint32_t)sizeof(buffer)) {',
+        "        buffer[index++] = (char)('0' + (value % 10u));",
+        '        value /= 10u;',
+        '    }',
+        '    while (index > 0u) {',
+        '        uart_putc(buffer[--index]);',
+        '    }',
+        '}',
+        '',
+        'static void uart_put_fixed6(port_float value)',
+        '{',
+        '    int32_t scaled = (int32_t)(value * 1000000.0f);',
+        '    int32_t abs_scaled = scaled;',
+        '    int32_t integer_part;',
+        '    int32_t fraction;',
+        '    int32_t divisor = 100000;',
+        '    if (scaled < 0) {',
+        "        uart_putc('-');",
+        '        abs_scaled = -scaled;',
+        '    }',
+        '    integer_part = abs_scaled / 1000000;',
+        '    fraction = abs_scaled % 1000000;',
+        '    uart_put_u32((uint32_t)integer_part);',
+        "    uart_putc('.');",
+        '    while (divisor > 0) {',
+        "        uart_putc((char)('0' + ((fraction / divisor) % 10)));",
+        '        divisor /= 10;',
+        '    }',
+        '}',
+        '',
+        'static void uart_put_matrix_rows(const port_float *values, uint32_t row_count, uint32_t column_count)',
+        '{',
+        '    uint32_t row_index;',
+        '    for (row_index = 0u; row_index < row_count; ++row_index) {',
+        '        uint32_t column_index;',
+        '        if (row_index > 0u) {',
+        "            uart_putc(';');",
+        '        }',
+        '        for (column_index = 0u; column_index < column_count; ++column_index) {',
+        '            if (column_index > 0u) {',
+        "                uart_putc(',');",
+        '            }',
+        '            uart_put_fixed6(values[row_index * column_count + column_index]);',
+        '        }',
+        '    }',
+        '}',
+        '',
+        'static void dwt_init(void)',
+        '{',
+        '    DEMCR |= DEMCR_TRCENA;',
+        '    DWT_CYCCNT = 0u;',
+        '    DWT_CTRL |= DWT_CTRL_CYCCNTENA;',
+        '}',
+        '',
+        'static uint32_t dwt_read_cycles(void)',
+        '{',
+        '    return DWT_CYCCNT;',
+        '}',
+        '',
+        'static uint32_t dwt_is_counting(void)',
+        '{',
+        '    volatile uint32_t spin;',
+        '    uint32_t before;',
+        '    uint32_t after;',
+        '    dwt_init();',
+        '    before = dwt_read_cycles();',
+        '    for (spin = 0u; spin < 64u; ++spin) {',
+        '        __asm volatile ("nop");',
+        '    }',
+        '    after = dwt_read_cycles();',
+        '    return after > before ? 1u : 0u;',
+        '}',
+        '',
+        'static port_float tanh_approx(port_float value)',
+        '{',
+        '    port_float squared;',
+        '    if (value > 3.0f) {',
+        '        return 0.99505478f;',
+        '    }',
+        '    if (value < -3.0f) {',
+        '        return -0.99505478f;',
+        '    }',
+        '    squared = value * value;',
+        '    return value * (27.0f + squared) / (27.0f + 9.0f * squared);',
+        '}',
+        '',
+        'static port_float sigmoid_approx(port_float value)',
+        '{',
+        '    if (value > 8.0f) {',
+        '        return 0.99966466f;',
+        '    }',
+        '    if (value < -8.0f) {',
+        '        return 0.00033535f;',
+        '    }',
+        '    return 0.5f * (tanh_approx(value * 0.5f) + 1.0f);',
+        '}',
+        '',
+        'static port_float silu_approx(port_float value)',
+        '{',
+        '    return value * sigmoid_approx(value);',
+        '}',
+        '',
+        'static port_float relu(port_float value)',
+        '{',
+        '    return value > 0.0f ? value : 0.0f;',
+        '}',
+        '',
+        'static port_float apply_activation_code(port_float value, uint32_t activation_code)',
+        '{',
+        '    if (activation_code == ACT_RELU) {',
+        '        return relu(value);',
+        '    }',
+        '    if (activation_code == ACT_TANH) {',
+        '        return tanh_approx(value);',
+        '    }',
+        '    if (activation_code == ACT_SIGMOID) {',
+        '        return sigmoid_approx(value);',
+        '    }',
+        '    if (activation_code == ACT_SILU) {',
+        '        return silu_approx(value);',
+        '    }',
+        '    return value;',
+        '}',
+        '',
+        'static void zero_buffer(port_float *buffer, uint32_t length)',
+        '{',
+        '    uint32_t index;',
+        '    for (index = 0u; index < length; ++index) {',
+        '        buffer[index] = 0.0f;',
+        '    }',
+        '}',
+        '',
+        'static port_float scale_input(port_float value)',
+        '{',
+        '    if (SCALER_INPUT_DATA_RANGE == 0.0f) {',
+        '        return value;',
+        '    }',
+        '    return value / SCALER_INPUT_DATA_RANGE;',
+        '}',
+        '',
+        'static port_float inverse_scale_output(port_float value)',
+        '{',
+        '    return value * SCALER_OUTPUT_DATA_RANGE;',
+        '}',
+        '',
+        'static port_float conv1d_causal_step(const port_float *history, uint32_t step_index, uint32_t history_channels, uint32_t kernel_size, uint32_t dilation, const port_float *kernel_values, const port_float *bias_values, uint32_t output_channel)',
+        '{',
+        '    port_float sum = bias_values[output_channel];',
+        '    uint32_t kernel_index;',
+        '    for (kernel_index = 0u; kernel_index < kernel_size; ++kernel_index) {',
+        '        int32_t sample_index = (int32_t)step_index - (int32_t)((kernel_size - 1u - kernel_index) * dilation);',
+        '        uint32_t input_channel;',
+        '        if (sample_index < 0) {',
+        '            continue;',
+        '        }',
+        '        for (input_channel = 0u; input_channel < history_channels; ++input_channel) {',
+        '            uint32_t history_offset = ((uint32_t)sample_index * history_channels) + input_channel;',
+        '            uint32_t kernel_offset = ((kernel_index * history_channels) + input_channel) * ' + f'{max(_resolve_wavenet_stage_channels(model_spec, stage) for stage in stage_names)}u' + ' + output_channel;',
+        '            sum += history[history_offset] * kernel_values[kernel_offset];',
+        '        }',
+        '    }',
+        '    return sum;',
+        '}',
+        '',
+        'static void dense_pointwise_forward(const port_float *input_values, uint32_t input_channels, uint32_t output_channels, const port_float *kernel_values, const port_float *bias_values, uint32_t activation_code, port_float *output_values)',
+        '{',
+        '    uint32_t output_index;',
+        '    for (output_index = 0u; output_index < output_channels; ++output_index) {',
+        '        uint32_t input_index;',
+        '        port_float sum = bias_values[output_index];',
+        '        for (input_index = 0u; input_index < input_channels; ++input_index) {',
+        '            sum += input_values[input_index] * kernel_values[(input_index * output_channels) + output_index];',
+        '        }',
+        '        output_values[output_index] = apply_activation_code(sum, activation_code);',
+        '    }',
+        '}',
+        '',
+        'static void clear_debug_buffers(void)',
+        '{',
+        *clear_lines,
+        '}',
+        '',
+        'static void run_wavenet_record(const port_float input_sequence[VALIDATION_SEQ_LEN][WAVENET_INPUT_DIM], port_float output_sequence[VALIDATION_SEQ_LEN])',
+        '{',
+        '    uint32_t step_index;',
+        '    uint32_t channel_index;',
+        f'    port_float merged_buffer[{max_merge_channels}u];',
+        '    clear_debug_buffers();',
+        '    for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {',
+        '        debug_input_scaled[step_index][0u] = scale_input(input_sequence[step_index][0u]);',
+    ]
+
+    lines.extend([
+        f'        for (channel_index = 0u; channel_index < {model_spec.initial_conv.output_channels}u; ++channel_index) {{',
+        f'            debug_initial_conv[step_index][channel_index] = conv1d_causal_step(&debug_input_scaled[0u][0u], step_index, WAVENET_INPUT_DIM, {model_spec.initial_conv.kernel_size}u, 1u, &wavenet_initial_kernel[0u][0u][0u], &wavenet_initial_bias[0u], channel_index);',
+        '        }',
+    ])
+
+    for block_index, layer_spec in enumerate(model_spec.block_layers):
+        source_name = 'debug_initial_conv'
+        source_channels = model_spec.initial_conv.output_channels
+        if not model_spec.use_parallel_blocks and block_index > 0:
+            source_name = f'debug_conv_block_{block_index - 1}'
+            source_channels = model_spec.block_layers[block_index - 1].output_channels
+        identifier = _format_c_identifier(layer_spec.name)
+        activation_code = _resolve_activation_code(layer_spec.activation)
+        lines.extend([
+            f'        for (channel_index = 0u; channel_index < {layer_spec.output_channels}u; ++channel_index) {{',
+            f'            port_float raw_value = conv1d_causal_step(&{source_name}[0u][0u], step_index, {source_channels}u, {layer_spec.kernel_size}u, {layer_spec.dilation}u, &{identifier}_kernel[0u][0u][0u], &{identifier}_bias[0u], channel_index);',
+            f'            debug_conv_block_{block_index}[step_index][channel_index] = apply_activation_code(raw_value, {activation_code}u);',
+            '        }',
+        ])
+
+    if not model_spec.block_layers:
+        lines.extend([
+            f'        for (channel_index = 0u; channel_index < {model_spec.initial_conv.output_channels}u; ++channel_index) {{',
+            '            merged_buffer[channel_index] = debug_initial_conv[step_index][channel_index];',
+            '        }',
+        ])
+    elif model_spec.merge_mode == 'add':
+        lines.extend([
+            f'        for (channel_index = 0u; channel_index < {model_spec.merged_channels}u; ++channel_index) {{',
+            '            merged_buffer[channel_index] = 0.0f;',
+            '        }',
+        ])
+        for block_index, layer_spec in enumerate(model_spec.block_layers):
+            lines.extend([
+                f'        for (channel_index = 0u; channel_index < {layer_spec.output_channels}u; ++channel_index) {{',
+                f'            merged_buffer[channel_index] += debug_conv_block_{block_index}[step_index][channel_index];',
+                '        }',
+            ])
+    else:
+        offset = 0
+        for block_index, layer_spec in enumerate(model_spec.block_layers):
+            lines.extend([
+                f'        for (channel_index = 0u; channel_index < {layer_spec.output_channels}u; ++channel_index) {{',
+                f'            merged_buffer[{offset}u + channel_index] = debug_conv_block_{block_index}[step_index][channel_index];',
+                '        }',
+            ])
+            offset += layer_spec.output_channels
+
+    current_source = 'merged_buffer'
+    current_channels = model_spec.merged_channels if model_spec.block_layers else model_spec.initial_conv.output_channels
+    for post_index, layer_spec in enumerate(model_spec.post_layers):
+        identifier = _format_c_identifier(layer_spec.name)
+        target_name = f'debug_post_dense_{post_index + 1}'
+        activation_code = _resolve_activation_code(layer_spec.activation)
+        lines.append(
+            f'        dense_pointwise_forward({current_source}, {current_channels}u, {layer_spec.output_channels}u, &{identifier}_kernel[0u][0u][0u], &{identifier}_bias[0u], {activation_code}u, &{target_name}[step_index][0u]);'
+        )
+        current_source = f'&{target_name}[step_index][0u]'
+        current_channels = layer_spec.output_channels
+
+    if model_spec.output_layer is not None:
+        identifier = _format_c_identifier(model_spec.output_layer.name)
+        lines.append(
+            f'        dense_pointwise_forward({current_source}, {current_channels}u, {model_spec.output_units}u, &{identifier}_kernel[0u][0u][0u], &{identifier}_bias[0u], ACT_LINEAR, &debug_output_scaled[step_index][0u]);'
+        )
+    else:
+        lines.extend([
+            '        {',
+            '            port_float sum = wavenet_output_dense_bias[0u];',
+            f'            for (channel_index = 0u; channel_index < {current_channels}u; ++channel_index) {{',
+            '                sum += ' + current_source + '[channel_index] * wavenet_output_dense_kernel[channel_index][0u];',
+            '            }',
+            '            debug_output_scaled[step_index][0u] = sum;',
+            '        }',
+        ])
+
+    lines.extend([
+        '        output_sequence[step_index] = inverse_scale_output(debug_output_scaled[step_index][0u]);',
+        '    }',
+        '}',
+        '',
+        'int main(void)',
+        '{',
+        '    uint32_t repeat_index;',
+        '    uint32_t run_index;',
+        '    uint32_t record_index;',
+        '    uint32_t step_index;',
+        '    uint32_t dwt_supported;',
+        '    uint32_t total_cycles = 0u;',
+        '    uint32_t start_cycles = 0u;',
+        '    uint32_t end_cycles = 0u;',
+        '    port_float output_value = 0.0f;',
+        '    uart_init();',
+        f'    uart_puts("{model_spec.model_type.upper()}_QEMU_VALIDATION\\n");',
+        '    dwt_supported = dwt_is_counting();',
+        '    for (repeat_index = 0u; repeat_index < BENCHMARK_REPEAT_RUNS; ++repeat_index) {',
+        '        for (run_index = 0u; run_index < BENCHMARK_ITERATIONS; ++run_index) {',
+        '            if (dwt_supported != 0u) {',
+        '                dwt_init();',
+        '                start_cycles = dwt_read_cycles();',
+        '            }',
+        '            run_wavenet_record(validation_input[0u], validation_output[0u]);',
+        '            if (dwt_supported != 0u) {',
+        '                end_cycles = dwt_read_cycles();',
+        '                total_cycles += (end_cycles - start_cycles);',
+        '            }',
+        '            output_value = validation_output[0u][VALIDATION_SEQ_LEN - 1u];',
+        '        }',
+        '    }',
+        '    uart_puts("iterations=");',
+        '    uart_put_u32(BENCHMARK_ITERATIONS);',
+        '    uart_puts("\\ndwt_supported=");',
+        '    uart_put_u32(dwt_supported);',
+        '    uart_puts("\\ntimer_source=");',
+        '    uart_puts(dwt_supported != 0u ? "dwt" : "host_elapsed");',
+        '    if (dwt_supported != 0u) {',
+        '        uart_puts("\\nmeasurement_unit=");',
+        '        uart_puts("cycles");',
+        '        uart_puts("\\nmeasurement_total=");',
+        '        uart_put_u32(total_cycles);',
+        '        uart_puts("\\nmeasurement_per_iter=");',
+        '        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));',
+        '        uart_puts("\\ncycles_total=");',
+        '        uart_put_u32(total_cycles);',
+        '        uart_puts("\\ncycles_per_iter=");',
+        '        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));',
+        '    }',
+        '    uart_puts("\\noutput=");',
+        '    uart_put_fixed6(output_value);',
+        '    uart_puts("\\n");',
+        '    uart_puts("benchmark_complete=1\\n");',
+        '    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {',
+        '        run_wavenet_record(validation_input[record_index], validation_output[record_index]);',
+        '        uart_puts("validation_record_");',
+        '        uart_put_u32(record_index);',
+        '        uart_puts("=");',
+        '        for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {',
+        '            if (step_index > 0u) {',
+        "                uart_putc(',');",
+        '            }',
+        '            uart_put_fixed6(validation_output[record_index][step_index]);',
+        '        }',
+        '        uart_puts("\\n");',
+        *print_lines,
+        '    }',
+        '    uart_puts("validation_complete=1\\n");',
+        '    while (1) {',
+        '    }',
+        '}',
+        '',
+    ])
+    return '\n'.join(lines)

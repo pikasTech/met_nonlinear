@@ -184,6 +184,8 @@ def _base_layer_info(layer: tf.keras.layers.Layer) -> Dict[str, Any]:
     }
 
 
+
+
 def _analyze_dense_layer(layer: tf.keras.layers.Dense) -> Dict[str, Any]:
     """统计 Dense 层单次前向传播的运算量。"""
     kernel_shape = layer.kernel.shape.as_list()
@@ -304,6 +306,54 @@ def _analyze_conv1d_layer(layer: tf.keras.layers.Conv1D) -> Dict[str, Any]:
     }
 
 
+def _analyze_activation_layer(layer: tf.keras.layers.Activation) -> Dict[str, Any]:
+    """统计显式 Activation 层的单时间步运算量。"""
+    activation_name = _activation_name(layer.activation)
+    output_elements = _single_sample_timestep_elements(getattr(layer, 'output_shape', None))
+    maps = _map_count_for_activation(activation_name, output_elements)
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'activation': activation_name,
+            'output_elements': output_elements,
+        },
+        'compute': {
+            'additions': 0,
+            'multiplications': 0,
+            'maps': maps,
+            'total': maps,
+        },
+        'formula': (
+            'Activation(single timestep): linear activation costs 0; each '
+            'nonlinear output element is counted as one MAP.'
+        ),
+    }
+
+
+def _analyze_concatenate_layer(layer: tf.keras.layers.Concatenate) -> Dict[str, Any]:
+    """拼接层只重排通道，不引入算术运算。"""
+    output_elements = _single_sample_timestep_elements(getattr(layer, 'output_shape', None))
+
+    return {
+        'supported': True,
+        'operation_scope': 'single_timestep_single_sample',
+        'details': {
+            'axis': int(layer.axis),
+            'output_elements': output_elements,
+            'reason': 'tensor_concatenation',
+        },
+        'compute': {
+            'additions': 0,
+            'multiplications': 0,
+            'maps': 0,
+            'total': 0,
+        },
+        'formula': 'Concatenate only reorders tensor views for this arithmetic estimate, so no arithmetic ops are counted.',
+    }
+
+
 def _analyze_lstm_layer(layer: tf.keras.layers.LSTM) -> Dict[str, Any]:
     """统计 Keras LSTM 层单时间步的运算量。"""
     kernel_shape = layer.cell.kernel.shape.as_list()
@@ -360,8 +410,6 @@ def _analyze_lstm_layer(layer: tf.keras.layers.LSTM) -> Dict[str, Any]:
             'per unit, MAP counts 3 recurrent activations + 2 main activations per unit.'
         ),
     }
-
-
 def _analyze_gru_layer(layer: tf.keras.layers.GRU) -> Dict[str, Any]:
     """统计 Keras GRU 层单时间步的运算量。"""
     kernel_shape = layer.cell.kernel.shape.as_list()
@@ -736,6 +784,10 @@ def _analyze_layers(layers: List[tf.keras.layers.Layer],
                 },
                 'formula': 'Dropout is inactive during inference.',
             }
+        elif isinstance(layer, tf.keras.layers.Activation):
+            layer_analysis = _analyze_activation_layer(layer)
+        elif isinstance(layer, tf.keras.layers.Concatenate):
+            layer_analysis = _analyze_concatenate_layer(layer)
         elif isinstance(layer, tf.keras.layers.Conv1D):
             layer_analysis = _analyze_conv1d_layer(layer)
         elif isinstance(layer, tf.keras.layers.Dense):

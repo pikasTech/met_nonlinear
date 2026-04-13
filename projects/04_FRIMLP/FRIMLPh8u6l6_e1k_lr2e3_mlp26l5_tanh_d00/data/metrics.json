@@ -1,6 +1,6 @@
 {
   "project_name": "FRIMLPh8u6l6_e1k_lr2e3_mlp26l5_tanh_d00",
-  "generated_at": "2026-04-11T13:13:09.956449+08:00",
+  "generated_at": "2026-04-13T10:12:09.916871+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -103,7 +103,11 @@
   "compute_unsupported_layers": [],
   "compute_unsupported_layer_details": [],
   "compute_cost_warning": null,
+  "loss_function": "MAE+AFMAE",
+  "loss_function_key": "power_log_mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": 0.02019445225596428,
     "TRAIN_AFMAE": 0.0675942599773407,
     "VAL_MAE": 0.020526720210909843,

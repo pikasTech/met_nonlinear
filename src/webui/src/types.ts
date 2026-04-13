@@ -123,5 +123,6 @@ export interface ProjectMetricsSummary {
   total_params: number | null;
   lr: number | null;
   use_cosine_annealing: boolean | null;
-  display_metrics?: Record<string, number | null | boolean>;
+  loss_function?: string | null;
+  display_metrics?: Record<string, number | null | boolean | string>;
 }

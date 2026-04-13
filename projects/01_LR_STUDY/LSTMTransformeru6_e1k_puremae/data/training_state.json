@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "LSTMTransformer",
   "training_alive": false,
-  "timestamp": "20260410015143.7",
+  "timestamp": "20260413112103.5",
   "best_weights_file": "projects\\01_LR_STUDY\\LSTMTransformeru6_e1k_puremae/data\\projects\\01_LR_STUDY\\LSTMTransformeru6_e1k_puremae_best_weights.h5",
   "best_val_weights_file": "projects\\01_LR_STUDY\\LSTMTransformeru6_e1k_puremae/data\\projects\\01_LR_STUDY\\LSTMTransformeru6_e1k_puremae_best_val_weights.h5",
   "loss": 0.007839193567633629,

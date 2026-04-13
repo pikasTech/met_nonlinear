@@ -1,6 +1,6 @@
 {
   "project_name": "LSTMu22_2",
-  "generated_at": "2026-04-10T12:56:22.778234+08:00",
+  "generated_at": "2026-04-13T10:12:10.921474+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -97,7 +97,17 @@
     "weighted_multiplications": 2596.0,
     "weighted_maps": 792.0
   },
+  "compute_cost_status": "complete",
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "MAE+AFMAE",
+  "loss_function_key": "power_log_mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": 0.029298383742570877,
     "TRAIN_AFMAE": 0.386704683303833,
     "VAL_MAE": 0.02981189824640751,

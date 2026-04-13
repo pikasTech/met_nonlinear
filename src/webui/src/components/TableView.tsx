@@ -41,6 +41,7 @@ type RowData = {
   path: string;
   name: string;
   model: string;
+  lossFunction: string | null;
   epochs: number | null;
   minValLoss: number | null;
   minLoss: number | null;
@@ -151,6 +152,7 @@ export default function TableView({
       path: p.project.path,
       name: p.name,
       model: p.project.config.use_model || 'unknown',
+      lossFunction: p.data.summary?.loss_function ?? null,
       epochs: p.data.summary?.epochs ?? null,
       minValLoss: p.data.summary?.min_val_loss ?? null,
       minLoss: p.data.summary?.min_loss ?? null,
@@ -179,6 +181,10 @@ export default function TableView({
     columnHelper.accessor('model', {
       header: 'Model',
       cell: (info) => <span style={{ color: '#666' }}>{info.getValue()}</span>,
+    }),
+    columnHelper.accessor('lossFunction', {
+      header: 'Loss Function',
+      cell: (info) => info.getValue() ?? '(no data)',
     }),
     columnHelper.accessor('epochs', {
       header: 'Epochs',

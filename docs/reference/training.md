@@ -30,6 +30,8 @@
 
 - 启动前先核对 `config.json`、数据路径、目标项目路径和 Python 环境是否一致，避免无效启动。
 - 做超参数搜索时优先一次只跑一个项目，避免 GPU/IO 争抢导致结论失真。
+- 每次调参都必须先复制同类项目为新的 project 变体，只在新项目里改 `learning_rate`、`model_subcfg` 或其他目标参数；禁止直接覆盖已有项目的 `config.json` 或复用已有 `data/` 继续试不同配置。
+- 禁止自动批量 sweep 调参；每轮都要先读取上一轮项目的 `metrics.json`、`training_info.json` 或关键图表，再决定下一轮只改哪个 `learning_rate` 或 `model_subcfg` 方向。
 - 调参优先做单因素变更，确保结果可解释且便于回退。
 - 新增训练经验时优先沉淀可复用规律、限制条件和止损信号，而不是一次性流水账。
 - 数据集覆盖、稳态片段、低震级样本平衡和外推边界的长期规则，详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
@@ -44,6 +46,7 @@
 ## 复现约束
 
 - 历史 project 原样复跑优先保持旧行为，默认训练路径不为单个实验引入新的 batch-size 估算逻辑。
+- 调参、消融和横评扩展时必须复制出新的 project 目录保存独立权重与日志，禁止在已有 project 上反复覆盖配置后重训。
 - 不在共享代码路径中增加 `MAX_BATCH_SIZE`、兼容开关或仅针对单个项目生效的 batch-size 特判。
 - 如果需要探索新的 batch-size 策略，应复制新项目或在独立分支中验证，避免破坏旧实验对比。
 - 已归档实验的复盘以项目 `config.json`、`training_log.jsonl` 和 `training_info.json` 为准。

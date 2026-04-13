@@ -1,19 +1,17 @@
 {
   "project_name": "FRIMLPh8u6l6_e1k_lr2e3_mlp18l4_tanh_d00",
-  "generated_at": "2026-04-11T15:28:25.990861+08:00",
+  "generated_at": "2026-04-13T10:12:09.619402+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
     "training_info": true,
-    "compute_analysis": false,
+    "compute_analysis": true,
     "model_info": true,
     "linear_response": true,
     "linearity_by_frequency": true,
     "config": true
   },
-  "missing_sources": [
-    "compute_analysis.json"
-  ],
+  "missing_sources": [],
   "missing_sections": [
     "training_info.evaluation_metrics"
   ],
@@ -30,7 +28,7 @@
   "freq_drift_hz": 12.416485115020642,
   "sens_drift_percent": 18.783834531255927,
   "linearity_percent": 1.5883763215588407,
-  "compute_cost": null,
+  "compute_cost": 2772.0,
   "total_params": 1399,
   "lr": 0.002,
   "use_cosine_annealing": false,
@@ -90,14 +88,28 @@
       "method": "mean(1 - R^2) across frequency points"
     }
   },
-  "compute_details": null,
-  "compute_cost_status": null,
+  "compute_details": {
+    "total_params": 1399,
+    "additions": 1166,
+    "multiplications": 1174,
+    "maps": 72,
+    "total_ops": 2412,
+    "weighted_total": 2772.0,
+    "weighted_additions": 1166.0,
+    "weighted_multiplications": 1174.0,
+    "weighted_maps": 432.0
+  },
+  "compute_cost_status": "complete",
   "compute_has_unsupported_layers": false,
   "compute_unsupported_layer_count": 0,
   "compute_unsupported_layers": [],
   "compute_unsupported_layer_details": [],
   "compute_cost_warning": null,
+  "loss_function": "MAE+AFMAE",
+  "loss_function_key": "power_log_mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": null,
     "TRAIN_AFMAE": null,
     "VAL_MAE": null,
@@ -105,7 +117,7 @@
     "Freq Drift (Hz)": 12.416485115020642,
     "Sens Drift (%)": 18.783834531255927,
     "Linearity (%)": 1.5883763215588407,
-    "Compute Cost": null,
+    "Compute Cost": 2772.0,
     "Total Params": 1399,
     "Epochs": 1000,
     "LR": 0.002,

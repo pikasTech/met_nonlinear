@@ -1,6 +1,6 @@
 {
   "project_name": "FRIKANh6u6l4",
-  "generated_at": "2026-04-10T12:56:22.399515+08:00",
+  "generated_at": "2026-04-13T10:12:10.433901+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -97,7 +97,17 @@
     "weighted_multiplications": 30.0,
     "weighted_maps": 900.0
   },
+  "compute_cost_status": "complete",
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "MAE+AFMAE",
+  "loss_function_key": "power_log_mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": 0.014417663216590881,
     "TRAIN_AFMAE": 0.01687479391694069,
     "VAL_MAE": 0.014785232953727245,

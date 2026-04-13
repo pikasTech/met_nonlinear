@@ -87,6 +87,12 @@ def test_build_project_metrics_summary_complete(tmp_path):
         ],
     }), encoding='utf-8')
 
+    checkpoint_dir.parent.joinpath('config.json').write_text(json.dumps({
+        'learning_rate': 0.002,
+        'use_auto_lr': False,
+        'use_power_loss': True,
+    }), encoding='utf-8')
+
     summary = build_project_metrics_summary(str(checkpoint_dir), project_name='demo')
 
     assert summary['status'] == 'complete'
@@ -96,6 +102,9 @@ def test_build_project_metrics_summary_complete(tmp_path):
     assert summary['train_afmae'] == 0.42
     assert summary['val_mae'] == 0.51
     assert summary['val_afmae'] == 0.52
+    assert summary['loss_function'] == 'MAE+AFMAE'
+    assert summary['loss_function_key'] == 'power_log_mae'
+    assert summary['loss_function_source'] == 'config.use_power_loss'
     assert summary['compute_cost'] == 9876.5
     assert summary['compute_cost_status'] == 'complete'
     assert summary['compute_has_unsupported_layers'] is False
@@ -109,6 +118,7 @@ def test_build_project_metrics_summary_complete(tmp_path):
     assert summary['metric_details']['linearity']['max'] == pytest.approx(10.0)
     assert summary['compute_details']['weighted_maps'] == 3.5
     assert summary['display_metrics']['TRAIN_MAE'] == 0.41
+    assert summary['display_metrics']['Loss Function'] == 'MAE+AFMAE'
 
 
 def test_save_project_metrics_summary_partial(tmp_path):
@@ -125,6 +135,7 @@ def test_save_project_metrics_summary_partial(tmp_path):
     summary = save_project_metrics_summary(str(checkpoint_dir), str(output_path), project_name='demo')
 
     assert summary['status'] == 'partial'
+    assert summary['loss_function'] is None
     assert 'compute_analysis.json' in summary['missing_sources']
     assert 'linear_response.json' in summary['missing_sources']
     assert 'linearity_by_frequency.json' in summary['missing_sources']
@@ -171,3 +182,31 @@ def test_build_project_metrics_summary_marks_compute_warning(tmp_path):
     assert summary['compute_unsupported_layers'] == ['transformer_mha_0']
     assert summary['compute_unsupported_layer_details'][0]['type'] == 'MultiHeadAttention'
     assert 'transformer_mha_0' in summary['compute_cost_warning']
+
+
+@pytest.mark.parametrize(
+    ('config_data', 'expected_label', 'expected_key', 'expected_source'),
+    [
+        ({'use_power_loss': False}, 'MAE', 'mae', 'config.use_power_loss'),
+        ({'use_power_loss': False, 'use_pure_power_loss': True}, 'AFMAE', 'pure_power_log_mae', 'config.use_pure_power_loss'),
+        ({'use_power_loss': True}, 'MAE+AFMAE', 'power_log_mae', 'config.use_power_loss'),
+        ({'loss_type': 'afmse'}, 'AFMSE', 'afmse', 'config.loss_type'),
+    ],
+)
+def test_build_project_metrics_summary_extracts_loss_function(
+    tmp_path,
+    config_data,
+    expected_label,
+    expected_key,
+    expected_source,
+):
+    checkpoint_dir = tmp_path / 'data'
+    checkpoint_dir.mkdir()
+    checkpoint_dir.parent.joinpath('config.json').write_text(json.dumps(config_data), encoding='utf-8')
+
+    summary = build_project_metrics_summary(str(checkpoint_dir), project_name='demo')
+
+    assert summary['loss_function'] == expected_label
+    assert summary['loss_function_key'] == expected_key
+    assert summary['loss_function_source'] == expected_source
+    assert summary['display_metrics']['Loss Function'] == expected_label

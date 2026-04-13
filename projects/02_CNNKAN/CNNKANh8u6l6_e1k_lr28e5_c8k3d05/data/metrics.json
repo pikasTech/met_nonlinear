@@ -1,6 +1,6 @@
 {
   "project_name": "CNNKANh8u6l6_e1k_lr28e5_c8k3d05",
-  "generated_at": "2026-04-10T13:53:47.522367+08:00",
+  "generated_at": "2026-04-13T10:12:09.060109+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -97,7 +97,17 @@
     "weighted_multiplications": 24.0,
     "weighted_maps": 1404.0
   },
+  "compute_cost_status": "complete",
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "MAE+AFMAE",
+  "loss_function_key": "power_log_mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": 0.06086617335677147,
     "TRAIN_AFMAE": 0.054542284458875656,
     "VAL_MAE": 0.06200975924730301,

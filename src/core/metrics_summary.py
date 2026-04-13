@@ -275,6 +275,52 @@ def _build_compute_status(
     }
 
 
+_LOSS_FUNCTION_LABELS = {
+    'mae': 'MAE',
+    'pure_power_log_mae': 'AFMAE',
+    'power_log_mae': 'MAE+AFMAE',
+    'afmse': 'AFMSE',
+}
+
+
+def _extract_loss_function(config: Optional[Dict[str, Any]]) -> Dict[str, Optional[str]]:
+    if not config:
+        return {
+            'loss_function': None,
+            'loss_function_key': None,
+            'loss_function_source': None,
+        }
+
+    loss_type = config.get('loss_type')
+    if isinstance(loss_type, str) and loss_type:
+        normalized_loss_type = loss_type.strip()
+        return {
+            'loss_function': _LOSS_FUNCTION_LABELS.get(normalized_loss_type, normalized_loss_type.upper()),
+            'loss_function_key': normalized_loss_type,
+            'loss_function_source': 'config.loss_type',
+        }
+
+    if config.get('use_pure_power_loss'):
+        return {
+            'loss_function': _LOSS_FUNCTION_LABELS['pure_power_log_mae'],
+            'loss_function_key': 'pure_power_log_mae',
+            'loss_function_source': 'config.use_pure_power_loss',
+        }
+
+    if config.get('use_power_loss'):
+        return {
+            'loss_function': _LOSS_FUNCTION_LABELS['power_log_mae'],
+            'loss_function_key': 'power_log_mae',
+            'loss_function_source': 'config.use_power_loss',
+        }
+
+    return {
+        'loss_function': _LOSS_FUNCTION_LABELS['mae'],
+        'loss_function_key': 'mae',
+        'loss_function_source': 'config.use_power_loss',
+    }
+
+
 def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[str] = None) -> Dict[str, Any]:
     training_info_path = os.path.join(checkpoint_dir, 'training_info.json')
     compute_analysis_path = os.path.join(checkpoint_dir, 'compute_analysis.json')
@@ -354,6 +400,8 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
 
     compute_status = _build_compute_status(compute_analysis)
 
+    loss_function_details = _extract_loss_function(config)
+
     summary: Dict[str, Any] = {
         'project_name': project_name,
         'generated_at': datetime.now().astimezone().isoformat(),
@@ -389,9 +437,11 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'metric_details': metric_details,
         'compute_details': compute_details,
         **compute_status,
+        **loss_function_details,
     }
 
     summary['display_metrics'] = {
+        'Loss Function': summary['loss_function'],
         'TRAIN_MAE': summary['train_mae'],
         'TRAIN_AFMAE': summary['train_afmae'],
         'VAL_MAE': summary['val_mae'],

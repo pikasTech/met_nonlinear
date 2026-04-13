@@ -60,7 +60,7 @@
     "evaluation_metrics": {
         "weights_source": "best_val",
         "train_loss": 0.007927059195935726,
-        "val_loss": 0.007910516113042831,
+        "val_loss": 0.007910515181720257,
         "train_mae": 0.007927059195935726,
         "train_afmae": 0.07099210470914841,
         "val_mae": 0.007910515181720257,

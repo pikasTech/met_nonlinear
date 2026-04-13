@@ -76,6 +76,27 @@ def test_analyze_model_compute_marks_unsupported_layers():
     assert analysis['layers'][1]['compute']['maps'] == 2
 
 
+
+
+def test_analyze_model_compute_for_explicit_activation_layer():
+    """显式 Activation 层应按输出元素计入 MAP，不再标记为 unsupported。"""
+    inputs = tf.keras.Input(shape=(None, 8), name='input')
+    outputs = tf.keras.layers.Activation('relu', name='explicit_relu')(inputs)
+    model = tf.keras.Model(inputs=inputs, outputs=outputs, name='ActivationOnly')
+
+    analysis = analyze_model_compute(model, model_type='ActivationOnly')
+
+    assert analysis['unsupported_layers'] == []
+    activation_layer = next(layer for layer in analysis['layers'] if layer['name'] == 'explicit_relu')
+    assert activation_layer['type'] == 'Activation'
+    assert activation_layer['supported'] is True
+    assert activation_layer['compute']['additions'] == 0
+    assert activation_layer['compute']['multiplications'] == 0
+    assert activation_layer['compute']['maps'] == 8
+    assert activation_layer['estimated_cost']['weighted_units']['total'] == 48.0
+
+
+
 def test_analyze_model_compute_for_conv1d_layer():
     """Conv1D 应按真实卷积核形状计入单步计算量。"""
     model = tf.keras.Sequential([
@@ -98,6 +119,7 @@ def test_analyze_model_compute_for_conv1d_layer():
     assert conv_layer['compute']['additions'] == 40
     assert conv_layer['compute']['maps'] == 0
     assert conv_layer['estimated_cost']['weighted_units']['total'] == 80.0
+
 
 
 def test_analyze_model_compute_for_gru16_dense_stack():
@@ -129,7 +151,6 @@ def test_analyze_model_compute_for_gru16_dense_stack():
     assert gru_layer['compute']['multiplications'] == 864
     assert gru_layer['compute']['additions'] == 896
     assert gru_layer['compute']['maps'] == 48
-
 
 def test_analyze_model_component_for_frikan_fast_path():
     """FRIKAN 开启 fast 时，统计结果也应与主模型语义一致。"""

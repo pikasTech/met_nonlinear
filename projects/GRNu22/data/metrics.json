@@ -1,6 +1,6 @@
 {
   "project_name": "GRNu22",
-  "generated_at": "2026-04-10T12:56:22.681743+08:00",
+  "generated_at": "2026-04-13T10:12:10.803749+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -78,7 +78,17 @@
     "linearity_origin": null
   },
   "compute_details": null,
+  "compute_cost_status": null,
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "MAE+AFMAE",
+  "loss_function_key": "power_log_mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": null,
     "TRAIN_AFMAE": null,
     "VAL_MAE": null,

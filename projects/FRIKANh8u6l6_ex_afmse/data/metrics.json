@@ -1,6 +1,6 @@
 {
   "project_name": "FRIKANh8u6l6_ex_afmse",
-  "generated_at": "2026-04-10T12:56:22.629874+08:00",
+  "generated_at": "2026-04-13T10:12:10.719505+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -79,7 +79,17 @@
     "linearity_origin": null
   },
   "compute_details": null,
+  "compute_cost_status": null,
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "AFMSE",
+  "loss_function_key": "afmse",
+  "loss_function_source": "config.loss_type",
   "display_metrics": {
+    "Loss Function": "AFMSE",
     "TRAIN_MAE": null,
     "TRAIN_AFMAE": null,
     "VAL_MAE": null,

@@ -1,6 +1,6 @@
 {
   "project_name": "WNET5q5h6u6l2",
-  "generated_at": "2026-04-10T12:56:24.200742+08:00",
+  "generated_at": "2026-04-13T10:12:12.623761+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -78,7 +78,17 @@
     "linearity_origin": null
   },
   "compute_details": null,
+  "compute_cost_status": null,
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "MAE",
+  "loss_function_key": "mae",
+  "loss_function_source": "config.use_power_loss",
   "display_metrics": {
+    "Loss Function": "MAE",
     "TRAIN_MAE": null,
     "TRAIN_AFMAE": null,
     "VAL_MAE": null,
