@@ -1,0 +1,134 @@
+{
+  "project_name": "1DCNNu8k8_e1k_lr2e3_pd8l2_relu",
+  "generated_at": "2026-04-13T02:22:54.854843+08:00",
+  "status": "complete",
+  "calculation_standard": "ablation-study-v1",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true,
+    "linearity_by_frequency": true,
+    "config": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 1000,
+  "min_loss": 0.016909,
+  "min_val_loss": 0.016842,
+  "train_loss": 0.016848692670464516,
+  "val_loss": 0.01684228889644146,
+  "train_mae": 0.016848692670464516,
+  "train_afmae": 0.10592431575059891,
+  "val_mae": 0.01684228889644146,
+  "val_afmae": 0.10609190911054611,
+  "weights_source": "best_val",
+  "freq_drift_hz": 4.806905268251533,
+  "sens_drift_percent": 24.588521289834297,
+  "linearity_percent": 1.50476472657734,
+  "compute_cost": 400.0,
+  "total_params": 225,
+  "lr": 0.002,
+  "use_cosine_annealing": false,
+  "metric_details": {
+    "natural_frequency_drift": {
+      "min": 29.3447614060942,
+      "max": 38.688484021577246,
+      "median": 34.151666674345734,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_comped",
+      "drift": 4.806905268251533
+    },
+    "sensitivity_drift": {
+      "min": 36.900412548037245,
+      "max": 69.23520716893,
+      "median": 61.48893383787154,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+      "drift": 24.588521289834297,
+      "frequency_hz": 100.0
+    },
+    "linearity": {
+      "mean": 1.50476472657734,
+      "max": 6.23839674068326,
+      "min": 0.3062341544058378,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    },
+    "natural_frequency_drift_origin": {
+      "min": 34.24511188160566,
+      "max": 93.39109038646993,
+      "median": 58.89345106524416,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_origin",
+      "drift": 34.49763932122577
+    },
+    "sensitivity_drift_origin": {
+      "min": 60.001934754356135,
+      "max": 203.37127543336493,
+      "median": 144.5628340451216,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+      "drift": 84.56089929076546,
+      "frequency_hz": 100.0
+    },
+    "linearity_origin": {
+      "mean": 2.5499568401843997,
+      "max": 6.418887454843169,
+      "min": 0.359242046082775,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    }
+  },
+  "compute_details": {
+    "total_params": 225,
+    "additions": 200,
+    "multiplications": 200,
+    "maps": 0,
+    "total_ops": 400,
+    "weighted_total": 400.0,
+    "weighted_additions": 200.0,
+    "weighted_multiplications": 200.0,
+    "weighted_maps": 0.0
+  },
+  "compute_cost_status": "partial",
+  "compute_has_unsupported_layers": true,
+  "compute_unsupported_layer_count": 2,
+  "compute_unsupported_layers": [
+    "post_dense_activation_1",
+    "post_dense_activation_2"
+  ],
+  "compute_unsupported_layer_details": [
+    {
+      "name": "post_dense_activation_1",
+      "type": "Activation",
+      "reason": "unsupported_layer_type"
+    },
+    {
+      "name": "post_dense_activation_2",
+      "type": "Activation",
+      "reason": "unsupported_layer_type"
+    }
+  ],
+  "compute_cost_warning": "Compute cost may be underestimated because unsupported layers were detected: post_dense_activation_1, post_dense_activation_2.",
+  "display_metrics": {
+    "TRAIN_MAE": 0.016848692670464516,
+    "TRAIN_AFMAE": 0.10592431575059891,
+    "VAL_MAE": 0.01684228889644146,
+    "VAL_AFMAE": 0.10609190911054611,
+    "Freq Drift (Hz)": 4.806905268251533,
+    "Sens Drift (%)": 24.588521289834297,
+    "Linearity (%)": 1.50476472657734,
+    "Compute Cost": 400.0,
+    "Total Params": 225,
+    "Epochs": 1000,
+    "LR": 0.002,
+    "Cosine Annealing": false
+  }
+}

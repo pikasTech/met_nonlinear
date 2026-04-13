@@ -96,6 +96,7 @@ class WaveNet2(WaveNet):
                  activation='relu',  # 激活函数
                  checkpoint_dir='data',  # 存储数据的目录
                  model_subcfg={},
+                 inference_config=None,
                  ):
         # 默认模型子配置
         model_subcfg_default = {
@@ -281,6 +282,7 @@ class WaveNet3(WaveNet2):
                  activation='relu',  # 激活函数
                  checkpoint_dir='data',  # 存储数据的目录
                  model_subcfg={},
+                 inference_config=None,
                  ):
         # 默认模型子配置
         model_subcfg_default = {
@@ -368,6 +370,7 @@ class WaveNet4(WaveNet3):
                  activation='relu',  # 激活函数
                  checkpoint_dir='data',  # 存储数据的目录
                  model_subcfg={},
+                 inference_config=None,
                  ):
         # 默认模型子配置
         model_subcfg_default = {
