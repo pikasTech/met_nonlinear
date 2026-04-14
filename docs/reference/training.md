@@ -7,7 +7,7 @@
 ## 训练流程
 
 1. **数据集加载** - 根据 `config.json` 中的 `dataset_type` 加载数据集
-2. **模型构建** - 初始化模型结构（FRIKAN/WNET5/LSTM等）
+2. **模型构建** - 初始化模型结构（FRIKAN/WNET5/LSTM/1DCNN/TCN 等）
 3. **训练执行** - 使用 TensorFlow Keras 进行训练，支持实时回调
 4. **权重保存** - 自动保存最佳验证权重和最终权重
 5. **下游评估** - 训练成功结束后自动串联执行一次 `-e`，生成当前权重对应的评估产物
@@ -21,7 +21,7 @@
 |------|------|--------|
 | `epoch_train` | 训练轮数 | - |
 | `dataset_type` | 数据集类型（如 MET_COMP） | - |
-| `use_model` | 模型类型（FRIKAN/WNET5/LSTM） | - |
+| `use_model` | 模型类型（FRIKAN/WNET5/LSTM/1DCNN/TCN 等） | - |
 | `H_UNITS` | 隐藏单元数 | - |
 | `use_train_model` | 是否使用训练模式 | true |
 | `adjust_weight` | 是否启用交互式权重调整 | false |
@@ -35,6 +35,7 @@
 - 调参优先做单因素变更，确保结果可解释且便于回退。
 - 新增训练经验时优先沉淀可复用规律、限制条件和止损信号，而不是一次性流水账。
 - 数据集覆盖、稳态片段、低震级样本平衡和外推边界的长期规则，详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
+- 如果当前实验属于真实卷积时序基线，请先按 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md) 核对 canonical 项目路径与 `use_model` 语义，再开始复制变体或重训。
 
 ## 特征缓存与序列起始段
 

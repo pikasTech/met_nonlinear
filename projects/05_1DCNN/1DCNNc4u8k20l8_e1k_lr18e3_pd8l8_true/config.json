@@ -1,4 +1,4 @@
-﻿{
+{
     "using_gpu": true,
     "epoch_train": 1000,
     "step_per_epoch": 5,

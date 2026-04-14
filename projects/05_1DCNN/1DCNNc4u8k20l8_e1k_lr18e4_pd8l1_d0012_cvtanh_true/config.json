@@ -1,0 +1,43 @@
+{
+    "using_gpu": true,
+    "epoch_train": 1000,
+    "step_per_epoch": 5,
+    "learning_rate": 0.0018,
+    "use_train_model": true,
+    "use_model": "1DCNN",
+    "use_power_loss": false,
+    "use_points": 8000,
+    "resume_training": false,
+    "use_best_val_weights": true,
+    "use_auto_lr": false,
+    "auto_lr_decay_steps": 500,
+    "use_scale": true,
+    "use_predict_features": true,
+    "use_predict_tr": false,
+    "use_predict_tr_from_file": false,
+    "use_predict_fr": true,
+    "use_cache_features": true,
+    "use_spline": false,
+    "use_sin_fr": false,
+    "use_debug_plot": false,
+    "sample_rate": 2000,
+    "time_clipped_s": 4.0,
+    "kernal_units": 8,
+    "activation": "relu",
+    "model_subcfg": {
+        "init_conv_units": 4,
+        "kernel_size": 20,
+        "post_dense": true,
+        "post_dense_activation": "relu",
+        "post_dense_units": 8,
+        "post_dense_layers": 1,
+        "dropout_rate": 0.012,
+        "conv_activation": "tanh"
+    },
+    "feature_range": [
+        -1,
+        1
+    ],
+    "target_sweep": 2,
+    "AUG_TIMES": 1
+}

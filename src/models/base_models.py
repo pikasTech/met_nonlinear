@@ -567,38 +567,67 @@ class GRN(LSTM):
 
 class RNN(LSTM):
     def __init__(self,
-                 rnn_units=64,            # RNN 单元数量
-                 rnn_dropout=CONF_DROPOUT,  # RNN 的 dropout 率
-                 rnn_activation='tanh',   # RNN 的激活函数
-                 fs=2000,                 # 采样频率
-                 checkpoint_dir='data',  # 保存检查点的目录
-                 model_subcfg={},  # 模型子配置（未使用）
+                 rnn_units=64,            # RNN ????
+                 rnn_dropout=CONF_DROPOUT,  # RNN ? dropout ?
+                 rnn_activation='tanh',   # RNN ?????
+                 fs=2000,                 # ????
+                 checkpoint_dir='data',  # ????????
+                 model_subcfg={},
                  ):
-        # 初始化父类 LSTM
         self.model_name = 'RNN'
         self.fs = fs
         self.checkpoint_dir = checkpoint_dir
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
 
-        # 构建 RNN 模型
+        default_subcfg = {
+            'recurrent_units': rnn_units,
+            'rnn_layers': 1,
+            'rnn_dropout': rnn_dropout,
+            'recurrent_dropout': 0.0,
+            'rnn_activation': rnn_activation,
+            'dense_layers': 1,
+            'dense_units': rnn_units,
+            'dense_activation': 'silu',
+            'output_activation': None,
+        }
+        subcfg = merge_config(default_subcfg, model_subcfg)
+        self.subcfg = subcfg
+        self.model_subcfg = subcfg
+
+        recurrent_units = int(subcfg['recurrent_units'])
+        rnn_layers = int(subcfg['rnn_layers'])
+        dense_layers = int(subcfg['dense_layers'])
+        dense_units = int(subcfg['dense_units'])
+        if recurrent_units <= 0:
+            raise ValueError("model_subcfg['recurrent_units'] must be > 0")
+        if rnn_layers <= 0:
+            raise ValueError("model_subcfg['rnn_layers'] must be > 0")
+        if dense_layers < 0:
+            raise ValueError("model_subcfg['dense_layers'] must be >= 0")
+        if dense_layers > 0 and dense_units <= 0:
+            raise ValueError("model_subcfg['dense_units'] must be > 0")
+
         self.model = tf.keras.Sequential()
+        for _ in range(rnn_layers):
+            self.model.add(tf.keras.layers.SimpleRNN(
+                units=recurrent_units,
+                activation=subcfg['rnn_activation'],
+                dropout=float(subcfg['rnn_dropout']),
+                recurrent_dropout=float(subcfg['recurrent_dropout']),
+                return_sequences=True,
+            ))
 
-        # 使用 SimpleRNN 替换 LSTM 层
-        self.model.add(tf.keras.layers.SimpleRNN(
-            units=rnn_units,
-            activation=rnn_activation,
-            dropout=rnn_dropout,
-            return_sequences=True,  # 保持序列输出以保留时间步
+        for _ in range(dense_layers):
+            self.model.add(tf.keras.layers.Dense(
+                dense_units,
+                activation=subcfg['dense_activation']
+            ))
+
+        self.model.add(tf.keras.layers.Dense(
+            1,
+            activation=subcfg['output_activation']
         ))
-
-        # 可选的全连接层（逐时间步处理）
-        self.model.add(tf.keras.layers.Dense(rnn_units, activation='silu'))
-
-        # 输出层，使输出形状匹配 (batch_size, time_steps, 1)
-        self.model.add(tf.keras.layers.Dense(1))
-
-        # 构建模型，指定输入形状 (None, None, 1)
         self.model.build(input_shape=(None, None, 1))
 
         self.init_checkpoint(checkpoint_dir)

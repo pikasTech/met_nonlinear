@@ -1,0 +1,150 @@
+{
+  "project_name": "TCNc4d1248k3_nopd_true_e1k_lr2e3_res",
+  "generated_at": "2026-04-13T17:38:14.905297+08:00",
+  "status": "complete",
+  "calculation_standard": "ablation-study-v1",
+  "sources": {
+    "training_info": true,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true,
+    "linearity_by_frequency": true,
+    "config": true
+  },
+  "missing_sources": [],
+  "missing_sections": [],
+  "epochs": 1000,
+  "min_loss": 0.0075873,
+  "min_val_loss": 0.0074682,
+  "train_loss": 0.007508613169193268,
+  "val_loss": 0.007468197029083967,
+  "train_mae": 0.007508613169193268,
+  "train_afmae": 0.05137167125940323,
+  "val_mae": 0.007468197029083967,
+  "val_afmae": 0.05323489010334015,
+  "weights_source": "best_val",
+  "freq_drift_hz": 3.3793775692281933,
+  "sens_drift_percent": 21.465654558542113,
+  "linearity_percent": 0.4981553435000714,
+  "compute_cost": 3904.0,
+  "total_params": 1697,
+  "lr": 0.002,
+  "use_cosine_annealing": false,
+  "metric_details": {
+    "natural_frequency_drift": {
+      "min": 31.358866242447963,
+      "max": 36.215569579489994,
+      "median": 34.738243811676156,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_comped",
+      "drift": 3.3793775692281933
+    },
+    "sensitivity_drift": {
+      "min": 43.8616184654164,
+      "max": 68.51013961956886,
+      "median": 65.32727302395851,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+      "drift": 21.465654558542113,
+      "frequency_hz": 100.0
+    },
+    "linearity": {
+      "mean": 0.4981553435000714,
+      "max": 2.646168253260206,
+      "min": 0.10847252242747185,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    },
+    "natural_frequency_drift_origin": {
+      "min": 34.24511188160566,
+      "max": 93.39109038646993,
+      "median": 58.89345106524416,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_origin",
+      "drift": 34.49763932122577
+    },
+    "sensitivity_drift_origin": {
+      "min": 60.001934754356135,
+      "max": 203.37127543336493,
+      "median": 144.5628340451216,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+      "drift": 84.56089929076546,
+      "frequency_hz": 100.0
+    },
+    "linearity_origin": {
+      "mean": 2.5499568401843997,
+      "max": 6.418887454843169,
+      "min": 0.359242046082775,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    }
+  },
+  "compute_details": {
+    "total_params": 1697,
+    "additions": 1616,
+    "multiplications": 1616,
+    "maps": 112,
+    "total_ops": 3344,
+    "weighted_total": 3904.0,
+    "weighted_additions": 1616.0,
+    "weighted_multiplications": 1616.0,
+    "weighted_maps": 672.0
+  },
+  "compute_cost_status": "partial",
+  "compute_has_unsupported_layers": true,
+  "compute_unsupported_layer_count": 4,
+  "compute_unsupported_layers": [
+    "temporal_block_1_residual_add",
+    "temporal_block_2_residual_add",
+    "temporal_block_3_residual_add",
+    "temporal_block_4_residual_add"
+  ],
+  "compute_unsupported_layer_details": [
+    {
+      "name": "temporal_block_1_residual_add",
+      "type": "Add",
+      "reason": "unsupported_layer_type"
+    },
+    {
+      "name": "temporal_block_2_residual_add",
+      "type": "Add",
+      "reason": "unsupported_layer_type"
+    },
+    {
+      "name": "temporal_block_3_residual_add",
+      "type": "Add",
+      "reason": "unsupported_layer_type"
+    },
+    {
+      "name": "temporal_block_4_residual_add",
+      "type": "Add",
+      "reason": "unsupported_layer_type"
+    }
+  ],
+  "compute_cost_warning": "Compute cost may be underestimated because unsupported layers were detected: temporal_block_1_residual_add, temporal_block_2_residual_add, temporal_block_3_residual_add, temporal_block_4_residual_add.",
+  "loss_function": "MAE",
+  "loss_function_key": "mae",
+  "loss_function_source": "config.use_power_loss",
+  "display_metrics": {
+    "Loss Function": "MAE",
+    "TRAIN_MAE": 0.007508613169193268,
+    "TRAIN_AFMAE": 0.05137167125940323,
+    "VAL_MAE": 0.007468197029083967,
+    "VAL_AFMAE": 0.05323489010334015,
+    "Freq Drift (Hz)": 3.3793775692281933,
+    "Sens Drift (%)": 21.465654558542113,
+    "Linearity (%)": 0.4981553435000714,
+    "Compute Cost": 3904.0,
+    "Total Params": 1697,
+    "Epochs": 1000,
+    "LR": 0.002,
+    "Cosine Annealing": false
+  }
+}

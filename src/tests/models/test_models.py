@@ -321,6 +321,59 @@ class TestRNN:
         assert isinstance(rnn_model.model, keras.Model)
 
 
+    def test_rnn_model_subcfg_overrides(self):
+        """Test RNN applies model_subcfg overrides."""
+        with patch('config.CONF_DROPOUT', 0.0):
+            from models.base_models import RNN
+
+            with tempfile.TemporaryDirectory() as tmpdir:
+                model = RNN(
+                    rnn_units=16,
+                    rnn_dropout=0.0,
+                    rnn_activation='tanh',
+                    fs=2000,
+                    checkpoint_dir=tmpdir,
+                    model_subcfg={
+                        'recurrent_units': 10,
+                        'rnn_layers': 2,
+                        'rnn_activation': 'relu',
+                        'rnn_dropout': 0.1,
+                        'recurrent_dropout': 0.2,
+                        'dense_layers': 2,
+                        'dense_units': 8,
+                        'dense_activation': 'tanh',
+                        'output_activation': 'sigmoid',
+                    }
+                )
+
+                assert model.model_subcfg['recurrent_units'] == 10
+                assert model.model_subcfg['rnn_layers'] == 2
+                assert model.model_subcfg['dense_layers'] == 2
+                assert model.model.layers[0].units == 10
+                assert model.model.layers[1].units == 10
+                assert model.model.layers[0].activation.__name__ == 'relu'
+                assert model.model.layers[0].dropout == pytest.approx(0.1)
+                assert model.model.layers[0].recurrent_dropout == pytest.approx(0.2)
+                assert model.model.layers[2].units == 8
+                assert model.model.layers[3].units == 8
+                assert model.model.layers[-1].activation.__name__ == 'sigmoid'
+
+    def test_rnn_rejects_unknown_model_subcfg(self):
+        """Test RNN rejects unknown model_subcfg keys."""
+        with patch('config.CONF_DROPOUT', 0.0):
+            from models.base_models import RNN
+
+            with tempfile.TemporaryDirectory() as tmpdir:
+                with pytest.raises(ValueError, match='unknown_rnn_param'):
+                    RNN(
+                        rnn_units=16,
+                        rnn_dropout=0.0,
+                        fs=2000,
+                        checkpoint_dir=tmpdir,
+                        model_subcfg={'unknown_rnn_param': 1}
+                    )
+
+
 class TestLSTMTransformer:
     """Test cases for LSTMTransformer model class."""
 

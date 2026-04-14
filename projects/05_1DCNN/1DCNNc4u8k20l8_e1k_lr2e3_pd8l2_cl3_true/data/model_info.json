@@ -1,0 +1,152 @@
+{
+    "model_type": "1DCNN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 2173,
+    "trainable_params": 2173,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv_1",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 84
+        },
+        {
+            "name": "conv_activation_1",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                4
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv_2",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 648
+        },
+        {
+            "name": "conv_activation_2",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "conv_3",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 1288
+        },
+        {
+            "name": "conv_activation_3",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "post_dense_1",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 72
+        },
+        {
+            "name": "post_dense_activation_1",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "post_dense_2",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 72
+        },
+        {
+            "name": "post_dense_activation_2",
+            "type": "Activation",
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "trainable": true,
+            "num_params": 0
+        },
+        {
+            "name": "output_conv",
+            "type": "Conv1D",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 9
+        }
+    ]
+}

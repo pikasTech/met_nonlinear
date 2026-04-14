@@ -18,6 +18,7 @@
 - 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
 - 问题定义与建模原则：详见 [docs/reference/modeling_principles.md](docs/reference/modeling_principles.md)。
 - 模型结构演化与取舍：详见 [docs/reference/model_architecture_selection.md](docs/reference/model_architecture_selection.md)。
+- 真实 1DCNN / TCN 卷积时序基线：详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
 - 数据集设计与覆盖边界：详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
 - 实验验证与外推边界：详见 [docs/reference/validation_boundaries.md](docs/reference/validation_boundaries.md)。
 - 模拟电路实现与 SPICE 验证：详见 [docs/reference/circuit_realization.md](docs/reference/circuit_realization.md)。
@@ -154,6 +155,8 @@
 
 - `projects\01_LR_STUDY\` 系列 - `固定 LR vs 余弦衰减`：固定学习率尝试达到或优于余弦衰减效果，最优固定 LR 约 0.0005，还未达到。详见 [docs/reference/lr_tuning_fixed_vs_cosine.md](docs/reference/lr_tuning_fixed_vs_cosine.md)。
 - `projects\01_LR_STUDY\CNNKANh8u6l6_e1k_lr14e5_stable` - CNNKAN 替换消融稳定版：在默认旧 batch-size 行为下可跑满 1000 epoch，并保留旧项目复现约束。详见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md)。
+- `projects\05_1DCNN\1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true` - 真实 1DCNN 卷积时序基线：当前仓库保留的 canonical `1DCNN` 对照项目。详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
+- `projects\06_TCN\TCNc4d1248k3_nopd_true_e1k_lr2e3` - 真实 TCN 卷积时序基线：当前仓库保留的 canonical `TCN` 对照项目。详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
 - `projects\04_FRIMLP\FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00` - FRIMLP 真消融达标案例：修复前端与 fast_model 接线后，1000 epoch 达到 `Freq Drift = 5.8179 Hz`。详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 - `ex_projects/compare/mae_vs_afmae` - MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `ex_projects/compare/lr_test_1k_epoch` - LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
