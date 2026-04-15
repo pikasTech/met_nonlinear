@@ -35,6 +35,17 @@ export default function App() {
   // Loss curves state
   const [lossCurvesState, setLossCurvesState] = useState<LossCurvesState>(defaultLossCurvesState);
 
+  const allFolderPaths = useMemo(() => {
+    const folders = new Set<string>();
+    for (const project of projects) {
+      const parts = project.path.split('/');
+      for (let i = 0; i < parts.length - 1; i++) {
+        folders.add(parts.slice(0, i + 1).join('/'));
+      }
+    }
+    return Array.from(folders).sort();
+  }, [projects]);
+
   const showStatus = useCallback((msg: string) => {
     setStatusMsg(msg);
     setTimeout(() => setStatusMsg(''), 3000);
@@ -147,6 +158,14 @@ export default function App() {
   const deselectAll = () => {
     setSelectedProjects(new Set());
   };
+
+  const expandAllFolders = useCallback(() => {
+    setExpandedFolders(new Set(allFolderPaths));
+  }, [allFolderPaths]);
+
+  const collapseAllFolders = useCallback(() => {
+    setExpandedFolders(new Set());
+  }, []);
 
   // Preset handlers
   const handleSavePreset = async () => {
@@ -290,6 +309,20 @@ export default function App() {
           {projects.length} projects | {selectedProjects.size} selected
         </div>
         <div className="header-actions">
+          <button
+            className="btn-header-action"
+            onClick={expandAllFolders}
+            title="Expand all project folders"
+          >
+            Expand All
+          </button>
+          <button
+            className="btn-header-action"
+            onClick={collapseAllFolders}
+            title="Collapse all project folders"
+          >
+            Collapse All
+          </button>
           <button
             className={`btn-preset ${showPresetPanel ? 'active' : ''}`}
             onClick={() => setShowPresetPanel(!showPresetPanel)}

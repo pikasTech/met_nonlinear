@@ -1,0 +1,11 @@
+{
+  "completed_epoch": 0,
+  "min_loss": Infinity,
+  "min_val_loss": Infinity,
+  "current_epoch": 0,
+  "model_name": "RNN",
+  "training_alive": false,
+  "timestamp": "20260414175312.3",
+  "best_weights_file": "projects/07_RNN/_snap_RNNr24d16_r15_ep544/data\\_snap_RNNr24d16_r15_ep544_best_weights.h5",
+  "best_val_weights_file": "projects/07_RNN/_snap_RNNr24d16_r15_ep544/data\\_snap_RNNr24d16_r15_ep544_best_val_weights.h5"
+}

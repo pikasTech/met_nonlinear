@@ -97,6 +97,7 @@ body {
 .header-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .btn-sidebar-toggle {
@@ -117,7 +118,8 @@ body {
   background: rgba(255,255,255,0.1);
 }
 
-.btn-preset {
+.btn-preset,
+.btn-header-action {
   padding: 0.5rem 1rem;
   border: 1px solid rgba(255,255,255,0.3);
   background: transparent;
@@ -127,7 +129,8 @@ body {
   font-size: 0.85rem;
 }
 
-.btn-preset:hover {
+.btn-preset:hover,
+.btn-header-action:hover {
   background: rgba(255,255,255,0.1);
 }
 

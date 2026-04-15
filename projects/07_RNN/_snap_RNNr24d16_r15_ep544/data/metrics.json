@@ -1,0 +1,126 @@
+{
+  "project_name": "_snap_RNNr24d16_r15_ep544",
+  "generated_at": "2026-04-14T17:53:39.866015+08:00",
+  "status": "partial",
+  "calculation_standard": "ablation-study-v1",
+  "sources": {
+    "training_info": false,
+    "compute_analysis": true,
+    "model_info": true,
+    "linear_response": true,
+    "linearity_by_frequency": true,
+    "config": true
+  },
+  "missing_sources": [
+    "training_info.json"
+  ],
+  "missing_sections": [],
+  "epochs": null,
+  "min_loss": null,
+  "min_val_loss": null,
+  "train_loss": null,
+  "val_loss": null,
+  "train_mae": null,
+  "train_afmae": null,
+  "val_mae": null,
+  "val_afmae": null,
+  "weights_source": null,
+  "freq_drift_hz": 6.2864518024563125,
+  "sens_drift_percent": 25.116060040264863,
+  "linearity_percent": 1.2568056190519412,
+  "compute_cost": 2240.0,
+  "total_params": 1041,
+  "lr": 0.0015,
+  "use_cosine_annealing": false,
+  "metric_details": {
+    "natural_frequency_drift": {
+      "min": 27.838102261572622,
+      "max": 37.594742666325764,
+      "median": 34.124554064028935,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_comped",
+      "drift": 6.2864518024563125
+    },
+    "sensitivity_drift": {
+      "min": 38.788999771254005,
+      "max": 71.06288226099869,
+      "median": 63.90505981151887,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+      "drift": 25.116060040264863,
+      "frequency_hz": 100.0
+    },
+    "linearity": {
+      "mean": 1.2568056190519412,
+      "max": 5.853284304494643,
+      "min": 0.2622341005451778,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    },
+    "natural_frequency_drift_origin": {
+      "min": 34.24511188160566,
+      "max": 93.39109038646993,
+      "median": 58.89345106524416,
+      "count": 25,
+      "unit": "Hz",
+      "method": "max(|max-median|, |median-min|) from fn_origin",
+      "drift": 34.49763932122577
+    },
+    "sensitivity_drift_origin": {
+      "min": 60.001934754356135,
+      "max": 203.37127543336493,
+      "median": 144.5628340451216,
+      "count": 25,
+      "unit": "%",
+      "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+      "drift": 84.56089929076546,
+      "frequency_hz": 100.0
+    },
+    "linearity_origin": {
+      "mean": 2.5499568401843997,
+      "max": 6.418887454843169,
+      "min": 0.359242046082775,
+      "count": 14,
+      "unit": "%",
+      "method": "mean(1 - R^2) across frequency points"
+    }
+  },
+  "compute_details": {
+    "total_params": 1041,
+    "additions": 1000,
+    "multiplications": 1000,
+    "maps": 40,
+    "total_ops": 2040,
+    "weighted_total": 2240.0,
+    "weighted_additions": 1000.0,
+    "weighted_multiplications": 1000.0,
+    "weighted_maps": 240.0
+  },
+  "compute_cost_status": "complete",
+  "compute_has_unsupported_layers": false,
+  "compute_unsupported_layer_count": 0,
+  "compute_unsupported_layers": [],
+  "compute_unsupported_layer_details": [],
+  "compute_cost_warning": null,
+  "loss_function": "MAE",
+  "loss_function_key": "mae",
+  "loss_function_source": "config.use_power_loss",
+  "display_metrics": {
+    "Loss Function": "MAE",
+    "TRAIN_MAE": null,
+    "TRAIN_AFMAE": null,
+    "VAL_MAE": null,
+    "VAL_AFMAE": null,
+    "Freq Drift (Hz)": 6.2864518024563125,
+    "Sens Drift (%)": 25.116060040264863,
+    "Linearity (%)": 1.2568056190519412,
+    "Compute Cost": 2240.0,
+    "Total Params": 1041,
+    "Epochs": null,
+    "LR": 0.0015,
+    "Cosine Annealing": false
+  }
+}

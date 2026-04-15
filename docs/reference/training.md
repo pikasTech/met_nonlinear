@@ -30,6 +30,8 @@
 
 - 启动前先核对 `config.json`、数据路径、目标项目路径和 Python 环境是否一致，避免无效启动。
 - 做超参数搜索时优先一次只跑一个项目，避免 GPU/IO 争抢导致结论失真。
+- 训练命令应以前台可见方式直接执行 `python cli.py -t PROJECT_NAME`；禁止使用 `Start-Process`、后台 `&`、`nohup`、计划任务或其他脱离当前 Agent 会话的启动方式。
+- 在 Agent Loop 或多轮调参流程中，训练结束后必须能自动回到当前会话继续读取结果并决定下一轮；如果训练被脱离到系统后台，只留下日志文件而不附着在当前会话上，后续调参链路会直接中断。
 - 每次调参都必须先复制同类项目为新的 project 变体，只在新项目里改 `learning_rate`、`model_subcfg` 或其他目标参数；禁止直接覆盖已有项目的 `config.json` 或复用已有 `data/` 继续试不同配置。
 - 禁止自动批量 sweep 调参；每轮都要先读取上一轮项目的 `metrics.json`、`training_info.json` 或关键图表，再决定下一轮只改哪个 `learning_rate` 或 `model_subcfg` 方向。
 - 调参优先做单因素变更，确保结果可解释且便于回退。
@@ -56,6 +58,7 @@
 ## 训练过程判断与止损
 
 - 训练过程不要只看终端表面输出，应同时检查 `training_state.json`、`training_log.jsonl` 和 `training_info.json`。
+- 终端可见输出是调参工作流的一部分：它既用于实时观察异常，也用于让 Agent 在命令结束时自动继续后续判断，不能用“仅写日志文件、前台立即返回”的方式替代。
 - 训练异常中断后，先检查残留进程以及 `training_state.json.training_alive`，再决定是否续训。
 - 续训前必须确认实际加载的 checkpoint 与当前配置一致，否则可能从错误权重继续训练。
 - 如果某个变体在前几十个 epoch 已明显落后于当前最优同区间轨迹，应及时止损，不必机械跑满预设 epoch。

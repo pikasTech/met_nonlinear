@@ -1,0 +1,51 @@
+{
+    "model_type": "RNN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 1041,
+    "trainable_params": 1041,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "simple_rnn",
+            "type": "SimpleRNN",
+            "output_shape": [
+                null,
+                null,
+                24
+            ],
+            "trainable": true,
+            "num_params": 624
+        },
+        {
+            "name": "dense",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                16
+            ],
+            "trainable": true,
+            "num_params": 400
+        },
+        {
+            "name": "dense_1",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 17
+        }
+    ]
+}

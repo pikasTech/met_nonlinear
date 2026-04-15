@@ -5,7 +5,7 @@
   "current_epoch": 223,
   "model_name": "RNN",
   "training_alive": true,
-  "timestamp": "20260414121539.2",
+  "timestamp": "20260414204927.0",
   "best_weights_file": "projects/07_RNN/RNNu16r2d16_e1k_puremae_r7/data\\RNNu16r2d16_e1k_puremae_r7_best_weights.h5",
   "best_val_weights_file": "projects/07_RNN/RNNu16r2d16_e1k_puremae_r7/data\\RNNu16r2d16_e1k_puremae_r7_best_val_weights.h5",
   "loss": 0.018407145515084267,

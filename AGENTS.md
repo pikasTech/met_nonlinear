@@ -27,12 +27,14 @@
 - 器件选型、SPICE 收敛与偏置排查：详见 [docs/reference/spice_device_bias_practices.md](docs/reference/spice_device_bias_practices.md)。
 - 时域数据与频响测量：详见 [docs/reference/timeseries_frequency_analysis.md](docs/reference/timeseries_frequency_analysis.md)。
 - 仿真系统与非线性基：详见 [docs/reference/nonlinear_basis_simulation.md](docs/reference/nonlinear_basis_simulation.md)。
+- RNN ???????????? [docs/reference/rnn_baselines.md](docs/reference/rnn_baselines.md)?
 - 损失函数设计：详见 [docs/reference/loss_design.md](docs/reference/loss_design.md)。
 - 训练与评估入口：详见 [docs/reference/training.md](docs/reference/training.md)、[docs/reference/evaluation.md](docs/reference/evaluation.md)、[docs/reference/inference.md](docs/reference/inference.md)。其中训练前检查、止损规则和 CNNKAN 调参经验统一收敛在 `training.md`。
 - 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
 - WNET5 分层验证中的 Project 权重加载、E96 量化误差仿真、SVF 拟合误差建模与报告约束：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
+- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
 
 ## 环境配置
 
@@ -64,6 +66,7 @@
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
 	- 自动串联：训练完成后会先失效旧评估快照，再自动执行下游 `-e` / `metrics` 对应功能，直接生成当前权重的最新统一指标，详见 [docs/reference/training.md](docs/reference/training.md)。
+	- 可见性约定：训练应以前台可见方式直接执行，禁止用 `Start-Process` 等脱离当前 Agent 会话的后台启动方式，详见 [docs/reference/training.md](docs/reference/training.md)。
 	- 特征缓存与起始段：如果训练与评估只在特定机器或旧 cache 上复现，优先检查特征缓存键是否覆盖全部特征参数，以及是否错误保留了序列开头的不完整窗口，详见 [docs/reference/training.md](docs/reference/training.md)。
 	  - 一次只训练一个项目，避免同时训练多个导致系统资源爆满
 	- 项目变体规则：每次调参或结构试验都必须复制成新的 project 路径，禁止在已有项目上直接改配置反复重训，详见 [docs/reference/training.md](docs/reference/training.md)。
@@ -157,6 +160,7 @@
 - `projects\01_LR_STUDY\CNNKANh8u6l6_e1k_lr14e5_stable` - CNNKAN 替换消融稳定版：在默认旧 batch-size 行为下可跑满 1000 epoch，并保留旧项目复现约束。详见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md)。
 - `projects\05_1DCNN\1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true` - 真实 1DCNN 卷积时序基线：当前仓库保留的 canonical `1DCNN` 对照项目。详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
 - `projects\06_TCN\TCNc4d1248k3_nopd_true_e1k_lr2e3` - 真实 TCN 卷积时序基线：当前仓库保留的 canonical `TCN` 对照项目。详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
+- `projects\07_RNN\RNNu16_e1k_puremae_r15` - RNN ????????????????? RNN ?????????? [docs/reference/rnn_baselines.md](docs/reference/rnn_baselines.md)?
 - `projects\04_FRIMLP\FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00` - FRIMLP 真消融达标案例：修复前端与 fast_model 接线后，1000 epoch 达到 `Freq Drift = 5.8179 Hz`。详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 - `ex_projects/compare/mae_vs_afmae` - MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `ex_projects/compare/lr_test_1k_epoch` - LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
