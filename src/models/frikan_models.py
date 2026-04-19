@@ -220,6 +220,7 @@ class FRIKAN(BaseModel):
         self.kan = kan
         self.iir = iir
         self.fast_iir = fast_iir
+        self.iir_trainable = iir_trainable
         self.kan_log_grid = kan_log_grid
         self.fs = fs
         self.features_num = features_num
@@ -245,14 +246,30 @@ class FRIKAN(BaseModel):
         iir_out = self.iir(input_drop_out)
         fast_iir_out = tf.keras.layers.Input(
             shape=(None, iir_out.shape[2]), name='fast_input')
+        if self.iir_trainable:
+            fast_input_layer = tf.keras.layers.Input(
+                shape=(None, 1), name='fast_raw_input')
+            if self.dropout_layer is not None and self.dropout_position == 'input':
+                fast_input_drop_out = self.dropout_layer(fast_input_layer)
+            else:
+                fast_input_drop_out = fast_input_layer
+            fast_iir_base = self.fast_iir(fast_input_drop_out)
+            fast_model_input = fast_input_layer
+            fast_model_build_shape = (None, None, 1)
+            self.fast_model_uses_raw_input = True
+        else:
+            fast_iir_base = fast_iir_out
+            fast_model_input = fast_iir_out
+            fast_model_build_shape = (None, None, iir_out.shape[2])
+            self.fast_model_uses_raw_input = False
 
         # 添加 dropout 层
         if self.dropout_layer is not None and self.dropout_position == 'iir':
             iir_drop_out = self.dropout_layer(iir_out)
-            fast_iir_drop_out = self.dropout_layer(fast_iir_out)
+            fast_iir_drop_out = self.dropout_layer(fast_iir_base)
         else:
             iir_drop_out = iir_out
-            fast_iir_drop_out = fast_iir_out
+            fast_iir_drop_out = fast_iir_base
 
         kan_inner_output = self.build_kan_inner_layers(iir_drop_out)
         fast_kan_inner_output = self.build_kan_inner_layers(fast_iir_drop_out)
@@ -270,8 +287,8 @@ class FRIKAN(BaseModel):
         self.model.build(input_shape=(None, None, 1))
         if self.use_fast_model:
             self.fast_model = tf.keras.Model(
-                inputs=fast_iir_out, outputs=fast_output, name=f'fast_{self.model_name}')
-            self.fast_model.build(input_shape=(None, None, iir_out.shape[2]))
+                inputs=fast_model_input, outputs=fast_output, name=f'fast_{self.model_name}')
+            self.fast_model.build(input_shape=fast_model_build_shape)
 
     @classmethod
     def fromSystem(cls,

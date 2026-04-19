@@ -59,6 +59,17 @@ class ModelEvent:
 class BaseModel:
     def __init__(self):
         self.use_fast_model = False
+        self.iir_trainable = False
+        self.fast_model_uses_raw_input = False
+
+    def _has_fast_model(self):
+        return getattr(self, 'use_fast_model', False) and 'fast_model' in dir(self)
+
+    def _uses_raw_fast_path(self):
+        return self._has_fast_model() and getattr(self, 'fast_model_uses_raw_input', False)
+
+    def _uses_feature_fast_path(self):
+        return self._has_fast_model() and not getattr(self, 'fast_model_uses_raw_input', False)
 
     def predict(self, x_input, batch_size=1000*10, use_debug=False, use_scaler=True, **kwargs):
         """
@@ -90,11 +101,15 @@ class BaseModel:
                 f'{self.model_name} predict x_range(scaled): {x_input.min()} to {x_input.max()}')
             print(f'{self.model_name} predict x shape: {x_input.shape}')
         verbose = kwargs.pop('verbose', 1)
-        if 'fast_model' in dir(self):
+        if self._uses_feature_fast_path():
             print(f'Using fast model to predict')
             iir_out = self.fast_iir(x_input)
             y_pred = self.fast_model.predict(
                 iir_out, batch_size=batch_size, verbose=verbose, **kwargs)
+        elif self._uses_raw_fast_path():
+            print(f'Using fast model to predict')
+            y_pred = self.fast_model.predict(
+                x_input, batch_size=batch_size, verbose=verbose, **kwargs)
         else:
             y_pred = self.model.predict(
                 x_input, batch_size=batch_size, verbose=verbose, **kwargs)
@@ -300,7 +315,7 @@ class BaseModel:
         Args:
             weights_file: 权重文件路径
         """
-        if getattr(self, 'use_fast_model', False):
+        if self._uses_feature_fast_path():
             fast_weights_file = weights_file.replace('best', 'fast_best')
             self.fast_model.save_weights(fast_weights_file)
             # 获取 fast_model 的权重，然后拼接上 iir 的权重
@@ -310,10 +325,19 @@ class BaseModel:
             for i in range(-1, -len(weight_fast)-1, -1):
                 weight_normal[i] = weight_fast[i]  # 从后往前更新
             self.model.set_weights(weight_normal)
+            self.model.save_weights(weights_file)
+            self.save_weights_json(weights_file)
+            return
+        if self._uses_raw_fast_path():
+            fast_weights_file = weights_file.replace('best', 'fast_best')
+            self.fast_model.save_weights(weights_file)
+            self.fast_model.save_weights(fast_weights_file)
+            self.save_weights_json(weights_file, model_obj=self.fast_model)
+            return
         self.model.save_weights(weights_file)
         self.save_weights_json(weights_file)
 
-    def save_weights_json(self, weights_file):
+    def save_weights_json(self, weights_file, model_obj=None):
         """
         将权重保存为JSON格式
 
@@ -321,7 +345,8 @@ class BaseModel:
             weights_file: 权重文件路径
         """
         json_file_path = weights_file.replace('.h5', '.json')
-        weights = self.model.weights
+        target_model = self.model if model_obj is None else model_obj
+        weights = target_model.weights
         # 将权重转换为可序列化的 Python 列表
         weights_serializable = []
         for weight in weights:
@@ -356,7 +381,7 @@ class BaseModel:
         Args:
             weights_file: 权重文件路径
         """
-        if getattr(self, 'use_fast_model', False):
+        if self._uses_feature_fast_path():
             fast_weights_file = weights_file.replace('best', 'fast_best')
             logger.info(f'Loading fast model weights from {fast_weights_file}')
             self.fast_model.load_weights(fast_weights_file)
@@ -369,6 +394,14 @@ class BaseModel:
                 weight_normal[i] = weight_fast[i]  # 从后往前更新
             # 更新 model 的权重
             self.model.set_weights(weight_normal)
+            self.model.load_weights(weights_file)
+            self.save_weights_json(weights_file)
+            return
+        if self._uses_raw_fast_path():
+            logger.info(f'Loading fast model weights from {weights_file}')
+            self.fast_model.load_weights(weights_file)
+            self.save_weights_json(weights_file, model_obj=self.fast_model)
+            return
         self.model.load_weights(weights_file)
         self.save_weights_json(weights_file)
 
@@ -388,11 +421,12 @@ class BaseModel:
         if 'callbacks' not in kwargs:
             kwargs['callbacks'] = []
 
-        if getattr(self, 'use_fast_model', False):
-            # iir 的参数固定的，因此可以由input直接得到输出
+        if self._uses_feature_fast_path():
+            # 只有固定 IIR 前端时，才能安全地复用预计算特征的 fast path。
             # 将 iir 的输出作为 fast_model 的输入
             iir_features = self.fast_iir(args[0])
             # iir_features shape: (batch_size, seq_num, features_num)
+            validation_data = kwargs.get('validation_data')
             if 'validation_data' in kwargs:
                 validation_data = kwargs['validation_data']
                 x_val = validation_data[0]
@@ -400,6 +434,8 @@ class BaseModel:
                 validation_data = (iir_features_val, *validation_data[1:])
             args = (iir_features, *args[1:])
             kwargs['validation_data'] = validation_data
+            history = self.fast_model.fit(*args, **kwargs)
+        elif self._uses_raw_fast_path():
             history = self.fast_model.fit(*args, **kwargs)
         else:
             history = self.model.fit(*args, **kwargs)
@@ -410,10 +446,13 @@ class BaseModel:
         """
         评估模型
         """
-        if 'fast_model' in dir(self):
+        if self._uses_feature_fast_path():
             print('Using fast model to evaluate')
             iir_features = self.fast_iir(args[0])
             args = (iir_features, *args[1:])
+            return self.fast_model.evaluate(*args, **kwargs)
+        if self._uses_raw_fast_path():
+            print('Using fast model to evaluate')
             return self.fast_model.evaluate(*args, **kwargs)
         return self.model.evaluate(*args, **kwargs)
 

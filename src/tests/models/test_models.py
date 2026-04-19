@@ -2036,6 +2036,70 @@ class TestFRIKANIIRInitialization:
 
             assert model.iir is not None
 
+    def test_frikan_trainable_iir_keeps_raw_fast_path(self):
+        """Trainable IIR should keep fast_model, but it must consume raw input directly."""
+        from models.frikan_models import FRIKAN
+
+        iir_params = [
+            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0},
+            {'a1': -1.2, 'a2': 0.5, 'b0': 0.3, 'b1': 0.0, 'b2': 0.0},
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = FRIKAN(
+                iir_params_list=iir_params,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                iir_trainable=True,
+                use_fast_model=True
+            )
+
+            x = np.zeros((1, 8, 1), dtype=np.float32)
+            y = np.zeros((1, 8, 1), dtype=np.float32)
+
+            with patch.object(model.model, 'fit', return_value='full_fit') as model_fit, \
+                    patch.object(model.fast_model, 'fit', return_value='fast_fit') as fast_fit:
+                result = model.fit(x, y, epochs=1, batch_size=1, verbose=0)
+
+            assert result == 'fast_fit'
+            model_fit.assert_not_called()
+            fast_fit.assert_called_once()
+            fast_fit_x = fast_fit.call_args.args[0]
+            assert fast_fit_x.shape[-1] == 1
+            assert model.fast_model_uses_raw_input is True
+
+    def test_frikan_fixed_iir_keeps_fast_path(self):
+        """Fixed IIR should still use the fast path for regression safety."""
+        from models.frikan_models import FRIKAN
+
+        iir_params = [
+            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0},
+            {'a1': -1.2, 'a2': 0.5, 'b0': 0.3, 'b1': 0.0, 'b2': 0.0},
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = FRIKAN(
+                iir_params_list=iir_params,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                iir_trainable=False,
+                use_fast_model=True
+            )
+
+            x = np.zeros((1, 8, 1), dtype=np.float32)
+            y = np.zeros((1, 8, 1), dtype=np.float32)
+
+            with patch.object(model.model, 'fit', return_value='full_fit') as model_fit, \
+                    patch.object(model.fast_model, 'fit', return_value='fast_fit') as fast_fit:
+                result = model.fit(x, y, epochs=1, batch_size=1, verbose=0)
+
+            assert result == 'fast_fit'
+            model_fit.assert_not_called()
+            fast_fit.assert_called_once()
+            fast_fit_x = fast_fit.call_args.args[0]
+            assert fast_fit_x.shape[-1] == len(iir_params)
+            assert model.fast_model_uses_raw_input is False
+
 
 class TestModelSummary:
     """Test cases for model summary method."""
