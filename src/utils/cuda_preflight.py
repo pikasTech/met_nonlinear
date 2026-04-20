@@ -11,6 +11,29 @@ PREFERRED_GPU_NAMES = [
 ]
 
 
+def prepare_tensorflow_runtime_env(logger: logging.Logger) -> None:
+    """Normalize high-risk TensorFlow GPU env vars before importing TF."""
+    if os.name == 'nt':
+        allocator = os.environ.get('TF_GPU_ALLOCATOR')
+        if allocator == 'cuda_malloc_async':
+            logger.warning(
+                'Native Windows default disables TF_GPU_ALLOCATOR=cuda_malloc_async '
+                'for this process because it is a known crash-risk path in tf26. '
+                'Falling back to TensorFlow default allocator.'
+            )
+            os.environ.pop('TF_GPU_ALLOCATOR', None)
+            os.environ['METNL_TF_GPU_ALLOCATOR_SANITIZED'] = '1'
+
+    if 'TF_FORCE_GPU_ALLOW_GROWTH' not in os.environ:
+        os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+        logger.info('Defaulting TF_FORCE_GPU_ALLOW_GROWTH=true for safer native GPU startup')
+    else:
+        logger.info(
+            'Respecting existing TF_FORCE_GPU_ALLOW_GROWTH=%s',
+            os.environ['TF_FORCE_GPU_ALLOW_GROWTH'],
+        )
+
+
 def _parse_gpu_records(output: str) -> List[Dict[str, str]]:
     records: List[Dict[str, str]] = []
     for raw_line in output.splitlines():
