@@ -219,7 +219,8 @@ class FRIKAN(BaseModel):
             self.dropout_rate) if self.dropout_rate > 0.0 else None
         self.kan = kan
         self.iir = iir
-        self.fast_iir = fast_iir
+        # 训练可训练 IIR 时必须保持 SIMOIIR 语义，不能切回 DIAGIIR 的块对角快实现。
+        self.fast_iir = self.iir if iir_trainable else fast_iir
         self.iir_trainable = iir_trainable
         self.kan_log_grid = kan_log_grid
         self.fs = fs
@@ -253,6 +254,7 @@ class FRIKAN(BaseModel):
                 fast_input_drop_out = self.dropout_layer(fast_input_layer)
             else:
                 fast_input_drop_out = fast_input_layer
+            # 共享主模型的 SIMOIIR 层，确保 trainable-IIR 的训练和导出权重语义一致。
             fast_iir_base = self.fast_iir(fast_input_drop_out)
             fast_model_input = fast_input_layer
             fast_model_build_shape = (None, None, 1)

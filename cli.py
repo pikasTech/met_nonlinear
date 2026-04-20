@@ -1,6 +1,8 @@
 """
-cli.py - CLI 接口，仅作为内部功能的代理
-严格控制启动时序，确保多进程安全
+cli.py - CLI 接口，仅作为内部功能的代理。
+
+训练命令必须直接附着在当前 CLI 会话中执行，避免旧多进程包装层导致
+可见性丢失或 Windows 原生崩溃。
 """
 
 import sys
@@ -124,16 +126,17 @@ def _run_main_commands(args) -> None:
         pass
 
     try:
-        from utils.cuda_preflight import prepare_cuda_visible_devices
+        from utils.cuda_preflight import (
+            prepare_cuda_visible_devices,
+            prepare_tensorflow_runtime_env,
+        )
+        prepare_tensorflow_runtime_env(logger)
         prepare_cuda_visible_devices(logger)
     except Exception as exc:
         logger.warning(f'CUDA preflight failed, continuing with default GPU visibility: {exc}')
 
     # 第三阶段：依赖导入（保持原有导入顺序）
-    from models.base_models import ModelEvent, ModelEventType
     import tensorflow as tf
-    from core.training import start_process, plot_process_start
-    from core.project_manager import ProjectManager
     from core.task_dispatcher import dispatch_task
 
     # TensorFlow 配置（必须在导入后立即执行）

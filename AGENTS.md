@@ -5,6 +5,7 @@
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
 - **严格按用户指令执行**：当用户说"调整 X，其他不变"时，只改 X，不要自作主张改其他配置。如果认为有更好的方向，应先询问确认。
 - **遇到现有脏工作区默认继续**：如果发现与当前任务无关的已有改动或未提交产物，默认按 `Continue as-is` 处理，不要因此停下询问；只需避免覆盖、回滚或误改这些无关内容。
+- **前台训练是硬约束**：`python cli.py -t PROJECT_NAME` 只有在当前可见终端、且命令持续附着在当前 Agent 会话时，才算“正在训练”；shell 超时后残留的子进程、仅写日志的隐藏后台任务、`Start-Process`/计划任务等都不算前台训练，发现后必须先停掉并清理状态，再重新以前台方式启动。
 - **做消融时先守住语义等价**：像 FRIMLP 这类“只替换局部结构”的消融，必须保留基线的其余关键路径；不能为了省事把前端、fast_model 或系统初始化一并改掉，否则结论无效。
 - **禁止自动 sweep 调参**：调参必须逐轮进行；每轮都要先读取上一轮的指标结果，再判断下一轮只改哪个 `learning_rate` 或 `model_subcfg` 方向，禁止预先批量生成一组盲扫项目并自动连续跑完。
   - **案例（2026-04-10）**：用户说"只调整 lr"，但我擅自尝试了更改 epochs、模型结构（INNER_KAN_UNITS/LAYERS、H_UNITS）、use_points、basis_activation、use_auto_lr 等参数，导致多项目 OOM 或指标恶化，且创建了多个不符合要求的项目。正确做法是：只改 lr 这一个参数，其他配置保持原样。
@@ -42,6 +43,7 @@
   - 已知主机实例：
     - `C:\Users\liang\.conda\envs\tf26\python.exe`
     - `C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
+  - GPU 环境默认行为：native Windows 的 CLI 会在导入 TensorFlow 前主动移除 `TF_GPU_ALLOCATOR=cuda_malloc_async`，并默认启用 `TF_FORCE_GPU_ALLOW_GROWTH=true`；环境边界与排查口径详见 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)。
   - 详见 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)
 - **npm 路径规律**：Windows 环境下 `npm` 可能不在 PATH 中，调用时需使用完整路径 `D:/Program Files/nodejs/npm.cmd` 或通过 `npm.cmd` 调用。npm 相关文件（`package.json`、`node_modules`）只允许存在于 `src/webui/` 目录下，仓库根目录禁止放置。
 
@@ -66,7 +68,8 @@
 - `python cli.py -t PROJECT_NAME`
 	- 训练执行：训练模型并输出权重、训练日志与训练统计，详见 [docs/reference/training.md](docs/reference/training.md)。
 	- 自动串联：训练完成后会先失效旧评估快照，再自动执行下游 `-e` / `metrics` 对应功能，直接生成当前权重的最新统一指标，详见 [docs/reference/training.md](docs/reference/training.md)。
-	- 可见性约定：训练应以前台可见方式直接执行，禁止用 `Start-Process` 等脱离当前 Agent 会话的后台启动方式，详见 [docs/reference/training.md](docs/reference/training.md)。
+	- 可见性约定：训练必须以前台可见方式直接执行，只有当前可见会话里持续附着的命令才算“正在训练”；shell 超时后残留的子进程或仅写日志的后台任务一律按异常中断处理，详见 [docs/reference/training.md](docs/reference/training.md)。
+	- GPU 环境约定：native Windows 的 `tf26` 默认不使用 `cuda_malloc_async`，并优先采用 allow-growth 方式控制显存占用；遇到 GPU 初始化后无 traceback 退出时优先回看 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)。
 	- 特征缓存与起始段：如果训练与评估只在特定机器或旧 cache 上复现，优先检查特征缓存键是否覆盖全部特征参数，以及是否错误保留了序列开头的不完整窗口，详见 [docs/reference/training.md](docs/reference/training.md)。
 	  - 一次只训练一个项目，避免同时训练多个导致系统资源爆满
 	- 项目变体规则：每次调参或结构试验都必须复制成新的 project 路径，禁止在已有项目上直接改配置反复重训，详见 [docs/reference/training.md](docs/reference/training.md)。

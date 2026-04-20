@@ -1,17 +1,17 @@
 {
   "completed_epoch": 0,
-  "min_loss": 1.156430959701538,
-  "min_val_loss": 1.18745756149292,
+  "min_loss": 1.7390263080596924,
+  "min_val_loss": 1.7929868698120117,
   "current_epoch": 0,
   "model_name": "FRIKAN",
   "training_alive": false,
-  "timestamp": "20260419123304.5",
+  "timestamp": "20260420155340.8",
   "best_weights_file": "projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr1e4_randiir_trainable_trueiir_rawfast/data\\FRIKANh8u6l6_e1k_lr1e4_randiir_trainable_trueiir_rawfast_best_weights.h5",
   "best_val_weights_file": "projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr1e4_randiir_trainable_trueiir_rawfast/data\\FRIKANh8u6l6_e1k_lr1e4_randiir_trainable_trueiir_rawfast_best_val_weights.h5",
-  "loss": 1.156430959701538,
-  "val_loss": 1.18745756149292,
-  "mae": 0.3860338032245636,
-  "afmae": 1.5172661542892456,
-  "val_mae": 0.3865876793861389,
-  "val_afmae": 1.5012601613998413
+  "loss": 1.7390263080596924,
+  "val_loss": 1.7929868698120117,
+  "mae": 0.5561277270317078,
+  "afmae": 1.9198795557022095,
+  "val_mae": 0.5555336475372314,
+  "val_afmae": 1.9089765548706055
 }

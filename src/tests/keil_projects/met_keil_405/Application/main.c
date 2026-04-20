@@ -13,7 +13,6 @@
 #include "tim.h"
 #include "usart.h"
 #include "user_config.h"
-#include "lstm.h"
 
 #define UART_STDIO_UART1 0x00
 #define UART_STDIO_UART3 0x01
@@ -31,10 +30,21 @@ extern SOSFilterItem g_detectorFilterItems2[];
 extern SOSFilter* g_sos_wf;
 
 
-int fputc(int ch, FILE* f) {
-    while (!LL_USART_IsActiveFlag_TXE(USART3))
+static void console_write_byte(USART_TypeDef* console_usart, uint8_t ch) {
+    while (!LL_USART_IsActiveFlag_TXE(console_usart))
         ;
-    LL_USART_TransmitData8(USART3, (uint8_t)ch);
+    LL_USART_TransmitData8(console_usart, ch);
+}
+
+int fputc(int ch, FILE* f) {
+    (void)f;
+
+    if ((USART1->CR1 & USART_CR1_UE) != 0U) {
+        console_write_byte(USART1, (uint8_t)ch);
+    }
+    if ((USART3->CR1 & USART_CR1_UE) != 0U) {
+        console_write_byte(USART3, (uint8_t)ch);
+    }
     return ch;
 }
 
@@ -172,24 +182,18 @@ int main_old(void) {
 uint64_t port_get_tick_ms(void){
     return calibration_get_tick_ms();
 }
-int frikan_test();
 int main(void) {
     HAL_Init();
     SystemClock_Config();
     MX_GPIO_Init();
     MX_TIM3_Init();
     HAL_TIM_Base_Start_IT(&htim3);
-#if UART_STDIO == UART_STDIO_UART3
-    MX_USART3_UART_Init();
-#elif UART_STDIO == UART_STDIO_UART1
     MX_USART1_UART_Init();
-#else
-#error "UART not supported"
-#endif
+    MX_USART3_UART_Init();
 
     printf("[  OK]: hardware init ok\r\n");
-    lstm_test();
-    frikan_test();
+    printf("[Info]: NN bring-up disabled, serial boot only\r\n");
+    printf("[Info]: UART1+UART3 mirrored at %d baud\r\n", CONF_BAUDRATE);
     /* main loop is in process_main() */
     while (1) {
     }

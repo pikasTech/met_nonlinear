@@ -743,12 +743,19 @@ class ModelEngine:
             )
             return
 
+        training_lock_path = os.path.join(self.checkpoint_dir, 'training.lock')
+        previous_training_alive = bool(self.state_manager.get('training_alive', False))
+        if os.name == 'nt' and os.path.exists(training_lock_path) and not previous_training_alive:
+            try:
+                os.remove(training_lock_path)
+                logger.info('已移除过期 training.lock: %s', training_lock_path)
+            except OSError as exc:
+                logger.warning('移除过期 training.lock 失败，将继续尝试加锁: %s', exc)
         self.state_manager.update_state(
             completed_epoch=completed_epoch,
             current_epoch=completed_epoch,
             training_alive=True,
         )
-        training_lock_path = os.path.join(self.checkpoint_dir, 'training.lock')
         # 断点续训
         if self.config.resume_training:
             print(f'加载断点...')
@@ -805,6 +812,11 @@ class ModelEngine:
             ) from exc
         finally:
             self.state_manager['training_alive'] = False
+            if os.name == 'nt' and os.path.exists(training_lock_path):
+                try:
+                    os.remove(training_lock_path)
+                except OSError as exc:
+                    logger.warning('训练结束后移除 training.lock 失败: %s', exc)
 
     def predict_FR(self, USE_PREDICT_LINEAR=True):
         # 频率响应预测

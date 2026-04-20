@@ -61,7 +61,7 @@
 #define DETECTION_SIGNAL_PROCESS_ENABLE 0
 
 /* Terminal Config */
-#define CONF_BAUDRATE 2000000
+#define CONF_BAUDRATE 115200
 #define CONF_SHELL_ENABLE 0
 
 /* WP config */

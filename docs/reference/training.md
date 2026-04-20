@@ -29,6 +29,7 @@
 ## 训练前检查
 
 - 启动前先核对 `config.json`、数据路径、目标项目路径和 Python 环境是否一致，避免无效启动。
+- native Windows 的 `tf26` 环境默认保持 `TF_GPU_ALLOCATOR` 未设置；如果加上 `TF_GPU_ALLOCATOR=cuda_malloc_async` 后出现 GPU 初始化后无 traceback 退出或 `python.exe` 原生崩溃，应先按环境 / allocator 不兼容处理，详见 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)。
 - 做超参数搜索时优先一次只跑一个项目，避免 GPU/IO 争抢导致结论失真。
 - 训练命令应以前台可见方式直接执行 `python cli.py -t PROJECT_NAME`；禁止使用 `Start-Process`、后台 `&`、`nohup`、计划任务或其他脱离当前 Agent 会话的启动方式。
 - 在 Agent Loop 或多轮调参流程中，训练结束后必须能自动回到当前会话继续读取结果并决定下一轮；如果训练被脱离到系统后台，只留下日志文件而不附着在当前会话上，后续调参链路会直接中断。
@@ -38,6 +39,22 @@
 - 新增训练经验时优先沉淀可复用规律、限制条件和止损信号，而不是一次性流水账。
 - 数据集覆盖、稳态片段、低震级样本平衡和外推边界的长期规则，详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
 - 如果当前实验属于真实卷积时序基线，请先按 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md) 核对 canonical 项目路径与 `use_model` 语义，再开始复制变体或重训。
+
+## 前台可见训练约束
+
+- 只有 `python cli.py -t PROJECT_NAME` 仍附着在当前可见终端、并持续占用当前 Agent 会话时，才算“正在训练”。
+- 如果父命令已经返回、外层 shell/tool 已超时、当前会话看不到实时输出，但磁盘上的 `training_log.jsonl` 还在继续增长，这种情况仍按“后台残留进程”处理，不得宣称为前台训练。
+- shell 超时后幸存的子进程、仅写日志文件的隐藏任务、`Start-Process` 启动的新窗口、计划任务或其他脱离当前会话的运行方式，都不满足前台训练约束。
+- 如果当前环境没有附着的可见终端，就不要声称“已经在前台训练”；应先建立可见终端，再启动训练命令。
+- 调参链路里的“继续训练”“等待训练结束”“读取当前进度”都以当前可见会话中的前台命令为准，而不是只看 `training_state.json` 上一次写回的状态。
+- 当前 CLI 训练入口需要监控父会话是否仍然存在；如果启动它的前台 shell 已退出或被工具超时回收，训练进程也应立即自终止并把状态回写为非运行中，避免留下不可见后台残留。
+
+## 已知重大缺陷与修复约束
+
+- 旧版 CLI 训练入口曾在 `python cli.py -t PROJECT_NAME` 下额外套一层 `multiprocessing` 训练/绘图子进程包装；这会破坏前台可见性，并且在部分 Windows 当前会话调用链里触发无 Python traceback 的原生崩溃。
+- 因此前台训练的正确实现是：CLI 直接在当前进程调用 `ProjectManager.process()`，让训练日志、异常、`training.lock` 生命周期和训练结束后的自动 `-e` 串联都绑定在同一前台命令上。
+- 如果再次出现“TensorFlow/GPU 初始化后进程直接消失、没有 traceback、`training_alive` 仍为 false、`training.lock` 没有稳定存在”的现象，应优先按“CLI 启动链路/可见性缺陷”排查，而不是先把问题归因于模型结构或数据集。
+- 实时曲线、自动重启或其他额外监控机制若需要存在，不能默认通过脱离当前会话的子进程来承载训练主流程；否则即使磁盘日志继续写入，也不满足本项目的前台训练定义。
 
 ## 特征缓存与序列起始段
 
@@ -59,10 +76,13 @@
 
 - 训练过程不要只看终端表面输出，应同时检查 `training_state.json`、`training_log.jsonl` 和 `training_info.json`。
 - 终端可见输出是调参工作流的一部分：它既用于实时观察异常，也用于让 Agent 在命令结束时自动继续后续判断，不能用“仅写日志文件、前台立即返回”的方式替代。
-- 训练异常中断后，先检查残留进程以及 `training_state.json.training_alive`，再决定是否续训。
+- 训练异常中断后，先检查残留进程、`training.lock` 和 `training_state.json.training_alive`，再决定是否续训。
+- 如果训练被强停或外层会话异常退出，且实际训练进程已不存在，就应把残留 `training.lock` / 失真的 `training_alive` 视为过期状态；先清理到“无锁、无残留进程、状态可重新加载”的一致状态，再重新前台启动或续训。
 - 续训前必须确认实际加载的 checkpoint 与当前配置一致，否则可能从错误权重继续训练。
 - 如果某个变体在前几十个 epoch 已明显落后于当前最优同区间轨迹，应及时止损，不必机械跑满预设 epoch。
 - 只有在单轮结果已经稳定领先时，才值得继续向周边超参数扩展搜索。
+- 如果标准 FRIKAN 前台 1 分钟测速仍能回到 `>1000 epoch/h`，而某个 trainable-IIR / true-IIR 变体只有几十 `epoch/h`，应优先按 fast path 语义和 `MAX_BATCH_SIZE` 方向排查，而不是先归因于 allocator；详见 [docs/reference/frikan_trainable_iir_speed.md](docs/reference/frikan_trainable_iir_speed.md)。
+- 对 `IIR_TRAINABLE = true` 的 FRIKAN 路径，训练图里的 IIR 应保持 `SIMOIIR` 语义；`DIAGIIR` 只能用于固定 IIR 的并行加速或特征预计算，详见 [docs/reference/frikan_trainable_iir_speed.md](docs/reference/frikan_trainable_iir_speed.md)。
 
 ## FRIMLP / FRIKAND 消融经验
 

@@ -24,14 +24,11 @@ class RealTimeTrainingCallback(Callback):
     def __init__(self, model_engine):
         super().__init__()
         self.project = model_engine
-        self.console_ui_enabled = bool(getattr(sys.stdout, 'isatty', lambda: False)()) and bool(
-            getattr(sys.stdin, 'isatty', lambda: False)())
-        self.scrolling_log_handler = None
-        if self.console_ui_enabled:
-            self.scrolling_log_handler = ScrollingLogHandler(log_queue=Queue())
-            self.scrolling_log_handler.start()
-        else:
-            logger.info('检测到非交互终端，禁用滚动训练日志与键盘停止热键。')
+        self.hotkey_enabled = bool(getattr(sys.stdin, 'isatty', lambda: False)())
+        self.scrolling_log_handler = ScrollingLogHandler(log_queue=Queue())
+        self.scrolling_log_handler.start()
+        if not self.hotkey_enabled:
+            logger.info('检测到非交互输入，禁用键盘停止热键；保留滚动训练日志。')
         self.state_manager = model_engine.state_manager
         self.min_loss = self.state_manager['min_loss']
         origin_min_val_loss = self.state_manager['val_loss']
@@ -209,7 +206,7 @@ class RealTimeTrainingCallback(Callback):
                 self.user_model.best_val_weights_file)
 
         # 检查是否有停止按键
-        if self.console_ui_enabled and sys.platform.startswith('win'):
+        if self.hotkey_enabled and sys.platform.startswith('win'):
             try:
                 if keyboard.is_pressed('s') and keyboard.is_pressed('t'):
                     if self.scrolling_log_handler is not None:

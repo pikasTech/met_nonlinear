@@ -267,8 +267,11 @@ class ProjectManager:
         x_test = model_engine.x_test_shuffle[201, 1000:1100, :].reshape(1, -1, 1)
         x_test_lut = x_test.reshape(-1, 1)
         logger.info(f'x[]: {x_test_lut}')
-        iir_out = model_engine.model_comp.fast_iir(x_test)
-        model_out = model_engine.model_comp.fast_model(iir_out)[0, :, 0].numpy()
+        if getattr(model_engine.model_comp, 'fast_model_uses_raw_input', False):
+            model_out = model_engine.model_comp.fast_model(x_test)[0, :, 0].numpy()
+        else:
+            iir_out = model_engine.model_comp.fast_iir(x_test)
+            model_out = model_engine.model_comp.fast_model(iir_out)[0, :, 0].numpy()
         lut_out = lut_model.forward(x_test_lut, use_lut=False)
         logger.info(f'y[]: {model_out}')
         plt.figure(figsize=(12, 8))

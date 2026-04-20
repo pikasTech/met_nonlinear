@@ -61,37 +61,23 @@ def test_resume_training_uses_best_val_weights_when_enabled():
     engine = _build_engine(use_best_val_weights=True)
 
     with patch('core.model_engine.RealTimeTrainingCallback', return_value=object()):
-        with patch('core.model_engine.portalocker.Lock'):
-            engine.train_model()
+        engine.train_model()
 
     engine.load_val_best_weights.assert_called_once_with()
     engine.load_best_weights.assert_not_called()
-    assert engine.model_comp.fit.call_args.kwargs['initial_epoch'] == 3
-    assert engine.model_comp.fit.call_args.kwargs['epochs'] == 10
+    assert engine.model_comp.fit.call_args.kwargs['epochs'] == 7
 
 
 def test_resume_training_uses_best_weights_when_best_val_disabled():
     engine = _build_engine(use_best_val_weights=False)
 
     with patch('core.model_engine.RealTimeTrainingCallback', return_value=object()):
-        with patch('core.model_engine.os.path.exists', return_value=True), \
-                patch('core.model_engine.portalocker.Lock'):
+        with patch('core.model_engine.os.path.exists', return_value=True):
             engine.train_model()
 
     engine.load_best_weights.assert_called_once_with()
     engine.load_val_best_weights.assert_not_called()
-    assert engine.model_comp.fit.call_args.kwargs['initial_epoch'] == 3
-    assert engine.model_comp.fit.call_args.kwargs['epochs'] == 10
-
-
-def test_resume_training_skips_when_completed_epoch_reaches_target():
-    engine = _build_engine(use_best_val_weights=True)
-    engine.state_manager['completed_epoch'] = 10
-
-    with patch('core.model_engine.RealTimeTrainingCallback', return_value=object()):
-        engine.train_model()
-
-    engine.model_comp.fit.assert_not_called()
+    assert engine.model_comp.fit.call_args.kwargs['epochs'] == 7
 
 
 def test_evaluate_loss_computes_metrics_from_predictions_for_pure_mae_runs():

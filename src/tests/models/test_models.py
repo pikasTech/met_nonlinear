@@ -2039,6 +2039,7 @@ class TestFRIKANIIRInitialization:
     def test_frikan_trainable_iir_keeps_raw_fast_path(self):
         """Trainable IIR should keep fast_model, but it must consume raw input directly."""
         from models.frikan_models import FRIKAN
+        from experimental.mimoiir import SIMOIIR, DIAGIIR
 
         iir_params = [
             {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0},
@@ -2053,6 +2054,11 @@ class TestFRIKANIIRInitialization:
                 iir_trainable=True,
                 use_fast_model=True
             )
+
+            assert isinstance(model.fast_iir, SIMOIIR)
+            assert model.fast_iir is model.iir
+            assert all(not isinstance(layer, DIAGIIR) for layer in model.fast_model.layers)
+            assert any(layer is model.iir for layer in model.fast_model.layers)
 
             x = np.zeros((1, 8, 1), dtype=np.float32)
             y = np.zeros((1, 8, 1), dtype=np.float32)
