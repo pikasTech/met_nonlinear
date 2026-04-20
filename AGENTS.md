@@ -187,6 +187,11 @@
 - `pytest -k "test_module_import"`
 	- 关键字筛选：按关键字筛选测试，详见 [docs/reference/testing.md](docs/reference/testing.md)。
 
+- `py -3 C:\Users\lyon\.agents\skills\keil\keil-cli.py program --wait -p src/tests/keil_projects/met_keil_405/MDK-ARM/Electrochemical geophone.uvprojx -m daplink --program-backend <keil|pyocd> -u <probe_uid> -t MET405`
+	- STM32F405 真机烧录：`met_keil_405` 在单 probe 隔离后可复用 Keil backend，无法隔离时改走 pyOCD，并以串口启动日志作为最终签收，详见 [docs/reference/keil_stm32f405_programming.md](docs/reference/keil_stm32f405_programming.md)。
+- `py -3 C:\Users\lyon\.agents\skills\keil\keil-cli.py detect -u <probe_uid> -p src/tests/keil_projects/met_keil_405/MDK-ARM/Electrochemical geophone.uvprojx -t MET405`
+	- STM32F405 target-aware 探测：让 DAP-Link detect 直接复用工程 `Device` 推导 pyOCD target override，避免只拿到 generic `CoreSightTarget`，详见 [docs/reference/keil_stm32f405_programming.md](docs/reference/keil_stm32f405_programming.md)。
+
 - `python cli.py qemu list`
 	- QEMU 工程扫描：列出仓库中可直接编译运行的 QEMU 工程目录，详见 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 - `python cli.py qemu build src/tests/qemu/stm32f405_hello`

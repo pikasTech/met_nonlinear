@@ -4,6 +4,22 @@
 
 `python cli.py -t PROJECT_NAME` 用于训练 MET Nonlinear 模型，支持实时进度监控、权重保存和训练日志记录。
 
+## 推荐启动方式
+
+在 Windows 本机环境下，训练入口长期优先使用 `tf26` 环境，并显式保留前台可见输出：
+
+```powershell
+conda.bat run --no-capture-output -n tf26 python cli.py -t PROJECT_NAME
+conda.bat run --no-capture-output -n tf26 python cli.py -t PROJECT_NAME 2>&1 | Tee-Object -FilePath logs/training.stdout.log
+```
+
+长期规则是：
+
+- `--no-capture-output` 的价值不是“输出更多”，而是避免 Windows 控制台缓冲与编码行为吞掉关键 traceback，同时保持当前会话里的前台可见性。
+- 如果需要保留命令输出，优先使用 `Tee-Object`（PowerShell）或 `tee`（bash）；不要只用 `> train.log` 这类完全重定向，把训练过程变成“前台命令还在跑，但当前会话看不到有效输出”。
+- 额外留存的 stdout/stderr 默认写到仓库根目录的 `logs/` 子目录，不要把 `training.stdout.log` 一类文件直接落在仓库根目录。
+- 环境选择、GPU allocator 边界和 `tf26` 的长期约束，详见 [tf26_environment.md](tf26_environment.md)。
+
 ## 训练流程
 
 1. **数据集加载** - 根据 `config.json` 中的 `dataset_type` 加载数据集
@@ -36,6 +52,7 @@
 - 每次调参都必须先复制同类项目为新的 project 变体，只在新项目里改 `learning_rate`、`model_subcfg` 或其他目标参数；禁止直接覆盖已有项目的 `config.json` 或复用已有 `data/` 继续试不同配置。
 - 禁止自动批量 sweep 调参；每轮都要先读取上一轮项目的 `metrics.json`、`training_info.json` 或关键图表，再决定下一轮只改哪个 `learning_rate` 或 `model_subcfg` 方向。
 - 调参优先做单因素变更，确保结果可解释且便于回退。
+- 对带 `post_dense_*` 分支的 WNET5 变体，优先固定学习率与训练时长，再分别比较 `post_dense_units`、`post_dense_layers`、`post_dense_activation` 等结构变量；结构定型后再回到 `learning_rate`、`epoch_train`、`auto_lr_decay_steps` 这类训练策略参数，不要把两类改动混在同一轮里。
 - 新增训练经验时优先沉淀可复用规律、限制条件和止损信号，而不是一次性流水账。
 - 数据集覆盖、稳态片段、低震级样本平衡和外推边界的长期规则，详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
 - 如果当前实验属于真实卷积时序基线，请先按 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md) 核对 canonical 项目路径与 `use_model` 语义，再开始复制变体或重训。

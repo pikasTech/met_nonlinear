@@ -16,9 +16,14 @@
 ```bash
 conda.bat run --no-capture-output -n tf26 python cli.py --test
 conda.bat run --no-capture-output -n tf26 python -m pytest src/tests -q
+conda.bat run --no-capture-output -n tf26 python -m pytest src/tests -q 2>&1 | Tee-Object -FilePath logs/pytest.stdout.log
 ```
 
 其中 `--no-capture-output` 的长期价值不是“更热闹”，而是避免 Windows 控制台编码与缓冲行为把错误输出吞掉。
+
+如果需要留存测试输出，优先使用 `Tee-Object`（PowerShell）或 `tee`（bash），不要只做 `> pytest.log` 这类完全重定向；否则最容易把“当前会话里的实时错误线索”一并藏掉。
+
+额外留存的 stdout/stderr 默认写到仓库根目录的 `logs/` 子目录，不要把 `pytest.stdout.log` 一类文件直接落在仓库根目录。
 
 ## CLI 测试入口
 
@@ -91,6 +96,23 @@ pytest src/tests/test_wavenet5_spice_integration.py -v
 
 这些自动化回归只能覆盖“代码接口还活着”这一层；WNET5 的通道映射、E96 量化图、SVF 拟合和频响对照仍应按 [wnet5_circuit_validation.md](wnet5_circuit_validation.md) 做人工验收。
 
+### 修改导出契约时的最小验收
+
+如果本轮修改触及下面这些边界之一：
+
+- `src/inference/wavenet5_spice_backend.py`
+- `src/models/model_layers.py` 里的 `to_spice()` 契约
+- `src/inference/processing/backend_manager.py`
+- `src/inference/backends/spice/backend.py` 或相关 SPICE 导出入口
+
+则最少应补做下面几项确认：
+
+- WNET5 的第一层仍然按 `IIR / SVF` 导出，而不是把线性前端跳过
+- Dense 层消费的仍是前端展开后的多通道输出，维度契约没有退化回“单输入直接进 Dense”
+- project 级 SPICE 网表仍写回 `projects/<PROJECT>/data/spice_netlists/`，没有重新漂回仓库级临时目录
+
+过程文档里曾使用“与某个历史 baseline commit 对比”来定位推理回归；这可以继续作为排障手段，但不应被写成当前仓库的日常必经流程。当前长期口径仍是：自动化测试守接口契约，项目级分层签收按 [wnet5_circuit_validation.md](wnet5_circuit_validation.md) 执行。
+
 ## 配置位置
 
 测试的全局配置位于仓库根目录的 `pytest.ini`。
@@ -129,6 +151,16 @@ pytest src/tests/test_wavenet5_spice_integration.py -v
 - 只有在当前 coverage 报告可复现时，才对外声称某个模块或全仓达到特定覆盖率。
 - 过程文档中的阶段性数字只代表当时那轮补测结果，不能直接当作长期事实引用。
 - 做覆盖率补齐时，优先补 `src/` 主链路模块和导入/缩放/评估兼容性相关测试。
+
+### 成功判定不要停留在“没报错”
+
+对于配置验证、EP 调度、WNET5 验证器和报告生成链路，长期上不应把“命令退出码为 0”直接当成测试通过。
+
+更稳妥的判定方式是：
+
+- 同时检查预期产物是否真的生成，例如报告、JSON、PNG 或波形文件。
+- 对配置 / schema 变更，检查关键字段是否真的写入结果，而不是仅仅命令没抛异常。
+- 如果代码 silently fallback 到旧逻辑、跳过实验对比或只打印 warning 而缺少核心产物，应视为“礼貌失败”，继续补定位，而不是当作成功签收。
 
 ## 相关文档
 

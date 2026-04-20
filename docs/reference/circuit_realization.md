@@ -28,6 +28,24 @@ CLI 侧直接相关的入口主要有：
 - `python cli.py -i PROJECT_NAME`：通过不同推理后端做逐层或整模型推理
 - `python cli.py ep "ex_projects/wnet5-circuit-validation/layerN"`：生成 WNET5 分层电路验证产物
 
+## project 级模拟配置入口
+
+`projects/<PROJECT>/config.json` 中的 `inference_config`，是当前 project 级模拟实现配置的正式入口；它负责描述模型落到 SPICE / 电路验证时需要遵守的模拟侧约束，而不是训练数据定义或运行产物路径。
+
+当前已经稳定下来的配置族主要包括：
+
+- `power_supply`：电源轨约束，例如 `vcc` / `vee`
+- `opamp_config`：运放模型、include 文件与供电脚配置
+- `high_pass_config`：高通与工作点补偿网络；它属于可选硬件补偿，不是默认理论基线
+- `bias_compensation`：分层 / 分通道偏置修正，长期以 `layer_bias_adjustments` 这类结构化配置表达；历史 `bias_adjustment_matrix` 只作为旧资料名词理解，不再作为正式配置字段
+- `bom_config`：与电阻 / BOM 导出直接相关的 project 级选项，当前也归在 `inference_config` 下统一管理
+
+长期边界应这样理解：
+
+- project 的数据定义写在 `dataset` 等训练侧配置里
+- project 的模拟实现约束写在 `inference_config` 里
+- SPICE 网表、wave 和验证产物仍落在 project 的 `data/` 子树；网表目录的具体落点与推理输出规则，详见 [inference.md](inference.md)
+
 ## 当前更可行的实现主线
 
 从 NOTEBOOK_CIRCUIT 的长期收敛看，当前更可行的路线不是“先做 CNN/FIR 到 RNN/IIR 的直接变换”，而是：
@@ -67,6 +85,18 @@ CLI 侧直接相关的入口主要有：
 - 不要在 SVF 本身还未对齐时就直接做整网 end-to-end 比较
 
 相关实现已经落在 `src/visualization/wnet5_circuit_validator.py` 与 `ex_projects/wnet5-circuit-validation/`。
+
+### WNET5 的 SPICE 导出必须保留线性前端语义
+
+对当前 WNET5 路线，长期稳定的导出语义是：
+
+- 输入仍是 1 维时序
+- 第一层必须先经过 `SVF / IIR` 线性前端展开成多通道特征
+- 后续 Dense / activation 电路只消费这组已经展开的前端输出
+
+也就是说，WNET5 的 SPICE 导出必须保留 `输入 1 维 -> SVF/IIR -> 多通道 -> Dense` 这条前端语义，不能为了省事跳过线性前端，直接把单通道输入送进 Dense 电路。否则不仅会破坏维度契约，也会让 TF / NumPy / SPICE 的分层对比失去意义。
+
+更具体的自测试补偿、E96 量化误差、SVF 实测拟合与分层图产物约束，统一以 [wnet5_circuit_validation.md](wnet5_circuit_validation.md) 为权威出处；本页只保留电路实现侧的长期边界。
 
 ## 波形与逐层验证规则
 

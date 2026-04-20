@@ -1,0 +1,2 @@
+{"timestamp": 20260420213515.4, "epoch": 1, "loss": 1.8053e00, "val_loss": 1.8517e00, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 1.9603e00, "val_power_log_loss": 1.9471e00, "lr": 4.0000e-05}
+{"timestamp": 20260420213857.8, "epoch": 2, "loss": 1.7653e00, "val_loss": 1.8065e00, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 1.9390e00, "val_power_log_loss": 1.9248e00, "lr": 4.0000e-05}

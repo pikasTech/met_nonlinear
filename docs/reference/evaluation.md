@@ -10,6 +10,21 @@
 python cli.py -e PROJECT_NAME
 ```
 
+### Windows 前台启动
+
+在 Windows 本机环境下，如默认 Python 不是 `tf26`，长期优先使用：
+
+```powershell
+conda.bat run --no-capture-output -n tf26 python cli.py -e PROJECT_NAME
+conda.bat run --no-capture-output -n tf26 python cli.py -e PROJECT_NAME 2>&1 | Tee-Object -FilePath logs/evaluation.stdout.log
+```
+
+长期规则是：
+
+- 评估也应保持前台可见；若需要留存输出，优先使用 `Tee-Object` / `tee`，不要只把标准输出完全重定向到文件。
+- 额外留存的 stdout/stderr 默认写到仓库根目录的 `logs/` 子目录，不要把 `evaluation.stdout.log` 一类文件直接落在仓库根目录。
+- `--no-capture-output` 主要用于降低 Windows 控制台缓冲把错误输出吞掉的概率；更完整的环境边界，详见 [tf26_environment.md](tf26_environment.md)。
+
 ## 执行内容
 
 评估流程会依次执行以下步骤：

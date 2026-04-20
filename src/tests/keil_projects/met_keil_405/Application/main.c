@@ -186,6 +186,9 @@ int main(void) {
     HAL_Init();
     SystemClock_Config();
     MX_GPIO_Init();
+    /* Keep the original board-side switch/DMA state so the serial path stays alive after reflashing. */
+    MX_DMA_Init();
+    SWITCH_GPIO_Init();
     MX_TIM3_Init();
     HAL_TIM_Base_Start_IT(&htim3);
     MX_USART1_UART_Init();

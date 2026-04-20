@@ -150,6 +150,32 @@ WNET5 的 TF、NumPy、SPICE 和实测数据，长期上都不能假设它们天
 - 自测试文件应与实验文件区分命名
 - 路径中若含环境变量，应通过统一展开逻辑处理，而不是手工改脚本
 
+## `analysis_layer` 的长期语义
+
+WNET5 分层验证里的 `analysis_layer`，当前长期上应视为“SVF 前端之后要分析的 Dense / 输出层编号”，而不是泛指任意 layer index。
+
+长期规则是：
+
+- 每次验证任务都固定为 **1 个 SVF 前端 + 1 个 Dense / 输出层** 的组合，不要在同一次任务里混合分析多个 Dense 层。
+- `analysis_layer` 使用 1-based 编号，指向 SVF 之后的第 1、2、3… 个 Dense / 输出层。
+- `analysis_layer=0` 不应作为合法配置；SVF 的验证应通过 `layer1` 这类分层入口和当前验证器的 SVF 专用逻辑完成，而不是把 SVF 当成 Dense 层编号来选。
+- 若模型当前可用的 Dense / 输出层数不足以覆盖请求的 `analysis_layer`，应直接报配置错误，而不是 silently fallback 到别的层。
+
+对 canonical 三层 post-dense 的 WNET5 变体，`analysis_layer=1/2/3` 对应三个 post-dense 层，最终输出层则对应最后一个可用编号。
+
+## 实验对比配置入口
+
+当前实验对比配置分两类：
+
+- `experiment_comparison`：当前推荐的实验对比入口，适合多文件扫描、自测试补偿和绘图配置统一管理。
+- `compare_with_experiment`：保留给旧的单文件实验对比模式，主要用于历史兼容。
+
+长期规则是：
+
+- 新的多文件实验对比任务应优先使用 `experiment_comparison`，并在其中统一维护 `experiment_data_dir`、`selftest_file` 与 `plot_config`。
+- 图形风格开关也应继续挂在 `experiment_comparison.plot_config` 下，例如 `merged_plot_mode`，不要再把临时绘图选项散落到新的顶层键名里。
+- 若只是为了兼容历史单文件流程，可以保留 `compare_with_experiment`；但不要再以它为新流程的默认入口。
+
 ## 权重来源与路径口径
 
 ### 分层验证权重必须来自 project 产物

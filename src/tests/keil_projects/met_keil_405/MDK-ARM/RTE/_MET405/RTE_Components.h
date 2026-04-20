@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'Electrochemical geophone' 
+ * Project: 'Electrochemical geophone.codex_probe_selector_test' 
  * Target:  'MET405' 
  */
 

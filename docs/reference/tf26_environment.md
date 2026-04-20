@@ -40,6 +40,18 @@ ls /c/Users/*/MiniConda3/envs/tf26/python.exe
 /c/Users/lyon/MiniConda3/envs/tf26/python.exe cli.py --metrics --all-projects
 ```
 
+## Windows 控制台编码与输出保留
+
+在 native Windows + `tf26` 组合下，`--no-capture-output` 还有一层长期价值：它能降低控制台缓冲与编码链把关键错误输出吞掉的概率。
+
+长期上应这样理解：
+
+- 如果命令涉及中文路径、Unicode 日志或较长 traceback，优先通过 `conda.bat run --no-capture-output -n tf26 ...` 启动。
+- 遇到 `UnicodeEncodeError`、GBK 编码异常或“命令看起来卡住但没有有效错误输出”时，先回头检查是不是启动方式让控制台输出被吞掉了。
+- 如果需要保留 stdout/stderr，优先使用 `Tee-Object` / `tee`，不要只把输出完全重定向到文件后失去当前会话里的实时可见性；额外落地的捕获文件默认写到仓库根目录的 `logs/` 子目录，而不是根目录散落的 `*.log`。
+
+训练、评估和测试的命令级示例，分别以 [training.md](training.md)、[evaluation.md](evaluation.md) 与 [testing.md](testing.md) 为准。
+
 ## Windows 原生 GPU 支持边界
 
 - TensorFlow 官方安装文档说明：`2.10` 是最后一个支持 native Windows GPU 的正式版本；从 `2.11` 开始，官方建议改用 WSL2 或 CPU/DirectML 路线。

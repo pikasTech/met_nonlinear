@@ -52,6 +52,23 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 3. 若执行 `python cli.py ep create "..."`，则创建模板；若目标 `config.json` 已存在，则拒绝覆盖。
 4. 若执行 `python cli.py ep "..."`，则要求 `config.json` 已存在；若不存在，则直接报错退出。
 
+长期约束：
+
+- 新 EP 任务必须先用 `ep create` 建模板，不要手动空建目录后再直接写 `config.json`。
+- `ep` 运行态只负责执行已有配置，不承担“边创建边执行”的隐式补全逻辑。
+
+## 架构边界
+
+当前 EP 长期架构边界已经收敛为：
+
+- `cli.py` 只识别 `ep` 子命令并转交 `core.external_cli_handler.handle_ep_command()`。
+- `src/core/external_path_parser.py` 负责解析路径格式和归一化任务目录。
+- `src/core/config_validator.py` 负责 `config.json` 校验。
+- `src/core/external_cli_handler.py` 负责 create/run 分支、配置加载和任务分发。
+- 具体任务类型（如 `freq-response-compare`、`wnet5-circuit-validation`、`qemu-c-inference`）只消费“已定位、已校验”的 EP 配置，不再各自重复实现路径猜测。
+
+这意味着后续新增 EP 任务时，优先复用这条 create -> validate -> dispatch 主链，而不是在任务内部额外拼路径或偷偷生成模板。
+
 ## 路径格式
 
 支持以下输入形式：
@@ -231,5 +248,5 @@ WNET5 分层验证的其他关键约束也统一收敛在 [wnet5_circuit_validat
 
 - [频率响应对比功能说明](freq_response_compare.md)
 - [边缘设备推理仿真](edge_device_emulation.md)
-- [EP 架构文档](../project/ep.md)
 - [wnet5_circuit_validation.md](wnet5_circuit_validation.md)
+- [historical_process_docs.md](historical_process_docs.md)
