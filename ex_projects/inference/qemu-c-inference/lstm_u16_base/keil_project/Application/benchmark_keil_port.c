@@ -1,17 +1,24 @@
 #include "benchmark_keil_port.h"
 
-#include "gpio.h"
-#include "tim.h"
-#include "usart.h"
+#include "stm32f405xx.h"
 
-static void SystemClock_Config(void);
-static void MX_DMA_Init(void);
-static void SWITCH_GPIO_Init(void);
-static void benchmark_keil_write_string(const char *message);
+#define BENCHMARK_USART_BRR_16MHZ 0x008BU
+#define BENCHMARK_DEMCR_TRCENA (1UL << 24)
+#define BENCHMARK_DWT_CTRL_CYCCNTENA (1UL << 0)
+
+static uint32_t g_benchmark_keil_ready = 0U;
+
+static void benchmark_enable_cycle_counter(void);
+static void benchmark_gpio_config_usart(GPIO_TypeDef *gpio_port, uint32_t pin_index);
+static void benchmark_uart_config(USART_TypeDef *usart_instance);
 static void benchmark_console_write_byte(USART_TypeDef *console_usart, uint8_t ch);
+static void benchmark_keil_write_string(const char *message);
 
 void benchmark_keil_uart_init(void)
 {
+    if (g_benchmark_keil_ready == 0U) {
+        benchmark_keil_platform_init();
+    }
 }
 
 void benchmark_keil_uart_putc(char ch)
@@ -26,36 +33,34 @@ void benchmark_keil_uart_putc(char ch)
 
 uint64_t benchmark_keil_get_tick_us(void)
 {
-    return met_tim3_get_tick_us();
+    return (uint64_t)(DWT->CYCCNT / 16U);
 }
 
 void benchmark_keil_platform_init(void)
 {
-    HAL_Init();
-    SystemClock_Config();
-    MX_GPIO_Init();
-    MX_DMA_Init();
-    SWITCH_GPIO_Init();
-    MX_TIM3_Init();
-    HAL_TIM_Base_Start_IT(&htim3);
-    MX_USART1_UART_Init();
-    MX_USART3_UART_Init();
+    if (g_benchmark_keil_ready != 0U) {
+        return;
+    }
+
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN;
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+    RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
+    __DSB();
+
+    benchmark_gpio_config_usart(GPIOA, 9U);
+    benchmark_gpio_config_usart(GPIOA, 10U);
+    benchmark_gpio_config_usart(GPIOB, 10U);
+    benchmark_gpio_config_usart(GPIOB, 11U);
+
+    benchmark_uart_config(USART1);
+    benchmark_uart_config(USART3);
+    benchmark_enable_cycle_counter();
+
+    g_benchmark_keil_ready = 1U;
 
     benchmark_keil_write_string("[  OK]: hardware init ok\r\n");
-    benchmark_keil_write_string("[Info]: NN benchmark bring-up enabled\r\n");
+    benchmark_keil_write_string("[Info]: lean benchmark bring-up enabled\r\n");
     benchmark_keil_write_string("[Info]: UART1+UART3 mirrored at 115200 baud\r\n");
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim == &htim3) {
-        g_tim3_tick_ms++;
-    }
-}
-
-void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
-{
-    (void)gpio_pin;
 }
 
 void Error_Handler(void)
@@ -64,71 +69,45 @@ void Error_Handler(void)
     }
 }
 
+static void benchmark_enable_cycle_counter(void)
+{
+    CoreDebug->DEMCR |= BENCHMARK_DEMCR_TRCENA;
+    DWT->CYCCNT = 0U;
+    DWT->CTRL |= BENCHMARK_DWT_CTRL_CYCCNTENA;
+}
+
+static void benchmark_gpio_config_usart(GPIO_TypeDef *gpio_port, uint32_t pin_index)
+{
+    uint32_t mode_shift = pin_index * 2U;
+    uint32_t afr_index = pin_index >> 3U;
+    uint32_t afr_shift = (pin_index & 7U) * 4U;
+
+    gpio_port->MODER = (gpio_port->MODER & ~(3UL << mode_shift)) | (2UL << mode_shift);
+    gpio_port->OSPEEDR = (gpio_port->OSPEEDR & ~(3UL << mode_shift)) | (3UL << mode_shift);
+    gpio_port->OTYPER &= ~(1UL << pin_index);
+    gpio_port->PUPDR = (gpio_port->PUPDR & ~(3UL << mode_shift)) | (1UL << mode_shift);
+    gpio_port->AFR[afr_index] = (gpio_port->AFR[afr_index] & ~(0xFUL << afr_shift)) | (7UL << afr_shift);
+}
+
+static void benchmark_uart_config(USART_TypeDef *usart_instance)
+{
+    usart_instance->CR1 = 0U;
+    usart_instance->CR2 = 0U;
+    usart_instance->CR3 = 0U;
+    usart_instance->BRR = BENCHMARK_USART_BRR_16MHZ;
+    usart_instance->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
+}
+
 static void benchmark_console_write_byte(USART_TypeDef *console_usart, uint8_t ch)
 {
-    while (!LL_USART_IsActiveFlag_TXE(console_usart)) {
+    while ((console_usart->SR & USART_SR_TXE) == 0U) {
     }
-    LL_USART_TransmitData8(console_usart, ch);
+    console_usart->DR = (uint32_t)ch;
 }
 
 static void benchmark_keil_write_string(const char *message)
 {
     while (*message != '\0') {
         benchmark_keil_uart_putc(*message++);
-    }
-}
-
-static void MX_DMA_Init(void)
-{
-    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
-    NVIC_SetPriority(DMA1_Stream3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
-    NVIC_EnableIRQ(DMA1_Stream3_IRQn);
-}
-
-static void SWITCH_GPIO_Init(void)
-{
-    GPIO_InitTypeDef gpio_init_struct = {0};
-
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
-
-    gpio_init_struct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
-    gpio_init_struct.Mode = GPIO_MODE_OUTPUT_PP;
-    gpio_init_struct.Pull = GPIO_NOPULL;
-    gpio_init_struct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &gpio_init_struct);
-}
-
-static void SystemClock_Config(void)
-{
-    RCC_OscInitTypeDef rcc_osc_init_struct = {0};
-    RCC_ClkInitTypeDef rcc_clk_init_struct = {0};
-
-    __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-    rcc_osc_init_struct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    rcc_osc_init_struct.HSEState = RCC_HSE_ON;
-    rcc_osc_init_struct.PLL.PLLState = RCC_PLL_ON;
-    rcc_osc_init_struct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-    rcc_osc_init_struct.PLL.PLLM = 4;
-    rcc_osc_init_struct.PLL.PLLN = 168;
-    rcc_osc_init_struct.PLL.PLLP = RCC_PLLP_DIV2;
-    rcc_osc_init_struct.PLL.PLLQ = 4;
-    if (HAL_RCC_OscConfig(&rcc_osc_init_struct) != HAL_OK) {
-        Error_Handler();
-    }
-
-    rcc_clk_init_struct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
-                                    RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    rcc_clk_init_struct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    rcc_clk_init_struct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-    rcc_clk_init_struct.APB1CLKDivider = RCC_HCLK_DIV4;
-    rcc_clk_init_struct.APB2CLKDivider = RCC_HCLK_DIV2;
-
-    if (HAL_RCC_ClockConfig(&rcc_clk_init_struct, FLASH_LATENCY_5) != HAL_OK) {
-        Error_Handler();
     }
 }

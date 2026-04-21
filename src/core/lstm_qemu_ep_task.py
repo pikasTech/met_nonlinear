@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import tempfile
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
@@ -967,6 +967,43 @@ def _start_keil_serial_capture(output_dir: Path,
 
     capture_dir = output_dir / '.keil_capture'
     capture_dir.mkdir(parents=True, exist_ok=True)
+    serial_monitor_paths = _resolve_serial_monitor_paths()
+    if serial_monitor_paths is not None:
+        _ensure_serial_monitor_server(serial_monitor_paths)
+        _run_serial_monitor_json_command(
+            [*serial_monitor_paths['command_prefix'], 'monitor', 'stop'],
+            cwd=serial_monitor_paths['skill_dir'],
+            allow_failure=True,
+        )
+        _run_serial_monitor_json_command(
+            [
+                *serial_monitor_paths['command_prefix'],
+                'monitor',
+                'start',
+                '-p',
+                serial_port,
+                '-b',
+                str(baud_rate),
+            ],
+            cwd=serial_monitor_paths['skill_dir'],
+        )
+        time.sleep(0.5)
+        return {
+            'mode': 'serial-monitor',
+            'skill_dir': serial_monitor_paths['skill_dir'],
+            'command_prefix': serial_monitor_paths['command_prefix'],
+            'capture_start_time': datetime.now().astimezone() - timedelta(seconds=2),
+            'capture_timeout': capture_timeout,
+            'serial_port': serial_port,
+            'baud_rate': baud_rate,
+            'success_markers': [str(marker) for marker in success_markers],
+            'capture_dir': capture_dir,
+            'result_path': capture_dir / 'capture_result.json',
+            'all_jsonl_path': capture_dir / 'capture_all.jsonl',
+            'jsonl_path': output_dir / 'keil_serial_raw.jsonl',
+            'text_path': output_dir / 'keil_serial_stream.txt',
+        }
+
     script_path = capture_dir / 'capture_serial.ps1'
     result_path = capture_dir / 'capture_result.json'
     jsonl_path = output_dir / 'keil_serial_raw.jsonl'
@@ -1024,6 +1061,9 @@ def _start_keil_serial_capture(output_dir: Path,
 
 def _finish_keil_serial_capture(capture_state: Dict[str, Any],
                                 timeout_seconds: int) -> Dict[str, Any]:
+    if capture_state.get('mode') == 'serial-monitor':
+        return _finish_keil_serial_capture_with_serial_monitor(capture_state, timeout_seconds)
+
     process: subprocess.Popen[str] = capture_state['process']
     try:
         stdout, stderr = process.communicate(timeout=timeout_seconds)
@@ -1045,6 +1085,185 @@ def _finish_keil_serial_capture(capture_state: Dict[str, Any],
     result['stdout'] = stdout
     result['stderr'] = stderr
     return result
+
+
+def _resolve_serial_monitor_paths() -> Optional[Dict[str, Any]]:
+    skill_dir = Path.home() / '.agents' / 'skills' / 'serial-monitor'
+    tsx_cmd = skill_dir / 'node_modules' / '.bin' / 'tsx.cmd'
+    cli_path = skill_dir / 'scripts' / 'serial-monitor-cli.ts'
+    if not skill_dir.exists() or not tsx_cmd.exists() or not cli_path.exists():
+        return None
+    return {
+        'skill_dir': skill_dir,
+        'command_prefix': [str(tsx_cmd), str(cli_path)],
+    }
+
+
+def _ensure_serial_monitor_server(serial_monitor_paths: Dict[str, Any]) -> None:
+    status_result = _run_serial_monitor_json_command(
+        [*serial_monitor_paths['command_prefix'], 'server', 'status'],
+        cwd=serial_monitor_paths['skill_dir'],
+        allow_failure=True,
+    )
+    if bool(status_result.get('success', False)):
+        return
+
+    start_result = _run_serial_monitor_json_command(
+        [*serial_monitor_paths['command_prefix'], 'server', 'start'],
+        cwd=serial_monitor_paths['skill_dir'],
+    )
+    if not bool(start_result.get('success', False)):
+        raise RuntimeError(f'无法启动 serial-monitor 服务: {start_result}')
+
+
+def _run_serial_monitor_json_command(command: Sequence[str],
+                                     cwd: Path,
+                                     allow_failure: bool = False) -> Dict[str, Any]:
+    completed = subprocess.run(
+        list(command),
+        cwd=str(cwd),
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='replace',
+    )
+    stdout = completed.stdout.strip()
+    if completed.returncode != 0 and not allow_failure:
+        raise RuntimeError(
+            f'serial-monitor 命令失败: {" ".join(command)}\nstdout={completed.stdout}\nstderr={completed.stderr}'
+        )
+    if not stdout:
+        if allow_failure:
+            return {
+                'success': False,
+                'return_code': completed.returncode,
+                'stdout': completed.stdout,
+                'stderr': completed.stderr,
+            }
+        raise RuntimeError(f'serial-monitor 命令无输出: {" ".join(command)}')
+    try:
+        payload = json.loads(stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f'serial-monitor 输出不是合法 JSON: {stdout}') from exc
+    payload['_return_code'] = completed.returncode
+    payload['_stderr'] = completed.stderr
+    return payload
+
+
+def _finish_keil_serial_capture_with_serial_monitor(capture_state: Dict[str, Any],
+                                                    timeout_seconds: int) -> Dict[str, Any]:
+    skill_dir = Path(capture_state['skill_dir'])
+    command_prefix = list(capture_state['command_prefix'])
+    all_jsonl_path = Path(capture_state['all_jsonl_path'])
+    jsonl_path = Path(capture_state['jsonl_path'])
+    text_path = Path(capture_state['text_path'])
+    result_path = Path(capture_state['result_path'])
+    capture_start_time: datetime = capture_state['capture_start_time']
+    success_markers = [str(marker) for marker in capture_state.get('success_markers', [])]
+
+    fetch_result: Dict[str, Any] = {}
+    filtered_entries: List[Dict[str, Any]] = []
+    stream_text = ''
+    start_time = time.monotonic()
+    while True:
+        fetch_result = _run_serial_monitor_json_command(
+            [
+                *command_prefix,
+                'fetch',
+                '--all',
+                '--format',
+                'jsonl',
+                '--no-dedup',
+                '--out',
+                str(all_jsonl_path),
+            ],
+            cwd=skill_dir,
+        )
+        filtered_entries = _filter_serial_monitor_entries(
+            jsonl_path=all_jsonl_path,
+            capture_start_time=capture_start_time,
+            expected_port=str(capture_state['serial_port']),
+        )
+        stream_text = ''.join(str(entry.get('data', '')) for entry in filtered_entries)
+        if stream_text and all(marker in stream_text for marker in success_markers):
+            break
+        if time.monotonic() - start_time > timeout_seconds:
+            break
+        time.sleep(1.0)
+
+    _run_serial_monitor_json_command(
+        [*command_prefix, 'monitor', 'stop'],
+        cwd=skill_dir,
+        allow_failure=True,
+    )
+
+    _write_serial_monitor_capture_files(
+        filtered_entries=filtered_entries,
+        jsonl_path=jsonl_path,
+        text_path=text_path,
+    )
+
+    matched_markers = [marker for marker in success_markers if marker in stream_text]
+    missing_markers = [marker for marker in success_markers if marker not in stream_text]
+    timed_out = bool(missing_markers)
+    result = {
+        'status': 'completed' if not timed_out else 'timeout',
+        'port': str(capture_state['serial_port']),
+        'baud_rate': int(capture_state['baud_rate']),
+        'timeout_seconds': int(capture_state['capture_timeout']),
+        'timed_out': timed_out,
+        'record_count': len(filtered_entries),
+        'stream_length': len(stream_text),
+        'matched_success_markers': matched_markers,
+        'missing_success_markers': missing_markers,
+        'result_path': str(result_path),
+        'jsonl_path': str(jsonl_path),
+        'text_path': str(text_path),
+        'error': None,
+        'fetch_result': fetch_result,
+    }
+    _write_json(result_path, result)
+    return result
+
+
+def _filter_serial_monitor_entries(jsonl_path: Path,
+                                   capture_start_time: datetime,
+                                   expected_port: str) -> List[Dict[str, Any]]:
+    if not jsonl_path.exists():
+        return []
+
+    filtered_entries: List[Dict[str, Any]] = []
+    with open(jsonl_path, 'r', encoding='utf-8') as file_obj:
+        for raw_line in file_obj:
+            line = raw_line.strip()
+            if not line:
+                continue
+            entry = json.loads(line)
+            if str(entry.get('port', '')) != expected_port:
+                continue
+            timestamp_raw = str(entry.get('timestamp', ''))
+            try:
+                timestamp = datetime.strptime(timestamp_raw, '%Y-%m-%dT%H:%M:%S.%f%z')
+            except ValueError:
+                continue
+            if timestamp >= capture_start_time:
+                filtered_entries.append(entry)
+    return filtered_entries
+
+
+def _write_serial_monitor_capture_files(filtered_entries: Sequence[Dict[str, Any]],
+                                        jsonl_path: Path,
+                                        text_path: Path) -> None:
+    jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(jsonl_path, 'w', encoding='utf-8') as file_obj:
+        for entry in filtered_entries:
+            file_obj.write(json.dumps(entry, ensure_ascii=False))
+            file_obj.write('\n')
+
+    stream_text = ''.join(str(entry.get('data', '')) for entry in filtered_entries)
+    text_path.parent.mkdir(parents=True, exist_ok=True)
+    text_path.write_text(stream_text, encoding='utf-8')
 
 
 def _render_keil_serial_capture_script() -> str:
@@ -1124,10 +1343,15 @@ $streamText = $streamBuilder.ToString()
 [System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($TextPath)) | Out-Null
 [System.IO.File]::WriteAllText($TextPath, $streamText, $utf8NoBom)
 
-$jsonlLines = foreach ($record in $records) {
-    $record | ConvertTo-Json -Compress -Depth 4
+$jsonlLines = @()
+if ($records.Count -gt 0) {
+    $jsonlLines = @(
+        foreach ($record in $records) {
+            $record | ConvertTo-Json -Compress -Depth 4
+        }
+    )
 }
-[System.IO.File]::WriteAllLines($JsonlPath, $jsonlLines, $utf8NoBom)
+[System.IO.File]::WriteAllLines($JsonlPath, [string[]]$jsonlLines, $utf8NoBom)
 
 $missingMarkers = @()
 foreach ($marker in $SuccessMarker) {
@@ -7828,18 +8052,59 @@ int main(void)
 
 def _parse_benchmark_stdout(stdout: str) -> Dict[str, Any]:
     parsed: Dict[str, Any] = {}
-    kv_pattern = re.compile(r'([A-Za-z_][A-Za-z0-9_]*)=(.*?)(?=(?:[A-Za-z_][A-Za-z0-9_]*=)|$)', re.S)
-    matches = list(kv_pattern.finditer(stdout))
-    if matches:
-        for match in matches:
-            key = match.group(1).strip()
-            value = match.group(2).strip()
-            if not key:
-                continue
-            parsed[key] = _coerce_benchmark_scalar(value)
-        return parsed
+    start_markers = [
+        'iterations=',
+        'record_count=',
+        'seq_len=',
+        'input_dim=',
+        'dwt_supported=',
+        'timer_source=',
+        'measurement_unit=',
+    ]
+    start_indexes = [stdout.find(marker) for marker in start_markers if stdout.find(marker) >= 0]
+    if start_indexes:
+        stdout = stdout[min(start_indexes):]
 
-    for raw_line in stdout.splitlines():
+    line_prefix_patterns = [
+        r'iterations',
+        r'record_count',
+        r'seq_len',
+        r'input_dim',
+        r'lstm_units',
+        r'dense_units',
+        r'gru_units',
+        r'output_units',
+        r'feature_count',
+        r'kan_layer_count',
+        r'transformer_layer_count',
+        r'transformer_num_heads',
+        r'transformer_key_dim',
+        r'transformer_ff_dim',
+        r'attention_pool_size',
+        r'block_count',
+        r'dwt_supported',
+        r'timer_source',
+        r'measurement_unit',
+        r'measurement_total',
+        r'measurement_per_iter',
+        r'cycles_total',
+        r'cycles_per_iter',
+        r'wall_time_unit',
+        r'wall_time_total_ms',
+        r'wall_time_per_iter_ms',
+        r'output',
+        r'benchmark_complete',
+        r'validation_complete',
+        r'validation_record_\d+',
+        r'validation_[A-Za-z0-9_]+_\d+',
+    ]
+    normalized_stdout = re.sub(
+        r'(?<!^)(?=(?:' + '|'.join(line_prefix_patterns) + r')=)',
+        '\n',
+        stdout,
+    )
+
+    for raw_line in normalized_stdout.splitlines():
         line = raw_line.strip()
         if not line or '=' not in line:
             continue

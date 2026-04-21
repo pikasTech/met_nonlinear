@@ -6,6 +6,8 @@
 
 `python cli.py ep create "PROJECT/task-type/task-name"` 是显式模板创建入口，仅在需要新建拓展项目模板时使用。
 
+`python cli.py ep keil-bench "PROJECT/task-type/task-name"` 是 `qemu-c-inference` 类 EP 的真机一键执行入口，用于复用同一份 EP 配置自动完成 Keil 工程生成、编译、烧录、串口抓取和独立 JSON 解析。
+
 这份文档负责 EP 的入口、路径、目录和产物总览；具体任务内部的长期规则应交叉引用到对应专题文档，而不是在这里重复展开。
 
 ## 基本用法
@@ -18,6 +20,7 @@ python cli.py ep "LSTMu32al_rs300/freq-response-compensator/test"
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
+python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 ```
 
 ## 仓库内 EP 索引
@@ -104,6 +107,7 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym_interp"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
+python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 ```
 
 执行后会：
@@ -113,6 +117,20 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 3. 在对应 EP 目录下生成 `qemu_project/` 裸机工程。
 4. 先执行 benchmark-only 运行，在捕获到 `benchmark_complete=1` 后写入纯推理计时结果到 `data/benchmark_summary.json`。
 5. 再执行完整 validation 运行，在捕获到 `validation_complete=1` 后导出最终波形、模型相关中间层波形和对比图，并把波形对比指标、`intermediate_comparison` 和 `plot_paths` 写到 `data/validation_comparison.json` 与 `data/benchmark_summary.json`。
+
+如果需要在同一份 EP 配置上直接跑真机，可执行：
+
+```bash
+python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_base"
+```
+
+该入口会读取 `config.json -> keil_config`，并自动完成：
+
+1. 生成/刷新 `qemu_project/` 与 `keil_project/`
+2. 调用 `keil-cli.py build` 完成 Keil 编译
+3. 调用 `keil-cli.py program` 完成烧录
+4. 打开串口抓取 benchmark/validation 输出
+5. 解析串口流并写出 `data/keil_benchmark_summary.json`、`data/keil_validation_comparison.json`、`data/keil_serial_stream.txt`、`data/keil_serial_raw.jsonl`
 
 其中 `benchmark_summary.json` 会记录 `model_type`、`timer_source`、`measurement_unit`、`measurement_total`、`measurement_per_iter` 等字段；纯 benchmark 结果位于 `runs` / `aggregated`，完整 validation 运行结果位于 `validation_run`。QEMU 计时回退策略与运行细节详见 [边缘设备推理仿真](edge_device_emulation.md)。
 
@@ -159,6 +177,7 @@ python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
 - FRIKAN 任务还可在 `generation_config` 中增加 `lut_points`、`lut_interpolation` 等 LUT 导出参数。
 - `lut_interpolation` 的模板默认值为 `false`，用于优先走更轻的 LUT 查表路径；若某个已训练模型需要更低的 C/TF 偏差，可在具体 EP 配置中显式改回 `true`。
 - `wave_output.plot_comparison` 默认开启，用于在每条 validation record 完成后自动生成一张四曲线叠加 PNG；`plot_dpi` 控制导图分辨率。
+- `keil_config` 用于 `ep keil-bench` 真机流程；`action=build-program-capture` 表示一键生成/编译/烧录/抓串口/解析，`probe_uid` 与 `serial_port` 必须与当前板卡实际枚举一致。
 
 当前仓库内可直接复用的 `qemu-c-inference` 对比样例包括：
 
@@ -201,6 +220,9 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 - `.../data/validation_comparison.json`：C/TF 波形对比结果，包含 `overall`、`per_record`、`intermediate` 与 `plot_paths`
 - `.../data/waves/*.wave`：最终输出波形，以及模型相关的 TF/C 中间层波形文件；LSTM 常见为 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，LSTMTransformer 常见为 `input_scaled`、`lstm_hidden`、`transformer_ln_attn_*`、`transformer_ln_ffn_*`、`post_dense`、`output_scaled`，FRIKAN 常见为 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled`
 - `.../data/plots/*.png`：按 validation record 导出的四曲线对比图，默认叠加 `origin`、`target`、`c_inference`、`tf_inference`
+- `.../data/keil_benchmark_summary.json`：Keil build/program 结果、串口抓取元数据、解析后的 benchmark 标量与 `validation_outputs`
+- `.../data/keil_validation_comparison.json`：Keil 真机输出与 TF 参考输出的独立对比结果
+- `.../data/keil_serial_stream.txt` / `.../data/keil_serial_raw.jsonl`：本次真机运行的串口原始抓取文本与分块 JSONL
 
 若需要统一比较 MSE，可直接用 `validation_comparison.json` 的 `overall.diff_stats.energy / overall.sample_count` 计算；当前四样例的参考数值已同步写入 [边缘设备推理仿真](edge_device_emulation.md)。
 

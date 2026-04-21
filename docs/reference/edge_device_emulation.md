@@ -66,6 +66,27 @@ python cli.py ep ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym_inte
 python cli.py ep ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym
 ```
 
+如果要在同一个 `qemu-c-inference` EP 上直接走真机 Keil benchmark，可使用：
+
+```powershell
+python cli.py ep keil-bench ex_projects/inference/qemu-c-inference/lstm_u16_base
+python cli.py ep keil-bench ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym
+```
+
+该命令会复用 EP 的 `config.json -> keil_config`，按同一份模型/validation 配置自动完成：
+
+1. 生成 `qemu_project/` 与 `keil_project/`
+2. 调用 `keil-cli.py build` 编译
+3. 调用 `keil-cli.py program` 烧录
+4. 打开业务串口抓取 benchmark/validation 输出
+5. 解析串口输出并生成独立的 `data/keil_benchmark_summary.json`
+
+若当前板卡/串口与默认配置不一致，可临时覆盖：
+
+```powershell
+python cli.py ep keil-bench ex_projects/inference/qemu-c-inference/lstm_u16_base --probe-uid 205536951525 --serial-port COM8 --program-backend keil
+```
+
 如果当前默认 `python` 不是 TensorFlow 2.6 环境，应改为显式使用 `tf26` 的解释器运行，例如：
 
 ```powershell
@@ -170,6 +191,11 @@ validation_complete=1
 | `data/waves/c_output.wave` | QEMU C 推理输出波形 |
 | `data/waves/tf_*.wave` / `data/waves/c_*.wave` | 模型相关的 TF/C 中间层调试波形；LSTM 通常包含 `input_scaled`、`lstm_hidden`、`dense_output`、`output_scaled`，LSTMTransformer 通常包含 `input_scaled`、`lstm_hidden`、`transformer_ln_attn_*`、`transformer_ln_ffn_*`、`post_dense`、`output_scaled`，FRIKAN 通常包含 `input_scaled`、`iir_output`、`kan_layer_*`、`output_scaled` |
 | `data/plots/*.png` | 每条 validation record 的四曲线对比图，叠加 `origin`、`target`、`c_inference`、`tf_inference` |
+| `data/keil_benchmark_summary.json` | Keil build/program 结果、串口抓取元数据、解析后的 benchmark 标量、`validation_record_*` 与独立 comparison |
+| `data/keil_validation_comparison.json` | Keil 真机输出相对 TF 参考波形的独立对比结果 |
+| `data/keil_serial_stream.txt` | 本次真机运行的串口原始文本流 |
+| `data/keil_serial_raw.jsonl` | 本次真机运行的串口分块抓取记录 |
+| `data/waves/keil_output.wave` | Keil 真机输出波形，便于与 TF/QEMU 输出并排比对 |
 
 当前实现里，`benchmark_summary.json` 和 `validation_comparison.json` 都会汇总以下指标：
 

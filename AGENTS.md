@@ -148,6 +148,8 @@
 	- 配置驱动执行：仅执行已有配置的外部任务，若配置缺失则直接报错退出，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 项目索引：仓库内常见 EP 路径、典型项目名和 WNET5 图产物约定统一维护在 [docs/reference/ep.md](docs/reference/ep.md)。
 	- WNET5 长期约束：分层验证的权重来源、E96 量化误差仿真、SVF 拟合与报告产物规则统一维护在 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
+- `python cli.py ep keil-bench "PROJECT/qemu-c-inference/task-name"`
+	- 真机一键基准：对 `qemu-c-inference` EP 自动生成工程、Keil 编译、烧录、抓取串口并解析独立 JSON，详见 [docs/reference/ep.md](docs/reference/ep.md) 与 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- 损失函数消融对比：配置驱动读取多个 project 的 `metrics.json` 做统一横向比较，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `python cli.py ep "PROJECT/wnet5-circuit-validation/layer2"`

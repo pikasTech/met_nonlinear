@@ -49,5 +49,19 @@
     "action": "build-run",
     "machine": "olimex-stm32-h405",
     "timeout": 5
+  },
+  "keil_config": {
+    "action": "build-program-capture",
+    "target": "MET405",
+    "programmer": "daplink",
+    "program_backend": "keil",
+    "probe_uid": "205536951525",
+    "serial_port": "COM8",
+    "baud_rate": 115200,
+    "capture_timeout": 20,
+    "job_timeout": 300,
+    "success_markers": [
+      "validation_complete=1"
+    ]
   }
 }

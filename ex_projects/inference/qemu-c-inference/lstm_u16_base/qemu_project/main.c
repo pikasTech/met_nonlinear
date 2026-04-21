@@ -42,7 +42,7 @@ static void uart_init(void)
 #endif
 }
 
-static void uart_putc(char ch)
+static __attribute__((noinline)) void uart_putc(char ch)
 {
 #if defined(BENCHMARK_PLATFORM_KEIL)
     benchmark_keil_uart_putc(ch);
@@ -54,7 +54,7 @@ static void uart_putc(char ch)
 #endif
 }
 
-static void uart_puts(const char *message)
+static __attribute__((noinline)) void uart_puts(const char *message)
 {
     while (*message != '\0') {
         if (*message == '\n') {
@@ -65,7 +65,7 @@ static void uart_puts(const char *message)
     }
 }
 
-static void uart_put_u32(uint32_t value)
+static __attribute__((noinline)) void uart_put_u32(uint32_t value)
 {
     char buffer[11];
     uint32_t index = 0u;
@@ -96,7 +96,20 @@ static void uart_put_s32(int32_t value)
     uart_put_u32((uint32_t)value);
 }
 
-static void uart_put_fixed6(port_float value)
+static __attribute__((noinline)) void uart_put_ms_from_us(uint64_t value_us)
+{
+    uint32_t whole_ms = (uint32_t)(value_us / 1000u);
+    uint32_t frac_us = (uint32_t)(value_us % 1000u);
+
+    uart_put_u32(whole_ms);
+    uart_putc('.');
+    uart_putc((char)('0' + (frac_us / 100u)));
+    uart_putc((char)('0' + ((frac_us / 10u) % 10u)));
+    uart_putc((char)('0' + (frac_us % 10u)));
+    uart_puts("000");
+}
+
+static __attribute__((noinline)) void uart_put_fixed6(port_float value)
 {
     int32_t scaled = (int32_t)(value * 1000000.0f);
     int32_t abs_scaled = scaled;
@@ -120,7 +133,7 @@ static void uart_put_fixed6(port_float value)
     }
 }
 
-static void uart_put_matrix_rows(const port_float *values,
+static __attribute__((noinline)) void uart_put_matrix_rows(const port_float *values,
                                  uint32_t row_count,
                                  uint32_t column_count)
 {
@@ -386,9 +399,9 @@ int main(void)
     uint32_t end_cycles;
     uint32_t total_cycles = 0u;
 #if defined(BENCHMARK_PLATFORM_KEIL)
-    uint64_t start_timer_us = 0u;
-    uint64_t end_timer_us = 0u;
-    uint64_t total_timer_us = 0u;
+    uint64_t total_tick_us = 0u;
+    uint64_t start_tick_us = 0u;
+    uint64_t end_tick_us = 0u;
 #endif
 
 #if defined(BENCHMARK_PLATFORM_KEIL)
@@ -399,11 +412,11 @@ int main(void)
     zero_buffer(hidden_state, LSTM_UNITS);
     zero_buffer(cell_state, LSTM_UNITS);
 
-#if defined(BENCHMARK_PLATFORM_KEIL)
-    start_timer_us = benchmark_keil_get_tick_us();
-#endif
     if (dwt_supported != 0u) {
         start_cycles = dwt_read_cycles();
+#if defined(BENCHMARK_PLATFORM_KEIL)
+        start_tick_us = benchmark_keil_get_tick_us();
+#endif
     }
 
     for (iteration = 0u; iteration < BENCHMARK_ITERATIONS; ++iteration) {
@@ -426,11 +439,11 @@ int main(void)
     if (dwt_supported != 0u) {
         end_cycles = dwt_read_cycles();
         total_cycles = end_cycles - start_cycles;
-    }
 #if defined(BENCHMARK_PLATFORM_KEIL)
-    end_timer_us = benchmark_keil_get_tick_us();
-    total_timer_us = end_timer_us - start_timer_us;
+        end_tick_us = benchmark_keil_get_tick_us();
+        total_tick_us = end_tick_us - start_tick_us;
 #endif
+    }
 
     uart_puts("LSTM_BENCHMARK_VALIDATION\n");
     uart_puts("iterations=");
@@ -460,19 +473,15 @@ int main(void)
         uart_put_u32(total_cycles);
         uart_puts("\ncycles_per_iter=");
         uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));
-    }
 #if defined(BENCHMARK_PLATFORM_KEIL)
-    uart_puts("\nwall_time_unit=");
-    uart_puts("ms");
-    uart_puts("\nwall_time_total_ms=");
-    uart_put_fixed6((port_float)total_timer_us / 1000.0f);
-    uart_puts("\nwall_time_per_iter_ms=");
-    if (BENCHMARK_ITERATIONS == 0u) {
-        uart_put_fixed6(0.0f);
-    } else {
-        uart_put_fixed6(((port_float)total_timer_us / (port_float)BENCHMARK_ITERATIONS) / 1000.0f);
-    }
+        uart_puts("\nwall_time_unit=");
+        uart_puts("ms");
+        uart_puts("\nwall_time_total_ms=");
+        uart_put_ms_from_us(total_tick_us);
+        uart_puts("\nwall_time_per_iter_ms=");
+        uart_put_ms_from_us(BENCHMARK_ITERATIONS == 0u ? 0u : (total_tick_us / (uint64_t)BENCHMARK_ITERATIONS));
 #endif
+    }
     uart_puts("\noutput=");
     uart_put_fixed6(output_value);
     uart_puts("\n");

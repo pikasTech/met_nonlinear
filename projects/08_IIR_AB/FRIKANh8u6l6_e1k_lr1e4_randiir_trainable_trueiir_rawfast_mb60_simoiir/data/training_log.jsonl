@@ -296,3 +296,10 @@
 {"timestamp": 20260421122839.5, "epoch": 296, "loss": 3.7566e-01, "val_loss": 3.8317e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.7464e-01, "val_power_log_loss": 7.3147e-01, "lr": 2.0000e-05}
 {"timestamp": 20260421123140.5, "epoch": 297, "loss": 3.7470e-01, "val_loss": 3.8220e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.7215e-01, "val_power_log_loss": 7.2949e-01, "lr": 2.0000e-05}
 {"timestamp": 20260421123517.4, "epoch": 298, "loss": 3.7312e-01, "val_loss": 3.8122e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.6876e-01, "val_power_log_loss": 7.2739e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421123859.9, "epoch": 299, "loss": 3.7228e-01, "val_loss": 3.8021e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.6662e-01, "val_power_log_loss": 7.2504e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421124227.1, "epoch": 300, "loss": 3.7143e-01, "val_loss": 3.7920e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.6506e-01, "val_power_log_loss": 7.2258e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421124607.8, "epoch": 301, "loss": 3.7029e-01, "val_loss": 3.7816e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.6225e-01, "val_power_log_loss": 7.2003e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421124953.3, "epoch": 302, "loss": 3.6941e-01, "val_loss": 3.7714e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.6007e-01, "val_power_log_loss": 7.1762e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421125327.6, "epoch": 303, "loss": 3.6791e-01, "val_loss": 3.7613e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5719e-01, "val_power_log_loss": 7.1520e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421125652.6, "epoch": 304, "loss": 3.6705e-01, "val_loss": 3.7514e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5513e-01, "val_power_log_loss": 7.1289e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421125957.6, "epoch": 305, "loss": 3.6604e-01, "val_loss": 3.7414e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5265e-01, "val_power_log_loss": 7.1057e-01, "lr": 2.0000e-05}

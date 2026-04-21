@@ -1,7 +1,4 @@
-#include "main.h"
 #include "stm32f4xx_it.h"
-#include "tim.h"
-#include "usart.h"
 
 void NMI_Handler(void)
 {
@@ -45,25 +42,18 @@ void PendSV_Handler(void)
 
 void SysTick_Handler(void)
 {
-    HAL_IncTick();
 }
 
 void TIM3_IRQHandler(void)
 {
-    HAL_TIM_IRQHandler(&htim3);
 }
 
 void EXTI15_10_IRQHandler(void)
 {
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_12);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
-    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
 }
 
 void USART1_IRQHandler(void)
 {
-    HAL_UART_IRQHandler(&huart1);
 }
 
 void USART3_IRQHandler(void)

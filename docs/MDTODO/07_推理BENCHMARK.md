@@ -23,3 +23,10 @@
 ### R1.2 [completed]
 
 补充完成：截至 2026-04-21，仓库内全部已发现 11 个 QEMU EP 均已完成 Keil 编译、真机验证与 MAE/耗时汇总，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R1.2_Task_Report.md)。
+## R2 [completed]
+
+src\core\lstm_qemu_ep_task.py 实在是太长了，你做一个重构计划，合理拆分，并再做一个回归测试计划，而且文件里面混杂了lstm、keil和除了lstm的多个模型，文件名和文件内容也不一致了，我觉得创建一个 src/core/board_inference/ 然后在里面去重构为多个文件会比较合适，src/core/board_inference/ 下放不同的神经网络模型的通用代码，src/core/board_inference/models/ 里面放每个模型的专门代码，另外 C 代码的模板我建议专门放到单独的文本文件，例如 xxx_template.c/.h 里面，不要都挤占了 py 里面。如果涉及到 xml 也可以放到 xxx_template.xml 里面。然后在 py 里面读取。qemu 和 keil 的部分也要分开，但是两者也可以共同引入公共的逻辑, 完成任务后将详细报告写入[R2](./details/07_推理BENCHMARK/20260421_124302_Task_Report.md)。
+
+### R2.1
+
+在不修改 `src\core\lstm_qemu_ep_task.py` 的前提下按照 R2 的计划把新架构的代码写好，并且先不把新架构的代码挂载到 cli 主流程里面，增加一个 debug_cli，专门用来测试和旧的 `src\core\lstm_qemu_ep_task.py` 的 cli 主流程的行为一致性，最终要做到完全一致，这一步的目的是避免破坏已有的系统行为，先局部独立测试新重构后的代码，等到局部独立测试彻底通过后，后续可以清理 debug_cli 然后替换到主流程, 完成任务后将详细报告写入[R2.1](./details/07_推理BENCHMARK/20260421_125823_Task_Report.md)。

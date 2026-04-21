@@ -1180,3 +1180,216 @@ class TestAdditionalModelCodegen:
         assert 'debug_tcn_block_1_conv1' in main_c_content
         assert 'tcn_initial_projection_kernel' in model_header_content
         assert 'temporal_block_1_conv_1_kernel' in model_header_content
+
+
+class TestKeilBenchFlow:
+    def test_parse_benchmark_stdout_supports_concatenated_serial_stream(self):
+        import core.lstm_qemu_ep_task as task_module
+
+        parsed = task_module._parse_benchmark_stdout(
+            'LSTM_BENCHMARK_VALIDATION'
+            'iterations=10'
+            'measurement_unit=cycles'
+            'wall_time_per_iter_ms=44.655600'
+            'validation_record_0=0.110000,0.220000,0.330000'
+            'validation_complete=1'
+        )
+
+        assert parsed['iterations'] == 10
+        assert parsed['measurement_unit'] == 'cycles'
+        assert parsed['wall_time_per_iter_ms'] == pytest.approx(44.6556)
+        assert parsed['validation_record_0'] == '0.110000,0.220000,0.330000'
+        assert parsed['validation_complete'] == 1
+
+    @patch('core.lstm_qemu_ep_task._finish_keil_serial_capture')
+    @patch('core.lstm_qemu_ep_task._start_keil_serial_capture')
+    @patch('core.lstm_qemu_ep_task._run_keil_program_job')
+    @patch('core.lstm_qemu_ep_task._run_keil_build_job')
+    @patch('core.lstm_qemu_ep_task._prepare_validation_artifacts')
+    def test_execute_keil_bench_success(
+        self,
+        mock_prepare_validation_artifacts,
+        mock_run_keil_build_job,
+        mock_run_keil_program_job,
+        mock_start_keil_serial_capture,
+        mock_finish_keil_serial_capture,
+        tmp_path,
+        monkeypatch,
+    ):
+        from core.external_path_parser import ExternalPath
+        import core.lstm_qemu_ep_task as task_module
+
+        monkeypatch.setattr(task_module, 'REPO_ROOT', tmp_path)
+
+        mock_prepare_validation_artifacts.return_value = task_module.ValidationArtifacts(
+            dataset_type='MET',
+            full_data_path='data/M50',
+            sample_rate=2000.0,
+            time_window={
+                'start_time_s': 0.0,
+                'end_time_s': 0.003,
+                'sample_count': 3,
+            },
+            input_data_range=2.0,
+            output_data_range=4.0,
+            loaded_weights_path=tmp_path / 'projects' / 'demo_project' / 'data' / 'best_val.weights.h5',
+            records=[
+                task_module.ValidationRecord(
+                    record_id='mag0.4_freq10',
+                    magnitude=0.4,
+                    frequency=10.0,
+                    input_sequence=[[0.1], [0.2], [0.3]],
+                    target_sequence=[0.5, 0.6, 0.7],
+                    tf_output_sequence=[0.11, 0.22, 0.33],
+                ),
+            ],
+            tf_debug_sequences={},
+        )
+
+        model_dir = tmp_path / 'projects' / 'demo_project' / 'data'
+        model_dir.mkdir(parents=True)
+        with open(model_dir / 'best_val.weights.json', 'w', encoding='utf-8') as file_obj:
+            json.dump(_sample_lstm_weights(), file_obj)
+
+        ep_path = ExternalPath(
+            project_name='demo_task',
+            task_type='qemu-c-inference',
+            task_name='demo_task',
+            full_path=tmp_path / 'ex_projects' / 'inference' / 'qemu-c-inference' / 'demo_task',
+            config_path=tmp_path / 'ex_projects' / 'inference' / 'qemu-c-inference' / 'demo_task' / 'config.json',
+            output_path=tmp_path / 'ex_projects' / 'inference' / 'qemu-c-inference' / 'demo_task' / 'data',
+        )
+
+        mock_run_keil_build_job.return_value = {
+            'status': 'completed',
+            'success': True,
+            'result': {
+                'hex_file': 'demo.hex',
+            },
+        }
+        mock_run_keil_program_job.return_value = {
+            'status': 'completed',
+            'success': True,
+            'result': {
+                'message': 'Programming successful',
+            },
+        }
+        mock_start_keil_serial_capture.return_value = {
+            'capture_id': 'demo',
+        }
+
+        text_path = ep_path.output_path / 'keil_serial_stream.txt'
+        jsonl_path = ep_path.output_path / 'keil_serial_raw.jsonl'
+        result_path = ep_path.output_path / '.keil_capture' / 'capture_result.json'
+
+        def _capture_result(_capture_state, timeout_seconds):
+            del timeout_seconds
+            ep_path.output_path.mkdir(parents=True, exist_ok=True)
+            text_path.write_text(
+                'LSTM_BENCHMARK_VALIDATION'
+                'iterations=10'
+                'record_count=1'
+                'seq_len=3'
+                'input_dim=1'
+                'dwt_supported=1'
+                'timer_source=dwt'
+                'measurement_unit=cycles'
+                'measurement_total=30'
+                'measurement_per_iter=3'
+                'wall_time_unit=ms'
+                'wall_time_total_ms=1.500000'
+                'wall_time_per_iter_ms=0.150000'
+                'output=0.330000'
+                'benchmark_complete=1'
+                'validation_record_0=0.110000,0.220000,0.330000'
+                'validation_complete=1',
+                encoding='utf-8',
+            )
+            jsonl_path.write_text('', encoding='utf-8')
+            result_path.parent.mkdir(parents=True, exist_ok=True)
+            result_path.write_text('{}', encoding='utf-8')
+            return {
+                'status': 'completed',
+                'port': 'COM8',
+                'baud_rate': 115200,
+                'timed_out': False,
+                'record_count': 1,
+                'stream_length': text_path.stat().st_size,
+                'matched_success_markers': ['validation_complete=1'],
+                'missing_success_markers': [],
+                'result_path': str(result_path),
+                'jsonl_path': str(jsonl_path),
+                'text_path': str(text_path),
+                'error': None,
+            }
+
+        mock_finish_keil_serial_capture.side_effect = _capture_result
+
+        config = {
+            'task_info': {
+                'task_type': 'qemu-c-inference',
+            },
+            'model_project_name': 'demo_project',
+            'benchmark_config': {
+                'iterations': 10,
+                'reset_state_each_run': True,
+                'repeat_runs': 1,
+            },
+            'validation_config': {
+                'dataset': {
+                    'dataset_type': 'MET',
+                    'data_path': 'data/M50',
+                    'sample_rate': 2000,
+                    'time_clipped_s': 4.0,
+                    'target_sweep': 2,
+                },
+                'selection': {
+                    'magnitudes': [0.4],
+                    'frequencies': [10.0],
+                    'start_time_s': 0.0,
+                    'end_time_s': 0.003,
+                },
+                'wave_output': {
+                    'compress': True,
+                },
+            },
+            'generation_config': {
+                'project_dir': 'qemu_project',
+                'overwrite': True,
+            },
+            'qemu_config': {
+                'action': 'generate',
+            },
+            'keil_config': {
+                'action': 'build-program-capture',
+                'target': 'MET405',
+                'programmer': 'daplink',
+                'program_backend': 'keil',
+                'probe_uid': '205536951525',
+                'serial_port': 'COM8',
+                'baud_rate': 115200,
+                'capture_timeout': 20,
+                'job_timeout': 300,
+                'success_markers': ['validation_complete=1'],
+            },
+        }
+
+        result = task_module.execute_qemu_inference_keil_bench_task(ep_path, config)
+
+        assert result is True
+        summary_path = ep_path.output_path / 'keil_benchmark_summary.json'
+        comparison_path = ep_path.output_path / 'keil_validation_comparison.json'
+        keil_wave_path = ep_path.output_path / 'waves' / 'keil_output.wave'
+
+        assert summary_path.exists()
+        assert comparison_path.exists()
+        assert keil_wave_path.exists()
+
+        with open(summary_path, 'r', encoding='utf-8') as file_obj:
+            summary = json.load(file_obj)
+
+        assert summary['status'] == 'completed'
+        assert summary['comparison']['mae'] == pytest.approx(0.0)
+        assert summary['parsed_output']['wall_time_per_iter_ms'] == pytest.approx(0.15)
+        assert summary['validation_outputs']['record_0'] == [0.11, 0.22, 0.33]
+        assert summary['serial_capture']['text_path'].endswith('keil_serial_stream.txt')

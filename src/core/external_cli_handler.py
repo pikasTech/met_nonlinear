@@ -709,6 +709,7 @@ ep 命令使用说明：
 命令格式：
   cli.py ep <拓展项目路径>
     cli.py ep create <拓展项目路径>
+    cli.py ep keil-bench <拓展项目路径>
 
 路径格式：
   1. 独立拓展项目: external/projects/任务类型/任务名
@@ -738,6 +739,7 @@ ep 命令使用说明：
     1. 首次创建模板：cli.py ep create <路径>
     2. 编辑生成的 config.json
     3. 运行 cli.py ep <路径> 执行拓展项目任务
+    4. 对 qemu-c-inference EP，可运行 cli.py ep keil-bench <路径> 一键生成/编译/烧录/抓串口/解析 JSON
     """
     print(help_text)
 
