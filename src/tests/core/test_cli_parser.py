@@ -379,6 +379,25 @@ class TestParseArguments:
         assert args.ep_action == 'create'
         assert args.ep_project_path == 'project/task-type/task-name'
 
+    def test_parse_ep_keil_bench_command(self):
+        """Test parsing ep keil-bench subcommand"""
+        args = parse_arguments([
+            'ep',
+            'keil-bench',
+            'ex_projects/inference/qemu-c-inference/lstm_u16_base',
+            '--probe-uid', '205536951525',
+            '--serial-port', 'COM8',
+            '--program-backend', 'keil',
+            '--capture-timeout', '30',
+        ])
+        assert args.command == 'ep'
+        assert args.ep_action == 'keil-bench'
+        assert args.ep_project_path == 'ex_projects/inference/qemu-c-inference/lstm_u16_base'
+        assert args.ep_probe_uid == '205536951525'
+        assert args.ep_serial_port == 'COM8'
+        assert args.ep_keil_program_backend == 'keil'
+        assert args.ep_keil_capture_timeout == 30
+
     def test_parse_ep_command_invalid(self):
         """Test parsing invalid ep subcommand arguments"""
         with pytest.raises(ArgumentParsingError):

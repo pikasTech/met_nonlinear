@@ -6,6 +6,7 @@
   "output_files": [
     "ex_projects/inference/qemu-c-inference/grnu16/data/benchmark_summary.json",
     "ex_projects/inference/qemu-c-inference/grnu16/qemu_project",
+    "ex_projects/inference/qemu-c-inference/grnu16/keil_project",
     "ex_projects/inference/qemu-c-inference/grnu16/data/validation_comparison.json",
     "ex_projects/inference/qemu-c-inference/grnu16/data/waves/tf_output.wave",
     "ex_projects/inference/qemu-c-inference/grnu16/data/waves/origin_input.wave",

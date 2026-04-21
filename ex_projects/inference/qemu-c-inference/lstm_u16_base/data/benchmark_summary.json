@@ -5,6 +5,7 @@
   "weights_json_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.json",
   "loaded_weights_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.h5",
   "generated_project_dir": "ex_projects/inference/qemu-c-inference/lstm_u16_base/qemu_project",
+  "keil_project_dir": "ex_projects/inference/qemu-c-inference/lstm_u16_base/keil_project",
   "benchmark_config": {
     "iterations": 10,
     "reset_state_each_run": true,
@@ -13,7 +14,7 @@
   "validation": {
     "dataset": {
       "dataset_type": "MET",
-      "full_data_path": "F:\\BaiduSyncdisk\\data/M50",
+      "full_data_path": "D:\\BaiduSyncdisk\\data/M50",
       "sample_rate": 2000.0
     },
     "selection": {
@@ -59,7 +60,7 @@
       "exit_code": 0,
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 0.3314135,
+      "elapsed_seconds": 0.7451694000000018,
       "timed_out": false
     }
   },
@@ -80,9 +81,9 @@
         },
         "run": {
           "exit_code": 0,
-          "stdout": "LSTM_QEMU_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nlstm_units=16\ndense_units=16\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.017555\nbenchmark_complete=1\n",
+          "stdout": "LSTM_BENCHMARK_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nlstm_units=16\ndense_units=16\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.017555\nbenchmark_complete=1\n",
           "stderr": "",
-          "elapsed_seconds": 0.7148281000000001,
+          "elapsed_seconds": 1.8518010000000018,
           "timed_out": false
         }
       },
@@ -98,15 +99,15 @@
         "output": -0.017555,
         "benchmark_complete": 1,
         "measurement_unit": "seconds",
-        "measurement_total": 0.7148281000000001,
-        "measurement_per_iter": 0.07148281000000001
+        "measurement_total": 1.8518010000000018,
+        "measurement_per_iter": 0.18518010000000018
       }
     }
   ],
   "aggregated": {
     "run_count": 1,
-    "avg_host_elapsed_seconds": 0.7148281000000001,
-    "avg_measurement_per_iter": 0.07148281000000001,
+    "avg_host_elapsed_seconds": 1.8518010000000018,
+    "avg_measurement_per_iter": 0.18518010000000018,
     "measurement_sources": [
       "host_elapsed"
     ]
@@ -115,7 +116,7 @@
     "workflow": {
       "exit_code": 0,
       "timed_out": false,
-      "elapsed_seconds": 0.9995056999999985
+      "elapsed_seconds": 3.0852432000000007
     },
     "parsed_output": {
       "iterations": 10,
@@ -129,13 +130,14 @@
       "output": -0.017555,
       "benchmark_complete": 1,
       "measurement_unit": "seconds",
-      "measurement_total": 0.9995056999999985,
-      "measurement_per_iter": 0.09995056999999985
+      "measurement_total": 3.0852432000000007,
+      "measurement_per_iter": 0.3085243200000001
     },
     "comparison": {
       "record_count": 1,
       "sample_count": 400,
-      "mae": 0.0006196652730802063,
+      "mae": 0.0006196590498126872,
+      "mse": 4.72430531992548e-07,
       "max_abs_error": 0.0021807556428909275,
       "c_output_stats": {
         "min": -0.281485,
@@ -144,16 +146,16 @@
         "energy": 0.49503338256799995
       },
       "tf_output_stats": {
-        "min": -0.28158947825431824,
-        "max": 0.009693564847111702,
-        "mean": -0.00625782411034379,
-        "energy": 0.49513696734643714
+        "min": -0.28158944845199585,
+        "max": 0.009693514555692673,
+        "mean": -0.006257818166473044,
+        "energy": 0.4951369557527239
       },
       "diff_stats": {
         "min": -0.0018231298549175254,
         "max": 0.0021807556428909275,
-        "mean": 0.0005563541103437905,
-        "energy": 0.00018897486113085375
+        "mean": 0.0005563481664730439,
+        "energy": 0.0001889722127970192
       }
     },
     "intermediate_comparison": {
@@ -161,8 +163,9 @@
         "record_count": 1,
         "sample_count": 6400,
         "channel_count": 16,
-        "mae": 3.4246398555310435e-05,
-        "max_abs_error": 0.00030125635081529583,
+        "mae": 3.4246425767391914e-05,
+        "mse": 6.742327998337336e-09,
+        "max_abs_error": 0.0003012591447830197,
         "c_output_stats": {
           "min": 0.0,
           "max": 0.038134,
@@ -172,22 +175,23 @@
         "tf_output_stats": {
           "min": 0.0,
           "max": 0.037919968366622925,
-          "mean": 0.005167054691264638,
-          "energy": 0.8634611380611052
+          "mean": 0.005167054700432345,
+          "energy": 0.8634611349371365
         },
         "diff_stats": {
-          "min": -0.00030125635081529583,
+          "min": -0.0003012591447830197,
           "max": 0.00021416412162780785,
-          "mean": -1.0772035014638671e-05,
-          "energy": 4.315080843660858e-05
+          "mean": -1.0772044182345265e-05,
+          "energy": 4.315089918935895e-05
         }
       },
       "input_scaled": {
         "record_count": 1,
         "sample_count": 400,
         "channel_count": 1,
-        "mae": 5.120575304802974e-07,
-        "max_abs_error": 9.996619786531563e-07,
+        "mae": 5.120575300417391e-07,
+        "mse": 3.4539828722157364e-13,
+        "max_abs_error": 9.996619789330126e-07,
         "c_output_stats": {
           "min": -0.000428,
           "max": 0.000224,
@@ -195,23 +199,24 @@
           "energy": 8.32063e-06
         },
         "tf_output_stats": {
-          "min": -0.0004282975008797795,
-          "max": 0.00022443246210433803,
-          "mean": -9.583125592217906e-06,
-          "energy": 8.3648113659685e-06
+          "min": -0.0004282975008554402,
+          "max": 0.00022443246211575497,
+          "mean": -9.583125584671644e-06,
+          "energy": 8.364811365606144e-06
         },
         "diff_stats": {
-          "min": -9.996619786531563e-07,
-          "max": 9.98847357168542e-07,
-          "mean": -4.687440778209312e-08,
-          "energy": 1.3815931507548935e-10
+          "min": -9.996619789330126e-07,
+          "max": 9.988473557851136e-07,
+          "mean": -4.6874415328355316e-08,
+          "energy": 1.3815931488862945e-10
         }
       },
       "lstm_hidden": {
         "record_count": 1,
         "sample_count": 6400,
         "channel_count": 16,
-        "mae": 0.00012590530704128822,
+        "mae": 0.00012590545862989656,
+        "mse": 2.67955603108987e-08,
         "max_abs_error": 0.0007150557034015653,
         "c_output_stats": {
           "min": -0.038869,
@@ -220,23 +225,24 @@
           "energy": 1.103582676344
         },
         "tf_output_stats": {
-          "min": -0.03815601393580437,
-          "max": 0.025804366916418076,
-          "mean": 0.0016671488504186982,
-          "energy": 1.0880950190560377
+          "min": -0.03815601021051407,
+          "max": 0.025804368779063225,
+          "mean": 0.0016671488513989629,
+          "energy": 1.0880949911760698
         },
         "diff_stats": {
           "min": -0.0007150557034015653,
-          "max": 0.0005339044743776326,
-          "mean": 6.1311495813017875e-06,
-          "energy": 0.00017149111479596908
+          "max": 0.0005339054057002073,
+          "mean": 6.131148601037029e-06,
+          "energy": 0.0001714915859897517
         }
       },
       "output_scaled": {
         "record_count": 1,
         "sample_count": 400,
         "channel_count": 1,
-        "mae": 1.1511214098036287e-05,
+        "mae": 1.1511098846867678e-05,
+        "mse": 1.6265027487227818e-10,
         "max_abs_error": 4.141347450017929e-05,
         "c_output_stats": {
           "min": -0.005273,
@@ -245,16 +251,16 @@
           "energy": 0.00017367263000000004
         },
         "tf_output_stats": {
-          "min": -0.005275494884699583,
-          "max": 0.00018160603940486908,
-          "mean": -0.00011723846662789583,
-          "energy": 0.00017378764760810246
+          "min": -0.005275494419038296,
+          "max": 0.00018160510808229446,
+          "mean": -0.0001172383560333401,
+          "energy": 0.00017378764780894766
         },
         "diff_stats": {
           "min": -3.371748661994936e-05,
           "max": 4.141347450017929e-05,
-          "mean": 1.0358466627895832e-05,
-          "energy": 6.506102762212355e-08
+          "mean": 1.0358356033340096e-05,
+          "energy": 6.506010994891128e-08
         }
       }
     }
@@ -265,7 +271,8 @@
   "comparison": {
     "record_count": 1,
     "sample_count": 400,
-    "mae": 0.0006196652730802063,
+    "mae": 0.0006196590498126872,
+    "mse": 4.72430531992548e-07,
     "max_abs_error": 0.0021807556428909275,
     "c_output_stats": {
       "min": -0.281485,
@@ -274,16 +281,16 @@
       "energy": 0.49503338256799995
     },
     "tf_output_stats": {
-      "min": -0.28158947825431824,
-      "max": 0.009693564847111702,
-      "mean": -0.00625782411034379,
-      "energy": 0.49513696734643714
+      "min": -0.28158944845199585,
+      "max": 0.009693514555692673,
+      "mean": -0.006257818166473044,
+      "energy": 0.4951369557527239
     },
     "diff_stats": {
       "min": -0.0018231298549175254,
       "max": 0.0021807556428909275,
-      "mean": 0.0005563541103437905,
-      "energy": 0.00018897486113085375
+      "mean": 0.0005563481664730439,
+      "energy": 0.0001889722127970192
     }
   },
   "comparison_path": "ex_projects/inference/qemu-c-inference/lstm_u16_base/data/validation_comparison.json"

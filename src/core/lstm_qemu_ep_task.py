@@ -5,11 +5,17 @@ from __future__ import annotations
 import json
 import logging
 import math
+import os
 import re
+import shutil
+import subprocess
+import tempfile
+import time
 from datetime import datetime
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
+from xml.etree import ElementTree as ET
 
 import matplotlib
 matplotlib.use('Agg')
@@ -24,6 +30,10 @@ logger = logging.getLogger(__name__)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 QEMU_HELLO_TEMPLATE_DIR = REPO_ROOT / 'src' / 'tests' / 'qemu' / 'stm32f405_hello'
+KEIL_BENCHMARK_BASE_DIR = REPO_ROOT / 'src' / 'tests' / 'keil_projects' / 'met_keil_405'
+KEIL_BENCHMARK_BASE_MDK_DIR = KEIL_BENCHMARK_BASE_DIR / 'MDK-ARM'
+KEIL_BENCHMARK_BASE_UVPROJX = KEIL_BENCHMARK_BASE_MDK_DIR / 'Electrochemical geophone.uvprojx'
+KEIL_BENCHMARK_BASE_UVOPTX = KEIL_BENCHMARK_BASE_MDK_DIR / 'Electrochemical geophone.uvoptx'
 
 DATASET_OVERRIDE_FIELDS = (
     'dataset_type',
@@ -231,6 +241,79 @@ class WaveNetModelSpec:
 
 
 @dataclass
+class ConvStackModelSpec:
+    """1DCNN 这类顺序 Conv1D 堆叠模型的导出规格。"""
+
+    model_project_name: str
+    weights_json_path: Path
+    model_type: str
+    input_dim: int
+    initial_conv: WaveNetConv1DLayerSpec
+    conv_layers: List[WaveNetConv1DLayerSpec]
+    post_layers: List[WaveNetConv1DLayerSpec]
+    output_layer: WaveNetConv1DLayerSpec
+    output_units: int
+
+    @property
+    def final_input_channels(self) -> int:
+        if self.post_layers:
+            return self.post_layers[-1].output_channels
+        if self.conv_layers:
+            return self.conv_layers[-1].output_channels
+        return self.initial_conv.output_channels
+
+
+@dataclass
+class TcnTemporalBlockSpec:
+    """TCN 单个 temporal block 的导出规格。"""
+
+    block_index: int
+    conv1: WaveNetConv1DLayerSpec
+    conv2: WaveNetConv1DLayerSpec
+    residual_projection: Optional[WaveNetConv1DLayerSpec]
+    use_residual: bool
+    output_activation: str
+
+    @property
+    def output_channels(self) -> int:
+        return self.conv2.output_channels
+
+
+@dataclass
+class TcnModelSpec:
+    """TCN QEMU C 生成所需的模型规格。"""
+
+    model_project_name: str
+    weights_json_path: Path
+    model_type: str
+    input_dim: int
+    initial_projection: Optional[WaveNetConv1DLayerSpec]
+    channel_projection: Optional[WaveNetConv1DLayerSpec]
+    blocks: List[TcnTemporalBlockSpec]
+    post_layers: List[WaveNetConv1DLayerSpec]
+    output_layer: Optional[WaveNetConv1DLayerSpec]
+    output_dense_kernel: List[List[float]]
+    output_dense_bias: List[float]
+    output_units: int
+
+    @property
+    def block_input_channels(self) -> int:
+        if self.channel_projection is not None:
+            return self.channel_projection.output_channels
+        if self.initial_projection is not None:
+            return self.initial_projection.output_channels
+        return self.input_dim
+
+    @property
+    def final_input_channels(self) -> int:
+        if self.post_layers:
+            return self.post_layers[-1].output_channels
+        if self.blocks:
+            return self.blocks[-1].output_channels
+        return self.block_input_channels
+
+
+@dataclass
 class ValidationRecord:
     """单条验证波形记录。"""
 
@@ -308,6 +391,11 @@ def execute_qemu_inference_task(ep_path: ExternalPath,
         validation_artifacts=validation_artifacts,
         overwrite=overwrite,
     )
+    keil_project_dir = generate_keil_project(
+        ep_path=ep_path,
+        qemu_project_dir=generated_project_dir,
+        overwrite=overwrite,
+    )
 
     wave_paths = _write_validation_wave_files(
         output_root=ep_path.output_path,
@@ -325,6 +413,7 @@ def execute_qemu_inference_task(ep_path: ExternalPath,
         'weights_json_path': _relative_or_str(weights_json_path),
         'loaded_weights_path': _relative_or_str(validation_artifacts.loaded_weights_path),
         'generated_project_dir': _relative_or_str(generated_project_dir),
+        'keil_project_dir': _relative_or_str(keil_project_dir),
         'benchmark_config': benchmark_config,
         'validation': {
             'dataset': {
@@ -359,6 +448,7 @@ def execute_qemu_inference_task(ep_path: ExternalPath,
             'task_info': config['task_info'],
             'output_files': _collect_output_files(
                 generated_project_dir,
+                keil_project_dir,
                 summary_path,
                 *[Path(path) for path in wave_paths.values()],
             ),
@@ -517,12 +607,13 @@ def execute_qemu_inference_task(ep_path: ExternalPath,
     _write_json(summary_path, execution_summary)
     _write_json(ep_path.output_path / 'task_metadata.json', {
         'task_info': config['task_info'],
-        'output_files': _collect_output_files(
-            summary_path,
-            generated_project_dir,
-            comparison_file,
-            *[Path(path) for path in execution_summary.get('wave_paths', {}).values()],
-            *[Path(path) for path in execution_summary.get('plot_paths', {}).values()],
+            'output_files': _collect_output_files(
+                summary_path,
+                generated_project_dir,
+                keil_project_dir,
+                comparison_file,
+                *[Path(path) for path in execution_summary.get('wave_paths', {}).values()],
+                *[Path(path) for path in execution_summary.get('plot_paths', {}).values()],
         ),
         'action': action,
     })
@@ -534,6 +625,542 @@ def execute_lstm_qemu_inference_task(ep_path: ExternalPath,
                                      config: Dict[str, Any]) -> bool:
     """兼容旧调用名，内部统一走自动识别模型类型的任务入口。"""
     return execute_qemu_inference_task(ep_path, config)
+
+
+def execute_qemu_inference_keil_bench_task(ep_path: ExternalPath,
+                                           config: Dict[str, Any],
+                                           keil_overrides: Optional[Dict[str, Any]] = None) -> bool:
+    """执行 qemu-c-inference EP 的一键 Keil bench 流程。"""
+    ep_path.output_path.mkdir(parents=True, exist_ok=True)
+
+    model_project_name = str(config['model_project_name']).replace('\\', '/')
+    benchmark_config = _normalize_benchmark_config(config.get('benchmark_config', {}))
+    validation_config = _normalize_validation_config(config.get('validation_config', {}))
+    generation_config = config.get('generation_config', {})
+    keil_config = _normalize_keil_config(config.get('keil_config', {}), keil_overrides)
+
+    model_dir = _resolve_model_project_dir(model_project_name)
+    weights_json_path = _resolve_weights_json_path(model_dir, config.get('weights_file'))
+    model_type = _detect_model_type(model_project_name, model_dir, weights_json_path)
+    model_spec = _load_model_spec(
+        model_project_name=model_project_name,
+        model_dir=model_dir,
+        weights_json_path=weights_json_path,
+        model_type=model_type,
+        generation_config=generation_config,
+    )
+    if getattr(model_spec, 'input_dim', 1) != 1:
+        raise ValueError(f'当前仅支持单输入模型的数据集验证，实际 input_dim={model_spec.input_dim}')
+
+    validation_artifacts = _prepare_validation_artifacts(
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        validation_config=validation_config,
+        model_type=model_type,
+        model_spec=model_spec,
+    )
+
+    generated_project_dir = _resolve_generated_project_dir(ep_path, generation_config)
+    overwrite = bool(generation_config.get('overwrite', True))
+    generate_qemu_project(
+        output_dir=generated_project_dir,
+        model_spec=model_spec,
+        benchmark_config=benchmark_config,
+        validation_artifacts=validation_artifacts,
+        overwrite=overwrite,
+    )
+    keil_project_dir = generate_keil_project(
+        ep_path=ep_path,
+        qemu_project_dir=generated_project_dir,
+        overwrite=overwrite,
+    )
+
+    wave_paths = _write_validation_wave_files(
+        output_root=ep_path.output_path,
+        validation_artifacts=validation_artifacts,
+        c_output_sequences=None,
+        compress=bool(validation_config['wave_output']['compress']),
+        export_intermediates=bool(validation_config['wave_output'].get('export_intermediates', True)),
+    )
+
+    keil_project_file = keil_project_dir / 'MDK-ARM' / KEIL_BENCHMARK_BASE_UVPROJX.name
+    summary_path = ep_path.output_path / 'keil_benchmark_summary.json'
+    comparison_path = ep_path.output_path / 'keil_validation_comparison.json'
+    metadata_path = ep_path.output_path / 'keil_benchmark_metadata.json'
+
+    execution_summary: Dict[str, Any] = {
+        'task_type': 'qemu-c-inference',
+        'action': 'keil-bench',
+        'model_type': model_type,
+        'model_project_name': model_project_name,
+        'weights_json_path': _relative_or_str(weights_json_path),
+        'loaded_weights_path': _relative_or_str(validation_artifacts.loaded_weights_path),
+        'generated_project_dir': _relative_or_str(generated_project_dir),
+        'keil_project_dir': _relative_or_str(keil_project_dir),
+        'keil_project_file': _relative_or_str(keil_project_file),
+        'benchmark_config': benchmark_config,
+        'validation': {
+            'dataset': {
+                'dataset_type': validation_artifacts.dataset_type,
+                'full_data_path': validation_artifacts.full_data_path,
+                'sample_rate': validation_artifacts.sample_rate,
+            },
+            'selection': validation_artifacts.time_window,
+            'record_count': validation_artifacts.record_count,
+            'seq_len': validation_artifacts.seq_len,
+        },
+        'keil_config': dict(keil_config),
+        'wave_paths': wave_paths,
+        'status': 'generated',
+    }
+
+    action = str(keil_config.get('action', 'build-program-capture'))
+    if action == 'generate':
+        _write_json(summary_path, execution_summary)
+        _write_json(metadata_path, {
+            'task_info': config['task_info'],
+            'output_files': _collect_output_files(
+                summary_path,
+                metadata_path,
+                generated_project_dir,
+                keil_project_dir,
+                *[Path(path) for path in wave_paths.values()],
+            ),
+            'action': 'keil-bench',
+        })
+        logger.info('Keil benchmark 工程已生成: %s', keil_project_dir)
+        return True
+
+    build_result = _run_keil_build_job(
+        project_file=keil_project_file,
+        keil_config=keil_config,
+    )
+    execution_summary['keil_build'] = build_result
+    if not bool(build_result.get('success', False)):
+        execution_summary['status'] = 'build_failed'
+        _write_json(summary_path, execution_summary)
+        _write_json(metadata_path, {
+            'task_info': config['task_info'],
+            'output_files': _collect_output_files(summary_path, metadata_path),
+            'action': 'keil-bench',
+        })
+        return False
+
+    if action == 'build':
+        execution_summary['status'] = 'build_completed'
+        _write_json(summary_path, execution_summary)
+        _write_json(metadata_path, {
+            'task_info': config['task_info'],
+            'output_files': _collect_output_files(
+                summary_path,
+                metadata_path,
+                generated_project_dir,
+                keil_project_dir,
+                *[Path(path) for path in wave_paths.values()],
+            ),
+            'action': 'keil-bench',
+        })
+        return True
+
+    capture_state: Optional[Dict[str, Any]] = None
+    capture_result: Optional[Dict[str, Any]] = None
+    program_result: Optional[Dict[str, Any]] = None
+
+    try:
+        if action == 'build-program-capture':
+            capture_state = _start_keil_serial_capture(
+                output_dir=ep_path.output_path,
+                serial_port=str(keil_config['serial_port']),
+                baud_rate=int(keil_config['baud_rate']),
+                capture_timeout=int(keil_config['capture_timeout']),
+                success_markers=keil_config['success_markers'],
+            )
+
+        program_result = _run_keil_program_job(
+            project_file=keil_project_file,
+            keil_config=keil_config,
+        )
+        execution_summary['keil_program'] = program_result
+    finally:
+        if capture_state is not None:
+            capture_result = _finish_keil_serial_capture(
+                capture_state,
+                timeout_seconds=int(keil_config['capture_timeout']) + 10,
+            )
+            execution_summary['serial_capture'] = capture_result
+
+    if not bool(program_result and program_result.get('success', False)):
+        execution_summary['status'] = 'program_failed'
+        _write_json(summary_path, execution_summary)
+        _write_json(metadata_path, {
+            'task_info': config['task_info'],
+            'output_files': _collect_output_files(summary_path, metadata_path),
+            'action': 'keil-bench',
+        })
+        return False
+
+    if action == 'build-program':
+        execution_summary['status'] = 'program_completed'
+        _write_json(summary_path, execution_summary)
+        _write_json(metadata_path, {
+            'task_info': config['task_info'],
+            'output_files': _collect_output_files(summary_path, metadata_path),
+            'action': 'keil-bench',
+        })
+        return True
+
+    if capture_result is None:
+        raise RuntimeError('串口抓取结果缺失')
+
+    stream_text_path = Path(str(capture_result['text_path']))
+    stream_text = stream_text_path.read_text(encoding='utf-8')
+    parsed_output = _parse_benchmark_stdout(stream_text)
+    c_output_sequences = _extract_validation_outputs(parsed_output, validation_artifacts)
+    comparison_payload = _compute_wave_comparison(validation_artifacts, c_output_sequences)
+    keil_wave_path = ep_path.output_path / 'waves' / 'keil_output.wave'
+    _save_wave_file(
+        keil_wave_path,
+        source_name='keil_output',
+        sequences=c_output_sequences,
+        validation_artifacts=validation_artifacts,
+        compress=bool(validation_config['wave_output']['compress']),
+    )
+    qemu_reference = _load_qemu_reference_comparison(ep_path.output_path, c_output_sequences)
+
+    comparison_payload['wave_paths'] = {
+        'keil_output_wave': _relative_or_str(keil_wave_path),
+    }
+    _write_json(comparison_path, comparison_payload)
+
+    execution_summary['status'] = 'completed'
+    execution_summary['serial_capture'] = {
+        **capture_result,
+        'text_path': _relative_or_str(Path(str(capture_result['text_path']))),
+        'jsonl_path': _relative_or_str(Path(str(capture_result['jsonl_path']))),
+        'result_path': _relative_or_str(Path(str(capture_result['result_path']))),
+    }
+    execution_summary['parsed_output'] = _summarize_parsed_output(parsed_output)
+    execution_summary['validation_outputs'] = {
+        f'record_{index}': sequence
+        for index, sequence in enumerate(c_output_sequences)
+    }
+    execution_summary['comparison'] = comparison_payload['overall']
+    execution_summary['comparison_path'] = _relative_or_str(comparison_path)
+    execution_summary['keil_wave_paths'] = comparison_payload['wave_paths']
+    if qemu_reference is not None:
+        execution_summary['qemu_reference_comparison'] = qemu_reference
+
+    _write_json(summary_path, execution_summary)
+    _write_json(metadata_path, {
+        'task_info': config['task_info'],
+        'output_files': _collect_output_files(
+            summary_path,
+            comparison_path,
+            metadata_path,
+            generated_project_dir,
+            keil_project_dir,
+            keil_wave_path,
+            *[Path(path) for path in wave_paths.values()],
+        ),
+        'action': 'keil-bench',
+    })
+    logger.info('Keil benchmark 任务完成: %s', summary_path)
+    return True
+
+
+def _run_keil_build_job(project_file: Path,
+                        keil_config: Dict[str, Any]) -> Dict[str, Any]:
+    keil_cli_path = _resolve_keil_cli_path(keil_config)
+    request = _run_keil_cli_json_command([
+        'py', '-3', str(keil_cli_path), 'build',
+        '-p', str(project_file),
+        '-t', str(keil_config['target']),
+    ])
+    return _wait_keil_job(
+        keil_cli_path=keil_cli_path,
+        job_id=str(request['job_id']),
+        job_timeout=int(keil_config['job_timeout']),
+    )
+
+
+def _run_keil_program_job(project_file: Path,
+                          keil_config: Dict[str, Any]) -> Dict[str, Any]:
+    if not str(keil_config.get('probe_uid', '')).strip():
+        raise ValueError('Keil bench 缺少 probe_uid，请在 keil_config 或 CLI 中显式提供')
+
+    keil_cli_path = _resolve_keil_cli_path(keil_config)
+    command = [
+        'py', '-3', str(keil_cli_path), 'program',
+        '-p', str(project_file),
+        '-m', str(keil_config['programmer']),
+        '--program-backend', str(keil_config['program_backend']),
+        '-u', str(keil_config['probe_uid']),
+        '-t', str(keil_config['target']),
+    ]
+    request = _run_keil_cli_json_command(command)
+    return _wait_keil_job(
+        keil_cli_path=keil_cli_path,
+        job_id=str(request['job_id']),
+        job_timeout=int(keil_config['job_timeout']),
+    )
+
+
+def _resolve_keil_cli_path(keil_config: Dict[str, Any]) -> Path:
+    keil_cli_path = Path(str(keil_config['keil_cli_path']))
+    if not keil_cli_path.exists():
+        raise FileNotFoundError(f'未找到 keil-cli.py: {keil_cli_path}')
+    return keil_cli_path
+
+
+def _run_keil_cli_json_command(command: Sequence[str]) -> Dict[str, Any]:
+    completed = subprocess.run(
+        list(command),
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding='utf-8',
+        errors='replace',
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            f'Keil CLI 命令失败: {" ".join(command)}\nstdout={completed.stdout}\nstderr={completed.stderr}'
+        )
+    stdout = completed.stdout.strip()
+    if not stdout:
+        raise RuntimeError(f'Keil CLI 命令无输出: {" ".join(command)}')
+    try:
+        return json.loads(stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f'Keil CLI 输出不是合法 JSON: {stdout}') from exc
+
+
+def _wait_keil_job(keil_cli_path: Path,
+                   job_id: str,
+                   job_timeout: int) -> Dict[str, Any]:
+    start_time = time.monotonic()
+    last_status: Optional[str] = None
+    while True:
+        job_status = _run_keil_cli_json_command([
+            'py', '-3', str(keil_cli_path), 'job-status', job_id,
+        ])
+        status_text = str(job_status.get('status', 'unknown'))
+        if status_text != last_status:
+            logger.info('Keil job %s status=%s', job_id, status_text)
+            last_status = status_text
+
+        if status_text == 'completed':
+            return job_status
+        if status_text in {'failed', 'error', 'cancelled'}:
+            return job_status
+        if time.monotonic() - start_time > job_timeout:
+            raise TimeoutError(f'等待 Keil job 超时: {job_id}')
+        time.sleep(1.0)
+
+
+def _start_keil_serial_capture(output_dir: Path,
+                               serial_port: str,
+                               baud_rate: int,
+                               capture_timeout: int,
+                               success_markers: Sequence[str]) -> Dict[str, Any]:
+    if not serial_port.strip():
+        raise ValueError('Keil bench 缺少 serial_port，请在 keil_config 或 CLI 中显式提供')
+
+    capture_dir = output_dir / '.keil_capture'
+    capture_dir.mkdir(parents=True, exist_ok=True)
+    script_path = capture_dir / 'capture_serial.ps1'
+    result_path = capture_dir / 'capture_result.json'
+    jsonl_path = output_dir / 'keil_serial_raw.jsonl'
+    text_path = output_dir / 'keil_serial_stream.txt'
+
+    _write_text(script_path, _render_keil_serial_capture_script())
+    if result_path.exists():
+        result_path.unlink()
+    if jsonl_path.exists():
+        jsonl_path.unlink()
+    if text_path.exists():
+        text_path.unlink()
+
+    command = [
+        'powershell',
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        str(script_path),
+        '-PortName',
+        serial_port,
+        '-BaudRate',
+        str(baud_rate),
+        '-TimeoutSeconds',
+        str(capture_timeout),
+        '-ResultPath',
+        str(result_path),
+        '-JsonlPath',
+        str(jsonl_path),
+        '-TextPath',
+        str(text_path),
+    ]
+    for marker in success_markers:
+        command.extend(['-SuccessMarker', str(marker)])
+
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding='utf-8',
+        errors='replace',
+    )
+    time.sleep(0.5)
+    return {
+        'process': process,
+        'result_path': result_path,
+        'jsonl_path': jsonl_path,
+        'text_path': text_path,
+        'script_path': script_path,
+        'command': command,
+    }
+
+
+def _finish_keil_serial_capture(capture_state: Dict[str, Any],
+                                timeout_seconds: int) -> Dict[str, Any]:
+    process: subprocess.Popen[str] = capture_state['process']
+    try:
+        stdout, stderr = process.communicate(timeout=timeout_seconds)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        stdout, stderr = process.communicate()
+        raise TimeoutError(f'等待串口抓取进程结束超时: stdout={stdout}\nstderr={stderr}')
+
+    result_path = Path(capture_state['result_path'])
+    if process.returncode != 0:
+        raise RuntimeError(
+            f'串口抓取失败，returncode={process.returncode}\nstdout={stdout}\nstderr={stderr}'
+        )
+    if not result_path.exists():
+        raise FileNotFoundError(f'串口抓取结果文件缺失: {result_path}')
+
+    with open(result_path, 'r', encoding='utf-8') as file_obj:
+        result = json.load(file_obj)
+    result['stdout'] = stdout
+    result['stderr'] = stderr
+    return result
+
+
+def _render_keil_serial_capture_script() -> str:
+    return r"""param(
+    [Parameter(Mandatory = $true)][string]$PortName,
+    [Parameter(Mandatory = $true)][int]$BaudRate,
+    [Parameter(Mandatory = $true)][int]$TimeoutSeconds,
+    [Parameter(Mandatory = $true)][string]$ResultPath,
+    [Parameter(Mandatory = $true)][string]$JsonlPath,
+    [Parameter(Mandatory = $true)][string]$TextPath,
+    [string[]]$SuccessMarker = @('validation_complete=1')
+)
+
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$records = New-Object System.Collections.Generic.List[object]
+$streamBuilder = New-Object System.Text.StringBuilder
+$matchedMarkers = New-Object System.Collections.Generic.List[string]
+$port = New-Object System.IO.Ports.SerialPort $PortName, $BaudRate, ([System.IO.Ports.Parity]::None), 8, ([System.IO.Ports.StopBits]::One)
+$port.Encoding = [System.Text.Encoding]::ASCII
+$port.ReadTimeout = 200
+$port.WriteTimeout = 200
+$port.DtrEnable = $false
+$port.RtsEnable = $false
+$status = 'completed'
+$errorMessage = $null
+$timedOut = $false
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+try {
+    $port.Open()
+    $port.DiscardInBuffer()
+    while ($stopwatch.Elapsed.TotalSeconds -lt $TimeoutSeconds) {
+        $chunk = $port.ReadExisting()
+        if (-not [string]::IsNullOrEmpty($chunk)) {
+            [void]$streamBuilder.Append($chunk)
+            $records.Add([ordered]@{
+                timestamp = [DateTimeOffset]::Now.ToString('yyyy-MM-ddTHH:mm:ss.fffzzz')
+                port = $PortName
+                data = $chunk
+            })
+            $currentStream = $streamBuilder.ToString()
+            $allMatched = $true
+            foreach ($marker in $SuccessMarker) {
+                if ($currentStream.Contains($marker)) {
+                    if (-not $matchedMarkers.Contains($marker)) {
+                        $matchedMarkers.Add($marker)
+                    }
+                } else {
+                    $allMatched = $false
+                }
+            }
+            if ($allMatched) {
+                break
+            }
+        } else {
+            Start-Sleep -Milliseconds 50
+        }
+    }
+    if ($stopwatch.Elapsed.TotalSeconds -ge $TimeoutSeconds -and $matchedMarkers.Count -lt $SuccessMarker.Count) {
+        $timedOut = $true
+        $status = 'timeout'
+    }
+} catch {
+    $status = 'error'
+    $errorMessage = $_.Exception.Message
+} finally {
+    if ($port.IsOpen) {
+        $port.Close()
+    }
+}
+
+$streamText = $streamBuilder.ToString()
+[System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($ResultPath)) | Out-Null
+[System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($JsonlPath)) | Out-Null
+[System.IO.Directory]::CreateDirectory([System.IO.Path]::GetDirectoryName($TextPath)) | Out-Null
+[System.IO.File]::WriteAllText($TextPath, $streamText, $utf8NoBom)
+
+$jsonlLines = foreach ($record in $records) {
+    $record | ConvertTo-Json -Compress -Depth 4
+}
+[System.IO.File]::WriteAllLines($JsonlPath, $jsonlLines, $utf8NoBom)
+
+$missingMarkers = @()
+foreach ($marker in $SuccessMarker) {
+    if (-not $matchedMarkers.Contains($marker)) {
+        $missingMarkers += $marker
+    }
+}
+
+$result = [ordered]@{
+    status = $status
+    port = $PortName
+    baud_rate = $BaudRate
+    timeout_seconds = $TimeoutSeconds
+    timed_out = $timedOut
+    record_count = $records.Count
+    stream_length = $streamText.Length
+    matched_success_markers = @($matchedMarkers)
+    missing_success_markers = @($missingMarkers)
+    result_path = $ResultPath
+    jsonl_path = $JsonlPath
+    text_path = $TextPath
+    error = $errorMessage
+}
+
+$resultJson = $result | ConvertTo-Json -Depth 6
+[System.IO.File]::WriteAllText($ResultPath, $resultJson, $utf8NoBom)
+Write-Output $resultJson
+
+if ($status -eq 'error') {
+    exit 1
+}
+exit 0
+"""
 
 
 def generate_qemu_project(output_dir: Path,
@@ -563,11 +1190,534 @@ def generate_qemu_project(output_dir: Path,
     elif isinstance(model_spec, WaveNetModelSpec):
         main_c = _render_wavenet_main_c(model_spec)
         model_header = _render_wavenet_model_data_header(model_spec, benchmark_config, validation_artifacts)
+    elif isinstance(model_spec, ConvStackModelSpec):
+        main_c = _render_conv_stack_main_c(model_spec)
+        model_header = _render_conv_stack_model_data_header(model_spec, benchmark_config, validation_artifacts)
+    elif isinstance(model_spec, TcnModelSpec):
+        main_c = _render_tcn_main_c(model_spec)
+        model_header = _render_tcn_model_data_header(model_spec, benchmark_config, validation_artifacts)
     else:
         raise TypeError(f'不支持的模型规格类型: {type(model_spec)}')
 
+    main_c = _make_dual_platform_benchmark_c(main_c)
     _write_text(output_dir / 'main.c', main_c)
     _write_text(output_dir / 'model_data.h', model_header)
+
+
+def generate_keil_project(ep_path: ExternalPath,
+                          qemu_project_dir: Path,
+                          overwrite: bool) -> Path:
+    """在 EP 目录下生成可直接用于真机 benchmark 的 Keil 工程。"""
+    keil_project_dir = ep_path.full_path / 'keil_project'
+    application_dir = keil_project_dir / 'Application'
+    mdk_dir = keil_project_dir / 'MDK-ARM'
+    project_file = mdk_dir / KEIL_BENCHMARK_BASE_UVPROJX.name
+    uvoptx_file = mdk_dir / KEIL_BENCHMARK_BASE_UVOPTX.name
+
+    if keil_project_dir.exists() and not overwrite:
+        raise FileExistsError(f'Keil 工程目录已存在且未允许覆盖: {keil_project_dir}')
+
+    application_dir.mkdir(parents=True, exist_ok=True)
+    mdk_dir.mkdir(parents=True, exist_ok=True)
+
+    _write_text(application_dir / 'main.h', _render_keil_benchmark_main_h())
+    _write_text(application_dir / 'benchmark_keil_port.h', _render_keil_benchmark_port_h())
+    _write_text(application_dir / 'benchmark_keil_port.c', _render_keil_benchmark_port_c())
+    _write_text(application_dir / 'stm32f4xx_it.h', _render_keil_benchmark_it_h())
+    _write_text(application_dir / 'stm32f4xx_it.c', _render_keil_benchmark_it_c())
+
+    _write_keil_benchmark_uvprojx(
+        project_file=project_file,
+        mdk_dir=mdk_dir,
+        application_dir=application_dir,
+        qemu_project_dir=qemu_project_dir,
+    )
+
+    if KEIL_BENCHMARK_BASE_UVOPTX.exists():
+        shutil.copy2(KEIL_BENCHMARK_BASE_UVOPTX, uvoptx_file)
+
+    return keil_project_dir
+
+
+def _make_dual_platform_benchmark_c(main_c: str) -> str:
+    adapted = main_c.replace('_QEMU_VALIDATION', '_BENCHMARK_VALIDATION')
+    adapted = _replace_once(
+        adapted,
+        '#include "model_data.h"\n',
+        '#include "model_data.h"\n\n#if defined(BENCHMARK_PLATFORM_KEIL)\n#include "benchmark_keil_port.h"\n#endif\n',
+    )
+    adapted = _replace_once(
+        adapted,
+        'static void uart_init(void)\n{\n    RCC_APB2ENR |= RCC_APB2ENR_USART1EN;\n    USART1_BRR = 0x05B2u;\n    USART1_CR1 = USART_CR1_UE | USART_CR1_TE;\n}\n',
+        'static void uart_init(void)\n{\n#if defined(BENCHMARK_PLATFORM_KEIL)\n    benchmark_keil_uart_init();\n#else\n    RCC_APB2ENR |= RCC_APB2ENR_USART1EN;\n    USART1_BRR = 0x05B2u;\n    USART1_CR1 = USART_CR1_UE | USART_CR1_TE;\n#endif\n}\n',
+    )
+    adapted = _replace_once(
+        adapted,
+        'static void uart_putc(char ch)\n{\n    while ((USART1_SR & USART_SR_TXE) == 0u) {\n    }\n\n    USART1_DR = (uint32_t)ch;\n}\n',
+        'static void uart_putc(char ch)\n{\n#if defined(BENCHMARK_PLATFORM_KEIL)\n    benchmark_keil_uart_putc(ch);\n#else\n    while ((USART1_SR & USART_SR_TXE) == 0u) {\n    }\n\n    USART1_DR = (uint32_t)ch;\n#endif\n}\n',
+    )
+    adapted = _replace_once(
+        adapted,
+        '    uart_init();\n',
+        '#if defined(BENCHMARK_PLATFORM_KEIL)\n    benchmark_keil_platform_init();\n#endif\n    uart_init();\n',
+    )
+    adapted = _replace_once(
+        adapted,
+        'static void uart_put_fixed6(port_float value)\n',
+        'static void uart_put_ms_from_us(uint64_t value_us)\n'
+        '{\n'
+        '    uint32_t whole_ms = (uint32_t)(value_us / 1000u);\n'
+        '    uint32_t frac_us = (uint32_t)(value_us % 1000u);\n'
+        '\n'
+        '    uart_put_u32(whole_ms);\n'
+        '    uart_putc(\'.\');\n'
+        '    uart_putc((char)(\'0\' + (frac_us / 100u)));\n'
+        '    uart_putc((char)(\'0\' + ((frac_us / 10u) % 10u)));\n'
+        '    uart_putc((char)(\'0\' + (frac_us % 10u)));\n'
+        '    uart_puts("000");\n'
+        '}\n'
+        '\n'
+        'static void uart_put_fixed6(port_float value)\n',
+    )
+    optional_replacements = (
+        (
+            '\n    uint32_t total_cycles = 0u;\n',
+            '\n    uint32_t total_cycles = 0u;\n'
+            '#if defined(BENCHMARK_PLATFORM_KEIL)\n'
+            '    uint64_t total_tick_us = 0u;\n'
+            '    uint64_t start_tick_us = 0u;\n'
+            '    uint64_t end_tick_us = 0u;\n'
+            '#endif\n',
+        ),
+        (
+            '\n            start_cycles = dwt_read_cycles();\n',
+            '\n            start_cycles = dwt_read_cycles();\n'
+            '#if defined(BENCHMARK_PLATFORM_KEIL)\n'
+            '            start_tick_us = benchmark_keil_get_tick_us();\n'
+            '#endif\n',
+        ),
+        (
+            '\n        start_cycles = dwt_read_cycles();\n',
+            '\n        start_cycles = dwt_read_cycles();\n'
+            '#if defined(BENCHMARK_PLATFORM_KEIL)\n'
+            '        start_tick_us = benchmark_keil_get_tick_us();\n'
+            '#endif\n',
+        ),
+        (
+            '\n            total_cycles += (end_cycles - start_cycles);\n',
+            '\n            total_cycles += (end_cycles - start_cycles);\n'
+            '#if defined(BENCHMARK_PLATFORM_KEIL)\n'
+            '            end_tick_us = benchmark_keil_get_tick_us();\n'
+            '            total_tick_us += (end_tick_us - start_tick_us);\n'
+            '#endif\n',
+        ),
+        (
+            '\n        total_cycles = end_cycles - start_cycles;\n',
+            '\n        total_cycles = end_cycles - start_cycles;\n'
+            '#if defined(BENCHMARK_PLATFORM_KEIL)\n'
+            '        end_tick_us = benchmark_keil_get_tick_us();\n'
+            '        total_tick_us = end_tick_us - start_tick_us;\n'
+            '#endif\n',
+        ),
+        (
+            '\n        uart_puts("\\ncycles_per_iter=");\n'
+            '        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));\n'
+            '    }\n',
+            '\n        uart_puts("\\ncycles_per_iter=");\n'
+            '        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));\n'
+            '#if defined(BENCHMARK_PLATFORM_KEIL)\n'
+            '        uart_puts("\\nwall_time_unit=");\n'
+            '        uart_puts("ms");\n'
+            '        uart_puts("\\nwall_time_total_ms=");\n'
+            '        uart_put_ms_from_us(total_tick_us);\n'
+            '        uart_puts("\\nwall_time_per_iter_ms=");\n'
+            '        uart_put_ms_from_us(BENCHMARK_ITERATIONS == 0u ? 0u : (total_tick_us / (uint64_t)BENCHMARK_ITERATIONS));\n'
+            '#endif\n'
+            '    }\n',
+        ),
+    )
+    for old, new in optional_replacements:
+        if old in adapted:
+            adapted = _replace_once(adapted, old, new)
+    return _disable_benchmark_uart_helper_inlining(adapted)
+
+
+def _disable_benchmark_uart_helper_inlining(content: str) -> str:
+    """Keep the benchmark text output helpers out-of-line to avoid Keil code bloat."""
+    replacements = (
+        ('static void uart_putc(char ch)\n', 'static __attribute__((noinline)) void uart_putc(char ch)\n'),
+        ('static void uart_puts(const char *message)\n', 'static __attribute__((noinline)) void uart_puts(const char *message)\n'),
+        ('static void uart_put_u32(uint32_t value)\n', 'static __attribute__((noinline)) void uart_put_u32(uint32_t value)\n'),
+        ('static void uart_put_ms_from_us(uint64_t value_us)\n', 'static __attribute__((noinline)) void uart_put_ms_from_us(uint64_t value_us)\n'),
+        ('static void uart_put_fixed6(port_float value)\n', 'static __attribute__((noinline)) void uart_put_fixed6(port_float value)\n'),
+        (
+            'static void uart_put_matrix_rows(const port_float *values,\n',
+            'static __attribute__((noinline)) void uart_put_matrix_rows(const port_float *values,\n',
+        ),
+    )
+    adapted = content
+    for old, new in replacements:
+        adapted = _replace_once(adapted, old, new)
+    return adapted
+
+
+def _replace_once(content: str, old: str, new: str) -> str:
+    if old not in content:
+        raise ValueError(f'生成代码结构已变化，未找到预期片段: {old.splitlines()[0]}')
+    return content.replace(old, new, 1)
+
+
+def _write_keil_benchmark_uvprojx(project_file: Path,
+                                  mdk_dir: Path,
+                                  application_dir: Path,
+                                  qemu_project_dir: Path) -> None:
+    if not KEIL_BENCHMARK_BASE_UVPROJX.exists():
+        raise FileNotFoundError(f'Keil ???????: {KEIL_BENCHMARK_BASE_UVPROJX}')
+
+    tree = ET.parse(KEIL_BENCHMARK_BASE_UVPROJX)
+    root = tree.getroot()
+    target = root.find('./Targets/Target')
+    if target is None:
+        raise ValueError(f'Keil ????????: {KEIL_BENCHMARK_BASE_UVPROJX}')
+
+    include_paths = [
+        _to_keil_relpath(mdk_dir, application_dir),
+        _to_keil_relpath(mdk_dir, KEIL_BENCHMARK_BASE_DIR / 'Drivers' / 'CMSIS' / 'Device' / 'ST' / 'STM32F4xx' / 'Include'),
+        _to_keil_relpath(mdk_dir, KEIL_BENCHMARK_BASE_DIR / 'Drivers' / 'CMSIS' / 'Include'),
+    ]
+    defines = ','.join([
+        'STM32F405xx',
+        'ARM_MATH_CM4',
+        '__TARGET_FPU_VFP',
+        'BENCHMARK_PLATFORM_KEIL',
+    ])
+
+    _set_xml_text(target, './TargetOption/TargetCommonOption/OutputDirectory', 'output\\MET405\\')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/ListingPath', 'list\\MET405\\')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/OutputName', 'MET405_BENCHMARK')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/BeforeMake/RunUserProg1', '0')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/BeforeMake/RunUserProg2', '0')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/BeforeMake/UserProg1Name', '')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/BeforeMake/UserProg2Name', '')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/AfterMake/RunUserProg1', '0')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/AfterMake/RunUserProg2', '0')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/AfterMake/UserProg1Name', '')
+    _set_xml_text(target, './TargetOption/TargetCommonOption/AfterMake/UserProg2Name', '')
+    _set_xml_text(target, './TargetOption/TargetArmAds/Cads/VariousControls/IncludePath', ';'.join(include_paths))
+    _set_xml_text(target, './TargetOption/TargetArmAds/Cads/VariousControls/Define', defines)
+
+    groups = target.find('Groups')
+    if groups is None:
+        groups = ET.SubElement(target, 'Groups')
+    groups.clear()
+
+    startup_files = [
+        KEIL_BENCHMARK_BASE_MDK_DIR / 'startup_stm32f405xx.s',
+        KEIL_BENCHMARK_BASE_DIR / 'Hardware' / 'system_stm32f4xx.c',
+    ]
+    application_files = [
+        qemu_project_dir / 'main.c',
+        qemu_project_dir / 'model_data.h',
+        application_dir / 'main.h',
+        application_dir / 'benchmark_keil_port.h',
+        application_dir / 'benchmark_keil_port.c',
+        application_dir / 'stm32f4xx_it.h',
+        application_dir / 'stm32f4xx_it.c',
+    ]
+
+    groups.extend([
+        _create_keil_group('Startup', startup_files, mdk_dir),
+        _create_keil_group('Application', application_files, mdk_dir),
+    ])
+
+    ET.indent(tree, space='  ')
+    tree.write(project_file, encoding='UTF-8', xml_declaration=True)
+
+
+def _create_keil_group(group_name: str,
+                       files: Sequence[Path],
+                       mdk_dir: Path) -> ET.Element:
+    group = ET.Element('Group')
+    ET.SubElement(group, 'GroupName').text = group_name
+    files_el = ET.SubElement(group, 'Files')
+    for file_path in files:
+        file_el = ET.SubElement(files_el, 'File')
+        ET.SubElement(file_el, 'FileName').text = file_path.name
+        ET.SubElement(file_el, 'FileType').text = str(_guess_keil_file_type(file_path))
+        ET.SubElement(file_el, 'FilePath').text = _to_keil_relpath(mdk_dir, file_path)
+    return group
+
+
+def _guess_keil_file_type(path: Path) -> int:
+    suffix = path.suffix.lower()
+    if suffix == '.s':
+        return 2
+    if suffix == '.h':
+        return 5
+    return 1
+
+
+def _to_keil_relpath(from_dir: Path, target: Path) -> str:
+    return os.path.relpath(target.resolve(), from_dir.resolve()).replace('/', '\\')
+
+
+def _set_xml_text(root: ET.Element, path: str, value: str) -> None:
+    node = root.find(path)
+    if node is None:
+        raise ValueError(f'Keil 工程缺少节点: {path}')
+    node.text = value
+
+
+def _render_keil_benchmark_main_h() -> str:
+    return """#ifndef BENCHMARK_MAIN_H
+#define BENCHMARK_MAIN_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdint.h>
+
+void Error_Handler(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+"""
+
+
+def _render_keil_benchmark_port_h() -> str:
+    return """#ifndef BENCHMARK_KEIL_PORT_H
+#define BENCHMARK_KEIL_PORT_H
+
+#include "main.h"
+
+void benchmark_keil_platform_init(void);
+void benchmark_keil_uart_init(void);
+void benchmark_keil_uart_putc(char ch);
+uint64_t benchmark_keil_get_tick_us(void);
+
+#endif
+"""
+
+
+def _render_keil_benchmark_port_c() -> str:
+    return """#include "benchmark_keil_port.h"
+
+#include "stm32f405xx.h"
+
+#define BENCHMARK_USART_BRR_16MHZ 0x008BU
+#define BENCHMARK_DEMCR_TRCENA (1UL << 24)
+#define BENCHMARK_DWT_CTRL_CYCCNTENA (1UL << 0)
+
+static uint32_t g_benchmark_keil_ready = 0U;
+
+static void benchmark_enable_cycle_counter(void);
+static void benchmark_gpio_config_usart(GPIO_TypeDef *gpio_port, uint32_t pin_index);
+static void benchmark_uart_config(USART_TypeDef *usart_instance);
+static void benchmark_console_write_byte(USART_TypeDef *console_usart, uint8_t ch);
+static void benchmark_keil_write_string(const char *message);
+
+void benchmark_keil_uart_init(void)
+{
+    if (g_benchmark_keil_ready == 0U) {
+        benchmark_keil_platform_init();
+    }
+}
+
+void benchmark_keil_uart_putc(char ch)
+{
+    if ((USART1->CR1 & USART_CR1_UE) != 0U) {
+        benchmark_console_write_byte(USART1, (uint8_t)ch);
+    }
+    if ((USART3->CR1 & USART_CR1_UE) != 0U) {
+        benchmark_console_write_byte(USART3, (uint8_t)ch);
+    }
+}
+
+uint64_t benchmark_keil_get_tick_us(void)
+{
+    return (uint64_t)(DWT->CYCCNT / 16U);
+}
+
+void benchmark_keil_platform_init(void)
+{
+    if (g_benchmark_keil_ready != 0U) {
+        return;
+    }
+
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN;
+    RCC->APB2ENR |= RCC_APB2ENR_USART1EN;
+    RCC->APB1ENR |= RCC_APB1ENR_USART3EN;
+    __DSB();
+
+    benchmark_gpio_config_usart(GPIOA, 9U);
+    benchmark_gpio_config_usart(GPIOA, 10U);
+    benchmark_gpio_config_usart(GPIOB, 10U);
+    benchmark_gpio_config_usart(GPIOB, 11U);
+
+    benchmark_uart_config(USART1);
+    benchmark_uart_config(USART3);
+    benchmark_enable_cycle_counter();
+
+    g_benchmark_keil_ready = 1U;
+
+    benchmark_keil_write_string("[  OK]: hardware init ok\\r\\n");
+    benchmark_keil_write_string("[Info]: lean benchmark bring-up enabled\\r\\n");
+    benchmark_keil_write_string("[Info]: UART1+UART3 mirrored at 115200 baud\\r\\n");
+}
+
+void Error_Handler(void)
+{
+    while (1) {
+    }
+}
+
+static void benchmark_enable_cycle_counter(void)
+{
+    CoreDebug->DEMCR |= BENCHMARK_DEMCR_TRCENA;
+    DWT->CYCCNT = 0U;
+    DWT->CTRL |= BENCHMARK_DWT_CTRL_CYCCNTENA;
+}
+
+static void benchmark_gpio_config_usart(GPIO_TypeDef *gpio_port, uint32_t pin_index)
+{
+    uint32_t mode_shift = pin_index * 2U;
+    uint32_t afr_index = pin_index >> 3U;
+    uint32_t afr_shift = (pin_index & 7U) * 4U;
+
+    gpio_port->MODER = (gpio_port->MODER & ~(3UL << mode_shift)) | (2UL << mode_shift);
+    gpio_port->OSPEEDR = (gpio_port->OSPEEDR & ~(3UL << mode_shift)) | (3UL << mode_shift);
+    gpio_port->OTYPER &= ~(1UL << pin_index);
+    gpio_port->PUPDR = (gpio_port->PUPDR & ~(3UL << mode_shift)) | (1UL << mode_shift);
+    gpio_port->AFR[afr_index] = (gpio_port->AFR[afr_index] & ~(0xFUL << afr_shift)) | (7UL << afr_shift);
+}
+
+static void benchmark_uart_config(USART_TypeDef *usart_instance)
+{
+    usart_instance->CR1 = 0U;
+    usart_instance->CR2 = 0U;
+    usart_instance->CR3 = 0U;
+    usart_instance->BRR = BENCHMARK_USART_BRR_16MHZ;
+    usart_instance->CR1 = USART_CR1_UE | USART_CR1_TE | USART_CR1_RE;
+}
+
+static void benchmark_console_write_byte(USART_TypeDef *console_usart, uint8_t ch)
+{
+    while ((console_usart->SR & USART_SR_TXE) == 0U) {
+    }
+    console_usart->DR = (uint32_t)ch;
+}
+
+static void benchmark_keil_write_string(const char *message)
+{
+    while (*message != '\\0') {
+        benchmark_keil_uart_putc(*message++);
+    }
+}
+"""
+
+
+def _render_keil_benchmark_it_h() -> str:
+    return """#ifndef BENCHMARK_STM32F4XX_IT_H
+#define BENCHMARK_STM32F4XX_IT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void NMI_Handler(void);
+void HardFault_Handler(void);
+void MemManage_Handler(void);
+void BusFault_Handler(void);
+void UsageFault_Handler(void);
+void SVC_Handler(void);
+void DebugMon_Handler(void);
+void PendSV_Handler(void);
+void SysTick_Handler(void);
+void TIM3_IRQHandler(void);
+void EXTI15_10_IRQHandler(void);
+void USART1_IRQHandler(void);
+void USART3_IRQHandler(void);
+void DMA1_Stream3_IRQHandler(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+"""
+
+
+def _render_keil_benchmark_it_c() -> str:
+    return """#include "stm32f4xx_it.h"
+
+void NMI_Handler(void)
+{
+}
+
+void HardFault_Handler(void)
+{
+    while (1) {
+    }
+}
+
+void MemManage_Handler(void)
+{
+    while (1) {
+    }
+}
+
+void BusFault_Handler(void)
+{
+    while (1) {
+    }
+}
+
+void UsageFault_Handler(void)
+{
+    while (1) {
+    }
+}
+
+void SVC_Handler(void)
+{
+}
+
+void DebugMon_Handler(void)
+{
+}
+
+void PendSV_Handler(void)
+{
+}
+
+void SysTick_Handler(void)
+{
+}
+
+void TIM3_IRQHandler(void)
+{
+}
+
+void EXTI15_10_IRQHandler(void)
+{
+}
+
+void USART1_IRQHandler(void)
+{
+}
+
+void USART3_IRQHandler(void)
+{
+}
+
+void DMA1_Stream3_IRQHandler(void)
+{
+}
+"""
 
 
 def _resolve_model_project_dir(model_project_name: str) -> Path:
@@ -646,6 +1796,38 @@ def _normalize_validation_config(config: Dict[str, Any]) -> Dict[str, Any]:
         'selection': selection_config,
         'wave_output': wave_output_config,
     }
+
+
+def _normalize_keil_config(config: Dict[str, Any],
+                           keil_overrides: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    normalized = dict(config)
+    normalized.setdefault('action', 'build-program-capture')
+    normalized.setdefault('target', 'MET405')
+    normalized.setdefault('programmer', 'daplink')
+    normalized.setdefault('program_backend', 'keil')
+    normalized.setdefault('probe_uid', '')
+    normalized.setdefault('serial_port', '')
+    normalized.setdefault('baud_rate', 115200)
+    normalized.setdefault('capture_timeout', 20)
+    normalized.setdefault('job_timeout', 300)
+    normalized.setdefault('success_markers', ['validation_complete=1'])
+    normalized.setdefault(
+        'keil_cli_path',
+        str(Path.home() / '.agents' / 'skills' / 'keil' / 'keil-cli.py'),
+    )
+
+    for key, value in (keil_overrides or {}).items():
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+        normalized[key] = value
+
+    normalized['baud_rate'] = int(normalized['baud_rate'])
+    normalized['capture_timeout'] = int(normalized['capture_timeout'])
+    normalized['job_timeout'] = int(normalized['job_timeout'])
+    normalized['success_markers'] = [str(item) for item in normalized.get('success_markers', []) if str(item)]
+    return normalized
 
 
 def _prepare_validation_artifacts(model_project_name: str,
@@ -814,6 +1996,42 @@ def _collect_tf_debug_sequences(model_engine: Any,
             debug_sequences[stage_name] = _split_batch_sequences(stage_output)
         return debug_sequences
 
+    if model_type == 'onedcnn':
+        stage_names, stage_outputs = _collect_conv_stack_stage_outputs(keras_model)
+        intermediate_model = tf.keras.Model(inputs=keras_model.input, outputs=stage_outputs)
+        predicted_outputs = intermediate_model.predict(
+            x_scaled,
+            batch_size=max(1, batch_size),
+            verbose=0,
+        )
+        if not isinstance(predicted_outputs, list):
+            predicted_outputs = [predicted_outputs]
+
+        debug_sequences = {
+            'input_scaled': _split_batch_sequences(x_scaled),
+        }
+        for stage_name, stage_output in zip(stage_names, predicted_outputs):
+            debug_sequences[stage_name] = _split_batch_sequences(stage_output)
+        return debug_sequences
+
+    if model_type == 'tcn':
+        stage_names, stage_outputs = _collect_tcn_stage_outputs(keras_model)
+        intermediate_model = tf.keras.Model(inputs=keras_model.input, outputs=stage_outputs)
+        predicted_outputs = intermediate_model.predict(
+            x_scaled,
+            batch_size=max(1, batch_size),
+            verbose=0,
+        )
+        if not isinstance(predicted_outputs, list):
+            predicted_outputs = [predicted_outputs]
+
+        debug_sequences = {
+            'input_scaled': _split_batch_sequences(x_scaled),
+        }
+        for stage_name, stage_output in zip(stage_names, predicted_outputs):
+            debug_sequences[stage_name] = _split_batch_sequences(stage_output)
+        return debug_sequences
+
     intermediate_model = tf.keras.Model(
         inputs=keras_model.input,
         outputs=[
@@ -878,6 +2096,125 @@ def _collect_wavenet_stage_outputs(keras_model: Any,
     stage_names.append('output_scaled')
     stage_outputs.append(keras_model.get_layer(output_layer_name).output)
     return stage_names, stage_outputs
+
+
+def _collect_conv_stack_stage_outputs(keras_model: Any) -> tuple[List[str], List[Any]]:
+    stage_names: List[str] = ['initial_conv']
+    stage_outputs: List[Any] = [_get_layer_output_by_candidates(keras_model, 'conv_activation_1', 'conv_1')]
+
+    conv_layer_indices = sorted({
+        int(match.group(1))
+        for layer in keras_model.layers
+        for match in [re.fullmatch(r'conv_(\d+)', layer.name)]
+        if match is not None
+    })
+    for layer_index in conv_layer_indices:
+        if layer_index <= 1:
+            continue
+        stage_names.append(f'conv_block_{layer_index - 2}')
+        stage_outputs.append(
+            _get_layer_output_by_candidates(
+                keras_model,
+                f'conv_activation_{layer_index}',
+                f'conv_{layer_index}',
+            )
+        )
+
+    post_dense_indices = sorted({
+        int(match.group(1))
+        for layer in keras_model.layers
+        for match in [re.fullmatch(r'post_dense_(\d+)', layer.name)]
+        if match is not None
+    })
+    for layer_index in post_dense_indices:
+        stage_names.append(f'post_dense_{layer_index}')
+        stage_outputs.append(
+            _get_layer_output_by_candidates(
+                keras_model,
+                f'post_dense_activation_{layer_index}',
+                f'post_dense_{layer_index}',
+            )
+        )
+
+    stage_names.append('output_scaled')
+    stage_outputs.append(keras_model.get_layer('output_conv').output)
+    return stage_names, stage_outputs
+
+
+def _collect_tcn_stage_outputs(keras_model: Any) -> tuple[List[str], List[Any]]:
+    stage_names: List[str] = []
+    stage_outputs: List[Any] = []
+
+    if _has_layer(keras_model, 'initial_projection') or _has_layer(keras_model, 'initial_projection_activation'):
+        stage_names.append('initial_projection')
+        stage_outputs.append(
+            _get_layer_output_by_candidates(
+                keras_model,
+                'initial_projection_activation',
+                'initial_projection',
+            )
+        )
+
+    if _has_layer(keras_model, 'channel_projection'):
+        stage_names.append('channel_projection')
+        stage_outputs.append(keras_model.get_layer('channel_projection').output)
+
+    block_indices = sorted({
+        int(match.group(1))
+        for layer in keras_model.layers
+        for match in [re.fullmatch(r'temporal_block_(\d+)_conv_1', layer.name)]
+        if match is not None
+    })
+    for block_index in block_indices:
+        stage_names.append(f'tcn_block_{block_index}')
+        stage_outputs.append(
+            _get_layer_output_by_candidates(
+                keras_model,
+                f'temporal_block_{block_index}_output_activation',
+                f'temporal_block_{block_index}_residual_add',
+                f'temporal_block_{block_index}_conv_2',
+            )
+        )
+
+    post_dense_indices = sorted({
+        int(match.group(1))
+        for layer in keras_model.layers
+        for match in [re.fullmatch(r'post_dense_(\d+)', layer.name)]
+        if match is not None
+    })
+    for layer_index in post_dense_indices:
+        stage_names.append(f'post_dense_{layer_index}')
+        stage_outputs.append(
+            _get_layer_output_by_candidates(
+                keras_model,
+                f'post_dense_activation_{layer_index}',
+                f'post_dense_{layer_index}',
+            )
+        )
+
+    output_layer_name = 'output_conv' if _has_layer(keras_model, 'output_conv') else 'output_dense'
+    stage_names.append('output_scaled')
+    stage_outputs.append(keras_model.get_layer(output_layer_name).output)
+    return stage_names, stage_outputs
+
+
+def _has_layer(keras_model: Any, layer_name: str) -> bool:
+    try:
+        keras_model.get_layer(layer_name)
+    except ValueError:
+        return False
+    return True
+
+
+def _get_layer_output_by_candidates(keras_model: Any, *layer_names: str) -> Any:
+    for layer_name in layer_names:
+        if not layer_name:
+            continue
+        try:
+            return keras_model.get_layer(layer_name).output
+        except ValueError:
+            continue
+    raise ValueError(f'未找到任一候选层输出: {layer_names}')
 
 
 def _resolve_reference_weights_path(weights_json_path: Path) -> Path:
@@ -1120,6 +2457,10 @@ def _detect_model_type(model_project_name: str,
             return 'lstm_transformer'
         if use_model in {'GRN', 'GRU'}:
             return 'grn'
+        if use_model == '1DCNN':
+            return 'onedcnn'
+        if use_model == 'TCN':
+            return 'tcn'
         if use_model == 'WAVENET2':
             return 'wavenet2'
         if use_model == 'WAVENET3':
@@ -1137,6 +2478,10 @@ def _detect_model_type(model_project_name: str,
         return 'grn'
     if any('dense_kan' in name for name in weight_names) and any('simple_rnn' in name for name in weight_names):
         return 'frikan'
+    if any(re.fullmatch(r'conv_\d+/kernel:0', name) for name in weight_names):
+        return 'onedcnn'
+    if any(re.fullmatch(r'temporal_block_\d+_conv_1/kernel:0', name) for name in weight_names):
+        return 'tcn'
     if any(name.endswith('output_conv/kernel:0') for name in weight_names):
         return 'wavenet2'
     if any(name.endswith('dense_1/kernel:0') for name in weight_names) and any(name.startswith('initial_conv/') for name in weight_names):
@@ -1164,6 +2509,10 @@ def _load_model_spec(model_project_name: str,
             lut_points=int(generation_config.get('lut_points', 513)),
             lut_interpolation=bool(generation_config.get('lut_interpolation', False)),
         )
+    if model_type == 'onedcnn':
+        return _load_conv_stack_model_spec(model_project_name, model_dir, weights_json_path)
+    if model_type == 'tcn':
+        return _load_tcn_model_spec(model_project_name, model_dir, weights_json_path)
     if model_type in {'wavenet2', 'wavenet3'}:
         return _load_wavenet_model_spec(
             model_project_name=model_project_name,
@@ -1602,6 +2951,168 @@ def _load_frikan_model_spec(model_project_name: str,
     )
 
 
+def _load_conv_stack_model_spec(model_project_name: str,
+                                model_dir: Path,
+                                weights_json_path: Path) -> ConvStackModelSpec:
+    with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
+        weights = json.load(file_obj)
+
+    project_config = _load_project_config(model_dir)
+    model_subcfg = project_config.get('model_subcfg', {}) if isinstance(project_config.get('model_subcfg', {}), dict) else {}
+
+    final_activation = str(model_subcfg.get('final_activation', 'linear') or 'linear').strip().lower()
+    if final_activation not in {'linear', 'identity', 'none'}:
+        raise ValueError(f'当前 qemu-c-inference 暂不支持 1DCNN final_activation={final_activation}')
+
+    conv_activation = str(model_subcfg.get('conv_activation') or project_config.get('activation', 'linear') or 'linear').strip().lower()
+    post_activation = str(model_subcfg.get('post_dense_activation', 'linear') or 'linear').strip().lower()
+
+    conv_names = sorted({
+        str(item.get('name', '')).replace('\\', '/').split('/')[0]
+        for item in weights
+        if re.fullmatch(r'conv_\d+/kernel:0', str(item.get('name', '')).replace('\\', '/'))
+    }, key=_conv_stack_layer_sort_key)
+    if not conv_names:
+        raise ValueError('1DCNN 权重中未找到 conv_* 卷积层')
+
+    initial_conv = _load_wavenet_conv1d_layer(weights, conv_names[0], activation=conv_activation, dilation=1)
+    conv_layers = [
+        _load_wavenet_conv1d_layer(weights, layer_name, activation=conv_activation, dilation=1)
+        for layer_name in conv_names[1:]
+    ]
+    post_layers = _load_wavenet_post_layers(weights, activation=post_activation)
+    output_layer = _load_wavenet_conv1d_layer(weights, 'output_conv', activation='linear', dilation=1)
+
+    model_spec = ConvStackModelSpec(
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        model_type='onedcnn',
+        input_dim=1,
+        initial_conv=initial_conv,
+        conv_layers=conv_layers,
+        post_layers=post_layers,
+        output_layer=output_layer,
+        output_units=1,
+    )
+    _validate_conv_stack_model_spec(model_spec)
+    return model_spec
+
+
+def _load_tcn_model_spec(model_project_name: str,
+                         model_dir: Path,
+                         weights_json_path: Path) -> TcnModelSpec:
+    with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
+        weights = json.load(file_obj)
+
+    project_config = _load_project_config(model_dir)
+    model_subcfg = project_config.get('model_subcfg', {}) if isinstance(project_config.get('model_subcfg', {}), dict) else {}
+
+    if bool(model_subcfg.get('use_gating', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 TCN use_gating=True')
+    if bool(model_subcfg.get('use_parallel_blocks', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 TCN use_parallel_blocks=True')
+    if bool(model_subcfg.get('combine_blocks_by_add', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 TCN combine_blocks_by_add=True')
+    if bool(model_subcfg.get('block_dense', False)):
+        raise ValueError('当前 qemu-c-inference 暂不支持 TCN block_dense=True')
+
+    final_activation = str(model_subcfg.get('final_activation', 'linear') or 'linear').strip().lower()
+    if final_activation not in {'linear', 'identity', 'none'}:
+        raise ValueError(f'当前 qemu-c-inference 暂不支持 TCN final_activation={final_activation}')
+
+    block_activation = str(model_subcfg.get('block_activation') or project_config.get('activation', 'linear') or 'linear').strip().lower()
+    post_activation = str(model_subcfg.get('post_dense_activation', 'linear') or 'linear').strip().lower()
+    dilations = [int(item) for item in model_subcfg.get('dilations', [])]
+    use_residual = bool(model_subcfg.get('use_residual', True))
+
+    initial_projection = None
+    if not bool(model_subcfg.get('skip_initial_conv', False)):
+        initial_projection = _load_wavenet_conv1d_layer(
+            weights,
+            'initial_projection',
+            activation=block_activation,
+            dilation=1,
+        )
+
+    channel_projection = _load_optional_conv1d_layer(
+        weights,
+        'channel_projection',
+        activation='linear',
+        dilation=1,
+    )
+
+    block_indices = sorted({
+        int(match.group(1))
+        for item in weights
+        for match in [re.fullmatch(r'temporal_block_(\d+)_conv_1/kernel:0', str(item.get('name', '')).replace('\\', '/'))]
+        if match is not None
+    })
+    if not block_indices:
+        raise ValueError('TCN 权重中未找到 temporal_block_*_conv_1 卷积层')
+
+    blocks: List[TcnTemporalBlockSpec] = []
+    for list_index, block_index in enumerate(block_indices):
+        dilation = dilations[list_index] if list_index < len(dilations) else 1
+        residual_projection = _load_optional_conv1d_layer(
+            weights,
+            f'temporal_block_{block_index}_residual_projection',
+            activation='linear',
+            dilation=1,
+        )
+        blocks.append(TcnTemporalBlockSpec(
+            block_index=block_index,
+            conv1=_load_wavenet_conv1d_layer(
+                weights,
+                f'temporal_block_{block_index}_conv_1',
+                activation=block_activation,
+                dilation=dilation,
+            ),
+            conv2=_load_wavenet_conv1d_layer(
+                weights,
+                f'temporal_block_{block_index}_conv_2',
+                activation=block_activation,
+                dilation=dilation,
+            ),
+            residual_projection=residual_projection,
+            use_residual=use_residual,
+            output_activation=block_activation,
+        ))
+
+    post_layers = _load_wavenet_post_layers(weights, activation=post_activation)
+
+    output_layer: Optional[WaveNetConv1DLayerSpec] = None
+    output_dense_kernel = _zero_matrix(1, 1)
+    output_dense_bias = [0.0]
+    if bool(model_subcfg.get('skip_output_conv', False)):
+        output_kernel = _find_weight_entry(weights, 'output_dense/kernel')
+        output_bias = _find_weight_entry(weights, 'output_dense/bias')
+        if list(output_bias['shape']) != [1]:
+            raise ValueError(f'TCN 输出 dense bias 形状非法: {output_bias["shape"]}')
+        if list(output_kernel['shape'])[1] != 1:
+            raise ValueError(f'TCN 输出 dense kernel 形状非法: {output_kernel["shape"]}')
+        output_dense_kernel = _to_float_matrix(output_kernel['value'])
+        output_dense_bias = _to_float_vector(output_bias['value'])
+    else:
+        output_layer = _load_wavenet_conv1d_layer(weights, 'output_conv', activation='linear', dilation=1)
+
+    model_spec = TcnModelSpec(
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        model_type='tcn',
+        input_dim=1,
+        initial_projection=initial_projection,
+        channel_projection=channel_projection,
+        blocks=blocks,
+        post_layers=post_layers,
+        output_layer=output_layer,
+        output_dense_kernel=output_dense_kernel,
+        output_dense_bias=output_dense_bias,
+        output_units=1,
+    )
+    _validate_tcn_model_spec(model_spec)
+    return model_spec
+
+
 def _load_wavenet_model_spec(model_project_name: str,
                              model_dir: Path,
                              weights_json_path: Path,
@@ -1715,6 +3226,112 @@ def _validate_wavenet_model_spec(model_spec: WaveNetModelSpec) -> None:
             raise ValueError('WaveNet3 输出层 bias 形状非法')
 
 
+def _validate_conv_stack_model_spec(model_spec: ConvStackModelSpec) -> None:
+    expected_channels = model_spec.initial_conv.output_channels
+    for layer in model_spec.conv_layers:
+        if layer.input_channels != expected_channels:
+            raise ValueError(
+                f'{layer.name} 输入通道数非法，期望 {expected_channels}，实际 {layer.input_channels}'
+            )
+        expected_channels = layer.output_channels
+
+    for layer in model_spec.post_layers:
+        if layer.kernel_size != 1:
+            raise ValueError(f'当前 qemu-c-inference 仅支持 kernel_size=1 的 post_dense 层，实际 {layer.name}={layer.kernel_size}')
+        if layer.input_channels != expected_channels:
+            raise ValueError(
+                f'{layer.name} 输入通道数非法，期望 {expected_channels}，实际 {layer.input_channels}'
+            )
+        expected_channels = layer.output_channels
+
+    if model_spec.output_layer.kernel_size != 1:
+        raise ValueError(f'当前 qemu-c-inference 仅支持 kernel_size=1 的 output_conv，实际 {model_spec.output_layer.kernel_size}')
+    if model_spec.output_layer.input_channels != expected_channels:
+        raise ValueError(
+            f'output_conv 输入通道数非法，期望 {expected_channels}，实际 {model_spec.output_layer.input_channels}'
+        )
+    if model_spec.output_layer.output_channels != model_spec.output_units:
+        raise ValueError(
+            f'output_conv 输出通道数非法，期望 {model_spec.output_units}，实际 {model_spec.output_layer.output_channels}'
+        )
+
+
+def _validate_tcn_model_spec(model_spec: TcnModelSpec) -> None:
+    expected_channels = model_spec.input_dim
+    if model_spec.initial_projection is not None:
+        if model_spec.initial_projection.kernel_size != 1:
+            raise ValueError('TCN initial_projection 仅支持 kernel_size=1')
+        if model_spec.initial_projection.input_channels != expected_channels:
+            raise ValueError(
+                f'initial_projection 输入通道数非法，期望 {expected_channels}，实际 {model_spec.initial_projection.input_channels}'
+            )
+        expected_channels = model_spec.initial_projection.output_channels
+
+    if model_spec.channel_projection is not None:
+        if model_spec.channel_projection.kernel_size != 1:
+            raise ValueError('TCN channel_projection 仅支持 kernel_size=1')
+        if model_spec.channel_projection.input_channels != expected_channels:
+            raise ValueError(
+                f'channel_projection 输入通道数非法，期望 {expected_channels}，实际 {model_spec.channel_projection.input_channels}'
+            )
+        expected_channels = model_spec.channel_projection.output_channels
+
+    for block in model_spec.blocks:
+        if block.conv1.input_channels != expected_channels:
+            raise ValueError(
+                f'temporal_block_{block.block_index}_conv_1 输入通道数非法，期望 {expected_channels}，实际 {block.conv1.input_channels}'
+            )
+        if block.conv2.input_channels != block.conv1.output_channels:
+            raise ValueError(
+                f'temporal_block_{block.block_index}_conv_2 输入通道数非法，期望 {block.conv1.output_channels}，实际 {block.conv2.input_channels}'
+            )
+        if block.use_residual and expected_channels != block.output_channels and block.residual_projection is None:
+            raise ValueError(
+                f'temporal_block_{block.block_index} 缺少 residual_projection，无法将 {expected_channels} 通道映射到 {block.output_channels}'
+            )
+        if block.residual_projection is not None:
+            if block.residual_projection.kernel_size != 1:
+                raise ValueError(f'temporal_block_{block.block_index}_residual_projection 仅支持 kernel_size=1')
+            if block.residual_projection.input_channels != expected_channels:
+                raise ValueError(
+                    f'temporal_block_{block.block_index}_residual_projection 输入通道数非法，期望 {expected_channels}，实际 {block.residual_projection.input_channels}'
+                )
+            if block.residual_projection.output_channels != block.output_channels:
+                raise ValueError(
+                    f'temporal_block_{block.block_index}_residual_projection 输出通道数非法，期望 {block.output_channels}，实际 {block.residual_projection.output_channels}'
+                )
+        expected_channels = block.output_channels
+
+    for layer in model_spec.post_layers:
+        if layer.kernel_size != 1:
+            raise ValueError(f'当前 qemu-c-inference 仅支持 kernel_size=1 的 post_dense 层，实际 {layer.name}={layer.kernel_size}')
+        if layer.input_channels != expected_channels:
+            raise ValueError(
+                f'{layer.name} 输入通道数非法，期望 {expected_channels}，实际 {layer.input_channels}'
+            )
+        expected_channels = layer.output_channels
+
+    if model_spec.output_layer is not None:
+        if model_spec.output_layer.kernel_size != 1:
+            raise ValueError(f'当前 qemu-c-inference 仅支持 kernel_size=1 的 output_conv，实际 {model_spec.output_layer.kernel_size}')
+        if model_spec.output_layer.input_channels != expected_channels:
+            raise ValueError(
+                f'output_conv 输入通道数非法，期望 {expected_channels}，实际 {model_spec.output_layer.input_channels}'
+            )
+        if model_spec.output_layer.output_channels != model_spec.output_units:
+            raise ValueError(
+                f'output_conv 输出通道数非法，期望 {model_spec.output_units}，实际 {model_spec.output_layer.output_channels}'
+            )
+    else:
+        if len(model_spec.output_dense_kernel) != expected_channels:
+            raise ValueError(
+                f'TCN 输出 dense 输入通道数非法，期望 {expected_channels}，实际 {len(model_spec.output_dense_kernel)}'
+            )
+        if any(len(row) != model_spec.output_units for row in model_spec.output_dense_kernel):
+            raise ValueError('TCN 输出 dense kernel 形状非法')
+        if len(model_spec.output_dense_bias) != model_spec.output_units:
+            raise ValueError('TCN 输出 dense bias 形状非法')
+
 
 def _get_wavenet_stage_names(model_spec: WaveNetModelSpec) -> List[str]:
     stage_names = ['input_scaled', 'initial_conv']
@@ -1741,6 +3358,68 @@ def _resolve_wavenet_stage_channels(model_spec: WaveNetModelSpec,
         return model_spec.output_units
     raise ValueError(f'未知的 WaveNet 调试阶段: {stage_name}')
 
+
+def _get_conv_stack_stage_names(model_spec: ConvStackModelSpec) -> List[str]:
+    stage_names = ['input_scaled', 'initial_conv']
+    stage_names.extend(f'conv_block_{index}' for index in range(len(model_spec.conv_layers)))
+    stage_names.extend(f'post_dense_{index + 1}' for index in range(len(model_spec.post_layers)))
+    stage_names.append('output_scaled')
+    return stage_names
+
+
+def _resolve_conv_stack_stage_channels(model_spec: ConvStackModelSpec,
+                                       stage_name: str) -> int:
+    if stage_name == 'input_scaled':
+        return model_spec.input_dim
+    if stage_name == 'initial_conv':
+        return model_spec.initial_conv.output_channels
+    if stage_name.startswith('conv_block_'):
+        layer_index = int(stage_name.rsplit('_', 1)[1])
+        return model_spec.conv_layers[layer_index].output_channels
+    if stage_name.startswith('post_dense_'):
+        layer_index = int(stage_name.rsplit('_', 1)[1]) - 1
+        return model_spec.post_layers[layer_index].output_channels
+    if stage_name == 'output_scaled':
+        return model_spec.output_units
+    raise ValueError(f'未知的 ConvStack 调试阶段: {stage_name}')
+
+
+def _get_tcn_stage_names(model_spec: TcnModelSpec) -> List[str]:
+    stage_names = ['input_scaled']
+    if model_spec.initial_projection is not None:
+        stage_names.append('initial_projection')
+    if model_spec.channel_projection is not None:
+        stage_names.append('channel_projection')
+    stage_names.extend(f'tcn_block_{block.block_index}' for block in model_spec.blocks)
+    stage_names.extend(f'post_dense_{index + 1}' for index in range(len(model_spec.post_layers)))
+    stage_names.append('output_scaled')
+    return stage_names
+
+
+def _resolve_tcn_stage_channels(model_spec: TcnModelSpec,
+                                stage_name: str) -> int:
+    if stage_name == 'input_scaled':
+        return model_spec.input_dim
+    if stage_name == 'initial_projection':
+        if model_spec.initial_projection is None:
+            raise ValueError('TCN 不存在 initial_projection 调试阶段')
+        return model_spec.initial_projection.output_channels
+    if stage_name == 'channel_projection':
+        if model_spec.channel_projection is None:
+            raise ValueError('TCN 不存在 channel_projection 调试阶段')
+        return model_spec.channel_projection.output_channels
+    if stage_name.startswith('tcn_block_'):
+        block_index = int(stage_name.rsplit('_', 1)[1])
+        for block in model_spec.blocks:
+            if block.block_index == block_index:
+                return block.output_channels
+        raise ValueError(f'未知的 TCN block: {stage_name}')
+    if stage_name.startswith('post_dense_'):
+        layer_index = int(stage_name.rsplit('_', 1)[1]) - 1
+        return model_spec.post_layers[layer_index].output_channels
+    if stage_name == 'output_scaled':
+        return model_spec.output_units
+    raise ValueError(f'未知的 TCN 调试阶段: {stage_name}')
 
 
 def _load_wavenet_block_layers(weights: Iterable[Dict[str, Any]],
@@ -1795,6 +3474,22 @@ def _load_wavenet_conv1d_layer(weights: Iterable[Dict[str, Any]],
         bias=_to_float_vector(bias_entry['value']),
     )
 
+
+def _load_optional_conv1d_layer(weights: Iterable[Dict[str, Any]],
+                                layer_name: str,
+                                activation: str,
+                                dilation: int) -> Optional[WaveNetConv1DLayerSpec]:
+    kernel_entry = _find_weight_entry_optional_exact_name(weights, f'{layer_name}/kernel:0')
+    if kernel_entry is None:
+        return None
+    return _load_wavenet_conv1d_layer(weights, layer_name, activation=activation, dilation=dilation)
+
+
+def _conv_stack_layer_sort_key(layer_name: str) -> int:
+    match = re.fullmatch(r'conv_(\d+)', layer_name)
+    if match is None:
+        return 1_000_000
+    return int(match.group(1))
 
 
 def _wavenet_conv_block_sort_key(layer_name: str) -> int:
@@ -2311,7 +4006,9 @@ def _render_wavenet_main_c(model_spec: WaveNetModelSpec) -> str:
         '            uart_put_fixed6(validation_output[record_index][step_index]);',
         '        }',
         '        uart_puts("\\n");',
+        '#if !defined(BENCHMARK_PLATFORM_KEIL)',
         *print_lines,
+        '#endif',
         '    }',
         '    uart_puts("validation_complete=1\\n");',
         '    while (1) {',
@@ -2320,6 +4017,734 @@ def _render_wavenet_main_c(model_spec: WaveNetModelSpec) -> str:
         '',
     ])
     return '\n'.join(lines)
+
+
+def _build_debug_stage_decls(stage_names: Sequence[str],
+                             resolve_stage_channels: Any) -> List[str]:
+    return [
+        f'static port_float debug_{stage_name}[VALIDATION_SEQ_LEN][{resolve_stage_channels(stage_name)}u];'
+        for stage_name in stage_names
+    ]
+
+
+def _build_debug_stage_clear_lines(stage_names: Sequence[str],
+                                   resolve_stage_channels: Any) -> List[str]:
+    return [
+        f'    zero_buffer(&debug_{stage_name}[0u][0u], VALIDATION_SEQ_LEN * {resolve_stage_channels(stage_name)}u);'
+        for stage_name in stage_names
+    ]
+
+
+def _build_debug_stage_print_lines(stage_names: Sequence[str],
+                                   resolve_stage_channels: Any) -> List[str]:
+    lines: List[str] = []
+    for stage_name in stage_names:
+        channel_count = resolve_stage_channels(stage_name)
+        lines.extend([
+            f'        uart_puts("validation_{stage_name}_");',
+            '        uart_put_u32(record_index);',
+            '        uart_puts("=");',
+            f'        uart_put_matrix_rows(&debug_{stage_name}[0u][0u], VALIDATION_SEQ_LEN, {channel_count}u);',
+            '        uart_puts("\\n");',
+            '',
+        ])
+    return lines
+
+
+def _render_generic_conv_benchmark_main_c(model_banner: str,
+                                          input_dim_macro: str,
+                                          stage_names: Sequence[str],
+                                          resolve_stage_channels: Any,
+                                          step_lines: Sequence[str],
+                                          extra_global_decls: Optional[Sequence[str]] = None,
+                                          extra_clear_lines: Optional[Sequence[str]] = None,
+                                          extra_run_locals: Optional[Sequence[str]] = None) -> str:
+    stage_decls = _build_debug_stage_decls(stage_names, resolve_stage_channels)
+    clear_lines = _build_debug_stage_clear_lines(stage_names, resolve_stage_channels)
+    print_lines = _build_debug_stage_print_lines(stage_names, resolve_stage_channels)
+
+    if extra_global_decls:
+        stage_decls.extend(extra_global_decls)
+    if extra_clear_lines:
+        clear_lines.extend(extra_clear_lines)
+
+    run_locals = list(extra_run_locals or [])
+
+    lines: List[str] = [
+        '#include <stdint.h>',
+        '',
+        '#include "model_data.h"',
+        '',
+        '#define RCC_BASE 0x40023800u',
+        '#define DEMCR (*(volatile uint32_t *)0xE000EDFCu)',
+        '#define DWT_CTRL (*(volatile uint32_t *)0xE0001000u)',
+        '#define DWT_CYCCNT (*(volatile uint32_t *)0xE0001004u)',
+        '',
+        '#define USART1_BASE 0x40011000u',
+        '#define RCC_APB2ENR (*(volatile uint32_t *)(RCC_BASE + 0x44u))',
+        '#define USART1_SR (*(volatile uint32_t *)(USART1_BASE + 0x00u))',
+        '#define USART1_DR (*(volatile uint32_t *)(USART1_BASE + 0x04u))',
+        '#define USART1_BRR (*(volatile uint32_t *)(USART1_BASE + 0x08u))',
+        '#define USART1_CR1 (*(volatile uint32_t *)(USART1_BASE + 0x0Cu))',
+        '',
+        '#define RCC_APB2ENR_USART1EN (1u << 4)',
+        '#define USART_SR_TXE (1u << 7)',
+        '#define USART_CR1_TE (1u << 3)',
+        '#define USART_CR1_UE (1u << 13)',
+        '#define DEMCR_TRCENA (1u << 24)',
+        '#define DWT_CTRL_CYCCNTENA (1u << 0)',
+        '',
+        'static port_float validation_output[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN];',
+        *stage_decls,
+        '',
+        'static void uart_init(void)',
+        '{',
+        '    RCC_APB2ENR |= RCC_APB2ENR_USART1EN;',
+        '    USART1_BRR = 0x05B2u;',
+        '    USART1_CR1 = USART_CR1_UE | USART_CR1_TE;',
+        '}',
+        '',
+        'static void uart_putc(char ch)',
+        '{',
+        '    while ((USART1_SR & USART_SR_TXE) == 0u) {',
+        '    }',
+        '',
+        '    USART1_DR = (uint32_t)ch;',
+        '}',
+        '',
+        'static void uart_puts(const char *message)',
+        '{',
+        "    while (*message != '\\0') {",
+        "        if (*message == '\\n') {",
+        "            uart_putc('\\r');",
+        '        }',
+        '        uart_putc(*message++);',
+        '    }',
+        '}',
+        '',
+        'static void uart_put_u32(uint32_t value)',
+        '{',
+        '    char buffer[11];',
+        '    uint32_t index = 0u;',
+        '    if (value == 0u) {',
+        "        uart_putc('0');",
+        '        return;',
+        '    }',
+        '    while (value > 0u && index < (uint32_t)sizeof(buffer)) {',
+        "        buffer[index++] = (char)('0' + (value % 10u));",
+        '        value /= 10u;',
+        '    }',
+        '    while (index > 0u) {',
+        '        uart_putc(buffer[--index]);',
+        '    }',
+        '}',
+        '',
+        'static void uart_put_fixed6(port_float value)',
+        '{',
+        '    int32_t scaled = (int32_t)(value * 1000000.0f);',
+        '    int32_t abs_scaled = scaled;',
+        '    int32_t integer_part;',
+        '    int32_t fraction;',
+        '    int32_t divisor = 100000;',
+        '    if (scaled < 0) {',
+        "        uart_putc('-');",
+        '        abs_scaled = -scaled;',
+        '    }',
+        '    integer_part = abs_scaled / 1000000;',
+        '    fraction = abs_scaled % 1000000;',
+        '    uart_put_u32((uint32_t)integer_part);',
+        "    uart_putc('.');",
+        '    while (divisor > 0) {',
+        "        uart_putc((char)('0' + ((fraction / divisor) % 10)));",
+        '        divisor /= 10;',
+        '    }',
+        '}',
+        '',
+        'static void uart_put_matrix_rows(const port_float *values,',
+        '                                 uint32_t row_count,',
+        '                                 uint32_t column_count)',
+        '{',
+        '    uint32_t row_index;',
+        '    for (row_index = 0u; row_index < row_count; ++row_index) {',
+        '        uint32_t column_index;',
+        '        if (row_index > 0u) {',
+        "            uart_putc(';');",
+        '        }',
+        '        for (column_index = 0u; column_index < column_count; ++column_index) {',
+        '            if (column_index > 0u) {',
+        "                uart_putc(',');",
+        '            }',
+        '            uart_put_fixed6(values[row_index * column_count + column_index]);',
+        '        }',
+        '    }',
+        '}',
+        '',
+        'static void dwt_init(void)',
+        '{',
+        '    DEMCR |= DEMCR_TRCENA;',
+        '    DWT_CYCCNT = 0u;',
+        '    DWT_CTRL |= DWT_CTRL_CYCCNTENA;',
+        '}',
+        '',
+        'static uint32_t dwt_read_cycles(void)',
+        '{',
+        '    return DWT_CYCCNT;',
+        '}',
+        '',
+        'static uint32_t dwt_is_counting(void)',
+        '{',
+        '    volatile uint32_t spin;',
+        '    uint32_t before;',
+        '    uint32_t after;',
+        '    dwt_init();',
+        '    before = dwt_read_cycles();',
+        '    for (spin = 0u; spin < 64u; ++spin) {',
+        '        __asm volatile ("nop");',
+        '    }',
+        '    after = dwt_read_cycles();',
+        '    return after > before ? 1u : 0u;',
+        '}',
+        '',
+        'static port_float tanh_approx(port_float value)',
+        '{',
+        '    port_float squared;',
+        '    if (value > 3.0f) {',
+        '        return 0.99505478f;',
+        '    }',
+        '    if (value < -3.0f) {',
+        '        return -0.99505478f;',
+        '    }',
+        '    squared = value * value;',
+        '    return value * (27.0f + squared) / (27.0f + 9.0f * squared);',
+        '}',
+        '',
+        'static port_float sigmoid_approx(port_float value)',
+        '{',
+        '    if (value > 8.0f) {',
+        '        return 0.99966466f;',
+        '    }',
+        '    if (value < -8.0f) {',
+        '        return 0.00033535f;',
+        '    }',
+        '    return 0.5f * (tanh_approx(value * 0.5f) + 1.0f);',
+        '}',
+        '',
+        'static port_float silu_approx(port_float value)',
+        '{',
+        '    return value * sigmoid_approx(value);',
+        '}',
+        '',
+        'static port_float relu(port_float value)',
+        '{',
+        '    return value > 0.0f ? value : 0.0f;',
+        '}',
+        '',
+        'static port_float apply_activation_code(port_float value, uint32_t activation_code)',
+        '{',
+        '    if (activation_code == ACT_RELU) {',
+        '        return relu(value);',
+        '    }',
+        '    if (activation_code == ACT_TANH) {',
+        '        return tanh_approx(value);',
+        '    }',
+        '    if (activation_code == ACT_SIGMOID) {',
+        '        return sigmoid_approx(value);',
+        '    }',
+        '    if (activation_code == ACT_SILU) {',
+        '        return silu_approx(value);',
+        '    }',
+        '    return value;',
+        '}',
+        '',
+        'static void zero_buffer(port_float *buffer, uint32_t length)',
+        '{',
+        '    uint32_t index;',
+        '    for (index = 0u; index < length; ++index) {',
+        '        buffer[index] = 0.0f;',
+        '    }',
+        '}',
+        '',
+        'static port_float scale_input(port_float value)',
+        '{',
+        '    if (SCALER_INPUT_DATA_RANGE == 0.0f) {',
+        '        return value;',
+        '    }',
+        '    return value / SCALER_INPUT_DATA_RANGE;',
+        '}',
+        '',
+        'static port_float inverse_scale_output(port_float value)',
+        '{',
+        '    return value * SCALER_OUTPUT_DATA_RANGE;',
+        '}',
+        '',
+        'static port_float conv1d_causal_step(const port_float *history, uint32_t step_index, uint32_t history_channels, uint32_t kernel_size, uint32_t dilation, uint32_t output_channels, const port_float *kernel_values, const port_float *bias_values, uint32_t output_channel)',
+        '{',
+        '    port_float sum = bias_values[output_channel];',
+        '    uint32_t kernel_index;',
+        '    for (kernel_index = 0u; kernel_index < kernel_size; ++kernel_index) {',
+        '        int32_t sample_index = (int32_t)step_index - (int32_t)((kernel_size - 1u - kernel_index) * dilation);',
+        '        uint32_t input_channel;',
+        '        if (sample_index < 0) {',
+        '            continue;',
+        '        }',
+        '        for (input_channel = 0u; input_channel < history_channels; ++input_channel) {',
+        '            uint32_t history_offset = ((uint32_t)sample_index * history_channels) + input_channel;',
+        '            uint32_t kernel_offset = ((kernel_index * history_channels) + input_channel) * output_channels + output_channel;',
+        '            sum += history[history_offset] * kernel_values[kernel_offset];',
+        '        }',
+        '    }',
+        '    return sum;',
+        '}',
+        '',
+        'static void dense_pointwise_forward(const port_float *input_values, uint32_t input_channels, uint32_t output_channels, const port_float *kernel_values, const port_float *bias_values, uint32_t activation_code, port_float *output_values)',
+        '{',
+        '    uint32_t output_index;',
+        '    for (output_index = 0u; output_index < output_channels; ++output_index) {',
+        '        uint32_t input_index;',
+        '        port_float sum = bias_values[output_index];',
+        '        for (input_index = 0u; input_index < input_channels; ++input_index) {',
+        '            sum += input_values[input_index] * kernel_values[(input_index * output_channels) + output_index];',
+        '        }',
+        '        output_values[output_index] = apply_activation_code(sum, activation_code);',
+        '    }',
+        '}',
+        '',
+        'static void clear_debug_buffers(void)',
+        '{',
+        *clear_lines,
+        '}',
+        '',
+        f'static void run_generated_record(const port_float input_sequence[VALIDATION_SEQ_LEN][{input_dim_macro}], port_float output_sequence[VALIDATION_SEQ_LEN])',
+        '{',
+        '    uint32_t step_index;',
+        '    uint32_t channel_index;',
+        *run_locals,
+        '    clear_debug_buffers();',
+        '    for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {',
+        *step_lines,
+        '        output_sequence[step_index] = inverse_scale_output(debug_output_scaled[step_index][0u]);',
+        '    }',
+        '}',
+        '',
+        'int main(void)',
+        '{',
+        '    uint32_t iter_index;',
+        '    uint32_t record_index;',
+        '    uint32_t step_index;',
+        '    uint32_t dwt_supported;',
+        '    uint32_t total_cycles = 0u;',
+        '    uint32_t start_cycles = 0u;',
+        '    uint32_t end_cycles = 0u;',
+        '    port_float output_value = 0.0f;',
+        '    uart_init();',
+        f'    uart_puts("{model_banner}\\n");',
+        '    dwt_supported = dwt_is_counting();',
+        '    for (iter_index = 0u; iter_index < BENCHMARK_ITERATIONS; ++iter_index) {',
+        '        if (BENCHMARK_RESET_STATE_EACH_RUN != 0u) {',
+        '            clear_debug_buffers();',
+        '        }',
+        '        if (dwt_supported != 0u) {',
+        '            dwt_init();',
+        '            start_cycles = dwt_read_cycles();',
+        '        }',
+        '        run_generated_record(validation_input[0u], validation_output[0u]);',
+        '        if (dwt_supported != 0u) {',
+        '            end_cycles = dwt_read_cycles();',
+        '            total_cycles += (end_cycles - start_cycles);',
+        '        }',
+        '        output_value = validation_output[0u][VALIDATION_SEQ_LEN - 1u];',
+        '    }',
+        '    uart_puts("iterations=");',
+        '    uart_put_u32(BENCHMARK_ITERATIONS);',
+        '    uart_puts("\\ndwt_supported=");',
+        '    uart_put_u32(dwt_supported);',
+        '    uart_puts("\\ntimer_source=");',
+        '    uart_puts(dwt_supported != 0u ? "dwt" : "host_elapsed");',
+        '    if (dwt_supported != 0u) {',
+        '        uart_puts("\\nmeasurement_unit=");',
+        '        uart_puts("cycles");',
+        '        uart_puts("\\nmeasurement_total=");',
+        '        uart_put_u32(total_cycles);',
+        '        uart_puts("\\nmeasurement_per_iter=");',
+        '        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));',
+        '        uart_puts("\\ncycles_total=");',
+        '        uart_put_u32(total_cycles);',
+        '        uart_puts("\\ncycles_per_iter=");',
+        '        uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));',
+        '    }',
+        '    uart_puts("\\noutput=");',
+        '    uart_put_fixed6(output_value);',
+        '    uart_puts("\\n");',
+        '    uart_puts("benchmark_complete=1\\n");',
+        '    for (record_index = 0u; record_index < VALIDATION_RECORD_COUNT; ++record_index) {',
+        '        run_generated_record(validation_input[record_index], validation_output[record_index]);',
+        '        uart_puts("validation_record_");',
+        '        uart_put_u32(record_index);',
+        '        uart_puts("=");',
+        '        for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {',
+        '            if (step_index > 0u) {',
+        "                uart_putc(',');",
+        '            }',
+        '            uart_put_fixed6(validation_output[record_index][step_index]);',
+        '        }',
+        '        uart_puts("\\n");',
+        '#if !defined(BENCHMARK_PLATFORM_KEIL)',
+        *print_lines,
+        '#endif',
+        '    }',
+        '    uart_puts("validation_complete=1\\n");',
+        '    while (1) {',
+        '    }',
+        '}',
+        '',
+    ]
+    return '\n'.join(lines)
+
+
+def _render_conv_stack_model_data_header(model_spec: ConvStackModelSpec,
+                                         benchmark_config: Dict[str, Any],
+                                         validation_artifacts: ValidationArtifacts) -> str:
+    validation_input = [record.input_sequence for record in validation_artifacts.records]
+    lines = [
+        '#ifndef GENERATED_CONV_STACK_MODEL_DATA_H',
+        '#define GENERATED_CONV_STACK_MODEL_DATA_H',
+        '',
+        '#include <stdint.h>',
+        '',
+        'typedef float port_float;',
+        '',
+        '#define ACT_LINEAR 0u',
+        '#define ACT_RELU 1u',
+        '#define ACT_TANH 2u',
+        '#define ACT_SIGMOID 3u',
+        '#define ACT_SILU 4u',
+        '',
+        f'#define CONV_STACK_INPUT_DIM {model_spec.input_dim}u',
+        f'#define CONV_STACK_OUTPUT_UNITS {model_spec.output_units}u',
+        f'#define BENCHMARK_ITERATIONS {int(benchmark_config["iterations"])}u',
+        f'#define BENCHMARK_REPEAT_RUNS {int(benchmark_config["repeat_runs"])}u',
+        f'#define BENCHMARK_RESET_STATE_EACH_RUN {1 if benchmark_config.get("reset_state_each_run", True) else 0}u',
+        f'#define VALIDATION_RECORD_COUNT {validation_artifacts.record_count}u',
+        f'#define VALIDATION_SEQ_LEN {validation_artifacts.seq_len}u',
+        '',
+        f'#define SCALER_INPUT_DATA_RANGE {_format_c_float(validation_artifacts.input_data_range)}',
+        f'#define SCALER_OUTPUT_DATA_RANGE {_format_c_float(validation_artifacts.output_data_range)}',
+        '',
+        f'static const port_float validation_input[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN][CONV_STACK_INPUT_DIM] = {_render_initializer(validation_input)};',
+        '',
+        f'static const port_float conv_stack_initial_kernel[{model_spec.initial_conv.kernel_size}u][{model_spec.initial_conv.input_channels}u][{model_spec.initial_conv.output_channels}u] = {_render_initializer(model_spec.initial_conv.kernel)};',
+        '',
+        f'static const port_float conv_stack_initial_bias[{model_spec.initial_conv.output_channels}u] = {_render_initializer(model_spec.initial_conv.bias)};',
+        '',
+    ]
+
+    for layer_spec in model_spec.conv_layers:
+        identifier = _format_c_identifier(layer_spec.name)
+        lines.extend([
+            f'static const port_float {identifier}_kernel[{layer_spec.kernel_size}u][{layer_spec.input_channels}u][{layer_spec.output_channels}u] = {_render_initializer(layer_spec.kernel)};',
+            '',
+            f'static const port_float {identifier}_bias[{layer_spec.output_channels}u] = {_render_initializer(layer_spec.bias)};',
+            '',
+        ])
+
+    for layer_spec in model_spec.post_layers:
+        identifier = _format_c_identifier(layer_spec.name)
+        lines.extend([
+            f'static const port_float {identifier}_kernel[{layer_spec.kernel_size}u][{layer_spec.input_channels}u][{layer_spec.output_channels}u] = {_render_initializer(layer_spec.kernel)};',
+            '',
+            f'static const port_float {identifier}_bias[{layer_spec.output_channels}u] = {_render_initializer(layer_spec.bias)};',
+            '',
+        ])
+
+    lines.extend([
+        f'static const port_float conv_stack_output_kernel[{model_spec.output_layer.kernel_size}u][{model_spec.output_layer.input_channels}u][{model_spec.output_layer.output_channels}u] = {_render_initializer(model_spec.output_layer.kernel)};',
+        '',
+        f'static const port_float conv_stack_output_bias[{model_spec.output_layer.output_channels}u] = {_render_initializer(model_spec.output_layer.bias)};',
+        '',
+        '#endif',
+        '',
+    ])
+    return '\n'.join(lines)
+
+
+def _render_conv_stack_main_c(model_spec: ConvStackModelSpec) -> str:
+    stage_names = _get_conv_stack_stage_names(model_spec)
+    step_lines: List[str] = [
+        '        debug_input_scaled[step_index][0u] = scale_input(input_sequence[step_index][0u]);',
+    ]
+
+    initial_activation = _resolve_activation_code(model_spec.initial_conv.activation)
+    step_lines.extend([
+        f'        for (channel_index = 0u; channel_index < {model_spec.initial_conv.output_channels}u; ++channel_index) {{',
+        f'            port_float raw_value = conv1d_causal_step(&debug_input_scaled[0u][0u], step_index, CONV_STACK_INPUT_DIM, {model_spec.initial_conv.kernel_size}u, 1u, {model_spec.initial_conv.output_channels}u, &conv_stack_initial_kernel[0u][0u][0u], &conv_stack_initial_bias[0u], channel_index);',
+        f'            debug_initial_conv[step_index][channel_index] = apply_activation_code(raw_value, {initial_activation}u);',
+        '        }',
+    ])
+
+    current_ptr = '&debug_initial_conv[step_index][0u]'
+    current_channels = model_spec.initial_conv.output_channels
+    for layer_index, layer_spec in enumerate(model_spec.conv_layers):
+        source_name = 'debug_initial_conv' if layer_index == 0 else f'debug_conv_block_{layer_index - 1}'
+        source_channels = model_spec.initial_conv.output_channels if layer_index == 0 else model_spec.conv_layers[layer_index - 1].output_channels
+        identifier = _format_c_identifier(layer_spec.name)
+        activation_code = _resolve_activation_code(layer_spec.activation)
+        target_name = f'debug_conv_block_{layer_index}'
+        step_lines.extend([
+            f'        for (channel_index = 0u; channel_index < {layer_spec.output_channels}u; ++channel_index) {{',
+            f'            port_float raw_value = conv1d_causal_step(&{source_name}[0u][0u], step_index, {source_channels}u, {layer_spec.kernel_size}u, {layer_spec.dilation}u, {layer_spec.output_channels}u, &{identifier}_kernel[0u][0u][0u], &{identifier}_bias[0u], channel_index);',
+            f'            {target_name}[step_index][channel_index] = apply_activation_code(raw_value, {activation_code}u);',
+            '        }',
+        ])
+        current_ptr = f'&{target_name}[step_index][0u]'
+        current_channels = layer_spec.output_channels
+
+    for post_index, layer_spec in enumerate(model_spec.post_layers):
+        identifier = _format_c_identifier(layer_spec.name)
+        target_name = f'debug_post_dense_{post_index + 1}'
+        activation_code = _resolve_activation_code(layer_spec.activation)
+        step_lines.append(
+            f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {layer_spec.output_channels}u, &{identifier}_kernel[0u][0u][0u], &{identifier}_bias[0u], {activation_code}u, &{target_name}[step_index][0u]);'
+        )
+        current_ptr = f'&{target_name}[step_index][0u]'
+        current_channels = layer_spec.output_channels
+
+    step_lines.append(
+        f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {model_spec.output_units}u, &conv_stack_output_kernel[0u][0u][0u], &conv_stack_output_bias[0u], ACT_LINEAR, &debug_output_scaled[step_index][0u]);'
+    )
+
+    return _render_generic_conv_benchmark_main_c(
+        model_banner=f'{model_spec.model_type.upper()}_QEMU_VALIDATION',
+        input_dim_macro='CONV_STACK_INPUT_DIM',
+        stage_names=stage_names,
+        resolve_stage_channels=lambda stage_name: _resolve_conv_stack_stage_channels(model_spec, stage_name),
+        step_lines=step_lines,
+    )
+
+
+def _render_tcn_model_data_header(model_spec: TcnModelSpec,
+                                  benchmark_config: Dict[str, Any],
+                                  validation_artifacts: ValidationArtifacts) -> str:
+    validation_input = [record.input_sequence for record in validation_artifacts.records]
+    lines = [
+        '#ifndef GENERATED_TCN_MODEL_DATA_H',
+        '#define GENERATED_TCN_MODEL_DATA_H',
+        '',
+        '#include <stdint.h>',
+        '',
+        'typedef float port_float;',
+        '',
+        '#define ACT_LINEAR 0u',
+        '#define ACT_RELU 1u',
+        '#define ACT_TANH 2u',
+        '#define ACT_SIGMOID 3u',
+        '#define ACT_SILU 4u',
+        '',
+        f'#define TCN_INPUT_DIM {model_spec.input_dim}u',
+        f'#define TCN_BLOCK_COUNT {len(model_spec.blocks)}u',
+        f'#define TCN_OUTPUT_UNITS {model_spec.output_units}u',
+        f'#define TCN_HAS_INITIAL_PROJECTION {1 if model_spec.initial_projection is not None else 0}u',
+        f'#define TCN_HAS_CHANNEL_PROJECTION {1 if model_spec.channel_projection is not None else 0}u',
+        f'#define TCN_HAS_OUTPUT_CONV {1 if model_spec.output_layer is not None else 0}u',
+        f'#define BENCHMARK_ITERATIONS {int(benchmark_config["iterations"])}u',
+        f'#define BENCHMARK_REPEAT_RUNS {int(benchmark_config["repeat_runs"])}u',
+        f'#define BENCHMARK_RESET_STATE_EACH_RUN {1 if benchmark_config.get("reset_state_each_run", True) else 0}u',
+        f'#define VALIDATION_RECORD_COUNT {validation_artifacts.record_count}u',
+        f'#define VALIDATION_SEQ_LEN {validation_artifacts.seq_len}u',
+        '',
+        f'#define SCALER_INPUT_DATA_RANGE {_format_c_float(validation_artifacts.input_data_range)}',
+        f'#define SCALER_OUTPUT_DATA_RANGE {_format_c_float(validation_artifacts.output_data_range)}',
+        '',
+        f'static const port_float validation_input[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN][TCN_INPUT_DIM] = {_render_initializer(validation_input)};',
+        '',
+    ]
+
+    if model_spec.initial_projection is not None:
+        lines.extend([
+            f'static const port_float tcn_initial_projection_kernel[{model_spec.initial_projection.kernel_size}u][{model_spec.initial_projection.input_channels}u][{model_spec.initial_projection.output_channels}u] = {_render_initializer(model_spec.initial_projection.kernel)};',
+            '',
+            f'static const port_float tcn_initial_projection_bias[{model_spec.initial_projection.output_channels}u] = {_render_initializer(model_spec.initial_projection.bias)};',
+            '',
+        ])
+
+    if model_spec.channel_projection is not None:
+        lines.extend([
+            f'static const port_float tcn_channel_projection_kernel[{model_spec.channel_projection.kernel_size}u][{model_spec.channel_projection.input_channels}u][{model_spec.channel_projection.output_channels}u] = {_render_initializer(model_spec.channel_projection.kernel)};',
+            '',
+            f'static const port_float tcn_channel_projection_bias[{model_spec.channel_projection.output_channels}u] = {_render_initializer(model_spec.channel_projection.bias)};',
+            '',
+        ])
+
+    for block in model_spec.blocks:
+        conv1_identifier = _format_c_identifier(block.conv1.name)
+        conv2_identifier = _format_c_identifier(block.conv2.name)
+        lines.extend([
+            f'static const port_float {conv1_identifier}_kernel[{block.conv1.kernel_size}u][{block.conv1.input_channels}u][{block.conv1.output_channels}u] = {_render_initializer(block.conv1.kernel)};',
+            '',
+            f'static const port_float {conv1_identifier}_bias[{block.conv1.output_channels}u] = {_render_initializer(block.conv1.bias)};',
+            '',
+            f'static const port_float {conv2_identifier}_kernel[{block.conv2.kernel_size}u][{block.conv2.input_channels}u][{block.conv2.output_channels}u] = {_render_initializer(block.conv2.kernel)};',
+            '',
+            f'static const port_float {conv2_identifier}_bias[{block.conv2.output_channels}u] = {_render_initializer(block.conv2.bias)};',
+            '',
+        ])
+        if block.residual_projection is not None:
+            projection_identifier = _format_c_identifier(block.residual_projection.name)
+            lines.extend([
+                f'static const port_float {projection_identifier}_kernel[{block.residual_projection.kernel_size}u][{block.residual_projection.input_channels}u][{block.residual_projection.output_channels}u] = {_render_initializer(block.residual_projection.kernel)};',
+                '',
+                f'static const port_float {projection_identifier}_bias[{block.residual_projection.output_channels}u] = {_render_initializer(block.residual_projection.bias)};',
+                '',
+            ])
+
+    for layer_spec in model_spec.post_layers:
+        identifier = _format_c_identifier(layer_spec.name)
+        lines.extend([
+            f'static const port_float {identifier}_kernel[{layer_spec.kernel_size}u][{layer_spec.input_channels}u][{layer_spec.output_channels}u] = {_render_initializer(layer_spec.kernel)};',
+            '',
+            f'static const port_float {identifier}_bias[{layer_spec.output_channels}u] = {_render_initializer(layer_spec.bias)};',
+            '',
+        ])
+
+    if model_spec.output_layer is not None:
+        lines.extend([
+            f'static const port_float tcn_output_kernel[{model_spec.output_layer.kernel_size}u][{model_spec.output_layer.input_channels}u][{model_spec.output_layer.output_channels}u] = {_render_initializer(model_spec.output_layer.kernel)};',
+            '',
+            f'static const port_float tcn_output_bias[{model_spec.output_layer.output_channels}u] = {_render_initializer(model_spec.output_layer.bias)};',
+            '',
+        ])
+    else:
+        lines.extend([
+            f'static const port_float tcn_output_dense_kernel[{model_spec.final_input_channels}u][{model_spec.output_units}u] = {_render_initializer(model_spec.output_dense_kernel)};',
+            '',
+            f'static const port_float tcn_output_dense_bias[{model_spec.output_units}u] = {_render_initializer(model_spec.output_dense_bias)};',
+            '',
+        ])
+
+    lines.extend([
+        '#endif',
+        '',
+    ])
+    return '\n'.join(lines)
+
+
+def _render_tcn_main_c(model_spec: TcnModelSpec) -> str:
+    stage_names = _get_tcn_stage_names(model_spec)
+    max_block_channels = max([1] + [block.output_channels for block in model_spec.blocks])
+    extra_global_decls = [
+        f'static port_float debug_tcn_block_{block.block_index}_conv1[VALIDATION_SEQ_LEN][{block.conv1.output_channels}u];'
+        for block in model_spec.blocks
+    ]
+    extra_clear_lines = [
+        f'    zero_buffer(&debug_tcn_block_{block.block_index}_conv1[0u][0u], VALIDATION_SEQ_LEN * {block.conv1.output_channels}u);'
+        for block in model_spec.blocks
+    ]
+    extra_run_locals = [f'    port_float residual_buffer[{max_block_channels}u];']
+
+    step_lines: List[str] = [
+        '        debug_input_scaled[step_index][0u] = scale_input(input_sequence[step_index][0u]);',
+    ]
+
+    current_stage_name = 'input_scaled'
+    current_ptr = '&debug_input_scaled[step_index][0u]'
+    current_channels = model_spec.input_dim
+
+    if model_spec.initial_projection is not None:
+        activation_code = _resolve_activation_code(model_spec.initial_projection.activation)
+        step_lines.append(
+            f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {model_spec.initial_projection.output_channels}u, &tcn_initial_projection_kernel[0u][0u][0u], &tcn_initial_projection_bias[0u], {activation_code}u, &debug_initial_projection[step_index][0u]);'
+        )
+        current_stage_name = 'initial_projection'
+        current_ptr = '&debug_initial_projection[step_index][0u]'
+        current_channels = model_spec.initial_projection.output_channels
+
+    if model_spec.channel_projection is not None:
+        step_lines.append(
+            f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {model_spec.channel_projection.output_channels}u, &tcn_channel_projection_kernel[0u][0u][0u], &tcn_channel_projection_bias[0u], ACT_LINEAR, &debug_channel_projection[step_index][0u]);'
+        )
+        current_stage_name = 'channel_projection'
+        current_ptr = '&debug_channel_projection[step_index][0u]'
+        current_channels = model_spec.channel_projection.output_channels
+
+    for block in model_spec.blocks:
+        conv1_identifier = _format_c_identifier(block.conv1.name)
+        conv2_identifier = _format_c_identifier(block.conv2.name)
+        conv1_activation = _resolve_activation_code(block.conv1.activation)
+        conv2_activation = _resolve_activation_code(block.conv2.activation)
+        output_activation = _resolve_activation_code(block.output_activation)
+        source_history_name = f'debug_{current_stage_name}'
+        conv1_history_name = f'debug_tcn_block_{block.block_index}_conv1'
+        target_stage_name = f'debug_tcn_block_{block.block_index}'
+
+        step_lines.extend([
+            f'        for (channel_index = 0u; channel_index < {block.conv1.output_channels}u; ++channel_index) {{',
+            f'            port_float raw_value = conv1d_causal_step(&{source_history_name}[0u][0u], step_index, {current_channels}u, {block.conv1.kernel_size}u, {block.conv1.dilation}u, {block.conv1.output_channels}u, &{conv1_identifier}_kernel[0u][0u][0u], &{conv1_identifier}_bias[0u], channel_index);',
+            f'            {conv1_history_name}[step_index][channel_index] = apply_activation_code(raw_value, {conv1_activation}u);',
+            '        }',
+            f'        for (channel_index = 0u; channel_index < {block.conv2.output_channels}u; ++channel_index) {{',
+            f'            port_float raw_value = conv1d_causal_step(&{conv1_history_name}[0u][0u], step_index, {block.conv1.output_channels}u, {block.conv2.kernel_size}u, {block.conv2.dilation}u, {block.conv2.output_channels}u, &{conv2_identifier}_kernel[0u][0u][0u], &{conv2_identifier}_bias[0u], channel_index);',
+            f'            {target_stage_name}[step_index][channel_index] = apply_activation_code(raw_value, {conv2_activation}u);',
+            '        }',
+        ])
+
+        if block.use_residual:
+            if block.residual_projection is not None:
+                projection_identifier = _format_c_identifier(block.residual_projection.name)
+                step_lines.append(
+                    f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {block.output_channels}u, &{projection_identifier}_kernel[0u][0u][0u], &{projection_identifier}_bias[0u], ACT_LINEAR, &residual_buffer[0u]);'
+                )
+            else:
+                step_lines.extend([
+                    f'        for (channel_index = 0u; channel_index < {block.output_channels}u; ++channel_index) {{',
+                    f'            residual_buffer[channel_index] = {current_ptr}[channel_index];',
+                    '        }',
+                ])
+
+            step_lines.extend([
+                f'        for (channel_index = 0u; channel_index < {block.output_channels}u; ++channel_index) {{',
+                f'            {target_stage_name}[step_index][channel_index] = apply_activation_code({target_stage_name}[step_index][channel_index] + residual_buffer[channel_index], {output_activation}u);',
+                '        }',
+            ])
+        elif output_activation != 0:
+            step_lines.extend([
+                f'        for (channel_index = 0u; channel_index < {block.output_channels}u; ++channel_index) {{',
+                f'            {target_stage_name}[step_index][channel_index] = apply_activation_code({target_stage_name}[step_index][channel_index], {output_activation}u);',
+                '        }',
+            ])
+
+        current_stage_name = f'tcn_block_{block.block_index}'
+        current_ptr = f'&debug_tcn_block_{block.block_index}[step_index][0u]'
+        current_channels = block.output_channels
+
+    for post_index, layer_spec in enumerate(model_spec.post_layers):
+        identifier = _format_c_identifier(layer_spec.name)
+        target_name = f'debug_post_dense_{post_index + 1}'
+        activation_code = _resolve_activation_code(layer_spec.activation)
+        step_lines.append(
+            f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {layer_spec.output_channels}u, &{identifier}_kernel[0u][0u][0u], &{identifier}_bias[0u], {activation_code}u, &{target_name}[step_index][0u]);'
+        )
+        current_ptr = f'&{target_name}[step_index][0u]'
+        current_channels = layer_spec.output_channels
+
+    if model_spec.output_layer is not None:
+        step_lines.append(
+            f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {model_spec.output_units}u, &tcn_output_kernel[0u][0u][0u], &tcn_output_bias[0u], ACT_LINEAR, &debug_output_scaled[step_index][0u]);'
+        )
+    else:
+        step_lines.append(
+            f'        dense_pointwise_forward({current_ptr}, {current_channels}u, {model_spec.output_units}u, &tcn_output_dense_kernel[0u][0u], &tcn_output_dense_bias[0u], ACT_LINEAR, &debug_output_scaled[step_index][0u]);'
+        )
+
+    return _render_generic_conv_benchmark_main_c(
+        model_banner=f'{model_spec.model_type.upper()}_QEMU_VALIDATION',
+        input_dim_macro='TCN_INPUT_DIM',
+        stage_names=stage_names,
+        resolve_stage_channels=lambda stage_name: _resolve_tcn_stage_channels(model_spec, stage_name),
+        step_lines=step_lines,
+        extra_global_decls=extra_global_decls,
+        extra_clear_lines=extra_clear_lines,
+        extra_run_locals=extra_run_locals,
+    )
+
 
 def _find_weight_entry(weights: Iterable[Dict[str, Any]], fragment: str) -> Dict[str, Any]:
     for item in weights:
@@ -2353,6 +4778,15 @@ def _find_weight_entry_exact_name(weights: Iterable[Dict[str, Any]], exact_name:
         if name == normalized_name:
             return item
     raise KeyError(f'未找到精确权重项: {exact_name}')
+
+
+def _find_weight_entry_optional_exact_name(weights: Iterable[Dict[str, Any]], exact_name: str) -> Optional[Dict[str, Any]]:
+    normalized_name = str(exact_name).replace('\\', '/')
+    for item in weights:
+        name = str(item.get('name', '')).replace('\\', '/')
+        if name == normalized_name:
+            return item
+    return None
 
 
 def _simple_rnn_sort_key(weight_name: str) -> int:
@@ -4347,6 +6781,7 @@ int main(void)
         }
         uart_puts("\n");
 
+#if !defined(BENCHMARK_PLATFORM_KEIL)
         uart_puts("validation_input_scaled_");
         uart_put_u32(record_index);
         uart_puts("=");
@@ -4390,6 +6825,7 @@ int main(void)
         uart_puts("=");
         uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
+#endif
     }
 
     uart_puts("validation_complete=1\n");
@@ -4852,6 +7288,7 @@ int main(void)
         }
         uart_puts("\n");
 
+#if !defined(BENCHMARK_PLATFORM_KEIL)
         uart_puts("validation_input_scaled_");
         uart_put_u32(record_index);
         uart_puts("=");
@@ -4875,6 +7312,7 @@ int main(void)
         uart_puts("=");
         uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
+#endif
     }
     uart_puts("validation_complete=1\n");
 
@@ -5354,6 +7792,7 @@ int main(void)
         }
         uart_puts("\n");
 
+#if !defined(BENCHMARK_PLATFORM_KEIL)
         uart_puts("validation_input_scaled_");
         uart_put_u32(record_index);
         uart_puts("=");
@@ -5377,6 +7816,7 @@ int main(void)
         uart_puts("=");
         uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
+#endif
     }
     uart_puts("validation_complete=1\n");
 
@@ -5388,6 +7828,17 @@ int main(void)
 
 def _parse_benchmark_stdout(stdout: str) -> Dict[str, Any]:
     parsed: Dict[str, Any] = {}
+    kv_pattern = re.compile(r'([A-Za-z_][A-Za-z0-9_]*)=(.*?)(?=(?:[A-Za-z_][A-Za-z0-9_]*=)|$)', re.S)
+    matches = list(kv_pattern.finditer(stdout))
+    if matches:
+        for match in matches:
+            key = match.group(1).strip()
+            value = match.group(2).strip()
+            if not key:
+                continue
+            parsed[key] = _coerce_benchmark_scalar(value)
+        return parsed
+
     for raw_line in stdout.splitlines():
         line = raw_line.strip()
         if not line or '=' not in line:
@@ -5397,14 +7848,19 @@ def _parse_benchmark_stdout(stdout: str) -> Dict[str, Any]:
         value = value.strip()
         if not key:
             continue
-        try:
-            if '.' in value:
-                parsed[key] = float(value)
-            else:
-                parsed[key] = int(value)
-        except ValueError:
-            parsed[key] = value
+        parsed[key] = _coerce_benchmark_scalar(value)
     return parsed
+
+
+def _coerce_benchmark_scalar(value: str) -> Any:
+    try:
+        if re.fullmatch(r'[+-]?\d+', value):
+            return int(value)
+        if re.fullmatch(r'[+-]?(?:\d+\.\d*|\d*\.\d+)(?:[eE][+-]?\d+)?', value):
+            return float(value)
+    except ValueError:
+        pass
+    return value
 
 
 def _extract_validation_outputs(parsed_output: Dict[str, Any],
@@ -5843,6 +8299,74 @@ def _compute_signal_stats(values: np.ndarray) -> Dict[str, float]:
         'max': float(np.max(values)),
         'mean': float(np.mean(values)),
         'energy': float(np.sum(np.square(values))),
+    }
+
+
+def _load_qemu_reference_comparison(output_root: Path,
+                                    keil_output_sequences: Sequence[Sequence[float]]) -> Optional[Dict[str, Any]]:
+    summary_path = output_root / 'benchmark_summary.json'
+    if not summary_path.exists():
+        return None
+
+    with open(summary_path, 'r', encoding='utf-8') as file_obj:
+        qemu_summary = json.load(file_obj)
+
+    wave_paths = qemu_summary.get('wave_paths', {})
+    qemu_wave_path_raw = wave_paths.get('c_output_wave')
+    if not qemu_wave_path_raw:
+        return None
+
+    qemu_wave_path = REPO_ROOT / str(qemu_wave_path_raw)
+    if not qemu_wave_path.exists():
+        qemu_wave_path = Path(str(qemu_wave_path_raw))
+    if not qemu_wave_path.exists():
+        return None
+
+    qemu_output_sequences = _load_single_channel_wave_sequences(qemu_wave_path)
+    comparison = _compute_sequence_comparison(qemu_output_sequences, keil_output_sequences)
+    comparison['qemu_output_wave'] = _relative_or_str(qemu_wave_path)
+    return comparison
+
+
+def _load_single_channel_wave_sequences(wave_path: Path) -> List[List[float]]:
+    with np.load(wave_path, allow_pickle=True) as payload:
+        record_keys = sorted(
+            [key for key in payload.files if key.startswith('record_')],
+            key=lambda item: int(item.split('_', 1)[1]),
+        )
+        sequences: List[List[float]] = []
+        for record_key in record_keys:
+            values = np.asarray(payload[record_key], dtype=np.float64)
+            if values.ndim == 2 and values.shape[1] == 1:
+                values = values[:, 0]
+            sequences.append(values.reshape(-1).tolist())
+        return sequences
+
+
+def _compute_sequence_comparison(reference_sequences: Sequence[Sequence[float]],
+                                 candidate_sequences: Sequence[Sequence[float]]) -> Dict[str, Any]:
+    if len(reference_sequences) != len(candidate_sequences):
+        raise ValueError(
+            f'序列记录数不匹配，reference={len(reference_sequences)}，candidate={len(candidate_sequences)}'
+        )
+
+    reference_arrays = [np.asarray(sequence, dtype=np.float64) for sequence in reference_sequences]
+    candidate_arrays = [np.asarray(sequence, dtype=np.float64) for sequence in candidate_sequences]
+    for index, (reference_array, candidate_array) in enumerate(zip(reference_arrays, candidate_arrays)):
+        if reference_array.shape != candidate_array.shape:
+            raise ValueError(
+                f'第 {index} 条序列形状不匹配，reference={reference_array.shape}，candidate={candidate_array.shape}'
+            )
+
+    reference_flat = np.concatenate(reference_arrays) if reference_arrays else np.asarray([], dtype=np.float64)
+    candidate_flat = np.concatenate(candidate_arrays) if candidate_arrays else np.asarray([], dtype=np.float64)
+    diff_flat = candidate_flat - reference_flat
+    return {
+        'record_count': len(reference_arrays),
+        'sample_count': int(diff_flat.size),
+        'mae': float(np.mean(np.abs(diff_flat))) if diff_flat.size else 0.0,
+        'rmse': float(np.sqrt(np.mean(np.square(diff_flat)))) if diff_flat.size else 0.0,
+        'max_abs_error': float(np.max(np.abs(diff_flat))) if diff_flat.size else 0.0,
     }
 
 

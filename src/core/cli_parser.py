@@ -66,6 +66,15 @@ class CLIArgs:
     command: Optional[str] = None
     ep_action: Optional[str] = None
     ep_project_path: Optional[str] = None
+    ep_probe_uid: Optional[str] = None
+    ep_serial_port: Optional[str] = None
+    ep_serial_baud_rate: int = 115200
+    ep_keil_target: Optional[str] = None
+    ep_keil_program_backend: Optional[str] = None
+    ep_keil_programmer: Optional[str] = None
+    ep_keil_capture_timeout: int = 20
+    ep_keil_job_timeout: int = 300
+    ep_keil_cli_path: Optional[str] = None
     qemu_action: Optional[str] = None
     qemu_project_dir: Optional[str] = None
     qemu_machine: str = 'olimex-stm32-h405'
@@ -285,8 +294,27 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
     ep_parser.add_argument(
         'ep_args',
         nargs='+',
-        help='执行格式: ep <path>；创建模板格式: ep create <path>'
+        help='执行格式: ep <path>；创建模板格式: ep create <path>；Keil bench: ep keil-bench <path>'
     )
+    ep_parser.add_argument('--probe-uid', dest='ep_probe_uid',
+                           help='Keil bench 使用的 CMSIS-DAP probe UID')
+    ep_parser.add_argument('--serial-port', dest='ep_serial_port',
+                           help='Keil bench 验证使用的串口号，例如 COM8')
+    ep_parser.add_argument('--baud-rate', dest='ep_serial_baud_rate', type=int, default=115200,
+                           help='Keil bench 串口波特率，默认: 115200')
+    ep_parser.add_argument('--target', dest='ep_keil_target',
+                           help='Keil bench 目标名，默认从配置读取')
+    ep_parser.add_argument('--program-backend', dest='ep_keil_program_backend',
+                           choices=['keil', 'pyocd', 'auto'],
+                           help='Keil bench 烧录后端，默认从配置读取')
+    ep_parser.add_argument('--programmer', dest='ep_keil_programmer',
+                           help='Keil bench programmer 类型，默认从配置读取')
+    ep_parser.add_argument('--capture-timeout', dest='ep_keil_capture_timeout', type=int, default=20,
+                           help='Keil bench 串口抓取超时（秒），默认: 20')
+    ep_parser.add_argument('--job-timeout', dest='ep_keil_job_timeout', type=int, default=300,
+                           help='Keil build/program 等待超时（秒），默认: 300')
+    ep_parser.add_argument('--keil-cli-path', dest='ep_keil_cli_path',
+                           help='keil-cli.py 的绝对路径，默认自动探测 ~/.agents/skills/keil/keil-cli.py')
 
     qemu_parser = subparsers.add_parser('qemu', help='QEMU 边缘设备仿真工具')
     qemu_subparsers = qemu_parser.add_subparsers(dest='qemu_action', help='QEMU 操作')
@@ -533,9 +561,12 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             elif len(ep_args) == 2 and ep_args[0] == 'create':
                 ep_action = 'create'
                 ep_project_path = ep_args[1]
+            elif len(ep_args) == 2 and ep_args[0] == 'keil-bench':
+                ep_action = 'keil-bench'
+                ep_project_path = ep_args[1]
             else:
                 raise ArgumentParsingError(
-                    'ep 子命令格式错误，应使用 "ep <path>" 或 "ep create <path>"'
+                    'ep 子命令格式错误，应使用 "ep <path>"、"ep create <path>" 或 "ep keil-bench <path>"'
                 )
 
             return CLIArgs(
@@ -543,7 +574,16 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 project_names=[],
                 command='ep',
                 ep_action=ep_action,
-                ep_project_path=ep_project_path
+                ep_project_path=ep_project_path,
+                ep_probe_uid=getattr(args, 'ep_probe_uid', None),
+                ep_serial_port=getattr(args, 'ep_serial_port', None),
+                ep_serial_baud_rate=getattr(args, 'ep_serial_baud_rate', 115200),
+                ep_keil_target=getattr(args, 'ep_keil_target', None),
+                ep_keil_program_backend=getattr(args, 'ep_keil_program_backend', None),
+                ep_keil_programmer=getattr(args, 'ep_keil_programmer', None),
+                ep_keil_capture_timeout=getattr(args, 'ep_keil_capture_timeout', 20),
+                ep_keil_job_timeout=getattr(args, 'ep_keil_job_timeout', 300),
+                ep_keil_cli_path=getattr(args, 'ep_keil_cli_path', None),
             )
 
         if is_qemu_subcommand:
@@ -631,6 +671,15 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
             command=getattr(args, 'command', None),
             ep_action=getattr(args, 'ep_action', None),
             ep_project_path=getattr(args, 'ep_project_path', None),
+            ep_probe_uid=getattr(args, 'ep_probe_uid', None),
+            ep_serial_port=getattr(args, 'ep_serial_port', None),
+            ep_serial_baud_rate=getattr(args, 'ep_serial_baud_rate', 115200),
+            ep_keil_target=getattr(args, 'ep_keil_target', None),
+            ep_keil_program_backend=getattr(args, 'ep_keil_program_backend', None),
+            ep_keil_programmer=getattr(args, 'ep_keil_programmer', None),
+            ep_keil_capture_timeout=getattr(args, 'ep_keil_capture_timeout', 20),
+            ep_keil_job_timeout=getattr(args, 'ep_keil_job_timeout', 300),
+            ep_keil_cli_path=getattr(args, 'ep_keil_cli_path', None),
             qemu_action=getattr(args, 'qemu_action', None),
             qemu_project_dir=getattr(args, 'qemu_project_dir', None),
             qemu_machine=getattr(args, 'machine', 'olimex-stm32-h405'),

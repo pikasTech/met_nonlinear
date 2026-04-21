@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "GRN",
   "training_alive": false,
-  "timestamp": "20260413112230.5",
+  "timestamp": "20260421094533.6",
   "best_weights_file": "projects/01_LR_STUDY/GRNu16_e1k_puremae/data\\GRNu16_e1k_puremae_best_weights.h5",
   "best_val_weights_file": "projects/01_LR_STUDY/GRNu16_e1k_puremae/data\\GRNu16_e1k_puremae_best_val_weights.h5",
   "loss": 0.009293085895478725,

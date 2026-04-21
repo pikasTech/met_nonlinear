@@ -1,0 +1,278 @@
+{
+  "generated_at": "2026-04-21T12:05:00.107729",
+  "probe_uid": "205536951525",
+  "serial_port": "COM8",
+  "baud_rate": 115200,
+  "program_backend": "keil",
+  "result_json": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_hw_results.json",
+  "result_markdown": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_hw_results.md",
+  "raw_dir": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw",
+  "models": [
+    {
+      "id": "frikan_h8u6l6_nosym",
+      "label": "FRIKANh8u6l6_nosym",
+      "family": "FRIKAN",
+      "ep_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym",
+      "keil_project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+      "keil_program": {
+        "message": "Programming successful via Keil UV4",
+        "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+        "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log"
+      },
+      "qemu": {
+        "mae_vs_tf": 0.08059037731501029,
+        "rmse_vs_tf": 0.09924171725806644,
+        "max_abs_vs_tf": 0.17932863176603278,
+        "measurement_unit": "seconds",
+        "measurement_sources": [
+          "host_elapsed"
+        ],
+        "avg_measurement_per_iter": 0.12156388000000007,
+        "avg_measurement_per_iter_ms": 121.56388000000007,
+        "avg_host_elapsed_seconds": 1.2156388000000007,
+        "output_last": -0.15034300088882446
+      },
+      "keil": {
+        "stream_text_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\frikan_h8u6l6_nosym.txt",
+        "serial_jsonl_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\frikan_h8u6l6_nosym.jsonl",
+        "serial_bytes": 4720,
+        "sample_count": 400,
+        "measurement_total": 32150712,
+        "measurement_per_iter": 3215071,
+        "cycles_total": 32150712,
+        "cycles_per_iter": 3215071,
+        "wall_time_total_ms": 2009.42,
+        "wall_time_per_iter_ms": 200.942,
+        "output_last": -0.150343,
+        "validation_complete": 1,
+        "mae_vs_tf": 0.08059037731193168,
+        "rmse_vs_tf": 0.09924171725182773,
+        "max_abs_vs_tf": 0.17932863174387068,
+        "mae_vs_qemu": 6.758335215940881e-10,
+        "max_abs_vs_qemu": 7.235527038629286e-09,
+        "record_last_vs_qemu_delta": 8.888244584781546e-10
+      },
+      "comparison": {
+        "mae_delta_keil_minus_qemu": -3.0786068139221356e-12,
+        "abs_mae_delta_keil_vs_qemu": 3.0786068139221356e-12,
+        "output_last_delta_keil_minus_qemu": 8.888244584781546e-10,
+        "hw_vs_qemu_mae": 6.758335215940881e-10,
+        "hw_vs_qemu_max_abs": 7.235527038629286e-09
+      }
+    },
+    {
+      "id": "frikan_h8u6l6_nosym_interp",
+      "label": "FRIKANh8u6l6_nosym_interp",
+      "family": "FRIKAN",
+      "ep_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym_interp",
+      "keil_project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym_interp\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+      "keil_program": {
+        "message": "Programming successful via Keil UV4",
+        "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym_interp\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+        "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_nosym_interp\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log"
+      },
+      "qemu": {
+        "mae_vs_tf": 3.887519289953491e-05,
+        "rmse_vs_tf": 6.52896887469367e-05,
+        "max_abs_vs_tf": 0.0002651429452980164,
+        "measurement_unit": "seconds",
+        "measurement_sources": [
+          "host_elapsed"
+        ],
+        "avg_measurement_per_iter": 0.22856604999999988,
+        "avg_measurement_per_iter_ms": 228.56604999999988,
+        "avg_host_elapsed_seconds": 2.2856604999999988,
+        "output_last": -0.03154199942946434
+      },
+      "keil": {
+        "stream_text_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\frikan_h8u6l6_nosym_interp.txt",
+        "serial_jsonl_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\frikan_h8u6l6_nosym_interp.jsonl",
+        "serial_bytes": 4525,
+        "sample_count": 400,
+        "measurement_total": 43732632,
+        "measurement_per_iter": 4373263,
+        "cycles_total": 43732632,
+        "cycles_per_iter": 4373263,
+        "wall_time_total_ms": 2733.29,
+        "wall_time_per_iter_ms": 273.329,
+        "output_last": -0.031542,
+        "validation_complete": 1,
+        "mae_vs_tf": 3.8875185337711144e-05,
+        "rmse_vs_tf": 6.52896854295446e-05,
+        "max_abs_vs_tf": 0.00026514206004142615,
+        "mae_vs_qemu": 1.7767036681384988e-10,
+        "max_abs_vs_qemu": 9.28759576190874e-10,
+        "record_last_vs_qemu_delta": -5.705356603824541e-10
+      },
+      "comparison": {
+        "mae_delta_keil_minus_qemu": -7.56182376643929e-12,
+        "abs_mae_delta_keil_vs_qemu": 7.56182376643929e-12,
+        "output_last_delta_keil_minus_qemu": -5.705356603824541e-10,
+        "hw_vs_qemu_mae": 1.7767036681384988e-10,
+        "hw_vs_qemu_max_abs": 9.28759576190874e-10
+      }
+    },
+    {
+      "id": "grnu16",
+      "label": "GRNu16",
+      "family": "GRU",
+      "ep_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16",
+      "keil_project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+      "keil_program": {
+        "message": "Programming successful via Keil UV4",
+        "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+        "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log"
+      },
+      "qemu": {
+        "mae_vs_tf": 0.00402073754408881,
+        "rmse_vs_tf": 0.0041996505889041625,
+        "max_abs_vs_tf": 0.004884285317808389,
+        "measurement_unit": "seconds",
+        "measurement_sources": [
+          "host_elapsed"
+        ],
+        "avg_measurement_per_iter": 0.15601923999999984,
+        "avg_measurement_per_iter_ms": 156.01923999999983,
+        "avg_host_elapsed_seconds": 1.5601923999999983,
+        "output_last": -0.03418299928307533
+      },
+      "keil": {
+        "stream_text_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\grnu16.txt",
+        "serial_jsonl_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\grnu16.jsonl",
+        "serial_bytes": 4709,
+        "sample_count": 400,
+        "measurement_total": 64135138,
+        "measurement_per_iter": 6413513,
+        "cycles_total": 64135138,
+        "cycles_per_iter": 6413513,
+        "wall_time_total_ms": 381.756992,
+        "wall_time_per_iter_ms": 38.175696,
+        "output_last": -0.034183,
+        "validation_complete": 1,
+        "mae_vs_tf": 0.00402073754408881,
+        "rmse_vs_tf": 0.0041996505889041625,
+        "max_abs_vs_tf": 0.004884285317808389,
+        "mae_vs_qemu": 3.0349885983041833e-10,
+        "max_abs_vs_qemu": 1.820564268784075e-09,
+        "record_last_vs_qemu_delta": -7.169246654670225e-10
+      },
+      "comparison": {
+        "mae_delta_keil_minus_qemu": 0.0,
+        "abs_mae_delta_keil_vs_qemu": 0.0,
+        "output_last_delta_keil_minus_qemu": -7.169246654670225e-10,
+        "hw_vs_qemu_mae": 3.0349885983041833e-10,
+        "hw_vs_qemu_max_abs": 1.820564268784075e-09
+      }
+    },
+    {
+      "id": "lstm_transformeru6_e1k_1",
+      "label": "LSTMTransformeru6_e1k_1",
+      "family": "LSTMTransformer",
+      "ep_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_transformeru6_e1k_1",
+      "keil_project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_transformeru6_e1k_1\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+      "keil_program": {
+        "message": "Programming successful via Keil UV4",
+        "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_transformeru6_e1k_1\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+        "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_transformeru6_e1k_1\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log"
+      },
+      "qemu": {
+        "mae_vs_tf": 0.0007818975680416084,
+        "rmse_vs_tf": 0.0007916011797694742,
+        "max_abs_vs_tf": 0.0024103243622779907,
+        "measurement_unit": "seconds",
+        "measurement_sources": [
+          "host_elapsed"
+        ],
+        "avg_measurement_per_iter": 0.16536991999999984,
+        "avg_measurement_per_iter_ms": 165.36991999999984,
+        "avg_host_elapsed_seconds": 1.6536991999999984,
+        "output_last": -0.018893999978899956
+      },
+      "keil": {
+        "stream_text_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\lstm_transformeru6_e1k_1.txt",
+        "serial_jsonl_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\lstm_transformeru6_e1k_1.jsonl",
+        "serial_bytes": 4485,
+        "sample_count": 400,
+        "measurement_total": 59362506,
+        "measurement_per_iter": 5936250,
+        "cycles_total": 59362506,
+        "cycles_per_iter": 5936250,
+        "wall_time_total_ms": 353.348,
+        "wall_time_per_iter_ms": 35.3348,
+        "output_last": -0.018894,
+        "validation_complete": 1,
+        "mae_vs_tf": 0.0007818975680416084,
+        "rmse_vs_tf": 0.0007916011797694742,
+        "max_abs_vs_tf": 0.0024103243622779907,
+        "mae_vs_qemu": 1.6948700421055684e-10,
+        "max_abs_vs_qemu": 1.9345283569505156e-09,
+        "record_last_vs_qemu_delta": -2.1100045322075545e-11
+      },
+      "comparison": {
+        "mae_delta_keil_minus_qemu": 0.0,
+        "abs_mae_delta_keil_vs_qemu": 0.0,
+        "output_last_delta_keil_minus_qemu": -2.1100045322075545e-11,
+        "hw_vs_qemu_mae": 1.6948700421055684e-10,
+        "hw_vs_qemu_max_abs": 1.9345283569505156e-09
+      }
+    },
+    {
+      "id": "lstm_u16_base",
+      "label": "LSTMu16_base",
+      "family": "LSTM",
+      "ep_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_u16_base",
+      "keil_project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+      "keil_program": {
+        "message": "Programming successful via Keil UV4",
+        "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+        "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_u16_base\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log"
+      },
+      "qemu": {
+        "mae_vs_tf": 0.0006196590498126872,
+        "rmse_vs_tf": 0.0006873358218458776,
+        "max_abs_vs_tf": 0.0021807556428909275,
+        "measurement_unit": "seconds",
+        "measurement_sources": [
+          "host_elapsed"
+        ],
+        "avg_measurement_per_iter": 0.18518010000000018,
+        "avg_measurement_per_iter_ms": 185.18010000000018,
+        "avg_host_elapsed_seconds": 1.8518010000000018,
+        "output_last": -0.017555000260472298
+      },
+      "keil": {
+        "stream_text_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\lstm_u16_base.txt",
+        "serial_jsonl_path": "C:\\work\\met_nonlinear_master\\docs\\MDTODO\\details\\07_推理BENCHMARK\\20260421_120456_legacy_qemu_keil_serial_raw\\lstm_u16_base.jsonl",
+        "serial_bytes": 4494,
+        "sample_count": 400,
+        "measurement_total": 75021216,
+        "measurement_per_iter": 7502121,
+        "cycles_total": 75021216,
+        "cycles_per_iter": 7502121,
+        "wall_time_total_ms": 446.556,
+        "wall_time_per_iter_ms": 44.6556,
+        "output_last": -0.017555,
+        "validation_complete": 1,
+        "mae_vs_tf": 0.0006196590498126872,
+        "rmse_vs_tf": 0.0006873358218458776,
+        "max_abs_vs_tf": 0.0021807556428909275,
+        "mae_vs_qemu": 2.339958615540391e-10,
+        "max_abs_vs_qemu": 8.687973007681649e-09,
+        "record_last_vs_qemu_delta": 2.604722965093842e-10
+      },
+      "comparison": {
+        "mae_delta_keil_minus_qemu": 0.0,
+        "abs_mae_delta_keil_vs_qemu": 0.0,
+        "output_last_delta_keil_minus_qemu": 2.604722965093842e-10,
+        "hw_vs_qemu_mae": 2.339958615540391e-10,
+        "hw_vs_qemu_max_abs": 8.687973007681649e-09
+      }
+    }
+  ],
+  "summary": {
+    "model_count": 5,
+    "max_abs_mae_delta_keil_vs_qemu": 7.56182376643929e-12,
+    "max_hw_vs_qemu_mae": 6.758335215940881e-10,
+    "all_validation_complete": true
+  }
+}

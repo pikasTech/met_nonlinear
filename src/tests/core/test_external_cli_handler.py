@@ -140,6 +140,18 @@ class TestCreateExternalTemplate:
         assert template["task_info"]["version"] == "1.0"
         assert template["visualization_config"]["method"] == "unknown-type"
 
+    def test_create_qemu_c_inference_template_contains_keil_config(self, mock_ep_path):
+        """Test qemu-c-inference template includes keil bench defaults."""
+        from core.external_cli_handler import _create_qemu_c_inference_template
+
+        mock_ep_path.task_type = "qemu-c-inference"
+        template = _create_qemu_c_inference_template(mock_ep_path)
+
+        assert template["task_info"]["task_type"] == "qemu-c-inference"
+        assert template["keil_config"]["action"] == "build-program-capture"
+        assert template["keil_config"]["serial_port"] == "COM8"
+        assert template["keil_config"]["probe_uid"] == "205536951525"
+
     def test_create_external_template_writes_file(self, mock_ep_path, tmp_path):
         """Test that create_external_template writes config file"""
         from core.external_cli_handler import create_external_template
@@ -701,6 +713,17 @@ class TestHandleEPCommand:
             handle_ep_command(mock_args)
 
             mock_create.assert_called_once()
+
+    def test_handle_ep_command_keil_bench_success(self, mock_args):
+        """Test handle_ep_command routes keil-bench action correctly."""
+        from core.external_cli_handler import handle_ep_command
+
+        mock_args.ep_action = 'keil-bench'
+
+        with patch('core.external_cli_handler.execute_external_keil_bench_command') as mock_keil_bench:
+            handle_ep_command(mock_args)
+
+            mock_keil_bench.assert_called_once()
 
     def test_handle_ep_command_invalid_path(self, mock_args):
         """Test handle_ep_command with invalid path"""

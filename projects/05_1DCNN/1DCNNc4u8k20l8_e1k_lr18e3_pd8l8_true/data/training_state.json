@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "1DCNN",
   "training_alive": false,
-  "timestamp": "20260413171402.0",
+  "timestamp": "20260421094649.2",
   "best_weights_file": "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true/data\\1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true_best_weights.h5",
   "best_val_weights_file": "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true/data\\1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true_best_val_weights.h5",
   "loss": 0.025834059342741966,

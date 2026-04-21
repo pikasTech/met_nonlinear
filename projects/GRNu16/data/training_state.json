@@ -5,7 +5,7 @@
   "current_epoch": 0,
   "model_name": "GRN",
   "training_alive": false,
-  "timestamp": "20260404170432.3",
+  "timestamp": "20260421015540.4",
   "best_weights_file": "projects/GRNu16/data/GRNu16_best_weights.h5",
   "best_val_weights_file": "projects/GRNu16/data/GRNu16_best_val_weights.h5"
 }

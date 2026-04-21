@@ -21,7 +21,7 @@ extern uint64_t g_tim3_tick_us;
 extern uint64_t g_tim3_tick_us_last;
 extern TIM_HandleTypeDef htim3;
 
-#define _tick_us_raw() (g_tim3_tick_ms * 1000ULL + __HAL_TIM_GET_COUNTER(&htim3))
+#define _tick_us_raw() (met_tim3_get_tick_us())
 
 // #define calibration_get_tick_us _tick_us_raw
 

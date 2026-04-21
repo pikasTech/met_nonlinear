@@ -71,6 +71,8 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 extern uint64_t g_tim3_tick_ms;
+uint64_t met_tim3_get_tick_us(void);
+uint64_t met_tim3_get_tick_ns(void);
 
 extern struct SIGNAL sADC_IN;
 extern struct SIGNAL sDAC_OUT;
@@ -81,7 +83,7 @@ extern float ADC_f_khz;
 
 
 static inline uint64_t get_tick(void) {
-    return g_tim3_tick_ms * 10000 + TIM3->CNT;
+    return met_tim3_get_tick_us();
 }
 
 #define CaoYangLv 19.0f

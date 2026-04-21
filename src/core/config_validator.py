@@ -692,6 +692,63 @@ class VisualizationConfigValidator:
                         "minLength": 1
                     }
                 }
+            },
+            "keil_config": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["generate", "build", "build-program", "build-program-capture"]
+                    },
+                    "target": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "programmer": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "program_backend": {
+                        "type": "string",
+                        "enum": ["keil", "pyocd", "auto"]
+                    },
+                    "probe_uid": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "serial_port": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "baud_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 4000000
+                    },
+                    "capture_timeout": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 600
+                    },
+                    "job_timeout": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 3600
+                    },
+                    "success_markers": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "keil_cli_path": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                }
             }
         }
     }

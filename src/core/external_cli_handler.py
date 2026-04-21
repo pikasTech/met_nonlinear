@@ -54,6 +54,10 @@ def handle_ep_command(args: CLIArgs) -> None:
             create_external_template_command(ep_path)
             return
 
+        if ep_action == 'keil-bench':
+            execute_external_keil_bench_command(ep_path, args)
+            return
+
         if ep_action == 'run':
             execute_external_task_auto(ep_path)
             return
@@ -97,6 +101,35 @@ def execute_external_task_auto(ep_path: ExternalPath) -> None:
     else:
         logger.error(f"[ERROR] 任务执行失败")
         sys.exit(1)
+
+
+def execute_external_keil_bench_command(ep_path: ExternalPath, args: CLIArgs) -> None:
+    """执行 qemu-c-inference EP 的一键 Keil bench 流程。"""
+    logger.info(f"[TASK] 开始处理 Keil bench 拓展项目任务: {ep_path.task_name}")
+
+    if not ep_path.config_path.exists():
+        template_target = getattr(ep_path, 'full_path', ep_path.config_path.parent)
+        logger.error(f"[ERROR] 配置文件不存在: {ep_path.config_path}")
+        logger.error(
+            f"[HINT] 如需创建模板，请执行: python cli.py ep create \"{template_target}\""
+        )
+        sys.exit(1)
+
+    config = _load_config(ep_path.config_path)
+    validated_config = _validate_config(config, ep_path.task_type)
+
+    if ep_path.task_type != 'qemu-c-inference':
+        logger.error(f"[ERROR] 当前仅 qemu-c-inference 类型支持 ep keil-bench，实际: {ep_path.task_type}")
+        sys.exit(1)
+
+    result = _execute_qemu_c_inference_keil_bench_task(ep_path, validated_config, args)
+    if result:
+        logger.info(f"[OK] Keil bench 任务执行完成")
+        logger.info(f"   输出目录: {ep_path.output_path}")
+        return
+
+    logger.error(f"[ERROR] Keil bench 任务执行失败")
+    sys.exit(1)
 
 
 def create_external_template_command(ep_path: ExternalPath) -> None:
@@ -242,6 +275,20 @@ def _create_qemu_c_inference_template(ep_path: ExternalPath) -> dict:
             "action": "build-run",
             "machine": "olimex-stm32-h405",
             "timeout": 5
+        },
+        "keil_config": {
+            "action": "build-program-capture",
+            "target": "MET405",
+            "programmer": "daplink",
+            "program_backend": "keil",
+            "probe_uid": "205536951525",
+            "serial_port": "COM8",
+            "baud_rate": 115200,
+            "capture_timeout": 20,
+            "job_timeout": 300,
+            "success_markers": [
+                "validation_complete=1"
+            ]
         }
     }
 
@@ -730,6 +777,34 @@ def _execute_qemu_c_inference_task(ep_path: ExternalPath, config: dict) -> bool:
         return False
     except Exception as e:
         logger.error(f"QEMU C 推理任务执行失败: {e}")
+        return False
+
+
+def _execute_qemu_c_inference_keil_bench_task(ep_path: ExternalPath,
+                                              config: dict,
+                                              args: CLIArgs) -> bool:
+    """执行 qemu-c-inference EP 的一键 Keil bench 流程。"""
+    try:
+        from .lstm_qemu_ep_task import execute_qemu_inference_keil_bench_task
+
+        logger.info(f"执行 QEMU C 推理 Keil bench 任务: {ep_path.task_name}")
+        keil_overrides = {
+            'probe_uid': args.ep_probe_uid,
+            'serial_port': args.ep_serial_port,
+            'baud_rate': args.ep_serial_baud_rate,
+            'target': args.ep_keil_target,
+            'program_backend': args.ep_keil_program_backend,
+            'programmer': args.ep_keil_programmer,
+            'capture_timeout': args.ep_keil_capture_timeout,
+            'job_timeout': args.ep_keil_job_timeout,
+            'keil_cli_path': args.ep_keil_cli_path,
+        }
+        return execute_qemu_inference_keil_bench_task(ep_path, config, keil_overrides=keil_overrides)
+    except ImportError as e:
+        logger.error(f"无法导入 QEMU C 推理 Keil bench 模块: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"QEMU C 推理 Keil bench 任务执行失败: {e}")
         return False
 
 

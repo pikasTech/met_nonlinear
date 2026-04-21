@@ -2,6 +2,10 @@
 
 #include "model_data.h"
 
+#if defined(BENCHMARK_PLATFORM_KEIL)
+#include "benchmark_keil_port.h"
+#endif
+
 #define RCC_BASE 0x40023800u
 #define DEMCR (*(volatile uint32_t *)0xE000EDFCu)
 #define DWT_CTRL (*(volatile uint32_t *)0xE0001000u)
@@ -29,17 +33,25 @@ static port_float debug_output_scaled[VALIDATION_SEQ_LEN];
 
 static void uart_init(void)
 {
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    benchmark_keil_uart_init();
+#else
     RCC_APB2ENR |= RCC_APB2ENR_USART1EN;
     USART1_BRR = 0x05B2u;
     USART1_CR1 = USART_CR1_UE | USART_CR1_TE;
+#endif
 }
 
 static void uart_putc(char ch)
 {
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    benchmark_keil_uart_putc(ch);
+#else
     while ((USART1_SR & USART_SR_TXE) == 0u) {
     }
 
     USART1_DR = (uint32_t)ch;
+#endif
 }
 
 static void uart_puts(const char *message)
@@ -207,7 +219,7 @@ static port_float inverse_scale_output(port_float value)
 }
 
 static void dense_forward_relu(const port_float input[LSTM_UNITS],
-                              port_float output[DENSE_UNITS])
+                               port_float output[DENSE_UNITS])
 {
     uint32_t out_index;
     for (out_index = 0u; out_index < DENSE_UNITS; ++out_index) {
@@ -373,12 +385,23 @@ int main(void)
     uint32_t start_cycles;
     uint32_t end_cycles;
     uint32_t total_cycles = 0u;
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    uint64_t start_timer_us = 0u;
+    uint64_t end_timer_us = 0u;
+    uint64_t total_timer_us = 0u;
+#endif
 
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    benchmark_keil_platform_init();
+#endif
     uart_init();
     dwt_supported = dwt_is_counting();
     zero_buffer(hidden_state, LSTM_UNITS);
     zero_buffer(cell_state, LSTM_UNITS);
 
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    start_timer_us = benchmark_keil_get_tick_us();
+#endif
     if (dwt_supported != 0u) {
         start_cycles = dwt_read_cycles();
     }
@@ -404,8 +427,12 @@ int main(void)
         end_cycles = dwt_read_cycles();
         total_cycles = end_cycles - start_cycles;
     }
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    end_timer_us = benchmark_keil_get_tick_us();
+    total_timer_us = end_timer_us - start_timer_us;
+#endif
 
-    uart_puts("LSTM_QEMU_VALIDATION\n");
+    uart_puts("LSTM_BENCHMARK_VALIDATION\n");
     uart_puts("iterations=");
     uart_put_u32(BENCHMARK_ITERATIONS);
     uart_puts("\nrecord_count=");
@@ -434,6 +461,18 @@ int main(void)
         uart_puts("\ncycles_per_iter=");
         uart_put_u32(BENCHMARK_ITERATIONS == 0u ? 0u : (total_cycles / BENCHMARK_ITERATIONS));
     }
+#if defined(BENCHMARK_PLATFORM_KEIL)
+    uart_puts("\nwall_time_unit=");
+    uart_puts("ms");
+    uart_puts("\nwall_time_total_ms=");
+    uart_put_fixed6((port_float)total_timer_us / 1000.0f);
+    uart_puts("\nwall_time_per_iter_ms=");
+    if (BENCHMARK_ITERATIONS == 0u) {
+        uart_put_fixed6(0.0f);
+    } else {
+        uart_put_fixed6(((port_float)total_timer_us / (port_float)BENCHMARK_ITERATIONS) / 1000.0f);
+    }
+#endif
     uart_puts("\noutput=");
     uart_put_fixed6(output_value);
     uart_puts("\n");
@@ -467,6 +506,7 @@ int main(void)
         }
         uart_puts("\n");
 
+#if !defined(BENCHMARK_PLATFORM_KEIL)
         uart_puts("validation_input_scaled_");
         uart_put_u32(record_index);
         uart_puts("=");
@@ -490,6 +530,7 @@ int main(void)
         uart_puts("=");
         uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
+#endif
     }
     uart_puts("validation_complete=1\n");
 

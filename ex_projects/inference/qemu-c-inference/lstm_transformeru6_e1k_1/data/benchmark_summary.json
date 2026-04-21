@@ -1,10 +1,11 @@
 {
   "task_type": "qemu-c-inference",
   "model_type": "lstm_transformer",
-  "model_project_name": "projects/01_EPOCH1000/LSTMTransformeru6_e1k_1",
-  "weights_json_path": "projects/01_EPOCH1000/LSTMTransformeru6_e1k_1/data/best_val.weights.json",
-  "loaded_weights_path": "projects/01_EPOCH1000/LSTMTransformeru6_e1k_1/data/best_val.weights.h5",
+  "model_project_name": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1",
+  "weights_json_path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1/data/best_val.weights.json",
+  "loaded_weights_path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_1/data/best_val.weights.h5",
   "generated_project_dir": "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/qemu_project",
+  "keil_project_dir": "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1/keil_project",
   "benchmark_config": {
     "iterations": 10,
     "reset_state_each_run": true,
@@ -13,7 +14,7 @@
   "validation": {
     "dataset": {
       "dataset_type": "MET",
-      "full_data_path": "F:\\BaiduSyncdisk\\data/M50",
+      "full_data_path": "D:\\BaiduSyncdisk\\data/M50",
       "sample_rate": 2000.0
     },
     "selection": {
@@ -67,7 +68,7 @@
       "exit_code": 0,
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 0.4733053999999992,
+      "elapsed_seconds": 0.9659593000000015,
       "timed_out": false
     }
   },
@@ -88,9 +89,9 @@
         },
         "run": {
           "exit_code": 0,
-          "stdout": "LSTM_TRANSFORMER_QEMU_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nlstm_units=6\ntransformer_layers=2\ntransformer_heads=2\ntransformer_ff_dim=24\nattention_pool_size=128\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.018894\nbenchmark_complete=1\n",
+          "stdout": "LSTM_TRANSFORMER_BENCHMARK_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nlstm_units=6\ntransformer_layers=2\ntransformer_heads=2\ntransformer_ff_dim=24\nattention_pool_size=128\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.018894\nbenchmark_complete=1\n",
           "stderr": "",
-          "elapsed_seconds": 0.5666987999999993,
+          "elapsed_seconds": 1.6536991999999984,
           "timed_out": false
         }
       },
@@ -109,15 +110,15 @@
         "output": -0.018894,
         "benchmark_complete": 1,
         "measurement_unit": "seconds",
-        "measurement_total": 0.5666987999999993,
-        "measurement_per_iter": 0.05666987999999993
+        "measurement_total": 1.6536991999999984,
+        "measurement_per_iter": 0.16536991999999984
       }
     }
   ],
   "aggregated": {
     "run_count": 1,
-    "avg_host_elapsed_seconds": 0.5666987999999993,
-    "avg_measurement_per_iter": 0.05666987999999993,
+    "avg_host_elapsed_seconds": 1.6536991999999984,
+    "avg_measurement_per_iter": 0.16536991999999984,
     "measurement_sources": [
       "host_elapsed"
     ]
@@ -126,7 +127,7 @@
     "workflow": {
       "exit_code": 0,
       "timed_out": false,
-      "elapsed_seconds": 0.8594735
+      "elapsed_seconds": 3.2162004000000017
     },
     "parsed_output": {
       "iterations": 10,
@@ -143,8 +144,8 @@
       "output": -0.018894,
       "benchmark_complete": 1,
       "measurement_unit": "seconds",
-      "measurement_total": 0.8594735,
-      "measurement_per_iter": 0.08594735
+      "measurement_total": 3.2162004000000017,
+      "measurement_per_iter": 0.32162004000000016
     },
     "comparison": {
       "record_count": 1,
@@ -176,9 +177,9 @@
         "record_count": 1,
         "sample_count": 400,
         "channel_count": 1,
-        "mae": 5.120575300391465e-07,
-        "mse": 3.453982872474464e-13,
-        "max_abs_error": 9.996619785655358e-07,
+        "mae": 5.120575296005886e-07,
+        "mse": 3.4539828678029657e-13,
+        "max_abs_error": 9.996619788453955e-07,
         "c_output_stats": {
           "min": -0.000428,
           "max": 0.000224,
@@ -186,16 +187,16 @@
           "energy": 8.32063e-06
         },
         "tf_output_stats": {
-          "min": -0.0004282975008780737,
-          "max": 0.00022443246210344418,
-          "mean": -9.583125592179744e-06,
-          "energy": 8.36481136590187e-06
+          "min": -0.0004282975008537344,
+          "max": 0.00022443246211486113,
+          "mean": -9.583125584633477e-06,
+          "energy": 8.364811365539516e-06
         },
         "diff_stats": {
-          "min": -9.996619785655358e-07,
-          "max": 9.988473568817976e-07,
-          "mean": -4.6874407820259256e-08,
-          "energy": 1.3815931489897857e-10
+          "min": -9.996619788453955e-07,
+          "max": 9.988473554983557e-07,
+          "mean": -4.687441536652258e-08,
+          "energy": 1.3815931471211862e-10
         }
       },
       "lstm_hidden": {

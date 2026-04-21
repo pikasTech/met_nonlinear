@@ -100,10 +100,27 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 } 
 
 uint64_t user_tim3_get_tick_ns(void){
-    uint64_t overflow_ns = g_tim3_tick_ms * 1000000ULL; // Convert milliseconds to nanoseconds
-    uint32_t current_count = __HAL_TIM_GET_COUNTER(&htim3);
-    uint64_t current_ns = current_count * 1000ULL; // Each tick is 1000 ns
-    return overflow_ns + current_ns;
+    return met_tim3_get_tick_ns();
+}
+
+uint64_t met_tim3_get_tick_us(void)
+{
+  uint64_t tick_ms_before;
+  uint64_t tick_ms_after;
+  uint32_t counter;
+
+  do {
+    tick_ms_before = g_tim3_tick_ms;
+    counter = __HAL_TIM_GET_COUNTER(&htim3);
+    tick_ms_after = g_tim3_tick_ms;
+  } while (tick_ms_before != tick_ms_after);
+
+  return tick_ms_before * 1000ULL + (uint64_t)counter;
+}
+
+uint64_t met_tim3_get_tick_ns(void)
+{
+  return met_tim3_get_tick_us() * 1000ULL;
 }
 
 /* USER CODE BEGIN 1 */

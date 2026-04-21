@@ -45,7 +45,7 @@ class TestVisualizationConfigValidator:
         """Test validator initialization"""
         assert validator is not None
         assert hasattr(validator, 'schemas')
-        assert len(validator.schemas) == 5
+        assert len(validator.schemas) == 6
 
     def test_schemas_exist(self, validator):
         """Test that all expected schemas are registered"""
@@ -54,6 +54,7 @@ class TestVisualizationConfigValidator:
         assert 'bias-visualization' in validator.schemas
         assert 'waveform-analysis' in validator.schemas
         assert 'wnet5-circuit-validation' in validator.schemas
+        assert 'qemu-c-inference' in validator.schemas
 
 
 class TestFreqResponseSchema:
@@ -1381,7 +1382,8 @@ class TestVisualizationConfigValidatorSchemaCount:
             "freq-response-compensator",
             "bias-visualization",
             "waveform-analysis",
-            "wnet5-circuit-validation"
+            "wnet5-circuit-validation",
+            "qemu-c-inference",
         ]
 
         for schema_name in expected_schemas:
@@ -1397,3 +1399,91 @@ class TestVisualizationConfigValidatorSchemaCount:
             assert schema.get("type") == "object", f"Schema {schema_name} is not an object type"
             # Most schemas should have additionalProperties: False for strict validation
             assert schema.get("additionalProperties") is False, f"Schema {schema_name} should not allow additional properties"
+
+
+class TestQemuCInferenceSchema:
+    """Test qemu-c-inference schema validation."""
+
+    @pytest.fixture
+    def validator(self):
+        return VisualizationConfigValidator()
+
+    def test_valid_qemu_c_inference_with_keil_config(self, validator):
+        config = {
+            "task_info": {"task_type": "qemu-c-inference"},
+            "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+            "benchmark_config": {
+                "iterations": 10,
+                "reset_state_each_run": True,
+                "repeat_runs": 1,
+            },
+            "validation_config": {
+                "dataset": {
+                    "dataset_type": "MET",
+                    "data_path": "data/M50",
+                    "sample_rate": 2000,
+                    "time_clipped_s": 4.0,
+                    "target_sweep": 2,
+                },
+                "selection": {
+                    "magnitudes": [0.24],
+                    "frequencies": [10.0],
+                    "start_time_s": 0.0,
+                    "end_time_s": 0.2,
+                },
+                "wave_output": {
+                    "compress": True,
+                },
+            },
+            "qemu_config": {
+                "action": "build-run",
+                "timeout": 5,
+            },
+            "keil_config": {
+                "action": "build-program-capture",
+                "target": "MET405",
+                "programmer": "daplink",
+                "program_backend": "keil",
+                "probe_uid": "205536951525",
+                "serial_port": "COM8",
+                "baud_rate": 115200,
+                "capture_timeout": 20,
+                "job_timeout": 300,
+                "success_markers": ["validation_complete=1"],
+            },
+        }
+
+        result = validator.validate_config_data(config, "qemu-c-inference")
+        assert result["keil_config"]["serial_port"] == "COM8"
+
+    def test_qemu_c_inference_rejects_unknown_keil_field(self, validator):
+        config = {
+            "task_info": {"task_type": "qemu-c-inference"},
+            "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+            "benchmark_config": {
+                "iterations": 10,
+            },
+            "validation_config": {
+                "dataset": {
+                    "dataset_type": "MET",
+                    "data_path": "data/M50",
+                    "sample_rate": 2000,
+                    "time_clipped_s": 4.0,
+                    "target_sweep": 2,
+                },
+                "selection": {
+                    "magnitudes": [0.24],
+                    "frequencies": [10.0],
+                },
+            },
+            "qemu_config": {
+                "action": "build-run",
+            },
+            "keil_config": {
+                "action": "build-program-capture",
+                "extra_field": "not allowed",
+            },
+        }
+
+        with pytest.raises(ConfigValidationError):
+            validator.validate_config_data(config, "qemu-c-inference")

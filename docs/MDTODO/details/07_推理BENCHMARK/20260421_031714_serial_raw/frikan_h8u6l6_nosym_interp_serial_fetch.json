@@ -1,0 +1,9 @@
+{
+  "action": "fetch_data",
+  "success": true,
+  "data": [],
+  "count": 0,
+  "totalCount": 0,
+  "hasMore": false,
+  "dedupInfo": ""
+}

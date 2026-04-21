@@ -5,7 +5,7 @@
   "current_epoch": 1000,
   "model_name": "TCN",
   "training_alive": false,
-  "timestamp": "20260413171858.8",
+  "timestamp": "20260421094716.0",
   "best_weights_file": "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3/data\\TCNc4d1248k3_nopd_true_e1k_lr2e3_best_weights.h5",
   "best_val_weights_file": "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3/data\\TCNc4d1248k3_nopd_true_e1k_lr2e3_best_val_weights.h5",
   "loss": 0.009872820228338242,
