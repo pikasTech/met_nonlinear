@@ -1,4 +1,5 @@
-"""Native FRIKAN implementation for the staged board inference refactor.
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
+"""Native FRIKAN implementation for board inference.
 
 The goal is to migrate model-specific logic out of `core.lstm_qemu_ep_task`
 while reusing the shared platform helpers in `board_inference.platforms`.
@@ -1073,6 +1074,7 @@ int main(void)
         }
         uart_puts("\n");
 
+#if !defined(BENCHMARK_PLATFORM_KEIL)
         uart_puts("validation_input_scaled_");
         uart_put_u32(record_index);
         uart_puts("=");
@@ -1104,6 +1106,7 @@ int main(void)
         uart_puts("=");
         uart_put_matrix_rows(&debug_output_scaled[0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
+#endif
     }
 
     uart_puts("validation_complete=1\n");

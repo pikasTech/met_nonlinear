@@ -681,6 +681,67 @@ class TestExecuteExternalTaskAuto:
             execute_external_task_auto(mock_ep_path)
 
 
+class TestQemuCInferenceCutover:
+    """Test qemu-c-inference cut-over to board_inference entrypoints."""
+
+    @pytest.fixture
+    def mock_ep_path(self, tmp_path):
+        from core.external_path_parser import ExternalPath
+
+        return ExternalPath(
+            project_name="test_project",
+            task_type="qemu-c-inference",
+            task_name="test_task",
+            full_path=tmp_path / "test_task",
+            config_path=tmp_path / "test_task" / "config.json",
+            output_path=tmp_path / "test_task" / "data",
+        )
+
+    def test_execute_qemu_c_inference_task_routes_to_board_inference(self, mock_ep_path):
+        from core.external_cli_handler import _execute_qemu_c_inference_task
+
+        config = {"task_info": {"task_type": "qemu-c-inference"}}
+        with patch('core.board_inference.entrypoints.execute_qemu_inference_task', return_value=True) as mock_execute:
+            assert _execute_qemu_c_inference_task(mock_ep_path, config) is True
+
+        mock_execute.assert_called_once_with(mock_ep_path, config)
+
+    def test_execute_qemu_c_inference_keil_bench_task_routes_to_board_inference(self, mock_ep_path):
+        from core.external_cli_handler import _execute_qemu_c_inference_keil_bench_task
+
+        config = {"task_info": {"task_type": "qemu-c-inference"}}
+        args = SimpleNamespace(
+            ep_probe_uid='ABC123',
+            ep_serial_port='COM8',
+            ep_serial_baud_rate=115200,
+            ep_keil_target='MET405',
+            ep_keil_program_backend='keil',
+            ep_keil_programmer='daplink',
+            ep_keil_capture_timeout=20,
+            ep_keil_job_timeout=300,
+            ep_keil_cli_path='C:/tool/keil-cli.py',
+        )
+
+        with patch('core.board_inference.entrypoints.execute_qemu_inference_keil_bench_task', return_value=True) as mock_execute:
+            assert _execute_qemu_c_inference_keil_bench_task(mock_ep_path, config, args) is True
+
+        mock_execute.assert_called_once_with(
+            mock_ep_path,
+            config,
+            keil_overrides={
+                'probe_uid': 'ABC123',
+                'serial_port': 'COM8',
+                'baud_rate': 115200,
+                'target': 'MET405',
+                'program_backend': 'keil',
+                'programmer': 'daplink',
+                'capture_timeout': 20,
+                'job_timeout': 300,
+                'keil_cli_path': 'C:/tool/keil-cli.py',
+            },
+        )
+
+
 class TestHandleEPCommand:
     """Test handle_ep_command function"""
 

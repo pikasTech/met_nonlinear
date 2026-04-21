@@ -60,7 +60,7 @@
       "exit_code": 0,
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 0.562691899999999,
+      "elapsed_seconds": 0.8061399999999992,
       "timed_out": false
     }
   },
@@ -83,7 +83,7 @@
           "exit_code": 0,
           "stdout": "LSTM_BENCHMARK_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nlstm_units=16\ndense_units=16\ndwt_supported=0\ntimer_source=host_elapsed\noutput=0.047210\nbenchmark_complete=1\n",
           "stderr": "",
-          "elapsed_seconds": 1.6935117999999996,
+          "elapsed_seconds": 2.0178473999999973,
           "timed_out": false
         }
       },
@@ -99,15 +99,15 @@
         "output": 0.04721,
         "benchmark_complete": 1,
         "measurement_unit": "seconds",
-        "measurement_total": 1.6935117999999996,
-        "measurement_per_iter": 0.16935117999999996
+        "measurement_total": 2.0178473999999973,
+        "measurement_per_iter": 0.20178473999999974
       }
     }
   ],
   "aggregated": {
     "run_count": 1,
-    "avg_host_elapsed_seconds": 1.6935117999999996,
-    "avg_measurement_per_iter": 0.16935117999999996,
+    "avg_host_elapsed_seconds": 2.0178473999999973,
+    "avg_measurement_per_iter": 0.20178473999999974,
     "measurement_sources": [
       "host_elapsed"
     ]
@@ -116,7 +116,7 @@
     "workflow": {
       "exit_code": 0,
       "timed_out": false,
-      "elapsed_seconds": 2.8361669999999997
+      "elapsed_seconds": 2.7063004
     },
     "parsed_output": {
       "iterations": 10,
@@ -130,8 +130,8 @@
       "output": 0.04721,
       "benchmark_complete": 1,
       "measurement_unit": "seconds",
-      "measurement_total": 2.8361669999999997,
-      "measurement_per_iter": 0.28361669999999994
+      "measurement_total": 2.7063004,
+      "measurement_per_iter": 0.27063004
     },
     "comparison": {
       "record_count": 1,

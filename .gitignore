@@ -20,6 +20,7 @@ result/
 **/MDK-ARM/MET405/*.dep
 **/MDK-ARM/MET405/*.lnp
 **/MDK-ARM/MET405/*.build_log.htm
+**/MDK-ARM/JLinkLog.txt
 **/MDK-ARM/*.uvguix.*
 **/MDK-ARM/*.uvoptx
 **/MDK-ARM/*.uvprojx
@@ -92,9 +93,8 @@ temp_**
 results/
 temp/
 tmp**
-temp**
 .tmp**
-.temp**
+.temp/**
 
 # QEMU build and run artifacts
 **/*.elf
@@ -115,3 +115,4 @@ scripts/
 **/*.lock
 **/*.pid
 *.png
+**/_pychace__/**

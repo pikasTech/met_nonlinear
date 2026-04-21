@@ -473,8 +473,8 @@ int main(void)
         uart_puts("=");
         uart_put_matrix_rows(&debug_output_scaled[0u][0u], VALIDATION_SEQ_LEN, 1u);
         uart_puts("\n");
-#endif
 
+#endif
     }
     uart_puts("validation_complete=1\n");
     while (1) {

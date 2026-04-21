@@ -1,3 +1,4 @@
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
 """Shared qemu/keil benchmark helpers for board inference models.
 
 This module is intentionally copied out of the legacy qemu-c-inference task so
@@ -1382,7 +1383,14 @@ def _extract_validation_outputs(parsed_output: Dict[str, Any],
         if key not in parsed_output:
             raise ValueError(f'QEMU 输出缺少 {key}')
         raw_value = str(parsed_output[key])
-        samples = [float(item) for item in raw_value.split(',') if item]
+        # Validation outputs are emitted via uart_put_fixed6(), so recovering
+        # fixed-precision float tokens is more robust than trusting separators.
+        # This handles missing commas and stray unlabeled debug tails in Keil
+        # serial captures while leaving the 1-D record contract unchanged.
+        samples = [
+            float(match.group(0))
+            for match in re.finditer(r'[+-]?\d+\.\d{6}', raw_value)
+        ][:validation_artifacts.seq_len]
         if len(samples) != validation_artifacts.seq_len:
             raise ValueError(
                 f'{key} 样本数不匹配，期望 {validation_artifacts.seq_len}，实际 {len(samples)}'

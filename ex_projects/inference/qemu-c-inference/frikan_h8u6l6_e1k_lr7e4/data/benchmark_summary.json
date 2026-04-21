@@ -72,7 +72,7 @@
       "exit_code": 0,
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 1.8000945999999942,
+      "elapsed_seconds": 2.8214188999999976,
       "timed_out": false
     }
   },
@@ -95,7 +95,7 @@
           "exit_code": 0,
           "stdout": "FRIKAN_BENCHMARK_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\nfeature_count=8\nkan_layer_count=7\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.004541\nbenchmark_complete=1\n",
           "stderr": "",
-          "elapsed_seconds": 1.0548631999999998,
+          "elapsed_seconds": 1.507555400000001,
           "timed_out": false
         }
       },
@@ -110,15 +110,15 @@
         "output": -0.004541,
         "benchmark_complete": 1,
         "measurement_unit": "seconds",
-        "measurement_total": 1.0548631999999998,
-        "measurement_per_iter": 0.10548631999999998
+        "measurement_total": 1.507555400000001,
+        "measurement_per_iter": 0.1507555400000001
       }
     }
   ],
   "aggregated": {
     "run_count": 1,
-    "avg_host_elapsed_seconds": 1.0548631999999998,
-    "avg_measurement_per_iter": 0.10548631999999998,
+    "avg_host_elapsed_seconds": 1.507555400000001,
+    "avg_measurement_per_iter": 0.1507555400000001,
     "measurement_sources": [
       "host_elapsed"
     ]
@@ -127,7 +127,7 @@
     "workflow": {
       "exit_code": 0,
       "timed_out": false,
-      "elapsed_seconds": 2.570138700000001
+      "elapsed_seconds": 2.8796980000000048
     },
     "parsed_output": {
       "iterations": 10,
@@ -140,8 +140,8 @@
       "output": -0.004541,
       "benchmark_complete": 1,
       "measurement_unit": "seconds",
-      "measurement_total": 2.570138700000001,
-      "measurement_per_iter": 0.2570138700000001
+      "measurement_total": 2.8796980000000048,
+      "measurement_per_iter": 0.2879698000000005
     },
     "comparison": {
       "record_count": 1,

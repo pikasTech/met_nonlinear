@@ -770,7 +770,7 @@ def _execute_wnet5_circuit_validation_task(ep_path: ExternalPath, config: dict) 
 def _execute_qemu_c_inference_task(ep_path: ExternalPath, config: dict) -> bool:
     """执行自动识别模型类型的 QEMU C 推理任务。"""
     try:
-        from .lstm_qemu_ep_task import execute_qemu_inference_task
+        from .board_inference.entrypoints import execute_qemu_inference_task
 
         logger.info(f"执行 QEMU C 推理任务: {ep_path.task_name}")
         return execute_qemu_inference_task(ep_path, config)
@@ -787,7 +787,7 @@ def _execute_qemu_c_inference_keil_bench_task(ep_path: ExternalPath,
                                               args: CLIArgs) -> bool:
     """执行 qemu-c-inference EP 的一键 Keil bench 流程。"""
     try:
-        from .lstm_qemu_ep_task import execute_qemu_inference_keil_bench_task
+        from .board_inference.entrypoints import execute_qemu_inference_keil_bench_task
 
         logger.info(f"执行 QEMU C 推理 Keil bench 任务: {ep_path.task_name}")
         keil_overrides = {

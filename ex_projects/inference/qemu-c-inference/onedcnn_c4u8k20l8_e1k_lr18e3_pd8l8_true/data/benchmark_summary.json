@@ -76,7 +76,7 @@
       "exit_code": 0,
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 0.6948097999999998,
+      "elapsed_seconds": 0.5972408999999992,
       "timed_out": false
     }
   },
@@ -99,7 +99,7 @@
           "exit_code": 0,
           "stdout": "ONEDCNN_BENCHMARK_VALIDATION\niterations=10\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.289342\nbenchmark_complete=1\n",
           "stderr": "",
-          "elapsed_seconds": 0.8079935999999996,
+          "elapsed_seconds": 0.7021248,
           "timed_out": false
         }
       },
@@ -110,15 +110,15 @@
         "output": -0.289342,
         "benchmark_complete": 1,
         "measurement_unit": "seconds",
-        "measurement_total": 0.8079935999999996,
-        "measurement_per_iter": 0.08079935999999996
+        "measurement_total": 0.7021248,
+        "measurement_per_iter": 0.07021248
       }
     }
   ],
   "aggregated": {
     "run_count": 1,
-    "avg_host_elapsed_seconds": 0.8079935999999996,
-    "avg_measurement_per_iter": 0.08079935999999996,
+    "avg_host_elapsed_seconds": 0.7021248,
+    "avg_measurement_per_iter": 0.07021248,
     "measurement_sources": [
       "host_elapsed"
     ]
@@ -127,7 +127,7 @@
     "workflow": {
       "exit_code": 0,
       "timed_out": false,
-      "elapsed_seconds": 3.473889800000002
+      "elapsed_seconds": 2.7029004000000008
     },
     "parsed_output": {
       "iterations": 10,
@@ -136,8 +136,8 @@
       "output": -0.289342,
       "benchmark_complete": 1,
       "measurement_unit": "seconds",
-      "measurement_total": 3.473889800000002,
-      "measurement_per_iter": 0.3473889800000002
+      "measurement_total": 2.7029004000000008,
+      "measurement_per_iter": 0.27029004000000006
     },
     "comparison": {
       "record_count": 1,

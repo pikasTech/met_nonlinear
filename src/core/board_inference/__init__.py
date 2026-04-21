@@ -1,9 +1,5 @@
-"""Experimental board inference refactor package.
-
-This package is intentionally not wired into the main CLI yet. It provides
-isolated entrypoints and debugging utilities so the refactor can be validated
-against the legacy implementation before any production cut-over.
-"""
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
+"""Board inference package for qemu-c-inference production execution."""
 
 from .entrypoints import (
     execute_qemu_inference_keil_bench_task,
@@ -11,6 +7,6 @@ from .entrypoints import (
 )
 
 __all__ = [
-    'execute_qemu_inference_keil_bench_task',
-    'execute_qemu_inference_task',
+    "execute_qemu_inference_keil_bench_task",
+    "execute_qemu_inference_task",
 ]

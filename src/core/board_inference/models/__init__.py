@@ -1,8 +1,5 @@
-"""Model-specific board inference implementations.
-
-The refactor keeps model-specific execution behind registries so new native
-implementations can be added without editing the shared entrypoints again.
-"""
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
+"""Model-specific board inference implementations."""
 
 from __future__ import annotations
 
@@ -23,7 +20,7 @@ NativeKeilBenchExecutor = Callable[[ExternalPath, Dict[str, Any], Optional[Dict[
 
 
 NATIVE_QEMU_EXECUTORS: Dict[str, NativeQemuExecutor] = {
-    'frikan': execute_frikan_qemu_task,
+    "frikan": execute_frikan_qemu_task,
     **{
         model_type: execute_sequence_qemu_task
         for model_type in SUPPORTED_SEQUENCE_MODEL_TYPES
@@ -31,7 +28,7 @@ NATIVE_QEMU_EXECUTORS: Dict[str, NativeQemuExecutor] = {
 }
 
 NATIVE_KEIL_BENCH_EXECUTORS: Dict[str, NativeKeilBenchExecutor] = {
-    'frikan': execute_frikan_keil_bench_task,
+    "frikan": execute_frikan_keil_bench_task,
     **{
         model_type: execute_sequence_keil_bench_task
         for model_type in SUPPORTED_SEQUENCE_MODEL_TYPES
@@ -50,15 +47,15 @@ def get_native_keil_bench_executor(model_type: str) -> Optional[NativeKeilBenchE
 
 
 __all__ = [
-    'NATIVE_KEIL_BENCH_EXECUTORS',
-    'NATIVE_MODEL_TYPES',
-    'NATIVE_QEMU_EXECUTORS',
-    'NativeKeilBenchExecutor',
-    'NativeQemuExecutor',
-    'execute_frikan_keil_bench_task',
-    'execute_frikan_qemu_task',
-    'execute_sequence_keil_bench_task',
-    'execute_sequence_qemu_task',
-    'get_native_keil_bench_executor',
-    'get_native_qemu_executor',
+    "NATIVE_KEIL_BENCH_EXECUTORS",
+    "NATIVE_MODEL_TYPES",
+    "NATIVE_QEMU_EXECUTORS",
+    "NativeKeilBenchExecutor",
+    "NativeQemuExecutor",
+    "execute_frikan_keil_bench_task",
+    "execute_frikan_qemu_task",
+    "execute_sequence_keil_bench_task",
+    "execute_sequence_qemu_task",
+    "get_native_keil_bench_executor",
+    "get_native_qemu_executor",
 ]

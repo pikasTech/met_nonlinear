@@ -1,8 +1,8 @@
-"""Isolated board inference entrypoints.
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
+"""Board inference entrypoints for qemu-c-inference execution.
 
-These entrypoints mirror the legacy signatures but route entirely through the
-native `board_inference.models` registry so the refactored path no longer
-depends on `core.lstm_qemu_ep_task`.
+These entrypoints preserve the legacy CLI signatures while routing entirely
+through the native `board_inference.models` registry.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def build_execution_request(ep_path: ExternalPath, config: Dict[str, Any]) -> ExecutionRequest:
-    """Build a validated immutable request envelope for the isolated entrypoints."""
+    """Build a validated immutable request envelope for board inference execution."""
 
     return ExecutionRequest(
         ep_path=ep_path,
@@ -39,7 +39,7 @@ def _resolve_model_type(config: Dict[str, Any]) -> str:
 
 
 def execute_qemu_inference_task(ep_path: ExternalPath, config: Dict[str, Any]) -> bool:
-    """Execute the isolated qemu task entrypoint."""
+    """Execute the qemu task entrypoint."""
 
     try:
         request = build_execution_request(ep_path, config)
@@ -59,7 +59,7 @@ def execute_qemu_inference_task(ep_path: ExternalPath, config: Dict[str, Any]) -
 def execute_qemu_inference_keil_bench_task(ep_path: ExternalPath,
                                            config: Dict[str, Any],
                                            keil_overrides: Optional[Dict[str, Any]] = None) -> bool:
-    """Execute the isolated keil-bench entrypoint."""
+    """Execute the keil-bench entrypoint."""
 
     try:
         request = build_execution_request(ep_path, config)

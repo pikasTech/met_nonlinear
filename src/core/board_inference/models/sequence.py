@@ -1,3 +1,4 @@
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
 """Native board inference implementations for recurrent and convolutional models.
 
 This module mirrors the non-FRIKAN portions of `core.lstm_qemu_ep_task` so the

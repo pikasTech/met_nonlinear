@@ -1,3 +1,4 @@
+# Legacy reference: src/core/lstm_qemu_ep_task.py last present in commit c44b43e36eeb4aa39abab42c20795c33fac3060f.
 """Model detection and native implementation registry for board inference."""
 
 from __future__ import annotations
