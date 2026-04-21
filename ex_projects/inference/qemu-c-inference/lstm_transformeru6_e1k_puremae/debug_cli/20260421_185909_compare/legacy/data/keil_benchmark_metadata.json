@@ -1,0 +1,25 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "?? MET ??????? LSTMTransformeru6_e1k_puremae ? C/TF26 ???????"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/keil_benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/keil_validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/qemu_project",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/keil_project",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/keil_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_transformer_ln_attn_0.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_transformer_ln_ffn_0.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_transformer_ln_attn_1.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_transformer_ln_ffn_1.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_post_dense.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae/debug_cli/20260421_185909_compare/legacy/data/waves/tf_output_scaled.wave"
+  ],
+  "action": "keil-bench"
+}

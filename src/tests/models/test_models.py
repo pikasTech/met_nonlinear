@@ -2933,6 +2933,19 @@ class TestBaseModelWeights:
         # Load should not raise
         base_model_for_weights.load_weights(weights_file)
 
+    def test_load_weights_keeps_existing_json(self, base_model_for_weights, tmp_path):
+        """Loading .h5 for offline tasks must not rewrite an existing canonical JSON."""
+        weights_file = str(tmp_path / 'test_weights.h5')
+        json_path = Path(weights_file.replace('.h5', '.json'))
+
+        base_model_for_weights.model.save_weights(weights_file)
+        sentinel = '[{"name":"sentinel","shape":[1],"config":{},"value":[1]}]\n'
+        json_path.write_text(sentinel, encoding='utf-8')
+
+        base_model_for_weights.load_weights(weights_file)
+
+        assert json_path.read_text(encoding='utf-8') == sentinel
+
 
 class TestBaseModelCompile:
     """Test cases for BaseModel.compile method."""
@@ -3095,6 +3108,30 @@ class TestLSTMWeights:
 
                 # Load should not raise
                 model.load_weights(weights_file)
+
+    def test_lstm_load_weights_keeps_existing_json(self, tmp_path):
+        """LSTM override must preserve an existing weight JSON during load."""
+        with patch('config.CONF_DROPOUT', 0.0):
+            from models.base_models import LSTM
+
+            with tempfile.TemporaryDirectory() as tmpdir:
+                model = LSTM(
+                    lstm_units=8,
+                    lstm_dropout=0.0,
+                    fs=2000,
+                    checkpoint_dir=tmpdir
+                )
+
+                weights_file = str(tmp_path / 'lstm_weights_keep_json.h5')
+                json_path = Path(weights_file.replace('.h5', '.json'))
+
+                model.save_weights(weights_file)
+                sentinel = '[{"name":"lstm_sentinel","shape":[1],"config":{},"value":[1]}]\n'
+                json_path.write_text(sentinel, encoding='utf-8')
+
+                model.load_weights(weights_file)
+
+                assert json_path.read_text(encoding='utf-8') == sentinel
 
 
 class TestGRNWeights:

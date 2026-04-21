@@ -1,0 +1,26 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+  "flow": "qemu",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": true,
+  "matches": false,
+  "behavior_matches": false,
+  "outcome_match": true,
+  "artifact_match": false,
+  "classification": "artifact_mismatch",
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_151145_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_151145_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_151145_compare/new",
+    "matches": false,
+    "missing_in_left": [],
+    "missing_in_right": [
+      "legacy_cli_process.json",
+      "legacy_cli_stderr.log",
+      "legacy_cli_stdout.log"
+    ],
+    "differing_files": []
+  }
+}

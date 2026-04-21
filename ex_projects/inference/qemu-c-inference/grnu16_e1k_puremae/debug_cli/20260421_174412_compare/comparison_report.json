@@ -1,0 +1,22 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae",
+  "flow": "keil",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": true,
+  "matches": true,
+  "behavior_matches": true,
+  "outcome_match": true,
+  "artifact_match": true,
+  "classification": "success_match",
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_174412_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_174412_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_174412_compare/new",
+    "matches": true,
+    "missing_in_left": [],
+    "missing_in_right": [],
+    "differing_files": []
+  }
+}

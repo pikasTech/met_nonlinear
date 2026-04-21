@@ -1,0 +1,34 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "?? MET ??????? TCNc4d1248k3_nopd_true_e1k_lr2e3 ? C/TF26 ???????"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/qemu_project",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/keil_project",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_output.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_initial_projection.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_tcn_block_1.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_tcn_block_2.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_tcn_block_3.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_tcn_block_4.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_post_dense_1.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_initial_projection.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_post_dense_1.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_tcn_block_1.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_tcn_block_2.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_tcn_block_3.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/waves/c_tcn_block_4.wave",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_182639_new/new/data/plots/mag0_24_freq10_comparison.png"
+  ],
+  "action": "build-run"
+}

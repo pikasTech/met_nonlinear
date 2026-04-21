@@ -1,0 +1,22 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8",
+  "flow": "qemu",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": true,
+  "matches": true,
+  "behavior_matches": true,
+  "outcome_match": true,
+  "artifact_match": true,
+  "classification": "success_match",
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_172209_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_172209_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_172209_compare/new",
+    "matches": true,
+    "missing_in_left": [],
+    "missing_in_right": [],
+    "differing_files": []
+  }
+}

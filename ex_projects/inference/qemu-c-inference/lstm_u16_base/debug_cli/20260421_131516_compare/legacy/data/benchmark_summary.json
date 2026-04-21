@@ -1,0 +1,44 @@
+{
+  "task_type": "qemu-c-inference",
+  "model_type": "lstm",
+  "model_project_name": "00_MAE_VS_AFMAE/LSTMu16_base",
+  "weights_json_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.json",
+  "loaded_weights_path": "projects/00_MAE_VS_AFMAE/LSTMu16_base/data/best_val.weights.h5",
+  "generated_project_dir": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/qemu_project",
+  "keil_project_dir": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/keil_project",
+  "benchmark_config": {
+    "iterations": 10,
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "validation": {
+    "dataset": {
+      "dataset_type": "MET",
+      "full_data_path": "D:\\BaiduSyncdisk\\data/M50",
+      "sample_rate": 2000.0
+    },
+    "selection": {
+      "start_time_s": 0.0,
+      "end_time_s": 0.2,
+      "sample_count": 400
+    },
+    "record_count": 1,
+    "seq_len": 400
+  },
+  "qemu_config": {
+    "action": "generate",
+    "machine": "olimex-stm32-h405",
+    "timeout": 5
+  },
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/target_output.wave",
+    "tf_input_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/tf_input_scaled.wave",
+    "tf_lstm_hidden_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/tf_lstm_hidden.wave",
+    "tf_dense_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/tf_dense_output.wave",
+    "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131516_compare/legacy/data/waves/tf_output_scaled.wave"
+  },
+  "action": "generate",
+  "status": "generated"
+}

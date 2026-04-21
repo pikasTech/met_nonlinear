@@ -1,0 +1,8 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+  "flow": "qemu",
+  "mode": "configured",
+  "runner": "new",
+  "success": true,
+  "run_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_183441_new/new"
+}

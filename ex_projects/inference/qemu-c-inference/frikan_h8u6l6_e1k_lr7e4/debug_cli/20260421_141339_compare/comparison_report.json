@@ -1,0 +1,25 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+  "flow": "qemu",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": true,
+  "matches": false,
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_141339_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_141339_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_141339_compare/new",
+    "matches": false,
+    "missing_in_left": [],
+    "missing_in_right": [],
+    "differing_files": [
+      {
+        "path": "data/benchmark_summary.json",
+        "reason": "content_mismatch",
+        "left_excerpt": "{\n  \"aggregated\": {\n    \"avg_host_elapsed_seconds\": 0.9086451000000011,\n    \"avg_measurement_per_iter\": 0.0908645100000001,\n    \"measurement_sources\": [\n      \"host_elapsed\"\n    ],\n    \"run_count\": 1\n  },\n  \"benchmark_config\": {\n    \"iterat...",
+        "right_excerpt": "{\n  \"aggregated\": {\n    \"avg_host_elapsed_seconds\": 0.9657861999999966,\n    \"avg_measurement_per_iter\": 0.09657861999999966,\n    \"measurement_sources\": [\n      \"host_elapsed\"\n    ],\n    \"run_count\": 1\n  },\n  \"benchmark_config\": {\n    \"itera..."
+      }
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "?? MET ??????? LSTMu16_e1k_puremae_r8 ? C/TF26 ???????"
+  },
+  "model_project_name": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8",
+  "weights_file": "best_val.weights.json",
+  "generation_config": {
+    "project_dir": "qemu_project",
+    "overwrite": true
+  },
+  "benchmark_config": {
+    "iterations": 10,
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "validation_config": {
+    "dataset": {
+      "source_project_config": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8/config.json",
+      "dataset_type": "MET",
+      "data_path": "data/M50",
+      "sample_rate": 2000,
+      "time_clipped_s": 4.0,
+      "target_sweep": 2,
+      "feature_range": [
+        -1,
+        1
+      ],
+      "use_scale": true,
+      "use_cache_features": true
+    },
+    "selection": {
+      "magnitudes": [
+        0.24
+      ],
+      "frequencies": [
+        10.0
+      ],
+      "start_time_s": 0.0,
+      "end_time_s": 0.2
+    },
+    "wave_output": {
+      "compress": true
+    }
+  },
+  "qemu_config": {
+    "action": "build-run",
+    "machine": "olimex-stm32-h405",
+    "timeout": 5
+  },
+  "keil_config": {
+    "action": "build-program-capture",
+    "target": "MET405",
+    "programmer": "daplink",
+    "program_backend": "keil",
+    "probe_uid": "205536951525",
+    "serial_port": "COM8",
+    "baud_rate": 115200,
+    "capture_timeout": 20,
+    "job_timeout": 300,
+    "success_markers": [
+      "validation_complete=1"
+    ]
+  }
+}

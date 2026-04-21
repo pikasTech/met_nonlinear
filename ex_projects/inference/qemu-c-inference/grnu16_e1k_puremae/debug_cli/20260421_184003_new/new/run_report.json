@@ -1,0 +1,8 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae",
+  "flow": "keil",
+  "mode": "configured",
+  "runner": "new",
+  "success": true,
+  "run_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184003_new/new"
+}

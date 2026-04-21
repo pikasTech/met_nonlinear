@@ -1,0 +1,29 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8",
+  "flow": "keil",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": true,
+  "matches": false,
+  "behavior_matches": false,
+  "outcome_match": true,
+  "artifact_match": false,
+  "classification": "artifact_mismatch",
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/new",
+    "matches": false,
+    "missing_in_left": [],
+    "missing_in_right": [],
+    "differing_files": [
+      {
+        "path": "data/keil_benchmark_summary.json",
+        "reason": "content_mismatch",
+        "left_excerpt": "{\n  \"action\": \"keil-bench\",\n  \"benchmark_config\": {\n    \"iterations\": 10,\n    \"repeat_runs\": 1,\n    \"reset_state_each_run\": true\n  },\n  \"comparison\": {\n    \"c_output_stats\": {\n      \"energy\": 1.3239413217629998,\n      \"max\": 0.08088,\n      ...",
+        "right_excerpt": "{\n  \"action\": \"keil-bench\",\n  \"benchmark_config\": {\n    \"iterations\": 10,\n    \"repeat_runs\": 1,\n    \"reset_state_each_run\": true\n  },\n  \"comparison\": {\n    \"c_output_stats\": {\n      \"energy\": 1.3239413217629998,\n      \"max\": 0.08088,\n      ..."
+      }
+    ]
+  }
+}

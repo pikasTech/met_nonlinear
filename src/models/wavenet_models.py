@@ -554,7 +554,7 @@ class WaveNet4(WaveNet3):
         """
         # 先加载主模型权重
         self.model.load_weights(weights_file)
-        self.save_weights_json(weights_file)
+        self._ensure_weights_json(weights_file)
 
         logger.info("正在同步初始卷积层模型权重...")
 

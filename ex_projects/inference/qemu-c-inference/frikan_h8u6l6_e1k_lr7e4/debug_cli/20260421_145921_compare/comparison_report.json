@@ -1,0 +1,35 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+  "flow": "keil",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": false,
+  "new_success": false,
+  "matches": false,
+  "behavior_matches": true,
+  "outcome_match": true,
+  "artifact_match": false,
+  "classification": "shared_failure",
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_145921_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_145921_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_145921_compare/new",
+    "matches": false,
+    "missing_in_left": [],
+    "missing_in_right": [],
+    "differing_files": [
+      {
+        "path": "data/keil_serial_raw.jsonl",
+        "reason": "content_mismatch",
+        "left_excerpt": "FRIKAN_BENCHMARK_VALIDATIONiterations=10record_count=1seq_len=400feature_count=8kan_layer_count=7dwt_supported=1timer_source=dwtmeasurement_unit=cyclesmeasurement_total=34368631measurement_per_iter=3436863cycles_total=34368631cycles_per_ite...",
+        "right_excerpt": "FRIKAN_BENCHMARK_VALIDATIONiterations=10record_count=1seq_len=400feature_count=8kan_layer_count=7dwt_supported=1timer_source=dwtmeasurement_unit=cyclesmeasurement_total=34368631measurement_per_iter=3436863cycles_total=34368631cycles_per_ite..."
+      },
+      {
+        "path": "data/keil_serial_stream.txt",
+        "reason": "content_mismatch",
+        "left_excerpt": "FRIKAN_BENCHMARK_VALIDATIONiterations=10record_count=1seq_len=400feature_count=8kan_layer_count=7dwt_supported=1timer_source=dwtmeasurement_unit=cyclesmeasurement_total=34368631measurement_per_iter=3436863cycles_total=34368631cycles_per_ite...",
+        "right_excerpt": "FRIKAN_BENCHMARK_VALIDATIONiterations=10record_count=1seq_len=400feature_count=8kan_layer_count=7dwt_supported=1timer_source=dwtmeasurement_unit=cyclesmeasurement_total=34368631measurement_per_iter=3436863cycles_total=34368631cycles_per_ite..."
+      }
+    ]
+  }
+}

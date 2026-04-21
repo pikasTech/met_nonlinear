@@ -1,0 +1,21 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "?? MET ??????? LSTMu16_e1k_puremae_r8 ? C/TF26 ???????"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/keil_benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/keil_validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/qemu_project",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/keil_project",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/keil_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/tf_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/tf_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/tf_output_scaled.wave"
+  ],
+  "action": "keil-bench"
+}

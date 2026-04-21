@@ -1,0 +1,8 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3",
+  "flow": "qemu",
+  "mode": "configured",
+  "runner": "new",
+  "success": true,
+  "run_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_183639_new/new"
+}

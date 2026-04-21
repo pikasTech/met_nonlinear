@@ -1,0 +1,178 @@
+{
+  "overall": {
+    "record_count": 1,
+    "sample_count": 400,
+    "mae": 0.002450907266641147,
+    "mse": 1.0985405916747112e-05,
+    "max_abs_error": 0.016115845077514734,
+    "c_output_stats": {
+      "min": -0.296261,
+      "max": 1.357768,
+      "mean": 0.011555992499999999,
+      "energy": 6.304742135238999
+    },
+    "tf_output_stats": {
+      "min": -0.29213234782218933,
+      "max": 1.3416521549224854,
+      "mean": 0.013529467641492375,
+      "energy": 6.159840331324993
+    },
+    "diff_stats": {
+      "min": -0.009194924418449407,
+      "max": 0.016115845077514734,
+      "mean": -0.001973475141492374,
+      "energy": 0.004394162366698845
+    }
+  },
+  "per_record": [
+    {
+      "record_id": "mag0.24_freq10",
+      "magnitude": 0.24,
+      "frequency": 10.0,
+      "mae": 0.002450907266641147,
+      "mse": 1.0985405916747112e-05,
+      "max_abs_error": 0.016115845077514734,
+      "c_output_stats": {
+        "min": -0.296261,
+        "max": 1.357768,
+        "mean": 0.011555992499999999,
+        "energy": 6.304742135238999
+      },
+      "tf_output_stats": {
+        "min": -0.29213234782218933,
+        "max": 1.3416521549224854,
+        "mean": 0.013529467641492375,
+        "energy": 6.159840331324993
+      },
+      "diff_stats": {
+        "min": -0.009194924418449407,
+        "max": 0.016115845077514734,
+        "mean": -0.001973475141492374,
+        "energy": 0.004394162366698845
+      }
+    }
+  ],
+  "intermediate": {
+    "dense_output": {
+      "record_count": 1,
+      "sample_count": 6400,
+      "channel_count": 16,
+      "mae": 3.3121910183266494e-05,
+      "mse": 1.80686666963334e-09,
+      "max_abs_error": 0.0003961017340421667,
+      "c_output_stats": {
+        "min": -0.040639,
+        "max": 0.053825,
+        "mean": 0.00551047796875,
+        "energy": 3.2824286999770003
+      },
+      "tf_output_stats": {
+        "min": -0.04053955897688866,
+        "max": 0.053646594285964966,
+        "mean": 0.0055022108566629415,
+        "energy": 3.2812719969028716
+      },
+      "diff_stats": {
+        "min": -0.00028302139735221846,
+        "max": 0.0003961017340421667,
+        "mean": 8.267112087058685e-06,
+        "energy": 1.1563946685653376e-05
+      }
+    },
+    "gru_hidden": {
+      "record_count": 1,
+      "sample_count": 6400,
+      "channel_count": 16,
+      "mae": 5.430752733717783e-05,
+      "mse": 8.115841310451133e-09,
+      "max_abs_error": 0.0007073813939094536,
+      "c_output_stats": {
+        "min": -0.083383,
+        "max": 0.104675,
+        "mean": 0.00448380265625,
+        "energy": 11.459409008643
+      },
+      "tf_output_stats": {
+        "min": -0.08329804986715317,
+        "max": 0.10451404750347137,
+        "mean": 0.004469481028980909,
+        "energy": 11.45875873637792
+      },
+      "diff_stats": {
+        "min": -0.0007073813939094536,
+        "max": 0.0006746683197617533,
+        "mean": 1.4321627269091638e-05,
+        "energy": 5.194138438688725e-05
+      }
+    },
+    "input_scaled": {
+      "record_count": 1,
+      "sample_count": 400,
+      "channel_count": 1,
+      "mae": 5.120575296005886e-07,
+      "mse": 3.4539828678029657e-13,
+      "max_abs_error": 9.996619788453955e-07,
+      "c_output_stats": {
+        "min": -0.000428,
+        "max": 0.000224,
+        "mean": -9.630000000000001e-06,
+        "energy": 8.32063e-06
+      },
+      "tf_output_stats": {
+        "min": -0.0004282975008537344,
+        "max": 0.00022443246211486113,
+        "mean": -9.583125584633477e-06,
+        "energy": 8.364811365539516e-06
+      },
+      "diff_stats": {
+        "min": -9.996619788453955e-07,
+        "max": 9.988473554983557e-07,
+        "mean": -4.687441536652258e-08,
+        "energy": 1.3815931471211862e-10
+      }
+    },
+    "output_scaled": {
+      "record_count": 1,
+      "sample_count": 400,
+      "channel_count": 1,
+      "mae": 4.62900268340204e-05,
+      "mse": 3.866278188028108e-09,
+      "max_abs_error": 0.000301546209573747,
+      "c_output_stats": {
+        "min": -0.00555,
+        "max": 0.025437,
+        "mean": 0.00021611999999999998,
+        "energy": 0.002212530018
+      },
+      "tf_output_stats": {
+        "min": -0.005473012570291758,
+        "max": 0.025135453790426254,
+        "mean": 0.00025347054135636425,
+        "energy": 0.002162036484610088
+      },
+      "diff_stats": {
+        "min": -0.00017212203605473063,
+        "max": 0.000301546209573747,
+        "mean": -3.7350541356364264e-05,
+        "energy": 1.5465112752112433e-06
+      }
+    }
+  },
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/target_output.wave",
+    "c_output_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/c_output.wave",
+    "tf_input_scaled_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/tf_input_scaled.wave",
+    "tf_gru_hidden_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/tf_gru_hidden.wave",
+    "tf_dense_output_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/tf_dense_output.wave",
+    "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/tf_output_scaled.wave",
+    "c_dense_output_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/c_dense_output.wave",
+    "c_gru_hidden_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/c_gru_hidden.wave",
+    "c_input_scaled_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/c_input_scaled.wave",
+    "c_output_scaled_wave": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/waves/c_output_scaled.wave"
+  },
+  "plot_paths": {
+    "comparison_plot_0": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_183519_new/new/data/plots/mag0_24_freq10_comparison.png"
+  }
+}

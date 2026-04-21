@@ -34,7 +34,7 @@ class TrainingStateManager:
                 "best_weights_file": os.path.join(self.checkpoint_dir, f"{self.project_name}_best_weights.h5"),
                 "best_val_weights_file": os.path.join(self.checkpoint_dir, f"{self.project_name}_best_val_weights.h5"),
             }
-            self.save_state()
+            self.save_state(touch_timestamp=False)
 
     def _normalize_legacy_state(self):
         """兼容旧版训练状态字段，确保断点续训可用。"""
@@ -66,7 +66,7 @@ class TrainingStateManager:
     def load_state(self):
         """从文件加载训练状态"""
         try:
-            with portalocker.Lock(self.state_file, 'r') as f:
+            with portalocker.Lock(self.state_file, 'r', encoding='utf-8') as f:
                 self.state = json.load(f)
             if self._normalize_legacy_state():
                 self.save_state()
@@ -76,14 +76,14 @@ class TrainingStateManager:
             self.state = {}
             return False
 
-    def save_state(self):
+    def save_state(self, touch_timestamp=True):
         """保存训练状态到文件"""
-        # 更新时间戳
-        self.state['timestamp'] = myjson.format_timestamp_number(time.time())
+        if touch_timestamp:
+            self.state['timestamp'] = myjson.format_timestamp_number(time.time())
 
         try:
-            with portalocker.Lock(self.state_file, 'w') as f:
-                json.dump(self.state, f, indent=2)
+            with portalocker.Lock(self.state_file, 'w', encoding='utf-8') as f:
+                json.dump(self.state, f, indent=2, ensure_ascii=False)
             return True
         except Exception as e:
             print(f"保存训练状态失败: {e}")
@@ -92,6 +92,7 @@ class TrainingStateManager:
     def update_state(self, **kwargs):
         """更新状态中的特定字段"""
         self.load_state()  # 确保使用最新状态
+        original_state = dict(self.state)
         for key, value in kwargs.items():
             self.state[key] = value
 
@@ -100,8 +101,14 @@ class TrainingStateManager:
         if 'current_epoch' in kwargs and 'completed_epoch' not in kwargs:
             self.state['completed_epoch'] = kwargs['current_epoch']
 
+        # 非训练流程经常重复写入同值；这种 no-op 不能刷新 timestamp。
+        if self.state == original_state:
+            return False
+
         if not self.save_state():
             print(f"更新状态失败: {kwargs}")
+            return False
+        return True
 
     def get_state(self, key, default=None):
         """获取特定状态值"""

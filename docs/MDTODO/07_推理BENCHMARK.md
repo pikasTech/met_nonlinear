@@ -27,6 +27,41 @@
 
 src\core\lstm_qemu_ep_task.py 实在是太长了，你做一个重构计划，合理拆分，并再做一个回归测试计划，而且文件里面混杂了lstm、keil和除了lstm的多个模型，文件名和文件内容也不一致了，我觉得创建一个 src/core/board_inference/ 然后在里面去重构为多个文件会比较合适，src/core/board_inference/ 下放不同的神经网络模型的通用代码，src/core/board_inference/models/ 里面放每个模型的专门代码，另外 C 代码的模板我建议专门放到单独的文本文件，例如 xxx_template.c/.h 里面，不要都挤占了 py 里面。如果涉及到 xml 也可以放到 xxx_template.xml 里面。然后在 py 里面读取。qemu 和 keil 的部分也要分开，但是两者也可以共同引入公共的逻辑, 完成任务后将详细报告写入[R2](./details/07_推理BENCHMARK/20260421_124302_Task_Report.md)。
 
-### R2.1
+### R2.1 [in_progress]
 
 在不修改 `src\core\lstm_qemu_ep_task.py` 的前提下按照 R2 的计划把新架构的代码写好，并且先不把新架构的代码挂载到 cli 主流程里面，增加一个 debug_cli，专门用来测试和旧的 `src\core\lstm_qemu_ep_task.py` 的 cli 主流程的行为一致性，最终要做到完全一致，这一步的目的是避免破坏已有的系统行为，先局部独立测试新重构后的代码，等到局部独立测试彻底通过后，后续可以清理 debug_cli 然后替换到主流程, 完成任务后将详细报告写入[R2.1](./details/07_推理BENCHMARK/20260421_125823_Task_Report.md)。
+
+#### R2.1.1 [completed]
+
+搭建 board_inference 新包骨架与 legacy adapter，不接入旧 CLI 主流程，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.1_Task_Report.md)。
+#### R2.1.2 [completed]
+
+增加 debug_cli 与产物比对逻辑，用于验证新旧流程行为一致性，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.2_Task_Report.md)。
+#### R2.1.3 [completed]
+
+补齐 board_inference 定向测试与 R2.1 执行报告，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.3_Task_Report.md)。
+#### R2.1.4
+
+定位 LSTM generate 路径的权重命名兼容问题，并让 debug_cli 在 `lstm_u16_base` 上完成新旧一致性比对，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.4_Task_Report.md)。
+#### R2.1.5 [completed]
+
+对齐 debug_cli 与旧 cli 包装行为，并用 frikan_h8u6l6_e1k_lr7e4 完成静态对照后的一致性验证，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.5_Task_Report.md)。
+#### R2.1.6 [in_progress]
+
+独立迁移 FRIKAN 核心逻辑到 board_inference，并完成 qemu build/run、keil-bench、性能数字与串口输出的一致性验证，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.6_Task_Report.md)。
+#### R2.1.7 [in_progress]
+
+按共享骨架迁移旧 qemu-c-inference 路径的全部模型与全部功能，FRIKAN 仅作为首个验证锚点而非专项特例，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.7_Task_Report.md)。
+##### R2.1.7.1 [completed]
+
+记录旧/新共享故障清单（LSTM 旧权重命名、FRIKAN keil 串口解析）并冻结为不修复项，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.7.1_Task_Report.md)。
+##### R2.1.7.2 [completed]
+
+静态梳理 horizontal reset preset 的 6 个模型覆盖状态，并完成新旧架构 qemu/keil 对照验证，完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.1.7.2_Task_Report.md)。
+### R2.2 [completed] 
+
+清理所有 legacy fallback，完成 horizontal preset 全模型 native 化，并验证 legacy vs native 在 qemu/keil benchmark 上一致（native 验证前临时移走旧模块），完成任务后将详细报告写入[任务报告](./details/07_推理BENCHMARK/R2.2_Task_Report.md)。
+
+### R2.3
+
+将 `src\core\lstm_qemu_ep_task.py` 彻底删除，然后在新的架构的每个.py的头部注释中写入 `src\core\lstm_qemu_ep_task.py` 移除前的最后一个 `commit` id，这样以后如果需要参考阅读的时候还能临时切出来看，然后在移除后将新架构接入 `cli.py` 的主流程，并清理掉 `debug_cli` 和相关的临时脚手架，也清理掉迁移中使用的 `compare` 工具等，完成任务后将详细报告写入[R2.3](./details/07_推理BENCHMARK/20260421_191822_Task_Report.md)。

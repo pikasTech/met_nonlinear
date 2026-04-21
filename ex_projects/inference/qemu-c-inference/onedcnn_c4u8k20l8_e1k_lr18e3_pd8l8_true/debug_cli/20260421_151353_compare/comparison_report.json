@@ -1,0 +1,26 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true",
+  "flow": "qemu",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": true,
+  "matches": false,
+  "behavior_matches": false,
+  "outcome_match": true,
+  "artifact_match": false,
+  "classification": "artifact_mismatch",
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true/debug_cli/20260421_151353_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true/debug_cli/20260421_151353_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true/debug_cli/20260421_151353_compare/new",
+    "matches": false,
+    "missing_in_left": [],
+    "missing_in_right": [
+      "legacy_cli_process.json",
+      "legacy_cli_stderr.log",
+      "legacy_cli_stdout.log"
+    ],
+    "differing_files": []
+  }
+}

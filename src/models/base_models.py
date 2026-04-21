@@ -371,8 +371,15 @@ class BaseModel:
                 }
             )
         # 保存为 JSON 文件
-        with open(json_file_path, 'w') as json_file:
-            json.dump(weights_serializable, json_file, indent=4)
+        with open(json_file_path, 'w', encoding='utf-8') as json_file:
+            json.dump(weights_serializable, json_file, indent=4, ensure_ascii=False)
+
+    def _ensure_weights_json(self, weights_file, model_obj=None):
+        """仅在 JSON 缺失时补导出，避免非训练流程重写 canonical 权重命名。"""
+        json_file_path = weights_file.replace('.h5', '.json')
+        if os.path.exists(json_file_path):
+            return
+        self.save_weights_json(weights_file, model_obj=model_obj)
 
     def load_weights(self, weights_file):
         """
@@ -395,15 +402,15 @@ class BaseModel:
             # 更新 model 的权重
             self.model.set_weights(weight_normal)
             self.model.load_weights(weights_file)
-            self.save_weights_json(weights_file)
+            self._ensure_weights_json(weights_file)
             return
         if self._uses_raw_fast_path():
             logger.info(f'Loading fast model weights from {weights_file}')
             self.fast_model.load_weights(weights_file)
-            self.save_weights_json(weights_file, model_obj=self.fast_model)
+            self._ensure_weights_json(weights_file, model_obj=self.fast_model)
             return
         self.model.load_weights(weights_file)
-        self.save_weights_json(weights_file)
+        self._ensure_weights_json(weights_file)
 
     def compile(self, *args, **kwargs):
         """
@@ -513,7 +520,7 @@ class LSTM(BaseModel):
         Load the model weights from a specified file.
         """
         self.model.load_weights(filepath)
-        self.save_weights_json(filepath)
+        self._ensure_weights_json(filepath)
 
     def save_weights(self, filepath):
         """
@@ -544,8 +551,8 @@ class LSTM(BaseModel):
                 }
             )
         # 保存为 JSON 文件
-        with open(json_file_path, 'w') as json_file:
-            json.dump(weights_serializable, json_file, indent=4)
+        with open(json_file_path, 'w', encoding='utf-8') as json_file:
+            json.dump(weights_serializable, json_file, indent=4, ensure_ascii=False)
 
     def init_checkpoint(self, checkpoint_dir):
         """

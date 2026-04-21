@@ -1,0 +1,8 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_base",
+  "flow": "qemu",
+  "mode": "generate",
+  "runner": "legacy",
+  "success": false,
+  "run_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_base/debug_cli/20260421_131952_legacy/legacy"
+}

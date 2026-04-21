@@ -1,0 +1,34 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+  "flow": "qemu",
+  "mode": "configured",
+  "old_runner": "cli",
+  "legacy_success": true,
+  "new_success": false,
+  "matches": false,
+  "compare_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_141118_compare",
+  "comparison": {
+    "left_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_141118_compare/legacy",
+    "right_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/debug_cli/20260421_141118_compare/new",
+    "matches": false,
+    "missing_in_left": [],
+    "missing_in_right": [
+      "data/benchmark_summary.json",
+      "data/plots/mag0_24_freq10_comparison.png",
+      "data/task_metadata.json",
+      "data/validation_comparison.json",
+      "data/waves/c_iir_output.wave",
+      "data/waves/c_input_scaled.wave",
+      "data/waves/c_kan_layer_0.wave",
+      "data/waves/c_kan_layer_1.wave",
+      "data/waves/c_kan_layer_2.wave",
+      "data/waves/c_kan_layer_3.wave",
+      "data/waves/c_kan_layer_4.wave",
+      "data/waves/c_kan_layer_5.wave",
+      "data/waves/c_kan_layer_6.wave",
+      "data/waves/c_output.wave",
+      "data/waves/c_output_scaled.wave"
+    ],
+    "differing_files": []
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8",
+  "flow": "qemu",
+  "mode": "configured",
+  "runner": "new",
+  "success": true,
+  "run_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_183559_new/new"
+}

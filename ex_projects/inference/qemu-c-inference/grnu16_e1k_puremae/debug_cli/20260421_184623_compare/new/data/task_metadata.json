@@ -1,0 +1,26 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "?? MET ??????? GRNu16_e1k_puremae ? C/TF26 ???????"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/qemu_project",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/keil_project",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/c_output.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/tf_gru_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/tf_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/c_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/c_gru_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/c_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/waves/c_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae/debug_cli/20260421_184623_compare/new/data/plots/mag0_24_freq10_comparison.png"
+  ],
+  "action": "build-run"
+}

@@ -1,0 +1,58 @@
+{
+  "overall": {
+    "record_count": 1,
+    "sample_count": 400,
+    "mae": 0.05070218251205572,
+    "mse": 0.0031983176032007155,
+    "max_abs_error": 0.06728052384787797,
+    "c_output_stats": {
+      "min": -0.272727,
+      "max": 0.08088,
+      "mean": 0.0468832925,
+      "energy": 1.3239413217629998
+    },
+    "tf_output_stats": {
+      "min": -0.27487561106681824,
+      "max": 0.07586310803890228,
+      "mean": -0.003116133666408132,
+      "energy": 0.2540015584032956
+    },
+    "diff_stats": {
+      "min": -0.007001977234899998,
+      "max": 0.06728052384787797,
+      "mean": 0.04999942616640813,
+      "energy": 1.2793270412802862
+    }
+  },
+  "per_record": [
+    {
+      "record_id": "mag0.24_freq10",
+      "magnitude": 0.24,
+      "frequency": 10.0,
+      "mae": 0.05070218251205572,
+      "mse": 0.0031983176032007155,
+      "max_abs_error": 0.06728052384787797,
+      "c_output_stats": {
+        "min": -0.272727,
+        "max": 0.08088,
+        "mean": 0.0468832925,
+        "energy": 1.3239413217629998
+      },
+      "tf_output_stats": {
+        "min": -0.27487561106681824,
+        "max": 0.07586310803890228,
+        "mean": -0.003116133666408132,
+        "energy": 0.2540015584032956
+      },
+      "diff_stats": {
+        "min": -0.007001977234899998,
+        "max": 0.06728052384787797,
+        "mean": 0.04999942616640813,
+        "energy": 1.2793270412802862
+      }
+    }
+  ],
+  "wave_paths": {
+    "keil_output_wave": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_173506_compare/legacy/data/waves/keil_output.wave"
+  }
+}

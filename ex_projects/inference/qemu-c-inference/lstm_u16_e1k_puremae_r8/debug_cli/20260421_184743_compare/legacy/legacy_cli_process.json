@@ -1,0 +1,11 @@
+{
+  "command": [
+    "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+    "C:\\work\\met_nonlinear_master\\cli.py",
+    "ep",
+    "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_184743_compare/legacy"
+  ],
+  "return_code": 0,
+  "stdout_log": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_184743_compare/legacy/legacy_cli_stdout.log",
+  "stderr_log": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8/debug_cli/20260421_184743_compare/legacy/legacy_cli_stderr.log"
+}

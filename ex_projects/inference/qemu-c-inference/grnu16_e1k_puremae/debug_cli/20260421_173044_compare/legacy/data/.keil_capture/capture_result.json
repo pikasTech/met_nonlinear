@@ -1,0 +1,35 @@
+{
+  "status": "completed",
+  "port": "COM8",
+  "baud_rate": 115200,
+  "timeout_seconds": 20,
+  "timed_out": false,
+  "record_count": 29,
+  "stream_length": 4378,
+  "matched_success_markers": [
+    "validation_complete=1"
+  ],
+  "missing_success_markers": [],
+  "result_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\debug_cli\\20260421_173044_compare\\legacy\\data\\.keil_capture\\capture_result.json",
+  "jsonl_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\debug_cli\\20260421_173044_compare\\legacy\\data\\keil_serial_raw.jsonl",
+  "text_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\debug_cli\\20260421_173044_compare\\legacy\\data\\keil_serial_stream.txt",
+  "error": null,
+  "fetch_result": {
+    "action": "fetch_export",
+    "success": true,
+    "data": {
+      "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\debug_cli\\20260421_173044_compare\\legacy\\data\\.keil_capture\\capture_all.jsonl",
+      "format": "jsonl",
+      "count": 1937,
+      "totalCount": 1937,
+      "dedupCount": 0,
+      "limitApplied": "all",
+      "timeRange": {
+        "start": "2026-04-20T16:31:09.833+0800",
+        "end": "2026-04-21T17:32:21.404+0800"
+      }
+    },
+    "_return_code": 0,
+    "_stderr": ""
+  }
+}

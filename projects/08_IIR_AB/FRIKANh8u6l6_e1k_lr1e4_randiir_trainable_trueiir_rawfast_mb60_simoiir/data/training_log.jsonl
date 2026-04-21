@@ -303,3 +303,4 @@
 {"timestamp": 20260421125327.6, "epoch": 303, "loss": 3.6791e-01, "val_loss": 3.7613e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5719e-01, "val_power_log_loss": 7.1520e-01, "lr": 2.0000e-05}
 {"timestamp": 20260421125652.6, "epoch": 304, "loss": 3.6705e-01, "val_loss": 3.7514e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5513e-01, "val_power_log_loss": 7.1289e-01, "lr": 2.0000e-05}
 {"timestamp": 20260421125957.6, "epoch": 305, "loss": 3.6604e-01, "val_loss": 3.7414e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5265e-01, "val_power_log_loss": 7.1057e-01, "lr": 2.0000e-05}
+{"timestamp": 20260421130313.4, "epoch": 306, "loss": 3.6510e-01, "val_loss": 3.7318e-01, "mae": 0.0000e00, "val_mae": 0.0000e00, "power_log_loss": 7.5038e-01, "val_power_log_loss": 7.0854e-01, "lr": 2.0000e-05}

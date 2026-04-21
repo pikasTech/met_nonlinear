@@ -1,0 +1,12 @@
+{
+  "command": [
+    "C:\\Users\\lyon\\MiniConda3\\envs\\tf26\\python.exe",
+    "C:\\work\\met_nonlinear_master\\cli.py",
+    "ep",
+    "keil-bench",
+    "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_190406_compare/legacy"
+  ],
+  "return_code": 0,
+  "stdout_log": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_190406_compare/legacy/legacy_cli_stdout.log",
+  "stderr_log": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3/debug_cli/20260421_190406_compare/legacy/legacy_cli_stderr.log"
+}

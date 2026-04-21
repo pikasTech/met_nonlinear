@@ -1,0 +1,8 @@
+{
+  "ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true",
+  "flow": "qemu",
+  "mode": "configured",
+  "runner": "new",
+  "success": true,
+  "run_root": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true/debug_cli/20260421_182619_new/new"
+}
