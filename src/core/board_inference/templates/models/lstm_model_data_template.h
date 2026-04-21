@@ -1,0 +1,37 @@
+#ifndef GENERATED_LSTM_MODEL_DATA_H
+#define GENERATED_LSTM_MODEL_DATA_H
+
+#include <stdint.h>
+
+typedef float port_float;
+
+#define LSTM_INPUT_DIM {{LSTM_INPUT_DIM}}u
+#define LSTM_UNITS {{LSTM_UNITS}}u
+#define DENSE_UNITS {{DENSE_UNITS}}u
+#define OUTPUT_UNITS {{OUTPUT_UNITS}}u
+#define BENCHMARK_ITERATIONS {{BENCHMARK_ITERATIONS}}u
+#define BENCHMARK_REPEAT_RUNS {{BENCHMARK_REPEAT_RUNS}}u
+#define BENCHMARK_RESET_STATE_EACH_RUN {{BENCHMARK_RESET_STATE_EACH_RUN}}u
+#define VALIDATION_RECORD_COUNT {{VALIDATION_RECORD_COUNT}}u
+#define VALIDATION_SEQ_LEN {{VALIDATION_SEQ_LEN}}u
+
+#define SCALER_INPUT_DATA_RANGE {{SCALER_INPUT_DATA_RANGE}}
+#define SCALER_OUTPUT_DATA_RANGE {{SCALER_OUTPUT_DATA_RANGE}}
+
+static const port_float validation_input[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN][LSTM_INPUT_DIM] = {{VALIDATION_INPUT_INITIALIZER}};
+
+static const port_float lstm_kernel[LSTM_INPUT_DIM][LSTM_UNITS * 4u] = {{LSTM_KERNEL_INITIALIZER}};
+
+static const port_float lstm_recurrent_kernel[LSTM_UNITS][LSTM_UNITS * 4u] = {{LSTM_RECURRENT_KERNEL_INITIALIZER}};
+
+static const port_float lstm_bias[LSTM_UNITS * 4u] = {{LSTM_BIAS_INITIALIZER}};
+
+static const port_float dense_kernel[LSTM_UNITS][DENSE_UNITS] = {{DENSE_KERNEL_INITIALIZER}};
+
+static const port_float dense_bias[DENSE_UNITS] = {{DENSE_BIAS_INITIALIZER}};
+
+static const port_float output_kernel[DENSE_UNITS][OUTPUT_UNITS] = {{OUTPUT_KERNEL_INITIALIZER}};
+
+static const port_float output_bias[OUTPUT_UNITS] = {{OUTPUT_BIAS_INITIALIZER}};
+
+#endif
