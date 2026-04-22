@@ -143,6 +143,19 @@ MN 本地稿件统一以 Springer Nature `sn-jnl` 模板为基础。
 
 这些机制的目标是保证本地结构整理、模板迁移和文字修改期间可以持续得到 PDF；如果后续进入正式投稿收尾阶段，应再单独检查是否需要切换到最终投稿态资源链路。
 
+## MN AI+sensor 常用参考论文
+
+以下论文为 MN 期刊在 AI+physical sensors / microsystems 方向的标杆论文，是当前稿件成稿风格的重要参考：
+
+| 论文 | 核心贡献 | MN 成稿启示 | 路径 |
+|------|----------|-------------|------|
+| Zhang et al. 2026 (Nano Lett.) | ML 驱动 MEMS 电热致动器无传感器线性化元结构设计 | **AI+sensor 论文的canonical范式**：physical sensor 为主角，AI 是实现线性化的计算工具；强调无传感器、无电路的机械结构方案而非 AI 模型创新 | `docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electrothermal_actuators.md` |
+
+**成稿启示**：
+- MN 的 AI+领域论文核心逻辑是"physical sensor / microsystem 问题 + AI 帮忙解决得更工程化、更高性能"
+- 不要把 AI 模型写成主角，要让传感器/微系统站在舞台中央
+- 贡献边界落在 sensor system performance enhancement，而不是通用 AI 模型创新
+
 ## 编译通过判定标准
 
 对 `docs/paper/latex/main.tex` 的本地编译，满足以下条件即可判定“编译通过”：

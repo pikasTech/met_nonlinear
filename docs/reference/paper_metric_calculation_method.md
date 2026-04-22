@@ -39,7 +39,7 @@
 | 层级 | 代表字段 | 主要语义 | 上游来源 |
 | --- | --- | --- | --- |
 | 优化 / 评估层 | `Loss Function`、`TRAIN_MAE`、`VAL_MAE`、`TRAIN_AFMAE`、`VAL_AFMAE`、`Epochs`、`LR` | 训练目标与离线评估误差 | `training_info.json` + `config.json` |
-| 物理性能层 | `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` | 补偿后的物理一致性与非线性误差 | `linear_response.json` + `linearity_by_frequency.json` |
+| 物理性能层 | `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` | 补偿后的物理一致性，以及 `<=128 Hz` in-band 非线性误差 | `linear_response.json` + `linearity_by_frequency.json` |
 | 复杂度层 | `Compute Cost`、`Total Params` | 模型参数规模与单步语义计算代价 | `compute_analysis.json` / `model_info.json` |
 | 部署一致性层 | `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED` | C 推理与 TensorFlow 参考路径的一致性及板端单位点时延 | 部署 EP 产物 |
 
@@ -180,7 +180,7 @@ $$
 
 ### Linearity (%)
 
-`metrics_summary.py` 读取 `linearity_by_frequency.json.linearity_by_frequency[*].r_squared_comped`，先转为非线性误差：
+`metrics_summary.py` 读取 `linearity_by_frequency.json.linearity_by_frequency[*]` 后，不直接对全频点求平均，而是先筛选 `frequency_hz <= 128` 的 in-band 频点，再转为非线性误差：
 
 $$
 e_k = 1 - R_k^2
@@ -196,7 +196,9 @@ e_{\mathrm{lin}}
 \frac{100}{K}\sum_{k=1}^{K}\left(1-R_k^2\right)
 $$
 
-因此，当前 `Linearity (%)` 的真实语义是“平均非线性误差百分比”，不是越大越好的正向线性度分数。
+这里的 $K$ 指 in-band 频点数，而不是 `linearity_by_frequency.json` 中保存的全部频点数。
+
+因此，当前 `Linearity (%)` 的真实语义是“`<=128 Hz` in-band 平均非线性误差百分比”，不是越大越好的正向线性度分数。字段名继续保留为 `Linearity (%)`，但论文方法和表注应明确注明其 in-band 语义。
 
 ### Compute Cost
 

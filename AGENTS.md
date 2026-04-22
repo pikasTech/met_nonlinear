@@ -35,7 +35,7 @@
 - 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
 - WNET5 分层验证中的 Project 权重加载、E96 量化误差仿真、SVF 拟合误差建模与报告约束：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
-- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考。
 - 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。
 - 论文消融实验方法：详见 [docs/reference/paper_ablation_method.md](docs/reference/paper_ablation_method.md)。
 - 论文横向对比实验方法：详见 [docs/reference/paper_horizontal_comparison_method.md](docs/reference/paper_horizontal_comparison_method.md)。
@@ -100,7 +100,7 @@
 	- 计算量估算：导出单步推理计算量与平台加权耗时，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
 	- 漏算诊断：如果 `compute_analysis.json` 出现 `unsupported_layer_type`、`estimate_status = partial` 或 `unsupported_layers` 非空，当前项目的 compute cost 仍可能被低估；`GRN(GRU)`、`LSTMTransformer` 与 `CNNKAN(Conv1D)` 的旧产物都应重跑新分析确认，详见 [docs/reference/compute_analysis.md](docs/reference/compute_analysis.md)。
 - `python cli.py --metrics PROJECT_NAME`
-	- 指标提取：统一按消融实验口径计算 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 并导出 `metrics.json`，其他模块只读取该文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 指标提取：统一按消融实验口径计算 `Freq Drift (Hz)`、`Sens Drift (%)` 与默认 `<=128 Hz` in-band 的 `Linearity (%)` 并导出 `metrics.json`，其他模块只读取该文件，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 显式重算：`-t`、`-e` 和 `-m` 现已自动刷新 `metrics.json`；保留该命令主要用于手动重算、批量补齐和历史项目修复，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 前置条件：`--metrics` 只汇总现有评估产物，不会自行补算 `evaluation_metrics`；如果项目在评估后又继续训练，或 `-e` 在频率响应阶段被中断，应先完整重跑 `-e`，再执行 `--metrics`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 诊断口径：如果 `metrics.json` 里时域误差正常但频响三项异常，先回看 `linear_response.json` 的物理量级，不要直接把问题归因于模型能力，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。

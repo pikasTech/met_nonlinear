@@ -143,7 +143,7 @@ $$
 
 - $d_f(p)$：`Freq Drift (Hz)`；
 - $d_s(p)$：`Sens Drift (%)`；
-- $e_{\mathrm{lin}}(p)$：`Linearity (%)`，当前语义是平均非线性误差百分比；
+- $e_{\mathrm{lin}}(p)$：`Linearity (%)`，当前语义是 `<=128 Hz` in-band 平均非线性误差百分比；
 - $C(p)$：`Compute Cost`；
 - $P(p)$：`Total Params`。
 

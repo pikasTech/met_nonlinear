@@ -199,7 +199,7 @@ $$
 
 其中：
 
-- `Freq Drift (Hz)`、`Sens Drift (%)` 与 `Linearity (%)` 用于体现补偿质量；
+- `Freq Drift (Hz)`、`Sens Drift (%)` 与 `Linearity (%)`（默认 `<=128 Hz` in-band 平均非线性误差）用于体现补偿质量；
 - `Compute Cost` 与 `Total Params` 用于体现复杂度代价；
 - `Epochs` 与 `LR` 适合作为复现实验设置的辅助列。
 

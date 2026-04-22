@@ -7,6 +7,7 @@
 统一原则：
 
 - 三个主指标 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 的定义以消融实验实现为准。
+- 其中 `Linearity (%)` 作为统一主字段时，当前默认口径固定为 `<=128 Hz` 的 in-band 平均非线性误差；字段名保留不变，仅语义更新。
 - 其他模块只读取 `metrics.json`，不再各自直接读取 `linear_response.json` 或 `linearity_by_frequency.json` 重新计算。
 
 其中 compare / 消融任务对这些指标的消费方式，统一以 [mae_vs_afmae.md](mae_vs_afmae.md) 这类专题文档为准；本文件只负责说明 `metrics.json` 如何生成与如何解释。
@@ -32,6 +33,8 @@ python cli.py --metrics --all-projects --missing-only
 - `linearity_by_frequency.json`
 
 此外，命令还会读取项目根目录下的 `config.json`。如果其中配置了 `board_inference_ep_path`，则会把该 EP 目录下的在板推理摘要一并汇总到 `metrics.json`。
+
+注意：`linearity_by_frequency.json` 可以保留完整评估频点；`metrics.json.linearity_percent` 只汇总当前默认带内子集，不会自动把带外频点并入主指标。
 
 其中 `training_info.json.evaluation_metrics` 由 `python cli.py -e PROJECT_NAME` 统一写入，loss、MAE、AFMAE 在评估阶段都固定通过单一预测路径重算，与训练时具体挂了哪些 compile metrics 无关。
 
@@ -75,7 +78,7 @@ $$
 
 ### Linearity (%)
 
-从 `linearity_by_frequency.json` 读取每个频点的 `r_squared_comped`，先按频点转换为非线性误差：
+从 `linearity_by_frequency.json` 读取每个频点的 `r_squared_comped`，先筛选 `frequency_hz <= 128` 的 in-band 频点，再按频点转换为非线性误差：
 
 $$
 e_i = 1 - R_i^2
@@ -87,7 +90,9 @@ $$
 \mathrm{Linearity} = \mathrm{mean}(e_i) \times 100
 $$
 
-因此这里的 `Linearity (%)` 实际上沿用消融实验口径，表示平均非线性误差百分比，数值越小越好。
+这里的 $i$ 只覆盖 in-band 频点，不再对 `160 Hz`、`200 Hz` 等带外频点求平均。
+
+因此这里的 `Linearity (%)` 实际上表示 `<=128 Hz` in-band 的平均非线性误差百分比，数值越小越好。字段名继续保留为 `Linearity (%)`，以兼容既有 `metrics.json` 消费方。
 
 ## 输出文件
 
@@ -98,10 +103,12 @@ $$
 典型字段包括：
 
 - `status`：`complete` 或 `partial`
+- `calculation_standard`：当前统一口径版本标识；引入 in-band 线性度后为 `ablation-study-v2-inband-linearity`
 - `sources`：本次汇总实际命中的输入文件布尔状态
 - `missing_sources`：缺失的输入文件列表
 - `missing_sections`：输入文件存在但关键字段缺失的节名列表
 - `freq_drift_hz`、`sens_drift_percent`、`linearity_percent`：供表格/图表直接消费的主字段
+- `linearity_band_max_hz`、`linearity_frequency_count`、`linearity_frequency_points_hz`：当前线性度主字段实际采用的 in-band 口径元数据
 - `metric_details`：上述三项指标及其 origin 版本的详细统计
 - `compute_details`：计算量明细，供其他模块直接读取
 - `board_inference_ep_path`：挂载的 `qemu-c-inference` EP 相对路径
@@ -178,7 +185,7 @@ $$
 - 若项目已经配置 `board_inference_ep_path`，但 EP 目录、`benchmark_summary.json`、`keil_benchmark_summary.json` 或关键字段缺失，则应把 `metrics.json` 判为 `partial`，并在 `missing_sources` / `missing_sections` 中记录具体缺口。
 - 若 `training_info.json.evaluation_metrics` 缺失，但 `linear_response.json`、`linearity_by_frequency.json` 仍存在，说明旧评估链没有完整写回；此时应优先重跑 `python cli.py -e PROJECT_NAME`，而不是只依赖已有 summary 文件。
 
-如果 `metrics.json` 显示 `VAL_MAE`、`VAL_AFMAE` 尚可，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 极差，先不要直接下结论说模型频响能力差；应回看 `linear_response.json` 的 `gains_comped` 是否与 `gains_origin` 处于同一物理量级。若两者量级明显不一致，优先排查模型包装类 `predict()` 是否正确执行了反缩放。
+如果 `metrics.json` 显示 `VAL_MAE`、`VAL_AFMAE` 尚可，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 极差，先不要直接下结论说模型频响能力差；应回看 `linear_response.json` 的 `gains_comped` 是否与 `gains_origin` 处于同一物理量级，并确认 `linearity_by_frequency.json` 中 `<=128 Hz` 频点是否完整。若两者量级明显不一致，优先排查模型包装类 `predict()` 是否正确执行了反缩放。
 
 如果需要批量修复历史项目，建议使用“单项目完整跑完 `-e`，再执行 `--metrics`”的顺序，而不要在前一个项目还停留在“预测频率响应...”阶段时并发启动后续项目；否则最容易得到 `metrics.json=status=partial` 或混入旧评估快照。
 

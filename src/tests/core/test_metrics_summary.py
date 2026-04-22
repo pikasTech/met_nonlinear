@@ -84,6 +84,11 @@ def test_build_project_metrics_summary_complete(tmp_path):
                 'r_squared_origin': 0.85,
                 'r_squared_comped': 0.95,
             },
+            {
+                'frequency_hz': 160,
+                'r_squared_origin': 0.00,
+                'r_squared_comped': 0.10,
+            },
         ],
     }), encoding='utf-8')
 
@@ -97,6 +102,7 @@ def test_build_project_metrics_summary_complete(tmp_path):
 
     assert summary['status'] == 'complete'
     assert summary['project_name'] == 'demo'
+    assert summary['calculation_standard'] == 'ablation-study-v2-inband-linearity'
     assert summary['epochs'] == 123
     assert summary['train_mae'] == 0.41
     assert summary['train_afmae'] == 0.42
@@ -114,8 +120,13 @@ def test_build_project_metrics_summary_complete(tmp_path):
     assert summary['freq_drift_hz'] == pytest.approx(2.0)
     assert summary['sens_drift_percent'] == pytest.approx(0.5)
     assert summary['linearity_percent'] == pytest.approx(7.5)
+    assert summary['linearity_band_max_hz'] == pytest.approx(128.0)
+    assert summary['linearity_frequency_count'] == 2
+    assert summary['linearity_frequency_points_hz'] == [50.0, 100.0]
     assert summary['metric_details']['natural_frequency_drift']['median'] == pytest.approx(12.0)
     assert summary['metric_details']['linearity']['max'] == pytest.approx(10.0)
+    assert summary['metric_details']['linearity']['band_max_hz'] == pytest.approx(128.0)
+    assert summary['metric_details']['linearity']['frequencies_hz'] == [50.0, 100.0]
     assert summary['compute_details']['weighted_maps'] == 3.5
     assert summary['display_metrics']['TRAIN_MAE'] == 0.41
     assert summary['display_metrics']['Loss Function'] == 'MAE+AFMAE'

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_LINEARITY_INBAND_MAX_HZ = 128.0
 
 
 def _load_json_if_exists(file_path: str) -> Optional[Dict[str, Any]]:
@@ -277,6 +278,7 @@ def _extract_sensitivity_values(
 def _extract_linearity_values(
     linearity_by_frequency: Optional[Dict[str, Any]],
     use_origin: bool,
+    max_frequency_hz: Optional[float] = DEFAULT_LINEARITY_INBAND_MAX_HZ,
 ) -> List[float]:
     if not linearity_by_frequency:
         return []
@@ -286,6 +288,10 @@ def _extract_linearity_values(
     for item in linearity_by_frequency.get('linearity_by_frequency') or []:
         if not isinstance(item, dict):
             continue
+        frequency_hz = _to_float(item.get('frequency_hz'))
+        if max_frequency_hz is not None:
+            if frequency_hz is None or frequency_hz > max_frequency_hz:
+                continue
         r_squared = _to_float(item.get(key))
         if r_squared is None:
             continue
@@ -296,10 +302,27 @@ def _extract_linearity_values(
 def _build_linearity_metric(
     linearity_by_frequency: Optional[Dict[str, Any]],
     use_origin: bool,
+    max_frequency_hz: Optional[float] = DEFAULT_LINEARITY_INBAND_MAX_HZ,
 ) -> Optional[Dict[str, Any]]:
-    nonlinearity_values = _extract_linearity_values(linearity_by_frequency, use_origin)
+    nonlinearity_values = _extract_linearity_values(
+        linearity_by_frequency,
+        use_origin,
+        max_frequency_hz=max_frequency_hz,
+    )
     if not nonlinearity_values:
         return None
+
+    selected_frequencies_hz: List[float] = []
+    selected_rows = (linearity_by_frequency or {}).get('linearity_by_frequency') or []
+    for item in selected_rows:
+        if not isinstance(item, dict):
+            continue
+        frequency_hz = _to_float(item.get('frequency_hz'))
+        if frequency_hz is None:
+            continue
+        if max_frequency_hz is not None and frequency_hz > max_frequency_hz:
+            continue
+        selected_frequencies_hz.append(frequency_hz)
 
     mean_value = sum(nonlinearity_values) / len(nonlinearity_values)
     return {
@@ -308,7 +331,9 @@ def _build_linearity_metric(
         'min': min(nonlinearity_values) * 100.0,
         'count': len(nonlinearity_values),
         'unit': '%',
-        'method': 'mean(1 - R^2) across frequency points',
+        'method': 'mean(1 - R^2) across in-band frequency points',
+        'band_max_hz': max_frequency_hz,
+        'frequencies_hz': selected_frequencies_hz,
     }
 
 
@@ -316,6 +341,7 @@ def _build_metric_details(
     linear_response: Optional[Dict[str, Any]],
     linearity_by_frequency: Optional[Dict[str, Any]],
     sensitivity_frequency_hz: float = 100.0,
+    linearity_band_max_hz: float = DEFAULT_LINEARITY_INBAND_MAX_HZ,
 ) -> Dict[str, Optional[Dict[str, Any]]]:
     natural_frequency_drift = _build_distribution_metric(
         _extract_natural_frequency_values(linear_response, use_origin=False),
@@ -343,10 +369,18 @@ def _build_metric_details(
     return {
         'natural_frequency_drift': natural_frequency_drift,
         'sensitivity_drift': sensitivity_drift,
-        'linearity': _build_linearity_metric(linearity_by_frequency, use_origin=False),
+        'linearity': _build_linearity_metric(
+            linearity_by_frequency,
+            use_origin=False,
+            max_frequency_hz=linearity_band_max_hz,
+        ),
         'natural_frequency_drift_origin': natural_frequency_drift_origin,
         'sensitivity_drift_origin': sensitivity_drift_origin,
-        'linearity_origin': _build_linearity_metric(linearity_by_frequency, use_origin=True),
+        'linearity_origin': _build_linearity_metric(
+            linearity_by_frequency,
+            use_origin=True,
+            max_frequency_hz=linearity_band_max_hz,
+        ),
     }
 
 
@@ -477,7 +511,11 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
     if training_info is not None and not evaluation_metrics:
         missing_sections.append('training_info.evaluation_metrics')
 
-    metric_details = _build_metric_details(linear_response, linearity_by_frequency)
+    metric_details = _build_metric_details(
+        linear_response,
+        linearity_by_frequency,
+        linearity_band_max_hz=DEFAULT_LINEARITY_INBAND_MAX_HZ,
+    )
     if linear_response is not None:
         if metric_details['natural_frequency_drift'] is None:
             missing_sections.append('linear_response.fit_params_comped')
@@ -534,7 +572,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'project_name': project_name,
         'generated_at': datetime.now().astimezone().isoformat(),
         'status': 'complete',
-        'calculation_standard': 'ablation-study-v1',
+        'calculation_standard': 'ablation-study-v2-inband-linearity',
         'sources': {
             'training_info': training_info is not None,
             'compute_analysis': compute_analysis is not None,
@@ -561,6 +599,9 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'freq_drift_hz': (metric_details['natural_frequency_drift'] or {}).get('drift'),
         'sens_drift_percent': (metric_details['sensitivity_drift'] or {}).get('drift'),
         'linearity_percent': (metric_details['linearity'] or {}).get('mean'),
+        'linearity_band_max_hz': (metric_details['linearity'] or {}).get('band_max_hz'),
+        'linearity_frequency_count': (metric_details['linearity'] or {}).get('count'),
+        'linearity_frequency_points_hz': (metric_details['linearity'] or {}).get('frequencies_hz'),
         'compute_cost': compute_cost,
         'total_params': total_params,
         'lr': _to_float(config.get('learning_rate')) if config else None,

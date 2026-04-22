@@ -709,7 +709,7 @@ class AblationStudyAnalyzer:
         lines = [
             "## 5. 综合对比",
             "",
-            "| Project | 加权估计 | Val MAE | Val AFMAE | Freq Drift (Hz) | Sens Drift (%) | Linearity (%) | QEMU-MAE | KEIL-MAE | KEIL-SPEED (ms/point) |",
+            "| Project | 加权估计 | Val MAE | Val AFMAE | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | QEMU-MAE | KEIL-MAE | KEIL-SPEED (ms/point) |",
             "|---------|------------|---------|------------|------------------|-----------------|----------------|----------|----------|------------------------|"
         ]
 
@@ -824,7 +824,7 @@ class AblationStudyAnalyzer:
                 'Val AFMAE': None,
                 'Freq Drift (Hz)': origin_metrics['freq'].get('drift'),
                 'Sens Drift (%)': origin_metrics['sens'].get('drift'),
-                'Linearity (%)': origin_metrics['linearity'].get('mean'),
+                'Linearity (in-band, %)': origin_metrics['linearity'].get('mean'),
                 'QEMU-MAE': None,
                 'KEIL-MAE': None,
                 'KEIL-SPEED (ms/point)': None,
@@ -852,7 +852,7 @@ class AblationStudyAnalyzer:
                 'Val AFMAE': ma.get('val_afmae') if 'error' not in ma else None,
                 'Freq Drift (Hz)': fd.get('drift') if 'error' not in fd else None,
                 'Sens Drift (%)': sd.get('drift') if 'error' not in sd else None,
-                'Linearity (%)': lin.get('mean') if 'error' not in lin else None,
+                'Linearity (in-band, %)': lin.get('mean') if 'error' not in lin else None,
                 'QEMU-MAE': bi.get('qemu_mae') if 'error' not in bi else None,
                 'KEIL-MAE': bi.get('keil_mae') if 'error' not in bi else None,
                 'KEIL-SPEED (ms/point)': bi.get('keil_speed') if 'error' not in bi else None,

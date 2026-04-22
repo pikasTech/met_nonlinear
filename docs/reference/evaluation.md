@@ -46,7 +46,7 @@ conda.bat run --no-capture-output -n tf26 python cli.py -e PROJECT_NAME 2>&1 | T
 - `model_info.json`：模型结构与参数信息。
 - `training_info.json`：训练摘要、权重来源以及训练/验证集 loss、MAE、AFMAE。
 - `linear_response.json`：频率响应对比使用的数据源。
-- `linearity_by_frequency.json`：按频点导出的线性度明细，供 `--metrics` 统一汇总使用。
+- `linearity_by_frequency.json`：按频点导出的线性度明细，供 `--metrics` 统一汇总使用；当前 `metrics.json.linearity_percent` 默认只汇总其中 `<=128 Hz` 的 in-band 频点。
 - `inference_baseline/`、`inference_c123/`：推理或评估阶段产生的结果目录。
 
 以 `training_info.json.evaluation_metrics` 为例，只有在终端出现“评估完成”并正常返回后，才应认为该字段已与当前权重、当前推理产物保持一致。
@@ -64,7 +64,7 @@ conda.bat run --no-capture-output -n tf26 python cli.py -e PROJECT_NAME 2>&1 | T
 
 ## 频响异常排查
 
-- 如果 `val_mae`、`val_afmae` 看起来正常，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 明显异常，优先检查 `linear_response.json` 中 `gains_comped` 是否与 `gains_origin` 处于同一物理量级。
+- 如果 `val_mae`、`val_afmae` 看起来正常，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 明显异常，优先检查 `linear_response.json` 中 `gains_comped` 是否与 `gains_origin` 处于同一物理量级，并确认 `linearity_by_frequency.json` 里 `<=128 Hz` 的 in-band 频点是否完整。
 - 如果 `gains_origin` 在几十到几百的量级，而 `gains_comped` 只有 `0.x` 到几十，通常不是模型“学坏了”，而是频响推理路径漏掉了输出反缩放。
 - 这类问题最常见的根因是某个模型包装类覆盖了 `predict()`，但没有透传 `use_scaler`，或直接绕过了 `BaseModel.predict()` 的统一缩放链路。
 - 处理顺序建议是：先修复模型包装类 `predict()` 的缩放兼容性，再完整重跑 `python cli.py -e PROJECT_NAME`，最后重新执行 `python cli.py --metrics PROJECT_NAME` 验证频响三项是否恢复到合理范围。
