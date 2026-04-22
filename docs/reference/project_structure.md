@@ -34,6 +34,29 @@
 - `docs/`、`projects/`、`ex_projects/`、`data/`、`logs/` 等文档、数据与日志目录。
 - 通过 `Tee-Object` / `tee` 额外留存的命令输出，也应默认写到 `logs/` 子目录，而不是在根目录平铺 `train.log`、`pytest.log` 之类的临时文件。
 
+### `board_inference` 子包边界
+
+`src/core/board_inference/` 是当前 `qemu-c-inference` 与 `ep keil-bench` 的稳定生产实现。长期上不应再把已删除的 `src/core/lstm_qemu_ep_task.py` 当作运行时依赖。
+
+当前分工如下：
+
+| 路径 | 角色 |
+|------|------|
+| `src/core/board_inference/entrypoints.py` | 对外暴露稳定入口，供 `external_cli_handler` / CLI 主流程调用 |
+| `src/core/board_inference/registry.py` | 根据 project `config.json` 与权重命名识别模型类型，判断是否已有 native 实现 |
+| `src/core/board_inference/models/sequence.py` | `lstm`、`grn`、`lstm_transformer`、`onedcnn`、`tcn`、`wavenet2`、`wavenet3` 的原生实现 |
+| `src/core/board_inference/models/frikan.py` | `frikan` 的原生实现 |
+| `src/core/board_inference/platforms/benchmark_common.py` | QEMU / Keil 共享的工程生成、构建、串口抓取、summary 写回与比较辅助逻辑 |
+| `src/core/board_inference/templates/` | 稳定 C/H 模板目录；固定 scaffold 应放这里，而不是继续塞在 Python 长字符串里 |
+
+长期维护规则：
+
+- `entrypoints.py` 只做请求封装、模型分流和异常边界，不再混入大段模型生成逻辑。
+- 模型专属数值导出、结构校验和 `main.c` / `model_data.h` 渲染留在 `models/*.py`。
+- 平台共享逻辑优先收敛到 `platforms/benchmark_common.py`，避免在每个模型里复制 Keil/QEMU/串口处理代码。
+- 固定模板文本优先放 `templates/`，Python 只保留数值 initializer、拓扑相关声明拼装和少量条件分支。
+- 新增 `qemu-c-inference` 模型时，优先扩展 `registry.py` 与对应 `models/*.py`，不要重新引入“单个超长脚本同时承担全部模型和全部平台”的结构。
+
 ## project 路径与产物布局
 
 当前 CLI 会把传入的 project 名归一化成仓库相对路径；规范写法是 `projects/...`，Windows 下传入反斜杠也会先归一化为 `/`。
@@ -46,6 +69,8 @@ projects/<PROJECT_NAME>/
 └── data/
     ├── best.weights.h5
     ├── best_val.weights.h5
+    ├── best.weights.json             # 可选，供离线导出 / board inference 读取
+    ├── best_val.weights.json         # 可选，供离线导出 / board inference 读取
     ├── fast_best.weights.h5            # 可选，仅 use_fast_model 时出现
     ├── fast_best_val.weights.h5        # 可选，仅 use_fast_model 时出现
     ├── training_log.jsonl
@@ -63,9 +88,11 @@ projects/<PROJECT_NAME>/
 
 - `config.json` 位于 project 根目录，长期产物位于同级的 `data/` 目录。
 - 权重的主文件名约定为 `best.weights.h5` / `best_val.weights.h5`。
+- 对应的 `best.weights.json` / `best_val.weights.json` 若存在，也应视为 canonical 导出产物。
 - fast-model 相关权重若存在，命名为 `fast_best.weights.h5` / `fast_best_val.weights.h5`。
 - scaler 主文件长期以 `data/scalers/combined_scaler.json` 为准；`scaler_x.json`、`scaler_y.json` 仅作为历史兼容产物看待。
 - 推理、评估、模型信息导出都应继续落到该 project 的 `data/` 子树中，不要新开根目录旁路输出。
+- 离线分析、QEMU/Keil benchmark、`load_weights()` 一类非训练读路径应把这些 canonical 权重文件当只读输入；若存在命名兼容问题，应修解析逻辑或走显式导出流程，不要在读路径里重命名、重写或覆盖现有权重文件。
 
 ## `config.json` 的长期分工
 

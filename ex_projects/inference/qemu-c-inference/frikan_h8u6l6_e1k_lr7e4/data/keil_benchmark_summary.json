@@ -59,12 +59,12 @@
   },
   "status": "completed",
   "keil_build": {
-    "job_id": "20260421_203547_24eb2784",
+    "job_id": "20260421_220304_44e020e2",
     "command": "build",
     "status": "completed",
-    "created_at": "2026-04-21T20:35:47.817279",
-    "started_at": "2026-04-21T20:35:48.251962",
-    "finished_at": "2026-04-21T20:36:07.490694",
+    "created_at": "2026-04-21T22:03:04.208440",
+    "started_at": "2026-04-21T22:03:04.587087",
+    "finished_at": "2026-04-21T22:03:19.803571",
     "return_code": 0,
     "success": true,
     "params": {
@@ -90,18 +90,18 @@
       },
       "cleared_build_state_file": null,
       "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
-      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_203548.jsonl"
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_220304.jsonl"
     },
-    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_203548.jsonl",
-    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_203547_24eb2784.json"
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_220304.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_220304_44e020e2.json"
   },
   "keil_program": {
-    "job_id": "20260421_203613_8c072fc6",
+    "job_id": "20260421_220325_9db2cf0e",
     "command": "program",
     "status": "completed",
-    "created_at": "2026-04-21T20:36:13.724828",
-    "started_at": "2026-04-21T20:36:14.220610",
-    "finished_at": "2026-04-21T20:38:15.101302",
+    "created_at": "2026-04-21T22:03:25.423252",
+    "started_at": "2026-04-21T22:03:25.852937",
+    "finished_at": "2026-04-21T22:05:22.585773",
     "return_code": 0,
     "success": true,
     "params": {
@@ -117,7 +117,7 @@
       "message": "Programming successful via Keil UV4",
       "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
       "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
-      "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 20:38:14",
+      "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:05:22",
       "target": "MET405",
       "reset_and_run_check": {
         "success": true,
@@ -365,10 +365,10 @@
       },
       "requested_program_backend": "keil",
       "program_backend": "keil",
-      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_203614.jsonl"
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_220325.jsonl"
     },
-    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_203614.jsonl",
-    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_203613_8c072fc6.json"
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_220325.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_220325_9db2cf0e.json"
   },
   "serial_capture": {
     "status": "completed",
@@ -392,13 +392,13 @@
       "data": {
         "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
         "format": "jsonl",
-        "count": 3166,
-        "totalCount": 3166,
+        "count": 3532,
+        "totalCount": 3532,
         "dedupCount": 0,
         "limitApplied": "all",
         "timeRange": {
           "start": "2026-04-20T16:31:09.833+0800",
-          "end": "2026-04-21T20:38:17.650+0800"
+          "end": "2026-04-21T22:05:25.232+0800"
         }
       },
       "_return_code": 0,

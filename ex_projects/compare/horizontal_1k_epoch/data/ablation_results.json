@@ -1,5 +1,5 @@
 {
-  "timestamp": "20260405_105750",
+  "timestamp": "20260421_225907",
   "projects": [
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4",
@@ -19,7 +19,7 @@
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4_pureafmae",
       "label": "FRIKAN-PureAFMAE",
-      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
+      "path": "projects/03_FRIKAN_PUREAFME/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
     },
     {
       "name": "LSTMTransformeru6_e1k_puremae",
@@ -40,11 +40,11 @@
   "metrics": {
     "natural_frequency_drift": {
       "FRIKANh8u6l6_e1k_lr7e4": {
-        "drift": 2.336609809298018,
+        "drift": 2.3365656199771543,
         "unit": "Hz",
-        "min": 30.750621675155834,
-        "max": 34.50759680055925,
-        "median": 33.08723148445385
+        "min": 30.750606868615943,
+        "max": 34.5075935645853,
+        "median": 33.0871724885931
       },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "drift": 10.912781133652594,
@@ -52,7 +52,7 @@
         "min": 30.78837638646289,
         "max": 47.99852934094665,
         "median": 37.08574820729405,
-        "suppression": -367.0348078753933
+        "suppression": -367.0436404760288
       },
       "FRIKANh8u6l6_e1k_lr7e4_puremae": {
         "drift": 13.00249038942325,
@@ -60,7 +60,7 @@
         "min": 28.179206380086455,
         "max": 47.38280836719804,
         "median": 34.38031797777479,
-        "suppression": -456.4681932637079
+        "suppression": -456.4787172358713
       },
       "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
         "drift": 7.145648960226016,
@@ -68,15 +68,15 @@
         "min": 24.0183033974083,
         "max": 34.77455417956281,
         "median": 27.628905219336797,
-        "suppression": -205.81267491865768
+        "suppression": -205.8184584730765
       },
       "LSTMTransformeru6_e1k_puremae": {
-        "drift": 4.720569735129416,
+        "drift": 4.720569366171951,
         "unit": "Hz",
-        "min": 30.764318111250127,
-        "max": 35.94249923824354,
-        "median": 35.48488784637954,
-        "suppression": -102.02644516619594
+        "min": 30.76431819567103,
+        "max": 35.94250023475634,
+        "median": 35.48488756184298,
+        "suppression": -102.03025011632698
       },
       "LSTMu16_e1k_puremae_r7": {
         "drift": 7.514473400002053,
@@ -84,24 +84,24 @@
         "min": 27.383748615762535,
         "max": 36.06694958154661,
         "median": 34.89822201576459,
-        "suppression": -221.59727182946338
+        "suppression": -221.60335390347507
       },
       "GRNu16_e1k_puremae": {
-        "drift": 8.573044842353013,
+        "drift": 7.400430361375115,
         "unit": "Hz",
-        "min": 25.47900962587353,
-        "max": 37.747186568599204,
-        "median": 34.052054468226544,
-        "suppression": -266.9010036779993
+        "min": 27.63403174061827,
+        "max": 36.517167032993804,
+        "median": 35.034462101993384,
+        "suppression": -216.72255630669906
       }
     },
     "sensitivity_drift": {
       "FRIKANh8u6l6_e1k_lr7e4": {
-        "drift": 9.092433253722085,
+        "drift": 9.092567629369398,
         "unit": "%",
-        "min": 52.16228377006349,
-        "max": 67.64889934855479,
-        "median": 61.254717023785574
+        "min": 52.162163907568385,
+        "max": 67.64895013730865,
+        "median": 61.25473153693778
       },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "drift": 10.613472403874454,
@@ -109,7 +109,7 @@
         "min": 43.64365026660502,
         "max": 63.508839017118,
         "median": 54.257122670479475,
-        "suppression": -16.728625965219102
+        "suppression": -16.72690087662879
       },
       "FRIKANh8u6l6_e1k_lr7e4_puremae": {
         "drift": 20.283908250776427,
@@ -117,7 +117,7 @@
         "min": 42.29073335046047,
         "max": 74.00281163503396,
         "median": 62.5746416012369,
-        "suppression": -123.08558869511626
+        "suppression": -123.08229179685726
       },
       "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
         "drift": 47.05390364796287,
@@ -125,15 +125,15 @@
         "min": 23.32176172824264,
         "max": 84.46971279474258,
         "median": 37.41580914677971,
-        "suppression": -417.5061761239858
+        "suppression": -417.49852809427193
       },
       "LSTMTransformeru6_e1k_puremae": {
-        "drift": 18.384936629729403,
+        "drift": 18.38493861051414,
         "unit": "%",
-        "min": 48.99017917619543,
-        "max": 71.8821738686823,
-        "median": 67.37511580592484,
-        "suppression": -102.2004024302662
+        "min": 48.99017917623917,
+        "max": 71.88216161636605,
+        "median": 67.37511778675331,
+        "suppression": -102.19743597100086
       },
       "LSTMu16_e1k_puremae_r7": {
         "drift": 25.81068973495097,
@@ -141,22 +141,22 @@
         "min": 40.58046235995275,
         "max": 68.24847650278893,
         "median": 66.39115209490372,
-        "suppression": -183.86999403471108
+        "suppression": -183.8657988265195
       },
       "GRNu16_e1k_puremae": {
-        "drift": 33.73452628525024,
+        "drift": 27.1457783601212,
         "unit": "%",
-        "min": 24.726785323764023,
-        "max": 69.83996167539166,
-        "median": 58.46131160901427,
-        "suppression": -271.0175851050724
+        "min": 39.992544725978135,
+        "max": 72.77615313251081,
+        "median": 67.13832308609933,
+        "suppression": -198.54909489415428
       }
     },
     "linearity": {
       "FRIKANh8u6l6_e1k_lr7e4": {
-        "mean": 0.8901915453417206,
-        "max": 3.8631908324797237,
-        "min": 0.10629528112641173,
+        "mean": 0.8901971534168369,
+        "max": 3.8631927647282405,
+        "min": 0.10629129690267192,
         "unit": "%"
       },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
@@ -178,9 +178,9 @@
         "unit": "%"
       },
       "LSTMTransformeru6_e1k_puremae": {
-        "mean": 1.6165623225430168,
-        "max": 10.757824491630874,
-        "min": 0.14023612265189334,
+        "mean": 1.6165622962925914,
+        "max": 10.75782298942125,
+        "min": 0.14023601034355293,
         "unit": "%"
       },
       "LSTMu16_e1k_puremae_r7": {
@@ -190,9 +190,9 @@
         "unit": "%"
       },
       "GRNu16_e1k_puremae": {
-        "mean": 1.9101025859225889,
-        "max": 7.46095519828579,
-        "min": 0.39405851854443785,
+        "mean": 0.9223203321986293,
+        "max": 2.4525598684581595,
+        "min": 0.22767530266060154,
         "unit": "%"
       }
     },
@@ -243,14 +243,14 @@
       },
       "LSTMTransformeru6_e1k_puremae": {
         "total_params": 1261,
-        "additions": 792,
-        "multiplications": 804,
-        "maps": 84,
-        "total_ops": 1680,
-        "weighted_total": 2100.0,
-        "weighted_additions": 792.0,
-        "weighted_multiplications": 804.0,
-        "weighted_maps": 504.0
+        "additions": 2728,
+        "multiplications": 1208,
+        "maps": 92,
+        "total_ops": 4028,
+        "weighted_total": 4488.0,
+        "weighted_additions": 2728.0,
+        "weighted_multiplications": 1208.0,
+        "weighted_maps": 552.0
       },
       "LSTMu16_e1k_puremae_r7": {
         "total_params": 1441,
@@ -265,20 +265,20 @@
       },
       "GRNu16_e1k_puremae": {
         "total_params": 1201,
-        "additions": 272,
-        "multiplications": 272,
-        "maps": 16,
-        "total_ops": 560,
-        "weighted_total": 640.0,
-        "weighted_additions": 272.0,
-        "weighted_multiplications": 272.0,
-        "weighted_maps": 96.0
+        "additions": 1168,
+        "multiplications": 1136,
+        "maps": 64,
+        "total_ops": 2368,
+        "weighted_total": 2688.0,
+        "weighted_additions": 1168.0,
+        "weighted_multiplications": 1136.0,
+        "weighted_maps": 384.0
       }
     },
     "mae_afmae": {
       "FRIKANh8u6l6_e1k_lr7e4": {
-        "val_mae": 0.022468162700533867,
-        "val_afmae": 0.03790934011340141
+        "val_mae": 0.02246820367872715,
+        "val_afmae": 0.037909869104623795
       },
       "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
         "val_mae": 0.14828214049339294,
@@ -286,27 +286,115 @@
       },
       "FRIKANh8u6l6_e1k_lr7e4_puremae": {
         "val_mae": 0.010465160012245178,
-        "val_afmae": 0.010465160012245178
+        "val_afmae": 0.09031929820775986
       },
       "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
-        "val_mae": 0.037976570427417755,
+        "val_mae": 0.06886725127696991,
         "val_afmae": 0.037976570427417755
       },
       "LSTMTransformeru6_e1k_puremae": {
         "val_mae": 0.006884773261845112,
-        "val_afmae": 0.006884773261845112
+        "val_afmae": 0.07560783624649048
       },
       "LSTMu16_e1k_puremae_r7": {
         "val_mae": 0.00816777627915144,
-        "val_afmae": 0.00816777627915144
+        "val_afmae": 0.09787771105766296
       },
       "GRNu16_e1k_puremae": {
-        "val_mae": 0.012697124853730202,
-        "val_afmae": 0.012697124853730202
+        "val_mae": 0.009110650978982449,
+        "val_afmae": 0.10554186254739761
       }
     },
-    "natural_frequency_drift_origin": {},
-    "sensitivity_drift_origin": {},
-    "linearity_origin": {}
+    "board_inference": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+        "qemu_mae": 0.007114359431113517,
+        "keil_mae": 0.007114359431113517,
+        "keil_speed": 0.5370725000000001,
+        "keil_speed_unit": "ms/point"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
+        "error": "board_inference_ep_path not configured in project config.json"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "error": "board_inference_ep_path not configured in project config.json"
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "error": "board_inference_ep_path not configured in project config.json"
+      },
+      "LSTMTransformeru6_e1k_puremae": {
+        "ep_path": "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae",
+        "qemu_mae": 0.005048724868074981,
+        "keil_mae": 0.005048724868074981,
+        "keil_speed": 0.6842225000000001,
+        "keil_speed_unit": "ms/point"
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "error": "board_inference_ep_path not configured in project config.json"
+      },
+      "GRNu16_e1k_puremae": {
+        "ep_path": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae",
+        "qemu_mae": 0.002450907266641147,
+        "keil_mae": 0.002450907266641147,
+        "keil_speed": 0.60238,
+        "keil_speed_unit": "ms/point"
+      }
+    },
+    "config_info": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "epoch_train": 1000,
+        "learning_rate": 0.0007
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_nosym_r5": {
+        "epoch_train": 1000,
+        "learning_rate": 0.0007
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_puremae": {
+        "epoch_train": 1000,
+        "learning_rate": 0.0007
+      },
+      "FRIKANh8u6l6_e1k_lr7e4_pureafmae": {
+        "epoch_train": 1000,
+        "learning_rate": 0.0007
+      },
+      "LSTMTransformeru6_e1k_puremae": {
+        "epoch_train": 1000,
+        "learning_rate": 0.01
+      },
+      "LSTMu16_e1k_puremae_r7": {
+        "epoch_train": 1000,
+        "learning_rate": 0.0007
+      },
+      "GRNu16_e1k_puremae": {
+        "epoch_train": 1000,
+        "learning_rate": 0.0007
+      }
+    },
+    "natural_frequency_drift_origin": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "drift": 34.49763932122577,
+        "unit": "Hz",
+        "min": 34.24511188160566,
+        "max": 93.39109038646993,
+        "median": 58.89345106524416
+      }
+    },
+    "sensitivity_drift_origin": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "drift": 84.56089929076546,
+        "unit": "%",
+        "min": 60.001934754356135,
+        "max": 203.37127543336493,
+        "median": 144.5628340451216
+      }
+    },
+    "linearity_origin": {
+      "FRIKANh8u6l6_e1k_lr7e4": {
+        "mean": 2.5499568401843997,
+        "max": 6.418887454843169,
+        "min": 0.359242046082775,
+        "unit": "%"
+      }
+    }
   }
 }

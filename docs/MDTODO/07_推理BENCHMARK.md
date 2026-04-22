@@ -73,3 +73,7 @@ frikan_h8u6l6_e1k_lr7e4 grnu16_e1k_puremae lstm_transformeru6_e1k_puremae lstm_u
 ### R2.5 [completed]
 
 继续按照 R2 的要求重构，尤其注意 template 的新架构要求，重构后要重新跑 R2.4 中提到的 QEMU 和 keil benchmark，要和 R2.4 的数据做对比，确保完全一致, 完成任务后将详细报告写入[R2.5](./details/07_推理BENCHMARK/20260421_204654_Task_Report.md)。
+
+## R3 [completed]
+
+支持参与横评preset 的 project 在 config.json 中挂载 board_inference 的 ex_project 相对路径，这样在对应 project 计算指标的时候，将 qemu/keil 的 board_inference 指标也记录进去，指标包括 QEMU-MAE，KEIL-MAE，KEIL-SPEED, 其中 KEIL-SPEED 的单位是 ms/point，每个 point 是一个 **时间步**，例如推理 1000 个点耗时 1s，则KEIL-SPEED 的指标为 1ms/point，修改代码后对横评 preset 中的 project 重新计算指标，确保计算结果包含以上要求的在板推理指标，完成任务后将详细报告写入[R3](./details/07_推理BENCHMARK/20260421_222259_Task_Report.md)。

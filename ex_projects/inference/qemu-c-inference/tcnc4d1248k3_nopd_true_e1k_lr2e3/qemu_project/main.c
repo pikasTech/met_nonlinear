@@ -342,7 +342,7 @@ static void run_generated_record(const port_float input_sequence[VALIDATION_SEQ_
             debug_tcn_block_4[step_index][channel_index] = apply_activation_code(debug_tcn_block_4[step_index][channel_index], 1u);
         }
         dense_pointwise_forward(&debug_tcn_block_4[step_index][0u], 8u, 8u, &post_dense_1_kernel[0u][0u][0u], &post_dense_1_bias[0u], 1u, &debug_post_dense_1[step_index][0u]);
-        dense_pointwise_forward(&debug_post_dense_1[step_index][0u], 8u, 1u, &tcn_output_kernel[0u][0u][0u], &tcn_output_bias[0u], ACT_LINEAR, &debug_output_scaled[step_index][0u]);
+        dense_pointwise_forward(&debug_post_dense_1[step_index][0u], 8u, 1u, &tcn_output_kernel[0u][0u][0u], &tcn_output_bias[0u], 0u, &debug_output_scaled[step_index][0u]);
         output_sequence[step_index] = inverse_scale_output(debug_output_scaled[step_index][0u]);
     }
 }

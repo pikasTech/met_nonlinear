@@ -116,3 +116,4 @@ scripts/
 **/*.pid
 *.png
 **/_pychace__/**
+**screenshot**

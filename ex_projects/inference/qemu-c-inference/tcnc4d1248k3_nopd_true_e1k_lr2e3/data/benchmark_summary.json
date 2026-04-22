@@ -68,7 +68,7 @@
       "exit_code": 0,
       "stdout": "",
       "stderr": "",
-      "elapsed_seconds": 0.563270499999998,
+      "elapsed_seconds": 0.6251753999999998,
       "timed_out": false
     }
   },
@@ -91,7 +91,7 @@
           "exit_code": 0,
           "stdout": "TCN_BENCHMARK_VALIDATION\niterations=10\ndwt_supported=0\ntimer_source=host_elapsed\noutput=-0.080303\nbenchmark_complete=1\n",
           "stderr": "",
-          "elapsed_seconds": 0.9196905000000015,
+          "elapsed_seconds": 0.9484779999999979,
           "timed_out": false
         }
       },
@@ -102,15 +102,15 @@
         "output": -0.080303,
         "benchmark_complete": 1,
         "measurement_unit": "seconds",
-        "measurement_total": 0.9196905000000015,
-        "measurement_per_iter": 0.09196905000000015
+        "measurement_total": 0.9484779999999979,
+        "measurement_per_iter": 0.09484779999999979
       }
     }
   ],
   "aggregated": {
     "run_count": 1,
-    "avg_host_elapsed_seconds": 0.9196905000000015,
-    "avg_measurement_per_iter": 0.09196905000000015,
+    "avg_host_elapsed_seconds": 0.9484779999999979,
+    "avg_measurement_per_iter": 0.09484779999999979,
     "measurement_sources": [
       "host_elapsed"
     ]
@@ -119,7 +119,7 @@
     "workflow": {
       "exit_code": 0,
       "timed_out": false,
-      "elapsed_seconds": 2.0517931999999988
+      "elapsed_seconds": 2.4706180000000018
     },
     "parsed_output": {
       "iterations": 10,
@@ -128,8 +128,8 @@
       "output": -0.080303,
       "benchmark_complete": 1,
       "measurement_unit": "seconds",
-      "measurement_total": 2.0517931999999988,
-      "measurement_per_iter": 0.2051793199999999
+      "measurement_total": 2.4706180000000018,
+      "measurement_per_iter": 0.24706180000000016
     },
     "comparison": {
       "record_count": 1,

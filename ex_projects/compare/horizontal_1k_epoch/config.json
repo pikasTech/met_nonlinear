@@ -22,7 +22,7 @@
     {
       "name": "FRIKANh8u6l6_e1k_lr7e4_pureafmae",
       "label": "FRIKAN-PureAFMAE",
-      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
+      "path": "projects/03_FRIKAN_PUREAFME/FRIKANh8u6l6_e1k_lr7e4_pureafmae"
     },
     {
       "name": "LSTMTransformeru6_e1k_puremae",
@@ -58,6 +58,9 @@
       "show_details": true
     },
     "mae_afmae": {
+      "enabled": true
+    },
+    "board_inference": {
       "enabled": true
     }
   },

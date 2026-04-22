@@ -23,7 +23,6 @@
     "use_cache_features": true,
     "use_spline": false,
     "use_sin_fr": false,
-    
     "use_debug_plot": false,
     "sample_rate": 2000,
     "time_clipped_s": 4.0,
@@ -34,5 +33,7 @@
     "feature_range": [
         -1,
         1
-    ],"target_sweep": 2
+    ],
+    "target_sweep": 2,
+    "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8"
 }

@@ -98,7 +98,7 @@ python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_bas
 
 ### qemu-c-inference 类任务
 
-`qemu-c-inference` 用于把已训练项目的 `best_val.weights.json` 转成裸机 C 语言 QEMU 工程，并基于配置的数据集子集执行 C/TF26 双路径一致性验证。当前任务会自动识别模型类型，已支持 `lstm`、`lstm_transformer`、`grn` 与 `frikan`。
+`qemu-c-inference` 用于把已训练项目的 `best_val.weights.json` 转成裸机 C 语言 QEMU 工程，并基于配置的数据集子集执行 C/TF26 双路径一致性验证。当前生产实现已收敛到 `src/core/board_inference/`，自动识别模型类型并支持 `lstm`、`grn`、`lstm_transformer`、`frikan`、`onedcnn`、`tcn`、`wavenet2`、`wavenet3`。模块分工、模板约束和新旧架构一致性验收口径，详见 [边缘设备推理仿真](edge_device_emulation.md)。
 
 示例：
 
@@ -133,6 +133,16 @@ python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_bas
 5. 解析串口流并写出 `data/keil_benchmark_summary.json`、`data/keil_validation_comparison.json`、`data/keil_serial_stream.txt`、`data/keil_serial_raw.jsonl`
 
 其中 `benchmark_summary.json` 会记录 `model_type`、`timer_source`、`measurement_unit`、`measurement_total`、`measurement_per_iter` 等字段；纯 benchmark 结果位于 `runs` / `aggregated`，完整 validation 运行结果位于 `validation_run`。QEMU 计时回退策略与运行细节详见 [边缘设备推理仿真](edge_device_emulation.md)。
+
+如果某个训练项目需要把该 EP 的板端一致性结果纳入统一横评，应在项目根目录 `config.json` 中挂载：
+
+```json
+{
+  "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/your_ep_name"
+}
+```
+
+之后重新执行该训练项目的 `python cli.py -e PROJECT_NAME` 或 `python cli.py --metrics PROJECT_NAME`，即可把 `benchmark_summary.json` / `keil_benchmark_summary.json` 汇总进项目级 `metrics.json`。具体字段和公式见 [metrics.md](metrics.md)。
 
 典型配置结构如下：
 
@@ -182,11 +192,14 @@ python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_bas
 当前仓库内可直接复用的 `qemu-c-inference` 对比样例包括：
 
 - `lstm_u16_base`：LSTM 基线。
-- `lstm_transformeru6_e1k_1`：LSTMTransformer 基线，当前 benchmark-only 约 `0.05666988 s/iter`，MAE 约 `7.8189757e-04`。
-- `frikan_h8u6l6_nosym_interp`：FRIKAN 插值版，`lut_points=769` 且 `lut_interpolation=true`，用于低误差对齐。
-- `frikan_h8u6l6_nosym`：FRIKAN 非插值版，`lut_points=769` 且 `lut_interpolation=false`，用于性能优先验证。
+- `grnu16_e1k_puremae`：GRN 基线。
+- `lstm_transformeru6_e1k_1` / `lstm_transformeru6_e1k_puremae`：LSTMTransformer 样例。
+- `frikan_h8u6l6_nosym_interp`：FRIKAN 插值版，适合低误差对齐。
+- `frikan_h8u6l6_nosym`：FRIKAN 非插值版，适合性能优先验证。
+- `onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true`：1DCNN 样例。
+- `tcnc4d1248k3_nopd_true_e1k_lr2e3`：TCN 样例。
 
-四者的统一 benchmark-only / validation run / MSE 对比口径，详见 [边缘设备推理仿真](edge_device_emulation.md) 的跨模型比较章节。
+跨模型比较时，不要把历史报告中的一次性 benchmark 数字当作长期事实；统一口径应继续读取当前 EP 的 summary 产物或项目级 `metrics.json`，具体字段见 [metrics.md](metrics.md) 与 [边缘设备推理仿真](edge_device_emulation.md)。
 
 ### compare 类任务
 
@@ -199,6 +212,8 @@ compare 类任务用于系统性对比分析，支持多种消融实验：
 - compare 任务应优先复用已有 `metrics.json`，而不是在 EP 层重新实现指标计算。
 - 做损失函数消融时，应固定数据与结构，只改变 loss 相关变量。
 - `mae_vs_afmae` 的具体配置驱动模式与结果口径，详见 [mae_vs_afmae.md](mae_vs_afmae.md)。
+- 若 compare 配置打开 `metrics.board_inference.enabled=true`，则报告可额外展示 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED (ms/point)`；这些列仍然只从各项目的 `metrics.json` 读取，不直接扫描 EP 目录。
+- 对未挂载 `board_inference_ep_path` 的项目，compare 综合表应将板端列展示为 `-`，而不是把“未参与板端横评”误报成 compare 失败。
 
 ## 配置文件与输出目录
 

@@ -50,6 +50,28 @@ python cli.py ep "compare/mae_vs_afmae"
 - **灵敏度漂移 (Sensitivity Drift)**: 在 100Hz 频率点，以 `LSTMu16_base` 为参考
 - **线性度 (Linearity)**: 使用 `mean(1 - R²) * 100` 的统一消融实验口径
 
+如果 compare 配置额外打开：
+
+```json
+{
+  "metrics": {
+    "board_inference": {
+      "enabled": true
+    }
+  }
+}
+```
+
+则综合表和导出的 Excel 还会增加：
+
+- `QEMU-MAE`
+- `KEIL-MAE`
+- `KEIL-SPEED (ms/point)`
+
+这些字段都来自各项目已有的 `metrics.json`，而不是 compare 任务再去直接读取 `benchmark_summary.json` 或 `keil_benchmark_summary.json`。
+
+如果某个项目没有配置 `board_inference_ep_path`，则该项目在综合表中的板端列应显示为 `-`；这表示“该项目未参与板端横评”，不表示 compare 失败。
+
 ### 输出格式
 
 - JSON 格式: `ablation_results.json`
@@ -78,6 +100,7 @@ python cli.py ep "compare/mae_vs_afmae"
 2. compare 任务本身应复用已有指标基础设施，而不是在 compare 层重复实现指标计算。
 3. 若某个项目的 `metrics.json` 仍是 `partial` 或来源过旧，应先补完整评估，再纳入横向比较。
 4. 对比结论以统一指标和报告为准，不以训练期 `loss` 曲线直接代替。
+5. 如果 compare 报告里只出现板端列缺省值 `-`，优先先检查项目是否已在 `config.json` 挂载 `board_inference_ep_path` 并重算 `metrics.json`；不要直接在 compare 层补读 EP 目录。
 
 如果本轮修改同时涉及损失函数定义与对比任务，建议先按 [loss_design.md](loss_design.md) 的约束固定其他变量，再按 [metrics.md](metrics.md) 重算统一指标，最后再执行 compare 任务。
 

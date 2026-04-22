@@ -38,5 +38,6 @@
         1
     ],
     "target_sweep": 2,
-    "AUG_TIMES": 1
+    "AUG_TIMES": 1,
+    "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true"
 }

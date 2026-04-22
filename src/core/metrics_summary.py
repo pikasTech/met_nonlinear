@@ -6,7 +6,10 @@ import json
 import math
 import os
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _load_json_if_exists(file_path: str) -> Optional[Dict[str, Any]]:
@@ -32,6 +35,128 @@ def _to_int(value: Any) -> Optional[int]:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _relative_to_repo_or_str(path: Path) -> str:
+    try:
+        return str(path.resolve()).replace(str(REPO_ROOT.resolve()) + os.sep, '').replace('\\', '/')
+    except Exception:
+        return str(path)
+
+
+def _resolve_board_inference_project_dir(ep_path: Any) -> Optional[Path]:
+    if not isinstance(ep_path, str):
+        return None
+    normalized_path = ep_path.strip()
+    if not normalized_path:
+        return None
+
+    candidate = Path(normalized_path)
+    if not candidate.is_absolute():
+        candidate = REPO_ROOT / candidate
+    return candidate
+
+
+def _resolve_board_inference_summary_path(project_dir: Path, filename: str) -> Path:
+    data_candidate = project_dir / 'data' / filename
+    if data_candidate.exists():
+        return data_candidate
+    return project_dir / filename
+
+
+def _extract_board_inference_point_count(keil_summary: Dict[str, Any]) -> Optional[int]:
+    validation = keil_summary.get('validation') or {}
+    record_count = _to_int(validation.get('record_count'))
+    seq_len = _to_int(validation.get('seq_len'))
+    if record_count is None or seq_len is None:
+        parsed_output = keil_summary.get('parsed_output') or {}
+        record_count = _to_int(parsed_output.get('record_count'))
+        seq_len = _to_int(parsed_output.get('seq_len'))
+    if record_count is None or seq_len is None:
+        return None
+    if record_count <= 0 or seq_len <= 0:
+        return None
+    return record_count * seq_len
+
+
+def _load_board_inference_metrics(config: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    metrics: Dict[str, Any] = {
+        'configured': False,
+        'ep_path': None,
+        'project_dir': None,
+        'qemu_summary_path': None,
+        'keil_summary_path': None,
+        'qemu_summary_exists': False,
+        'keil_summary_exists': False,
+        'qemu_mae': None,
+        'keil_mae': None,
+        'keil_wall_time_per_iter_ms': None,
+        'keil_point_count_per_iter': None,
+        'keil_speed_ms_per_point': None,
+        'keil_speed_unit': 'ms/point',
+        'missing_sources': [],
+        'missing_sections': [],
+    }
+    if not config:
+        return metrics
+
+    ep_path = config.get('board_inference_ep_path')
+    project_dir = _resolve_board_inference_project_dir(ep_path)
+    if project_dir is None:
+        return metrics
+
+    metrics['configured'] = True
+    metrics['ep_path'] = str(ep_path).replace('\\', '/')
+    metrics['project_dir'] = _relative_to_repo_or_str(project_dir)
+
+    if not project_dir.exists():
+        metrics['missing_sources'].append(f'board_inference_ep_path:{metrics["ep_path"]}')
+        return metrics
+
+    qemu_summary_path = _resolve_board_inference_summary_path(project_dir, 'benchmark_summary.json')
+    keil_summary_path = _resolve_board_inference_summary_path(project_dir, 'keil_benchmark_summary.json')
+    metrics['qemu_summary_path'] = _relative_to_repo_or_str(qemu_summary_path)
+    metrics['keil_summary_path'] = _relative_to_repo_or_str(keil_summary_path)
+
+    qemu_summary = _load_json_if_exists(str(qemu_summary_path))
+    keil_summary = _load_json_if_exists(str(keil_summary_path))
+    metrics['qemu_summary_exists'] = qemu_summary is not None
+    metrics['keil_summary_exists'] = keil_summary is not None
+
+    if qemu_summary is None:
+        metrics['missing_sources'].append('board_inference.benchmark_summary.json')
+    else:
+        metrics['qemu_mae'] = _to_float((qemu_summary.get('comparison') or {}).get('mae'))
+        if metrics['qemu_mae'] is None:
+            metrics['missing_sections'].append('board_inference.qemu.comparison.mae')
+
+    if keil_summary is None:
+        metrics['missing_sources'].append('board_inference.keil_benchmark_summary.json')
+    else:
+        metrics['keil_mae'] = _to_float((keil_summary.get('comparison') or {}).get('mae'))
+        if metrics['keil_mae'] is None:
+            metrics['missing_sections'].append('board_inference.keil.comparison.mae')
+
+        metrics['keil_wall_time_per_iter_ms'] = _to_float(
+            (keil_summary.get('parsed_output') or {}).get('wall_time_per_iter_ms')
+        )
+        if metrics['keil_wall_time_per_iter_ms'] is None:
+            metrics['missing_sections'].append('board_inference.keil.parsed_output.wall_time_per_iter_ms')
+
+        metrics['keil_point_count_per_iter'] = _extract_board_inference_point_count(keil_summary)
+        if metrics['keil_point_count_per_iter'] is None:
+            metrics['missing_sections'].append('board_inference.keil.validation.record_count_seq_len')
+
+        if (
+            metrics['keil_wall_time_per_iter_ms'] is not None
+            and metrics['keil_point_count_per_iter'] is not None
+            and metrics['keil_point_count_per_iter'] > 0
+        ):
+            metrics['keil_speed_ms_per_point'] = (
+                metrics['keil_wall_time_per_iter_ms'] / metrics['keil_point_count_per_iter']
+            )
+
+    return metrics
 
 
 def _calculate_median(values: List[float]) -> Optional[float]:
@@ -401,6 +526,9 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
     compute_status = _build_compute_status(compute_analysis)
 
     loss_function_details = _extract_loss_function(config)
+    board_inference_metrics = _load_board_inference_metrics(config)
+    missing_sources.extend(board_inference_metrics['missing_sources'])
+    missing_sections.extend(board_inference_metrics['missing_sections'])
 
     summary: Dict[str, Any] = {
         'project_name': project_name,
@@ -414,6 +542,9 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
             'linear_response': linear_response is not None,
             'linearity_by_frequency': linearity_by_frequency is not None,
             'config': config is not None,
+            'board_inference_config': board_inference_metrics['configured'],
+            'board_inference_qemu': board_inference_metrics['qemu_summary_exists'],
+            'board_inference_keil': board_inference_metrics['keil_summary_exists'],
         },
         'missing_sources': missing_sources,
         'missing_sections': missing_sections,
@@ -438,6 +569,13 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'compute_details': compute_details,
         **compute_status,
         **loss_function_details,
+        'board_inference_ep_path': board_inference_metrics['ep_path'],
+        'board_qemu_mae': board_inference_metrics['qemu_mae'],
+        'board_keil_mae': board_inference_metrics['keil_mae'],
+        'board_keil_speed': board_inference_metrics['keil_speed_ms_per_point'],
+        'board_inference': {
+            **board_inference_metrics,
+        },
     }
 
     summary['display_metrics'] = {
@@ -454,6 +592,9 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'Epochs': summary['epochs'],
         'LR': summary['lr'],
         'Cosine Annealing': summary['use_cosine_annealing'],
+        'QEMU-MAE': summary['board_qemu_mae'],
+        'KEIL-MAE': summary['board_keil_mae'],
+        'KEIL-SPEED': summary['board_keil_speed'],
     }
 
     if missing_sources or missing_sections:

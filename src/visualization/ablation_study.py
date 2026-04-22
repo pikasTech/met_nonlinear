@@ -263,9 +263,17 @@ class AblationStudyAnalyzer:
         if not proj.metrics_data:
             return {'error': 'metrics.json not available', 'hint': 'run python cli.py --metrics PROJECT_NAME to generate'}
 
+        val_mae = proj.metrics_data.get('val_mae')
+        val_afmae = proj.metrics_data.get('val_afmae')
+        if val_mae is None or val_afmae is None:
+            return {
+                'error': 'val_mae/val_afmae not available in metrics.json',
+                'hint': 'run python cli.py -e PROJECT_NAME then python cli.py --metrics PROJECT_NAME to regenerate'
+            }
+
         return {
-            'val_mae': proj.metrics_data.get('val_mae', 0),
-            'val_afmae': proj.metrics_data.get('val_afmae', 0),
+            'val_mae': val_mae,
+            'val_afmae': val_afmae,
         }
 
     def calculate_config_info(self, project_name: str) -> dict:
@@ -280,6 +288,37 @@ class AblationStudyAnalyzer:
         return {
             'epoch_train': proj.config_data.get('epoch_train'),
             'learning_rate': proj.config_data.get('learning_rate'),
+        }
+
+    def calculate_board_inference(self, project_name: str) -> dict:
+        """从 metrics.json 读取在板推理指标。"""
+        if project_name not in self.projects:
+            raise ValueError(f"项目未加载: {project_name}")
+
+        proj = self.projects[project_name]
+        if not proj.metrics_data:
+            return {'error': 'metrics.json not available', 'hint': 'run python cli.py --metrics PROJECT_NAME to generate'}
+
+        board_data = proj.metrics_data.get('board_inference') or {}
+        if not board_data.get('configured'):
+            return {'error': 'board_inference_ep_path not configured in project config.json'}
+
+        qemu_mae = proj.metrics_data.get('board_qemu_mae')
+        keil_mae = proj.metrics_data.get('board_keil_mae')
+        keil_speed = proj.metrics_data.get('board_keil_speed')
+        if qemu_mae is None or keil_mae is None or keil_speed is None:
+            return {
+                'error': 'board inference metrics not available',
+                'hint': 'run python cli.py ep ... / keil-bench ... then python cli.py --metrics PROJECT_NAME',
+                'ep_path': proj.metrics_data.get('board_inference_ep_path'),
+            }
+
+        return {
+            'ep_path': proj.metrics_data.get('board_inference_ep_path'),
+            'qemu_mae': qemu_mae,
+            'keil_mae': keil_mae,
+            'keil_speed': keil_speed,
+            'keil_speed_unit': (board_data.get('keil_speed_unit') or 'ms/point'),
         }
 
     def calculate_suppression_rate(self, ref_drift: float, comp_drift: float) -> float:
@@ -331,6 +370,9 @@ class AblationStudyAnalyzer:
         if metrics_cfg.get('mae_afmae', {}).get('enabled', False):
             results['metrics']['mae_afmae'] = self._analyze_mae_afmae()
 
+        if metrics_cfg.get('board_inference', {}).get('enabled', False):
+            results['metrics']['board_inference'] = self._analyze_board_inference()
+
         results['metrics']['config_info'] = self._analyze_config_info()
 
         results['metrics']['natural_frequency_drift_origin'] = self._analyze_natural_frequency_drift_origin(
@@ -352,19 +394,24 @@ class AblationStudyAnalyzer:
 
         for proj_name in self.projects.keys():
             drift_data = self.calculate_natural_frequency_drift(proj_name, use_origin=False)
-            metric_results[proj_name] = {
-                'drift': drift_data['drift'],
-                'unit': 'Hz',
-                'min': drift_data['min'],
-                'max': drift_data['max'],
-                'median': drift_data['median']
-            }
+            if 'error' in drift_data:
+                metric_results[proj_name] = drift_data
+            else:
+                metric_results[proj_name] = {
+                    'drift': drift_data['drift'],
+                    'unit': 'Hz',
+                    'min': drift_data['min'],
+                    'max': drift_data['max'],
+                    'median': drift_data['median']
+                }
 
         if ref_project and ref_project in metric_results:
-            ref_drift = metric_results[ref_project]['drift']
-            for proj_name, data in metric_results.items():
-                if proj_name != ref_project:
-                    data['suppression'] = self.calculate_suppression_rate(ref_drift, data['drift'])
+            ref_data = metric_results[ref_project]
+            if 'error' not in ref_data:
+                ref_drift = ref_data['drift']
+                for proj_name, data in metric_results.items():
+                    if proj_name != ref_project and 'error' not in data:
+                        data['suppression'] = self.calculate_suppression_rate(ref_drift, data['drift'])
 
         return metric_results
 
@@ -395,19 +442,24 @@ class AblationStudyAnalyzer:
 
         for proj_name in self.projects.keys():
             drift_data = self.calculate_sensitivity_drift(proj_name, freq_hz, use_origin=False)
-            metric_results[proj_name] = {
-                'drift': drift_data['drift'],
-                'unit': '%',
-                'min': drift_data['min'],
-                'max': drift_data['max'],
-                'median': drift_data['median']
-            }
+            if 'error' in drift_data:
+                metric_results[proj_name] = drift_data
+            else:
+                metric_results[proj_name] = {
+                    'drift': drift_data['drift'],
+                    'unit': '%',
+                    'min': drift_data['min'],
+                    'max': drift_data['max'],
+                    'median': drift_data['median']
+                }
 
         if ref_project and ref_project in metric_results:
-            ref_drift = metric_results[ref_project]['drift']
-            for proj_name, data in metric_results.items():
-                if proj_name != ref_project:
-                    data['suppression'] = self.calculate_suppression_rate(ref_drift, data['drift'])
+            ref_data = metric_results[ref_project]
+            if 'error' not in ref_data:
+                ref_drift = ref_data['drift']
+                for proj_name, data in metric_results.items():
+                    if proj_name != ref_project and 'error' not in data:
+                        data['suppression'] = self.calculate_suppression_rate(ref_drift, data['drift'])
 
         return metric_results
 
@@ -531,6 +583,25 @@ class AblationStudyAnalyzer:
 
         return metric_results
 
+    def _analyze_board_inference(self) -> dict:
+        """分析在板推理指标。"""
+        metric_results = {}
+
+        for proj_name in self.projects.keys():
+            board_data = self.calculate_board_inference(proj_name)
+            if 'error' in board_data:
+                metric_results[proj_name] = board_data
+            else:
+                metric_results[proj_name] = {
+                    'ep_path': board_data.get('ep_path'),
+                    'qemu_mae': board_data.get('qemu_mae'),
+                    'keil_mae': board_data.get('keil_mae'),
+                    'keil_speed': board_data.get('keil_speed'),
+                    'keil_speed_unit': board_data.get('keil_speed_unit', 'ms/point'),
+                }
+
+        return metric_results
+
     def generate_markdown_report(self) -> str:
         """生成 Markdown 对比报告"""
         if not self.results:
@@ -559,10 +630,13 @@ class AblationStudyAnalyzer:
             "|---------|------------|-----------------|"
         ]
         for proj_name, proj_data in data.items():
-            drift = proj_data['drift']
-            suppression = proj_data.get('suppression')
-            sup_str = f"{suppression:.2f}%" if suppression is not None else "-"
-            lines.append(f"| {proj_name} | {drift:.4f} | {sup_str} |")
+            if 'error' in proj_data:
+                lines.append(f"| {proj_name} | ERROR: {proj_data['error']} | - |")
+            else:
+                drift = proj_data['drift']
+                suppression = proj_data.get('suppression')
+                sup_str = f"{suppression:.2f}%" if suppression is not None else "-"
+                lines.append(f"| {proj_name} | {drift:.4f} | {sup_str} |")
         lines.append("")
         return lines
 
@@ -574,10 +648,13 @@ class AblationStudyAnalyzer:
             "|---------|-----------|-----------------|"
         ]
         for proj_name, proj_data in data.items():
-            drift = proj_data['drift']
-            suppression = proj_data.get('suppression')
-            sup_str = f"{suppression:.2f}%" if suppression is not None else "-"
-            lines.append(f"| {proj_name} | {drift:.4f} | {sup_str} |")
+            if 'error' in proj_data:
+                lines.append(f"| {proj_name} | ERROR: {proj_data['error']} | - |")
+            else:
+                drift = proj_data['drift']
+                suppression = proj_data.get('suppression')
+                sup_str = f"{suppression:.2f}%" if suppression is not None else "-"
+                lines.append(f"| {proj_name} | {drift:.4f} | {sup_str} |")
         lines.append("")
         return lines
 
@@ -632,8 +709,8 @@ class AblationStudyAnalyzer:
         lines = [
             "## 5. 综合对比",
             "",
-            "| Project | 加权估计 | Val MAE | Val AFMAE | Freq Drift (Hz) | Sens Drift (%) | Linearity (%) |",
-            "|---------|------------|---------|------------|------------------|-----------------|----------------|"
+            "| Project | 加权估计 | Val MAE | Val AFMAE | Freq Drift (Hz) | Sens Drift (%) | Linearity (%) | QEMU-MAE | KEIL-MAE | KEIL-SPEED (ms/point) |",
+            "|---------|------------|---------|------------|------------------|-----------------|----------------|----------|----------|------------------------|"
         ]
 
         compute_cost = metrics.get('compute_cost', {})
@@ -641,6 +718,7 @@ class AblationStudyAnalyzer:
         freq_drift = metrics.get('natural_frequency_drift', {})
         sens_drift = metrics.get('sensitivity_drift', {})
         linearity = metrics.get('linearity', {})
+        board_inference = metrics.get('board_inference', {})
         origin_metrics = self._get_origin_summary_metrics()
 
         has_missing = False
@@ -649,7 +727,7 @@ class AblationStudyAnalyzer:
             lines.append("| ORIGIN (未补偿) | - | - | - | "
                          f"{origin_metrics['freq'].get('drift', 0):.4f} | "
                          f"{origin_metrics['sens'].get('drift', 0):.4f} | "
-                         f"{origin_metrics['linearity'].get('mean', 0):.4f} |")
+                         f"{origin_metrics['linearity'].get('mean', 0):.4f} | - | - | - |")
 
         for proj_entry in self.results.get('projects', []):
             proj_name_only = proj_entry['name']
@@ -657,40 +735,55 @@ class AblationStudyAnalyzer:
             row = [proj_name_only]
 
             cc = compute_cost.get(proj_name_only, {})
-            if 'error' in cc:
+            weighted_total = cc.get('weighted_total')
+            if 'error' in cc or weighted_total is None:
                 row.append('ERROR')
                 has_missing = True
             else:
-                row.append(f"{cc.get('weighted_total', 0):.1f}")
+                row.append(f"{weighted_total:.1f}")
 
             ma = mae_afmae.get(proj_name_only, {})
-            if 'error' in ma:
+            val_mae = ma.get('val_mae')
+            val_afmae = ma.get('val_afmae')
+            if 'error' in ma or val_mae is None or val_afmae is None:
                 row.extend(['ERROR', 'ERROR'])
                 has_missing = True
             else:
-                row.append(f"{ma.get('val_mae', 0):.4f}")
-                row.append(f"{ma.get('val_afmae', 0):.4f}")
+                row.append(f"{val_mae:.4f}")
+                row.append(f"{val_afmae:.4f}")
 
             fd = freq_drift.get(proj_name_only, {})
-            if 'error' in fd:
+            fd_drift = fd.get('drift')
+            if 'error' in fd or fd_drift is None:
                 row.append('ERROR')
                 has_missing = True
             else:
-                row.append(f"{fd.get('drift', 0):.4f}")
+                row.append(f"{fd_drift:.4f}")
 
             sd = sens_drift.get(proj_name_only, {})
-            if 'error' in sd:
+            sd_drift = sd.get('drift')
+            if 'error' in sd or sd_drift is None:
                 row.append('ERROR')
                 has_missing = True
             else:
-                row.append(f"{sd.get('drift', 0):.4f}")
+                row.append(f"{sd_drift:.4f}")
 
             lin = linearity.get(proj_name_only, {})
-            if 'error' in lin:
+            lin_mean = lin.get('mean')
+            if 'error' in lin or lin_mean is None:
                 row.append('ERROR')
                 has_missing = True
             else:
-                row.append(f"{lin.get('mean', 0):.4f}")
+                row.append(f"{lin_mean:.4f}")
+
+            bi = board_inference.get(proj_name_only, {})
+            if (not bi or 'error' in bi or bi.get('qemu_mae') is None
+                    or bi.get('keil_mae') is None or bi.get('keil_speed') is None):
+                row.extend(['-', '-', '-'])
+            else:
+                row.append(f"{bi.get('qemu_mae', 0):.6f}")
+                row.append(f"{bi.get('keil_mae', 0):.6f}")
+                row.append(f"{bi.get('keil_speed', 0):.6f}")
 
             lines.append("| " + " | ".join(row) + " |")
 
@@ -714,6 +807,7 @@ class AblationStudyAnalyzer:
         freq_drift = metrics.get('natural_frequency_drift', {})
         sens_drift = metrics.get('sensitivity_drift', {})
         linearity = metrics.get('linearity', {})
+        board_inference = metrics.get('board_inference', {})
         config_info = metrics.get('config_info', {})
         origin_metrics = self._get_origin_summary_metrics()
 
@@ -731,6 +825,9 @@ class AblationStudyAnalyzer:
                 'Freq Drift (Hz)': origin_metrics['freq'].get('drift'),
                 'Sens Drift (%)': origin_metrics['sens'].get('drift'),
                 'Linearity (%)': origin_metrics['linearity'].get('mean'),
+                'QEMU-MAE': None,
+                'KEIL-MAE': None,
+                'KEIL-SPEED (ms/point)': None,
                 'Freq Suppression (%)': None,
                 'Sens Suppression (%)': None,
             })
@@ -743,6 +840,7 @@ class AblationStudyAnalyzer:
             fd = freq_drift.get(proj_name, {})
             sd = sens_drift.get(proj_name, {})
             lin = linearity.get(proj_name, {})
+            bi = board_inference.get(proj_name, {})
             ci = config_info.get(proj_name, {})
 
             summary_rows.append({
@@ -755,6 +853,9 @@ class AblationStudyAnalyzer:
                 'Freq Drift (Hz)': fd.get('drift') if 'error' not in fd else None,
                 'Sens Drift (%)': sd.get('drift') if 'error' not in sd else None,
                 'Linearity (%)': lin.get('mean') if 'error' not in lin else None,
+                'QEMU-MAE': bi.get('qemu_mae') if 'error' not in bi else None,
+                'KEIL-MAE': bi.get('keil_mae') if 'error' not in bi else None,
+                'KEIL-SPEED (ms/point)': bi.get('keil_speed') if 'error' not in bi else None,
                 'Freq Suppression (%)': fd.get('suppression') if 'error' not in fd else None,
                 'Sens Suppression (%)': sd.get('suppression') if 'error' not in sd else None,
             })
@@ -801,7 +902,15 @@ class AblationStudyAnalyzer:
             mae_rows.append(row)
         mae_df = pd.DataFrame(mae_rows) if mae_rows else pd.DataFrame()
 
-        # Sheet 7: Config Info Detail
+        # Sheet 7: Board Inference Detail
+        board_rows = []
+        for proj_name, data in board_inference.items():
+            row = {'Project': proj_name}
+            row.update(data)
+            board_rows.append(row)
+        board_df = pd.DataFrame(board_rows) if board_rows else pd.DataFrame()
+
+        # Sheet 8: Config Info Detail
         cfg_rows = []
         for proj_name, data in config_info.items():
             row = {'Project': proj_name}
@@ -821,6 +930,8 @@ class AblationStudyAnalyzer:
                 comp_df.to_excel(writer, sheet_name='Compute Cost', index=False)
             if not mae_df.empty:
                 mae_df.to_excel(writer, sheet_name='MAE AFMAE', index=False)
+            if not board_df.empty:
+                board_df.to_excel(writer, sheet_name='Board Inference', index=False)
             if not cfg_df.empty:
                 cfg_df.to_excel(writer, sheet_name='Config Info', index=False)
 

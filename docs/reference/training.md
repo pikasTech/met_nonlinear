@@ -126,6 +126,14 @@ conda.bat run --no-capture-output -n tf26 python cli.py -t PROJECT_NAME 2>&1 | T
 - `training_info.json` - 训练统计摘要
 - `model_info.json` - 模型结构信息
 
+## 训练状态与权重写回约束
+
+- `projects/PROJECT_NAME/data/training_state.json.timestamp` 只应在真实状态变化或真实训练进度写回时刷新。
+- `build_model()`、`python cli.py -e PROJECT_NAME`、`python cli.py --metrics PROJECT_NAME`、`python cli.py -m PROJECT_NAME`、`python cli.py ep "ex_projects/inference/qemu-c-inference/..."`、`python cli.py ep keil-bench ...` 这类非训练任务，不应因为触碰了 `state_manager` 或读取了项目状态就改写 `timestamp`。
+- 同值状态更新应视为 no-op；不要仅因为再次保存同一份 `training_state.json` 就刷新时间戳。
+- 初始化新的 `training_state.json` 时，也应避免“先写默认值、再立刻二次改写时间戳”这种无意义落盘。
+- 非训练代码路径读取 `best*.weights.h5` / `best*.weights.json` 时应保持只读；若解析器需要兼容新的权重命名，应修复读取兼容性，而不是在 `load_weights()` 过程中重写 canonical 权重文件。
+
 ## 下游串联
 
 - `python cli.py -t PROJECT_NAME` 成功结束后，会先清理当前项目中已经过期的评估汇总快照，包括 `metrics.json`、`linear_response.json`、`linearity_by_frequency.json`，并移除 `training_info.json.evaluation_metrics`。

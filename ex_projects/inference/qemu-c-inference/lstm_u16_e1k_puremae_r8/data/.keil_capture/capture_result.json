@@ -20,13 +20,13 @@
     "data": {
       "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\lstm_u16_e1k_puremae_r8\\data\\.keil_capture\\capture_all.jsonl",
       "format": "jsonl",
-      "count": 3090,
-      "totalCount": 3090,
+      "count": 3622,
+      "totalCount": 3622,
       "dedupCount": 0,
       "limitApplied": "all",
       "timeRange": {
         "start": "2026-04-20T16:31:09.833+0800",
-        "end": "2026-04-21T20:21:50.293+0800"
+        "end": "2026-04-21T22:09:56.610+0800"
       }
     },
     "_return_code": 0,

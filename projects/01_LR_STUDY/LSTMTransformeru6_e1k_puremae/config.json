@@ -42,5 +42,6 @@
         -1,
         1
     ],
-    "target_sweep": 2
+    "target_sweep": 2,
+    "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae"
 }

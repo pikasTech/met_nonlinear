@@ -78,6 +78,73 @@ pytest src/tests/models/test_models.py -k "predict_accepts_verbose_kwarg" -v
 
 其中 `predict_accepts_verbose_kwarg` 这类定向用例适合在修改模型包装类 `predict()` 签名、评估链兼容性或 legacy 项目评估行为后做快速回归。
 
+## board_inference / qemu-c-inference 定向回归
+
+如果本轮修改涉及：
+
+- `src/core/board_inference/`
+- `src/core/external_cli_handler.py` 中的 `qemu-c-inference` / `keil-bench` 分发
+- `qemu-c-inference` 的模板、summary 解析、模型识别或串口 benchmark 语义
+
+则长期上应按“先静态、再动态”的顺序做回归，而不是一上来直接跑整套 QEMU / Keil。
+
+### 先做静态核对
+
+优先确认下面几类契约没有漂移：
+
+- 模型识别仍能把 project `use_model` / 权重命名稳定映射到正确的 native executor。
+- 固定 scaffold 仍留在 `src/core/board_inference/templates/`，没有重新回流到 Python 大段字符串。
+- 生成文件名、summary 关键字段、串口 benchmark 语义和旧路径保持等价。
+- 若本轮是新旧架构 compare，路径别名、时间戳和 `.wave` metadata 这类噪声应先做归一化，再比较语义内容。
+
+### 建议的 pytest 组合
+
+如果改动的是入口分发、注册表或路径辅助，优先跑：
+
+```bash
+pytest src/tests/core/board_inference/test_entrypoints.py src/tests/core/board_inference/test_registry.py src/tests/core/board_inference/test_paths.py src/tests/core/test_external_cli_handler.py -q
+```
+
+如果改动的是模板渲染、平台公共逻辑或 FRIKAN/sequence 的渲染边界，优先跑：
+
+```bash
+pytest src/tests/core/board_inference/test_benchmark_common.py src/tests/core/board_inference/test_frikan_render.py src/tests/core/board_inference/test_main_templates.py -q
+```
+
+如果改动范围较大，直接补跑：
+
+```bash
+pytest src/tests/core/board_inference -q
+```
+
+### 实际工具链 smoke
+
+静态核对和定向 pytest 通过后，再补最小运行验证：
+
+```bash
+python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
+```
+
+若本轮触及 Keil 工程生成、串口抓取或 benchmark 解析，且当前板卡环境可用，再补：
+
+```bash
+python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_base"
+```
+
+如果本轮要证明新架构已经不再依赖旧单体模块，正确做法是：
+
+1. 临时将 `src/core/lstm_qemu_ep_task.py` 重命名为 `src/core/lstm_qemu_ep_task.py.bck`
+2. 只跑 native 路径完成 QEMU / Keil 验证
+3. 验证后恢复原文件名
+
+### 成功判定
+
+对 `board_inference` 改动，不应只看 pytest 通过或命令退出码为 `0`；至少还要确认：
+
+- QEMU 路径生成了预期的 `benchmark_summary.json`、`validation_comparison.json` 和关键波形产物。
+- Keil 路径生成了 `keil_benchmark_summary.json`，并且 `comparison.mae`、benchmark 输出与耗时字段可解析。
+- 迁移类验证里，`success_match` 才表示旧/新两侧都成功且关键行为一致；`shared_failure` 只说明问题是旧/新共享，不代表迁移已经完成。
+
 ## WNET5 / SPICE 定向回归
 
 如果本轮修改涉及 WNET5 分层验证、`wnet5_circuit_validator.py`、WaveNet5 SPICE 导出或相关可视化模块，建议优先跑下面几类定向回归：

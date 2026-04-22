@@ -10,7 +10,7 @@
     {
       "name": "FRIKANh8u6l6_base",
       "label": "余弦衰减 (0.002→1.6e-5)",
-      "path": "00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
+      "path": "projects/00_MAE_VS_AFMAE/FRIKANh8u6l6_base"
     }
   ],
   "metrics": {
@@ -31,6 +31,9 @@
       "show_details": true
     },
     "mae_afmae": {
+      "enabled": true
+    },
+    "board_inference": {
       "enabled": true
     }
   },

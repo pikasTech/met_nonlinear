@@ -1,6 +1,6 @@
 {
   "project_name": "1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true",
-  "generated_at": "2026-04-13T17:14:08.641913+08:00",
+  "generated_at": "2026-04-21T22:40:03.270162+08:00",
   "status": "complete",
   "calculation_standard": "ablation-study-v1",
   "sources": {
@@ -9,7 +9,10 @@
     "model_info": true,
     "linear_response": true,
     "linearity_by_frequency": true,
-    "config": true
+    "config": true,
+    "board_inference_config": true,
+    "board_inference_qemu": true,
+    "board_inference_keil": true
   },
   "missing_sources": [],
   "missing_sections": [],
@@ -106,6 +109,27 @@
   "loss_function": "MAE",
   "loss_function_key": "mae",
   "loss_function_source": "config.use_power_loss",
+  "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true",
+  "board_qemu_mae": 1.7508291745180203e-06,
+  "board_keil_mae": 1.7508291745180203e-06,
+  "board_keil_speed": 0.6971325,
+  "board_inference": {
+    "configured": true,
+    "ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true",
+    "project_dir": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true",
+    "qemu_summary_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true/data/benchmark_summary.json",
+    "keil_summary_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true/data/keil_benchmark_summary.json",
+    "qemu_summary_exists": true,
+    "keil_summary_exists": true,
+    "qemu_mae": 1.7508291745180203e-06,
+    "keil_mae": 1.7508291745180203e-06,
+    "keil_wall_time_per_iter_ms": 278.853,
+    "keil_point_count_per_iter": 400,
+    "keil_speed_ms_per_point": 0.6971325,
+    "keil_speed_unit": "ms/point",
+    "missing_sources": [],
+    "missing_sections": []
+  },
   "display_metrics": {
     "Loss Function": "MAE",
     "TRAIN_MAE": 0.015192820690572262,
@@ -119,6 +143,9 @@
     "Total Params": 1317,
     "Epochs": 1000,
     "LR": 0.02,
-    "Cosine Annealing": false
+    "Cosine Annealing": false,
+    "QEMU-MAE": 1.7508291745180203e-06,
+    "KEIL-MAE": 1.7508291745180203e-06,
+    "KEIL-SPEED": 0.6971325
   }
 }

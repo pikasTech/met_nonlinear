@@ -31,6 +31,8 @@ python cli.py --metrics --all-projects --missing-only
 - `linear_response.json`
 - `linearity_by_frequency.json`
 
+此外，命令还会读取项目根目录下的 `config.json`。如果其中配置了 `board_inference_ep_path`，则会把该 EP 目录下的在板推理摘要一并汇总到 `metrics.json`。
+
 其中 `training_info.json.evaluation_metrics` 由 `python cli.py -e PROJECT_NAME` 统一写入，loss、MAE、AFMAE 在评估阶段都固定通过单一预测路径重算，与训练时具体挂了哪些 compile metrics 无关。
 
 注意：`--metrics` 不会自行补算 `training_info.json.evaluation_metrics`。如果项目在上一次评估后又继续训练，或 `-e` 在预测/频率响应阶段中断，`training_info.json` 里的该节可能缺失，或者仍然保留旧权重对应的历史快照。
@@ -102,6 +104,38 @@ $$
 - `freq_drift_hz`、`sens_drift_percent`、`linearity_percent`：供表格/图表直接消费的主字段
 - `metric_details`：上述三项指标及其 origin 版本的详细统计
 - `compute_details`：计算量明细，供其他模块直接读取
+- `board_inference_ep_path`：挂载的 `qemu-c-inference` EP 相对路径
+- `board_qemu_mae`、`board_keil_mae`、`board_keil_speed`：在板推理汇总字段
+- `board_inference`：在板推理明细、来源命中状态与缺失节信息
+
+## 在板推理指标汇总
+
+如果某个训练项目需要把 `qemu-c-inference` / `keil-bench` 结果纳入统一横评，可以在项目根目录 `config.json` 中增加：
+
+```json
+{
+  "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/your_ep_name"
+}
+```
+
+`python cli.py -e PROJECT_NAME` 或 `python cli.py --metrics PROJECT_NAME` 在检测到该字段后，会额外读取挂载 EP 的：
+
+- `data/benchmark_summary.json`
+- `data/keil_benchmark_summary.json`
+
+并按以下稳定口径汇总：
+
+- `board_qemu_mae` <- `benchmark_summary.json.comparison.mae`
+- `board_keil_mae` <- `keil_benchmark_summary.json.comparison.mae`
+- `board_keil_speed` <- `keil_benchmark_summary.json.parsed_output.wall_time_per_iter_ms / (record_count * seq_len)`
+
+其中：
+
+- `board_keil_speed` 的单位固定为 `ms/point`
+- 1 point = 1 个时间步
+- `record_count * seq_len` 表示一次 validation 迭代中实际推理的总时间步数
+
+长期上，板端指标一旦被汇总进 `metrics.json`，下游 compare / WebUI / 表格导出都应继续只读取 `metrics.json`，不要再绕过项目 summary 直接去扫 EP 目录。
 
 ## 自动刷新与手动重算
 
@@ -137,6 +171,12 @@ $$
 `missing_sections` 用于区分“文件存在但内部不完整”的情况。例如 `training_info.json` 存在，但其中缺少 `evaluation_metrics`，此时不会记入 `missing_sources`，而会记入 `missing_sections`。
 
 如果 `evaluation_metrics` 缺失或过旧，应优先重新执行 `python cli.py -e PROJECT_NAME`，让评估阶段按统一口径重写 MAE/AFMAE，再执行 `python cli.py --metrics PROJECT_NAME`。
+
+对板端指标同样适用类似规则，但边界略有不同：
+
+- 若项目未配置 `board_inference_ep_path`，这是“未接入板端横评”的正常状态，不应把 `metrics.json` 判成 `partial`；下游展示应把板端列视为缺省值，而不是错误。
+- 若项目已经配置 `board_inference_ep_path`，但 EP 目录、`benchmark_summary.json`、`keil_benchmark_summary.json` 或关键字段缺失，则应把 `metrics.json` 判为 `partial`，并在 `missing_sources` / `missing_sections` 中记录具体缺口。
+- 若 `training_info.json.evaluation_metrics` 缺失，但 `linear_response.json`、`linearity_by_frequency.json` 仍存在，说明旧评估链没有完整写回；此时应优先重跑 `python cli.py -e PROJECT_NAME`，而不是只依赖已有 summary 文件。
 
 如果 `metrics.json` 显示 `VAL_MAE`、`VAL_AFMAE` 尚可，但 `Freq Drift (Hz)`、`Sens Drift (%)`、`Linearity (%)` 极差，先不要直接下结论说模型频响能力差；应回看 `linear_response.json` 的 `gains_comped` 是否与 `gains_origin` 处于同一物理量级。若两者量级明显不一致，优先排查模型包装类 `predict()` 是否正确执行了反缩放。
 

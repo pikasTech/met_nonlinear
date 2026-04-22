@@ -292,6 +292,7 @@ static void run_generated_record(const port_float input_sequence[VALIDATION_SEQ_
 {
     uint32_t step_index;
     uint32_t channel_index;
+
     clear_debug_buffers();
     for (step_index = 0u; step_index < VALIDATION_SEQ_LEN; ++step_index) {
         debug_input_scaled[step_index][0u] = scale_input(input_sequence[step_index][0u]);
@@ -311,7 +312,7 @@ static void run_generated_record(const port_float input_sequence[VALIDATION_SEQ_
         dense_pointwise_forward(&debug_post_dense_5[step_index][0u], 8u, 8u, &post_dense_6_kernel[0u][0u][0u], &post_dense_6_bias[0u], 1u, &debug_post_dense_6[step_index][0u]);
         dense_pointwise_forward(&debug_post_dense_6[step_index][0u], 8u, 8u, &post_dense_7_kernel[0u][0u][0u], &post_dense_7_bias[0u], 1u, &debug_post_dense_7[step_index][0u]);
         dense_pointwise_forward(&debug_post_dense_7[step_index][0u], 8u, 8u, &post_dense_8_kernel[0u][0u][0u], &post_dense_8_bias[0u], 1u, &debug_post_dense_8[step_index][0u]);
-        dense_pointwise_forward(&debug_post_dense_8[step_index][0u], 8u, 1u, &conv_stack_output_kernel[0u][0u][0u], &conv_stack_output_bias[0u], ACT_LINEAR, &debug_output_scaled[step_index][0u]);
+        dense_pointwise_forward(&debug_post_dense_8[step_index][0u], 8u, 1u, &conv_stack_output_kernel[0u][0u][0u], &conv_stack_output_bias[0u], 0u, &debug_output_scaled[step_index][0u]);
         output_sequence[step_index] = inverse_scale_output(debug_output_scaled[step_index][0u]);
     }
 }

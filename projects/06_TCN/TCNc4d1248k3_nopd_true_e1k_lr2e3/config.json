@@ -55,5 +55,6 @@
         1
     ],
     "target_sweep": 2,
-    "AUG_TIMES": 1
+    "AUG_TIMES": 1,
+    "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3"
 }

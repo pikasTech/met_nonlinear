@@ -137,6 +137,7 @@ class Config:
             'mul_weight': 1.0,
             'map_weight': 6.0,
         }
+        self.board_inference_ep_path = None
 
         logger = logging.getLogger(__name__)
         logger.info(f"base_data_path: {self.data_base_path}")
@@ -197,14 +198,14 @@ class Config:
             validate_bias_compensation_config(bc, model)
 
     def save_to_json(self, file_path):
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(self.__dict__, f, indent=4)
         logger = logging.getLogger(__name__)
         logger.info(f"配置已保存到 {file_path}")
 
     @classmethod
     def load_from_json(cls, file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         # 创建默认配置实例用于比较

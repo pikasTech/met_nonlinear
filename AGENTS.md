@@ -89,6 +89,7 @@
 	- 显式重算：`-t`、`-e` 和 `-m` 现已自动刷新 `metrics.json`；保留该命令主要用于手动重算、批量补齐和历史项目修复，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 前置条件：`--metrics` 只汇总现有评估产物，不会自行补算 `evaluation_metrics`；如果项目在评估后又继续训练，或 `-e` 在频率响应阶段被中断，应先完整重跑 `-e`，再执行 `--metrics`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 	- 诊断口径：如果 `metrics.json` 里时域误差正常但频响三项异常，先回看 `linear_response.json` 的物理量级，不要直接把问题归因于模型能力，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
+	- 板端汇总：若项目 `config.json` 挂载 `board_inference_ep_path`，`metrics.json` 还会同步汇总 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED (ms/point)`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py --metrics --all-projects`
 	- 批量重算指标：递归遍历 `projects/` 下所有项目并全量重算统一指标文件 `metrics.json`，详见 [docs/reference/metrics.md](docs/reference/metrics.md)。
 - `python cli.py --metrics --all-projects --missing-only`
@@ -152,6 +153,7 @@
 	- 真机一键基准：对 `qemu-c-inference` EP 自动生成工程、Keil 编译、烧录、抓取串口并解析独立 JSON，详见 [docs/reference/ep.md](docs/reference/ep.md) 与 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- 损失函数消融对比：配置驱动读取多个 project 的 `metrics.json` 做统一横向比较，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
+	- 板端列展示：若 compare 配置启用 `metrics.board_inference.enabled`，综合表可追加 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED (ms/point)`，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 - `python cli.py ep "PROJECT/wnet5-circuit-validation/layer2"`
 	- 电路验证：执行 WNET5 电路验证类外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 电路验证规则：通道映射、环境变量路径、E96 热力图和频响对照口径详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。

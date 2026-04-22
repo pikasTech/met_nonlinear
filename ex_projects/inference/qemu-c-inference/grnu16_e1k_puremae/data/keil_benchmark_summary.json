@@ -53,12 +53,12 @@
   },
   "status": "completed",
   "keil_build": {
-    "job_id": "20260421_201805_8236d113",
+    "job_id": "20260421_220619_2190b689",
     "command": "build",
     "status": "completed",
-    "created_at": "2026-04-21T20:18:05.918427",
-    "started_at": "2026-04-21T20:18:06.301655",
-    "finished_at": "2026-04-21T20:18:20.787414",
+    "created_at": "2026-04-21T22:06:19.895291",
+    "started_at": "2026-04-21T22:06:20.308399",
+    "finished_at": "2026-04-21T22:06:35.811751",
     "return_code": 0,
     "success": true,
     "params": {
@@ -84,18 +84,18 @@
       },
       "cleared_build_state_file": null,
       "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
-      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_201806.jsonl"
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_220620.jsonl"
     },
-    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_201806.jsonl",
-    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_201805_8236d113.json"
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_220620.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_220619_2190b689.json"
   },
   "keil_program": {
-    "job_id": "20260421_201825_41341ede",
+    "job_id": "20260421_220641_cfa940d8",
     "command": "program",
     "status": "completed",
-    "created_at": "2026-04-21T20:18:25.739348",
-    "started_at": "2026-04-21T20:18:26.169310",
-    "finished_at": "2026-04-21T20:18:43.658959",
+    "created_at": "2026-04-21T22:06:41.838139",
+    "started_at": "2026-04-21T22:06:42.223722",
+    "finished_at": "2026-04-21T22:07:02.953965",
     "return_code": 0,
     "success": true,
     "params": {
@@ -111,7 +111,7 @@
       "message": "Programming successful via Keil UV4",
       "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
       "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
-      "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 20:18:43",
+      "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:07:02",
       "target": "MET405",
       "reset_and_run_check": {
         "success": true,
@@ -359,10 +359,10 @@
       },
       "requested_program_backend": "keil",
       "program_backend": "keil",
-      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_201826.jsonl"
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_220642.jsonl"
     },
-    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_201826.jsonl",
-    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_201825_41341ede.json"
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_220642.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_220641_cfa940d8.json"
   },
   "serial_capture": {
     "status": "completed",
@@ -371,7 +371,7 @@
     "timeout_seconds": 20,
     "timed_out": false,
     "record_count": 29,
-    "stream_length": 4367,
+    "stream_length": 4379,
     "matched_success_markers": [
       "validation_complete=1"
     ],
@@ -386,13 +386,13 @@
       "data": {
         "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\grnu16_e1k_puremae\\data\\.keil_capture\\capture_all.jsonl",
         "format": "jsonl",
-        "count": 3029,
-        "totalCount": 3029,
+        "count": 3561,
+        "totalCount": 3561,
         "dedupCount": 0,
         "limitApplied": "all",
         "timeRange": {
           "start": "2026-04-20T16:31:09.833+0800",
-          "end": "2026-04-21T20:18:46.634+0800"
+          "end": "2026-04-21T22:07:05.641+0800"
         }
       },
       "_return_code": 0,

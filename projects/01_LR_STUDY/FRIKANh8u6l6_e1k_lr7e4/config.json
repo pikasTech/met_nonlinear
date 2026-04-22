@@ -38,5 +38,6 @@
         1
     ],
     "target_sweep": 2,
-    "AUG_TIMES": 1
+    "AUG_TIMES": 1,
+    "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4"
 }

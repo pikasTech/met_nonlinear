@@ -184,6 +184,66 @@ def test_build_project_metrics_summary_marks_compute_warning(tmp_path):
     assert 'transformer_mha_0' in summary['compute_cost_warning']
 
 
+def test_build_project_metrics_summary_extracts_board_inference_metrics(tmp_path):
+    checkpoint_dir = tmp_path / 'project' / 'data'
+    checkpoint_dir.mkdir(parents=True)
+    board_project_dir = tmp_path / 'ex_projects' / 'inference' / 'qemu-c-inference' / 'demo_model'
+    board_data_dir = board_project_dir / 'data'
+    board_data_dir.mkdir(parents=True)
+
+    (board_data_dir / 'benchmark_summary.json').write_text(json.dumps({
+        'comparison': {
+            'mae': 0.0123,
+        },
+    }), encoding='utf-8')
+    (board_data_dir / 'keil_benchmark_summary.json').write_text(json.dumps({
+        'comparison': {
+            'mae': 0.0456,
+        },
+        'parsed_output': {
+            'wall_time_per_iter_ms': 200.0,
+        },
+        'validation': {
+            'record_count': 2,
+            'seq_len': 100,
+        },
+    }), encoding='utf-8')
+
+    checkpoint_dir.parent.joinpath('config.json').write_text(json.dumps({
+        'board_inference_ep_path': str(board_project_dir),
+    }), encoding='utf-8')
+
+    summary = build_project_metrics_summary(str(checkpoint_dir), project_name='demo')
+
+    assert summary['board_inference_ep_path'] == str(board_project_dir).replace('\\', '/')
+    assert summary['board_qemu_mae'] == pytest.approx(0.0123)
+    assert summary['board_keil_mae'] == pytest.approx(0.0456)
+    assert summary['board_keil_speed'] == pytest.approx(1.0)
+    assert summary['board_inference']['keil_speed_unit'] == 'ms/point'
+    assert summary['sources']['board_inference_qemu'] is True
+    assert summary['sources']['board_inference_keil'] is True
+    assert summary['display_metrics']['QEMU-MAE'] == pytest.approx(0.0123)
+    assert summary['display_metrics']['KEIL-MAE'] == pytest.approx(0.0456)
+    assert summary['display_metrics']['KEIL-SPEED'] == pytest.approx(1.0)
+
+
+def test_build_project_metrics_summary_marks_missing_board_inference_sources(tmp_path):
+    checkpoint_dir = tmp_path / 'project' / 'data'
+    checkpoint_dir.mkdir(parents=True)
+    board_project_dir = tmp_path / 'ex_projects' / 'inference' / 'qemu-c-inference' / 'missing_model'
+    board_project_dir.mkdir(parents=True)
+
+    checkpoint_dir.parent.joinpath('config.json').write_text(json.dumps({
+        'board_inference_ep_path': str(board_project_dir),
+    }), encoding='utf-8')
+
+    summary = build_project_metrics_summary(str(checkpoint_dir), project_name='demo')
+
+    assert summary['status'] == 'partial'
+    assert 'board_inference.benchmark_summary.json' in summary['missing_sources']
+    assert 'board_inference.keil_benchmark_summary.json' in summary['missing_sources']
+
+
 @pytest.mark.parametrize(
     ('config_data', 'expected_label', 'expected_key', 'expected_source'),
     [
