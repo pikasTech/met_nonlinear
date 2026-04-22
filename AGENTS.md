@@ -36,13 +36,27 @@
 - WNET5 分层验证中的 Project 权重加载、E96 量化误差仿真、SVF 拟合误差建模与报告约束：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
 - 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+- 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。
+- 论文消融实验方法：详见 [docs/reference/paper_ablation_method.md](docs/reference/paper_ablation_method.md)。
+- 论文横向对比实验方法：详见 [docs/reference/paper_horizontal_comparison_method.md](docs/reference/paper_horizontal_comparison_method.md)。
+- 论文边缘设备推理评估方法：详见 [docs/reference/paper_edge_inference_evaluation_method.md](docs/reference/paper_edge_inference_evaluation_method.md)。
+- 论文指标计算方法：详见 [docs/reference/paper_metric_calculation_method.md](docs/reference/paper_metric_calculation_method.md)。
 
 ## 环境配置
 
 - py 环境：使用名为 `tf26` 的 Conda 环境 Python，而不是硬编码某台机器的绝对路径。
+  - 定位规律：先找 `tf26` 这个环境名，再拼接到对应的 Conda 根目录，不要先假设用户名或 Conda 安装目录固定。
+  - 常见路径规律：
+    - `C:\Users\<用户名>\.conda\envs\tf26\python.exe`
+    - `C:\Users\<用户名>\MiniConda3\envs\tf26\python.exe`
+    - `C:\Users\<用户名>\miniconda3\envs\tf26\python.exe`
   - 已知主机实例：
     - `C:\Users\liang\.conda\envs\tf26\python.exe`
     - `C:\Users\lyon\MiniConda3\envs\tf26\python.exe`
+  - 推荐定位命令：
+    - `conda env list`
+    - `where conda`
+    - `Get-ChildItem "$env:USERPROFILE\\.conda\\envs\\tf26\\python.exe","$env:USERPROFILE\\MiniConda3\\envs\\tf26\\python.exe","$env:USERPROFILE\\miniconda3\\envs\\tf26\\python.exe" -ErrorAction SilentlyContinue`
   - GPU 环境默认行为：native Windows 的 CLI 会在导入 TensorFlow 前主动移除 `TF_GPU_ALLOCATOR=cuda_malloc_async`，并默认启用 `TF_FORCE_GPU_ALLOW_GROWTH=true`；环境边界与排查口径详见 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)。
   - 详见 [docs/reference/tf26_environment.md](docs/reference/tf26_environment.md)
 - **npm 路径规律**：Windows 环境下 `npm` 可能不在 PATH 中，调用时需使用完整路径 `D:/Program Files/nodejs/npm.cmd` 或通过 `npm.cmd` 调用。npm 相关文件（`package.json`、`node_modules`）只允许存在于 `src/webui/` 目录下，仓库根目录禁止放置。
@@ -50,6 +64,7 @@
 ## AGENTS.md 组织原则
 
 - `AGENTS.md` 只作为项目级顶级索引，用于快速定位命令、入口和文档。
+- 其他和 `AGENTS.md` 具有同等作用的文档（例如 `CLAUDE.md`）中只保留一行 `@AGENTS.md` 将其引导到 `AGENTS.md`，避免多种口径互相不一致。
 - `AGENTS.md` 的具体功能区只保留四个顶级标题：`主命令`、`ep 子命令`、`projects/ex_projects`、`测试`，不额外拆出新的命令分类标题。
 - 每个命令在 `AGENTS.md` 中保留一条主索引，命令下面可以挂多个功能子列表。
 - 每个子列表只描述一个功能点，并使用一句话概括，不在此处展开实现细节、参数说明或背景分析。
