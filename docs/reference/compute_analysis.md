@@ -19,7 +19,8 @@
 
 - 平台默认目标为 STM32F405。
 - 以 `add` 作为 1 个基准单位。
-- 默认权重为 `add_weight = 1.0`、`mul_weight = 1.0`、`map_weight = 6.0`。
+- 默认权重为 `add_weight = 1.0`、`mul_weight = 3.0`、`map_weight = 20.0`。
+- 该默认模型来自 `compare/compute_cost_calibration` 的 STM32F405 真机标定，当前标定集覆盖 `Wiener-KAN / GRU / LSTM / LSTMTransformer / 1DCNN / RNN / TCN` 七类 canonical models；旧的 `1:1:6` 只保留为历史启发式口径，不再作为默认值。
 - JSON 中会输出各类操作折算后的 add 等效单位数、总单位数以及占比。
 
 ## 配置方式

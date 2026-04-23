@@ -1,0 +1,48 @@
+#ifndef GENERATED_RNN_MODEL_DATA_H
+#define GENERATED_RNN_MODEL_DATA_H
+
+#include <stdint.h>
+
+typedef float port_float;
+
+#define ACT_LINEAR 0u
+#define ACT_RELU 1u
+#define ACT_TANH 2u
+#define ACT_SIGMOID 3u
+#define ACT_SILU 4u
+
+#define RNN_INPUT_DIM {{RNN_INPUT_DIM}}u
+#define RNN_UNITS {{RNN_UNITS}}u
+#define HAS_DENSE {{HAS_DENSE}}u
+#define DENSE_UNITS {{DENSE_UNITS}}u
+#define RNN_ACTIVATION {{RNN_ACTIVATION}}u
+#define DENSE_ACTIVATION {{DENSE_ACTIVATION}}u
+#define OUTPUT_INPUT_UNITS {{OUTPUT_INPUT_UNITS}}u
+#define OUTPUT_UNITS {{OUTPUT_UNITS}}u
+#define OUTPUT_ACTIVATION {{OUTPUT_ACTIVATION}}u
+#define BENCHMARK_ITERATIONS {{BENCHMARK_ITERATIONS}}u
+#define BENCHMARK_REPEAT_RUNS {{BENCHMARK_REPEAT_RUNS}}u
+#define BENCHMARK_RESET_STATE_EACH_RUN {{BENCHMARK_RESET_STATE_EACH_RUN}}u
+#define VALIDATION_RECORD_COUNT {{VALIDATION_RECORD_COUNT}}u
+#define VALIDATION_SEQ_LEN {{VALIDATION_SEQ_LEN}}u
+
+#define SCALER_INPUT_DATA_RANGE {{SCALER_INPUT_DATA_RANGE}}
+#define SCALER_OUTPUT_DATA_RANGE {{SCALER_OUTPUT_DATA_RANGE}}
+
+static const port_float validation_input[VALIDATION_RECORD_COUNT][VALIDATION_SEQ_LEN][RNN_INPUT_DIM] = {{VALIDATION_INPUT_INITIALIZER}};
+
+static const port_float rnn_kernel[RNN_INPUT_DIM][RNN_UNITS] = {{RNN_KERNEL_INITIALIZER}};
+
+static const port_float rnn_recurrent_kernel[RNN_UNITS][RNN_UNITS] = {{RNN_RECURRENT_KERNEL_INITIALIZER}};
+
+static const port_float rnn_bias[RNN_UNITS] = {{RNN_BIAS_INITIALIZER}};
+
+static const port_float dense_kernel[RNN_UNITS][DENSE_UNITS] = {{DENSE_KERNEL_INITIALIZER}};
+
+static const port_float dense_bias[DENSE_UNITS] = {{DENSE_BIAS_INITIALIZER}};
+
+static const port_float output_kernel[OUTPUT_INPUT_UNITS][OUTPUT_UNITS] = {{OUTPUT_KERNEL_INITIALIZER}};
+
+static const port_float output_bias[OUTPUT_UNITS] = {{OUTPUT_BIAS_INITIALIZER}};
+
+#endif

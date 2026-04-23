@@ -546,6 +546,9 @@ class VisualizationConfigValidator:
                         "minimum": 2,
                         "maximum": 65536
                     },
+                    "use_lut": {
+                        "type": "boolean"
+                    },
                     "lut_interpolation": {
                         "type": "boolean"
                     }
@@ -745,6 +748,18 @@ class VisualizationConfigValidator:
                         }
                     },
                     "keil_cli_path": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "optimization_profiles": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "published_optimization_profile": {
                         "type": "string",
                         "minLength": 1
                     }

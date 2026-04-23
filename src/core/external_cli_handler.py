@@ -811,14 +811,32 @@ def _execute_qemu_c_inference_keil_bench_task(ep_path: ExternalPath,
 
 
 def _execute_ablation_study_task(ep_path: ExternalPath, config: dict) -> bool:
-    """执行消融实验对比任务"""
+    """执行 compare / ablation-study 类任务。"""
     try:
-        from visualization.ablation_study import AblationStudyAnalyzer
+        task_info = config.get('task_info', {}) or {}
+        analysis_type = str(task_info.get('analysis_type', 'ablation-study'))
 
-        logger.info(f"执行消融实验对比任务: {ep_path.task_name}")
+        if analysis_type == 'compute-cost-calibration':
+            from visualization.compute_cost_calibration import ComputeCostCalibrationAnalyzer
 
-        analyzer = AblationStudyAnalyzer(config, ep_path.output_path)
-        results = analyzer.run_analysis()
+            logger.info(f"执行 Compute Cost 参数整定任务: {ep_path.task_name}")
+            analyzer = ComputeCostCalibrationAnalyzer(config, ep_path.output_path)
+        elif analysis_type == 'wiener-parallel-modeling':
+            from visualization.wiener_parallel_modeling import WienerParallelModelingAnalyzer
+
+            logger.info(f"执行并联 Wiener 幅频建模任务: {ep_path.task_name}")
+            analyzer = WienerParallelModelingAnalyzer(
+                config=config,
+                task_root=ep_path.full_path,
+                output_dir=ep_path.output_path,
+            )
+        else:
+            from visualization.ablation_study import AblationStudyAnalyzer
+
+            logger.info(f"执行消融实验对比任务: {ep_path.task_name}")
+            analyzer = AblationStudyAnalyzer(config, ep_path.output_path)
+
+        analyzer.run_analysis()
         analyzer.save_results()
 
         logger.info(f"[OK] 消融实验任务完成: {ep_path.output_path}")

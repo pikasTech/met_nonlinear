@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-04-23T21:35:52",
+  "task_root": "C:\\work\\met_nonlinear_master\\ex_projects\\compare\\wiener_parallel_modeling",
+  "target_source": "measured",
+  "amplitude_count": 25,
+  "center_frequency": {
+    "simulated": {
+      "min": 33.4405672881844,
+      "max": 88.10826802697268,
+      "mean": 60.63707254887108
+    },
+    "target": {
+      "min": 34.24997463455355,
+      "max": 93.40923653622174,
+      "mean": 60.460748371516694
+    },
+    "mae_hz": 1.8713121031247149,
+    "rmse_hz": 2.3355837762199854,
+    "max_abs_error_hz": 5.708407119504237
+  },
+  "gain_at_target_frequency": {
+    "frequency_hz": 100.0,
+    "simulated": {
+      "min": 55.868111165508545,
+      "max": 197.4977427004524,
+      "mean": 135.54007608568784
+    },
+    "target": {
+      "min": 60.621587686769125,
+      "max": 203.37222575507002,
+      "mean": 136.48220741943715
+    },
+    "mae": 4.532628218217732,
+    "rmse": 5.530740547399083,
+    "max_abs_error": 10.58586267216819
+  },
+  "generated_files": {
+    "simulation.png": "image/14.NN_extern_simu_reproduced_simulation.png",
+    "fitted.png": "image/14.NN_extern_simu_reproduced_fitted.png",
+    "analysis.png": "image/14.NN_extern_simu_reproduced_analysis.png",
+    "fh.png": "image/14.NN_extern_simu_reproduced_fh.png",
+    "fh_kx.png": "image/14.NN_extern_simu_reproduced_fh_kx.png",
+    "simulation.json": "image/14.NN_extern_simu_reproduced_simulation.json",
+    "fitted.json": "image/14.NN_extern_simu_reproduced_fitted.json",
+    "analysis.json": "image/14.NN_extern_simu_reproduced_analysis.json",
+    "fh.json": "image/14.NN_extern_simu_reproduced_fh.json",
+    "fh_kx.json": "image/14.NN_extern_simu_reproduced_fh_kx.json",
+    "wave_amp0.240.png": "image/wave_amp0.240.png",
+    "wave_amp0.480.png": "image/wave_amp0.480.png",
+    "wave_amp0.720.png": "image/wave_amp0.720.png",
+    "wave_amp0.960.png": "image/wave_amp0.960.png",
+    "wave_amp1.200.png": "image/wave_amp1.200.png",
+    "wave_amp1.440.png": "image/wave_amp1.440.png",
+    "wave_amp1.680.png": "image/wave_amp1.680.png",
+    "wave_amp1.920.png": "image/wave_amp1.920.png",
+    "wave_amp2.160.png": "image/wave_amp2.160.png",
+    "wave_amp2.400.png": "image/wave_amp2.400.png",
+    "wave_amp2.640.png": "image/wave_amp2.640.png",
+    "wave_amp2.880.png": "image/wave_amp2.880.png",
+    "wave_amp3.120.png": "image/wave_amp3.120.png",
+    "wave_amp3.360.png": "image/wave_amp3.360.png",
+    "wave_amp3.600.png": "image/wave_amp3.600.png",
+    "wave_amp3.840.png": "image/wave_amp3.840.png",
+    "wave_amp4.080.png": "image/wave_amp4.080.png",
+    "wave_amp4.320.png": "image/wave_amp4.320.png",
+    "wave_amp4.560.png": "image/wave_amp4.560.png",
+    "wave_amp4.800.png": "image/wave_amp4.800.png",
+    "wave_amp5.040.png": "image/wave_amp5.040.png",
+    "wave_amp5.280.png": "image/wave_amp5.280.png",
+    "wave_amp5.520.png": "image/wave_amp5.520.png",
+    "wave_amp5.760.png": "image/wave_amp5.760.png",
+    "wave_amp6.000.png": "image/wave_amp6.000.png"
+  }
+}

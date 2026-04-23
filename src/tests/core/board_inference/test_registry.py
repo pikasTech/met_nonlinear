@@ -6,7 +6,7 @@ from core.board_inference.models import (
     NATIVE_KEIL_BENCH_EXECUTORS,
     NATIVE_QEMU_EXECUTORS,
 )
-from core.board_inference.registry import detect_model_type
+from core.board_inference.registry import detect_model_type, has_native_implementation
 
 
 def _write_json(path, payload):
@@ -38,6 +38,24 @@ def test_detect_model_type_supports_legacy_gru_suffix_names(tmp_path):
     assert detect_model_type('projects/legacy_grn', model_dir, weights_path) == 'grn'
 
 
+def test_detect_model_type_supports_simple_rnn_weights(tmp_path):
+    model_dir = tmp_path / 'projects' / 'legacy_rnn'
+    weights_path = model_dir / 'data' / 'best_val.weights.json'
+    _write_json(weights_path, [
+        {'name': 'simple_rnn/simple_rnn_cell/kernel:0', 'value': []},
+        {'name': 'simple_rnn/simple_rnn_cell/recurrent_kernel:0', 'value': []},
+    ])
+
+    assert detect_model_type('projects/legacy_rnn', model_dir, weights_path) == 'rnn'
+
+
+def test_detect_model_type_supports_rnn_project_config(tmp_path):
+    model_dir = tmp_path / 'projects' / 'configured_rnn'
+    _write_json(model_dir / 'config.json', {'use_model': 'RNN'})
+
+    assert detect_model_type('projects/configured_rnn', model_dir, model_dir / 'data' / 'best_val.weights.json') == 'rnn'
+
+
 def test_all_supported_board_inference_model_types_have_native_executors():
     expected = {
         'frikan',
@@ -45,6 +63,7 @@ def test_all_supported_board_inference_model_types_have_native_executors():
         'lstm',
         'lstm_transformer',
         'onedcnn',
+        'rnn',
         'tcn',
         'wavenet2',
         'wavenet3',
@@ -52,3 +71,4 @@ def test_all_supported_board_inference_model_types_have_native_executors():
 
     assert expected.issubset(set(NATIVE_QEMU_EXECUTORS))
     assert expected.issubset(set(NATIVE_KEIL_BENCH_EXECUTORS))
+    assert has_native_implementation('rnn') is True

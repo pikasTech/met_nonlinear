@@ -1,0 +1,26 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "MET qemu-c-inference benchmark for RNNu16_e1k_puremae_r15"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/qemu_project",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/keil_project",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_output.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_lstm_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_dense_output.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_rnn_hidden.wave",
+    "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/plots/mag0_24_freq10_comparison.png"
+  ],
+  "action": "build-run"
+}

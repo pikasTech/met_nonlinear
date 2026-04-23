@@ -1,0 +1,14 @@
+{
+  "execution_time": "2026-04-23T13:21:56.862845",
+  "task_info": {
+    "task_type": "compare",
+    "task_name": "compute_cost_calibration",
+    "analysis_type": "compute-cost-calibration",
+    "description": "基于 STM32F405 真机时延对静态 Compute Cost 的 add:multiply:MAP 权重进行整定",
+    "version": "1.0"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\compare\\compute_cost_calibration\\data"
+  ],
+  "config_hash": "10ea5968a877aa8c47fc8580a7aae999"
+}

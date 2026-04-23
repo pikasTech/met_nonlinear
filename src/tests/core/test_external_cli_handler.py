@@ -222,6 +222,52 @@ class TestExecuteTask:
         assert result is False
 
 
+class TestExecuteAblationStudyTask:
+    """Test compare / ablation-study task dispatch."""
+
+    @pytest.fixture
+    def mock_ep_path(self, tmp_path):
+        from core.external_path_parser import ExternalPath
+
+        ep = ExternalPath(
+            project_name="wiener_parallel_modeling",
+            task_type="compare",
+            task_name="wiener_parallel_modeling",
+            full_path=tmp_path / "wiener_parallel_modeling",
+            config_path=tmp_path / "wiener_parallel_modeling" / "config.json",
+            output_path=tmp_path / "wiener_parallel_modeling" / "data",
+        )
+        ep.full_path.mkdir(parents=True, exist_ok=True)
+        ep.output_path.mkdir(parents=True, exist_ok=True)
+        return ep
+
+    def test_execute_ablation_study_task_wiener_parallel_modeling(self, mock_ep_path):
+        from core.external_cli_handler import _execute_ablation_study_task
+
+        config = {
+            "task_info": {
+                "task_type": "compare",
+                "analysis_type": "wiener-parallel-modeling",
+            }
+        }
+
+        mock_analyzer = MagicMock()
+        mock_analyzer.run_analysis.return_value = {"ok": True}
+
+        mock_module = SimpleNamespace(WienerParallelModelingAnalyzer=MagicMock(return_value=mock_analyzer))
+
+        with patch.dict(sys.modules, {"visualization.wiener_parallel_modeling": mock_module}):
+            result = _execute_ablation_study_task(mock_ep_path, config)
+
+        assert result is True
+        mock_module.WienerParallelModelingAnalyzer.assert_called_once_with(
+            config=config,
+            task_root=mock_ep_path.full_path,
+            output_dir=mock_ep_path.output_path,
+        )
+        mock_analyzer.run_analysis.assert_called_once()
+        mock_analyzer.save_results.assert_called_once()
+
 class TestExecuteFreqResponseTask:
     """Test _execute_freq_response_task function"""
 

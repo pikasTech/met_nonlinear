@@ -37,6 +37,13 @@ class TestFailFast:
         try:
             config_file = os.path.join(temp_dir, "config.json")
             config = Config()
+            assert config.compute_cost_model == {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "add_weight": 1.0,
+                "mul_weight": 3.0,
+                "map_weight": 20.0,
+            }
             config.save_to_json(config_file)
 
             # 验证配置文件存在

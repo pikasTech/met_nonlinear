@@ -206,8 +206,18 @@ def FR_for_comp_real_data(
             freq_range_hz = freq_config_manager.get_freq_range_hz(config, default_range)
         else:
             freq_range_hz = default_range
+        default_center_frequency_bounds_hz = (10, 128)
+        if config is not None:
+            center_frequency_bounds_hz = freq_config_manager.get_freq_range_hz(
+                config, default_center_frequency_bounds_hz)
+        else:
+            center_frequency_bounds_hz = default_center_frequency_bounds_hz
         system_fit_origin = exam_process.ws_system_fit(
-            system_origin, k=1.0, freq_range=freq_range_hz)
+            system_origin,
+            k=1.0,
+            freq_range=freq_range_hz,
+            center_frequency_bounds_hz=center_frequency_bounds_hz,
+        )
         # a tuple for (A, B, C)
         system_fit_params_origin = list(system_fit_origin.fit_params)
         # 使用配置的频率范围或默认值
@@ -217,7 +227,12 @@ def FR_for_comp_real_data(
         else:
             freq_range_hz_comped = default_range_comped
         system_fit_comped = exam_process.ws_system_fit(
-            system_comped, k=1.0, freq_range=freq_range_hz_comped, direct_guess=False)
+            system_comped,
+            k=1.0,
+            freq_range=freq_range_hz_comped,
+            direct_guess=False,
+            center_frequency_bounds_hz=center_frequency_bounds_hz,
+        )
         system_fit_params_comped = list(system_fit_comped.fit_params)
         system_fit_params_list_origin.append(system_fit_params_origin)
         system_fit_params_list_comped.append(system_fit_params_comped)
@@ -247,7 +262,7 @@ def FR_for_comp_real_data(
 
         # Save the data to a JSON file
         output_path = os.path.join(output_folder, 'linear_response.json')
-        with open(output_path, 'w') as json_file:
+        with open(output_path, 'w', encoding='utf-8') as json_file:
             json.dump(linear_response_data, json_file)
 
         linearity_by_frequency = _compute_linearity_by_frequency(

@@ -26,13 +26,14 @@
         "platform": "stm32f405",
         "unit": "add_equivalent",
         "add_weight": 1.0,
-        "mul_weight": 1.0,
-        "map_weight": 6.0,
-        "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+        "mul_weight": 3.0,
+        "map_weight": 20.0,
+        "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
         "source_notes": [
             "STM32F405 uses an ARM Cortex-M4F core.",
-            "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-            "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+            "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+            "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+            "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
         ]
     },
     "estimated_cost": {
@@ -40,25 +41,26 @@
         "unit": "add_equivalent",
         "weights": {
             "additions": 1.0,
-            "multiplications": 1.0,
-            "maps": 6.0
+            "multiplications": 3.0,
+            "maps": 20.0
         },
         "weighted_units": {
             "additions": 856.0,
-            "multiplications": 856.0,
-            "maps": 168.0,
-            "total": 1880.0
+            "multiplications": 2568.0,
+            "maps": 560.0,
+            "total": 3984.0
         },
         "weighted_share_pct": {
-            "additions": 45.53191489361702,
-            "multiplications": 45.53191489361702,
-            "maps": 8.936170212765957
+            "additions": 21.485943775100402,
+            "multiplications": 64.4578313253012,
+            "maps": 14.056224899598394
         },
-        "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+        "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
         "source_notes": [
             "STM32F405 uses an ARM Cortex-M4F core.",
-            "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-            "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+            "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+            "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+            "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
         ]
     },
     "estimate_status": "complete",
@@ -105,8 +107,8 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
@@ -119,11 +121,12 @@
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -168,25 +171,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 80.0,
-                    "multiplications": 80.0,
+                    "multiplications": 240.0,
                     "maps": 0.0,
-                    "total": 160.0
+                    "total": 320.0
                 },
                 "weighted_share_pct": {
-                    "additions": 50.0,
-                    "multiplications": 50.0,
+                    "additions": 25.0,
+                    "multiplications": 75.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -223,25 +227,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
                     "multiplications": 0.0,
-                    "maps": 24.0,
-                    "total": 24.0
+                    "maps": 80.0,
+                    "total": 80.0
                 },
                 "weighted_share_pct": {
                     "additions": 0.0,
                     "multiplications": 0.0,
                     "maps": 100.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -277,8 +282,8 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
@@ -291,11 +296,12 @@
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -340,25 +346,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 640.0,
-                    "multiplications": 640.0,
+                    "multiplications": 1920.0,
                     "maps": 0.0,
-                    "total": 1280.0
+                    "total": 2560.0
                 },
                 "weighted_share_pct": {
-                    "additions": 50.0,
-                    "multiplications": 50.0,
+                    "additions": 25.0,
+                    "multiplications": 75.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -395,25 +402,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
                     "multiplications": 0.0,
-                    "maps": 48.0,
-                    "total": 48.0
+                    "maps": 160.0,
+                    "total": 160.0
                 },
                 "weighted_share_pct": {
                     "additions": 0.0,
                     "multiplications": 0.0,
                     "maps": 100.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -449,8 +457,8 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
@@ -463,11 +471,12 @@
                     "multiplications": 0.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -512,25 +521,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 64.0,
-                    "multiplications": 64.0,
+                    "multiplications": 192.0,
                     "maps": 0.0,
-                    "total": 128.0
+                    "total": 256.0
                 },
                 "weighted_share_pct": {
-                    "additions": 50.0,
-                    "multiplications": 50.0,
+                    "additions": 25.0,
+                    "multiplications": 75.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -567,25 +577,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
                     "multiplications": 0.0,
-                    "maps": 48.0,
-                    "total": 48.0
+                    "maps": 160.0,
+                    "total": 160.0
                 },
                 "weighted_share_pct": {
                     "additions": 0.0,
                     "multiplications": 0.0,
                     "maps": 100.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -630,25 +641,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 64.0,
-                    "multiplications": 64.0,
+                    "multiplications": 192.0,
                     "maps": 0.0,
-                    "total": 128.0
+                    "total": 256.0
                 },
                 "weighted_share_pct": {
-                    "additions": 50.0,
-                    "multiplications": 50.0,
+                    "additions": 25.0,
+                    "multiplications": 75.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -685,25 +697,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 0.0,
                     "multiplications": 0.0,
-                    "maps": 48.0,
-                    "total": 48.0
+                    "maps": 160.0,
+                    "total": 160.0
                 },
                 "weighted_share_pct": {
                     "additions": 0.0,
                     "multiplications": 0.0,
                     "maps": 100.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         },
@@ -748,25 +761,26 @@
                 "unit": "add_equivalent",
                 "weights": {
                     "additions": 1.0,
-                    "multiplications": 1.0,
-                    "maps": 6.0
+                    "multiplications": 3.0,
+                    "maps": 20.0
                 },
                 "weighted_units": {
                     "additions": 8.0,
-                    "multiplications": 8.0,
+                    "multiplications": 24.0,
                     "maps": 0.0,
-                    "total": 16.0
+                    "total": 32.0
                 },
                 "weighted_share_pct": {
-                    "additions": 50.0,
-                    "multiplications": 50.0,
+                    "additions": 25.0,
+                    "multiplications": 75.0,
                     "maps": 0.0
                 },
-                "basis": "Estimated for STM32F405 (Cortex-M4F). Integer/fused pipeline add and multiply are treated as roughly single-issue baseline operations; MAP is treated as a heavier activation/LUT-style operation that typically includes indexing, memory access, and nonlinear evaluation overhead, so it is assigned 6 add-equivalent units by default.",
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
                 "source_notes": [
                     "STM32F405 uses an ARM Cortex-M4F core.",
-                    "Cortex-M4 integer ADD/MUL are commonly treated as near single-cycle baseline operations for rough estimation.",
-                    "Activation/MAP cost varies strongly with implementation; default MAP weight is a conservative heuristic and should be overridden with measured firmware data when available."
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
                 ]
             }
         }

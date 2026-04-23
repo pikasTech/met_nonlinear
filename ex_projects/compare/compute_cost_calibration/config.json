@@ -1,0 +1,64 @@
+{
+  "task_info": {
+    "task_type": "compare",
+    "task_name": "compute_cost_calibration",
+    "analysis_type": "compute-cost-calibration",
+    "description": "基于 STM32F405 真机时延对静态 Compute Cost 的 add:multiply:MAP 权重进行整定",
+    "version": "1.0"
+  },
+  "search": {
+    "default_mul_weight": 1.0,
+    "default_map_weight": 6.0,
+    "regularization_lambda": 0.02,
+    "adopt_round_to": 1.0,
+    "mul_weight": {
+      "mode": "logspace",
+      "start": 1.0,
+      "stop": 2048.0,
+      "steps": 61
+    },
+    "map_weight": {
+      "mode": "logspace",
+      "start": 1.0,
+      "stop": 8192.0,
+      "steps": 61
+    }
+  },
+  "pairs": [
+    {
+      "label": "Wiener-KAN",
+      "project_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4"
+    },
+    {
+      "label": "GRU",
+      "project_path": "projects/01_LR_STUDY/GRNu16_e1k_puremae",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae"
+    },
+    {
+      "label": "LSTM",
+      "project_path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8"
+    },
+    {
+      "label": "LSTMTransformer",
+      "project_path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae"
+    },
+    {
+      "label": "1DCNN",
+      "project_path": "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true"
+    },
+    {
+      "label": "RNN",
+      "project_path": "projects/07_RNN/RNNu16_e1k_puremae_r15",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15"
+    },
+    {
+      "label": "TCN",
+      "project_path": "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3",
+      "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3"
+    }
+  ]
+}

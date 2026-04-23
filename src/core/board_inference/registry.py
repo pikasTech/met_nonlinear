@@ -33,6 +33,8 @@ def detect_model_type(model_project_name: str,
             return 'frikan'
         if use_model == 'LSTM':
             return 'lstm'
+        if use_model == 'RNN':
+            return 'rnn'
         if use_model == 'LSTMTRANSFORMER':
             return 'lstm_transformer'
         if use_model in {'GRN', 'GRU'}:
@@ -58,6 +60,8 @@ def detect_model_type(model_project_name: str,
         return 'grn'
     if any('dense_kan' in name for name in weight_names) and any('simple_rnn' in name for name in weight_names):
         return 'frikan'
+    if any('simple_rnn' in name for name in weight_names):
+        return 'rnn'
     if any(re.fullmatch(r'conv_\d+/kernel:0', name) for name in weight_names):
         return 'onedcnn'
     if any(re.fullmatch(r'temporal_block_\d+_conv_1/kernel:0', name) for name in weight_names):

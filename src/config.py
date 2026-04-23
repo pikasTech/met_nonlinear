@@ -134,8 +134,8 @@ class Config:
             'platform': 'stm32f405',
             'unit': 'add_equivalent',
             'add_weight': 1.0,
-            'mul_weight': 1.0,
-            'map_weight': 6.0,
+            'mul_weight': 3.0,
+            'map_weight': 20.0,
         }
         self.board_inference_ep_path = None
 

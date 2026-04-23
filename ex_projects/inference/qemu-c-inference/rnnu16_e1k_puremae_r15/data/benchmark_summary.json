@@ -1,0 +1,271 @@
+{
+  "task_type": "qemu-c-inference",
+  "model_type": "rnn",
+  "model_project_name": "projects/07_RNN/RNNu16_e1k_puremae_r15",
+  "weights_json_path": "projects/07_RNN/RNNu16_e1k_puremae_r15/data/best_val.weights.json",
+  "loaded_weights_path": "projects/07_RNN/RNNu16_e1k_puremae_r15/data/best_val.weights.h5",
+  "generated_project_dir": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/qemu_project",
+  "keil_project_dir": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/keil_project",
+  "benchmark_config": {
+    "iterations": 10,
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "validation": {
+    "dataset": {
+      "dataset_type": "MET",
+      "full_data_path": "D:\\BaiduSyncdisk\\data/M50",
+      "sample_rate": 2000.0
+    },
+    "selection": {
+      "start_time_s": 0.0,
+      "end_time_s": 0.2,
+      "sample_count": 400
+    },
+    "record_count": 1,
+    "seq_len": 400
+  },
+  "qemu_config": {
+    "action": "build-run",
+    "machine": "olimex-stm32-h405",
+    "timeout": 5
+  },
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/target_output.wave",
+    "c_output_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_output.wave",
+    "tf_input_scaled_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_input_scaled.wave",
+    "tf_lstm_hidden_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_lstm_hidden.wave",
+    "tf_dense_output_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_dense_output.wave",
+    "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/tf_output_scaled.wave",
+    "c_dense_output_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_dense_output.wave",
+    "c_input_scaled_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_input_scaled.wave",
+    "c_output_scaled_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_output_scaled.wave",
+    "c_rnn_hidden_wave": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/waves/c_rnn_hidden.wave"
+  },
+  "build": {
+    "action": "build",
+    "exit_code": 0,
+    "project": {
+      "project_dir": "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project",
+      "output_elf": "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\main.elf",
+      "linker_script": "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\stm32f405.ld",
+      "source_files": [
+        "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\main.c",
+        "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\startup.c"
+      ]
+    },
+    "build": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "",
+      "elapsed_seconds": 0.4651855000000005,
+      "timed_out": false
+    }
+  },
+  "runs": [
+    {
+      "run_index": 0,
+      "workflow": {
+        "action": "run",
+        "exit_code": 0,
+        "project": {
+          "project_dir": "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project",
+          "output_elf": "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\main.elf",
+          "linker_script": "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\stm32f405.ld",
+          "source_files": [
+            "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\main.c",
+            "ex_projects\\inference\\qemu-c-inference\\rnnu16_e1k_puremae_r15\\qemu_project\\startup.c"
+          ]
+        },
+        "run": {
+          "exit_code": 0,
+          "stdout": "RNN_BENCHMARK_VALIDATION\niterations=10\nrecord_count=1\nseq_len=400\ninput_dim=1\nrnn_units=16\ndense_units=16\ndwt_supported=0\ntimer_source=host_elapsed\noutput=0.004519\nbenchmark_complete=1\n",
+          "stderr": "",
+          "elapsed_seconds": 0.7043489999999988,
+          "timed_out": false
+        }
+      },
+      "parsed_output": {
+        "iterations": 10,
+        "record_count": 1,
+        "seq_len": 400,
+        "input_dim": 1,
+        "rnn_units": 16,
+        "dense_units": 16,
+        "dwt_supported": 0,
+        "timer_source": "host_elapsed",
+        "output": 0.004519,
+        "benchmark_complete": 1,
+        "measurement_unit": "seconds",
+        "measurement_total": 0.7043489999999988,
+        "measurement_per_iter": 0.07043489999999988
+      }
+    }
+  ],
+  "aggregated": {
+    "run_count": 1,
+    "avg_host_elapsed_seconds": 0.7043489999999988,
+    "avg_measurement_per_iter": 0.07043489999999988,
+    "measurement_sources": [
+      "host_elapsed"
+    ]
+  },
+  "validation_run": {
+    "workflow": {
+      "exit_code": 0,
+      "timed_out": false,
+      "elapsed_seconds": 1.2843181000000001
+    },
+    "parsed_output": {
+      "iterations": 10,
+      "record_count": 1,
+      "seq_len": 400,
+      "input_dim": 1,
+      "rnn_units": 16,
+      "dense_units": 16,
+      "dwt_supported": 0,
+      "timer_source": "host_elapsed",
+      "output": 0.004519,
+      "benchmark_complete": 1,
+      "measurement_unit": "seconds",
+      "measurement_total": 1.2843181000000001,
+      "measurement_per_iter": 0.12843181
+    },
+    "comparison": {
+      "record_count": 1,
+      "sample_count": 400,
+      "mae": 0.08739156808402271,
+      "mse": 0.007867469451092762,
+      "max_abs_error": 0.17841785950469968,
+      "c_output_stats": {
+        "min": -1.221163,
+        "max": 0.800098,
+        "mean": 0.026398080000000004,
+        "energy": 6.695994426645999
+      },
+      "tf_output_stats": {
+        "min": -1.1955926418304443,
+        "max": 0.6216801404953003,
+        "mean": -0.060338132823817434,
+        "energy": 6.648493758554695
+      },
+      "diff_stats": {
+        "min": -0.033188424022078514,
+        "max": 0.17841785950469968,
+        "mean": 0.08673621282381744,
+        "energy": 3.146987780437105
+      }
+    },
+    "intermediate_comparison": {
+      "dense_output": {
+        "record_count": 1,
+        "sample_count": 6400,
+        "channel_count": 16,
+        "mae": 0.005113402475039151,
+        "mse": 4.3111795641206444e-05,
+        "max_abs_error": 0.018659752964019782,
+        "c_output_stats": {
+          "min": -0.251416,
+          "max": 0.254491,
+          "mean": -0.03493798890625,
+          "energy": 135.17421791297699
+        },
+        "tf_output_stats": {
+          "min": -0.25030556321144104,
+          "max": 0.23685070872306824,
+          "mean": -0.03442321719983738,
+          "energy": 125.08398499261989
+        },
+        "diff_stats": {
+          "min": -0.006359155923843396,
+          "max": 0.018659752964019782,
+          "mean": -0.0005147717064126185,
+          "energy": 0.27591549210372124
+        }
+      },
+      "input_scaled": {
+        "record_count": 1,
+        "sample_count": 400,
+        "channel_count": 1,
+        "mae": 5.120575300417391e-07,
+        "mse": 3.4539828722157364e-13,
+        "max_abs_error": 9.996619789330126e-07,
+        "c_output_stats": {
+          "min": -0.000428,
+          "max": 0.000224,
+          "mean": -9.630000000000001e-06,
+          "energy": 8.32063e-06
+        },
+        "tf_output_stats": {
+          "min": -0.0004282975008554402,
+          "max": 0.00022443246211575497,
+          "mean": -9.583125584671644e-06,
+          "energy": 8.364811365606144e-06
+        },
+        "diff_stats": {
+          "min": -9.996619789330126e-07,
+          "max": 9.988473557851136e-07,
+          "mean": -4.6874415328355316e-08,
+          "energy": 1.3815931488862945e-10
+        }
+      },
+      "output_scaled": {
+        "record_count": 1,
+        "sample_count": 400,
+        "channel_count": 1,
+        "mae": 0.0016367823146625606,
+        "mse": 2.759818422334052e-06,
+        "max_abs_error": 0.003342008404374123,
+        "c_output_stats": {
+          "min": -0.022878,
+          "max": 0.014989,
+          "mean": 0.0004940974999999999,
+          "energy": 0.002349905541
+        },
+        "tf_output_stats": {
+          "min": -0.022399071604013443,
+          "max": 0.011646991595625877,
+          "mean": -0.0011304169183131308,
+          "energy": 0.002333548498003054
+        },
+        "diff_stats": {
+          "min": -0.0006209840450584888,
+          "max": 0.003342008404374123,
+          "mean": 0.0016245144183131305,
+          "energy": 0.0011039273689336208
+        }
+      }
+    }
+  },
+  "plot_paths": {
+    "comparison_plot_0": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/plots/mag0_24_freq10_comparison.png"
+  },
+  "comparison": {
+    "record_count": 1,
+    "sample_count": 400,
+    "mae": 0.08739156808402271,
+    "mse": 0.007867469451092762,
+    "max_abs_error": 0.17841785950469968,
+    "c_output_stats": {
+      "min": -1.221163,
+      "max": 0.800098,
+      "mean": 0.026398080000000004,
+      "energy": 6.695994426645999
+    },
+    "tf_output_stats": {
+      "min": -1.1955926418304443,
+      "max": 0.6216801404953003,
+      "mean": -0.060338132823817434,
+      "energy": 6.648493758554695
+    },
+    "diff_stats": {
+      "min": -0.033188424022078514,
+      "max": 0.17841785950469968,
+      "mean": 0.08673621282381744,
+      "energy": 3.146987780437105
+    }
+  },
+  "comparison_path": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15/data/validation_comparison.json"
+}

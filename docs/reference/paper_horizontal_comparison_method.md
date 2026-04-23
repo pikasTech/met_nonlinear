@@ -37,11 +37,23 @@
 | LSTMTransformer | `projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae` | LSTM 主干 + 注意力 + FFN | `MAE` | `1e-2` | 是 |
 | LSTM | `projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8` | 标准 LSTM + Dense | `MAE` | `7e-4` | 是 |
 | GRN (GRU) | `projects/01_LR_STUDY/GRNu16_e1k_puremae` | GRU 主干 + Dense | `MAE` | `7e-4` | 是 |
-| 1DCNN | `projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true` | 卷积时序基线 | `MAE` | `1.8e-3` | 当前这个 project 否 |
+| 1DCNN | `projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true` | 卷积时序基线 | `MAE` | `1.8e-3` | 是 |
 | TCN | `projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3` | 时序卷积基线 | `MAE` | `2e-3` | 是 |
-| RNN | `projects/07_RNN/RNNu16_e1k_puremae_r15` | SimpleRNN + Dense | `MAE` | `1.5e-3` | 否 |
+| RNN | `projects/07_RNN/RNNu16_e1k_puremae_r15` | SimpleRNN + Dense | `MAE` | `1.5e-3` | 是 |
 
 从论文叙述上，这一组实验可概括为“覆盖物理先验型模型、循环时序模型、注意力增强循环模型与卷积时序模型的跨家族横向比较”。
+
+当前这 7 个 canonical projects 都已经具备合法的 `board_inference_ep_path`，因此主横评表现在可以附带 `KEIL-MAE` 与 `KEIL-FPS (Points/s)` 两列，作为 deployment-aware 的辅助比较；更细的 Flash / RAM 和串口 validation 细节仍留到部署子章节展开。
+
+### 正式主图组织建议
+
+当前主横评最稳定的图组组织方式，不是把所有模型都堆进同一张物理轨迹图，而是按“物理轨迹突出主方法、其余模型用摘要图比较”的结构展开：
+
+1. 物理漂移轨迹主图建议只保留 `Origin` 与 `Wiener-KAN`，用于直接展示未补偿响应与主方法校准后的物理轨迹差异，避免多模型叠线稀释主结论。
+2. 主横评摘要图建议同时包含四个子图：物理指标相对 `Origin` 的抑制率柱状图、`Compute Cost` vs. 板端速度散点图、六指标雷达图，以及主横评收敛曲线。
+3. 当前六指标雷达图的稳定指标集合为：`Freq Drift`、`Sens Drift`、`Linearity`、`Compute Cost`、`KEIL-FPS`、`KEIL RAM`；其中前五项来自统一 summary，`KEIL RAM` 来自部署侧稳定产物。
+4. 主横评收敛曲线应直接嵌入主横评摘要图，并使用线性坐标；不要再把“收敛曲线”单独拆成独立子章节。
+5. 板端速度的人类可读展示单位统一使用 `Points/s`；若底层产物仍保留 `ms/point`，应只把它作为推导和排障用原始量。
 
 ### 共享控制变量
 
@@ -88,7 +100,7 @@
 4. 使用 `python cli.py -e PROJECT_NAME` 刷新评估产物；
 5. 通过 `python cli.py --metrics PROJECT_NAME` 或自动刷新链，生成 `metrics.json`；
 6. 论文主横评表统一从 `metrics.json` 读取物理指标与复杂度指标；
-7. 若某 project 配置了 `board_inference_ep_path`，则其部署指标在部署子章节中单独展开，而不直接与所有横评对象混排。
+7. 若 project 已完成 `board_inference_ep_path` 对应的 QEMU / Keil 产物并刷新 `metrics.json`，则主横评表可附带 `KEIL-MAE` 与 `KEIL-FPS (Points/s)` 作为辅助列；Flash / RAM 与更细的部署一致性细节仍在部署子章节单独展开。
 
 与代码的对应关系为：
 
@@ -156,11 +168,11 @@ $$
 \mathbf{M}(p),\,
 E_{\mathrm{QEMU}}(p),\,
 E_{\mathrm{KEIL}}(p),\,
-S_{\mathrm{KEIL}}(p)
+F_{\mathrm{KEIL}}(p)
 \right]^{\top}
 $$
 
-其中 $E_{\mathrm{QEMU}}$、$E_{\mathrm{KEIL}}$ 与 $S_{\mathrm{KEIL}}$ 分别对应 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-SPEED`。
+其中 $E_{\mathrm{QEMU}}$、$E_{\mathrm{KEIL}}$ 与 $F_{\mathrm{KEIL}}$ 分别对应 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-FPS (Points/s)`。若需要回看低层时序定义，再回到部署产物中的 `ms/point` 原始量。
 
 ### 当前代码没有单一加权总分
 
@@ -180,19 +192,18 @@ $$
 - `Sens Drift (%)`
 - `Linearity (%)`
 - `Compute Cost`
-- `Total Params`
+- `KEIL-MAE`
+- `KEIL-FPS (Points/s)`
 
 建议保留为辅助复现实验设置的字段包括：
 
+- `Total Params`
 - `Loss Function`
 - `Epochs`
 - `LR`
-
-若某些模型具备合法部署产物，则部署子章节可额外使用：
-
 - `QEMU-MAE`
-- `KEIL-MAE`
-- `KEIL-SPEED`
+
+如果正文主图采用六指标雷达，则应额外补读部署产物中的 `KEIL RAM`，并与上述五项共同构成图级比较向量。
 
 ## 写作边界
 
@@ -202,7 +213,7 @@ $$
 - 正式主表只读取 `metrics.json`，不直接引用训练日志或临时截图；
 - 不把当前 canonical project comparison 夸大成严格等损失、等学习率、等超参的单因子结构对照；
 - 不在未声明的情况下，把精度横评用的 `1DCNN` project 偷换成另一个部署用 `1DCNN` project；
-- 不把 `RNN` 之类尚无 native board-inference 路径的模型强行写进正式部署表；
+- 不把尚未完成 QEMU / Keil 产物刷新、或 `metrics.json` 仍缺少部署字段的模型强行写进带部署列的正式表；
 - 当 `metrics.json.status = partial` 时，不回退到旧表格或手工数字。
 
 ## 相关文档

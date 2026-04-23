@@ -46,5 +46,6 @@
         "rnn_dropout": 0.0,
         "recurrent_dropout": 0.0,
         "output_activation": null
-    }
+    },
+    "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15"
 }

@@ -1,0 +1,14 @@
+{
+  "execution_time": "2026-04-23T21:35:52.707089",
+  "task_info": {
+    "task_type": "compare",
+    "task_name": "wiener_parallel_modeling",
+    "analysis_type": "wiener-parallel-modeling",
+    "description": "Reproduce the parallel Wiener equivalent model for magnitude-dependent MET frequency-response drift",
+    "version": "1.0"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\compare\\wiener_parallel_modeling\\data"
+  ],
+  "config_hash": "2ba1f6781d46e6d710a3ccbfe9e0443c"
+}

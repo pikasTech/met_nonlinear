@@ -44,7 +44,7 @@
 |------|------|
 | `src/core/board_inference/entrypoints.py` | 对外暴露稳定入口，供 `external_cli_handler` / CLI 主流程调用 |
 | `src/core/board_inference/registry.py` | 根据 project `config.json` 与权重命名识别模型类型，判断是否已有 native 实现 |
-| `src/core/board_inference/models/sequence.py` | `lstm`、`grn`、`lstm_transformer`、`onedcnn`、`tcn`、`wavenet2`、`wavenet3` 的原生实现 |
+| `src/core/board_inference/models/sequence.py` | `lstm`、`rnn`、`grn`、`lstm_transformer`、`onedcnn`、`tcn`、`wavenet2`、`wavenet3` 的原生实现 |
 | `src/core/board_inference/models/frikan.py` | `frikan` 的原生实现 |
 | `src/core/board_inference/platforms/benchmark_common.py` | QEMU / Keil 共享的工程生成、构建、串口抓取、summary 写回与比较辅助逻辑 |
 | `src/core/board_inference/templates/` | 稳定 C/H 模板目录；固定 scaffold 应放这里，而不是继续塞在 Python 长字符串里 |

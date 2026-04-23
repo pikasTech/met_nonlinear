@@ -1,0 +1,27 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "使用 MET 数据集子集执行 Wiener-KAN 非 LUT 版的 C/TF26 波形一致性验证"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/keil_benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/keil_validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/qemu_project",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/keil_project",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/keil_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_iir_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_0.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_1.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_2.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_3.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_4.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_5.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut/data/waves/tf_kan_layer_6.wave"
+  ],
+  "action": "keil-bench"
+}

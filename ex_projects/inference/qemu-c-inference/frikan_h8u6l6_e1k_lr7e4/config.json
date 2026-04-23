@@ -62,6 +62,13 @@
     "job_timeout": 300,
     "success_markers": [
       "validation_complete=1"
-    ]
+    ],
+    "optimization_profiles": [
+      "project_default",
+      "o0",
+      "o2",
+      "ofast_lto"
+    ],
+    "published_optimization_profile": "project_default"
   }
 }

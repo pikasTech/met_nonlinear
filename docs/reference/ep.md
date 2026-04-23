@@ -20,6 +20,7 @@ python cli.py ep "LSTMu32al_rs300/freq-response-compensator/test"
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 python cli.py ep "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_1"
 python cli.py ep "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_nosym"
+python cli.py ep "ex_projects/compare/wiener_parallel_modeling"
 python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_base"
 ```
 
@@ -98,7 +99,7 @@ python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_bas
 
 ### qemu-c-inference 类任务
 
-`qemu-c-inference` 用于把已训练项目的 `best_val.weights.json` 转成裸机 C 语言 QEMU 工程，并基于配置的数据集子集执行 C/TF26 双路径一致性验证。当前生产实现已收敛到 `src/core/board_inference/`，自动识别模型类型并支持 `lstm`、`grn`、`lstm_transformer`、`frikan`、`onedcnn`、`tcn`、`wavenet2`、`wavenet3`。模块分工、模板约束和新旧架构一致性验收口径，详见 [边缘设备推理仿真](edge_device_emulation.md)。
+`qemu-c-inference` 用于把已训练项目的 `best_val.weights.json` 转成裸机 C 语言 QEMU 工程，并基于配置的数据集子集执行 C/TF26 双路径一致性验证。当前生产实现已收敛到 `src/core/board_inference/`，自动识别模型类型并支持 `lstm`、`rnn`、`grn`、`lstm_transformer`、`frikan`、`onedcnn`、`tcn`、`wavenet2`、`wavenet3`。模块分工、模板约束和新旧架构一致性验收口径，详见 [边缘设备推理仿真](edge_device_emulation.md)。
 
 示例：
 
@@ -192,28 +193,38 @@ python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/lstm_u16_bas
 当前仓库内可直接复用的 `qemu-c-inference` 对比样例包括：
 
 - `lstm_u16_base`：LSTM 基线。
+- `rnnu16_e1k_puremae_r15`：RNN / SimpleRNN 基线。
 - `grnu16_e1k_puremae`：GRN 基线。
 - `lstm_transformeru6_e1k_1` / `lstm_transformeru6_e1k_puremae`：LSTMTransformer 样例。
 - `frikan_h8u6l6_nosym_interp`：FRIKAN 插值版，适合低误差对齐。
 - `frikan_h8u6l6_nosym`：FRIKAN 非插值版，适合性能优先验证。
 - `onedcnn_c4u8k20l8_e1k_lr18e3_pd8l8_true`：1DCNN 样例。
+- `onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true`：当前主横评使用的 canonical 1DCNN 样例。
 - `tcnc4d1248k3_nopd_true_e1k_lr2e3`：TCN 样例。
 
 跨模型比较时，不要把历史报告中的一次性 benchmark 数字当作长期事实；统一口径应继续读取当前 EP 的 summary 产物或项目级 `metrics.json`，具体字段见 [metrics.md](metrics.md) 与 [边缘设备推理仿真](edge_device_emulation.md)。
 
 ### compare 类任务
 
-compare 类任务用于系统性对比分析，支持多种消融实验：
+compare 类任务用于系统性对比分析，但长期上需要区分两类：
+
+1. **项目横评型 compare**：读取多个训练 project 的 `metrics.json`，生成统一横向比较结果；
+2. **等效建模型 compare**：直接读取任务目录内的 reference 数据，输出独立建模报告与摘要，而不回写训练 project 的 `metrics.json`。
+
+当前仓库内的代表任务包括：
 
 - `compare/mae_vs_afmae` - MAE 与 AFMAE 损失函数消融对比
+- `ex_projects/compare/wiener_parallel_modeling` - 电化学检波器大信号幅频耦合的并联 Wiener 等效建模复现
 
 长期约束：
 
-- compare 任务应优先复用已有 `metrics.json`，而不是在 EP 层重新实现指标计算。
+- 对项目横评型 compare 任务，应优先复用已有 `metrics.json`，而不是在 EP 层重新实现指标计算。
+- 对等效建模型 compare 任务，应把输入数据、摘要 JSON 和图像全部落在任务目录内，保持其与训练 project 的 `metrics.json` 链解耦。
 - 做损失函数消融时，应固定数据与结构，只改变 loss 相关变量。
 - `mae_vs_afmae` 的具体配置驱动模式与结果口径，详见 [mae_vs_afmae.md](mae_vs_afmae.md)。
 - 若 compare 配置打开 `metrics.board_inference.enabled=true`，则报告可额外展示 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED (ms/point)`；这些列仍然只从各项目的 `metrics.json` 读取，不直接扫描 EP 目录。
 - 对未挂载 `board_inference_ep_path` 的项目，compare 综合表应将板端列展示为 `-`，而不是把“未参与板端横评”误报成 compare 失败。
+- `wiener_parallel_modeling` 的具体建模结构、配置字段与验收口径，详见 [parallel_wiener_modeling.md](parallel_wiener_modeling.md)。
 
 ## 配置文件与输出目录
 

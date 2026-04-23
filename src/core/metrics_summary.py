@@ -9,7 +9,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import numpy as np
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ = 10.0
+DEFAULT_FREQ_DRIFT_INBAND_MAX_HZ = 128.0
 DEFAULT_LINEARITY_INBAND_MAX_HZ = 128.0
 
 
@@ -80,6 +84,59 @@ def _extract_board_inference_point_count(keil_summary: Dict[str, Any]) -> Option
     return record_count * seq_len
 
 
+def _speed_points_per_second(speed_ms_per_point: Optional[float]) -> Optional[float]:
+    if speed_ms_per_point is None:
+        return None
+    if speed_ms_per_point <= 0.0:
+        return None
+    return 1000.0 / speed_ms_per_point
+
+
+def _extract_board_inference_optimization_profiles(keil_summary: Dict[str, Any]) -> List[Dict[str, Any]]:
+    profiles = keil_summary.get('optimization_profiles')
+    if not isinstance(profiles, list):
+        return []
+
+    extracted: List[Dict[str, Any]] = []
+    published_key = str(keil_summary.get('published_optimization_profile', '') or '').strip()
+    default_point_count = _extract_board_inference_point_count(keil_summary)
+
+    for item in profiles:
+        if not isinstance(item, dict):
+            continue
+        speed_ms_per_point = _to_float(item.get('keil_speed_ms_per_point'))
+        if speed_ms_per_point is None:
+            parsed_output = item.get('parsed_output') or {}
+            wall_time_per_iter_ms = _to_float(parsed_output.get('wall_time_per_iter_ms'))
+            point_count = _to_int(item.get('validation_point_count'))
+            if point_count is None or point_count <= 0:
+                point_count = default_point_count
+            if (
+                wall_time_per_iter_ms is not None
+                and point_count is not None
+                and point_count > 0
+            ):
+                speed_ms_per_point = wall_time_per_iter_ms / float(point_count)
+
+        extracted.append({
+            'key': str(item.get('key', '')),
+            'label': str(item.get('label', item.get('key', ''))),
+            'status': str(item.get('status', '')),
+            'published': bool(item.get('published', False)) or str(item.get('key', '')) == published_key,
+            'keil_speed_ms_per_point': speed_ms_per_point,
+            'keil_speed_points_per_second': (
+                _to_float(item.get('keil_speed_points_per_second'))
+                or _speed_points_per_second(speed_ms_per_point)
+            ),
+            'keil_mae': _to_float((item.get('comparison') or {}).get('mae')),
+            'flash_bytes': _to_int(item.get('flash_bytes')),
+            'ram_bytes': _to_int(item.get('ram_bytes')),
+            'comparison_path': item.get('comparison_path'),
+            'build_output_path': item.get('build_output_path'),
+        })
+    return extracted
+
+
 def _load_board_inference_metrics(config: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     metrics: Dict[str, Any] = {
         'configured': False,
@@ -95,6 +152,10 @@ def _load_board_inference_metrics(config: Optional[Dict[str, Any]]) -> Dict[str,
         'keil_point_count_per_iter': None,
         'keil_speed_ms_per_point': None,
         'keil_speed_unit': 'ms/point',
+        'keil_speed_points_per_second': None,
+        'keil_speed_display_unit': 'points/s',
+        'published_optimization_profile': None,
+        'keil_optimization_profiles': [],
         'missing_sources': [],
         'missing_sections': [],
     }
@@ -138,6 +199,11 @@ def _load_board_inference_metrics(config: Optional[Dict[str, Any]]) -> Dict[str,
         if metrics['keil_mae'] is None:
             metrics['missing_sections'].append('board_inference.keil.comparison.mae')
 
+        metrics['published_optimization_profile'] = (
+            str(keil_summary.get('published_optimization_profile', '')).strip() or None
+        )
+        metrics['keil_optimization_profiles'] = _extract_board_inference_optimization_profiles(keil_summary)
+
         metrics['keil_wall_time_per_iter_ms'] = _to_float(
             (keil_summary.get('parsed_output') or {}).get('wall_time_per_iter_ms')
         )
@@ -155,6 +221,9 @@ def _load_board_inference_metrics(config: Optional[Dict[str, Any]]) -> Dict[str,
         ):
             metrics['keil_speed_ms_per_point'] = (
                 metrics['keil_wall_time_per_iter_ms'] / metrics['keil_point_count_per_iter']
+            )
+            metrics['keil_speed_points_per_second'] = _speed_points_per_second(
+                metrics['keil_speed_ms_per_point']
             )
 
     return metrics
@@ -224,23 +293,116 @@ def _interpolate_value(x_values: List[float], y_values: List[float], target_x: f
     return y_values[-1]
 
 
-def _extract_natural_frequency_values(
+def _build_frequency_gain_pairs(
     linear_response: Optional[Dict[str, Any]],
     use_origin: bool,
+    max_frequency_hz: Optional[float],
+) -> List[tuple[List[float], List[float]]]:
+    if not linear_response:
+        return []
+
+    frequencies_raw = linear_response.get('frequencies') or []
+    gain_key = 'gains_origin' if use_origin else 'gains_comped'
+    gains_raw = linear_response.get(gain_key) or linear_response.get('gains_compensated') or []
+
+    frequencies = [_to_float(freq) for freq in frequencies_raw]
+    if any(freq is None for freq in frequencies):
+        return []
+
+    selected_indices: List[int] = []
+    selected_frequencies: List[float] = []
+    for index, frequency_hz in enumerate(frequencies):
+        if frequency_hz is None:
+            continue
+        if max_frequency_hz is not None and frequency_hz > max_frequency_hz:
+            continue
+        if selected_frequencies and math.isclose(selected_frequencies[-1], frequency_hz):
+            continue
+        selected_indices.append(index)
+        selected_frequencies.append(frequency_hz)
+
+    if len(selected_frequencies) < 2:
+        return []
+
+    pairs: List[tuple[List[float], List[float]]] = []
+    for gain_curve in gains_raw:
+        if not isinstance(gain_curve, list):
+            continue
+        gain_values = [_to_float(value) for value in gain_curve]
+        if any(value is None for value in gain_values):
+            continue
+        if len(gain_values) != len(frequencies):
+            continue
+        pairs.append((
+            selected_frequencies,
+            [gain_values[index] for index in selected_indices],
+        ))
+    return pairs
+
+
+def _extract_fit_center_frequency_hz(
+    fit_params: Any,
+    min_frequency_hz: Optional[float] = DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ,
+    max_frequency_hz: Optional[float] = DEFAULT_FREQ_DRIFT_INBAND_MAX_HZ,
+) -> Optional[float]:
+    if not isinstance(fit_params, list) or len(fit_params) < 2:
+        return None
+
+    b_value = _to_float(fit_params[1])
+    if b_value is None or b_value <= 0.0:
+        return None
+
+    center_frequency_hz = math.sqrt(b_value) / (2.0 * math.pi)
+    if min_frequency_hz is not None:
+        center_frequency_hz = max(float(min_frequency_hz), center_frequency_hz)
+    if max_frequency_hz is not None:
+        center_frequency_hz = min(float(max_frequency_hz), center_frequency_hz)
+    return center_frequency_hz
+
+
+def _extract_inband_frequency_points(
+    linear_response: Optional[Dict[str, Any]],
+    min_frequency_hz: Optional[float],
+    max_frequency_hz: Optional[float],
 ) -> List[float]:
     if not linear_response:
         return []
 
-    fit_params_key = 'fit_params_origin' if use_origin else 'fit_params_comped'
-    fit_params = linear_response.get(fit_params_key) or []
+    points: List[float] = []
+    for frequency_raw in linear_response.get('frequencies') or []:
+        frequency_hz = _to_float(frequency_raw)
+        if frequency_hz is None:
+            continue
+        if min_frequency_hz is not None and frequency_hz < min_frequency_hz:
+            continue
+        if max_frequency_hz is not None and frequency_hz > max_frequency_hz:
+            continue
+        if points and math.isclose(points[-1], frequency_hz):
+            continue
+        points.append(frequency_hz)
+    return points
+
+
+def _extract_natural_frequency_values(
+    linear_response: Optional[Dict[str, Any]],
+    use_origin: bool,
+    min_frequency_hz: Optional[float] = DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ,
+    max_frequency_hz: Optional[float] = DEFAULT_FREQ_DRIFT_INBAND_MAX_HZ,
+) -> List[float]:
     values: List[float] = []
-    for params in fit_params:
-        if not isinstance(params, list) or len(params) < 3:
+    if not linear_response:
+        return values
+
+    fit_key = 'fit_params_origin' if use_origin else 'fit_params_comped'
+    for fit_params in linear_response.get(fit_key) or []:
+        center_frequency_hz = _extract_fit_center_frequency_hz(
+            fit_params,
+            min_frequency_hz=min_frequency_hz,
+            max_frequency_hz=max_frequency_hz,
+        )
+        if center_frequency_hz is None:
             continue
-        b_value = _to_float(params[1])
-        if b_value is None or b_value <= 0:
-            continue
-        values.append(math.sqrt(b_value) / (2.0 * math.pi))
+        values.append(center_frequency_hz)
     return values
 
 
@@ -341,17 +503,47 @@ def _build_metric_details(
     linear_response: Optional[Dict[str, Any]],
     linearity_by_frequency: Optional[Dict[str, Any]],
     sensitivity_frequency_hz: float = 100.0,
+    natural_frequency_band_min_hz: float = DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ,
+    natural_frequency_band_max_hz: float = DEFAULT_FREQ_DRIFT_INBAND_MAX_HZ,
     linearity_band_max_hz: float = DEFAULT_LINEARITY_INBAND_MAX_HZ,
 ) -> Dict[str, Optional[Dict[str, Any]]]:
+    natural_frequency_source_points = _extract_inband_frequency_points(
+        linear_response,
+        min_frequency_hz=natural_frequency_band_min_hz,
+        max_frequency_hz=natural_frequency_band_max_hz,
+    )
+
     natural_frequency_drift = _build_distribution_metric(
-        _extract_natural_frequency_values(linear_response, use_origin=False),
+        _extract_natural_frequency_values(
+            linear_response,
+            use_origin=False,
+            min_frequency_hz=natural_frequency_band_min_hz,
+            max_frequency_hz=natural_frequency_band_max_hz,
+        ),
         unit='Hz',
-        method='max(|max-median|, |median-min|) from fn_comped',
+        method='max(|max-median|, |median-min|) from band-limited fitted center frequency (comped)',
+        extra={
+            'band_min_hz': natural_frequency_band_min_hz,
+            'band_max_hz': natural_frequency_band_max_hz,
+            'source_frequency_points_hz': natural_frequency_source_points,
+            'fit_param_key': 'fit_params_comped',
+        },
     )
     natural_frequency_drift_origin = _build_distribution_metric(
-        _extract_natural_frequency_values(linear_response, use_origin=True),
+        _extract_natural_frequency_values(
+            linear_response,
+            use_origin=True,
+            min_frequency_hz=natural_frequency_band_min_hz,
+            max_frequency_hz=natural_frequency_band_max_hz,
+        ),
         unit='Hz',
-        method='max(|max-median|, |median-min|) from fn_origin',
+        method='max(|max-median|, |median-min|) from band-limited fitted center frequency (origin)',
+        extra={
+            'band_min_hz': natural_frequency_band_min_hz,
+            'band_max_hz': natural_frequency_band_max_hz,
+            'source_frequency_points_hz': natural_frequency_source_points,
+            'fit_param_key': 'fit_params_origin',
+        },
     )
     sensitivity_drift = _build_distribution_metric(
         _extract_sensitivity_values(linear_response, use_origin=False, frequency_hz=sensitivity_frequency_hz),
@@ -514,6 +706,8 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
     metric_details = _build_metric_details(
         linear_response,
         linearity_by_frequency,
+        natural_frequency_band_min_hz=DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ,
+        natural_frequency_band_max_hz=DEFAULT_FREQ_DRIFT_INBAND_MAX_HZ,
         linearity_band_max_hz=DEFAULT_LINEARITY_INBAND_MAX_HZ,
     )
     if linear_response is not None:
@@ -572,7 +766,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'project_name': project_name,
         'generated_at': datetime.now().astimezone().isoformat(),
         'status': 'complete',
-        'calculation_standard': 'ablation-study-v2-inband-linearity',
+        'calculation_standard': 'ablation-study-v4-bounded-fit-freq-inband-linearity',
         'sources': {
             'training_info': training_info is not None,
             'compute_analysis': compute_analysis is not None,
@@ -597,6 +791,12 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'val_afmae': _to_float(evaluation_metrics.get('val_afmae')),
         'weights_source': evaluation_metrics.get('weights_source'),
         'freq_drift_hz': (metric_details['natural_frequency_drift'] or {}).get('drift'),
+        'freq_drift_band_min_hz': (metric_details['natural_frequency_drift'] or {}).get('band_min_hz'),
+        'freq_drift_band_max_hz': (metric_details['natural_frequency_drift'] or {}).get('band_max_hz'),
+        'freq_drift_source_frequency_points_hz': (
+            (metric_details['natural_frequency_drift'] or {}).get('source_frequency_points_hz')
+        ),
+        'freq_drift_interpolation_points': None,
         'sens_drift_percent': (metric_details['sensitivity_drift'] or {}).get('drift'),
         'linearity_percent': (metric_details['linearity'] or {}).get('mean'),
         'linearity_band_max_hz': (metric_details['linearity'] or {}).get('band_max_hz'),
@@ -614,6 +814,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'board_qemu_mae': board_inference_metrics['qemu_mae'],
         'board_keil_mae': board_inference_metrics['keil_mae'],
         'board_keil_speed': board_inference_metrics['keil_speed_ms_per_point'],
+        'board_keil_fps': board_inference_metrics['keil_speed_points_per_second'],
         'board_inference': {
             **board_inference_metrics,
         },
@@ -636,6 +837,7 @@ def build_project_metrics_summary(checkpoint_dir: str, project_name: Optional[st
         'QEMU-MAE': summary['board_qemu_mae'],
         'KEIL-MAE': summary['board_keil_mae'],
         'KEIL-SPEED': summary['board_keil_speed'],
+        'KEIL-FPS': summary['board_keil_fps'],
     }
 
     if missing_sources or missing_sections:

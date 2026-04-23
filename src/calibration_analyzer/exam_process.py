@@ -247,7 +247,8 @@ def system_fit_with_gain_phase(
         k=0.9,
         freq_range=(5, 200),
         initial_guess=[200, 500, 0.1, 0],
-        calculate_number_for_result: callable = None
+        calculate_number_for_result: callable = None,
+        project_params: callable = None,
 ) -> System:
     """ 
     对高频截止频率附近的传递函数进行拟合 
@@ -285,8 +286,17 @@ def system_fit_with_gain_phase(
     # 计算权重，假设权重与频率点之间的距离成反比
     weights = 1 / freq_diffs
 
+    def normalize_params(params):
+        normalized = np.array(params, dtype=float)
+        if project_params is not None:
+            normalized = np.array(project_params(normalized), dtype=float)
+        return normalized
+
+    initial_guess = normalize_params(initial_guess)
+
     # 损失函数，用于优化
     def loss(params, k=k, weidgets=weights, use_weights=True):
+        params = normalize_params(params)
         predicted_gain = calculate_gain(
             params, freq_filtered)
         predicted_phase = calculate_phase(
@@ -318,7 +328,7 @@ def system_fit_with_gain_phase(
     result = minimize(loss, initial_guess, method='Nelder-Mead')
 
     # 最优参数
-    params = result.x
+    params = normalize_params(result.x)
     # A_opt, omega_n_opt, zeta_opt, group_delay_opt = params
     # debug_print('A_opt: ', A_opt)
     # debug_print('omega_n_opt: ', omega_n_opt)
@@ -458,7 +468,8 @@ def ws_system_fit(
         k=0.9,
         freq_range=(5, 200),
         initial_guess=None,
-        direct_guess=False
+        direct_guess=False,
+        center_frequency_bounds_hz=None,
 ) -> System:
     """
     对 ws 进行拟合
@@ -480,10 +491,29 @@ def ws_system_fit(
         C = 2 * zeta * w_n
         initial_guess = [A, B, C]
         if direct_guess:
+            if center_frequency_bounds_hz is not None:
+                min_hz, max_hz = center_frequency_bounds_hz
+                if min_hz is not None:
+                    B = max(B, (2 * np.pi * float(min_hz)) ** 2)
+                if max_hz is not None:
+                    B = min(B, (2 * np.pi * float(max_hz)) ** 2)
+                initial_guess = [A, B, C]
             s = System.s
             ws = System.fromSymbol(A * s * (1 / (s**2 + C * s + B)))
             ws.fit_params = initial_guess
             return ws
+
+    def project_ws_params(params):
+        projected = np.array(params, dtype=float)
+        if center_frequency_bounds_hz is not None and len(projected) >= 2:
+            min_hz, max_hz = center_frequency_bounds_hz
+            min_b = (2 * np.pi * float(min_hz)) ** 2 if min_hz is not None else None
+            max_b = (2 * np.pi * float(max_hz)) ** 2 if max_hz is not None else None
+            if min_b is not None:
+                projected[1] = max(min_b, projected[1])
+            if max_b is not None:
+                projected[1] = min(max_b, projected[1])
+        return projected
 
     ws = system_fit_with_gain_phase(
         ws_calculate_gain,
@@ -493,7 +523,8 @@ def ws_system_fit(
         k=k,
         freq_range=freq_range,
         initial_guess=initial_guess,
-        calculate_number_for_result=ws_calculate_number_for_result
+        calculate_number_for_result=ws_calculate_number_for_result,
+        project_params=project_ws_params,
     )
     params = ws.fit_params
     s = System.s

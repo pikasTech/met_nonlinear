@@ -17,6 +17,8 @@
 
 因此，当前部署评估的目标不是只证明模型“能跑起来”，而是系统回答：该模型是否可部署、是否数值可信、部署代价有多大，以及这些代价来自哪里。
 
+在当前论文整合稿中，部署子章节的推荐标题统一写为 `On board 推理性能评估`，以强调这部分讨论的是板端真实推理表现，而不是泛化的 host 侧 benchmark。
+
 ## 实验设计
 
 ### 设计原则
@@ -54,6 +56,7 @@
 
 - `frikan`
 - `lstm`
+- `rnn`
 - `grn`
 - `lstm_transformer`
 - `onedcnn`
@@ -61,7 +64,7 @@
 - `wavenet2`
 - `wavenet3`
 
-因此，`RNN` 当前仍应保留在精度横评部分，而不应写成正式部署对象。
+因此，`RNN` 在 native exporter 打通并完成 QEMU / Keil 产物刷新后，已经可以进入正式部署对象集合；是否进入正文部署子表，仍取决于其 `board_inference_ep_path`、部署 summary 与 `metrics.json` 是否已经完整落盘。
 
 ### 稳定产物与自动汇总边界
 
@@ -78,8 +81,34 @@
 
 这里必须写清一个边界：
 
-- `metrics.json` 目前只自动汇总 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-SPEED`；
+- `metrics.json` 当前会同时保留低层时延字段 `KEIL-SPEED (ms/point)` 与人类可读速度字段 `KEIL-FPS (Points/s)`；
+- `metrics.json.board_inference.keil_optimization_profiles` 与 `published_optimization_profile` 会保留当前 Keil 多优化档 benchmark 的聚合结果；
 - Flash / RAM、`cycles_per_iter` 与更细的 validation 对比细节，仍保留在部署侧产物中，论文部署子章节需要单独读取。
+
+### Keil 多优化档 benchmark
+
+当前 `python cli.py ep keil-bench ...` 的稳定工作流，已经支持在一次板端评测中自动测量多个编译优化档。长期上推荐保留以下三档：
+
+1. `-O0`
+2. `-O2`
+3. `-Ofast + Link-Time-Optimization`
+
+执行与写作时需要守住四个规则：
+
+1. 多优化档 benchmark 以 profile 列表串行执行 build / program / capture / validation，而不是手工分三次跑临时命令。
+2. 任一 profile 失败时，整轮 benchmark 不应直接中止；失败 profile 应被显式记录为 `build_failed`、`program_failed` 或 `capture_failed`，并继续保留其它 profile 的成功结果。
+3. `published_optimization_profile` 用来指定哪一档结果回写为训练 project 的默认 `KEIL-MAE` / `KEIL-FPS`；其它 profile 作为附加比较结果保存在部署产物中。
+4. 论文图表中的优化档对比应直接读取部署 summary 中的 profile 聚合结果，不要手工抄串口或 build 日志。
+
+### 同一模型的导出实现变体
+
+对于同一个训练 project，当前部署评估允许创建多个 `qemu-c-inference` EP，只改变导出实现方式，而不改变训练权重。长期上最稳定的三类实现变体是：
+
+1. `use_lut=true` 且 `lut_interpolation=false`：LUT 最近邻近似；
+2. `use_lut=true` 且 `lut_interpolation=true`：LUT + 一阶线性插值；
+3. `use_lut=false`：非 LUT 的精确运行时求值路径。
+
+这三种变体必须共用同一个 `model_project_name`、同一份 `weights_file` 与同一段 validation 选窗。论文中若要比较 LUT 与非 LUT 的工程取舍，应固定训练模型，仅从 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED` 以及 Flash / RAM 角度比较实现差异，而不要把实现差异和训练差异混为一谈。
 
 ## 实验流程
 
@@ -88,17 +117,19 @@
 1. 在训练 project 的 `config.json` 中配置合法的 `board_inference_ep_path`；
 2. 先完成训练 project 的标准训练与离线评估，确保权重、`compute_analysis.json` 与 `metrics.json` 可用；
 3. 调用 `python cli.py ep "ex_projects/inference/qemu-c-inference/TASK_NAME"` 运行 QEMU 侧 benchmark 与 validation；
-4. 调用 `python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/TASK_NAME"` 运行真机构建、烧录、串口抓取与 validation；
+4. 调用 `python cli.py ep keil-bench "ex_projects/inference/qemu-c-inference/TASK_NAME"` 运行真机构建、烧录、串口抓取与 validation；若配置了多优化档 profile，则该步骤会自动完成整轮 profile sweep；
 5. 从 QEMU / Keil 产物中提取聚合对比指标、编译资源与时序数据；
-6. 通过 `python cli.py --metrics PROJECT_NAME` 或自动刷新链，将 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-SPEED` 回写到训练 project 的 `metrics.json`；
-7. 论文部署主表从 `metrics.json` 读取统一字段，资源占用与 cycle 指标则从部署侧产物补充读取。
+6. 通过 `python cli.py --metrics PROJECT_NAME` 或自动刷新链，将 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED` 与 `KEIL-FPS` 回写到训练 project 的 `metrics.json`；
+7. 论文部署主表优先从 `metrics.json` 读取 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-FPS (Points/s)`，资源占用、cycle 指标和优化档对比则从部署侧产物补充读取。
 
 与代码的对应关系为：
 
 1. `ProjectManager.evaluate()` 或 `python cli.py -m PROJECT_NAME` 会生成 `compute_analysis.json`；
 2. `metrics_summary.py` 根据训练 project 的 `board_inference_ep_path` 读取 `benchmark_summary.json` 与 `keil_benchmark_summary.json`；
-3. `metrics_summary.py` 将 `comparison.mae` 与单位点时延汇总为 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-SPEED`；
+3. `metrics_summary.py` 将 `comparison.mae`、单位点时延与换算后的 `Points/s` 统一汇总为 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED` 与 `KEIL-FPS`；
 4. 资源占用与更细的串口解析数据保留在部署 EP 自身目录中，不自动回写为所有训练项目的内置字段。
+
+在部署横评里，如果发现某个模型的静态 `Compute Cost` 与 `KEIL-SPEED` 趋势明显错位，当前应先回到第 2 步和第 6 步之间做一次一致性核对：确认训练 project 的 `compute_analysis.json.platform_cost_model` 已经落盘为当前 adopted model，并且 `metrics.json` 已由最新产物重算刷新。只有在这条数据链确认无误后，才继续怀疑层级公式漏算或部署实现差异。
 
 ## 必要公式与实现口径
 
@@ -121,9 +152,9 @@ $$
 - $N_{\mathrm{add}}$：单样本、单时间步下的加法计数；
 - $N_{\mathrm{mul}}$：单样本、单时间步下的乘法计数；
 - $N_{\mathrm{map}}$：单样本、单时间步下的非线性映射次数；
-- $(w_{\mathrm{add}}, w_{\mathrm{mul}}, w_{\mathrm{map}}) = (1, 1, 6)$ 为当前默认平台成本模型。
+- $(w_{\mathrm{add}}, w_{\mathrm{mul}}, w_{\mathrm{map}}) = (1, 3, 20)$ 为当前默认平台成本模型。
 
-因此，论文中应把 `Compute Cost` 表述为“单样本、单时间步语义操作加权估算”，而不是完整序列的端到端实测延迟。
+其中 `1:3:20` 来自 `compare/compute_cost_calibration` 对 STM32F405 板端时延的反标结果。论文中应把 `Compute Cost` 表述为“单样本、单时间步语义操作加权估算”，而不是完整序列的端到端实测延迟。
 
 ### QEMU 数值一致性
 
@@ -185,7 +216,7 @@ $$
 
 ### 板端时序指标
 
-当前 `metrics.json` 中的 `KEIL-SPEED` 定义为单位点 wall-clock 时延：
+当前底层 benchmark 仍先计算单位点 wall-clock 时延：
 
 $$
 S_{\mathrm{KEIL}}
@@ -209,6 +240,16 @@ $$
 {\mathrm{record\_count} \cdot \mathrm{seq\_len}}
 $$
 
+论文正文与图表中的人类可读速度则统一换算为：
+
+$$
+\mathrm{KEIL\text{-}FPS\ (Points/s)}
+=
+\frac{1000}{\mathrm{KEIL\text{-}SPEED\ (ms/point)}}
+$$
+
+也就是说，`metrics.json` 同时保留原始 `ms/point` 与展示用 `Points/s` 两种口径；论文主表、部署图和雷达图统一优先使用 `Points/s`。
+
 `cycles_per_iter` 则是板端 DWT cycle counter 视角下的补充指标，适合同平台横向比较，但不应与 `ms/point` 或 QEMU host 侧时间混写为同一单位。
 
 ## 正式表格字段建议
@@ -218,14 +259,16 @@ $$
 - `Compute Cost`
 - `QEMU-MAE`
 - `KEIL-MAE`
-- `KEIL-SPEED`
+- `KEIL-FPS (Points/s)`
 - Flash / ROM
 - RAM
 
 建议保留为同平台补充分析字段的包括：
 
+- `KEIL-SPEED (ms/point)`
 - `cycles_per_iter`
 - `cycles_per_point`
+- 多优化档 `keil_optimization_profiles`
 - 更细粒度的 `validation_comparison` 图表或逐记录误差
 
 ## 写作边界
@@ -235,8 +278,11 @@ $$
 - 静态复杂度、动态一致性、资源占用与板端时序必须分维度表述；
 - 不把 `Compute Cost` 写成完整序列的实测延迟；
 - 不把 QEMU host 侧耗时、Keil cycles 和 Keil wall-clock 混写为同一种“速度”；
+- 论文主速度数字统一使用 `Points/s`，`ms/point` 只作为推导和排障用原始量；
 - 主速度数字应来自 benchmark 主路径，而不是带有额外串口与 validation 开销的调试路径；
 - 不为没有合法 `board_inference_ep_path` 的 project 虚构部署字段；
+- 不在未核对 adopted cost model 是否真正落盘到 project 产物的情况下，直接把静态/动态趋势差异解释为模型结构公式错误；
+- 多优化档 sweep 中失败的 profile 必须显式展示为失败，而不是悄悄从图表里删除；
 - 当部署产物缺失时，应明确标成“当前未完成部署评估”或“当前平台部署失败”，而不是默默补旧值。
 
 ## 相关文档
@@ -246,3 +292,5 @@ $$
 - [metrics.md](metrics.md)
 - [ep.md](ep.md)
 - [keil_stm32f405_programming.md](keil_stm32f405_programming.md)
+- [paper_compute_cost_calibration_method.md](paper_compute_cost_calibration_method.md)
+- [paper_lut_interpolation_evaluation_method.md](paper_lut_interpolation_evaluation_method.md)

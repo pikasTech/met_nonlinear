@@ -1,0 +1,31 @@
+{
+  "measurement_source": "manual_pyocd_program_plus_serial_capture",
+  "profile": "project_default",
+  "capture_text_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/manual_pyocd_project_default_serial_20260423.txt",
+  "capture_jsonl_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/manual_pyocd_project_default_serial_20260423.jsonl",
+  "selected_benchmark_block": {
+    "selection_rule": "latest complete FRIKAN_BENCHMARK_VALIDATION block after manual pyocd programming",
+    "block_index": 2,
+    "start_timestamp": "2026-04-23T17:10:26.937+0800",
+    "measurement_timestamp": "2026-04-23T17:10:26.967+0800",
+    "validation_complete_timestamp": "2026-04-23T17:10:27.657+0800"
+  },
+  "raw_metrics": {
+    "iterations": 10,
+    "seq_len": 400,
+    "point_count": 4000,
+    "measurement_total_cycles": 10580772,
+    "measurement_per_iter_cycles": 1058077,
+    "wall_time_total_ms": 661.299,
+    "wall_time_per_iter_ms": 66.129,
+    "output": -0.004541
+  },
+  "derived_metrics": {
+    "keil_speed_points_per_second": 6048.701117043879,
+    "keil_speed_ms_per_point": 0.16532475
+  },
+  "notes": [
+    "The session contains an earlier benchmark block during programming; this summary keeps the latest complete block after the final reset/go.",
+    "Automatic cli.py ep keil-bench remained flaky on the programming step, so the validated on-board number comes from manual pyocd programming plus serial capture."
+  ]
+}

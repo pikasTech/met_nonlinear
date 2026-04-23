@@ -1450,11 +1450,14 @@ class TestQemuCInferenceSchema:
                 "capture_timeout": 20,
                 "job_timeout": 300,
                 "success_markers": ["validation_complete=1"],
+                "optimization_profiles": ["project_default", "o0", "o2", "ofast_lto"],
+                "published_optimization_profile": "project_default",
             },
         }
 
         result = validator.validate_config_data(config, "qemu-c-inference")
         assert result["keil_config"]["serial_port"] == "COM8"
+        assert result["keil_config"]["published_optimization_profile"] == "project_default"
 
     def test_qemu_c_inference_rejects_unknown_keil_field(self, validator):
         config = {

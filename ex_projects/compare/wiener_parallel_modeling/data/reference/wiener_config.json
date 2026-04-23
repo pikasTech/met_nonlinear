@@ -1,0 +1,41 @@
+{
+  "amplitudes": [0.24, 0.48, 0.72, 0.96, 1.2, 1.44, 1.68, 1.92, 2.16, 2.4, 2.64, 2.88, 3.12, 3.36, 3.5999999999999996, 3.84, 4.08, 4.32, 4.56, 4.8, 5.04, 5.28, 5.52, 5.76, 6.0],
+  "amplitudes_from_preprocessed": false,
+  "time_length": 2.5,
+  "fs": 2000,
+  "f_range": [5, 200],
+  "points": 100,
+  "branch_indices": [0, 24, -1],
+  "fh_branch_names": ["fgm0d12", "fgm3d0", "fgm6d0"],
+  "magnitude_scale": 1.2,
+  "nonlinear_scale": 1.0,
+  "fh_n_k": 9,
+  "center_freq_interp_factor": 50,
+  "analysis_target_freq": 100.0,
+  "target_metrics_path": "data/measured_targets.json",
+  "fh_kx": [1.0, 1.2, 1.4, 1.6, 1.8, 2.0],
+  "fh_ky0": [1, 1, 1, 1, 1, 1],
+  "fh_ky1": [0, 0, 0, 0, 0, 0],
+  "fh_mode": "proportional",
+  "fgm0d12": {
+    "c": 0,
+    "w": 0.5,
+    "x_btn": 0.125,
+    "top_k": 1.0,
+    "enabled": true
+  },
+  "fgm3d0": {
+    "c": 0.85,
+    "w": 0.75,
+    "x_top": null,
+    "top_k": 1.0,
+    "enabled": true
+  },
+  "fgm6d0": {
+    "c": 0.9,
+    "w": 1.0,
+    "x_top": 1.2,
+    "top_k": 1.0,
+    "enabled": true
+  }
+}

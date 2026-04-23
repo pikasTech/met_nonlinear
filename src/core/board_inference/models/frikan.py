@@ -12,7 +12,7 @@ import logging
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 import numpy as np
 
@@ -67,6 +67,7 @@ class FrikanModelSpec:
     kan_layers: List[FrikanKanLayerSpec]
     iir_filters: List[FrikanIirSpec]
     output_units: int
+    use_lut: bool
     lut_points: int
     lut_interpolation: bool
     use_symmetry: bool
@@ -171,6 +172,7 @@ def _run_frikan_reference_from_spec(model_spec: FrikanModelSpec,
 def _load_frikan_model_spec(model_project_name: str,
                             model_dir: Path,
                             weights_json_path: Path,
+                            use_lut: bool,
                             lut_points: int,
                             lut_interpolation: bool) -> FrikanModelSpec:
     with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
@@ -302,6 +304,7 @@ def _load_frikan_model_spec(model_project_name: str,
         kan_layers=dense_kan_layers,
         iir_filters=iir_filters,
         output_units=1,
+        use_lut=use_lut,
         lut_points=lut_points,
         lut_interpolation=lut_interpolation,
         use_symmetry=use_symmetry,
@@ -509,14 +512,58 @@ def _render_frikan_model_data_header(model_spec: FrikanModelSpec,
     validation_input = [record.input_sequence for record in validation_artifacts.records]
     max_layer_inputs = max(layer.input_dim for layer in model_spec.kan_layers)
     max_layer_outputs = max(layer.output_dim for layer in model_spec.kan_layers)
+    max_grid_intervals = max(
+        layer.grid_size + (2 * layer.spline_order)
+        for layer in model_spec.kan_layers
+    )
+    max_spline_kernel_size = max(
+        layer.grid_size + layer.spline_order
+        for layer in model_spec.kan_layers
+    )
     padded_bias = [
         _pad_float_vector(layer.bias, max_layer_outputs, 0.0)
         for layer in model_spec.kan_layers
     ]
-    padded_luts = [
-        _pad_frikan_lut_layer(layer.lut_values, max_layer_inputs, max_layer_outputs, model_spec.lut_points)
-        for layer in model_spec.kan_layers
-    ]
+    if model_spec.use_lut:
+        layer_data_arrays = '\n\n'.join([
+            _render_frikan_lut_layer_array_declaration(
+                layer_index,
+                layer,
+                model_spec.lut_points,
+            )
+            for layer_index, layer in enumerate(model_spec.kan_layers)
+        ])
+    else:
+        padded_scale_factors = [
+            _pad_frikan_exact_scale_factor_layer(
+                layer.scale_factor,
+                max_layer_inputs,
+                max_layer_outputs,
+            )
+            for layer in model_spec.kan_layers
+        ]
+        padded_kernels = [
+            _pad_frikan_exact_kernel_layer(
+                layer,
+                max_layer_inputs,
+                max_layer_outputs,
+                max_spline_kernel_size,
+            )
+            for layer in model_spec.kan_layers
+        ]
+        layer_data_arrays = '\n\n'.join([
+            'static const port_float '
+            'frikan_layer_scale_factor[FRIKAN_KAN_LAYER_COUNT][FRIKAN_MAX_LAYER_INPUTS]'
+            '[FRIKAN_MAX_LAYER_OUTPUTS] = '
+            + _render_initializer(padded_scale_factors)
+            + ';',
+            'static const port_float '
+            'frikan_layer_spline_kernel[FRIKAN_KAN_LAYER_COUNT][FRIKAN_MAX_LAYER_INPUTS]'
+            '[FRIKAN_MAX_LAYER_OUTPUTS][FRIKAN_MAX_SPLINE_KERNELS] = '
+            + _render_initializer(padded_kernels)
+            + ';',
+        ])
+
     return render_template(
         'models/frikan_model_data_template.h',
         {
@@ -525,6 +572,9 @@ def _render_frikan_model_data_header(model_spec: FrikanModelSpec,
             'FRIKAN_KAN_LAYER_COUNT': len(model_spec.kan_layers),
             'FRIKAN_MAX_LAYER_INPUTS': max_layer_inputs,
             'FRIKAN_MAX_LAYER_OUTPUTS': max_layer_outputs,
+            'FRIKAN_MAX_GRID_INTERVALS': max_grid_intervals,
+            'FRIKAN_MAX_SPLINE_KERNELS': max_spline_kernel_size,
+            'FRIKAN_USE_LUT': 1 if model_spec.use_lut else 0,
             'FRIKAN_LUT_POINTS': model_spec.lut_points,
             'FRIKAN_LUT_INTERPOLATION': 1 if model_spec.lut_interpolation else 0,
             'FRIKAN_USE_SYMMETRY': 1 if model_spec.use_symmetry else 0,
@@ -546,7 +596,7 @@ def _render_frikan_model_data_header(model_spec: FrikanModelSpec,
             'FRIKAN_IIR_A1_INITIALIZER': _render_initializer([item.a1 for item in model_spec.iir_filters]),
             'FRIKAN_IIR_A2_INITIALIZER': _render_initializer([item.a2 for item in model_spec.iir_filters]),
             'FRIKAN_LAYER_BIAS_INITIALIZER': _render_initializer(padded_bias),
-            'FRIKAN_LAYER_LUT_INITIALIZER': _render_initializer(padded_luts),
+            'FRIKAN_LAYER_DATA_ARRAYS': layer_data_arrays,
         },
     )
 
@@ -565,16 +615,87 @@ def _pad_frikan_lut_layer(lut_values: Sequence[Sequence[Sequence[float]]],
                           lut_points: int) -> List[List[List[float]]]:
     padded_inputs: List[List[List[float]]] = []
     for input_index in range(max_inputs):
-        padded_outputs: List[List[float]] = []
         if input_index < len(lut_values):
             layer_input = lut_values[input_index]
         else:
             layer_input = []
+        padded_outputs = [
+            _pad_float_vector(layer_input[output_index], lut_points, 0.0)
+            if output_index < len(layer_input)
+            else [0.0] * lut_points
+            for output_index in range(max_outputs)
+        ]
+        transposed_rows: List[List[float]] = []
+        for lut_point_index in range(lut_points):
+            transposed_rows.append([
+                padded_outputs[output_index][lut_point_index]
+                for output_index in range(max_outputs)
+            ])
+        padded_inputs.append(transposed_rows)
+    return padded_inputs
+
+
+def _render_frikan_lut_layer_array_declaration(layer_index: int,
+                                               layer_spec: FrikanKanLayerSpec,
+                                               lut_points: int) -> str:
+    layer_values = _pad_frikan_lut_layer(
+        layer_spec.lut_values,
+        layer_spec.input_dim,
+        layer_spec.output_dim,
+        lut_points,
+    )
+    return (
+        'static const port_float '
+        f'frikan_layer_lut_{layer_index}[{layer_spec.input_dim}u]'
+        f'[FRIKAN_LUT_POINTS][{layer_spec.output_dim}u] = '
+        + _render_initializer(layer_values)
+        + ';'
+    )
+
+
+def _processed_exact_spline_kernel(layer_spec: FrikanKanLayerSpec,
+                                   input_index: int,
+                                   output_index: int) -> List[float]:
+    kernel = np.asarray(layer_spec.spline_kernel[input_index], dtype=np.float64)[:, output_index]
+    if layer_spec.use_symmetry and layer_spec.only_positive:
+        kernel = np.abs(kernel)
+    return kernel.astype(np.float64).tolist()
+
+
+def _pad_frikan_exact_kernel_layer(layer_spec: FrikanKanLayerSpec,
+                                   max_inputs: int,
+                                   max_outputs: int,
+                                   max_kernel_size: int) -> List[List[List[float]]]:
+    padded_inputs: List[List[List[float]]] = []
+    for input_index in range(max_inputs):
+        padded_outputs: List[List[float]] = []
         for output_index in range(max_outputs):
-            if output_index < len(layer_input):
-                padded_outputs.append(_pad_float_vector(layer_input[output_index], lut_points, 0.0))
+            if input_index < layer_spec.input_dim and output_index < layer_spec.output_dim:
+                padded_outputs.append(
+                    _pad_float_vector(
+                        _processed_exact_spline_kernel(layer_spec, input_index, output_index),
+                        max_kernel_size,
+                        0.0,
+                    )
+                )
             else:
-                padded_outputs.append([0.0] * lut_points)
+                padded_outputs.append([0.0] * max_kernel_size)
+        padded_inputs.append(padded_outputs)
+    return padded_inputs
+
+
+def _pad_frikan_exact_scale_factor_layer(scale_factor: Sequence[Sequence[float]],
+                                         max_inputs: int,
+                                         max_outputs: int) -> List[List[float]]:
+    padded_inputs: List[List[float]] = []
+    for input_index in range(max_inputs):
+        padded_outputs: List[float] = []
+        layer_row = scale_factor[input_index] if input_index < len(scale_factor) else []
+        for output_index in range(max_outputs):
+            if output_index < len(layer_row):
+                padded_outputs.append(float(layer_row[output_index]))
+            else:
+                padded_outputs.append(0.0)
         padded_inputs.append(padded_outputs)
     return padded_inputs
 
@@ -582,101 +703,585 @@ def _render_uint_initializer(values: Sequence[int], suffix: str = 'u') -> str:
     return '{ ' + ', '.join(f'{int(value)}{suffix}' for value in values) + ' }'
 
 
+def _render_frikan_unrolled_output_statements(output_dim: int,
+                                              statement_builder: Callable[[int], str]) -> List[str]:
+    return [statement_builder(output_index) for output_index in range(output_dim)]
+
+
+def _render_frikan_lut_direct_accumulate_lines(output_dim: int,
+                                               *,
+                                               apply_sign: bool) -> List[str]:
+    value_prefix = 'output_sign * ' if apply_sign else ''
+    return _render_frikan_unrolled_output_statements(
+        output_dim,
+        lambda output_index: (
+            f'            outputs[{output_index}u] += {value_prefix}row[{output_index}u];'
+        ),
+    )
+
+
+def _render_frikan_lut_interp_accumulate_lines(output_dim: int,
+                                               *,
+                                               apply_sign: bool) -> List[str]:
+    lines: List[str] = []
+    for output_index in range(output_dim):
+        lower_name = f'lower_value_{output_index}'
+        lines.append(f'            port_float {lower_name} = row[{output_index}u];')
+        interpolated_expr = (
+            f'{lower_name} + (row_next[{output_index}u] - {lower_name}) * frac'
+        )
+        if apply_sign:
+            interpolated_expr = f'output_sign * ({interpolated_expr})'
+        lines.append(f'            outputs[{output_index}u] += {interpolated_expr};')
+    return lines
+
+
+def _render_frikan_lut_scalar_direct_accumulate_lines(output_names: Sequence[str],
+                                                      *,
+                                                      row_name: str,
+                                                      apply_sign: bool,
+                                                      indent: str) -> List[str]:
+    value_prefix = 'output_sign * ' if apply_sign else ''
+    return [
+        f'{indent}{output_name} += {value_prefix}{row_name}[{output_index}u];'
+        for output_index, output_name in enumerate(output_names)
+    ]
+
+
+def _render_frikan_lut_scalar_interp_accumulate_lines(output_names: Sequence[str],
+                                                      *,
+                                                      row_name: str,
+                                                      row_next_name: str,
+                                                      frac_name: str,
+                                                      apply_sign: bool,
+                                                      indent: str) -> List[str]:
+    lines: List[str] = []
+    for output_index, output_name in enumerate(output_names):
+        lower_name = f'lower_value_{output_index}'
+        lines.append(f'{indent}port_float {lower_name} = {row_name}[{output_index}u];')
+        interpolated_expr = (
+            f'{lower_name} + ({row_next_name}[{output_index}u] - {lower_name}) * {frac_name}'
+        )
+        if apply_sign:
+            interpolated_expr = f'output_sign * ({interpolated_expr})'
+        lines.append(f'{indent}{output_name} += {interpolated_expr};')
+    return lines
+
+
+def _render_frikan_lut_benchmark_edge_block(layer_index: int,
+                                            layer_spec: FrikanKanLayerSpec,
+                                            input_index: int,
+                                            output_names: Sequence[str],
+                                            model_spec: FrikanModelSpec) -> List[str]:
+    lut_array_name = f'frikan_layer_lut_{layer_index}'
+    apply_sign = bool(model_spec.use_symmetry and not model_spec.use_even)
+    valid_condition = (
+        'mapped_index <= FRIKAN_LUT_LAST_INDEX_FLOAT'
+        if model_spec.use_symmetry and abs(layer_spec.lut_support_min) <= 1e-12
+        else '((mapped_index >= 0.0f) && (mapped_index <= FRIKAN_LUT_LAST_INDEX_FLOAT))'
+    )
+    lines = [
+        '        {',
+        f'            port_float raw_value = current_values[{input_index}u];',
+        '            port_float lookup_value = FRIKAN_LUT_PREPARE_VALUE(raw_value);',
+        '            port_float mapped_index = FRIKAN_LUT_MAP_INDEX(',
+        '                lookup_value,',
+        f'                FRIKAN_LUT_SCALE_LAYER_{layer_index},',
+        f'                FRIKAN_LUT_OFFSET_LAYER_{layer_index}',
+        '            );',
+        f'            if ({valid_condition}) {{',
+    ]
+    if apply_sign:
+        lines.append('                port_float output_sign = raw_value < 0.0f ? -1.0f : 1.0f;')
+
+    if model_spec.lut_interpolation:
+        lines.extend([
+            '                uint32_t lower_index = (uint32_t)mapped_index;',
+            '                if (lower_index >= FRIKAN_LUT_LAST_INDEX) {',
+            f'                    const port_float *row = {lut_array_name}[{input_index}u][FRIKAN_LUT_LAST_INDEX];',
+            *_render_frikan_lut_scalar_direct_accumulate_lines(
+                output_names,
+                row_name='row',
+                apply_sign=apply_sign,
+                indent='                    ',
+            ),
+            '                } else {',
+            '                    port_float frac = mapped_index - (port_float)lower_index;',
+            f'                    const port_float *row_next = {lut_array_name}[{input_index}u][lower_index + 1u];',
+            f'                    const port_float *row = {lut_array_name}[{input_index}u][lower_index];',
+            *_render_frikan_lut_scalar_interp_accumulate_lines(
+                output_names,
+                row_name='row',
+                row_next_name='row_next',
+                frac_name='frac',
+                apply_sign=apply_sign,
+                indent='                    ',
+            ),
+            '                }',
+        ])
+    else:
+        lines.extend([
+            '                uint32_t lut_index = (uint32_t)mapped_index;',
+            f'                const port_float *row = {lut_array_name}[{input_index}u][lut_index];',
+            *_render_frikan_lut_scalar_direct_accumulate_lines(
+                output_names,
+                row_name='row',
+                apply_sign=apply_sign,
+                indent='                ',
+            ),
+        ])
+
+    lines.extend([
+        '            }',
+        '        }',
+    ])
+    return lines
+
+
+def _render_frikan_lut_benchmark_forward_body(model_spec: FrikanModelSpec) -> str:
+    lines: List[str] = []
+    for layer_index, layer_spec in enumerate(model_spec.kan_layers):
+        output_names = [
+            f'layer_{layer_index}_out_{output_index}'
+            for output_index in range(layer_spec.output_dim)
+        ]
+        lines.append('    {')
+        lines.extend([
+            f'        port_float {output_name} = frikan_layer_bias[{layer_index}u][{output_index}u];'
+            for output_index, output_name in enumerate(output_names)
+        ])
+        for input_index in range(layer_spec.input_dim):
+            lines.extend(_render_frikan_lut_benchmark_edge_block(
+                layer_index,
+                layer_spec,
+                input_index,
+                output_names,
+                model_spec,
+            ))
+        for output_index, output_name in enumerate(output_names):
+            lines.append(f'        current_values[{output_index}u] = {output_name};')
+        lines.append('    }')
+    return '\n'.join(lines)
+
+
+def _render_frikan_lut_forward_layer_block(layer_index: int,
+                                           layer_spec: FrikanKanLayerSpec,
+                                           *,
+                                           unroll_inputs: bool = False) -> List[str]:
+    outputs_name = f'layer_{layer_index}_outputs'
+    input_index_name = f'layer_{layer_index}_input_index'
+    lines = [
+        f'        port_float {outputs_name}[FRIKAN_MAX_LAYER_OUTPUTS];',
+        *[
+            f'        {outputs_name}[{output_index}u] = frikan_layer_bias[{layer_index}u][{output_index}u];'
+            for output_index in range(layer_spec.output_dim)
+        ],
+    ]
+    if unroll_inputs:
+        for input_index in range(layer_spec.input_dim):
+            lines.extend([
+                f'        frikan_lut_accumulate_fast_layer_{layer_index}(',
+                f'            {outputs_name},',
+                f'            {input_index}u,',
+                f'            current_values[{input_index}u]',
+                '        );',
+            ])
+        return lines
+
+    lines.extend([
+        f'        uint32_t {input_index_name};',
+        f'        for ({input_index_name} = 0u; {input_index_name} < {layer_spec.input_dim}u; ++{input_index_name}) {{',
+        f'            frikan_lut_accumulate_fast_layer_{layer_index}(',
+        f'                {outputs_name},',
+        f'                {input_index_name},',
+        f'                current_values[{input_index_name}]',
+        '            );',
+        '        }',
+    ])
+    return lines
+
+
 def _render_frikan_forward_body(model_spec: FrikanModelSpec,
-                                include_debug_kan_output: bool = True) -> str:
+                                include_debug_kan_output: bool = True,
+                                *,
+                                unroll_lut_inputs: bool = False) -> str:
     lines: List[str] = []
 
     for layer_index, layer_spec in enumerate(model_spec.kan_layers):
         lines.append('    {')
-        for output_index in range(layer_spec.output_dim):
-            accumulator_name = f'layer_{layer_index}_out_{output_index}'
-            lines.append(
-                f'        port_float {accumulator_name} = frikan_layer_bias[{layer_index}u][{output_index}u];'
-            )
-            for input_index in range(layer_spec.input_dim):
+        if model_spec.use_lut:
+            outputs_name = f'layer_{layer_index}_outputs'
+            lines.extend(_render_frikan_lut_forward_layer_block(
+                layer_index,
+                layer_spec,
+                unroll_inputs=unroll_lut_inputs,
+            ))
+        else:
+            for output_index in range(layer_spec.output_dim):
+                accumulator_name = f'layer_{layer_index}_out_{output_index}'
                 lines.append(
-                    f'        {accumulator_name} += FRIKAN_LUT_LOOKUP_LAYER_{layer_index}('
-                    f'frikan_layer_lut[{layer_index}u][{input_index}u][{output_index}u], '
-                    f'current_values[{input_index}u]);'
+                    f'        port_float {accumulator_name} = frikan_layer_bias[{layer_index}u][{output_index}u];'
                 )
+                for input_index in range(layer_spec.input_dim):
+                    layer_values = (
+                        f'frikan_layer_spline_kernel[{layer_index}u][{input_index}u][{output_index}u]'
+                    )
+                    layer_scale = (
+                        f'frikan_layer_scale_factor[{layer_index}u][{input_index}u][{output_index}u]'
+                    )
+                    lines.append(
+                        f'        {accumulator_name} += FRIKAN_LAYER_LOOKUP_LAYER_{layer_index}('
+                        f'{layer_values}, '
+                        f'{layer_scale}, '
+                        f'current_values[{input_index}u]);'
+                    )
 
         if include_debug_kan_output:
             lines.append('        if (debug_kan_step != 0) {')
             for output_index in range(layer_spec.output_dim):
-                lines.append(
-                    f'            debug_kan_step[{layer_index}u][{output_index}u] = '
-                    f'layer_{layer_index}_out_{output_index};'
-                )
+                if model_spec.use_lut:
+                    lines.append(
+                        f'            debug_kan_step[{layer_index}u][{output_index}u] = '
+                        f'{outputs_name}[{output_index}u];'
+                    )
+                else:
+                    lines.append(
+                        f'            debug_kan_step[{layer_index}u][{output_index}u] = '
+                        f'layer_{layer_index}_out_{output_index};'
+                    )
             lines.append('        }')
 
         for output_index in range(layer_spec.output_dim):
-            lines.append(
-                f'        current_values[{output_index}u] = layer_{layer_index}_out_{output_index};'
-            )
+            if model_spec.use_lut:
+                lines.append(
+                    f'        current_values[{output_index}u] = {outputs_name}[{output_index}u];'
+                )
+            else:
+                lines.append(
+                    f'        current_values[{output_index}u] = layer_{layer_index}_out_{output_index};'
+                )
         lines.append('    }')
 
     return '\n'.join(lines)
 
+
+def _render_frikan_forward_body_benchmark(model_spec: FrikanModelSpec) -> str:
+    if model_spec.use_lut:
+        return _render_frikan_lut_benchmark_forward_body(model_spec)
+    return _render_frikan_forward_body(
+        model_spec,
+        include_debug_kan_output=False,
+        unroll_lut_inputs=bool(model_spec.use_lut),
+    )
+
+
+def _render_frikan_benchmark_iir_body(model_spec: FrikanModelSpec) -> str:
+    lines: List[str] = []
+    for feature_index in range(model_spec.feature_count):
+        lines.extend([
+            '    {',
+            f'        port_float x1_value = x1[{feature_index}u];',
+            f'        port_float y1_value = y1[{feature_index}u];',
+            f'        port_float response = frikan_iir_b0[{feature_index}u] * scaled_input',
+            f'            + frikan_iir_b1[{feature_index}u] * x1_value',
+            f'            + frikan_iir_b2[{feature_index}u] * x2[{feature_index}u]',
+            f'            - frikan_iir_a1[{feature_index}u] * y1_value',
+            f'            - frikan_iir_a2[{feature_index}u] * y2[{feature_index}u];',
+            f'        x2[{feature_index}u] = x1_value;',
+            f'        x1[{feature_index}u] = scaled_input;',
+            f'        y2[{feature_index}u] = y1_value;',
+            f'        y1[{feature_index}u] = response;',
+            f'        current_values[{feature_index}u] = response;',
+            '    }',
+        ])
+    return '\n'.join(lines)
+
+
+def _normalize_basis_activation_name(name: str) -> str:
+    normalized = name.strip().lower()
+    if normalized in {'linear', 'identity', 'none'}:
+        return 'linear'
+    if normalized == 'relu':
+        return 'relu'
+    if normalized == 'tanh':
+        return 'tanh'
+    if normalized == 'sigmoid':
+        return 'sigmoid'
+    if normalized in {'silu', 'swish'}:
+        return 'silu'
+    raise ValueError(f'当前 qemu-c-inference 尚未支持 basis_activation={name}')
+
+
+def _build_exact_basis_activation_helper_lines(model_spec: FrikanModelSpec) -> List[str]:
+    activation_names = sorted({
+        _normalize_basis_activation_name(layer.basis_activation)
+        for layer in model_spec.kan_layers
+        if not layer.disable_basis_activation
+    })
+    needs_abs_helper = any(layer.use_symmetry for layer in model_spec.kan_layers)
+    if not activation_names and not needs_abs_helper:
+        return []
+
+    lines: List[str] = []
+    if needs_abs_helper:
+        lines.extend([
+            'static inline port_float frikan_abs_value(port_float value)',
+            '{',
+            '    return value < 0.0f ? -value : value;',
+            '}',
+            '',
+        ])
+    helper_bodies = {
+        'linear': [
+            'static inline port_float frikan_apply_basis_activation_linear(port_float value)',
+            '{',
+            '    return value;',
+            '}',
+            '',
+        ],
+        'relu': [
+            'static inline port_float frikan_apply_basis_activation_relu(port_float value)',
+            '{',
+            '    return value > 0.0f ? value : 0.0f;',
+            '}',
+            '',
+        ],
+        'tanh': [
+            'static inline port_float frikan_apply_basis_activation_tanh(port_float value)',
+            '{',
+            '    return tanhf(value);',
+            '}',
+            '',
+        ],
+        'sigmoid': [
+            'static inline port_float frikan_apply_basis_activation_sigmoid(port_float value)',
+            '{',
+            '    return 1.0f / (1.0f + expf(-value));',
+            '}',
+            '',
+        ],
+        'silu': [
+            'static inline port_float frikan_apply_basis_activation_silu(port_float value)',
+            '{',
+            '    port_float sigmoid = 1.0f / (1.0f + expf(-value));',
+            '    return value * sigmoid;',
+            '}',
+            '',
+        ],
+    }
+    for activation_name in activation_names:
+        lines.extend(helper_bodies[activation_name])
+    return lines
+
+
 def _build_frikan_lut_layer_function_lines(model_spec: FrikanModelSpec) -> List[str]:
     lines: List[str] = []
+    if not model_spec.use_lut:
+        lines.extend(_build_exact_basis_activation_helper_lines(model_spec))
+
     for layer_index, layer_spec in enumerate(model_spec.kan_layers):
-        lut_scale, lut_offset = _compute_frikan_lut_index_params(
-            layer_spec.lut_support_min,
-            layer_spec.lut_support_max,
-            model_spec.lut_points,
-        )
+        if model_spec.use_lut:
+            lut_array_name = f'frikan_layer_lut_{layer_index}'
+            lut_scale, lut_offset = _compute_frikan_lut_index_params(
+                layer_spec.lut_support_min,
+                layer_spec.lut_support_max,
+                model_spec.lut_points,
+            )
+            lines.extend([
+                f'#define FRIKAN_LUT_SCALE_LAYER_{layer_index} {_format_c_float(lut_scale)}',
+                f'#define FRIKAN_LUT_OFFSET_LAYER_{layer_index} {_format_c_float(lut_offset)}',
+                '',
+                f'static inline void frikan_lut_accumulate_fast_layer_{layer_index}(',
+                '    port_float outputs[FRIKAN_MAX_LAYER_OUTPUTS],',
+                '    uint32_t input_index,',
+                '    port_float raw_value)',
+                '{',
+                '    port_float lookup_value = FRIKAN_LUT_PREPARE_VALUE(raw_value);',
+                '    port_float mapped_index = FRIKAN_LUT_MAP_INDEX(',
+                '        lookup_value,',
+                f'        FRIKAN_LUT_SCALE_LAYER_{layer_index},',
+                f'        FRIKAN_LUT_OFFSET_LAYER_{layer_index}',
+                '    );',
+                '',
+                '    if ((mapped_index < 0.0f) || (mapped_index > FRIKAN_LUT_LAST_INDEX_FLOAT)) {',
+                '        return;',
+                '    }',
+                '',
+            ])
+            if model_spec.use_symmetry and not model_spec.use_even:
+                lines.extend([
+                    '    {',
+                    '        port_float output_sign = raw_value < 0.0f ? -1.0f : 1.0f;',
+                ])
+                if model_spec.lut_interpolation:
+                    lines.extend([
+                        '        uint32_t lower_index = (uint32_t)mapped_index;',
+                        '        const port_float *row;',
+                        '        if (lower_index >= FRIKAN_LUT_LAST_INDEX) {',
+                        f'            row = {lut_array_name}[input_index][FRIKAN_LUT_LAST_INDEX];',
+                        *_render_frikan_lut_direct_accumulate_lines(
+                            layer_spec.output_dim,
+                            apply_sign=True,
+                        ),
+                        '        } else {',
+                        '            port_float frac = mapped_index - (port_float)lower_index;',
+                        f'            const port_float *row_next = {lut_array_name}[input_index][lower_index + 1u];',
+                        f'            row = {lut_array_name}[input_index][lower_index];',
+                        *_render_frikan_lut_interp_accumulate_lines(
+                            layer_spec.output_dim,
+                            apply_sign=True,
+                        ),
+                        '        }',
+                    ])
+                else:
+                    lines.extend([
+                        '        uint32_t lut_index = (uint32_t)mapped_index;',
+                        f'        const port_float *row = {lut_array_name}[input_index][lut_index];',
+                        *_render_frikan_lut_direct_accumulate_lines(
+                            layer_spec.output_dim,
+                            apply_sign=True,
+                        ),
+                    ])
+                lines.append('    }')
+            else:
+                if model_spec.lut_interpolation:
+                    lines.extend([
+                        '    {',
+                        '        uint32_t lower_index = (uint32_t)mapped_index;',
+                        '        const port_float *row;',
+                        '        if (lower_index >= FRIKAN_LUT_LAST_INDEX) {',
+                        f'            row = {lut_array_name}[input_index][FRIKAN_LUT_LAST_INDEX];',
+                        *_render_frikan_lut_direct_accumulate_lines(
+                            layer_spec.output_dim,
+                            apply_sign=False,
+                        ),
+                        '        } else {',
+                        '            port_float frac = mapped_index - (port_float)lower_index;',
+                        f'            const port_float *row_next = {lut_array_name}[input_index][lower_index + 1u];',
+                        f'            row = {lut_array_name}[input_index][lower_index];',
+                        *_render_frikan_lut_interp_accumulate_lines(
+                            layer_spec.output_dim,
+                            apply_sign=False,
+                        ),
+                        '        }',
+                        '    }',
+                    ])
+                else:
+                    lines.extend([
+                        '    {',
+                        '        uint32_t lut_index = (uint32_t)mapped_index;',
+                        f'        const port_float *row = {lut_array_name}[input_index][lut_index];',
+                        *_render_frikan_lut_direct_accumulate_lines(
+                            layer_spec.output_dim,
+                            apply_sign=False,
+                        ),
+                        '    }',
+                    ])
+            lines.extend([
+                '}',
+                '',
+            ])
+            continue
+
+        activation_name = _normalize_basis_activation_name(layer_spec.basis_activation)
         lines.extend([
-            f'#define FRIKAN_LUT_SCALE_LAYER_{layer_index} {_format_c_float(lut_scale)}',
-            f'#define FRIKAN_LUT_OFFSET_LAYER_{layer_index} {_format_c_float(lut_offset)}',
-            '',
-            f'static __attribute__((noinline)) port_float frikan_lut_lookup_fast_layer_{layer_index}(',
-            '    const port_float lut_values[FRIKAN_LUT_POINTS],',
+            f'static __attribute__((noinline)) port_float frikan_exact_lookup_fast_layer_{layer_index}(',
+            '    const port_float spline_kernel[FRIKAN_MAX_SPLINE_KERNELS],',
+            '    port_float scale_factor,',
             '    port_float raw_value)',
             '{',
-            '    port_float lookup_value = FRIKAN_LUT_PREPARE_VALUE(raw_value);',
-            '    port_float mapped_index = FRIKAN_LUT_MAP_INDEX(',
-            '        lookup_value,',
-            f'        FRIKAN_LUT_SCALE_LAYER_{layer_index},',
-            f'        FRIKAN_LUT_OFFSET_LAYER_{layer_index}',
-            '    );',
-            '    port_float result;',
+            f'    const uint32_t grid_size = {int(layer_spec.grid_size)}u;',
+            f'    const uint32_t spline_order = {int(layer_spec.spline_order)}u;',
+            '    const uint32_t basis_count = grid_size + (2u * spline_order);',
+            '    const uint32_t kernel_count = grid_size + spline_order;',
+            f'    const port_float grid_min = {_format_c_float(layer_spec.grid_range[0])};',
+            f'    const port_float grid_max = {_format_c_float(layer_spec.grid_range[1])};',
+            '    const port_float step = (grid_max - grid_min) / (port_float)grid_size;',
+            '    const port_float grid_start = grid_min - ((port_float)spline_order * step);',
+            '    port_float eval_value = raw_value;',
+            '    port_float bases[FRIKAN_MAX_GRID_INTERVALS];',
+            '    port_float next_bases[FRIKAN_MAX_GRID_INTERVALS];',
+            '    uint32_t index;',
+            '    uint32_t order_index;',
+            '    uint32_t active_length = basis_count;',
+            '    port_float spline_output = 0.0f;',
+            '    port_float basis_output = 0.0f;',
             '',
-            '    if ((mapped_index < 0.0f) || (mapped_index > FRIKAN_LUT_LAST_INDEX_FLOAT)) {',
-            '        return 0.0f;',
+        ])
+        if layer_spec.use_symmetry:
+            lines.extend([
+                '    eval_value = frikan_abs_value(raw_value);',
+                '',
+            ])
+        lines.extend([
+            '    for (index = 0u; index < FRIKAN_MAX_GRID_INTERVALS; ++index) {',
+            '        bases[index] = 0.0f;',
+            '        next_bases[index] = 0.0f;',
             '    }',
             '',
-            '    #if FRIKAN_LUT_INTERPOLATION',
-            '    {',
-            '        uint32_t lower_index = (uint32_t)mapped_index;',
-            '        if (lower_index >= FRIKAN_LUT_LAST_INDEX) {',
-            '            result = lut_values[FRIKAN_LUT_LAST_INDEX];',
-            '        } else {',
-            '            port_float frac = mapped_index - (port_float)lower_index;',
-            '            port_float lower_value = lut_values[lower_index];',
-            '            port_float upper_value = lut_values[lower_index + 1u];',
-            '            result = lower_value + (upper_value - lower_value) * frac;',
+            '    for (index = 0u; index < basis_count; ++index) {',
+            '        port_float left = grid_start + ((port_float)index * step);',
+            '        port_float right = left + step;',
+            '        if ((eval_value >= left) && (eval_value < right)) {',
+            '            bases[index] = 1.0f;',
             '        }',
             '    }',
-            '    #else',
-            '    result = lut_values[(uint32_t)mapped_index];',
-            '    #endif',
-            '',
-            '    #if FRIKAN_USE_SYMMETRY && !FRIKAN_USE_EVEN',
-            '    if (raw_value < 0.0f) {',
-            '        result = -result;',
+            '    if ((basis_count > 0u) && (eval_value == (grid_start + ((port_float)basis_count * step)))) {',
+            '        bases[basis_count - 1u] = 1.0f;',
             '    }',
-            '    #endif',
             '',
-            '    return result;',
+            '    for (order_index = 1u; order_index <= spline_order; ++order_index) {',
+            '        active_length -= 1u;',
+            '        for (index = 0u; index < FRIKAN_MAX_GRID_INTERVALS; ++index) {',
+            '            next_bases[index] = 0.0f;',
+            '        }',
+            '        for (index = 0u; index < active_length; ++index) {',
+            '            port_float left_grid = grid_start + ((port_float)index * step);',
+            '            port_float right_grid = grid_start + ((port_float)(index + order_index + 1u) * step);',
+            '            port_float denominator = step * (port_float)order_index;',
+            '            port_float left_term = 0.0f;',
+            '            port_float right_term = 0.0f;',
+            '            if (denominator != 0.0f) {',
+            '                left_term = ((eval_value - left_grid) / denominator) * bases[index];',
+            '                right_term = ((right_grid - eval_value) / denominator) * bases[index + 1u];',
+            '            }',
+            '            next_bases[index] = left_term + right_term;',
+            '        }',
+            '        for (index = 0u; index < FRIKAN_MAX_GRID_INTERVALS; ++index) {',
+            '            bases[index] = next_bases[index];',
+            '        }',
+            '    }',
+            '',
+            '    for (index = 0u; index < kernel_count; ++index) {',
+            '        spline_output += bases[index] * spline_kernel[index];',
+            '    }',
+            '',
+        ])
+        if layer_spec.use_symmetry and not layer_spec.use_even:
+            lines.extend([
+                '    if (raw_value < 0.0f) {',
+                '        spline_output = -spline_output;',
+                '    }',
+                '',
+            ])
+        if not layer_spec.disable_basis_activation:
+            lines.extend([
+                f'    basis_output = frikan_apply_basis_activation_{activation_name}(raw_value);',
+                '',
+            ])
+        lines.extend([
+            '    return (spline_output + basis_output) * scale_factor;',
             '}',
             '',
         ])
     return lines
 
 def _build_frikan_lut_layer_macro_lines(model_spec: FrikanModelSpec) -> List[str]:
+    if model_spec.use_lut:
+        return []
     return [
-        f'#define FRIKAN_LUT_LOOKUP_LAYER_{layer_index}(lut_values, raw_value) '
-        f'frikan_lut_lookup_fast_layer_{layer_index}((lut_values), (raw_value))'
+        f'#define FRIKAN_LAYER_LOOKUP_LAYER_{layer_index}(layer_values, layer_scale, raw_value) '
+        f'frikan_exact_lookup_fast_layer_{layer_index}((layer_values), (layer_scale), (raw_value))'
         for layer_index, _layer_spec in enumerate(model_spec.kan_layers)
     ]
 
@@ -687,6 +1292,8 @@ def _render_frikan_main_c(model_spec: FrikanModelSpec) -> str:
         .replace('__FRIKAN_LUT_LAYER_FUNCTIONS__', '\n'.join(_build_frikan_lut_layer_function_lines(model_spec)))
         .replace('__FRIKAN_LUT_LAYER_MACROS__', '\n'.join(_build_frikan_lut_layer_macro_lines(model_spec)))
         .replace('__FRIKAN_FORWARD_BODY__', _render_frikan_forward_body(model_spec))
+        .replace('__FRIKAN_FORWARD_BODY_BENCHMARK__', _render_frikan_forward_body_benchmark(model_spec))
+        .replace('__FRIKAN_BENCHMARK_IIR_BODY__', _render_frikan_benchmark_iir_body(model_spec))
     )
 
 def _prepare_frikan_validation_artifacts(model_project_name: str,
@@ -779,6 +1386,7 @@ def execute_frikan_qemu_task(ep_path: ExternalPath, config: Dict[str, Any]) -> b
         model_project_name=model_project_name,
         model_dir=model_dir,
         weights_json_path=weights_json_path,
+        use_lut=bool(generation_config.get('use_lut', True)),
         lut_points=int(generation_config.get('lut_points', 513)),
         lut_interpolation=bool(generation_config.get('lut_interpolation', False)),
     )
@@ -822,6 +1430,11 @@ def execute_frikan_qemu_task(ep_path: ExternalPath, config: Dict[str, Any]) -> b
         'loaded_weights_path': common._relative_or_str(validation_artifacts.loaded_weights_path),
         'generated_project_dir': common._relative_or_str(generated_project_dir),
         'keil_project_dir': common._relative_or_str(keil_project_dir),
+        'generation_config': {
+            'use_lut': model_spec.use_lut,
+            'lut_points': model_spec.lut_points,
+            'lut_interpolation': model_spec.lut_interpolation,
+        },
         'benchmark_config': benchmark_config,
         'validation': {
             'dataset': {
@@ -1032,6 +1645,7 @@ def execute_frikan_keil_bench_task(ep_path: ExternalPath,
         model_project_name=model_project_name,
         model_dir=model_dir,
         weights_json_path=weights_json_path,
+        use_lut=bool(generation_config.get('use_lut', True)),
         lut_points=int(generation_config.get('lut_points', 513)),
         lut_interpolation=bool(generation_config.get('lut_interpolation', False)),
     )
@@ -1064,162 +1678,17 @@ def execute_frikan_keil_bench_task(ep_path: ExternalPath,
         compress=bool(validation_config['wave_output']['compress']),
         export_intermediates=bool(validation_config['wave_output'].get('export_intermediates', True)),
     )
-
-    keil_project_file = keil_project_dir / 'MDK-ARM' / common.KEIL_BENCHMARK_BASE_UVPROJX.name
-    summary_path = ep_path.output_path / 'keil_benchmark_summary.json'
-    comparison_path = ep_path.output_path / 'keil_validation_comparison.json'
-    metadata_path = ep_path.output_path / 'keil_benchmark_metadata.json'
-
-    execution_summary: Dict[str, Any] = {
-        'task_type': 'qemu-c-inference',
-        'action': 'keil-bench',
-        'model_type': 'frikan',
-        'model_project_name': model_project_name,
-        'weights_json_path': common._relative_or_str(weights_json_path),
-        'loaded_weights_path': common._relative_or_str(validation_artifacts.loaded_weights_path),
-        'generated_project_dir': common._relative_or_str(generated_project_dir),
-        'keil_project_dir': common._relative_or_str(keil_project_dir),
-        'keil_project_file': common._relative_or_str(keil_project_file),
-        'benchmark_config': benchmark_config,
-        'validation': {
-            'dataset': {
-                'dataset_type': validation_artifacts.dataset_type,
-                'full_data_path': validation_artifacts.full_data_path,
-                'sample_rate': validation_artifacts.sample_rate,
-            },
-            'selection': validation_artifacts.time_window,
-            'record_count': validation_artifacts.record_count,
-            'seq_len': validation_artifacts.seq_len,
-        },
-        'keil_config': dict(keil_config),
-        'wave_paths': wave_paths,
-        'status': 'generated',
-    }
-
-    action = str(keil_config.get('action', 'build-program-capture'))
-    if action == 'generate':
-        common._write_json(summary_path, execution_summary)
-        common._write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': common._collect_output_files(
-                summary_path, metadata_path, generated_project_dir, keil_project_dir, *[Path(path) for path in wave_paths.values()]
-            ),
-            'action': 'keil-bench',
-        })
-        logger.info('Keil benchmark ?????: %s', keil_project_dir)
-        return True
-
-    build_result = common._run_keil_build_job(project_file=keil_project_file, keil_config=keil_config)
-    execution_summary['keil_build'] = build_result
-    if not bool(build_result.get('success', False)):
-        execution_summary['status'] = 'build_failed'
-        common._write_json(summary_path, execution_summary)
-        common._write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': common._collect_output_files(summary_path, metadata_path),
-            'action': 'keil-bench',
-        })
-        return False
-
-    if action == 'build':
-        execution_summary['status'] = 'build_completed'
-        common._write_json(summary_path, execution_summary)
-        common._write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': common._collect_output_files(
-                summary_path, metadata_path, generated_project_dir, keil_project_dir, *[Path(path) for path in wave_paths.values()]
-            ),
-            'action': 'keil-bench',
-        })
-        return True
-
-    capture_state: Optional[Dict[str, Any]] = None
-    capture_result: Optional[Dict[str, Any]] = None
-    program_result: Optional[Dict[str, Any]] = None
-
-    try:
-        if action == 'build-program-capture':
-            capture_state = common._start_keil_serial_capture(
-                output_dir=ep_path.output_path,
-                serial_port=str(keil_config['serial_port']),
-                baud_rate=int(keil_config['baud_rate']),
-                capture_timeout=int(keil_config['capture_timeout']),
-                success_markers=keil_config['success_markers'],
-            )
-
-        program_result = common._run_keil_program_job(project_file=keil_project_file, keil_config=keil_config)
-        execution_summary['keil_program'] = program_result
-    finally:
-        if capture_state is not None:
-            capture_result = common._finish_keil_serial_capture(
-                capture_state,
-                timeout_seconds=int(keil_config['capture_timeout']) + 10,
-            )
-            execution_summary['serial_capture'] = capture_result
-
-    if not bool(program_result and program_result.get('success', False)):
-        execution_summary['status'] = 'program_failed'
-        common._write_json(summary_path, execution_summary)
-        common._write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': common._collect_output_files(summary_path, metadata_path),
-            'action': 'keil-bench',
-        })
-        return False
-
-    if action == 'build-program':
-        execution_summary['status'] = 'program_completed'
-        common._write_json(summary_path, execution_summary)
-        common._write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': common._collect_output_files(summary_path, metadata_path),
-            'action': 'keil-bench',
-        })
-        return True
-
-    if capture_result is None:
-        raise RuntimeError('????????')
-
-    stream_text_path = Path(str(capture_result['text_path']))
-    stream_text = stream_text_path.read_text(encoding='utf-8')
-    parsed_output = common._parse_benchmark_stdout(stream_text)
-    c_output_sequences = common._extract_validation_outputs(parsed_output, validation_artifacts)
-    comparison_payload = common._compute_wave_comparison(validation_artifacts, c_output_sequences)
-    keil_wave_path = ep_path.output_path / 'waves' / 'keil_output.wave'
-    common._save_wave_file(
-        keil_wave_path,
-        source_name='keil_output',
-        sequences=c_output_sequences,
+    return common.execute_keil_benchmark_pipeline(
+        ep_path=ep_path,
+        task_info=config['task_info'],
+        model_type='frikan',
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        generated_project_dir=generated_project_dir,
+        keil_project_dir=keil_project_dir,
+        benchmark_config=benchmark_config,
         validation_artifacts=validation_artifacts,
-        compress=bool(validation_config['wave_output']['compress']),
+        validation_config=validation_config,
+        keil_config=keil_config,
+        wave_paths=wave_paths,
     )
-    qemu_reference = common._load_qemu_reference_comparison(ep_path.output_path, c_output_sequences)
-
-    comparison_payload['wave_paths'] = {'keil_output_wave': common._relative_or_str(keil_wave_path)}
-    common._write_json(comparison_path, comparison_payload)
-
-    execution_summary['status'] = 'completed'
-    execution_summary['serial_capture'] = {
-        **capture_result,
-        'text_path': common._relative_or_str(Path(str(capture_result['text_path']))),
-        'jsonl_path': common._relative_or_str(Path(str(capture_result['jsonl_path']))),
-        'result_path': common._relative_or_str(Path(str(capture_result['result_path']))),
-    }
-    execution_summary['parsed_output'] = common._summarize_parsed_output(parsed_output)
-    execution_summary['validation_outputs'] = {f'record_{index}': sequence for index, sequence in enumerate(c_output_sequences)}
-    execution_summary['comparison'] = comparison_payload['overall']
-    execution_summary['comparison_path'] = common._relative_or_str(comparison_path)
-    execution_summary['keil_wave_paths'] = comparison_payload['wave_paths']
-    if qemu_reference is not None:
-        execution_summary['qemu_reference_comparison'] = qemu_reference
-
-    common._write_json(summary_path, execution_summary)
-    common._write_json(metadata_path, {
-        'task_info': config['task_info'],
-        'output_files': common._collect_output_files(
-            summary_path, comparison_path, metadata_path, generated_project_dir, keil_project_dir, keil_wave_path, *[Path(path) for path in wave_paths.values()]
-        ),
-        'action': 'keil-bench',
-    })
-    logger.info('Keil benchmark ????: %s', summary_path)
-    return True

@@ -1,0 +1,23 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "MET qemu-c-inference benchmark for 1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/keil_benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/keil_validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/qemu_project",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/keil_project",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/keil_output.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_initial_conv.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_conv_block_0.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_post_dense_1.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_post_dense_2.wave",
+    "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/waves/tf_output_scaled.wave"
+  ],
+  "action": "keil-bench"
+}

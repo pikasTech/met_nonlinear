@@ -54,17 +54,31 @@ python cli.py -e PROJECT_NAME
 
 ### Freq Drift (Hz)
 
-从 `linear_response.json` 的 `fit_params_comped` 提取各个震级下的拟合参数，计算固有频率：
+从 `linear_response.json` 的 `fit_params_comped` 读取每个震级下的二阶拟合参数 `(A, B, C)`，将中心频率按下式恢复为：
 
 $$
-\omega_n = \sqrt{B}, \quad f_n = \frac{\omega_n}{2\pi}
+f_{\mathrm{center},k}
+=
+\operatorname{clip}
+\left(
+\frac{\sqrt{B_k}}{2\pi},
+10\ \mathrm{Hz},
+128\ \mathrm{Hz}
+\right)
 $$
 
-然后对全部震级的 $f_n$ 序列计算：
+也就是说，当前正式口径仍然保留原始 `fit` 路径，但会把恢复出的中心频率限制在当前 band（默认 `10-128 Hz`）之内，避免异常拟合把峰频抛到物理频带之外。随后对全部震级的 $f_{\mathrm{center},k}$ 序列计算：
 
 $$
-\mathrm{Freq\ Drift} = \max\left( |\max(f_n)-\mathrm{median}(f_n)|, |\mathrm{median}(f_n)-\min(f_n)| \right)
+\mathrm{Freq\ Drift}
+=
+\max\left(
+\left|\max(f_{\mathrm{center}})-\mathrm{median}(f_{\mathrm{center}})\right|,
+\left|\mathrm{median}(f_{\mathrm{center}})-\min(f_{\mathrm{center}})\right|
+\right)
 $$
+
+因此，该指标的实现语义是“基于 band-limited fitted center frequency 的中位数中心漂移”。与之前的 spline 试验口径不同，当前正式标准重新回到 `fit_params_comped`，但通过 band limit 保留了数值稳定性。这样既能保持原始拟合解释，又能避免某些异常 project 因拟合不稳定而出现带外爆炸值。
 
 ### Sens Drift (%)
 
@@ -103,11 +117,12 @@ $$
 典型字段包括：
 
 - `status`：`complete` 或 `partial`
-- `calculation_standard`：当前统一口径版本标识；引入 in-band 线性度后为 `ablation-study-v2-inband-linearity`
+- `calculation_standard`：当前统一口径版本标识；当前正式值为 `ablation-study-v4-bounded-fit-freq-inband-linearity`
 - `sources`：本次汇总实际命中的输入文件布尔状态
 - `missing_sources`：缺失的输入文件列表
 - `missing_sections`：输入文件存在但关键字段缺失的节名列表
 - `freq_drift_hz`、`sens_drift_percent`、`linearity_percent`：供表格/图表直接消费的主字段
+- `freq_drift_band_min_hz`、`freq_drift_band_max_hz`：`Freq Drift` 当前采用的 band limit 元数据
 - `linearity_band_max_hz`、`linearity_frequency_count`、`linearity_frequency_points_hz`：当前线性度主字段实际采用的 in-band 口径元数据
 - `metric_details`：上述三项指标及其 origin 版本的详细统计
 - `compute_details`：计算量明细，供其他模块直接读取

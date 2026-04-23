@@ -32,8 +32,8 @@ def test_analyze_model_compute_for_lstm16_dense_stack():
     assert analysis['totals']['multiplications'] == 1408
     assert analysis['totals']['additions'] == 1376
     assert analysis['totals']['maps'] == 96
-    assert analysis['estimated_cost']['weighted_units']['total'] == 3360.0
-    assert analysis['estimated_cost']['weighted_units']['maps'] == 576.0
+    assert analysis['estimated_cost']['weighted_units']['total'] == 9216.0
+    assert analysis['estimated_cost']['weighted_units']['maps'] == 2208.0
     assert analysis['unsupported_layers'] == []
 
     lstm_layer = analysis['layers'][0]
@@ -93,7 +93,7 @@ def test_analyze_model_compute_for_explicit_activation_layer():
     assert activation_layer['compute']['additions'] == 0
     assert activation_layer['compute']['multiplications'] == 0
     assert activation_layer['compute']['maps'] == 8
-    assert activation_layer['estimated_cost']['weighted_units']['total'] == 48.0
+    assert activation_layer['estimated_cost']['weighted_units']['total'] == 184.0
 
 
 
@@ -118,7 +118,7 @@ def test_analyze_model_compute_for_conv1d_layer():
     assert conv_layer['compute']['multiplications'] == 40
     assert conv_layer['compute']['additions'] == 40
     assert conv_layer['compute']['maps'] == 0
-    assert conv_layer['estimated_cost']['weighted_units']['total'] == 80.0
+    assert conv_layer['estimated_cost']['weighted_units']['total'] == 200.0
 
 
 
@@ -142,7 +142,7 @@ def test_analyze_model_compute_for_gru16_dense_stack():
     assert analysis['totals']['multiplications'] == 1136
     assert analysis['totals']['additions'] == 1168
     assert analysis['totals']['maps'] == 64
-    assert analysis['estimated_cost']['weighted_units']['total'] == 2688.0
+    assert analysis['estimated_cost']['weighted_units']['total'] == 7184.0
     assert analysis['unsupported_layers'] == []
 
     gru_layer = analysis['layers'][0]
@@ -215,6 +215,7 @@ def test_analyze_model_component_for_frikan_fast_path():
     assert analysis['totals']['additions'] == 266
     assert analysis['totals']['maps'] == 234
     assert analysis['totals']['total'] == 540
+    assert analysis['estimated_cost']['weighted_units']['total'] == 5808.0
     assert analysis['unsupported_layers'] == []
 
     dropout_layer = next(
@@ -274,7 +275,7 @@ def test_analyze_model_compute_for_cnnkan_stack():
     assert analysis['totals']['multiplications'] == 40
     assert analysis['totals']['additions'] == 274
     assert analysis['totals']['maps'] == 234
-    assert analysis['estimated_cost']['weighted_units']['total'] == 1718.0
+    assert analysis['estimated_cost']['weighted_units']['total'] == 5816.0
 
 
 def test_analyze_model_compute_for_lstm_transformer_stack():
@@ -337,7 +338,7 @@ def test_analyze_model_compute_for_lstm_transformer_stack():
     assert analysis['totals']['multiplications'] == 682
     assert analysis['totals']['additions'] == 680
     assert analysis['totals']['maps'] == 58
-    assert analysis['estimated_cost']['weighted_units']['total'] == 1710.0
+    assert analysis['estimated_cost']['weighted_units']['total'] == 4742.0
 
     layer_types = {layer['name']: layer['type'] for layer in analysis['layers']}
     assert layer_types['transformer_context_pool_0'] == 'AveragePooling1D'

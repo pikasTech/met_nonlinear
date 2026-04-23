@@ -49,7 +49,7 @@
 | --- | --- | --- | --- |
 | 组合损失基线 | `projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4` | 标准 Wiener-KAN / FRIKAN 基线 | `use_model=FRIKAN`, `use_power_loss=true` |
 | 纯 MAE | `projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_puremae` | 同一模型，仅移除 AFMAE 项 | `use_power_loss=false` |
-| 纯 AFMAE | `projects/03_FRIKAN_PUREAFME/FRIKANh8u6l6_e1k_lr1e4_pureafmae` | 同一模型，仅保留 AFMAE | `use_pure_power_loss=true` |
+| 纯 AFMAE | `projects/03_FRIKAN_PUREAFME/FRIKANh8u6l6_e1k_lr5e4_pureafmae` | 同一模型，仅保留 AFMAE | `use_pure_power_loss=true` |
 
 这三个 project 共用同一 Wiener-KAN 主干：
 
@@ -75,7 +75,7 @@
 | CNN 前端替换 | `projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05` | 用 Conv1D 前端替换 FRI / IIR 前端，同时保留 KAN 主体 | `use_model=CNNKAN`, `model_subcfg.cnn_*` |
 | 去对称性变体 | `projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5` | 保留同一 FRIKAN 路径，但移除对称性约束 | `model_subcfg={only_positive: true, use_even: false, use_symmetry: false}` |
 | 随机化可训练前端替换 | `projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr14e5_randfrirnn_r2` | 改为随机初始化且可训练的 IIR 前端 | `IIR_INIT_BY_SYSTEM=false`, `IIR_TRAINABLE=true`, `model_subcfg.random_iir_seed=20260405` |
-| KAN→MLP 替换 | `projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr2e3_mlp18l7_tanh_d00` | 保留同一 FRI 前端，仅将静态非线性主体从 KAN 换成 MLP | `use_model=FRIMLP`, `model_subcfg.mlp_*` |
+| KAN→MLP 替换 | `projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00` | 保留同一 FRI 前端，仅将静态非线性主体从 KAN 换成 MLP | `use_model=FRIMLP`, `model_subcfg.mlp_*` |
 
 这一组实验的设计目标，是沿着“前端先验 / 结构约束 / 静态非线性主体”三个方向，观察 Wiener-KAN 当前实现中哪些局部结构是不可替代的。
 
@@ -83,6 +83,15 @@
 
 1. `FRIMLP` 的正确语义是“同一 FRI 前端、不同静态非线性主体”，不能在论文中把它写成另一种前端模型，详见 [frimlp_ablation.md](frimlp_ablation.md)。
 2. `randfrirnn_r2` 同时修改了初始化、可训练性与学习率，因此它不能被写成“仅去掉系统先验”的干净单因子实验，只能表述为“随机化且可训练的前端替换变体”。
+
+### 图表组织建议
+
+当前消融章节最稳定的图表组织方式，是把收敛行为嵌入损失消融图，而不是再单独拆一个“收敛曲线”子章节：
+
+1. 损失消融图建议同时包含正式物理指标柱状图、六指标雷达图和线性坐标的收敛曲线。
+2. 六指标雷达图沿用主横评的同一集合：`Freq Drift`、`Sens Drift`、`Linearity`、`Compute Cost`、`KEIL-FPS`、`KEIL RAM`；若 deployment 字段缺失，则该图不能硬补旧值。
+3. 当前最适合做六指标雷达的是损失消融，因为各变体共享同一 Wiener-KAN 主干和接近的部署实现；结构消融仍以正式表格与柱状图为主。
+4. 收敛曲线必须使用线性坐标，并作为“优化行为的附加证据”；它可以帮助解释组合损失为何更稳，但不能替代正式物理指标。
 
 ## 实验流程
 
@@ -203,7 +212,7 @@ $$
 - `Compute Cost` 与 `Total Params` 用于体现复杂度代价；
 - `Epochs` 与 `LR` 适合作为复现实验设置的辅助列。
 
-`TRAIN_MAE`、`VAL_MAE`、`TRAIN_AFMAE`、`VAL_AFMAE` 可以保留为辅助分析字段，但不应替代主表中的物理指标。
+`TRAIN_MAE`、`VAL_MAE`、`TRAIN_AFMAE`、`VAL_AFMAE` 可以保留为辅助分析字段，但不应替代主表中的物理指标。若正文要展示 deployment-aware 的 loss-ablation 雷达图，可再附加 `KEIL-MAE`、`KEIL-FPS` 与 `KEIL RAM`。
 
 ## 写作边界
 
@@ -213,7 +222,8 @@ $$
 - 正式分组以 preset 为准，真实语义以各自 `config.json` 为准；
 - 正式表格只读取 `metrics.json`，不直接引用训练日志；
 - 不把调参历史写进方法章节；
-- 不把训练曲线写成正式消融证据；
+- 收敛曲线只能作为附加证据，且应嵌入横评或损失消融图中，不单独拆成独立子章节；
+- 不把训练曲线当成可替代正式物理指标的主证据；
 - 不把当前 canonical 配置下的消融夸大成严格正交单因子实验。
 
 ## 相关文档

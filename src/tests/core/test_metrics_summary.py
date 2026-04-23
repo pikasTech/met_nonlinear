@@ -50,16 +50,16 @@ def test_build_project_metrics_summary_complete(tmp_path):
         },
     }), encoding='utf-8')
     (checkpoint_dir / 'linear_response.json').write_text(json.dumps({
-        'frequencies': [50, 100, 150],
+        'frequencies': [40, 60, 80, 100, 160],
         'gains_origin': [
-            [1, 2.0, 3],
-            [1, 2.0, 3],
-            [1, 2.0, 3],
+            [3.0, 2.0, 1.0, 1.0, 0.0],
+            [1.0, 3.0, 2.0, 2.0, 0.0],
+            [1.0, 2.0, 3.0, 2.5, 0.0],
         ],
         'gains_comped': [
-            [1, 2.0, 3],
-            [1, 2.5, 3],
-            [1, 1.5, 3],
+            [1.0, 3.0, 2.0, 2.0, 0.0],
+            [1.0, 2.0, 3.0, 2.5, 0.0],
+            [1.0, 1.0, 2.0, 3.0, 0.0],
         ],
         'fit_params_origin': [
             [1, (2 * 3.141592653589793 * 9) ** 2, 1],
@@ -102,7 +102,7 @@ def test_build_project_metrics_summary_complete(tmp_path):
 
     assert summary['status'] == 'complete'
     assert summary['project_name'] == 'demo'
-    assert summary['calculation_standard'] == 'ablation-study-v2-inband-linearity'
+    assert summary['calculation_standard'] == 'ablation-study-v4-bounded-fit-freq-inband-linearity'
     assert summary['epochs'] == 123
     assert summary['train_mae'] == 0.41
     assert summary['train_afmae'] == 0.42
@@ -118,12 +118,21 @@ def test_build_project_metrics_summary_complete(tmp_path):
     assert summary['compute_cost_warning'] is None
     assert summary['total_params'] == 4567
     assert summary['freq_drift_hz'] == pytest.approx(2.0)
+    assert summary['freq_drift_band_min_hz'] == pytest.approx(10.0)
+    assert summary['freq_drift_band_max_hz'] == pytest.approx(128.0)
+    assert summary['freq_drift_source_frequency_points_hz'] == [40.0, 60.0, 80.0, 100.0]
+    assert summary['freq_drift_interpolation_points'] is None
     assert summary['sens_drift_percent'] == pytest.approx(0.5)
     assert summary['linearity_percent'] == pytest.approx(7.5)
     assert summary['linearity_band_max_hz'] == pytest.approx(128.0)
     assert summary['linearity_frequency_count'] == 2
     assert summary['linearity_frequency_points_hz'] == [50.0, 100.0]
     assert summary['metric_details']['natural_frequency_drift']['median'] == pytest.approx(12.0)
+    assert summary['metric_details']['natural_frequency_drift']['band_min_hz'] == pytest.approx(10.0)
+    assert summary['metric_details']['natural_frequency_drift']['band_max_hz'] == pytest.approx(128.0)
+    assert summary['metric_details']['natural_frequency_drift']['source_frequency_points_hz'] == [40.0, 60.0, 80.0, 100.0]
+    assert summary['metric_details']['natural_frequency_drift']['fit_param_key'] == 'fit_params_comped'
+    assert 'band-limited fitted center frequency' in summary['metric_details']['natural_frequency_drift']['method']
     assert summary['metric_details']['linearity']['max'] == pytest.approx(10.0)
     assert summary['metric_details']['linearity']['band_max_hz'] == pytest.approx(128.0)
     assert summary['metric_details']['linearity']['frequencies_hz'] == [50.0, 100.0]
@@ -211,6 +220,28 @@ def test_build_project_metrics_summary_extracts_board_inference_metrics(tmp_path
         'comparison': {
             'mae': 0.0456,
         },
+        'published_optimization_profile': 'o2',
+        'optimization_profiles': [
+            {
+                'key': 'o0',
+                'label': '-O0',
+                'status': 'completed',
+                'comparison': {'mae': 0.055},
+                'keil_speed_ms_per_point': 2.5,
+                'keil_speed_points_per_second': 400.0,
+                'ram_bytes': 2048,
+            },
+            {
+                'key': 'o2',
+                'label': '-O2',
+                'status': 'completed',
+                'published': True,
+                'comparison': {'mae': 0.0456},
+                'keil_speed_ms_per_point': 1.0,
+                'keil_speed_points_per_second': 1000.0,
+                'ram_bytes': 1024,
+            },
+        ],
         'parsed_output': {
             'wall_time_per_iter_ms': 200.0,
         },
@@ -230,12 +261,18 @@ def test_build_project_metrics_summary_extracts_board_inference_metrics(tmp_path
     assert summary['board_qemu_mae'] == pytest.approx(0.0123)
     assert summary['board_keil_mae'] == pytest.approx(0.0456)
     assert summary['board_keil_speed'] == pytest.approx(1.0)
+    assert summary['board_keil_fps'] == pytest.approx(1000.0)
     assert summary['board_inference']['keil_speed_unit'] == 'ms/point'
+    assert summary['board_inference']['keil_speed_display_unit'] == 'points/s'
+    assert summary['board_inference']['published_optimization_profile'] == 'o2'
+    assert len(summary['board_inference']['keil_optimization_profiles']) == 2
+    assert summary['board_inference']['keil_optimization_profiles'][0]['keil_speed_points_per_second'] == pytest.approx(400.0)
     assert summary['sources']['board_inference_qemu'] is True
     assert summary['sources']['board_inference_keil'] is True
     assert summary['display_metrics']['QEMU-MAE'] == pytest.approx(0.0123)
     assert summary['display_metrics']['KEIL-MAE'] == pytest.approx(0.0456)
     assert summary['display_metrics']['KEIL-SPEED'] == pytest.approx(1.0)
+    assert summary['display_metrics']['KEIL-FPS'] == pytest.approx(1000.0)
 
 
 def test_build_project_metrics_summary_marks_missing_board_inference_sources(tmp_path):
@@ -253,6 +290,25 @@ def test_build_project_metrics_summary_marks_missing_board_inference_sources(tmp
     assert summary['status'] == 'partial'
     assert 'board_inference.benchmark_summary.json' in summary['missing_sources']
     assert 'board_inference.keil_benchmark_summary.json' in summary['missing_sources']
+
+
+def test_build_project_metrics_summary_clamps_fit_center_frequency_to_band(tmp_path):
+    checkpoint_dir = tmp_path / 'data'
+    checkpoint_dir.mkdir()
+
+    (checkpoint_dir / 'linear_response.json').write_text(json.dumps({
+        'frequencies': [10, 13, 16, 20, 25, 32, 40, 50, 64, 80, 100, 128, 160, 200],
+        'gains_origin': [[1.0] * 14],
+        'gains_comped': [[1.0] * 14],
+        'fit_params_origin': [[1.0, (2 * 3.141592653589793 * 8) ** 2, 1.0]],
+        'fit_params_comped': [[1.0, (2 * 3.141592653589793 * 200) ** 2, 1.0]],
+    }), encoding='utf-8')
+
+    summary = build_project_metrics_summary(str(checkpoint_dir), project_name='demo')
+
+    assert summary['freq_drift_hz'] == pytest.approx(0.0)
+    assert summary['metric_details']['natural_frequency_drift']['median'] == pytest.approx(128.0)
+    assert summary['metric_details']['natural_frequency_drift_origin']['median'] == pytest.approx(10.0)
 
 
 @pytest.mark.parametrize(

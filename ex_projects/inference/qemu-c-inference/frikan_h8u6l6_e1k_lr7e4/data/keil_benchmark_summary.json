@@ -40,6 +40,41 @@
     "success_markers": [
       "validation_complete=1"
     ],
+    "optimization_profiles": [
+      {
+        "key": "project_default",
+        "label": "Project default",
+        "use_project_defaults": true,
+        "optim_value": null,
+        "misc_controls": "",
+        "enable_lto": false
+      },
+      {
+        "key": "o0",
+        "label": "-O0",
+        "use_project_defaults": false,
+        "optim_value": "0",
+        "misc_controls": "-O0",
+        "enable_lto": false
+      },
+      {
+        "key": "o2",
+        "label": "-O2",
+        "use_project_defaults": false,
+        "optim_value": "2",
+        "misc_controls": "-O2",
+        "enable_lto": false
+      },
+      {
+        "key": "ofast_lto",
+        "label": "-Ofast + LTO",
+        "use_project_defaults": false,
+        "optim_value": "3",
+        "misc_controls": "-Ofast",
+        "enable_lto": true
+      }
+    ],
+    "published_optimization_profile": "project_default",
     "keil_cli_path": "C:\\Users\\lyon\\.agents\\skills\\keil\\keil-cli.py"
   },
   "wave_paths": {
@@ -59,12 +94,12 @@
   },
   "status": "completed",
   "keil_build": {
-    "job_id": "20260421_220304_44e020e2",
+    "job_id": "20260423_220020_92a8e2d2",
     "command": "build",
     "status": "completed",
-    "created_at": "2026-04-21T22:03:04.208440",
-    "started_at": "2026-04-21T22:03:04.587087",
-    "finished_at": "2026-04-21T22:03:19.803571",
+    "created_at": "2026-04-23T22:00:20.394160",
+    "started_at": "2026-04-23T22:00:20.706451",
+    "finished_at": "2026-04-23T22:00:37.835387",
     "return_code": 0,
     "success": true,
     "params": {
@@ -90,18 +125,18 @@
       },
       "cleared_build_state_file": null,
       "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
-      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_220304.jsonl"
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220020.jsonl"
     },
-    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_build_20260421_220304.jsonl",
-    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_220304_44e020e2.json"
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220020.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220020_92a8e2d2.json"
   },
   "keil_program": {
-    "job_id": "20260421_220325_9db2cf0e",
+    "job_id": "20260423_220042_cf829978",
     "command": "program",
     "status": "completed",
-    "created_at": "2026-04-21T22:03:25.423252",
-    "started_at": "2026-04-21T22:03:25.852937",
-    "finished_at": "2026-04-21T22:05:22.585773",
+    "created_at": "2026-04-23T22:00:42.849107",
+    "started_at": "2026-04-23T22:00:43.168458",
+    "finished_at": "2026-04-23T22:02:15.529111",
     "return_code": 0,
     "success": true,
     "params": {
@@ -117,7 +152,7 @@
       "message": "Programming successful via Keil UV4",
       "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
       "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
-      "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:05:22",
+      "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:02:15",
       "target": "MET405",
       "reset_and_run_check": {
         "success": true,
@@ -365,24 +400,2159 @@
       },
       "requested_program_backend": "keil",
       "program_backend": "keil",
-      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_220325.jsonl"
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220043.jsonl"
     },
-    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260421\\keil_program_20260421_220325.jsonl",
-    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260421_220325_9db2cf0e.json"
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220043.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220042_cf829978.json"
   },
+  "published_optimization_profile": "project_default",
+  "optimization_profiles": [
+    {
+      "key": "project_default",
+      "label": "Project default",
+      "published": true,
+      "use_project_defaults": true,
+      "optim_value": null,
+      "misc_controls": "",
+      "enable_lto": false,
+      "status": "completed",
+      "keil_build": {
+        "job_id": "20260423_220020_92a8e2d2",
+        "command": "build",
+        "status": "completed",
+        "created_at": "2026-04-23T22:00:20.394160",
+        "started_at": "2026-04-23T22:00:20.706451",
+        "finished_at": "2026-04-23T22:00:37.835387",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": null,
+          "probe": null,
+          "target": "MET405",
+          "program_backend": null
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Build completed successfully",
+          "hex_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405\\MET405_BENCHMARK.hex",
+          "axf_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405\\MET405_BENCHMARK.axf",
+          "warning_count": 0,
+          "target": "MET405",
+          "shared_output_cleanup": {
+            "performed": false,
+            "patterns": [],
+            "removed_count": 0,
+            "removed_files": []
+          },
+          "cleared_build_state_file": null,
+          "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220020.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220020.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220020_92a8e2d2.json"
+      },
+      "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/build_logs/build_output_MET405_project_default.txt",
+      "build_size": {
+        "code_bytes": 14160,
+        "ro_bytes": 722300,
+        "rw_bytes": 0,
+        "zi_bytes": 5704,
+        "flash_bytes": 736460,
+        "ram_bytes": 5704
+      },
+      "code_bytes": 14160,
+      "ro_bytes": 722300,
+      "rw_bytes": 0,
+      "zi_bytes": 5704,
+      "flash_bytes": 736460,
+      "ram_bytes": 5704,
+      "keil_program": {
+        "job_id": "20260423_220042_cf829978",
+        "command": "program",
+        "status": "completed",
+        "created_at": "2026-04-23T22:00:42.849107",
+        "started_at": "2026-04-23T22:00:43.168458",
+        "finished_at": "2026-04-23T22:02:15.529111",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": "daplink",
+          "probe": "205536951525",
+          "target": "MET405",
+          "program_backend": "keil"
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Programming successful via Keil UV4",
+          "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
+          "log_excerpt": "Load \"output\\\\MET405\\\\MET405_BENCHMARK.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:02:15",
+          "target": "MET405",
+          "reset_and_run_check": {
+            "success": true,
+            "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+            "uvoptx": {
+              "path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+              "exists": true
+            },
+            "target_count": 1,
+            "targets": [
+              {
+                "target": "MET405",
+                "status": "on",
+                "managed_fields": {
+                  "run_target": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/OPTTT/RunTarget",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the target download flow is allowed to run the target.",
+                    "enabled": true
+                  },
+                  "enable_flash_seq": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugDescription/EnableFlashSeq",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the configured flash download sequence is enabled.",
+                    "enabled": true
+                  },
+                  "update_flash_before_debugging": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash1/UpdateFlashBeforeDebugging",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether Keil performs flash download before launching a target debug session.",
+                    "enabled": true
+                  }
+                },
+                "related_fields": {
+                  "target_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "target_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "sim_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_run_debug": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sRunDeb",
+                    "value": "0",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side debug flag shown for completeness.",
+                    "enabled": false
+                  },
+                  "flash2": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash2",
+                    "value": "BIN\\UL2CM3.DLL",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured Keil flash backend DLL."
+                  },
+                  "pmon": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/pMon",
+                    "value": "BIN\\CMSIS_AGDI.dll",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured debug monitor / CMSIS-DAP backend path."
+                  }
+                },
+                "warnings": []
+              }
+            ],
+            "managed_fields": [
+              "run_target",
+              "enable_flash_seq",
+              "update_flash_before_debugging"
+            ],
+            "note": "The CLI manages the workspace-validated reset-and-run gate fields and also exposes related debug settings for diagnosis."
+          },
+          "target_build_state_check": {
+            "success": true,
+            "status": "single_target",
+            "requested_target": "MET405",
+            "available_targets": [
+              "MET405"
+            ],
+            "state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+            "shared_output_dirs": []
+          },
+          "uvoptx_probe_check": {
+            "success": true,
+            "status": "bound_probe_online",
+            "target": "MET405",
+            "uvoptx_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+            "binding": {
+              "backend": "BIN\\CMSIS_AGDI.dll",
+              "uses_cmsis_agdi": true,
+              "probe_name": "LUele.CMSIS-DAP",
+              "probe_selector": "205536951525",
+              "probe_uid": "205536951525",
+              "is_any": false,
+              "raw_entry": "-X\"LUele.CMSIS-DAP\" -U205536951525 -O206 -S8 -C0 -P00000000 -N00(\"ARM CoreSight SW-DP\") -D00(2BA01477) -L00(0) -TO65554 -TC10000000 -TT10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO15 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32F405RGTx$CMSIS\\Flash\\STM32F4xx_1024.FLM)"
+            },
+            "requested_probe_uid": "205536951525",
+            "probe_inventory": {
+              "count": 2,
+              "probes": [
+                {
+                  "probe_uid": "110136025020322052503531333031313331303497969903",
+                  "host_unique_id": "110136025020322052503531333031313331303497969903",
+                  "cmsis_dap_serial": "110136025020322052503531333031313331303497969903",
+                  "description": "ARM CMSIS-DAP-HS-MuseLab",
+                  "target": "nrf52",
+                  "type": "daplink"
+                },
+                {
+                  "probe_uid": "205536951525",
+                  "host_unique_id": "SN.33FF4D5074",
+                  "cmsis_dap_serial": "205536951525",
+                  "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                  "target": "n/a",
+                  "type": "daplink"
+                }
+              ],
+              "selection_status": "explicit",
+              "recommended_probe_uid": "205536951525",
+              "recommended_host_uid": "SN.33FF4D5074",
+              "warnings": [
+                "Multiple DAP-Link probes are visible; implicit selection is unsafe."
+              ],
+              "suggestions": [
+                "Re-run with `-u <probe_uid>` to pin the intended probe.",
+                "Use `py -3 keil-cli.py detect -u <probe_uid>` before programming to verify the target behind that probe."
+              ],
+              "requested_probe_uid": "205536951525"
+            },
+            "visible_probe_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "205536951525"
+            ],
+            "visible_host_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "SN.33FF4D5074"
+            ],
+            "visibility_samples": [
+              {
+                "sample_index": 1,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              },
+              {
+                "sample_index": 2,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              }
+            ],
+            "binding_resolution": {
+              "requested_probe_uid": "205536951525",
+              "matched": true,
+              "match_type": "cmsis_dap_serial",
+              "matched_uids": [
+                "205536951525",
+                "SN.33FF4D5074"
+              ],
+              "matched_host_uids": [
+                "SN.33FF4D5074"
+              ],
+              "matched_probe_uids": [
+                "205536951525"
+              ],
+              "probe": {
+                "index": 1,
+                "unique_id": "SN.33FF4D5074",
+                "probe_uid": "205536951525",
+                "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                "target": "n/a",
+                "type": "daplink",
+                "vendor_name": "CMSIS-DAP",
+                "product_name": "LUele.CMSIS-DAP",
+                "host_unique_id": "SN.33FF4D5074",
+                "cmsis_dap_serial": "205536951525",
+                "cmsis_dap_capabilities": 17,
+                "cmsis_dap_packet_count": 8,
+                "cmsis_dap_packet_size": 64,
+                "selector_aliases": [
+                  "205536951525",
+                  "SN.33FF4D5074"
+                ]
+              },
+              "matched_visible_probe_uid": "205536951525",
+              "matched_visible_host_uid": "SN.33FF4D5074"
+            },
+            "matched_visible_probe_uid": "205536951525",
+            "matched_visible_host_uid": "SN.33FF4D5074"
+          },
+          "requested_program_backend": "keil",
+          "program_backend": "keil",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220043.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220043.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220042_cf829978.json"
+      },
+      "serial_capture": {
+        "status": "completed",
+        "port": "COM8",
+        "baud_rate": 115200,
+        "timeout_seconds": 20,
+        "timed_out": false,
+        "record_count": 30,
+        "stream_length": 4522,
+        "matched_success_markers": [
+          "validation_complete=1"
+        ],
+        "missing_success_markers": [],
+        "result_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/.keil_capture/keil_capture_result.json",
+        "jsonl_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_serial_raw.jsonl",
+        "text_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_serial_stream.txt",
+        "error": null,
+        "fetch_result": {
+          "action": "fetch_export",
+          "success": true,
+          "data": {
+            "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
+            "format": "jsonl",
+            "count": 4369,
+            "totalCount": 4369,
+            "dedupCount": 0,
+            "limitApplied": "all",
+            "timeRange": {
+              "start": "2026-04-20T16:31:09.833+0800",
+              "end": "2026-04-23T22:02:16.546+0800"
+            }
+          },
+          "_return_code": 0,
+          "_stderr": ""
+        }
+      },
+      "parsed_output": {
+        "iterations": 10,
+        "record_count": 1,
+        "seq_len": 400,
+        "feature_count": 8,
+        "kan_layer_count": 7,
+        "dwt_supported": 1,
+        "timer_source": "dwt",
+        "measurement_unit": "cycles",
+        "measurement_total": 9160415,
+        "measurement_per_iter": 916041,
+        "cycles_total": 9160415,
+        "cycles_per_iter": 916041,
+        "wall_time_unit": "ms",
+        "wall_time_total_ms": 572.526,
+        "wall_time_per_iter_ms": 57.252,
+        "output": -0.004541,
+        "benchmark_complete": 1
+      },
+      "comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 0.007114359431113517,
+        "mse": 8.668397498991078e-05,
+        "max_abs_error": 0.05133537962997602,
+        "c_output_stats": {
+          "min": -0.098662,
+          "max": 0.113203,
+          "mean": 0.008003742500000001,
+          "energy": 0.25602362224499997
+        },
+        "tf_output_stats": {
+          "min": -0.08575947358650836,
+          "max": 0.10754314605276995,
+          "mean": 0.0029351753189268675,
+          "energy": 0.20830241078317024
+        },
+        "diff_stats": {
+          "min": -0.05133537962997602,
+          "max": 0.03389796292667848,
+          "mean": 0.0050685671810731334,
+          "energy": 0.034673589995964316
+        }
+      },
+      "comparison_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_validation_comparison.json",
+      "keil_wave_paths": {
+        "keil_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/keil_output.wave"
+      },
+      "validation_point_count": 400,
+      "keil_speed_ms_per_point": 0.14313,
+      "keil_speed_points_per_second": 6986.655488017886,
+      "validation_status": "completed",
+      "qemu_reference_comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 3.192406892570804e-10,
+        "rmse": 5.94018668133134e-10,
+        "max_abs_error": 3.57580184906503e-09,
+        "qemu_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/c_output.wave"
+      },
+      "validation_outputs": {
+        "record_0": [
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.049801,
+          -0.049801,
+          -0.042173,
+          -0.049801,
+          -0.049801,
+          -0.042173,
+          -0.042173,
+          -0.061929,
+          0.076775,
+          0.038943,
+          0.113203,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.056009,
+          0.056009,
+          0.056009,
+          0.045751,
+          0.045751,
+          0.045751,
+          0.045751,
+          0.045751,
+          0.017228,
+          -0.078029,
+          -0.098662,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.049801,
+          -0.004541,
+          -0.004541,
+          -0.049801,
+          -0.049801,
+          -0.049801,
+          -0.049801,
+          -0.049801,
+          -0.049801,
+          -0.042173,
+          -0.022976,
+          -0.061929,
+          0.076775,
+          0.038943,
+          0.113203,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.021467,
+          0.056009,
+          0.056009,
+          0.056009,
+          0.056009,
+          0.056009,
+          0.045751,
+          0.045751,
+          0.051983,
+          0.017228,
+          0.017228,
+          -0.078029,
+          -0.098662,
+          -0.098662,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541,
+          -0.004541
+        ]
+      }
+    },
+    {
+      "key": "o0",
+      "label": "-O0",
+      "published": false,
+      "use_project_defaults": false,
+      "optim_value": "0",
+      "misc_controls": "-O0",
+      "enable_lto": false,
+      "status": "completed",
+      "keil_build": {
+        "job_id": "20260423_220219_6903f083",
+        "command": "build",
+        "status": "completed",
+        "created_at": "2026-04-23T22:02:19.412912",
+        "started_at": "2026-04-23T22:02:19.726841",
+        "finished_at": "2026-04-23T22:02:35.137822",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": null,
+          "probe": null,
+          "target": "MET405",
+          "program_backend": null
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Build completed successfully",
+          "hex_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405_o0\\MET405_BENCHMARK_o0.hex",
+          "axf_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405_o0\\MET405_BENCHMARK_o0.axf",
+          "warning_count": 0,
+          "target": "MET405",
+          "shared_output_cleanup": {
+            "performed": false,
+            "patterns": [],
+            "removed_count": 0,
+            "removed_files": []
+          },
+          "cleared_build_state_file": null,
+          "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220219.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220219.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220219_6903f083.json"
+      },
+      "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/build_logs/build_output_MET405_o0.txt",
+      "build_size": {
+        "code_bytes": 22984,
+        "ro_bytes": 722628,
+        "rw_bytes": 0,
+        "zi_bytes": 88904,
+        "flash_bytes": 745612,
+        "ram_bytes": 88904
+      },
+      "code_bytes": 22984,
+      "ro_bytes": 722628,
+      "rw_bytes": 0,
+      "zi_bytes": 88904,
+      "flash_bytes": 745612,
+      "ram_bytes": 88904,
+      "keil_program": {
+        "job_id": "20260423_220240_0bd6c175",
+        "command": "program",
+        "status": "completed",
+        "created_at": "2026-04-23T22:02:40.173597",
+        "started_at": "2026-04-23T22:02:40.468156",
+        "finished_at": "2026-04-23T22:04:11.108664",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": "daplink",
+          "probe": "205536951525",
+          "target": "MET405",
+          "program_backend": "keil"
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Programming successful via Keil UV4",
+          "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
+          "log_excerpt": "Load \"output\\\\MET405_o0\\\\MET405_BENCHMARK_o0.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:04:10",
+          "target": "MET405",
+          "reset_and_run_check": {
+            "success": true,
+            "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+            "uvoptx": {
+              "path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+              "exists": true
+            },
+            "target_count": 1,
+            "targets": [
+              {
+                "target": "MET405",
+                "status": "on",
+                "managed_fields": {
+                  "run_target": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/OPTTT/RunTarget",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the target download flow is allowed to run the target.",
+                    "enabled": true
+                  },
+                  "enable_flash_seq": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugDescription/EnableFlashSeq",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the configured flash download sequence is enabled.",
+                    "enabled": true
+                  },
+                  "update_flash_before_debugging": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash1/UpdateFlashBeforeDebugging",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether Keil performs flash download before launching a target debug session.",
+                    "enabled": true
+                  }
+                },
+                "related_fields": {
+                  "target_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "target_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "sim_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_run_debug": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sRunDeb",
+                    "value": "0",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side debug flag shown for completeness.",
+                    "enabled": false
+                  },
+                  "flash2": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash2",
+                    "value": "BIN\\UL2CM3.DLL",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured Keil flash backend DLL."
+                  },
+                  "pmon": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/pMon",
+                    "value": "BIN\\CMSIS_AGDI.dll",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured debug monitor / CMSIS-DAP backend path."
+                  }
+                },
+                "warnings": []
+              }
+            ],
+            "managed_fields": [
+              "run_target",
+              "enable_flash_seq",
+              "update_flash_before_debugging"
+            ],
+            "note": "The CLI manages the workspace-validated reset-and-run gate fields and also exposes related debug settings for diagnosis."
+          },
+          "target_build_state_check": {
+            "success": true,
+            "status": "single_target",
+            "requested_target": "MET405",
+            "available_targets": [
+              "MET405"
+            ],
+            "state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+            "shared_output_dirs": []
+          },
+          "uvoptx_probe_check": {
+            "success": true,
+            "status": "bound_probe_online",
+            "target": "MET405",
+            "uvoptx_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+            "binding": {
+              "backend": "BIN\\CMSIS_AGDI.dll",
+              "uses_cmsis_agdi": true,
+              "probe_name": "LUele.CMSIS-DAP",
+              "probe_selector": "205536951525",
+              "probe_uid": "205536951525",
+              "is_any": false,
+              "raw_entry": "-X\"LUele.CMSIS-DAP\" -U205536951525 -O206 -S8 -C0 -P00000000 -N00(\"ARM CoreSight SW-DP\") -D00(2BA01477) -L00(0) -TO65554 -TC10000000 -TT10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO15 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32F405RGTx$CMSIS\\Flash\\STM32F4xx_1024.FLM)"
+            },
+            "requested_probe_uid": "205536951525",
+            "probe_inventory": {
+              "count": 2,
+              "probes": [
+                {
+                  "probe_uid": "110136025020322052503531333031313331303497969903",
+                  "host_unique_id": "110136025020322052503531333031313331303497969903",
+                  "cmsis_dap_serial": "110136025020322052503531333031313331303497969903",
+                  "description": "ARM CMSIS-DAP-HS-MuseLab",
+                  "target": "nrf52",
+                  "type": "daplink"
+                },
+                {
+                  "probe_uid": "205536951525",
+                  "host_unique_id": "SN.33FF4D5074",
+                  "cmsis_dap_serial": "205536951525",
+                  "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                  "target": "n/a",
+                  "type": "daplink"
+                }
+              ],
+              "selection_status": "explicit",
+              "recommended_probe_uid": "205536951525",
+              "recommended_host_uid": "SN.33FF4D5074",
+              "warnings": [
+                "Multiple DAP-Link probes are visible; implicit selection is unsafe."
+              ],
+              "suggestions": [
+                "Re-run with `-u <probe_uid>` to pin the intended probe.",
+                "Use `py -3 keil-cli.py detect -u <probe_uid>` before programming to verify the target behind that probe."
+              ],
+              "requested_probe_uid": "205536951525"
+            },
+            "visible_probe_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "205536951525"
+            ],
+            "visible_host_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "SN.33FF4D5074"
+            ],
+            "visibility_samples": [
+              {
+                "sample_index": 1,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              },
+              {
+                "sample_index": 2,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              }
+            ],
+            "binding_resolution": {
+              "requested_probe_uid": "205536951525",
+              "matched": true,
+              "match_type": "cmsis_dap_serial",
+              "matched_uids": [
+                "205536951525",
+                "SN.33FF4D5074"
+              ],
+              "matched_host_uids": [
+                "SN.33FF4D5074"
+              ],
+              "matched_probe_uids": [
+                "205536951525"
+              ],
+              "probe": {
+                "index": 1,
+                "unique_id": "SN.33FF4D5074",
+                "probe_uid": "205536951525",
+                "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                "target": "n/a",
+                "type": "daplink",
+                "vendor_name": "CMSIS-DAP",
+                "product_name": "LUele.CMSIS-DAP",
+                "host_unique_id": "SN.33FF4D5074",
+                "cmsis_dap_serial": "205536951525",
+                "cmsis_dap_capabilities": 17,
+                "cmsis_dap_packet_count": 8,
+                "cmsis_dap_packet_size": 64,
+                "selector_aliases": [
+                  "205536951525",
+                  "SN.33FF4D5074"
+                ]
+              },
+              "matched_visible_probe_uid": "205536951525",
+              "matched_visible_host_uid": "SN.33FF4D5074"
+            },
+            "matched_visible_probe_uid": "205536951525",
+            "matched_visible_host_uid": "SN.33FF4D5074"
+          },
+          "requested_program_backend": "keil",
+          "program_backend": "keil",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220240.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220240.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220240_0bd6c175.json"
+      },
+      "serial_capture": {
+        "status": "completed",
+        "port": "COM8",
+        "baud_rate": 115200,
+        "timeout_seconds": 20,
+        "timed_out": false,
+        "record_count": 29,
+        "stream_length": 4488,
+        "matched_success_markers": [
+          "validation_complete=1"
+        ],
+        "missing_success_markers": [],
+        "result_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/.keil_capture/keil_o0_capture_result.json",
+        "jsonl_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_o0_serial_raw.jsonl",
+        "text_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_o0_serial_stream.txt",
+        "error": null,
+        "fetch_result": {
+          "action": "fetch_export",
+          "success": true,
+          "data": {
+            "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
+            "format": "jsonl",
+            "count": 4398,
+            "totalCount": 4398,
+            "dedupCount": 0,
+            "limitApplied": "all",
+            "timeRange": {
+              "start": "2026-04-20T16:31:09.833+0800",
+              "end": "2026-04-23T22:04:13.653+0800"
+            }
+          },
+          "_return_code": 0,
+          "_stderr": ""
+        }
+      },
+      "parsed_output": {
+        "iterations": 10,
+        "record_count": 1,
+        "seq_len": 400,
+        "feature_count": 8,
+        "kan_layer_count": 7,
+        "dwt_supported": 1,
+        "timer_source": "dwt",
+        "measurement_unit": "cycles",
+        "measurement_total": 28641679,
+        "measurement_per_iter": 2864167,
+        "cycles_total": 28641679,
+        "cycles_per_iter": 2864167,
+        "wall_time_unit": "ms",
+        "wall_time_total_ms": 1790.106,
+        "wall_time_per_iter_ms": 179.01,
+        "output": -0.004541,
+        "benchmark_complete": 1
+      },
+      "comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 0.007114359431113517,
+        "mse": 8.668397498991078e-05,
+        "max_abs_error": 0.05133537962997602,
+        "c_output_stats": {
+          "min": -0.098662,
+          "max": 0.113203,
+          "mean": 0.008003742500000001,
+          "energy": 0.25602362224499997
+        },
+        "tf_output_stats": {
+          "min": -0.08575947358650836,
+          "max": 0.10754314605276995,
+          "mean": 0.0029351753189268675,
+          "energy": 0.20830241078317024
+        },
+        "diff_stats": {
+          "min": -0.05133537962997602,
+          "max": 0.03389796292667848,
+          "mean": 0.0050685671810731334,
+          "energy": 0.034673589995964316
+        }
+      },
+      "comparison_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_validation_comparison_o0.json",
+      "keil_wave_paths": {
+        "keil_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/keil_output_o0.wave"
+      },
+      "validation_point_count": 400,
+      "keil_speed_ms_per_point": 0.44752499999999995,
+      "keil_speed_points_per_second": 2234.5120384336074,
+      "validation_status": "completed",
+      "qemu_reference_comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 3.192406892570804e-10,
+        "rmse": 5.94018668133134e-10,
+        "max_abs_error": 3.57580184906503e-09,
+        "qemu_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/c_output.wave"
+      }
+    },
+    {
+      "key": "o2",
+      "label": "-O2",
+      "published": false,
+      "use_project_defaults": false,
+      "optim_value": "2",
+      "misc_controls": "-O2",
+      "enable_lto": false,
+      "status": "completed",
+      "keil_build": {
+        "job_id": "20260423_220415_7c56bd16",
+        "command": "build",
+        "status": "completed",
+        "created_at": "2026-04-23T22:04:15.005311",
+        "started_at": "2026-04-23T22:04:15.329068",
+        "finished_at": "2026-04-23T22:04:36.031753",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": null,
+          "probe": null,
+          "target": "MET405",
+          "program_backend": null
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Build completed successfully",
+          "hex_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405_o2\\MET405_BENCHMARK_o2.hex",
+          "axf_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405_o2\\MET405_BENCHMARK_o2.axf",
+          "warning_count": 0,
+          "target": "MET405",
+          "shared_output_cleanup": {
+            "performed": false,
+            "patterns": [],
+            "removed_count": 0,
+            "removed_files": []
+          },
+          "cleared_build_state_file": null,
+          "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220415.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220415.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220415_7c56bd16.json"
+      },
+      "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/build_logs/build_output_MET405_o2.txt",
+      "build_size": {
+        "code_bytes": 14160,
+        "ro_bytes": 722300,
+        "rw_bytes": 0,
+        "zi_bytes": 5704,
+        "flash_bytes": 736460,
+        "ram_bytes": 5704
+      },
+      "code_bytes": 14160,
+      "ro_bytes": 722300,
+      "rw_bytes": 0,
+      "zi_bytes": 5704,
+      "flash_bytes": 736460,
+      "ram_bytes": 5704,
+      "keil_program": {
+        "job_id": "20260423_220441_5697f5c7",
+        "command": "program",
+        "status": "completed",
+        "created_at": "2026-04-23T22:04:41.516752",
+        "started_at": "2026-04-23T22:04:41.858798",
+        "finished_at": "2026-04-23T22:06:12.401823",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": "daplink",
+          "probe": "205536951525",
+          "target": "MET405",
+          "program_backend": "keil"
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Programming successful via Keil UV4",
+          "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
+          "log_excerpt": "Load \"output\\\\MET405_o2\\\\MET405_BENCHMARK_o2.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:06:12",
+          "target": "MET405",
+          "reset_and_run_check": {
+            "success": true,
+            "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+            "uvoptx": {
+              "path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+              "exists": true
+            },
+            "target_count": 1,
+            "targets": [
+              {
+                "target": "MET405",
+                "status": "on",
+                "managed_fields": {
+                  "run_target": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/OPTTT/RunTarget",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the target download flow is allowed to run the target.",
+                    "enabled": true
+                  },
+                  "enable_flash_seq": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugDescription/EnableFlashSeq",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the configured flash download sequence is enabled.",
+                    "enabled": true
+                  },
+                  "update_flash_before_debugging": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash1/UpdateFlashBeforeDebugging",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether Keil performs flash download before launching a target debug session.",
+                    "enabled": true
+                  }
+                },
+                "related_fields": {
+                  "target_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "target_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "sim_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_run_debug": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sRunDeb",
+                    "value": "0",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side debug flag shown for completeness.",
+                    "enabled": false
+                  },
+                  "flash2": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash2",
+                    "value": "BIN\\UL2CM3.DLL",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured Keil flash backend DLL."
+                  },
+                  "pmon": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/pMon",
+                    "value": "BIN\\CMSIS_AGDI.dll",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured debug monitor / CMSIS-DAP backend path."
+                  }
+                },
+                "warnings": []
+              }
+            ],
+            "managed_fields": [
+              "run_target",
+              "enable_flash_seq",
+              "update_flash_before_debugging"
+            ],
+            "note": "The CLI manages the workspace-validated reset-and-run gate fields and also exposes related debug settings for diagnosis."
+          },
+          "target_build_state_check": {
+            "success": true,
+            "status": "single_target",
+            "requested_target": "MET405",
+            "available_targets": [
+              "MET405"
+            ],
+            "state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+            "shared_output_dirs": []
+          },
+          "uvoptx_probe_check": {
+            "success": true,
+            "status": "bound_probe_online",
+            "target": "MET405",
+            "uvoptx_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+            "binding": {
+              "backend": "BIN\\CMSIS_AGDI.dll",
+              "uses_cmsis_agdi": true,
+              "probe_name": "LUele.CMSIS-DAP",
+              "probe_selector": "205536951525",
+              "probe_uid": "205536951525",
+              "is_any": false,
+              "raw_entry": "-X\"LUele.CMSIS-DAP\" -U205536951525 -O206 -S8 -C0 -P00000000 -N00(\"ARM CoreSight SW-DP\") -D00(2BA01477) -L00(0) -TO65554 -TC10000000 -TT10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO15 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32F405RGTx$CMSIS\\Flash\\STM32F4xx_1024.FLM)"
+            },
+            "requested_probe_uid": "205536951525",
+            "probe_inventory": {
+              "count": 2,
+              "probes": [
+                {
+                  "probe_uid": "110136025020322052503531333031313331303497969903",
+                  "host_unique_id": "110136025020322052503531333031313331303497969903",
+                  "cmsis_dap_serial": "110136025020322052503531333031313331303497969903",
+                  "description": "ARM CMSIS-DAP-HS-MuseLab",
+                  "target": "nrf52",
+                  "type": "daplink"
+                },
+                {
+                  "probe_uid": "205536951525",
+                  "host_unique_id": "SN.33FF4D5074",
+                  "cmsis_dap_serial": "205536951525",
+                  "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                  "target": "n/a",
+                  "type": "daplink"
+                }
+              ],
+              "selection_status": "explicit",
+              "recommended_probe_uid": "205536951525",
+              "recommended_host_uid": "SN.33FF4D5074",
+              "warnings": [
+                "Multiple DAP-Link probes are visible; implicit selection is unsafe."
+              ],
+              "suggestions": [
+                "Re-run with `-u <probe_uid>` to pin the intended probe.",
+                "Use `py -3 keil-cli.py detect -u <probe_uid>` before programming to verify the target behind that probe."
+              ],
+              "requested_probe_uid": "205536951525"
+            },
+            "visible_probe_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "205536951525"
+            ],
+            "visible_host_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "SN.33FF4D5074"
+            ],
+            "visibility_samples": [
+              {
+                "sample_index": 1,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              },
+              {
+                "sample_index": 2,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              }
+            ],
+            "binding_resolution": {
+              "requested_probe_uid": "205536951525",
+              "matched": true,
+              "match_type": "cmsis_dap_serial",
+              "matched_uids": [
+                "205536951525",
+                "SN.33FF4D5074"
+              ],
+              "matched_host_uids": [
+                "SN.33FF4D5074"
+              ],
+              "matched_probe_uids": [
+                "205536951525"
+              ],
+              "probe": {
+                "index": 1,
+                "unique_id": "SN.33FF4D5074",
+                "probe_uid": "205536951525",
+                "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                "target": "n/a",
+                "type": "daplink",
+                "vendor_name": "CMSIS-DAP",
+                "product_name": "LUele.CMSIS-DAP",
+                "host_unique_id": "SN.33FF4D5074",
+                "cmsis_dap_serial": "205536951525",
+                "cmsis_dap_capabilities": 17,
+                "cmsis_dap_packet_count": 8,
+                "cmsis_dap_packet_size": 64,
+                "selector_aliases": [
+                  "205536951525",
+                  "SN.33FF4D5074"
+                ]
+              },
+              "matched_visible_probe_uid": "205536951525",
+              "matched_visible_host_uid": "SN.33FF4D5074"
+            },
+            "matched_visible_probe_uid": "205536951525",
+            "matched_visible_host_uid": "SN.33FF4D5074"
+          },
+          "requested_program_backend": "keil",
+          "program_backend": "keil",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220441.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220441.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220441_5697f5c7.json"
+      },
+      "serial_capture": {
+        "status": "completed",
+        "port": "COM8",
+        "baud_rate": 115200,
+        "timeout_seconds": 20,
+        "timed_out": false,
+        "record_count": 29,
+        "stream_length": 4524,
+        "matched_success_markers": [
+          "validation_complete=1"
+        ],
+        "missing_success_markers": [],
+        "result_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/.keil_capture/keil_o2_capture_result.json",
+        "jsonl_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_o2_serial_raw.jsonl",
+        "text_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_o2_serial_stream.txt",
+        "error": null,
+        "fetch_result": {
+          "action": "fetch_export",
+          "success": true,
+          "data": {
+            "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
+            "format": "jsonl",
+            "count": 4427,
+            "totalCount": 4427,
+            "dedupCount": 0,
+            "limitApplied": "all",
+            "timeRange": {
+              "start": "2026-04-20T16:31:09.833+0800",
+              "end": "2026-04-23T22:06:13.466+0800"
+            }
+          },
+          "_return_code": 0,
+          "_stderr": ""
+        }
+      },
+      "parsed_output": {
+        "iterations": 10,
+        "record_count": 1,
+        "seq_len": 400,
+        "feature_count": 8,
+        "kan_layer_count": 7,
+        "dwt_supported": 1,
+        "timer_source": "dwt",
+        "measurement_unit": "cycles",
+        "measurement_total": 9160415,
+        "measurement_per_iter": 916041,
+        "cycles_total": 9160415,
+        "cycles_per_iter": 916041,
+        "wall_time_unit": "ms",
+        "wall_time_total_ms": 572.526,
+        "wall_time_per_iter_ms": 57.252,
+        "output": -0.004541,
+        "benchmark_complete": 1
+      },
+      "comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 0.007114359431113517,
+        "mse": 8.668397498991078e-05,
+        "max_abs_error": 0.05133537962997602,
+        "c_output_stats": {
+          "min": -0.098662,
+          "max": 0.113203,
+          "mean": 0.008003742500000001,
+          "energy": 0.25602362224499997
+        },
+        "tf_output_stats": {
+          "min": -0.08575947358650836,
+          "max": 0.10754314605276995,
+          "mean": 0.0029351753189268675,
+          "energy": 0.20830241078317024
+        },
+        "diff_stats": {
+          "min": -0.05133537962997602,
+          "max": 0.03389796292667848,
+          "mean": 0.0050685671810731334,
+          "energy": 0.034673589995964316
+        }
+      },
+      "comparison_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_validation_comparison_o2.json",
+      "keil_wave_paths": {
+        "keil_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/keil_output_o2.wave"
+      },
+      "validation_point_count": 400,
+      "keil_speed_ms_per_point": 0.14313,
+      "keil_speed_points_per_second": 6986.655488017886,
+      "validation_status": "completed",
+      "qemu_reference_comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 3.192406892570804e-10,
+        "rmse": 5.94018668133134e-10,
+        "max_abs_error": 3.57580184906503e-09,
+        "qemu_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/c_output.wave"
+      }
+    },
+    {
+      "key": "ofast_lto",
+      "label": "-Ofast + LTO",
+      "published": false,
+      "use_project_defaults": false,
+      "optim_value": "3",
+      "misc_controls": "-Ofast",
+      "enable_lto": true,
+      "status": "completed",
+      "keil_build": {
+        "job_id": "20260423_220615_6299ed47",
+        "command": "build",
+        "status": "completed",
+        "created_at": "2026-04-23T22:06:15.210174",
+        "started_at": "2026-04-23T22:06:15.517221",
+        "finished_at": "2026-04-23T22:06:33.247522",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": null,
+          "probe": null,
+          "target": "MET405",
+          "program_backend": null
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Build completed successfully",
+          "hex_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405_ofast_lto\\MET405_BENCHMARK_ofast_lto.hex",
+          "axf_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\MET405_ofast_lto\\MET405_BENCHMARK_ofast_lto.axf",
+          "warning_count": 0,
+          "target": "MET405",
+          "shared_output_cleanup": {
+            "performed": false,
+            "patterns": [],
+            "removed_count": 0,
+            "removed_files": []
+          },
+          "cleared_build_state_file": null,
+          "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220615.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_build_20260423_220615.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220615_6299ed47.json"
+      },
+      "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/build_logs/build_output_MET405_ofast_lto.txt",
+      "build_size": {
+        "code_bytes": 16536,
+        "ro_bytes": 722140,
+        "rw_bytes": 0,
+        "zi_bytes": 5704,
+        "flash_bytes": 738676,
+        "ram_bytes": 5704
+      },
+      "code_bytes": 16536,
+      "ro_bytes": 722140,
+      "rw_bytes": 0,
+      "zi_bytes": 5704,
+      "flash_bytes": 738676,
+      "ram_bytes": 5704,
+      "keil_program": {
+        "job_id": "20260423_220639_da97f494",
+        "command": "program",
+        "status": "completed",
+        "created_at": "2026-04-23T22:06:39.009147",
+        "started_at": "2026-04-23T22:06:39.339740",
+        "finished_at": "2026-04-23T22:08:09.354647",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": "daplink",
+          "probe": "205536951525",
+          "target": "MET405",
+          "program_backend": "keil"
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Programming successful via Keil UV4",
+          "output_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "program_log": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\uv4_program_MET405.log",
+          "log_excerpt": "Load \"output\\\\MET405_ofast_lto\\\\MET405_BENCHMARK_ofast_lto.axf\" \nErase Done.Programming Done.Verify OK.Application running ...\nFlash Load finished at 22:08:09",
+          "target": "MET405",
+          "reset_and_run_check": {
+            "success": true,
+            "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+            "uvoptx": {
+              "path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+              "exists": true
+            },
+            "target_count": 1,
+            "targets": [
+              {
+                "target": "MET405",
+                "status": "on",
+                "managed_fields": {
+                  "run_target": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/OPTTT/RunTarget",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the target download flow is allowed to run the target.",
+                    "enabled": true
+                  },
+                  "enable_flash_seq": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugDescription/EnableFlashSeq",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether the configured flash download sequence is enabled.",
+                    "enabled": true
+                  },
+                  "update_flash_before_debugging": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash1/UpdateFlashBeforeDebugging",
+                    "value": "1",
+                    "present": true,
+                    "mutable": true,
+                    "description": "Whether Keil performs flash download before launching a target debug session.",
+                    "enabled": true
+                  }
+                },
+                "related_fields": {
+                  "target_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "target_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/tGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Related target-debug option kept visible for diagnosis.",
+                    "enabled": true
+                  },
+                  "sim_load_app": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sLdApp",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_go_main": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sGomain",
+                    "value": "1",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side setting shown for completeness.",
+                    "enabled": true
+                  },
+                  "sim_run_debug": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/sRunDeb",
+                    "value": "0",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Simulator-side debug flag shown for completeness.",
+                    "enabled": false
+                  },
+                  "flash2": {
+                    "source": "uvprojx",
+                    "path": "TargetOption/Utilities/Flash2",
+                    "value": "BIN\\UL2CM3.DLL",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured Keil flash backend DLL."
+                  },
+                  "pmon": {
+                    "source": "uvoptx",
+                    "path": "TargetOption/DebugOpt/pMon",
+                    "value": "BIN\\CMSIS_AGDI.dll",
+                    "present": true,
+                    "mutable": false,
+                    "description": "Configured debug monitor / CMSIS-DAP backend path."
+                  }
+                },
+                "warnings": []
+              }
+            ],
+            "managed_fields": [
+              "run_target",
+              "enable_flash_seq",
+              "update_flash_before_debugging"
+            ],
+            "note": "The CLI manages the workspace-validated reset-and-run gate fields and also exposes related debug settings for diagnosis."
+          },
+          "target_build_state_check": {
+            "success": true,
+            "status": "single_target",
+            "requested_target": "MET405",
+            "available_targets": [
+              "MET405"
+            ],
+            "state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+            "shared_output_dirs": []
+          },
+          "uvoptx_probe_check": {
+            "success": true,
+            "status": "bound_probe_online",
+            "target": "MET405",
+            "uvoptx_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\keil_project\\MDK-ARM\\Electrochemical geophone.uvoptx",
+            "binding": {
+              "backend": "BIN\\CMSIS_AGDI.dll",
+              "uses_cmsis_agdi": true,
+              "probe_name": "LUele.CMSIS-DAP",
+              "probe_selector": "205536951525",
+              "probe_uid": "205536951525",
+              "is_any": false,
+              "raw_entry": "-X\"LUele.CMSIS-DAP\" -U205536951525 -O206 -S8 -C0 -P00000000 -N00(\"ARM CoreSight SW-DP\") -D00(2BA01477) -L00(0) -TO65554 -TC10000000 -TT10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO15 -FD20000000 -FC1000 -FN1 -FF0STM32F4xx_1024.FLM -FS08000000 -FL0100000 -FP0($$Device:STM32F405RGTx$CMSIS\\Flash\\STM32F4xx_1024.FLM)"
+            },
+            "requested_probe_uid": "205536951525",
+            "probe_inventory": {
+              "count": 2,
+              "probes": [
+                {
+                  "probe_uid": "110136025020322052503531333031313331303497969903",
+                  "host_unique_id": "110136025020322052503531333031313331303497969903",
+                  "cmsis_dap_serial": "110136025020322052503531333031313331303497969903",
+                  "description": "ARM CMSIS-DAP-HS-MuseLab",
+                  "target": "nrf52",
+                  "type": "daplink"
+                },
+                {
+                  "probe_uid": "205536951525",
+                  "host_unique_id": "SN.33FF4D5074",
+                  "cmsis_dap_serial": "205536951525",
+                  "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                  "target": "n/a",
+                  "type": "daplink"
+                }
+              ],
+              "selection_status": "explicit",
+              "recommended_probe_uid": "205536951525",
+              "recommended_host_uid": "SN.33FF4D5074",
+              "warnings": [
+                "Multiple DAP-Link probes are visible; implicit selection is unsafe."
+              ],
+              "suggestions": [
+                "Re-run with `-u <probe_uid>` to pin the intended probe.",
+                "Use `py -3 keil-cli.py detect -u <probe_uid>` before programming to verify the target behind that probe."
+              ],
+              "requested_probe_uid": "205536951525"
+            },
+            "visible_probe_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "205536951525"
+            ],
+            "visible_host_uids": [
+              "110136025020322052503531333031313331303497969903",
+              "SN.33FF4D5074"
+            ],
+            "visibility_samples": [
+              {
+                "sample_index": 1,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              },
+              {
+                "sample_index": 2,
+                "count": 2,
+                "probe_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "205536951525"
+                ],
+                "host_uids": [
+                  "110136025020322052503531333031313331303497969903",
+                  "SN.33FF4D5074"
+                ]
+              }
+            ],
+            "binding_resolution": {
+              "requested_probe_uid": "205536951525",
+              "matched": true,
+              "match_type": "cmsis_dap_serial",
+              "matched_uids": [
+                "205536951525",
+                "SN.33FF4D5074"
+              ],
+              "matched_host_uids": [
+                "SN.33FF4D5074"
+              ],
+              "matched_probe_uids": [
+                "205536951525"
+              ],
+              "probe": {
+                "index": 1,
+                "unique_id": "SN.33FF4D5074",
+                "probe_uid": "205536951525",
+                "description": "CMSIS-DAP LUele.CMSIS-DAP",
+                "target": "n/a",
+                "type": "daplink",
+                "vendor_name": "CMSIS-DAP",
+                "product_name": "LUele.CMSIS-DAP",
+                "host_unique_id": "SN.33FF4D5074",
+                "cmsis_dap_serial": "205536951525",
+                "cmsis_dap_capabilities": 17,
+                "cmsis_dap_packet_count": 8,
+                "cmsis_dap_packet_size": 64,
+                "selector_aliases": [
+                  "205536951525",
+                  "SN.33FF4D5074"
+                ]
+              },
+              "matched_visible_probe_uid": "205536951525",
+              "matched_visible_host_uid": "SN.33FF4D5074"
+            },
+            "matched_visible_probe_uid": "205536951525",
+            "matched_visible_host_uid": "SN.33FF4D5074"
+          },
+          "requested_program_backend": "keil",
+          "program_backend": "keil",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220639.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260423\\keil_program_20260423_220639.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260423_220639_da97f494.json"
+      },
+      "serial_capture": {
+        "status": "completed",
+        "port": "COM8",
+        "baud_rate": 115200,
+        "timeout_seconds": 20,
+        "timed_out": false,
+        "record_count": 30,
+        "stream_length": 4522,
+        "matched_success_markers": [
+          "validation_complete=1"
+        ],
+        "missing_success_markers": [],
+        "result_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/.keil_capture/keil_ofast_lto_capture_result.json",
+        "jsonl_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_ofast_lto_serial_raw.jsonl",
+        "text_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_ofast_lto_serial_stream.txt",
+        "error": null,
+        "fetch_result": {
+          "action": "fetch_export",
+          "success": true,
+          "data": {
+            "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
+            "format": "jsonl",
+            "count": 4457,
+            "totalCount": 4457,
+            "dedupCount": 0,
+            "limitApplied": "all",
+            "timeRange": {
+              "start": "2026-04-20T16:31:09.833+0800",
+              "end": "2026-04-23T22:08:10.397+0800"
+            }
+          },
+          "_return_code": 0,
+          "_stderr": ""
+        }
+      },
+      "parsed_output": {
+        "iterations": 10,
+        "record_count": 1,
+        "seq_len": 400,
+        "feature_count": 8,
+        "kan_layer_count": 7,
+        "dwt_supported": 1,
+        "timer_source": "dwt",
+        "measurement_unit": "cycles",
+        "measurement_total": 9066118,
+        "measurement_per_iter": 906611,
+        "cycles_total": 9066118,
+        "cycles_per_iter": 906611,
+        "wall_time_unit": "ms",
+        "wall_time_total_ms": 566.632,
+        "wall_time_per_iter_ms": 56.663,
+        "output": -0.004541,
+        "benchmark_complete": 1
+      },
+      "comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 0.007114359431113517,
+        "mse": 8.668397498991078e-05,
+        "max_abs_error": 0.05133537962997602,
+        "c_output_stats": {
+          "min": -0.098662,
+          "max": 0.113203,
+          "mean": 0.008003742500000001,
+          "energy": 0.25602362224499997
+        },
+        "tf_output_stats": {
+          "min": -0.08575947358650836,
+          "max": 0.10754314605276995,
+          "mean": 0.0029351753189268675,
+          "energy": 0.20830241078317024
+        },
+        "diff_stats": {
+          "min": -0.05133537962997602,
+          "max": 0.03389796292667848,
+          "mean": 0.0050685671810731334,
+          "energy": 0.034673589995964316
+        }
+      },
+      "comparison_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_validation_comparison_ofast_lto.json",
+      "keil_wave_paths": {
+        "keil_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/keil_output_ofast_lto.wave"
+      },
+      "validation_point_count": 400,
+      "keil_speed_ms_per_point": 0.1416575,
+      "keil_speed_points_per_second": 7059.280306372766,
+      "validation_status": "completed",
+      "qemu_reference_comparison": {
+        "record_count": 1,
+        "sample_count": 400,
+        "mae": 3.192406892570804e-10,
+        "rmse": 5.94018668133134e-10,
+        "max_abs_error": 3.57580184906503e-09,
+        "qemu_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/c_output.wave"
+      }
+    }
+  ],
   "serial_capture": {
     "status": "completed",
     "port": "COM8",
     "baud_rate": 115200,
     "timeout_seconds": 20,
     "timed_out": false,
-    "record_count": 29,
-    "stream_length": 4513,
+    "record_count": 30,
+    "stream_length": 4522,
     "matched_success_markers": [
       "validation_complete=1"
     ],
     "missing_success_markers": [],
-    "result_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/.keil_capture/capture_result.json",
+    "result_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/.keil_capture/keil_capture_result.json",
     "jsonl_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_serial_raw.jsonl",
     "text_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/keil_serial_stream.txt",
     "error": null,
@@ -392,13 +2562,13 @@
       "data": {
         "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
         "format": "jsonl",
-        "count": 3532,
-        "totalCount": 3532,
+        "count": 4369,
+        "totalCount": 4369,
         "dedupCount": 0,
         "limitApplied": "all",
         "timeRange": {
           "start": "2026-04-20T16:31:09.833+0800",
-          "end": "2026-04-21T22:05:25.232+0800"
+          "end": "2026-04-23T22:02:16.546+0800"
         }
       },
       "_return_code": 0,
@@ -414,13 +2584,13 @@
     "dwt_supported": 1,
     "timer_source": "dwt",
     "measurement_unit": "cycles",
-    "measurement_total": 34372632,
-    "measurement_per_iter": 3437263,
-    "cycles_total": 34372632,
-    "cycles_per_iter": 3437263,
+    "measurement_total": 9160415,
+    "measurement_per_iter": 916041,
+    "cycles_total": 9160415,
+    "cycles_per_iter": 916041,
     "wall_time_unit": "ms",
-    "wall_time_total_ms": 2148.29,
-    "wall_time_per_iter_ms": 214.829,
+    "wall_time_total_ms": 572.526,
+    "wall_time_per_iter_ms": 57.252,
     "output": -0.004541,
     "benchmark_complete": 1
   },
@@ -857,6 +3027,10 @@
   "keil_wave_paths": {
     "keil_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/waves/keil_output.wave"
   },
+  "keil_speed_ms_per_point": 0.14313,
+  "keil_speed_points_per_second": 6986.655488017886,
+  "validation_point_count": 400,
+  "validation_status": "completed",
   "qemu_reference_comparison": {
     "record_count": 1,
     "sample_count": 400,

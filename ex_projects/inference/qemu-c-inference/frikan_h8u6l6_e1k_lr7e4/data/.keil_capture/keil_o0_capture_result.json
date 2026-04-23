@@ -1,0 +1,35 @@
+{
+  "status": "completed",
+  "port": "COM8",
+  "baud_rate": 115200,
+  "timeout_seconds": 20,
+  "timed_out": false,
+  "record_count": 29,
+  "stream_length": 4488,
+  "matched_success_markers": [
+    "validation_complete=1"
+  ],
+  "missing_success_markers": [],
+  "result_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\keil_o0_capture_result.json",
+  "jsonl_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\keil_o0_serial_raw.jsonl",
+  "text_path": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\keil_o0_serial_stream.txt",
+  "error": null,
+  "fetch_result": {
+    "action": "fetch_export",
+    "success": true,
+    "data": {
+      "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4\\data\\.keil_capture\\capture_all.jsonl",
+      "format": "jsonl",
+      "count": 4398,
+      "totalCount": 4398,
+      "dedupCount": 0,
+      "limitApplied": "all",
+      "timeRange": {
+        "start": "2026-04-20T16:31:09.833+0800",
+        "end": "2026-04-23T22:04:13.653+0800"
+      }
+    },
+    "_return_code": 0,
+    "_stderr": ""
+  }
+}

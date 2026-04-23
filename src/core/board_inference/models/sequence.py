@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 SUPPORTED_SEQUENCE_MODEL_TYPES = frozenset({
     'lstm',
+    'rnn',
     'grn',
     'lstm_transformer',
     'onedcnn',
@@ -95,6 +96,8 @@ def _detect_model_type(model_project_name: str,
             return 'frikan'
         if use_model == 'LSTM':
             return 'lstm'
+        if use_model == 'RNN':
+            return 'rnn'
         if use_model == 'LSTMTRANSFORMER':
             return 'lstm_transformer'
         if use_model in {'GRN', 'GRU'}:
@@ -120,6 +123,8 @@ def _detect_model_type(model_project_name: str,
         return 'grn'
     if any('dense_kan' in name for name in weight_names) and any('simple_rnn' in name for name in weight_names):
         return 'frikan'
+    if any('simple_rnn' in name for name in weight_names):
+        return 'rnn'
     if any(re.fullmatch(r'conv_\d+/kernel:0', name) for name in weight_names):
         return 'onedcnn'
     if any(re.fullmatch(r'temporal_block_\d+_conv_1/kernel:0', name) for name in weight_names):
@@ -149,6 +154,9 @@ def generate_qemu_project(output_dir: Path,
     if isinstance(model_spec, LstmModelSpec):
         main_c = _render_main_c()
         model_header = _render_model_data_header(model_spec, benchmark_config, validation_artifacts)
+    elif isinstance(model_spec, RnnModelSpec):
+        main_c = _render_rnn_main_c()
+        model_header = _render_rnn_model_data_header(model_spec, benchmark_config, validation_artifacts)
     elif isinstance(model_spec, LstmTransformerModelSpec):
         main_c = _render_lstm_transformer_main_c()
         model_header = _render_lstm_transformer_model_data_header(model_spec, benchmark_config, validation_artifacts)
@@ -184,6 +192,29 @@ class LstmModelSpec:
     lstm_kernel: List[List[float]]
     lstm_recurrent_kernel: List[List[float]]
     lstm_bias: List[float]
+    dense_kernel: List[List[float]]
+    dense_bias: List[float]
+    output_kernel: List[List[float]]
+    output_bias: List[float]
+
+@dataclass
+class RnnModelSpec:
+    """SimpleRNN export spec for native board inference generation."""
+
+    model_project_name: str
+    weights_json_path: Path
+    input_dim: int
+    rnn_units: int
+    has_dense: bool
+    dense_units: int
+    output_input_units: int
+    output_units: int
+    rnn_activation: str
+    dense_activation: str
+    output_activation: str
+    rnn_kernel: List[List[float]]
+    rnn_recurrent_kernel: List[List[float]]
+    rnn_bias: List[float]
     dense_kernel: List[List[float]]
     dense_bias: List[float]
     output_kernel: List[List[float]]
@@ -705,190 +736,20 @@ def execute_sequence_keil_bench_task(ep_path: ExternalPath,
         compress=bool(validation_config['wave_output']['compress']),
         export_intermediates=bool(validation_config['wave_output'].get('export_intermediates', True)),
     )
-
-    keil_project_file = keil_project_dir / 'MDK-ARM' / KEIL_BENCHMARK_BASE_UVPROJX.name
-    summary_path = ep_path.output_path / 'keil_benchmark_summary.json'
-    comparison_path = ep_path.output_path / 'keil_validation_comparison.json'
-    metadata_path = ep_path.output_path / 'keil_benchmark_metadata.json'
-
-    execution_summary: Dict[str, Any] = {
-        'task_type': 'qemu-c-inference',
-        'action': 'keil-bench',
-        'model_type': model_type,
-        'model_project_name': model_project_name,
-        'weights_json_path': _relative_or_str(weights_json_path),
-        'loaded_weights_path': _relative_or_str(validation_artifacts.loaded_weights_path),
-        'generated_project_dir': _relative_or_str(generated_project_dir),
-        'keil_project_dir': _relative_or_str(keil_project_dir),
-        'keil_project_file': _relative_or_str(keil_project_file),
-        'benchmark_config': benchmark_config,
-        'validation': {
-            'dataset': {
-                'dataset_type': validation_artifacts.dataset_type,
-                'full_data_path': validation_artifacts.full_data_path,
-                'sample_rate': validation_artifacts.sample_rate,
-            },
-            'selection': validation_artifacts.time_window,
-            'record_count': validation_artifacts.record_count,
-            'seq_len': validation_artifacts.seq_len,
-        },
-        'keil_config': dict(keil_config),
-        'wave_paths': wave_paths,
-        'status': 'generated',
-    }
-
-    action = str(keil_config.get('action', 'build-program-capture'))
-    if action == 'generate':
-        _write_json(summary_path, execution_summary)
-        _write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': _collect_output_files(
-                summary_path,
-                metadata_path,
-                generated_project_dir,
-                keil_project_dir,
-                *[Path(path) for path in wave_paths.values()],
-            ),
-            'action': 'keil-bench',
-        })
-        logger.info('Keil benchmark 工程已生成: %s', keil_project_dir)
-        return True
-
-    build_result = _run_keil_build_job(
-        project_file=keil_project_file,
-        keil_config=keil_config,
-    )
-    execution_summary['keil_build'] = build_result
-    if not bool(build_result.get('success', False)):
-        execution_summary['status'] = 'build_failed'
-        _write_json(summary_path, execution_summary)
-        _write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': _collect_output_files(summary_path, metadata_path),
-            'action': 'keil-bench',
-        })
-        return False
-
-    if action == 'build':
-        execution_summary['status'] = 'build_completed'
-        _write_json(summary_path, execution_summary)
-        _write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': _collect_output_files(
-                summary_path,
-                metadata_path,
-                generated_project_dir,
-                keil_project_dir,
-                *[Path(path) for path in wave_paths.values()],
-            ),
-            'action': 'keil-bench',
-        })
-        return True
-
-    capture_state: Optional[Dict[str, Any]] = None
-    capture_result: Optional[Dict[str, Any]] = None
-    program_result: Optional[Dict[str, Any]] = None
-
-    try:
-        if action == 'build-program-capture':
-            capture_state = _start_keil_serial_capture(
-                output_dir=ep_path.output_path,
-                serial_port=str(keil_config['serial_port']),
-                baud_rate=int(keil_config['baud_rate']),
-                capture_timeout=int(keil_config['capture_timeout']),
-                success_markers=keil_config['success_markers'],
-            )
-
-        program_result = _run_keil_program_job(
-            project_file=keil_project_file,
-            keil_config=keil_config,
-        )
-        execution_summary['keil_program'] = program_result
-    finally:
-        if capture_state is not None:
-            capture_result = _finish_keil_serial_capture(
-                capture_state,
-                timeout_seconds=int(keil_config['capture_timeout']) + 10,
-            )
-            execution_summary['serial_capture'] = capture_result
-
-    if not bool(program_result and program_result.get('success', False)):
-        execution_summary['status'] = 'program_failed'
-        _write_json(summary_path, execution_summary)
-        _write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': _collect_output_files(summary_path, metadata_path),
-            'action': 'keil-bench',
-        })
-        return False
-
-    if action == 'build-program':
-        execution_summary['status'] = 'program_completed'
-        _write_json(summary_path, execution_summary)
-        _write_json(metadata_path, {
-            'task_info': config['task_info'],
-            'output_files': _collect_output_files(summary_path, metadata_path),
-            'action': 'keil-bench',
-        })
-        return True
-
-    if capture_result is None:
-        raise RuntimeError('串口抓取结果缺失')
-
-    stream_text_path = Path(str(capture_result['text_path']))
-    stream_text = stream_text_path.read_text(encoding='utf-8')
-    parsed_output = _parse_benchmark_stdout(stream_text)
-    c_output_sequences = _extract_validation_outputs(parsed_output, validation_artifacts)
-    comparison_payload = _compute_wave_comparison(validation_artifacts, c_output_sequences)
-    keil_wave_path = ep_path.output_path / 'waves' / 'keil_output.wave'
-    _save_wave_file(
-        keil_wave_path,
-        source_name='keil_output',
-        sequences=c_output_sequences,
+    return common.execute_keil_benchmark_pipeline(
+        ep_path=ep_path,
+        task_info=config['task_info'],
+        model_type=model_type,
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        generated_project_dir=generated_project_dir,
+        keil_project_dir=keil_project_dir,
+        benchmark_config=benchmark_config,
         validation_artifacts=validation_artifacts,
-        compress=bool(validation_config['wave_output']['compress']),
+        validation_config=validation_config,
+        keil_config=keil_config,
+        wave_paths=wave_paths,
     )
-    qemu_reference = _load_qemu_reference_comparison(ep_path.output_path, c_output_sequences)
-
-    comparison_payload['wave_paths'] = {
-        'keil_output_wave': _relative_or_str(keil_wave_path),
-    }
-    _write_json(comparison_path, comparison_payload)
-
-    execution_summary['status'] = 'completed'
-    execution_summary['serial_capture'] = {
-        **capture_result,
-        'text_path': _relative_or_str(Path(str(capture_result['text_path']))),
-        'jsonl_path': _relative_or_str(Path(str(capture_result['jsonl_path']))),
-        'result_path': _relative_or_str(Path(str(capture_result['result_path']))),
-    }
-    execution_summary['parsed_output'] = _summarize_parsed_output(parsed_output)
-    execution_summary['validation_outputs'] = {
-        f'record_{index}': sequence
-        for index, sequence in enumerate(c_output_sequences)
-    }
-    execution_summary['comparison'] = comparison_payload['overall']
-    execution_summary['comparison_path'] = _relative_or_str(comparison_path)
-    execution_summary['keil_wave_paths'] = comparison_payload['wave_paths']
-    if qemu_reference is not None:
-        execution_summary['qemu_reference_comparison'] = qemu_reference
-
-    _write_json(summary_path, execution_summary)
-    _write_json(metadata_path, {
-        'task_info': config['task_info'],
-        'output_files': _collect_output_files(
-            summary_path,
-            comparison_path,
-            metadata_path,
-            generated_project_dir,
-            keil_project_dir,
-            keil_wave_path,
-            *[Path(path) for path in wave_paths.values()],
-        ),
-        'action': 'keil-bench',
-    })
-    logger.info('Keil benchmark 任务完成: %s', summary_path)
-    return True
 
 def _make_dual_platform_benchmark_c(main_c: str) -> str:
     adapted = main_c.replace('_QEMU_VALIDATION', '_BENCHMARK_VALIDATION')
@@ -1421,6 +1282,8 @@ def _load_model_spec(model_project_name: str,
                      generation_config: Dict[str, Any]) -> Any:
     if model_type == 'lstm':
         return _load_lstm_model_spec(model_project_name, weights_json_path)
+    if model_type == 'rnn':
+        return _load_rnn_model_spec(model_project_name, model_dir, weights_json_path)
     if model_type == 'lstm_transformer':
         return _load_lstm_transformer_model_spec(model_project_name, model_dir, weights_json_path)
     if model_type == 'grn':
@@ -1489,6 +1352,99 @@ def _load_lstm_model_spec(model_project_name: str,
         lstm_bias=_to_float_vector(lstm_bias['value']),
         dense_kernel=_to_float_matrix(dense_kernel['value']),
         dense_bias=_to_float_vector(dense_bias['value']),
+        output_kernel=_to_float_matrix(output_kernel['value']),
+        output_bias=_to_float_vector(output_bias['value']),
+    )
+
+def _load_rnn_model_spec(model_project_name: str,
+                         model_dir: Path,
+                         weights_json_path: Path) -> RnnModelSpec:
+    with open(weights_json_path, 'r', encoding='utf-8') as file_obj:
+        weights = json.load(file_obj)
+
+    project_config = _load_project_config(model_dir)
+    model_subcfg = project_config.get('model_subcfg', {}) if isinstance(project_config.get('model_subcfg', {}), dict) else {}
+
+    rnn_layers = int(model_subcfg.get('rnn_layers', 1))
+    dense_layers = int(model_subcfg.get('dense_layers', 1))
+    configured_rnn_units = model_subcfg.get('recurrent_units')
+    configured_dense_units = model_subcfg.get('dense_units')
+    rnn_activation = _normalize_activation_name(model_subcfg.get('rnn_activation'), default='tanh')
+    dense_activation = _normalize_activation_name(model_subcfg.get('dense_activation'), default='silu')
+    output_activation = _normalize_activation_name(model_subcfg.get('output_activation'), default='linear')
+
+    if rnn_layers != 1:
+        raise ValueError(f'当前 qemu-c-inference 仅支持单层 SimpleRNN，实际 rnn_layers={rnn_layers}')
+    if dense_layers not in {0, 1}:
+        raise ValueError(f'当前 qemu-c-inference 仅支持 0 或 1 层 Dense，实际 dense_layers={dense_layers}')
+
+    _resolve_activation_code(rnn_activation)
+    _resolve_activation_code(output_activation)
+    if dense_layers > 0:
+        _resolve_activation_code(dense_activation)
+    else:
+        dense_activation = 'linear'
+
+    rnn_kernel = _find_weight_entry_by_suffix(weights, 'simple_rnn_cell/kernel:0')
+    rnn_recurrent_kernel = _find_weight_entry_by_suffix(weights, 'simple_rnn_cell/recurrent_kernel:0')
+    rnn_bias = _find_weight_entry_by_suffix(weights, 'simple_rnn_cell/bias:0')
+
+    input_dim = int(rnn_kernel['shape'][0])
+    rnn_units = int(rnn_recurrent_kernel['shape'][0])
+    if int(rnn_kernel['shape'][1]) != rnn_units:
+        raise ValueError('SimpleRNN kernel 形状非法，第二维必须等于 rnn_units')
+    if int(rnn_recurrent_kernel['shape'][1]) != rnn_units:
+        raise ValueError('SimpleRNN recurrent kernel 形状非法，第二维必须等于 rnn_units')
+    if int(rnn_bias['shape'][0]) != rnn_units:
+        raise ValueError('SimpleRNN bias 形状非法，长度必须等于 rnn_units')
+    if configured_rnn_units is not None and int(configured_rnn_units) != rnn_units:
+        raise ValueError(f'SimpleRNN recurrent_units 与权重不一致，配置={configured_rnn_units}，权重={rnn_units}')
+
+    has_dense = dense_layers > 0
+    if has_dense:
+        dense_kernel = _find_weight_entry_by_suffix(weights, 'dense/kernel:0')
+        dense_bias = _find_weight_entry_by_suffix(weights, 'dense/bias:0')
+        output_kernel = _find_weight_entry_by_suffix(weights, 'dense_1/kernel:0')
+        output_bias = _find_weight_entry_by_suffix(weights, 'dense_1/bias:0')
+        dense_units = int(dense_bias['shape'][0])
+        output_input_units = dense_units
+        if int(dense_kernel['shape'][0]) != rnn_units:
+            raise ValueError('SimpleRNN dense kernel 输入维度必须与 rnn_units 一致')
+        if configured_dense_units is not None and int(configured_dense_units) != dense_units:
+            raise ValueError(f'SimpleRNN dense_units 与权重不一致，配置={configured_dense_units}，权重={dense_units}')
+        dense_kernel_values = _to_float_matrix(dense_kernel['value'])
+        dense_bias_values = _to_float_vector(dense_bias['value'])
+    else:
+        output_kernel = _find_weight_entry_by_suffix(weights, 'dense/kernel:0')
+        output_bias = _find_weight_entry_by_suffix(weights, 'dense/bias:0')
+        dense_units = 0
+        output_input_units = rnn_units
+        dense_kernel_values = _zero_matrix(rnn_units, 1)
+        dense_bias_values = [0.0]
+
+    if int(output_kernel['shape'][0]) != output_input_units:
+        raise ValueError('SimpleRNN 输出层 kernel 输入维度与前一层输出不一致')
+    output_units = int(output_bias['shape'][0])
+    if output_units != 1:
+        raise ValueError(f'当前仅支持单输出 SimpleRNN，实际 output_units={output_units}')
+
+    return RnnModelSpec(
+        model_project_name=model_project_name,
+        weights_json_path=weights_json_path,
+        input_dim=input_dim,
+        rnn_units=rnn_units,
+        has_dense=has_dense,
+        dense_units=dense_units,
+        output_input_units=output_input_units,
+        output_units=output_units,
+        rnn_activation=rnn_activation,
+        dense_activation=dense_activation,
+        output_activation=output_activation,
+        rnn_kernel=_to_float_matrix(rnn_kernel['value']),
+        rnn_recurrent_kernel=_to_float_matrix(rnn_recurrent_kernel['value']),
+        rnn_bias=_to_float_vector(rnn_bias['value']),
+        dense_kernel=dense_kernel_values,
+        dense_bias=dense_bias_values,
         output_kernel=_to_float_matrix(output_kernel['value']),
         output_bias=_to_float_vector(output_bias['value']),
     )
@@ -2932,6 +2888,49 @@ def _resolve_activation_code(activation: str) -> int:
         return 4
     raise ValueError(f'当前 qemu-c-inference 尚未支持 activation={activation}')
 
+def _normalize_activation_name(activation: Any, default: str) -> str:
+    if activation is None:
+        return default
+    normalized = str(activation).strip().lower()
+    if not normalized or normalized in {'none', 'null'}:
+        return default
+    return normalized
+
+def _render_rnn_model_data_header(model_spec: RnnModelSpec,
+                                  benchmark_config: Dict[str, Any],
+                                  validation_artifacts: ValidationArtifacts) -> str:
+    validation_input = [record.input_sequence for record in validation_artifacts.records]
+    dense_units = model_spec.dense_units if model_spec.has_dense else 1
+    return render_template(
+        'models/rnn_model_data_template.h',
+        {
+            'RNN_INPUT_DIM': model_spec.input_dim,
+            'RNN_UNITS': model_spec.rnn_units,
+            'HAS_DENSE': 1 if model_spec.has_dense else 0,
+            'DENSE_UNITS': dense_units,
+            'RNN_ACTIVATION': _resolve_activation_code(model_spec.rnn_activation),
+            'DENSE_ACTIVATION': _resolve_activation_code(model_spec.dense_activation),
+            'OUTPUT_INPUT_UNITS': model_spec.output_input_units,
+            'OUTPUT_UNITS': model_spec.output_units,
+            'OUTPUT_ACTIVATION': _resolve_activation_code(model_spec.output_activation),
+            'BENCHMARK_ITERATIONS': int(benchmark_config['iterations']),
+            'BENCHMARK_REPEAT_RUNS': int(benchmark_config['repeat_runs']),
+            'BENCHMARK_RESET_STATE_EACH_RUN': 1 if benchmark_config.get('reset_state_each_run', True) else 0,
+            'VALIDATION_RECORD_COUNT': validation_artifacts.record_count,
+            'VALIDATION_SEQ_LEN': validation_artifacts.seq_len,
+            'SCALER_INPUT_DATA_RANGE': _format_c_float(validation_artifacts.input_data_range),
+            'SCALER_OUTPUT_DATA_RANGE': _format_c_float(validation_artifacts.output_data_range),
+            'VALIDATION_INPUT_INITIALIZER': _render_initializer(validation_input),
+            'RNN_KERNEL_INITIALIZER': _render_initializer(model_spec.rnn_kernel),
+            'RNN_RECURRENT_KERNEL_INITIALIZER': _render_initializer(model_spec.rnn_recurrent_kernel),
+            'RNN_BIAS_INITIALIZER': _render_initializer(model_spec.rnn_bias),
+            'DENSE_KERNEL_INITIALIZER': _render_initializer(model_spec.dense_kernel),
+            'DENSE_BIAS_INITIALIZER': _render_initializer(model_spec.dense_bias),
+            'OUTPUT_KERNEL_INITIALIZER': _render_initializer(model_spec.output_kernel),
+            'OUTPUT_BIAS_INITIALIZER': _render_initializer(model_spec.output_bias),
+        },
+    )
+
 def _render_model_data_header(model_spec: LstmModelSpec,
                               benchmark_config: Dict[str, Any],
                               validation_artifacts: ValidationArtifacts) -> str:
@@ -3072,6 +3071,9 @@ def _render_uint_initializer(values: Sequence[int], suffix: str = 'u') -> str:
 
 def _render_lstm_transformer_main_c() -> str:
     return load_template('models/lstm_transformer_main_template.c')
+
+def _render_rnn_main_c() -> str:
+    return load_template('models/rnn_main_template.c')
 
 def _render_grn_main_c() -> str:
     return load_template('models/grn_main_template.c')

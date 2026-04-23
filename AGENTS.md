@@ -41,6 +41,8 @@
 - 论文横向对比实验方法：详见 [docs/reference/paper_horizontal_comparison_method.md](docs/reference/paper_horizontal_comparison_method.md)。
 - 论文边缘设备推理评估方法：详见 [docs/reference/paper_edge_inference_evaluation_method.md](docs/reference/paper_edge_inference_evaluation_method.md)。
 - 论文指标计算方法：详见 [docs/reference/paper_metric_calculation_method.md](docs/reference/paper_metric_calculation_method.md)。
+- 论文计算量标定方法：详见 [docs/reference/paper_compute_cost_calibration_method.md](docs/reference/paper_compute_cost_calibration_method.md)。
+- 论文 LUT 插值部署评估方法：详见 [docs/reference/paper_lut_interpolation_evaluation_method.md](docs/reference/paper_lut_interpolation_evaluation_method.md)。
 
 ## 环境配置
 
@@ -169,6 +171,10 @@
 - `python cli.py ep "compare/mae_vs_afmae"`
 	- 损失函数消融对比：配置驱动读取多个 project 的 `metrics.json` 做统一横向比较，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
 	- 板端列展示：若 compare 配置启用 `metrics.board_inference.enabled`，综合表可追加 `QEMU-MAE`、`KEIL-MAE`、`KEIL-SPEED (ms/point)`，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
+- `python cli.py ep "ex_projects/compare/wiener_parallel_modeling"`
+	- 并联 Wiener 建模：复现幅值依赖频响漂移的三支路并联 Wiener 等效模型，并输出拟合图与摘要指标，详见 [docs/reference/parallel_wiener_modeling.md](docs/reference/parallel_wiener_modeling.md)。
+- `python cli.py ep "compare/compute_cost_calibration"`
+	- 计算量参数标定：基于 STM32F405 真机时延反标 `add:multiply:MAP` 权重，并输出搜索报告与可视化，详见 [docs/reference/paper_compute_cost_calibration_method.md](docs/reference/paper_compute_cost_calibration_method.md)。
 - `python cli.py ep "PROJECT/wnet5-circuit-validation/layer2"`
 	- 电路验证：执行 WNET5 电路验证类外部任务，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 电路验证规则：通道映射、环境变量路径、E96 热力图和频响对照口径详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
@@ -182,9 +188,11 @@
 - `projects\01_LR_STUDY\CNNKANh8u6l6_e1k_lr14e5_stable` - CNNKAN 替换消融稳定版：在默认旧 batch-size 行为下可跑满 1000 epoch，并保留旧项目复现约束。详见 [docs/reference/cnnkan_ablation.md](docs/reference/cnnkan_ablation.md)。
 - `projects\05_1DCNN\1DCNNc4u8k20l8_e1k_lr18e3_pd8l8_true` - 真实 1DCNN 卷积时序基线：当前仓库保留的 canonical `1DCNN` 对照项目。详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
 - `projects\06_TCN\TCNc4d1248k3_nopd_true_e1k_lr2e3` - 真实 TCN 卷积时序基线：当前仓库保留的 canonical `TCN` 对照项目。详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
-- `projects\07_RNN\RNNu16_e1k_puremae_r15` - RNN ????????????????? RNN ?????????? [docs/reference/rnn_baselines.md](docs/reference/rnn_baselines.md)?
+- `projects\07_RNN\RNNu16_e1k_puremae_r15` - 真实 RNN 时序基线：当前仓库保留的 canonical `RNN` 对照项目。详见 [docs/reference/rnn_baselines.md](docs/reference/rnn_baselines.md)
 - `projects\04_FRIMLP\FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00` - FRIMLP 真消融达标案例：修复前端与 fast_model 接线后，1000 epoch 达到 `Freq Drift = 5.8179 Hz`。详见 [docs/reference/frimlp_ablation.md](docs/reference/frimlp_ablation.md)。
 - `ex_projects/compare/mae_vs_afmae` - MAE vs AFMAE 消融对比：执行 MAE/AFMAE 损失函数消融实验并生成对比报告，详见 [docs/reference/mae_vs_afmae.md](docs/reference/mae_vs_afmae.md)。
+- `ex_projects/compare/wiener_parallel_modeling` - 并联 Wiener 等效建模：复现 MET 大信号幅频耦合漂移并输出报告、图像与摘要 JSON，详见 [docs/reference/parallel_wiener_modeling.md](docs/reference/parallel_wiener_modeling.md)。
+- `ex_projects/compare/compute_cost_calibration` - Compute Cost 标定：用 STM32F405 真机时延标定 `add:multiply:MAP` 权重，详见 [docs/reference/paper_compute_cost_calibration_method.md](docs/reference/paper_compute_cost_calibration_method.md)。
 - `ex_projects/compare/lr_test_1k_epoch` - LR 消融对比：对比 1k epoch 训练中不同学习率（0.01/0.002/0.001）的训练效果，详见 [docs/reference/lr_test_1k_epoch.md](docs/reference/lr_test_1k_epoch.md)。
 
 

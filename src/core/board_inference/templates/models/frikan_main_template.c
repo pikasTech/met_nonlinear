@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <math.h>
 
 #include "model_data.h"
 
@@ -190,6 +191,28 @@ static void frikan_iir_reset(port_float x1[FRIKAN_FEATURES],
     zero_buffer(y2, FRIKAN_FEATURES);
 }
 
+static void frikan_forward_core(port_float current_values[FRIKAN_MAX_LAYER_INPUTS],
+                                port_float *output_scaled_value,
+                                port_float debug_kan_step[FRIKAN_KAN_LAYER_COUNT][FRIKAN_MAX_LAYER_OUTPUTS],
+                                port_float *output_value)
+{
+__FRIKAN_FORWARD_BODY__
+
+    if (output_scaled_value != 0) {
+        *output_scaled_value = current_values[0u];
+    }
+    *output_value = inverse_scale_output(current_values[0u]);
+}
+
+static inline void frikan_forward_core_benchmark(
+    port_float current_values[FRIKAN_MAX_LAYER_INPUTS],
+    port_float *output_scaled_value)
+{
+__FRIKAN_FORWARD_BODY_BENCHMARK__
+
+    *output_scaled_value = current_values[0u];
+}
+
 static void frikan_forward_step(port_float input_value,
                                 port_float x1[FRIKAN_FEATURES],
                                 port_float x2[FRIKAN_FEATURES],
@@ -209,43 +232,44 @@ static void frikan_forward_step(port_float input_value,
         *debug_scaled_input_value = scaled_input;
     }
 
-    if (debug_iir_step != 0) {
-        for (feature_index = 0u; feature_index < FRIKAN_FEATURES; ++feature_index) {
-            port_float response = frikan_iir_b0[feature_index] * scaled_input
-                + frikan_iir_b1[feature_index] * x1[feature_index]
-                + frikan_iir_b2[feature_index] * x2[feature_index]
-                - frikan_iir_a1[feature_index] * y1[feature_index]
-                - frikan_iir_a2[feature_index] * y2[feature_index];
+    for (feature_index = 0u; feature_index < FRIKAN_FEATURES; ++feature_index) {
+        port_float response = frikan_iir_b0[feature_index] * scaled_input
+            + frikan_iir_b1[feature_index] * x1[feature_index]
+            + frikan_iir_b2[feature_index] * x2[feature_index]
+            - frikan_iir_a1[feature_index] * y1[feature_index]
+            - frikan_iir_a2[feature_index] * y2[feature_index];
 
-            x2[feature_index] = x1[feature_index];
-            x1[feature_index] = scaled_input;
-            y2[feature_index] = y1[feature_index];
-            y1[feature_index] = response;
-            current_values[feature_index] = response;
+        x2[feature_index] = x1[feature_index];
+        x1[feature_index] = scaled_input;
+        y2[feature_index] = y1[feature_index];
+        y1[feature_index] = response;
+        current_values[feature_index] = response;
+        if (debug_iir_step != 0) {
             debug_iir_step[feature_index] = response;
         }
-    } else {
-        for (feature_index = 0u; feature_index < FRIKAN_FEATURES; ++feature_index) {
-            port_float response = frikan_iir_b0[feature_index] * scaled_input
-                + frikan_iir_b1[feature_index] * x1[feature_index]
-                + frikan_iir_b2[feature_index] * x2[feature_index]
-                - frikan_iir_a1[feature_index] * y1[feature_index]
-                - frikan_iir_a2[feature_index] * y2[feature_index];
-
-            x2[feature_index] = x1[feature_index];
-            x1[feature_index] = scaled_input;
-            y2[feature_index] = y1[feature_index];
-            y1[feature_index] = response;
-            current_values[feature_index] = response;
-        }
     }
 
-__FRIKAN_FORWARD_BODY__
+    frikan_forward_core(
+        current_values,
+        output_scaled_value,
+        debug_kan_step,
+        output_value
+    );
+}
 
-    if (output_scaled_value != 0) {
-        *output_scaled_value = current_values[0u];
-    }
-    *output_value = inverse_scale_output(current_values[0u]);
+static void frikan_forward_step_benchmark(port_float input_value,
+                                          port_float x1[FRIKAN_FEATURES],
+                                          port_float x2[FRIKAN_FEATURES],
+                                          port_float y1[FRIKAN_FEATURES],
+                                          port_float y2[FRIKAN_FEATURES],
+                                          port_float *output_scaled_value)
+{
+    port_float scaled_input = scale_input(input_value);
+    port_float current_values[FRIKAN_MAX_LAYER_INPUTS];
+
+__FRIKAN_BENCHMARK_IIR_BODY__
+
+    frikan_forward_core_benchmark(current_values, output_scaled_value);
 }
 
 static void run_validation_record(const port_float sequence[VALIDATION_SEQ_LEN][FRIKAN_INPUT_DIM],
@@ -309,28 +333,24 @@ static void run_benchmark_record(const port_float sequence[VALIDATION_SEQ_LEN][F
                                  port_float *output_value)
 {
     uint32_t step;
-    port_float current_output = 0.0f;
+    port_float current_output_scaled = 0.0f;
 
     if (reset_state_each_run != 0u) {
         frikan_iir_reset(x1, x2, y1, y2);
     }
 
     for (step = 0u; step < VALIDATION_SEQ_LEN; ++step) {
-        frikan_forward_step(
+        frikan_forward_step_benchmark(
             sequence[step][0u],
             x1,
             x2,
             y1,
             y2,
-            0,
-            0,
-            0,
-            0,
-            &current_output
+            &current_output_scaled
         );
     }
 
-    *output_value = current_output;
+    *output_value = inverse_scale_output(current_output_scaled);
 }
 
 int main(void)

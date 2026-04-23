@@ -19,7 +19,7 @@ import time
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Set
 from xml.etree import ElementTree as ET
 
 import matplotlib
@@ -35,6 +35,43 @@ KEIL_BENCHMARK_BASE_DIR = REPO_ROOT / 'src' / 'tests' / 'keil_projects' / 'met_k
 KEIL_BENCHMARK_BASE_MDK_DIR = KEIL_BENCHMARK_BASE_DIR / 'MDK-ARM'
 KEIL_BENCHMARK_BASE_UVPROJX = KEIL_BENCHMARK_BASE_MDK_DIR / 'Electrochemical geophone.uvprojx'
 KEIL_BENCHMARK_BASE_UVOPTX = KEIL_BENCHMARK_BASE_MDK_DIR / 'Electrochemical geophone.uvoptx'
+_PROGRAM_SIZE_PATTERN = re.compile(r'Program Size: Code=(\d+) RO-data=(\d+) RW-data=(\d+) ZI-data=(\d+)')
+_SAFE_PROFILE_KEY_PATTERN = re.compile(r'[^A-Za-z0-9_]+')
+
+KEIL_OPTIMIZATION_PROFILE_PRESETS: Dict[str, Dict[str, Any]] = {
+    'project_default': {
+        'key': 'project_default',
+        'label': 'Project default',
+        'use_project_defaults': True,
+        'optim_value': None,
+        'misc_controls': '',
+        'enable_lto': False,
+    },
+    'o0': {
+        'key': 'o0',
+        'label': '-O0',
+        'use_project_defaults': False,
+        'optim_value': '0',
+        'misc_controls': '-O0',
+        'enable_lto': False,
+    },
+    'o2': {
+        'key': 'o2',
+        'label': '-O2',
+        'use_project_defaults': False,
+        'optim_value': '2',
+        'misc_controls': '-O2',
+        'enable_lto': False,
+    },
+    'ofast_lto': {
+        'key': 'ofast_lto',
+        'label': '-Ofast + LTO',
+        'use_project_defaults': False,
+        'optim_value': '3',
+        'misc_controls': '-Ofast',
+        'enable_lto': True,
+    },
+}
 
 DATASET_OVERRIDE_FIELDS = (
     'dataset_type',
@@ -124,7 +161,8 @@ def _resolve_keil_cli_path(keil_config: Dict[str, Any]) -> Path:
         raise FileNotFoundError(f'未找到 keil-cli.py: {keil_cli_path}')
     return keil_cli_path
 
-def _run_keil_cli_json_command(command: Sequence[str]) -> Dict[str, Any]:
+def _run_keil_cli_json_command(command: Sequence[str],
+                               allow_failure: bool = False) -> Dict[str, Any]:
     completed = subprocess.run(
         list(command),
         check=False,
@@ -133,17 +171,25 @@ def _run_keil_cli_json_command(command: Sequence[str]) -> Dict[str, Any]:
         encoding='utf-8',
         errors='replace',
     )
+    stdout = completed.stdout.strip()
+    parsed_stdout: Optional[Dict[str, Any]] = None
+    if stdout:
+        try:
+            parsed_stdout = json.loads(stdout)
+        except json.JSONDecodeError:
+            parsed_stdout = None
+
     if completed.returncode != 0:
+        if allow_failure and parsed_stdout is not None:
+            return parsed_stdout
         raise RuntimeError(
             f'Keil CLI 命令失败: {" ".join(command)}\nstdout={completed.stdout}\nstderr={completed.stderr}'
         )
-    stdout = completed.stdout.strip()
     if not stdout:
         raise RuntimeError(f'Keil CLI 命令无输出: {" ".join(command)}')
-    try:
-        return json.loads(stdout)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f'Keil CLI 输出不是合法 JSON: {stdout}') from exc
+    if parsed_stdout is not None:
+        return parsed_stdout
+    raise RuntimeError(f'Keil CLI 输出不是合法 JSON: {stdout}')
 
 def _wait_keil_job(keil_cli_path: Path,
                    job_id: str,
@@ -153,7 +199,7 @@ def _wait_keil_job(keil_cli_path: Path,
     while True:
         job_status = _run_keil_cli_json_command([
             'py', '-3', str(keil_cli_path), 'job-status', job_id,
-        ])
+        ], allow_failure=True)
         status_text = str(job_status.get('status', 'unknown'))
         if status_text != last_status:
             logger.info('Keil job %s status=%s', job_id, status_text)
@@ -171,12 +217,14 @@ def _start_keil_serial_capture(output_dir: Path,
                                serial_port: str,
                                baud_rate: int,
                                capture_timeout: int,
-                               success_markers: Sequence[str]) -> Dict[str, Any]:
+                               success_markers: Sequence[str],
+                               artifact_prefix: str = 'keil') -> Dict[str, Any]:
     if not serial_port.strip():
         raise ValueError('Keil bench 缺少 serial_port，请在 keil_config 或 CLI 中显式提供')
 
     capture_dir = output_dir / '.keil_capture'
     capture_dir.mkdir(parents=True, exist_ok=True)
+    safe_prefix = _sanitize_optimization_profile_key(artifact_prefix)
     serial_monitor_paths = _resolve_serial_monitor_paths()
     if serial_monitor_paths is not None:
         _ensure_serial_monitor_server(serial_monitor_paths)
@@ -208,16 +256,16 @@ def _start_keil_serial_capture(output_dir: Path,
             'baud_rate': baud_rate,
             'success_markers': [str(marker) for marker in success_markers],
             'capture_dir': capture_dir,
-            'result_path': capture_dir / 'capture_result.json',
+            'result_path': capture_dir / f'{safe_prefix}_capture_result.json',
             'all_jsonl_path': capture_dir / 'capture_all.jsonl',
-            'jsonl_path': output_dir / 'keil_serial_raw.jsonl',
-            'text_path': output_dir / 'keil_serial_stream.txt',
+            'jsonl_path': output_dir / f'{safe_prefix}_serial_raw.jsonl',
+            'text_path': output_dir / f'{safe_prefix}_serial_stream.txt',
         }
 
-    script_path = capture_dir / 'capture_serial.ps1'
-    result_path = capture_dir / 'capture_result.json'
-    jsonl_path = output_dir / 'keil_serial_raw.jsonl'
-    text_path = output_dir / 'keil_serial_stream.txt'
+    script_path = capture_dir / f'capture_serial_{safe_prefix}.ps1'
+    result_path = capture_dir / f'{safe_prefix}_capture_result.json'
+    jsonl_path = output_dir / f'{safe_prefix}_serial_raw.jsonl'
+    text_path = output_dir / f'{safe_prefix}_serial_stream.txt'
 
     _write_text(script_path, _render_keil_serial_capture_script())
     if result_path.exists():
@@ -351,7 +399,18 @@ def _run_serial_monitor_json_command(command: Sequence[str],
     try:
         payload = json.loads(stdout)
     except json.JSONDecodeError as exc:
-        raise RuntimeError(f'serial-monitor 输出不是合法 JSON: {stdout}') from exc
+        payload = None
+        for line in reversed(stdout.splitlines()):
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                payload = json.loads(stripped)
+                break
+            except json.JSONDecodeError:
+                continue
+        if payload is None:
+            raise RuntimeError(f'serial-monitor 输出不是合法 JSON: {stdout}') from exc
     payload['_return_code'] = completed.returncode
     payload['_stderr'] = completed.stderr
     return payload
@@ -843,6 +902,89 @@ def _set_xml_text(root: ET.Element, path: str, value: str) -> None:
         raise ValueError(f'Keil 工程缺少节点: {path}')
     node.text = value
 
+
+def _render_keil_project_with_optimization_profile(base_project_text: str,
+                                                   profile: Dict[str, Any],
+                                                   target_name: str) -> str:
+    root = ET.fromstring(base_project_text)
+    target = root.find('./Targets/Target')
+    if target is None:
+        raise ValueError('Keil 工程缺少 ./Targets/Target 节点')
+
+    suffix = ''
+    if not bool(profile.get('use_project_defaults', False)):
+        suffix = f'_{profile["key"]}'
+
+    output_dir = f'output\\{target_name}{suffix}\\'
+    listing_dir = f'list\\{target_name}{suffix}\\'
+    output_name = f'{target_name}_BENCHMARK{suffix}'
+    _set_xml_text(target, './TargetOption/TargetCommonOption/OutputDirectory', output_dir)
+    _set_xml_text(target, './TargetOption/TargetCommonOption/ListingPath', listing_dir)
+    _set_xml_text(target, './TargetOption/TargetCommonOption/OutputName', output_name)
+
+    if not bool(profile.get('use_project_defaults', False)):
+        optim_value = profile.get('optim_value')
+        if optim_value is not None:
+            _set_xml_text(target, './TargetOption/TargetArmAds/Cads/Optim', str(optim_value))
+        _set_xml_text(
+            target,
+            './TargetOption/TargetArmAds/Cads/VariousControls/MiscControls',
+            str(profile.get('misc_controls', '') or ''),
+        )
+
+        enable_lto = '1' if bool(profile.get('enable_lto', False)) else '0'
+        v6_lto = target.find('./TargetOption/TargetArmAds/Cads/v6Lto')
+        if v6_lto is not None:
+            v6_lto.text = enable_lto
+        u_ltcg = target.find('./TargetOption/TargetCommonOption/uLtcg')
+        if u_ltcg is not None:
+            u_ltcg.text = enable_lto
+
+    tree = ET.ElementTree(root)
+    ET.indent(tree, space='  ')
+    with tempfile.NamedTemporaryFile('w+', encoding='utf-8', delete=False) as file_obj:
+        temp_path = Path(file_obj.name)
+    try:
+        tree.write(temp_path, encoding='UTF-8', xml_declaration=True)
+        return temp_path.read_text(encoding='utf-8')
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+def _resolve_keil_build_output_path(keil_project_dir: Path, target_name: str) -> Path:
+    return keil_project_dir / 'MDK-ARM' / 'output' / f'build_output_{target_name}.txt'
+
+
+def _snapshot_keil_build_output(keil_project_dir: Path,
+                                output_root: Path,
+                                target_name: str,
+                                profile_key: str) -> Optional[Path]:
+    source_path = _resolve_keil_build_output_path(keil_project_dir, target_name)
+    if not source_path.exists():
+        return None
+    dest_path = output_root / 'build_logs' / f'build_output_{target_name}_{profile_key}.txt'
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_path, dest_path)
+    return dest_path
+
+
+def _parse_keil_program_size(build_output_path: Optional[Path]) -> Optional[Dict[str, int]]:
+    if build_output_path is None or not build_output_path.exists():
+        return None
+    text = build_output_path.read_text(encoding='utf-8', errors='replace')
+    match = _PROGRAM_SIZE_PATTERN.search(text)
+    if not match:
+        return None
+    code, ro_data, rw_data, zi_data = map(int, match.groups())
+    return {
+        'code_bytes': code,
+        'ro_bytes': ro_data,
+        'rw_bytes': rw_data,
+        'zi_bytes': zi_data,
+        'flash_bytes': code + ro_data,
+        'ram_bytes': rw_data + zi_data,
+    }
+
 def _render_keil_benchmark_main_h() -> str:
     return """#ifndef BENCHMARK_MAIN_H
 #define BENCHMARK_MAIN_H
@@ -1184,7 +1326,96 @@ def _normalize_keil_config(config: Dict[str, Any],
     normalized['capture_timeout'] = int(normalized['capture_timeout'])
     normalized['job_timeout'] = int(normalized['job_timeout'])
     normalized['success_markers'] = [str(item) for item in normalized.get('success_markers', []) if str(item)]
+    normalized['optimization_profiles'] = _normalize_keil_optimization_profiles(
+        normalized.get('optimization_profiles')
+    )
+    published_profile = str(normalized.get('published_optimization_profile', '')).strip()
+    if normalized['optimization_profiles']:
+        available_keys = {profile['key'] for profile in normalized['optimization_profiles']}
+        if not published_profile:
+            published_profile = normalized['optimization_profiles'][0]['key']
+        if published_profile not in available_keys:
+            raise ValueError(
+                f'published_optimization_profile={published_profile} 不在 optimization_profiles 中: '
+                f'{sorted(available_keys)}'
+            )
+    normalized['published_optimization_profile'] = published_profile or 'project_default'
     return normalized
+
+
+def _sanitize_optimization_profile_key(raw_key: Any) -> str:
+    key = str(raw_key or '').strip().lower()
+    key = _SAFE_PROFILE_KEY_PATTERN.sub('_', key).strip('_')
+    return key or 'profile'
+
+
+def _normalize_keil_optimization_profiles(raw_profiles: Any) -> List[Dict[str, Any]]:
+    if raw_profiles is None:
+        return []
+
+    if isinstance(raw_profiles, (str, dict)):
+        entries = [raw_profiles]
+    else:
+        entries = list(raw_profiles)
+
+    normalized_profiles: List[Dict[str, Any]] = []
+    seen_keys: Set[str] = set()
+
+    for index, raw_entry in enumerate(entries):
+        if isinstance(raw_entry, str):
+            preset_key = _sanitize_optimization_profile_key(raw_entry)
+            preset = KEIL_OPTIMIZATION_PROFILE_PRESETS.get(preset_key)
+            if preset is None:
+                raise ValueError(f'未知的 Keil optimization profile preset: {raw_entry}')
+            profile = dict(preset)
+        elif isinstance(raw_entry, dict):
+            preset_key = _sanitize_optimization_profile_key(raw_entry.get('preset', raw_entry.get('key', '')))
+            preset = dict(KEIL_OPTIMIZATION_PROFILE_PRESETS.get(preset_key, KEIL_OPTIMIZATION_PROFILE_PRESETS['project_default']))
+            profile = dict(preset)
+            if 'key' in raw_entry:
+                profile['key'] = _sanitize_optimization_profile_key(raw_entry['key'])
+            elif preset_key:
+                profile['key'] = preset_key
+            else:
+                profile['key'] = f'profile_{index + 1}'
+            if 'label' in raw_entry:
+                profile['label'] = str(raw_entry['label'])
+            if 'use_project_defaults' in raw_entry:
+                profile['use_project_defaults'] = bool(raw_entry['use_project_defaults'])
+            if 'optim_value' in raw_entry:
+                profile['optim_value'] = (
+                    None if raw_entry['optim_value'] is None else str(raw_entry['optim_value'])
+                )
+            if 'misc_controls' in raw_entry:
+                profile['misc_controls'] = str(raw_entry['misc_controls'])
+            if 'enable_lto' in raw_entry:
+                profile['enable_lto'] = bool(raw_entry['enable_lto'])
+        else:
+            raise TypeError(f'非法 optimization profile 配置类型: {type(raw_entry)!r}')
+
+        profile['key'] = _sanitize_optimization_profile_key(profile.get('key'))
+        if profile['key'] in seen_keys:
+            raise ValueError(f'重复的 optimization profile key: {profile["key"]}')
+        seen_keys.add(profile['key'])
+        profile.setdefault('label', profile['key'])
+        profile.setdefault('use_project_defaults', False)
+        profile.setdefault('optim_value', None)
+        profile.setdefault('misc_controls', '')
+        profile.setdefault('enable_lto', False)
+        if profile['use_project_defaults']:
+            profile['optim_value'] = None
+            profile['misc_controls'] = ''
+            profile['enable_lto'] = False
+        normalized_profiles.append(profile)
+
+    return normalized_profiles
+
+
+def _resolve_keil_execution_profiles(keil_config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    profiles = list(keil_config.get('optimization_profiles') or [])
+    if profiles:
+        return profiles
+    return [dict(KEIL_OPTIMIZATION_PROFILE_PRESETS['project_default'])]
 
 def _normalize_project_path(model_project_name: str) -> str:
     normalized = model_project_name.replace('\\', '/').strip('/').strip()
@@ -1871,6 +2102,381 @@ def _compute_sequence_comparison(reference_sequences: Sequence[Sequence[float]],
         'rmse': float(np.sqrt(np.mean(np.square(diff_flat)))) if diff_flat.size else 0.0,
         'max_abs_error': float(np.max(np.abs(diff_flat))) if diff_flat.size else 0.0,
     }
+
+
+def _compute_points_per_iter(validation_artifacts: ValidationArtifacts) -> int:
+    return int(validation_artifacts.record_count * validation_artifacts.seq_len)
+
+
+def _compute_speed_points_per_second(speed_ms_per_point: Optional[float]) -> Optional[float]:
+    if speed_ms_per_point is None:
+        return None
+    if speed_ms_per_point <= 0.0:
+        return None
+    return 1000.0 / speed_ms_per_point
+
+
+def _collect_keil_capture_validation_result(*,
+                                            output_root: Path,
+                                            validation_artifacts: ValidationArtifacts,
+                                            validation_config: Dict[str, Any],
+                                            capture_result: Dict[str, Any],
+                                            artifact_suffix: str,
+                                            points_per_iter: int,
+                                            is_published_profile: bool) -> tuple[Dict[str, Any], List[Path]]:
+    stream_text_path = Path(str(capture_result['text_path']))
+    stream_text = stream_text_path.read_text(encoding='utf-8')
+    parsed_output = _parse_benchmark_stdout(stream_text)
+    c_output_sequences = _extract_validation_outputs(parsed_output, validation_artifacts)
+    comparison_payload = _compute_wave_comparison(validation_artifacts, c_output_sequences)
+
+    keil_wave_path = output_root / 'waves' / f'keil_output{artifact_suffix}.wave'
+    _save_wave_file(
+        keil_wave_path,
+        source_name='keil_output',
+        sequences=c_output_sequences,
+        validation_artifacts=validation_artifacts,
+        compress=bool(validation_config['wave_output']['compress']),
+    )
+    qemu_reference = _load_qemu_reference_comparison(output_root, c_output_sequences)
+
+    comparison_payload['wave_paths'] = {
+        'keil_output_wave': _relative_or_str(keil_wave_path),
+    }
+    profile_comparison_path = output_root / f'keil_validation_comparison{artifact_suffix}.json'
+    _write_json(profile_comparison_path, comparison_payload)
+
+    serial_capture_rel = {
+        **capture_result,
+        'text_path': _relative_or_str(Path(str(capture_result['text_path']))),
+        'jsonl_path': _relative_or_str(Path(str(capture_result['jsonl_path']))),
+        'result_path': _relative_or_str(Path(str(capture_result['result_path']))),
+    }
+    wall_time_per_iter_ms = (
+        float(parsed_output['wall_time_per_iter_ms'])
+        if 'wall_time_per_iter_ms' in parsed_output
+        else None
+    )
+    speed_ms_per_point = None
+    if wall_time_per_iter_ms is not None and points_per_iter > 0:
+        speed_ms_per_point = wall_time_per_iter_ms / float(points_per_iter)
+
+    validation_result: Dict[str, Any] = {
+        'serial_capture': serial_capture_rel,
+        'parsed_output': _summarize_parsed_output(parsed_output),
+        'comparison': comparison_payload['overall'],
+        'comparison_path': _relative_or_str(profile_comparison_path),
+        'keil_wave_paths': comparison_payload['wave_paths'],
+        'validation_point_count': points_per_iter,
+        'keil_speed_ms_per_point': speed_ms_per_point,
+        'keil_speed_points_per_second': _compute_speed_points_per_second(speed_ms_per_point),
+        'validation_status': 'completed',
+    }
+    if qemu_reference is not None:
+        validation_result['qemu_reference_comparison'] = qemu_reference
+    if is_published_profile:
+        validation_result['validation_outputs'] = {
+            f'record_{index}': sequence
+            for index, sequence in enumerate(c_output_sequences)
+        }
+
+    metadata_output_paths = [
+        stream_text_path,
+        Path(str(capture_result['jsonl_path'])),
+        Path(str(capture_result['result_path'])),
+        keil_wave_path,
+        profile_comparison_path,
+    ]
+    return validation_result, metadata_output_paths
+
+
+def _copy_keil_validation_summary_fields(target: Dict[str, Any], profile_result: Dict[str, Any]) -> None:
+    for key in (
+        'serial_capture',
+        'parsed_output',
+        'validation_outputs',
+        'comparison',
+        'comparison_path',
+        'keil_wave_paths',
+        'keil_speed_ms_per_point',
+        'keil_speed_points_per_second',
+        'validation_point_count',
+        'validation_status',
+        'validation_error',
+    ):
+        if key in profile_result:
+            target[key] = profile_result.get(key)
+    if 'qemu_reference_comparison' in profile_result:
+        target['qemu_reference_comparison'] = profile_result['qemu_reference_comparison']
+
+
+def execute_keil_benchmark_pipeline(*,
+                                    ep_path: Any,
+                                    task_info: Dict[str, Any],
+                                    model_type: str,
+                                    model_project_name: str,
+                                    weights_json_path: Path,
+                                    generated_project_dir: Path,
+                                    keil_project_dir: Path,
+                                    benchmark_config: Dict[str, Any],
+                                    validation_artifacts: ValidationArtifacts,
+                                    validation_config: Dict[str, Any],
+                                    keil_config: Dict[str, Any],
+                                    wave_paths: Dict[str, str]) -> bool:
+    keil_project_file = keil_project_dir / 'MDK-ARM' / KEIL_BENCHMARK_BASE_UVPROJX.name
+    summary_path = ep_path.output_path / 'keil_benchmark_summary.json'
+    comparison_path = ep_path.output_path / 'keil_validation_comparison.json'
+    metadata_path = ep_path.output_path / 'keil_benchmark_metadata.json'
+    points_per_iter = _compute_points_per_iter(validation_artifacts)
+
+    execution_summary: Dict[str, Any] = {
+        'task_type': 'qemu-c-inference',
+        'action': 'keil-bench',
+        'model_type': model_type,
+        'model_project_name': model_project_name,
+        'weights_json_path': _relative_or_str(weights_json_path),
+        'loaded_weights_path': _relative_or_str(validation_artifacts.loaded_weights_path),
+        'generated_project_dir': _relative_or_str(generated_project_dir),
+        'keil_project_dir': _relative_or_str(keil_project_dir),
+        'keil_project_file': _relative_or_str(keil_project_file),
+        'benchmark_config': benchmark_config,
+        'validation': {
+            'dataset': {
+                'dataset_type': validation_artifacts.dataset_type,
+                'full_data_path': validation_artifacts.full_data_path,
+                'sample_rate': validation_artifacts.sample_rate,
+            },
+            'selection': validation_artifacts.time_window,
+            'record_count': validation_artifacts.record_count,
+            'seq_len': validation_artifacts.seq_len,
+        },
+        'keil_config': dict(keil_config),
+        'wave_paths': wave_paths,
+        'status': 'generated',
+    }
+
+    action = str(keil_config.get('action', 'build-program-capture'))
+    if action == 'generate':
+        _write_json(summary_path, execution_summary)
+        _write_json(metadata_path, {
+            'task_info': task_info,
+            'output_files': _collect_output_files(
+                summary_path,
+                metadata_path,
+                generated_project_dir,
+                keil_project_dir,
+                *[Path(path) for path in wave_paths.values()],
+            ),
+            'action': 'keil-bench',
+        })
+        logger.info('Keil benchmark 工程已生成: %s', keil_project_dir)
+        return True
+
+    profiles = _resolve_keil_execution_profiles(keil_config)
+    published_profile_key = str(keil_config.get('published_optimization_profile', '')).strip() or profiles[0]['key']
+    base_project_text = keil_project_file.read_text(encoding='utf-8')
+    profile_results: List[Dict[str, Any]] = []
+    metadata_output_paths: List[Path] = []
+
+    try:
+        for profile in profiles:
+            rendered_project = _render_keil_project_with_optimization_profile(
+                base_project_text=base_project_text,
+                profile=profile,
+                target_name=str(keil_config['target']),
+            )
+            keil_project_file.write_text(rendered_project, encoding='utf-8')
+
+            profile_key = str(profile['key'])
+            is_published_profile = profile_key == published_profile_key
+            artifact_suffix = '' if is_published_profile else f'_{profile_key}'
+            capture_prefix = 'keil' if is_published_profile else f'keil_{profile_key}'
+            profile_result: Dict[str, Any] = {
+                'key': profile_key,
+                'label': str(profile['label']),
+                'published': is_published_profile,
+                'use_project_defaults': bool(profile.get('use_project_defaults', False)),
+                'optim_value': profile.get('optim_value'),
+                'misc_controls': str(profile.get('misc_controls', '')),
+                'enable_lto': bool(profile.get('enable_lto', False)),
+                'status': 'generated',
+            }
+
+            build_result = _run_keil_build_job(
+                project_file=keil_project_file,
+                keil_config=keil_config,
+            )
+            profile_result['keil_build'] = build_result
+            build_output_snapshot = _snapshot_keil_build_output(
+                keil_project_dir=keil_project_dir,
+                output_root=ep_path.output_path,
+                target_name=str(keil_config['target']),
+                profile_key=profile_key,
+            )
+            if build_output_snapshot is not None:
+                profile_result['build_output_path'] = _relative_or_str(build_output_snapshot)
+                metadata_output_paths.append(build_output_snapshot)
+            build_size = _parse_keil_program_size(build_output_snapshot)
+            if build_size is not None:
+                profile_result['build_size'] = build_size
+                profile_result.update(build_size)
+
+            if not bool(build_result.get('success', False)):
+                profile_result['status'] = 'build_failed'
+                profile_results.append(profile_result)
+                continue
+
+            if action == 'build':
+                profile_result['status'] = 'build_completed'
+                profile_results.append(profile_result)
+                continue
+
+            capture_state: Optional[Dict[str, Any]] = None
+            capture_result: Optional[Dict[str, Any]] = None
+            program_result: Optional[Dict[str, Any]] = None
+            try:
+                if action == 'build-program-capture':
+                    capture_state = _start_keil_serial_capture(
+                        output_dir=ep_path.output_path,
+                        serial_port=str(keil_config['serial_port']),
+                        baud_rate=int(keil_config['baud_rate']),
+                        capture_timeout=int(keil_config['capture_timeout']),
+                        success_markers=keil_config['success_markers'],
+                        artifact_prefix=capture_prefix,
+                    )
+
+                program_result = _run_keil_program_job(
+                    project_file=keil_project_file,
+                    keil_config=keil_config,
+                )
+                profile_result['keil_program'] = program_result
+            finally:
+                if capture_state is not None:
+                    capture_result = _finish_keil_serial_capture(
+                        capture_state,
+                        timeout_seconds=int(keil_config['capture_timeout']) + 10,
+                    )
+                    profile_result['serial_capture'] = capture_result
+
+            validation_result: Optional[Dict[str, Any]] = None
+            if action == 'build-program-capture' and capture_result is not None:
+                try:
+                    validation_result, validation_output_paths = _collect_keil_capture_validation_result(
+                        output_root=ep_path.output_path,
+                        validation_artifacts=validation_artifacts,
+                        validation_config=validation_config,
+                        capture_result=capture_result,
+                        artifact_suffix=artifact_suffix,
+                        points_per_iter=points_per_iter,
+                        is_published_profile=is_published_profile,
+                    )
+                    profile_result.update(validation_result)
+                    metadata_output_paths.extend(validation_output_paths)
+                except Exception as exc:
+                    if bool(program_result and program_result.get('success', False)):
+                        raise
+                    profile_result['validation_status'] = 'failed'
+                    profile_result['validation_error'] = str(exc)
+                    logger.warning('profile=%s 程序下载失败后串口验算未通过: %s', profile_key, exc)
+
+            program_succeeded = bool(program_result and program_result.get('success', False))
+            if not program_succeeded:
+                profile_result['status'] = (
+                    'completed_with_program_failure'
+                    if validation_result is not None
+                    else 'program_failed'
+                )
+                profile_results.append(profile_result)
+                continue
+
+            if action == 'build-program':
+                profile_result['status'] = 'program_completed'
+                profile_results.append(profile_result)
+                continue
+
+            if capture_result is None:
+                raise RuntimeError(f'profile={profile_key} 串口抓取结果缺失')
+            if validation_result is None:
+                raise RuntimeError(f'profile={profile_key} 串口验算结果缺失')
+
+            profile_result['status'] = 'completed'
+            profile_results.append(profile_result)
+    finally:
+        keil_project_file.write_text(base_project_text, encoding='utf-8')
+
+    published_profile = next(
+        (item for item in profile_results if item['key'] == published_profile_key),
+        None,
+    )
+    successful_profiles = [item for item in profile_results if str(item.get('status', '')).startswith('completed')]
+    has_profile_failure = any(
+        item.get('status') not in {'build_completed', 'program_completed', 'completed'}
+        for item in profile_results
+    )
+
+    if published_profile is None:
+        execution_summary['status'] = 'failed'
+        execution_summary['optimization_profiles'] = profile_results
+    elif 'comparison' in published_profile:
+        published_status = str(published_profile.get('status', 'completed'))
+        summary_status = (
+            'completed_with_profile_failures'
+            if published_status == 'completed' and has_profile_failure
+            else published_status
+        )
+        execution_summary.update({
+            'status': summary_status,
+            'keil_build': published_profile.get('keil_build'),
+            'keil_program': published_profile.get('keil_program'),
+            'published_optimization_profile': published_profile_key,
+            'optimization_profiles': profile_results,
+        })
+        _copy_keil_validation_summary_fields(execution_summary, published_profile)
+    elif published_profile.get('status') == 'build_completed':
+        execution_summary.update({
+            'status': 'build_completed_with_profile_failures' if has_profile_failure else 'build_completed',
+            'keil_build': published_profile.get('keil_build'),
+            'published_optimization_profile': published_profile_key,
+            'optimization_profiles': profile_results,
+        })
+    elif published_profile.get('status') == 'program_completed':
+        execution_summary.update({
+            'status': 'program_completed_with_profile_failures' if has_profile_failure else 'program_completed',
+            'keil_build': published_profile.get('keil_build'),
+            'keil_program': published_profile.get('keil_program'),
+            'published_optimization_profile': published_profile_key,
+            'optimization_profiles': profile_results,
+        })
+    else:
+        execution_summary.update({
+            'status': published_profile.get('status', 'failed'),
+            'keil_build': published_profile.get('keil_build'),
+            'keil_program': published_profile.get('keil_program'),
+            'published_optimization_profile': published_profile_key,
+            'optimization_profiles': profile_results,
+        })
+
+    _write_json(summary_path, execution_summary)
+    _write_json(metadata_path, {
+        'task_info': task_info,
+        'output_files': _collect_output_files(
+            summary_path,
+            comparison_path,
+            metadata_path,
+            generated_project_dir,
+            keil_project_dir,
+            *[Path(path) for path in wave_paths.values()],
+            *metadata_output_paths,
+        ),
+        'action': 'keil-bench',
+    })
+    logger.info('Keil benchmark 任务完成: %s (profiles=%d, success=%d)', summary_path, len(profile_results), len(successful_profiles))
+    return bool(
+        published_profile and (
+            str(published_profile.get('status', '')) in {'build_completed', 'program_completed'}
+            or str(published_profile.get('status', '')).startswith('completed')
+        )
+    )
 
 def _aggregate_run_results(run_results: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
     host_elapsed = [float(item['workflow'].get('run', {}).get('elapsed_seconds', 0.0)) for item in run_results]
