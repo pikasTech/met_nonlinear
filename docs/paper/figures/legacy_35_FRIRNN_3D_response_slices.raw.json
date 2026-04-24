@@ -1,7 +1,5 @@
 {
   "figure": "legacy_35_FRIRNN_3D_response_slices.png",
-  "source": "docs/paper/image/35.FRIRNN_3D_response_slices.png",
-  "migration_source": "C:/work/met_nonlinear_paper/image/35.FRIRNN_3D_response_slices.png",
-  "status": "migrated_legacy_image",
-  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py"
+  "source_asset": "35.FRIRNN_3D_response_slices.png",
+  "status": "legacy image migrated for manuscript continuity"
 }

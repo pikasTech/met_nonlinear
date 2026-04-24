@@ -1,7 +1,5 @@
 {
   "figure": "legacy_37_predict_features.png",
-  "source": "docs/paper/image/37.predict_features.png",
-  "migration_source": "C:/work/met_nonlinear_paper/image/37.predict_features.png",
-  "status": "migrated_legacy_image",
-  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py"
+  "source_asset": "37.predict_features.png",
+  "status": "legacy image migrated for manuscript continuity"
 }

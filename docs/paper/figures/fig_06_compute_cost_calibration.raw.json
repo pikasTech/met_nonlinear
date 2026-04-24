@@ -11,8 +11,8 @@
     "pairs": [
       {
         "label": "Wiener-KAN",
-        "project_path": "C:/work/met_nonlinear_master/projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+        "project_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
         "additions": 266.0,
         "multiplications": 40.0,
         "maps": 234.0,
@@ -24,8 +24,8 @@
       },
       {
         "label": "GRU",
-        "project_path": "C:/work/met_nonlinear_master/projects/01_LR_STUDY/GRNu16_e1k_puremae",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae",
+        "project_path": "projects/01_LR_STUDY/GRNu16_e1k_puremae",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/grnu16_e1k_puremae",
         "additions": 1168.0,
         "multiplications": 1136.0,
         "maps": 64.0,
@@ -37,8 +37,8 @@
       },
       {
         "label": "LSTM",
-        "project_path": "C:/work/met_nonlinear_master/projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8",
+        "project_path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/lstm_u16_e1k_puremae_r8",
         "additions": 1376.0,
         "multiplications": 1408.0,
         "maps": 96.0,
@@ -50,8 +50,8 @@
       },
       {
         "label": "LSTMTransformer",
-        "project_path": "C:/work/met_nonlinear_master/projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae",
+        "project_path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/lstm_transformeru6_e1k_puremae",
         "additions": 2728.0,
         "multiplications": 1208.0,
         "maps": 92.0,
@@ -63,8 +63,8 @@
       },
       {
         "label": "1DCNN",
-        "project_path": "C:/work/met_nonlinear_master/projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true",
+        "project_path": "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/onedcnn_c4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true",
         "additions": 856.0,
         "multiplications": 856.0,
         "maps": 28.0,
@@ -76,8 +76,8 @@
       },
       {
         "label": "RNN",
-        "project_path": "C:/work/met_nonlinear_master/projects/07_RNN/RNNu16_e1k_puremae_r15",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15",
+        "project_path": "projects/07_RNN/RNNu16_e1k_puremae_r15",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/rnnu16_e1k_puremae_r15",
         "additions": 544.0,
         "multiplications": 544.0,
         "maps": 32.0,
@@ -89,8 +89,8 @@
       },
       {
         "label": "TCN",
-        "project_path": "C:/work/met_nonlinear_master/projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3",
-        "on_board_inference_ep_path": "C:/work/met_nonlinear_master/ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3",
+        "project_path": "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3",
+        "on_board_inference_ep_path": "ex_projects/inference/qemu-c-inference/tcnc4d1248k3_nopd_true_e1k_lr2e3",
         "additions": 1616.0,
         "multiplications": 1616.0,
         "maps": 112.0,

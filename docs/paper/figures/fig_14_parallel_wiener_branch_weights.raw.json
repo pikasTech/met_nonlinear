@@ -1,7 +1,7 @@
 {
-  "source": "ex_projects/compare/wiener_parallel_modeling/image/14.NN_extern_simu_reproduced_fh_kx.png",
-  "summary": "ex_projects/compare/wiener_parallel_modeling/data/wiener_parallel_modeling_summary.json",
-  "source_json": "ex_projects/compare/wiener_parallel_modeling/image/14.NN_extern_simu_reproduced_fh_kx.json",
+  "source": "parallel Wiener modeling output",
+  "summary": "parallel Wiener modeling summary",
+  "source_json": "14.NN_extern_simu_reproduced_fh_kx.json",
   "data": {
     "fgm0d12": {
       "x": [

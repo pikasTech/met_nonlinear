@@ -2,7 +2,7 @@
 
 ## 论文撰写
 
-- 构建后的主 Papaer [[main.pdf]]
+- 构建后的主 Papaer [[main.pdf]] [main.tex](docs\paper\latex\main.tex)
 - [[文献笔记]] - 用户自己写的文献阅读笔记，不要修改
 - 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考。
 - 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。

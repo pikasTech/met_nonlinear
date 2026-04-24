@@ -1,7 +1,5 @@
 {
   "figure": "legacy_34_PE_COMP.png",
-  "source": "docs/paper/image/34.PE_COMP.png",
-  "migration_source": "C:/work/met_nonlinear_paper/image/34.PE_COMP.png",
-  "status": "migrated_legacy_image",
-  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py"
+  "source_asset": "34.PE_COMP.png",
+  "status": "legacy image migrated for manuscript continuity"
 }

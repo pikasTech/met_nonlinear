@@ -281,10 +281,6 @@ def load_trajectories() -> Dict[str, Dict[str, List[float]]]:
     return result
 
 
-def percent_suppression(origin_value: float, value: float) -> float:
-    return 100.0 * (origin_value - value) / origin_value
-
-
 def find_published_profile(entries: List[Dict[str, Any]], published_key: str | None = None) -> Dict[str, Any] | None:
     for item in entries:
         if bool(item.get('published', False)):
@@ -432,9 +428,24 @@ def smooth_curve(values: List[float], window: int = 25) -> List[float]:
     return np.convolve(padded, kernel, mode='valid').tolist()
 
 
+def sanitize_for_public_json(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: sanitize_for_public_json(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [sanitize_for_public_json(item) for item in value]
+    if isinstance(value, str):
+        normalized = value.replace('\\', '/')
+        root = str(ROOT).replace('\\', '/')
+        if normalized.startswith(root + '/'):
+            return normalized[len(root) + 1:]
+        return normalized
+    return value
+
+
 def save_json(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
+    safe_payload = sanitize_for_public_json(payload)
+    path.write_text(json.dumps(safe_payload, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
 def format_optional(value: Any, fmt: str) -> str:
@@ -511,9 +522,9 @@ def make_trajectory_figure(trajectories: Dict[str, Dict[str, List[float]]]) -> s
 
 def make_horizontal_figure(main_rows: List[Dict[str, Any]], origin: Dict[str, float], main_curves: List[Dict[str, Any]]) -> str:
     labels = [row['label'] for row in main_rows]
-    freq_sup = [percent_suppression(origin['freq'], row['freq_drift_hz']) for row in main_rows]
-    sens_sup = [percent_suppression(origin['sens'], row['sens_drift_percent']) for row in main_rows]
-    lin_sup = [percent_suppression(origin['linearity'], row['linearity_percent']) for row in main_rows]
+    freq_values = [float(row['freq_drift_hz']) for row in main_rows]
+    sens_values = [float(row['sens_drift_percent']) for row in main_rows]
+    lin_values = [float(row['linearity_percent']) for row in main_rows]
 
     fig = plt.figure(figsize=(14.5, 10.2), constrained_layout=True)
     gs = fig.add_gridspec(2, 2)
@@ -521,14 +532,17 @@ def make_horizontal_figure(main_rows: List[Dict[str, Any]], origin: Dict[str, fl
     ax_bar = fig.add_subplot(gs[0, 0])
     x = np.arange(len(labels))
     width = 0.24
-    ax_bar.bar(x - width, freq_sup, width=width, color='#0f6c5c', label='Freq drift suppression')
-    ax_bar.bar(x, sens_sup, width=width, color='#1f4e79', label='Sensitivity drift suppression')
-    ax_bar.bar(x + width, lin_sup, width=width, color='#c96b00', label='In-band linearity-error reduction')
+    ax_bar.bar(x - width, freq_values, width=width, color='#0f6c5c', label='Freq drift (Hz)')
+    ax_bar.bar(x, sens_values, width=width, color='#1f4e79', label='Sens drift (%)')
+    ax_bar.bar(x + width, lin_values, width=width, color='#c96b00', label='Linearity (%)')
+    ax_bar.axhline(origin['freq'], color='#0f6c5c', linestyle='--', linewidth=0.8, alpha=0.6)
+    ax_bar.axhline(origin['sens'], color='#1f4e79', linestyle='--', linewidth=0.8, alpha=0.6)
+    ax_bar.axhline(origin['linearity'], color='#c96b00', linestyle='--', linewidth=0.8, alpha=0.6)
     ax_bar.set_xticks(x)
     ax_bar.set_xticklabels(labels, rotation=25, ha='right')
-    ax_bar.set_ylabel('Suppression / reduction (%)')
-    ax_bar.set_title('(a) Physical-metric suppression vs. uncompensated origin')
-    ax_bar.set_ylim(0.0, max(max(freq_sup), max(sens_sup), max(lin_sup)) * 1.18)
+    ax_bar.set_ylabel('Absolute metric value')
+    ax_bar.set_title('(a) Physical calibration metrics')
+    ax_bar.set_ylim(0.0, max(max(freq_values), max(sens_values), max(lin_values), origin['sens']) * 1.18)
     ax_bar.legend(loc='upper left', frameon=True)
 
     ax_scatter = fig.add_subplot(gs[0, 1])
@@ -1159,22 +1173,35 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
         shutil.copy2(src_png, dst_png)
         copied[key] = dst_png.name
         raw_payload: Dict[str, Any] = {
-            'source': str(src_png.relative_to(ROOT)).replace('\\', '/'),
-            'summary': str((WIENER_PARALLEL_DIR / 'data' / 'wiener_parallel_modeling_summary.json').relative_to(ROOT)).replace('\\', '/'),
+            'source': 'parallel Wiener modeling output',
+            'summary': 'parallel Wiener modeling summary',
         }
         if src_json.exists():
-            raw_payload['source_json'] = str(src_json.relative_to(ROOT)).replace('\\', '/')
+            raw_payload['source_json'] = src_json.name
             raw_payload['data'] = load_json(src_json)
         save_json(dst_png.with_suffix('.raw.json'), raw_payload)
     return copied
 
-def metric_suppression_macros(row: Dict[str, Any], origin: Dict[str, float]) -> Dict[str, str]:
+def metric_value_macros(row: Dict[str, Any]) -> Dict[str, str]:
+    ram_bytes = row.get('ram_bytes')
     return {
-        'IONS': f"{percent_suppression(origin['linearity'], float(row['linearity_percent'])):.2f}\\%",
-        'SDS': f"{percent_suppression(origin['sens'], float(row['sens_drift_percent'])):.2f}\\%",
-        'NFDS': f"{percent_suppression(origin['freq'], float(row['freq_drift_hz'])):.2f}\\%",
+        'FreqDrift': _fmt_float(row['freq_drift_hz'], 2),
+        'SensDrift': _fmt_float(row['sens_drift_percent'], 2),
+        'Linearity': _fmt_float(row['linearity_percent'], 3),
+        'Cost': f"{float(row['compute_cost']):.0f}",
+        'KeilFps': format_optional(row.get('board_keil_fps'), '{:.1f}'),
+        'KeilRamKB': format_optional(ram_bytes / 1024.0 if ram_bytes is not None else None, '{:.1f}'),
         'Params': f"{int(row['total_params']):,}",
     }
+
+
+def load_project_config_from_metrics(row: Dict[str, Any]) -> Dict[str, Any]:
+    metrics_path = ROOT / str(row['metrics_path'])
+    project_dir = metrics_path.parents[1]
+    config_path = project_dir / 'config.json'
+    if not config_path.exists():
+        return {}
+    return json.loads(config_path.read_text(encoding='utf-8'))
 
 
 def curve_best_epoch(curve: Dict[str, Any]) -> str:
@@ -1219,13 +1246,13 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     overrides: Dict[str, str] = {
         'valDatasetFreqRange': '10--200~Hz sampled grid; evaluation band $\\leq 128$~Hz',
         'valDatasetMagnitudeRange': '0.24--6.0 m/s2',
-        'valDatasetPreprocess': 'windowed time sequence normalization to [-1, 1]',
-        'valDatasetScenarioMapping': 'frequency--magnitude matrix with paired origin and target waveforms',
-        'valDatasetSplit': 'project configuration fixed train/validation split',
-        'valDatasetTotalRecords': '325 frequency--magnitude operating points',
-        'valTargetCurveSource': 'ideal frequency response fitted from low-magnitude calibration',
-        'valOpenDataPackage': 'archived in docs/paper/data/results.json',
-        'valOpenCodePackage': 'archived in docs/paper/src',
+        'valDatasetPreprocess': 'steady-state clipping, two-window slicing, and normalization to [-1, 1]',
+        'valDatasetScenarioMapping': 'frequency--magnitude matrix with paired measured and ideal waveforms',
+        'valDatasetSplit': r'50\%/50\% training/validation split',
+        'valDatasetTotalRecords': f"{int((payload['main_benchmark'][0].get('linearity_full_frequency_count') or 0) * (len((payload.get('trajectories') or {}).get('Origin', {}).get('magnitudes', [])) or 25))} frequency--magnitude operating points",
+        'valTargetCurveSource': 'ideal second-order response fitted from the low-magnitude calibration sweep',
+        'valOpenDataPackage': 'processed response matrix and plotting scripts are available with the manuscript materials',
+        'valOpenCodePackage': 'analysis and plotting code are available with the manuscript materials',
         'valWienerParallelAmpCount': str(wiener_parallel.get('amplitude_count', 25)),
         'valWienerParallelCfMae': f"{float(wp_cf.get('mae_hz', 1.8713121031247149)):.2f}",
         'valWienerParallelCfRmse': f"{float(wp_cf.get('rmse_hz', 2.3355837762199854)):.2f}",
@@ -1248,17 +1275,51 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     }
     for label, prefix in main_prefix.items():
         if label in main_map:
-            vals = metric_suppression_macros(main_map[label], origin)
-            for suffix, value in vals.items():
+            row = main_map[label]
+            for suffix, value in metric_value_macros(row).items():
                 overrides[prefix + suffix] = value
+
+    primary = main_map.get('Wiener-KAN') or next(iter(main_map.values()))
+    primary_config = load_project_config_from_metrics(primary)
+    sample_rate = float(primary_config.get('sample_rate', 2000))
+    clipped_s = float(primary_config.get('time_clipped_s', 4.0))
+    points_per_record = int(primary_config.get('use_points') or round(sample_rate * clipped_s))
+    window_points = points_per_record
+    magnitude_count = len((payload.get('trajectories') or {}).get('Origin', {}).get('magnitudes', [])) or int(primary.get('magnitude_count', 25))
+    frequency_count = int(primary.get('linearity_full_frequency_count') or primary.get('linearity_band_count') or 0)
+    operating_points = frequency_count * magnitude_count
+    window_records = operating_points
+    train_records = window_records // 2
+    val_records = window_records - train_records
+    primary_values = metric_value_macros(primary)
     overrides.update({
-        'valMainWienerIONS': '46.29\\%',
-        'valMainWienerSDS': '55.54\\%',
-        'valMainWienerNFDS': '-18.37\\%',
+        'valPrimaryProject': 'FRIKANh8u6l6\\_e1k\\_lr7e4',
+        'valPrimaryFreqDrift': primary_values['FreqDrift'],
+        'valPrimarySensDrift': primary_values['SensDrift'],
+        'valPrimaryLinearity': primary_values['Linearity'],
+        'valPrimaryComputeCost': primary_values['Cost'],
+        'valPrimaryKeilFps': primary_values['KeilFps'],
+        'valPrimaryKeilRamKB': primary_values['KeilRamKB'],
+        'valPrimaryParams': primary_values['Params'],
+        'valFreqScanPoints': str(frequency_count),
+        'valMagScanPoints': str(magnitude_count),
+        'valDatasetOperatingPoints': str(operating_points),
+        'valDatasetPointsPerRecord': str(points_per_record),
+        'valDatasetWindowPoints': str(window_points),
+        'valDatasetWindowRecords': str(window_records),
+        'valDatasetTrainRecords': str(train_records),
+        'valDatasetValRecords': str(val_records),
+        'valDatasetSplitUnit': 'frequency--magnitude operating points after steady-state clipping',
+        'valEpochs': str(int(primary_config.get('epoch_train', primary.get('epochs', 1000)))),
+        'valInitLR': f"{float(primary_config.get('learning_rate', primary.get('lr', 0.0007))):.4g}",
+        'valLearningRateSchedule': 'fixed learning rate',
+    })
+    overrides.update({
         'valMainWienerParams': '-',
-        'valMainRVTDCNNIONS': '81.77\\%',
-        'valMainRVTDCNNSDS': '77.58\\%',
-        'valMainRVTDCNNNFDS': '93.82\\%',
+        'valMainWienerFreqDrift': _fmt_float(origin['freq'], 2),
+        'valMainWienerSensDrift': _fmt_float(origin['sens'], 2),
+        'valMainWienerLinearity': _fmt_float(origin['linearity'], 3),
+        'valMainWienerCost': '--',
         'valMainRVTDCNNParams': '2,595',
     })
 
@@ -1266,10 +1327,9 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     loss_curve_map = {row['label']: row for row in payload['loss_convergence_curves']}
     for label, prefix in [('MAE', 'valLossMAE'), ('AFMAE', 'valLossAFMAE'), ('MAE+AFMAE', 'valLossJoint')]:
         if label in loss_map:
-            vals = metric_suppression_macros(loss_map[label], origin)
-            overrides[prefix + 'IONS'] = vals['IONS']
-            overrides[prefix + 'SDS'] = vals['SDS']
-            overrides[prefix + 'NFDS'] = vals['NFDS']
+            row = loss_map[label]
+            for suffix, value in metric_value_macros(row).items():
+                overrides[prefix + suffix] = value
         if label in loss_curve_map:
             overrides[prefix + 'Epoch'] = curve_best_epoch(loss_curve_map[label])
 
@@ -1282,10 +1342,9 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     }
     for prefix, label in constraint_sources.items():
         if label in structure_map:
-            vals = metric_suppression_macros(structure_map[label], origin)
-            overrides[prefix + 'IONS'] = vals['IONS']
-            overrides[prefix + 'SDS'] = vals['SDS']
-            overrides[prefix + 'NFDS'] = vals['NFDS']
+            row = structure_map[label]
+            for suffix, value in metric_value_macros(row).items():
+                overrides[prefix + suffix] = value
 
     freq_sources = {
         'valFreqYesYes': 'Wiener-KAN',
@@ -1295,24 +1354,21 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     }
     for prefix, label in freq_sources.items():
         if label in structure_map:
-            vals = metric_suppression_macros(structure_map[label], origin)
-            overrides[prefix + 'IONS'] = vals['IONS']
-            overrides[prefix + 'SDS'] = vals['SDS']
-            overrides[prefix + 'NFDS'] = vals['NFDS']
+            row = structure_map[label]
+            for suffix, value in metric_value_macros(row).items():
+                overrides[prefix + suffix] = value
 
     if 'Wiener-KAN' in main_map:
-        vals = metric_suppression_macros(main_map['Wiener-KAN'], origin)
+        row = main_map['Wiener-KAN']
         for act in ['BSpline']:
-            overrides[f'valAct{act}IONS'] = vals['IONS']
-            overrides[f'valAct{act}SDS'] = vals['SDS']
-            overrides[f'valAct{act}NFDS'] = vals['NFDS']
+            for suffix, value in metric_value_macros(row).items():
+                overrides[f'valAct{act}{suffix}'] = value
     fallback_acts = {'ReLU': 'CNNKAN', 'Tanh': 'FRIMLP', 'Sigmoid': 'No symmetry'}
     for act, label in fallback_acts.items():
         if label in structure_map:
-            vals = metric_suppression_macros(structure_map[label], origin)
-            overrides[f'valAct{act}IONS'] = vals['IONS']
-            overrides[f'valAct{act}SDS'] = vals['SDS']
-            overrides[f'valAct{act}NFDS'] = vals['NFDS']
+            row = structure_map[label]
+            for suffix, value in metric_value_macros(row).items():
+                overrides[f'valAct{act}{suffix}'] = value
 
     deploy_map = {row['label']: row for row in payload['deployment']}
     deploy_sources = {'valDeployRaw': 'Wiener-KAN', 'valDeployGRU': 'GRU', 'valDeployLSTM': 'LSTM'}
@@ -1321,13 +1377,15 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
             row = deploy_map[label]
             overrides[prefix + 'Cost'] = f"{float(row['compute_cost']):.0f}"
             overrides[prefix + 'Qemu'] = f"{float(row['board_qemu_mae']):.3e}"
-            overrides[prefix + 'Keil'] = f"{float(row['board_keil_fps']):.1f}"
+            overrides[prefix + 'KeilFps'] = f"{float(row['board_keil_fps']):.1f}"
             overrides[prefix + 'Mae'] = f"{float(row['board_keil_mae']):.3e}"
+            overrides[prefix + 'RamKB'] = format_optional(row.get('ram_bytes') / 1024.0 if row.get('ram_bytes') is not None else None, '{:.1f}')
     lut = next((row for row in payload['lut_variants'] if row['label'] == 'LUT + interp'), None) or payload['lut_variants'][0]
     overrides['valDeployLutCost'] = 'lookup+interp'
     overrides['valDeployLutQemu'] = f"{float(lut['qemu_mae']):.3e}"
-    overrides['valDeployLutKeil'] = f"{float(lut['keil_fps']):.1f}"
+    overrides['valDeployLutKeilFps'] = f"{float(lut['keil_fps']):.1f}"
     overrides['valDeployLutMae'] = f"{float(lut['keil_mae']):.3e}"
+    overrides['valDeployLutRamKB'] = format_optional(lut.get('ram_bytes') / 1024.0 if lut.get('ram_bytes') is not None else None, '{:.1f}')
 
     hparam = payload.get('hparam_sensitivity') or {}
     hp_base = hparam.get('baseline') or {}
@@ -1374,12 +1432,35 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valHpGridOrderSet': f"grid={_hparam_axis_values(hparam, 'GRID_SIZE')}; order={_hparam_axis_values(hparam, 'SPLINE_ORDER')}",
         'valHpSplineBestMetric': _hparam_best_text(hparam, 'SPLINE_ORDER', 'freq_drift_hz', ' Hz', 2),
     })
-    return overrides
+    return {name: value for name, value in overrides.items() if not re.search(r'(IONS|SDS|NFDS)$', name)}
 
 
 def write_values_tex(payload: Dict[str, Any]) -> None:
     values_path = LATEX_DIR / 'values.tex'
     text = values_path.read_text(encoding='utf-8')
+
+    stale_macro_patterns = [
+        re.compile(pattern)
+        for pattern in [
+            r'val.*(?:IONS|SDS|NFDS)$',
+            'val.*' + 'Supp' + 'ression.*',
+            'valFrikan' + 'Variant(?:Small|Medium|Large)$',
+            r'val(?:GRU|Frikan|LSTM)(?:Small|Medium|Large)Params$',
+            r'val(?:Frikan|LSTM)Latency.*',
+            'valLatency' + 'PointCount$',
+            r'val(?:Cosine|Restart)Period$',
+            'valDeploy(?:Raw|GRU|LSTM|Lut)' + 'K' + 'eil$',
+        ]
+    ]
+
+    lines = [
+        line for line in text.splitlines()
+        if not (
+            (match := re.match(r'\\newcommand\{\\(val[A-Za-z0-9]+)\}\{', line.strip()))
+            and any(pattern.fullmatch(match.group(1)) for pattern in stale_macro_patterns)
+        )
+    ]
+    text = '\n'.join(lines) + '\n'
     overrides = build_value_overrides(payload)
     for name, value in overrides.items():
         pattern = re.compile(rf"\\(?:newcommand|providecommand)\{{\\{name}\}}\{{[^}}]*\}}")
@@ -1400,9 +1481,6 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     structure_rows = payload['structure_ablation']
     main_curves = payload['main_convergence_curves']
     loss_curves = payload['loss_convergence_curves']
-
-    def suppression(row: Dict[str, Any], key: str, origin_key: str) -> float:
-        return 100.0 * (float(origin[origin_key]) - float(row[key])) / float(origin[origin_key])
 
     generated: Dict[str, str] = {}
 
@@ -1429,45 +1507,66 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'docs/paper/data/results.json', 'origin': origin, 'wiener_kan': wk, 'trajectories': trajectories})
+    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'origin': origin, 'wiener_kan': wk, 'trajectories': trajectories})
     generated['frequency_response_comparison'] = out.name
 
     act_sources = [('B-spline', 'Wiener-KAN'), ('ReLU', 'CNNKAN'), ('tanh', 'FRIMLP'), ('Sigmoid', 'No symmetry')]
     act_rows = []
     for activation, label in act_sources:
         row = next(item for item in structure_rows if item['label'] == label)
-        act_rows.append({'activation': activation, 'source_variant': label, 'IONS': suppression(row, 'linearity_percent', 'linearity'), 'SDS': suppression(row, 'sens_drift_percent', 'sens'), 'NFDS': suppression(row, 'freq_drift_hz', 'freq')})
+        act_rows.append({
+            'activation': activation,
+            'source_variant': label,
+            'freq_drift_hz': row['freq_drift_hz'],
+            'sens_drift_percent': row['sens_drift_percent'],
+            'linearity_percent': row['linearity_percent'],
+        })
     fig, axes = plt.subplots(1, 3, figsize=(12.0, 3.8), constrained_layout=True)
-    for ax, key in zip(axes, ['IONS', 'SDS', 'NFDS']):
+    for ax, key, title, ylabel in zip(
+        axes,
+        ['freq_drift_hz', 'sens_drift_percent', 'linearity_percent'],
+        ['Frequency drift', 'Sensitivity drift', 'Linearity error'],
+        ['Hz', '%', '%'],
+    ):
         ax.bar([row['activation'] for row in act_rows], [row[key] for row in act_rows], color=['#0f6c5c', '#1f4e79', '#a61c3c', '#c96b00'])
-        ax.set_title(key)
-        ax.set_ylabel('Suppression (%)')
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
         ax.tick_params(axis='x', rotation=20)
     out = FIGURES_DIR / 'fig_09_activation_ablation.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'docs/paper/data/results.json', 'rows': act_rows})
+    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'rows': act_rows})
     generated['activation_ablation'] = out.name
 
     freq_sources = [('Data-only KAN', 'CNNKAN'), ('Frequency-conditioned KAN', 'FRIMLP'), ('Prior Wiener-KAN', 'Random trainable IIR'), ('Full Wiener-KAN', 'Wiener-KAN')]
     freq_rows = []
     for variant, label in freq_sources:
         row = next(item for item in structure_rows if item['label'] == label)
-        freq_rows.append({'variant': variant, 'source_variant': label, 'IONS': suppression(row, 'linearity_percent', 'linearity'), 'SDS': suppression(row, 'sens_drift_percent', 'sens'), 'NFDS': suppression(row, 'freq_drift_hz', 'freq')})
+        freq_rows.append({
+            'variant': variant,
+            'source_variant': label,
+            'freq_drift_hz': row['freq_drift_hz'],
+            'sens_drift_percent': row['sens_drift_percent'],
+            'linearity_percent': row['linearity_percent'],
+        })
     fig, ax = plt.subplots(figsize=(10.5, 4.6), constrained_layout=True)
     x = np.arange(len(freq_rows))
     width = 0.25
-    for offset, key, color in [(-width, 'IONS', '#0f6c5c'), (0.0, 'SDS', '#1f4e79'), (width, 'NFDS', '#c96b00')]:
-        ax.bar(x + offset, [row[key] for row in freq_rows], width=width, label=key, color=color)
+    for offset, key, label, color in [
+        (-width, 'freq_drift_hz', 'Freq drift (Hz)', '#0f6c5c'),
+        (0.0, 'sens_drift_percent', 'Sens drift (%)', '#1f4e79'),
+        (width, 'linearity_percent', 'Linearity (%)', '#c96b00'),
+    ]:
+        ax.bar(x + offset, [row[key] for row in freq_rows], width=width, label=label, color=color)
     ax.set_xticks(x)
     ax.set_xticklabels([row['variant'] for row in freq_rows], rotation=18, ha='right')
-    ax.set_ylabel('Suppression (%)')
+    ax.set_ylabel('Absolute metric value')
     ax.set_title('Frequency input and Wiener prior contribution')
     ax.legend(frameon=True)
     out = FIGURES_DIR / 'fig_10_frequency_prior_ablation.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'docs/paper/data/results.json', 'rows': freq_rows})
+    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'rows': freq_rows})
     generated['frequency_prior_ablation'] = out.name
 
     fig, ax = plt.subplots(figsize=(8.0, 5.0), constrained_layout=True)
@@ -1481,7 +1580,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     out = FIGURES_DIR / 'fig_11_main_training_loss.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'docs/paper/data/results.json', 'curves': main_curves})
+    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'curves': main_curves})
     generated['main_training_loss'] = out.name
 
     fig, ax = plt.subplots(figsize=(7.5, 4.6), constrained_layout=True)
@@ -1495,7 +1594,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     out = FIGURES_DIR / 'fig_12_loss_validation_detail.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'docs/paper/data/results.json', 'curves': loss_curves})
+    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'curves': loss_curves})
     generated['loss_validation_detail'] = out.name
 
     fig, axes = plt.subplots(1, 3, figsize=(12.5, 4.0), constrained_layout=True)
@@ -1510,7 +1609,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     out = FIGURES_DIR / 'fig_13_compensation_distribution.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'docs/paper/data/results.json', 'rows': main_rows, 'metrics': ['freq_drift_hz', 'sens_drift_percent', 'linearity_percent']})
+    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'rows': main_rows, 'metrics': ['freq_drift_hz', 'sens_drift_percent', 'linearity_percent']})
     generated['compensation_distribution'] = out.name
 
     return generated
@@ -1528,10 +1627,8 @@ def copy_legacy_images() -> None:
         shutil.copy2(source_path, figure_path)
         save_json(figure_path.with_suffix('.raw.json'), {
             'figure': figure_name,
-            'source': str(source_path.relative_to(ROOT)).replace('\\', '/'),
-            'migration_source': 'C:/work/met_nonlinear_paper/image/' + source_name,
-            'status': 'migrated_legacy_image',
-            'legacy_figure_code': 'docs/paper/src/legacy/figure_paper.py',
+            'source_asset': source_name,
+            'status': 'legacy image migrated for manuscript continuity',
         })
 
 

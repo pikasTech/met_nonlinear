@@ -1,7 +1,5 @@
 {
   "figure": "legacy_5_Calibration_table_test.png",
-  "source": "docs/paper/image/5.Calibration_table_test.png",
-  "migration_source": "C:/work/met_nonlinear_paper/image/5.Calibration_table_test.png",
-  "status": "migrated_legacy_image",
-  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py"
+  "source_asset": "5.Calibration_table_test.png",
+  "status": "legacy image migrated for manuscript continuity"
 }

@@ -1,33 +1,33 @@
 {
-  "source": "docs/paper/data/results.json",
+  "source": "paper results payload",
   "rows": [
     {
       "variant": "Data-only KAN",
       "source_variant": "CNNKAN",
-      "IONS": 55.93398358143484,
-      "SDS": 89.09224116446124,
-      "NFDS": 92.95391217073765
+      "freq_drift_hz": 2.4307339655957065,
+      "sens_drift_percent": 9.223698963799492,
+      "linearity_percent": 0.8832526103351029
     },
     {
       "variant": "Frequency-conditioned KAN",
       "source_variant": "FRIMLP",
-      "IONS": 60.96625826882471,
-      "SDS": 67.50232466345193,
-      "NFDS": 83.13540654554872
+      "freq_drift_hz": 5.817886622907654,
+      "sens_drift_percent": 27.48032651317834,
+      "linearity_percent": 0.7823864528104176
     },
     {
       "variant": "Prior Wiener-KAN",
       "source_variant": "Random trainable IIR",
-      "IONS": -60.47243006038331,
-      "SDS": 74.7133994079539,
-      "NFDS": 84.51765213518416
+      "freq_drift_hz": 5.341044524861665,
+      "sens_drift_percent": 21.382576860698208,
+      "linearity_percent": 3.2164852704483686
     },
     {
       "variant": "Full Wiener-KAN",
       "source_variant": "Wiener-KAN",
-      "IONS": 74.49871527614752,
-      "SDS": 89.2473144140718,
-      "NFDS": 93.22688257529694
+      "freq_drift_hz": 2.3365656199771543,
+      "sens_drift_percent": 9.092567629369398,
+      "linearity_percent": 0.5111439183722523
     }
   ]
 }

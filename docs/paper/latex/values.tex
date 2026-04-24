@@ -4,18 +4,15 @@
 % Core experiment summary
 \newcommand{\valNonlinearBefore}{46.7\%}
 \newcommand{\valNonlinearAfter}{3.84\%}
-\newcommand{\valNonlinearSuppression}{95.41\%}
-\newcommand{\valSensitivityDriftSuppression}{93.95\%}
-\newcommand{\valFnDriftSuppression}{96.45\%}
-\newcommand{\valSensitivityDriftSuppressionLI}{65.30\%}
-\newcommand{\valNonlinearSuppressionSUN}{88.66\%}
+\newcommand{\valLiSensitivityDriftReduction}{65.30\%}
+\newcommand{\valSunNonlinearErrorReduction}{88.66\%}
 \newcommand{\valCompImprove}{11.22\%}
 \newcommand{\valSpeedup}{2.1}
 
 % Scan settings
 \newcommand{\valFreqScanStart}{10}
 \newcommand{\valFreqScanEnd}{128}
-\newcommand{\valFreqScanPoints}{13}
+\newcommand{\valFreqScanPoints}{14}
 \newcommand{\valMagScanStart}{0.24}
 \newcommand{\valMagScanEnd}{6.0}
 \newcommand{\valMagScanPoints}{25}
@@ -26,12 +23,10 @@
 \newcommand{\valSamplingFreq}{2000}
 
 % Training settings
-\newcommand{\valInitLR}{0.002}
-\newcommand{\valEpochs}{30000}
+\newcommand{\valInitLR}{0.0007}
+\newcommand{\valEpochs}{1000}
 \newcommand{\valBatchSize}{260000}
 \newcommand{\valSliceDivisor}{2}
-\newcommand{\valCosinePeriod}{100}
-\newcommand{\valRestartPeriod}{5000}
 \newcommand{\valLrDecay}{0.9}
 \newcommand{\valMaeWeight}{0.2}
 
@@ -76,57 +71,35 @@
 % Wiener-KAN hyperparameters selected for the reported run
 \newcommand{\valSplineGridCount}{8}
 \newcommand{\valSplineOrder}{2}
-\newcommand{\valFrikanVariantSmall}{Wiener-KANh6u6l3}
-\newcommand{\valFrikanVariantMedium}{Wiener-KANh6u6l4}
-\newcommand{\valFrikanVariantLarge}{Wiener-KANh8u6l6}
 
 % Model comparison table
-\newcommand{\valWienerIONS}{46.29\%}
-\newcommand{\valWienerSDS}{55.54\%}
-\newcommand{\valWienerNFDS}{-18.37\%}
-\newcommand{\valGRUSmallIONS}{86.70\%}
-\newcommand{\valGRUSmallSDS}{76.47\%}
-\newcommand{\valGRUSmallNFDS}{91.33\%}
-\newcommand{\valGRUSmallParams}{1,201}
-\newcommand{\valFrikanSmallIONS}{95.34\%}
-\newcommand{\valFrikanSmallSDS}{92.59\%}
-\newcommand{\valFrikanSmallNFDS}{95.67\%}
-\newcommand{\valFrikanSmallParams}{1,303}
-\newcommand{\valLSTMSmallIONS}{89.74\%}
-\newcommand{\valLSTMSmallSDS}{84.32\%}
-\newcommand{\valLSTMSmallNFDS}{92.95\%}
-\newcommand{\valLSTMSmallParams}{1,441}
-\newcommand{\valFrikanMediumIONS}{95.41\%}
-\newcommand{\valFrikanMediumSDS}{93.95\%}
-\newcommand{\valFrikanMediumNFDS}{96.45\%}
-\newcommand{\valFrikanMediumParams}{1,669}
-\newcommand{\valGRUMediumIONS}{78.96\%}
-\newcommand{\valGRUMediumSDS}{84.57\%}
-\newcommand{\valGRUMediumNFDS}{91.06\%}
-\newcommand{\valGRUMediumParams}{2,179}
-\newcommand{\valFrikanLargeIONS}{94.30\%}
-\newcommand{\valFrikanLargeSDS}{93.14\%}
-\newcommand{\valFrikanLargeNFDS}{96.59\%}
-\newcommand{\valFrikanLargeParams}{2,569}
-\newcommand{\valRVTDCNNIONS}{81.77\%}
-\newcommand{\valRVTDCNNSDS}{77.58\%}
-\newcommand{\valRVTDCNNNFDS}{93.82\%}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \newcommand{\valRVTDCNNParams}{2,595}
-\newcommand{\valLSTMLargeIONS}{72.20\%}
-\newcommand{\valLSTMLargeSDS}{85.40\%}
-\newcommand{\valLSTMLargeNFDS}{91.51\%}
-\newcommand{\valLSTMLargeParams}{2,641}
+
+
 
 % Embedded deployment results
 \newcommand{\valTargetMcu}{STM32F405}
-\newcommand{\valFrikanLatencyRaw}{2.805}
-\newcommand{\valFrikanLatencyLUT}{0.113}
-\newcommand{\valLSTMLatency}{0.347}
 \newcommand{\valLutPoints}{800}
 \newcommand{\valLutTargetMae}{0.005}
 \newcommand{\valLutFlashKB}{550}
 \newcommand{\valLutAccuracyLossMax}{0.5\%}
-\newcommand{\valLatencyPointCount}{1000}
 \newcommand{\valSensitivityCompareFreq}{100}
 
 % Additional literature and illustration values
@@ -146,197 +119,124 @@
 
 \newcommand{\valDatasetMagnitudeRange}{0.24--6.0 m/s2}
 
-\newcommand{\valDatasetPreprocess}{windowed time sequence normalization to [-1, 1]}
+\newcommand{\valDatasetPreprocess}{steady-state clipping, two-window slicing, and normalization to [-1, 1]}
 
-\newcommand{\valDatasetScenarioMapping}{frequency--magnitude matrix with paired origin and target waveforms}
+\newcommand{\valDatasetScenarioMapping}{frequency--magnitude matrix with paired measured and ideal waveforms}
 
-\newcommand{\valDatasetSplit}{project configuration fixed train/validation split}
+\newcommand{\valDatasetSplit}{50\%/50\% training/validation split}
 
-\newcommand{\valDatasetTotalRecords}{325 frequency--magnitude operating points}
+\newcommand{\valDatasetTotalRecords}{350 frequency--magnitude operating points}
 
-\newcommand{\valTargetCurveSource}{ideal frequency response fitted from low-magnitude calibration}
+\newcommand{\valTargetCurveSource}{ideal second-order response fitted from the low-magnitude calibration sweep}
 
-\newcommand{\valOpenDataPackage}{archived in docs/paper/data/results.json}
+\newcommand{\valOpenDataPackage}{processed response matrix and plotting scripts are available with the manuscript materials}
 
-\newcommand{\valOpenCodePackage}{archived in docs/paper/src}
+\newcommand{\valOpenCodePackage}{analysis and plotting code are available with the manuscript materials}
 
 \newcommand{\valExternalSensorPlan}{repeat the frequency--magnitude matrix on a second MET sample}
 
 \newcommand{\valExternalExcitationPlan}{repeat the protocol on an independent shaker table}
 
-\newcommand{\valMainCNNIONS}{54.10\%}
 
-\newcommand{\valMainCNNSDS}{80.79\%}
 
-\newcommand{\valMainCNNNFDS}{89.22\%}
 
 \newcommand{\valMainCNNParams}{885}
 
-\newcommand{\valMainTCNIONS}{74.21\%}
 
-\newcommand{\valMainTCNSDS}{80.98\%}
 
-\newcommand{\valMainTCNNFDS}{92.33\%}
 
 \newcommand{\valMainTCNParams}{1,697}
 
-\newcommand{\valMainRNNIONS}{63.78\%}
 
-\newcommand{\valMainRNNSDS}{71.91\%}
 
-\newcommand{\valMainRNNNFDS}{80.65\%}
 
 \newcommand{\valMainRNNParams}{577}
 
-\newcommand{\valMainGRUIONS}{63.80\%}
 
-\newcommand{\valMainGRUSDS}{67.90\%}
 
-\newcommand{\valMainGRUNFDS}{78.55\%}
 
 \newcommand{\valMainGRUParams}{1,201}
 
-\newcommand{\valMainLSTMIONS}{74.47\%}
 
-\newcommand{\valMainLSTMSDS}{83.68\%}
 
-\newcommand{\valMainLSTMNFDS}{86.94\%}
 
 \newcommand{\valMainLSTMParams}{1,441}
 
-\newcommand{\valMainLSTMTransformerIONS}{71.73\%}
 
-\newcommand{\valMainLSTMTransformerSDS}{78.26\%}
 
-\newcommand{\valMainLSTMTransformerNFDS}{86.32\%}
 
 \newcommand{\valMainLSTMTransformerParams}{1,261}
 
-\newcommand{\valMainWienerKANIONS}{74.50\%}
 
-\newcommand{\valMainWienerKANSDS}{89.25\%}
 
-\newcommand{\valMainWienerKANNFDS}{93.23\%}
 
 \newcommand{\valMainWienerKANParams}{2,569}
 
-\newcommand{\valMainWienerIONS}{46.29\%}
 
-\newcommand{\valMainWienerSDS}{55.54\%}
 
-\newcommand{\valMainWienerNFDS}{-18.37\%}
 
 \newcommand{\valMainWienerParams}{-}
 
-\newcommand{\valMainRVTDCNNIONS}{81.77\%}
 
-\newcommand{\valMainRVTDCNNSDS}{77.58\%}
 
-\newcommand{\valMainRVTDCNNNFDS}{93.82\%}
 
 \newcommand{\valMainRVTDCNNParams}{2,595}
 
-\newcommand{\valLossMAEIONS}{60.43\%}
 
-\newcommand{\valLossMAESDS}{76.01\%}
 
-\newcommand{\valLossMAENFDS}{62.31\%}
 
 \newcommand{\valLossMAEEpoch}{975}
 
-\newcommand{\valLossAFMAEIONS}{46.72\%}
 
-\newcommand{\valLossAFMAESDS}{75.10\%}
 
-\newcommand{\valLossAFMAENFDS}{88.40\%}
 
 \newcommand{\valLossAFMAEEpoch}{934}
 
-\newcommand{\valLossJointIONS}{74.50\%}
 
-\newcommand{\valLossJointSDS}{89.25\%}
 
-\newcommand{\valLossJointNFDS}{93.23\%}
 
 \newcommand{\valLossJointEpoch}{957}
 
-\newcommand{\valConFullIONS}{74.50\%}
 
-\newcommand{\valConFullSDS}{89.25\%}
 
-\newcommand{\valConFullNFDS}{93.23\%}
 
-\newcommand{\valConUnconIONS}{-5.23\%}
 
-\newcommand{\valConUnconSDS}{87.45\%}
 
-\newcommand{\valConUnconNFDS}{68.37\%}
 
-\newcommand{\valConOddIONS}{-1825.08\%}
 
-\newcommand{\valConOddSDS}{39.85\%}
 
-\newcommand{\valConOddNFDS}{-68.21\%}
 
-\newcommand{\valConPosIONS}{55.93\%}
 
-\newcommand{\valConPosSDS}{89.09\%}
 
-\newcommand{\valConPosNFDS}{92.95\%}
 
-\newcommand{\valFreqYesYesIONS}{74.50\%}
 
-\newcommand{\valFreqYesYesSDS}{89.25\%}
 
-\newcommand{\valFreqYesYesNFDS}{93.23\%}
 
-\newcommand{\valFreqNoYesIONS}{-60.47\%}
 
-\newcommand{\valFreqNoYesSDS}{74.71\%}
 
-\newcommand{\valFreqNoYesNFDS}{84.52\%}
 
-\newcommand{\valFreqYesNoIONS}{60.97\%}
 
-\newcommand{\valFreqYesNoSDS}{67.50\%}
 
-\newcommand{\valFreqYesNoNFDS}{83.14\%}
 
-\newcommand{\valFreqNoNoIONS}{55.93\%}
 
-\newcommand{\valFreqNoNoSDS}{89.09\%}
 
-\newcommand{\valFreqNoNoNFDS}{92.95\%}
 
-\newcommand{\valActBSplineIONS}{74.50\%}
 
-\newcommand{\valActBSplineSDS}{89.25\%}
 
-\newcommand{\valActBSplineNFDS}{93.23\%}
 
-\newcommand{\valActReLUIONS}{55.93\%}
 
-\newcommand{\valActReLUSDS}{89.09\%}
 
-\newcommand{\valActReLUNFDS}{92.95\%}
 
-\newcommand{\valActTanhIONS}{60.97\%}
 
-\newcommand{\valActTanhSDS}{67.50\%}
 
-\newcommand{\valActTanhNFDS}{83.14\%}
 
-\newcommand{\valActSigmoidIONS}{-5.23\%}
 
-\newcommand{\valActSigmoidSDS}{87.45\%}
 
-\newcommand{\valActSigmoidNFDS}{68.37\%}
 
 \newcommand{\valDeployRawCost}{5066}
 
 \newcommand{\valDeployRawQemu}{7.114e-03}
 
-\newcommand{\valDeployRawKeil}{6986.7}
 
 \newcommand{\valDeployRawMae}{7.114e-03}
 
@@ -344,7 +244,6 @@
 
 \newcommand{\valDeployGRUQemu}{2.451e-03}
 
-\newcommand{\valDeployGRUKeil}{1660.1}
 
 \newcommand{\valDeployGRUMae}{2.451e-03}
 
@@ -352,7 +251,6 @@
 
 \newcommand{\valDeployLSTMQemu}{5.070e-02}
 
-\newcommand{\valDeployLSTMKeil}{1426.3}
 
 \newcommand{\valDeployLSTMMae}{5.070e-02}
 
@@ -360,7 +258,6 @@
 
 \newcommand{\valDeployLutQemu}{1.902e-04}
 
-\newcommand{\valDeployLutKeil}{3844.8}
 
 \newcommand{\valDeployLutMae}{1.902e-04}
 
@@ -455,3 +352,353 @@
 \newcommand{\valHpOrderBestLinearity}{3 (0.625\%)}
 
 \newcommand{\valHpOrderCostPattern}{5066}
+
+\newcommand{\valMainCNNFreqDrift}{3.72}
+
+\newcommand{\valMainCNNSensDrift}{16.24}
+
+\newcommand{\valMainCNNLinearity}{0.920}
+
+\newcommand{\valMainCNNCost}{3984}
+
+\newcommand{\valMainCNNKeilFps}{2009.9}
+
+\newcommand{\valMainCNNKeilRamKB}{50.9}
+
+\newcommand{\valMainTCNFreqDrift}{2.65}
+
+\newcommand{\valMainTCNSensDrift}{16.08}
+
+\newcommand{\valMainTCNLinearity}{0.517}
+
+\newcommand{\valMainTCNCost}{8704}
+
+\newcommand{\valMainTCNKeilFps}{935.7}
+
+\newcommand{\valMainTCNKeilRamKB}{106.7}
+
+\newcommand{\valMainRNNFreqDrift}{6.68}
+
+\newcommand{\valMainRNNSensDrift}{23.75}
+
+\newcommand{\valMainRNNLinearity}{0.726}
+
+\newcommand{\valMainRNNCost}{2816}
+
+\newcommand{\valMainRNNKeilFps}{3652.9}
+
+\newcommand{\valMainRNNKeilRamKB}{58.7}
+
+\newcommand{\valMainGRUFreqDrift}{7.40}
+
+\newcommand{\valMainGRUSensDrift}{27.15}
+
+\newcommand{\valMainGRULinearity}{0.726}
+
+\newcommand{\valMainGRUCost}{5856}
+
+\newcommand{\valMainGRUKeilFps}{1660.1}
+
+\newcommand{\valMainGRUKeilRamKB}{58.7}
+
+\newcommand{\valMainLSTMFreqDrift}{4.50}
+
+\newcommand{\valMainLSTMSensDrift}{13.80}
+
+\newcommand{\valMainLSTMLinearity}{0.512}
+
+\newcommand{\valMainLSTMCost}{7520}
+
+\newcommand{\valMainLSTMKeilFps}{1426.3}
+
+\newcommand{\valMainLSTMKeilRamKB}{58.7}
+
+\newcommand{\valMainLSTMTransformerFreqDrift}{4.72}
+
+\newcommand{\valMainLSTMTransformerSensDrift}{18.38}
+
+\newcommand{\valMainLSTMTransformerLinearity}{0.567}
+
+\newcommand{\valMainLSTMTransformerCost}{8192}
+
+\newcommand{\valMainLSTMTransformerKeilFps}{1461.5}
+
+\newcommand{\valMainLSTMTransformerKeilRamKB}{83.7}
+
+\newcommand{\valMainWienerKANFreqDrift}{2.34}
+
+\newcommand{\valMainWienerKANSensDrift}{9.09}
+
+\newcommand{\valMainWienerKANLinearity}{0.511}
+
+\newcommand{\valMainWienerKANCost}{5066}
+
+\newcommand{\valMainWienerKANKeilFps}{6986.7}
+
+\newcommand{\valMainWienerKANKeilRamKB}{5.6}
+
+\newcommand{\valPrimaryProject}{FRIKANh8u6l6\_e1k\_lr7e4}
+
+\newcommand{\valPrimaryFreqDrift}{2.34}
+
+\newcommand{\valPrimarySensDrift}{9.09}
+
+\newcommand{\valPrimaryLinearity}{0.511}
+
+\newcommand{\valPrimaryComputeCost}{5066}
+
+\newcommand{\valPrimaryKeilFps}{6986.7}
+
+\newcommand{\valPrimaryKeilRamKB}{5.6}
+
+\newcommand{\valPrimaryParams}{2,569}
+
+\newcommand{\valDatasetOperatingPoints}{350}
+
+\newcommand{\valDatasetPointsPerRecord}{8000}
+
+\newcommand{\valDatasetWindowPoints}{8000}
+
+\newcommand{\valDatasetWindowRecords}{350}
+
+\newcommand{\valDatasetTrainRecords}{175}
+
+\newcommand{\valDatasetValRecords}{175}
+
+\newcommand{\valDatasetSplitUnit}{frequency--magnitude operating points after steady-state clipping}
+
+\newcommand{\valLearningRateSchedule}{fixed learning rate}
+
+\newcommand{\valMainWienerFreqDrift}{34.50}
+
+\newcommand{\valMainWienerSensDrift}{84.56}
+
+\newcommand{\valMainWienerLinearity}{2.004}
+
+\newcommand{\valMainWienerCost}{--}
+
+\newcommand{\valLossMAEFreqDrift}{13.00}
+
+\newcommand{\valLossMAESensDrift}{20.28}
+
+\newcommand{\valLossMAELinearity}{0.793}
+
+\newcommand{\valLossMAECost}{5066}
+
+\newcommand{\valLossMAEKeilFps}{6986.7}
+
+\newcommand{\valLossMAEKeilRamKB}{5.6}
+
+\newcommand{\valLossMAEParams}{2,569}
+
+\newcommand{\valLossAFMAEFreqDrift}{4.00}
+
+\newcommand{\valLossAFMAESensDrift}{21.06}
+
+\newcommand{\valLossAFMAELinearity}{1.068}
+
+\newcommand{\valLossAFMAECost}{5066}
+
+\newcommand{\valLossAFMAEKeilFps}{6986.7}
+
+\newcommand{\valLossAFMAEKeilRamKB}{5.6}
+
+\newcommand{\valLossAFMAEParams}{2,569}
+
+\newcommand{\valLossJointFreqDrift}{2.34}
+
+\newcommand{\valLossJointSensDrift}{9.09}
+
+\newcommand{\valLossJointLinearity}{0.511}
+
+\newcommand{\valLossJointCost}{5066}
+
+\newcommand{\valLossJointKeilFps}{6986.7}
+
+\newcommand{\valLossJointKeilRamKB}{5.6}
+
+\newcommand{\valLossJointParams}{2,569}
+
+\newcommand{\valConFullFreqDrift}{2.34}
+
+\newcommand{\valConFullSensDrift}{9.09}
+
+\newcommand{\valConFullLinearity}{0.511}
+
+\newcommand{\valConFullCost}{5066}
+
+\newcommand{\valConFullKeilFps}{6986.7}
+
+\newcommand{\valConFullKeilRamKB}{-}
+
+\newcommand{\valConFullParams}{2,569}
+
+\newcommand{\valConUnconFreqDrift}{10.91}
+
+\newcommand{\valConUnconSensDrift}{10.61}
+
+\newcommand{\valConUnconLinearity}{2.109}
+
+\newcommand{\valConUnconCost}{5066}
+
+\newcommand{\valConUnconKeilFps}{-}
+
+\newcommand{\valConUnconKeilRamKB}{-}
+
+\newcommand{\valConUnconParams}{2,569}
+
+\newcommand{\valConOddFreqDrift}{58.03}
+
+\newcommand{\valConOddSensDrift}{50.87}
+
+\newcommand{\valConOddLinearity}{38.586}
+
+\newcommand{\valConOddCost}{5066}
+
+\newcommand{\valConOddKeilFps}{-}
+
+\newcommand{\valConOddKeilRamKB}{-}
+
+\newcommand{\valConOddParams}{2,569}
+
+\newcommand{\valConPosFreqDrift}{2.43}
+
+\newcommand{\valConPosSensDrift}{9.22}
+
+\newcommand{\valConPosLinearity}{0.883}
+
+\newcommand{\valConPosCost}{5074}
+
+\newcommand{\valConPosKeilFps}{-}
+
+\newcommand{\valConPosKeilRamKB}{-}
+
+\newcommand{\valConPosParams}{2,425}
+
+\newcommand{\valFreqYesYesFreqDrift}{2.34}
+
+\newcommand{\valFreqYesYesSensDrift}{9.09}
+
+\newcommand{\valFreqYesYesLinearity}{0.511}
+
+\newcommand{\valFreqYesYesCost}{5066}
+
+\newcommand{\valFreqYesYesKeilFps}{6986.7}
+
+\newcommand{\valFreqYesYesKeilRamKB}{-}
+
+\newcommand{\valFreqYesYesParams}{2,569}
+
+\newcommand{\valFreqNoYesFreqDrift}{5.34}
+
+\newcommand{\valFreqNoYesSensDrift}{21.38}
+
+\newcommand{\valFreqNoYesLinearity}{3.216}
+
+\newcommand{\valFreqNoYesCost}{5066}
+
+\newcommand{\valFreqNoYesKeilFps}{-}
+
+\newcommand{\valFreqNoYesKeilRamKB}{-}
+
+\newcommand{\valFreqNoYesParams}{2,569}
+
+\newcommand{\valFreqYesNoFreqDrift}{5.82}
+
+\newcommand{\valFreqYesNoSensDrift}{27.48}
+
+\newcommand{\valFreqYesNoLinearity}{0.782}
+
+\newcommand{\valFreqYesNoCost}{11272}
+
+\newcommand{\valFreqYesNoKeilFps}{-}
+
+\newcommand{\valFreqYesNoKeilRamKB}{-}
+
+\newcommand{\valFreqYesNoParams}{2,493}
+
+\newcommand{\valFreqNoNoFreqDrift}{2.43}
+
+\newcommand{\valFreqNoNoSensDrift}{9.22}
+
+\newcommand{\valFreqNoNoLinearity}{0.883}
+
+\newcommand{\valFreqNoNoCost}{5074}
+
+\newcommand{\valFreqNoNoKeilFps}{-}
+
+\newcommand{\valFreqNoNoKeilRamKB}{-}
+
+\newcommand{\valFreqNoNoParams}{2,425}
+
+\newcommand{\valActBSplineFreqDrift}{2.34}
+
+\newcommand{\valActBSplineSensDrift}{9.09}
+
+\newcommand{\valActBSplineLinearity}{0.511}
+
+\newcommand{\valActBSplineCost}{5066}
+
+\newcommand{\valActBSplineKeilFps}{6986.7}
+
+\newcommand{\valActBSplineKeilRamKB}{5.6}
+
+\newcommand{\valActBSplineParams}{2,569}
+
+\newcommand{\valActReLUFreqDrift}{2.43}
+
+\newcommand{\valActReLUSensDrift}{9.22}
+
+\newcommand{\valActReLULinearity}{0.883}
+
+\newcommand{\valActReLUCost}{5074}
+
+\newcommand{\valActReLUKeilFps}{-}
+
+\newcommand{\valActReLUKeilRamKB}{-}
+
+\newcommand{\valActReLUParams}{2,425}
+
+\newcommand{\valActTanhFreqDrift}{5.82}
+
+\newcommand{\valActTanhSensDrift}{27.48}
+
+\newcommand{\valActTanhLinearity}{0.782}
+
+\newcommand{\valActTanhCost}{11272}
+
+\newcommand{\valActTanhKeilFps}{-}
+
+\newcommand{\valActTanhKeilRamKB}{-}
+
+\newcommand{\valActTanhParams}{2,493}
+
+\newcommand{\valActSigmoidFreqDrift}{10.91}
+
+\newcommand{\valActSigmoidSensDrift}{10.61}
+
+\newcommand{\valActSigmoidLinearity}{2.109}
+
+\newcommand{\valActSigmoidCost}{5066}
+
+\newcommand{\valActSigmoidKeilFps}{-}
+
+\newcommand{\valActSigmoidKeilRamKB}{-}
+
+\newcommand{\valActSigmoidParams}{2,569}
+
+\newcommand{\valDeployRawKeilFps}{6986.7}
+
+\newcommand{\valDeployRawRamKB}{5.6}
+
+\newcommand{\valDeployGRUKeilFps}{1660.1}
+
+\newcommand{\valDeployGRURamKB}{58.7}
+
+\newcommand{\valDeployLSTMKeilFps}{1426.3}
+
+\newcommand{\valDeployLSTMRamKB}{58.7}
+
+\newcommand{\valDeployLutKeilFps}{3844.8}
+
+\newcommand{\valDeployLutRamKB}{5.6}
