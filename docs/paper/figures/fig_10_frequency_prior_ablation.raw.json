@@ -1,0 +1,33 @@
+{
+  "source": "docs/paper/data/results.json",
+  "rows": [
+    {
+      "variant": "Data-only KAN",
+      "source_variant": "CNNKAN",
+      "IONS": 55.93398358143484,
+      "SDS": 89.09224116446124,
+      "NFDS": 92.95391217073765
+    },
+    {
+      "variant": "Frequency-conditioned KAN",
+      "source_variant": "FRIMLP",
+      "IONS": 60.96625826882471,
+      "SDS": 67.50232466345193,
+      "NFDS": 83.13540654554872
+    },
+    {
+      "variant": "Prior Wiener-KAN",
+      "source_variant": "Random trainable IIR",
+      "IONS": -60.47243006038331,
+      "SDS": 74.7133994079539,
+      "NFDS": 84.51765213518416
+    },
+    {
+      "variant": "Full Wiener-KAN",
+      "source_variant": "Wiener-KAN",
+      "IONS": 74.49871527614752,
+      "SDS": 89.2473144140718,
+      "NFDS": 93.22688257529694
+    }
+  ]
+}

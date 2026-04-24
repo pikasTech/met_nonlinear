@@ -1,0 +1,162 @@
+{
+  "main_benchmark": [
+    {
+      "label": "Wiener-KAN",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json"
+    },
+    {
+      "label": "TCN",
+      "metrics_path": "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3/data/metrics.json"
+    },
+    {
+      "label": "1DCNN",
+      "metrics_path": "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/metrics.json"
+    },
+    {
+      "label": "LSTM",
+      "metrics_path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8/data/metrics.json"
+    },
+    {
+      "label": "LSTMTransformer",
+      "metrics_path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae/data/metrics.json"
+    },
+    {
+      "label": "RNN",
+      "metrics_path": "projects/07_RNN/RNNu16_e1k_puremae_r15/data/metrics.json"
+    },
+    {
+      "label": "GRU",
+      "metrics_path": "projects/01_LR_STUDY/GRNu16_e1k_puremae/data/metrics.json"
+    }
+  ],
+  "loss_ablation": [
+    {
+      "label": "MAE+AFMAE",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json"
+    },
+    {
+      "label": "MAE",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_puremae/data/metrics.json"
+    },
+    {
+      "label": "AFMAE",
+      "metrics_path": "projects/03_FRIKAN_PUREAFME/FRIKANh8u6l6_e1k_lr5e4_pureafmae/data/metrics.json"
+    }
+  ],
+  "structure_ablation": [
+    {
+      "label": "Wiener-KAN",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json"
+    },
+    {
+      "label": "CNNKAN",
+      "metrics_path": "projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05/data/metrics.json"
+    },
+    {
+      "label": "No symmetry",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5/data/metrics.json"
+    },
+    {
+      "label": "Random trainable IIR",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr14e5_randfrirnn_r2/data/metrics.json"
+    },
+    {
+      "label": "FRIMLP",
+      "metrics_path": "projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00/data/metrics.json"
+    },
+    {
+      "label": "No positive (stress)",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nopositive/data/metrics.json"
+    }
+  ],
+  "deployment": [
+    {
+      "label": "Wiener-KAN",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json"
+    },
+    {
+      "label": "TCN",
+      "metrics_path": "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e3/data/metrics.json"
+    },
+    {
+      "label": "1DCNN",
+      "metrics_path": "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e4_pd8l2_d001_cvtanh_true/data/metrics.json"
+    },
+    {
+      "label": "LSTM",
+      "metrics_path": "projects/01_LR_STUDY/LSTMu16_e1k_puremae_r8/data/metrics.json"
+    },
+    {
+      "label": "LSTMTransformer",
+      "metrics_path": "projects/01_LR_STUDY/LSTMTransformeru6_e1k_puremae/data/metrics.json"
+    },
+    {
+      "label": "RNN",
+      "metrics_path": "projects/07_RNN/RNNu16_e1k_puremae_r15/data/metrics.json"
+    },
+    {
+      "label": "GRU",
+      "metrics_path": "projects/01_LR_STUDY/GRNu16_e1k_puremae/data/metrics.json"
+    }
+  ],
+  "trajectory_models": [
+    {
+      "label": "Origin",
+      "linear_response_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json"
+    },
+    {
+      "label": "Wiener-KAN",
+      "linear_response_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json"
+    }
+  ],
+  "lut_variants": [
+    {
+      "label": "LUT nearest",
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4"
+    },
+    {
+      "label": "LUT + interp",
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_interp"
+    },
+    {
+      "label": "No LUT exact",
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut"
+    }
+  ],
+  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py",
+  "legacy_image_dir": "docs/paper/image",
+  "legacy_image_migrations": [
+    {
+      "source": "3.MET_nonlinear_frequency_response.png",
+      "figure": "legacy_3_MET_nonlinear_frequency_response.png"
+    },
+    {
+      "source": "4.MET_structure.png",
+      "figure": "legacy_4_MET_structure.png"
+    },
+    {
+      "source": "39.Readout_circuit.png",
+      "figure": "legacy_39_Readout_circuit.png"
+    },
+    {
+      "source": "13.NN_extern2.png",
+      "figure": "legacy_13_NN_extern2.png"
+    },
+    {
+      "source": "34.PE_COMP.png",
+      "figure": "legacy_34_PE_COMP.png"
+    },
+    {
+      "source": "35.FRIRNN_3D_response_slices.png",
+      "figure": "legacy_35_FRIRNN_3D_response_slices.png"
+    },
+    {
+      "source": "5.Calibration_table_test.png",
+      "figure": "legacy_5_Calibration_table_test.png"
+    },
+    {
+      "source": "37.predict_features.png",
+      "figure": "legacy_37_predict_features.png"
+    }
+  ]
+}

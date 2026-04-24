@@ -1,0 +1,17 @@
+{
+  "completed_epoch": 0,
+  "min_loss": 1.5984264612197876,
+  "min_val_loss": 1.6517757177352905,
+  "current_epoch": 0,
+  "model_name": "FRIKAN",
+  "training_alive": false,
+  "timestamp": "20260424154224.6",
+  "best_weights_file": "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data\\FRIKANh8u6l8g8s2_e1k_lr7e4_axisL_best_weights.h5",
+  "best_val_weights_file": "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data\\FRIKANh8u6l8g8s2_e1k_lr7e4_axisL_best_val_weights.h5",
+  "loss": 1.5984264612197876,
+  "val_loss": 1.6517757177352905,
+  "mae": 0.34028589725494385,
+  "afmae": 1.8862234354019165,
+  "val_mae": 0.33819857239723206,
+  "val_afmae": 1.875749111175537
+}

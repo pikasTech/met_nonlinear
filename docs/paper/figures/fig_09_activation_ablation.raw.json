@@ -1,0 +1,33 @@
+{
+  "source": "docs/paper/data/results.json",
+  "rows": [
+    {
+      "activation": "B-spline",
+      "source_variant": "Wiener-KAN",
+      "IONS": 74.49871527614752,
+      "SDS": 89.2473144140718,
+      "NFDS": 93.22688257529694
+    },
+    {
+      "activation": "ReLU",
+      "source_variant": "CNNKAN",
+      "IONS": 55.93398358143484,
+      "SDS": 89.09224116446124,
+      "NFDS": 92.95391217073765
+    },
+    {
+      "activation": "tanh",
+      "source_variant": "FRIMLP",
+      "IONS": 60.96625826882471,
+      "SDS": 67.50232466345193,
+      "NFDS": 83.13540654554872
+    },
+    {
+      "activation": "Sigmoid",
+      "source_variant": "No symmetry",
+      "IONS": -5.232387578926152,
+      "SDS": 87.44872335453803,
+      "NFDS": 68.36658580595062
+    }
+  ]
+}

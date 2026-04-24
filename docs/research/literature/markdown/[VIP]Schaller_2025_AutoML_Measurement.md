@@ -1,5 +1,7 @@
 # AutoML for multi-class anomaly compensation of sensor drift
 
+PDF: [[[VIP]Schaller_2025_AutoML_Measurement.pdf]] - Measurement
+
 译文:# 用于传感器漂移多类异常补偿的自动机器学习
 
 Melanie Schaller a, d b,*, Mathis Kruse a b, Antonio Ortega ${}^{b}$ , Marius Lindauer c, d, Bodo Rosenhahn a, d D

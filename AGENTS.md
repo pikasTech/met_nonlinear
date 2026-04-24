@@ -1,5 +1,18 @@
-# Agentic Coding Guidelines
+# 传感器非线性神经网络学习框架
 
+## 论文撰写
+
+- 构建后的主 Papaer [[main.pdf]]
+- [[文献笔记]] - 用户自己写的文献阅读笔记，不要修改
+- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考。
+- 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。
+- 论文消融实验方法：详见 [docs/reference/paper_ablation_method.md](docs/reference/paper_ablation_method.md)。
+- 论文超参数敏感性分析方法：详见 [docs/reference/paper_hyperparameter_sensitivity_method.md](docs/reference/paper_hyperparameter_sensitivity_method.md)。
+- 论文横向对比实验方法：详见 [docs/reference/paper_horizontal_comparison_method.md](docs/reference/paper_horizontal_comparison_method.md)。
+- 论文边缘设备推理评估方法：详见 [docs/reference/paper_edge_inference_evaluation_method.md](docs/reference/paper_edge_inference_evaluation_method.md)。
+- 论文指标计算方法：详见 [docs/reference/paper_metric_calculation_method.md](docs/reference/paper_metric_calculation_method.md)。
+- 论文计算量标定方法：详见 [docs/reference/paper_compute_cost_calibration_method.md](docs/reference/paper_compute_cost_calibration_method.md)。
+- 论文 LUT 插值部署评估方法：详见 [docs/reference/paper_lut_interpolation_evaluation_method.md](docs/reference/paper_lut_interpolation_evaluation_method.md)。
 ## 最高原则
 
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
@@ -35,14 +48,7 @@
 - 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
 - WNET5 分层验证中的 Project 权重加载、E96 量化误差仿真、SVF 拟合误差建模与报告约束：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
-- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考。
-- 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。
-- 论文消融实验方法：详见 [docs/reference/paper_ablation_method.md](docs/reference/paper_ablation_method.md)。
-- 论文横向对比实验方法：详见 [docs/reference/paper_horizontal_comparison_method.md](docs/reference/paper_horizontal_comparison_method.md)。
-- 论文边缘设备推理评估方法：详见 [docs/reference/paper_edge_inference_evaluation_method.md](docs/reference/paper_edge_inference_evaluation_method.md)。
-- 论文指标计算方法：详见 [docs/reference/paper_metric_calculation_method.md](docs/reference/paper_metric_calculation_method.md)。
-- 论文计算量标定方法：详见 [docs/reference/paper_compute_cost_calibration_method.md](docs/reference/paper_compute_cost_calibration_method.md)。
-- 论文 LUT 插值部署评估方法：详见 [docs/reference/paper_lut_interpolation_evaluation_method.md](docs/reference/paper_lut_interpolation_evaluation_method.md)。
+
 
 ## 环境配置
 

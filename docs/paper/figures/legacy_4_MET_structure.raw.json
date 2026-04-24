@@ -1,0 +1,7 @@
+{
+  "figure": "legacy_4_MET_structure.png",
+  "source": "docs/paper/image/4.MET_structure.png",
+  "migration_source": "C:/work/met_nonlinear_paper/image/4.MET_structure.png",
+  "status": "migrated_legacy_image",
+  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py"
+}

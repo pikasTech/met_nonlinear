@@ -1,0 +1,269 @@
+{
+  "main": {
+    "id": "710e19b185842842",
+    "type": "split",
+    "children": [
+      {
+        "id": "24d48022de1ce836",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cf28f74331b8a749",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/notes/文献笔记.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "文献笔记"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1b7a4a06b6afab6f",
+    "type": "split",
+    "children": [
+      {
+        "id": "62cff018a3df065c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "87ddc586d11bf639",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "adae27d7addd4af6",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#基于物理约束变分自编码器的深反应离子刻蚀中扫描电子显微镜",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "5511464a2aee85e1",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "bfa1cc7ceaf8a659",
+    "type": "split",
+    "children": [
+      {
+        "id": "95d96a994ff63ee6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "da1662bb557211c2",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/notes/文献笔记.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "文献笔记 的反向链接列表"
+            }
+          },
+          {
+            "id": "24f32ce2d931ec77",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/notes/文献笔记.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "文献笔记 的出链列表"
+            }
+          },
+          {
+            "id": "a1e99031320d1500",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "6677b4a307a4e3d8",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "2223f0d7544d7947",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/notes/文献笔记.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "文献笔记 的大纲"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "horizontal",
+    "width": 447.5
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "floating": {
+    "id": "f49162206988dd78",
+    "type": "floating",
+    "children": [
+      {
+        "id": "565c81842a760101",
+        "type": "window",
+        "children": [
+          {
+            "id": "8b5d2db209752dff",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "ba8bc17c3f780672",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+                    "mode": "source",
+                    "source": false
+                  },
+                  "icon": "lucide-file",
+                  "title": "[VIP]Schaller_2025_AutoML_Measurement"
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": -1290,
+        "y": 61,
+        "width": 1123,
+        "height": 888,
+        "maximize": false,
+        "zoom": 0.5
+      }
+    ]
+  },
+  "active": "cf28f74331b8a749",
+  "lastOpenFiles": [
+    "docs/research/literature/pdfs/[MN]_Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electrothermal_actuators.pdf",
+    "docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
+    "docs/notes/文献笔记.md",
+    "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+    "docs/MDTODO/details/20260327-转投/20260423_221243_Task_Report.md",
+    "docs/reference/paper_hyperparameter_sensitivity_method.md",
+    "PEF待下载.md",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/training.lock",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/model_info.json",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/scalers/combined_scaler.json",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/scalers",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/training_state.json",
+    "logs/20260424_154306_cli.log",
+    "logs/20260424_154306_cli_errors.log",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data/training.lock",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data/model_info.json",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data/scalers/combined_scaler.json",
+    "AGENTS.md",
+    "docs/research/literature/markdown/images/bo_d75j7e491nqc73eobea0_1_294_148_1161_493_0.jpg",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s1_e1k_lr7e4_axisS/data/predict_features_overview.png",
+    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s1_e1k_lr7e4_axisS/data/bode_plot_overlay.png",
+    "docs/research/literature/markdown/[VIP]Chao_2025_Dynamic_Measurement.md",
+    "docs/research/literature/markdown/[VIP]Lin_effect_2020.md",
+    "docs/research/literature/markdown/[VIP]Electrochemical_vibration_sensor.md",
+    "docs/research/literature/markdown/[VIP]Fang_2024_exploiting_nonlinearity.md",
+    "docs/research/literature/markdown/[VPI]AI_Based_Sensor.md",
+    "[[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
+    "docs/paper/figures/legacy_3_MET_nonlinear_frequency_response.png",
+    "docs/reference/paper_latex_submission.md",
+    "未命名.md",
+    "CLAUDE.md",
+    "docs/paper/draft/20260422/fig_05_onboard_inference.png",
+    "docs/paper/draft/20260422/fig_04_loss_ablation.png",
+    "docs/paper/draft/20260422/fig_03_convergence_curves.png",
+    "docs/paper/draft/20260422/fig_02_horizontal_summary.png",
+    "docs/paper/draft/20260422/fig_01_drift_trajectories.png",
+    "docs/paper/data/generated_tables.md",
+    "docs/reference/paper_lut_interpolation_evaluation_method.md",
+    "docs/MDTODO/details/20260327-转投/20260424_145735_Task_Report.md",
+    "docs/reference/rnn_baselines.md",
+    "docs/reference/tf26_environment.md"
+  ]
+}

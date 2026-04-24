@@ -26,3 +26,29 @@
 2026-04-24 08:34:04	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	start	0	manual foreground run
 2026-04-24 09:06:06	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	failed	718	manual foreground run LASTEXIT=-1 CUDA_ERROR_ILLEGAL_ADDRESS fatal
 2026-04-24 09:06:06	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	resume	718	manual resume after stale lock cleanup
+2026-04-24 09:26:29	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	failed	914	manual resume LASTEXIT=-1 CUDA_ERROR_ILLEGAL_ADDRESS fatal
+2026-04-24 09:26:29	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	resume	914	manual resume after stale lock cleanup
+2026-04-24 09:34:10	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	completed	1000	manual resume from epoch 914 completed
+2026-04-24 09:34:10	FRIKANh8u6l6g3s2_e1k_lr7e4_axisG	start	0	manual foreground run
+2026-04-24 09:51:30	FRIKANh8u6l6g3s2_e1k_lr7e4_axisG	resume	401	manual resume after user-aborted turn
+2026-04-24 10:05:00	FRIKANh8u6l6g3s2_e1k_lr7e4_axisG	completed	1000	manual resume from epoch 401 completed despite LASTEXIT=-1
+2026-04-24 10:05:00	FRIKANh8u6l6g4s2_e1k_lr7e4_axisG	start	0	manual foreground run
+2026-04-24 10:46:50	FRIKANh8u6l6g4s2_e1k_lr7e4_axisG	completed	1000	manual foreground run completed
+2026-04-24 10:46:50	FRIKANh8u6l6g5s2_e1k_lr7e4_axisG	start	0	manual foreground run
+2026-04-24 11:26:07	FRIKANh8u6l6g5s2_e1k_lr7e4_axisG	completed	1000	manual foreground run completed
+2026-04-24 11:26:07	FRIKANh8u6l6g6s2_e1k_lr7e4_axisG	start	0	manual foreground run
+2026-04-24 11:58:18	FRIKANh8u6l6g6s2_e1k_lr7e4_axisG	completed	1000	manual foreground run completed
+2026-04-24 11:58:18	FRIKANh8u6l6g7s2_e1k_lr7e4_axisG	start	0	manual foreground run
+2026-04-24 14:37:49	FRIKANh8u6l6g7s2_e1k_lr7e4_axisG	failed	14	manual foreground run exit=1 CUDA_ERROR_ILLEGAL_ADDRESS
+2026-04-24 14:37:49	FRIKANh8u6l6g7s2_e1k_lr7e4_axisG	resume	14	manual resume after stale lock cleanup
+2026-04-24 15:15:03	FRIKANh8u6l6g7s2_e1k_lr7e4_axisG	completed	1000	manual resume from epoch 14 completed
+2026-04-24 15:15:03	FRIKANh8u6l6g8s1_e1k_lr7e4_axisS	start	0	manual foreground run
+2026-04-24 15:39:03	FRIKANh8u6l6g8s1_e1k_lr7e4_axisS	completed	1000	manual foreground run completed
+2026-04-24 15:39:03	FRIKANh8u6l6g8s3_e1k_lr7e4_axisS	start	0	manual foreground run
+2026-04-24 15:40:33	FRIKANh8u6l6g8s3_e1k_lr7e4_axisS	failed	0	manual foreground run exit=1 GPU OOM at fast_FRIKAN/dense_kan_6/sub_10
+2026-04-24 15:40:33	FRIKANh8u6l7g8s2_e1k_lr7e4_axisL	start	0	manual foreground run
+2026-04-24 15:41:46	FRIKANh8u6l7g8s2_e1k_lr7e4_axisL	failed	0	manual foreground run exit=1 GPU OOM at fast_FRIKAN/dense_kan/mul_3
+2026-04-24 15:41:46	FRIKANh8u6l8g8s2_e1k_lr7e4_axisL	start	0	manual foreground run
+2026-04-24 15:42:57	FRIKANh8u6l8g8s2_e1k_lr7e4_axisL	failed	0	manual foreground run exit=1 GPU OOM at fast_FRIKAN/dense_kan_8/mul_3
+2026-04-24 15:42:57	FRIKANh8u8l6g8s2_e1k_lr7e4_axisU	start	0	manual foreground run
+2026-04-24 15:44:40	FRIKANh8u8l6g8s2_e1k_lr7e4_axisU	failed	0	manual foreground run exit=1 GPU OOM at fast_FRIKAN/dense_kan/sub_2

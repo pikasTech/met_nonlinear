@@ -1,0 +1,7 @@
+{
+  "figure": "legacy_39_Readout_circuit.png",
+  "source": "docs/paper/image/39.Readout_circuit.png",
+  "migration_source": "C:/work/met_nonlinear_paper/image/39.Readout_circuit.png",
+  "status": "migrated_legacy_image",
+  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py"
+}

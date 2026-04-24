@@ -147,8 +147,8 @@ MN 本地稿件统一以 Springer Nature `sn-jnl` 模板为基础。
 
 以下论文为 MN 期刊在 AI+physical sensors / microsystems 方向的标杆论文，是当前稿件成稿风格的重要参考：
 
-| 论文 | 核心贡献 | MN 成稿启示 | 路径 |
-|------|----------|-------------|------|
+| 论文                             | 核心贡献                         | MN 成稿启示                                                                                     | 路径                                                                                                                                                     |
+| ------------------------------ | ---------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Zhang et al. 2026 (Nano Lett.) | ML 驱动 MEMS 电热致动器无传感器线性化元结构设计 | **AI+sensor 论文的canonical范式**：physical sensor 为主角，AI 是实现线性化的计算工具；强调无传感器、无电路的机械结构方案而非 AI 模型创新 | `docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electrothermal_actuators.md` |
 
 **成稿启示**：
