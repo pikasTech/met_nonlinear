@@ -1,4 +1,4 @@
-\documentclass[sn-nature]{sn-jnl}
+﻿\documentclass[sn-nature]{sn-jnl}
 
 \usepackage{fontspec}
 \usepackage{xeCJK}
@@ -837,23 +837,32 @@ Tab.~\ref{tab:dataset_protocol} summarizes the dataset scale, target constructio
 
 \subsection{Nonlinear Compensation Performance of Wiener-KAN on MET}
 
-Wiener-KAN 的超参数包括 Wiener 线性层中的相对频率响应切片数量 $h$、约束 KAN 的层数 $l$ 和单层单元数 $u$，以及 B 样条激活函数的阶数和网格数。本文在真实数据上进行了系统参数扫描，最终选择网格数为 \valSplineGridCount、B 样条阶数为 \valSplineOrder 的配置。与此同时，为适配不同性能需求和资源约束，本文还设计了三种不同参数规模的 Wiener-KAN 变体：\valFrikanVariantSmall（Small）、\valFrikanVariantMedium（Medium）和 \valFrikanVariantLarge（Large）。
-\begin{table}[ht]
+Wiener-KAN 的超参数包括 Wiener 线性层中的相对频率响应切片数量 $h$、约束 KAN 的层数 $l$ 和单层单元数 $u$、以及 B 样条激活函数的阶数和网格数。本文围绕 canonical $h8u6l6g8s2$ 配置进行单因素敏感性分析，训练轮数、学习率、损失函数、数据划分和评估链路均保持一致。基线配置达到 $\textrm{Freq~Drift}=\valHpBaseFreq$~Hz、$\textrm{Sens~Drift}=\valHpBaseSens\%$、$\textrm{Linearity}=\valHpBaseLinearity\%$，静态推理成本估计为 \valHpBaseCost。
+
+\begin{table*}[ht]
     \centering
-    \caption{Hyperparameter sensitivity of Wiener-KAN.}
+    \caption{One-factor hyperparameter sensitivity of Wiener-KAN. Lower values are better for the three physical metrics. The cost column reports the range of static inference estimates observed on each axis.}
     \label{tab:hyperparameter_sensitivity}
+    \tiny
     \begin{tabular}{lccccc}
         \hline\hline
-        \textbf{Group} & \textbf{$h$} & \textbf{$u$} & \textbf{$l$} & \textbf{Grid/order} & \textbf{Best metric} \\ \hline
-        Wiener slices & \valHpHSet & \valHpUBase & \valHpLBase & \valHpGridOrderBase & \valHpHBestMetric \\
-        KAN width & \valHpHBase & \valHpUSet & \valHpLBase & \valHpGridOrderBase & \valHpUBestMetric \\
-        KAN depth & \valHpHBase & \valHpUBase & \valHpLSet & \valHpGridOrderBase & \valHpLBestMetric \\
-        Spline grid/order & \valHpHBase & \valHpUBase & \valHpLBase & \valHpGridOrderSet & \valHpSplineBestMetric \\ \hline\hline
+        \textbf{Axis} & \textbf{Scanned values} & \textbf{Best Freq Drift} & \textbf{Best Sens Drift} & \textbf{Best Linearity} & \textbf{Cost range} \\ \hline
+        Wiener slices $h$ & \valHpHSet & \valHpHBestFreq & \valHpHBestSens & \valHpHBestLinearity & \valHpHCostPattern \\
+        KAN width $u$ & \valHpUSet & \valHpUBestFreq & \valHpUBestSens & \valHpUBestLinearity & \valHpUCostPattern \\
+        KAN depth $l$ & \valHpLSet & \valHpLBestFreq & \valHpLBestSens & \valHpLBestLinearity & \valHpLCostPattern \\
+        Spline grid $g$ & \valHpGridSet & \valHpGridBestFreq & \valHpGridBestSens & \valHpGridBestLinearity & \valHpGridCostPattern \\
+        Spline order $s$ & \valHpOrderSet & \valHpOrderBestFreq & \valHpOrderBestSens & \valHpOrderBestLinearity & \valHpOrderCostPattern \\ \hline\hline
     \end{tabular}
-\end{table}
+\end{table*}
 
-超参数敏感性实验围绕 Wiener 切片数 $h$、KAN 单层单元数 $u$、KAN 层数 $l$、样条网格数量和样条阶数展开。Tab.~\ref{tab:hyperparameter_sensitivity} 使用统一指标记录每类扫描的代表性最优结果，用于判断模型性能主要受线性动态先验容量、静态非线性容量还是样条分辨率影响。The generated data package in docs/paper/data/results.json records the corresponding source rows and derived values.
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.98\textwidth]{../figures/fig_18_hparam_sensitivity.png}
+    \caption{Hyperparameter sensitivity around the canonical Wiener-KAN configuration. (a) Physical calibration metrics under one-factor perturbations. Dashed horizontal references denote the baseline values. (b) Static compute-cost estimate for the same variants.}
+    \label{fig:hparam_sensitivity}
+\end{figure*}
 
+Tab.~\ref{tab:hyperparameter_sensitivity} and Fig.~\ref{fig:hparam_sensitivity} show that all five scanned axes are complete and that the canonical configuration is a stable accuracy--complexity trade-off rather than an isolated optimum. Increasing KAN depth to $l=7$ further improves all three physical metrics, while increasing the static inference estimate. In contrast, changing the spline grid size or spline order primarily changes the learned static nonlinearity; when $h/u/l$ are fixed, the current LUT-based compute-cost estimate remains unchanged.
 
 Fig.~\ref{fig:frequency_response_comparison}(a) 展示了补偿后频率响应曲线的收敛效果。由于幅频损失函数 AFMAE 更关注整体频域特性，其结果在 Fig.~\ref{fig:frequency_response_comparison}(b) 中体现为灵敏度漂移被抑制到 \valSensitivityDriftSuppression，这一结果优于力反馈方案\cite{li_electrochemical_2017}的 \valSensitivityDriftSuppressionLI。Wiener 线性层的频率响应初始化机制则为网络提供了有关频率响应非线性的初始化信息，Fig.~\ref{fig:frequency_response_comparison}(c) 显示其对固有频率漂移的改善可达 \valFnDriftSuppression。为了在不同频率和灵敏度条件下进行规范化比较，本文对测试数据进行了灵敏度归一化处理，使理想线性输入输出特性统一表现为斜率为 1 的直线。正如 Fig.~\ref{fig:frequency_response_comparison}(d) 所示，Wiener-KAN 对输入输出非线性的抑制达到 \valNonlinearSuppression，优于传统力反馈方案\cite{WOS:000408118700046}的 \valNonlinearSuppressionSUN。
 

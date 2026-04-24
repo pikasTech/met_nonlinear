@@ -756,6 +756,74 @@ def load_compute_cost_calibration() -> Dict[str, Any]:
     return load_json('ex_projects/compare/compute_cost_calibration/data/compute_cost_calibration_results.json')
 
 
+def load_hparam_sensitivity_summary() -> Dict[str, Any]:
+    return load_json('ex_projects/compare/hparam_sensitivity_r15/data/summary.json')
+
+
+def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
+    rows = [row for row in summary.get('rows', []) if row.get('axis') != 'base' and row.get('status') == 'complete']
+    baseline = summary.get('baseline', {})
+    axis_order = ['H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER']
+    axis_labels = {
+        'H_UNITS': 'Wiener slices h',
+        'INNER_KAN_UNITS': 'KAN width u',
+        'INNER_KAN_LAYERS': 'KAN depth l',
+        'GRID_SIZE': 'Spline grid g',
+        'SPLINE_ORDER': 'Spline order s',
+    }
+    colors = {
+        'freq_drift_hz': '#1f4e79',
+        'sens_drift_percent': '#0f6c5c',
+        'linearity_percent': '#c96b00',
+        'compute_cost': '#666666',
+    }
+    fig, axes = plt.subplots(2, 1, figsize=(10.8, 7.2), sharex=False, constrained_layout=True)
+    offsets = [-0.18, 0.0, 0.18]
+    metric_specs = [
+        ('freq_drift_hz', 'Freq drift (Hz)', offsets[0], 'o'),
+        ('sens_drift_percent', 'Sens drift (%)', offsets[1], 's'),
+        ('linearity_percent', 'Linearity (%)', offsets[2], '^'),
+    ]
+    xticks = []
+    xticklabels = []
+    position = 0.0
+    for axis in axis_order:
+        axis_rows = sorted([row for row in rows if row.get('axis') == axis], key=lambda r: float(r.get('value', 0)))
+        for row in axis_rows:
+            x = position
+            xticks.append(x)
+            xticklabels.append(f"{axis_labels[axis]}\n{row.get('value')}")
+            for key, label, offset, marker in metric_specs:
+                axes[0].scatter(x + offset, float(row[key]), color=colors[key], marker=marker, s=42, label=label if position == 0 else None, zorder=3)
+            axes[1].bar(x, float(row['compute_cost']), color=colors['compute_cost'], alpha=0.72, width=0.56)
+            position += 1.0
+        position += 0.7
+    if baseline:
+        axes[0].axhline(float(baseline['freq_drift_hz']), color=colors['freq_drift_hz'], linestyle='--', linewidth=1.2, alpha=0.75)
+        axes[0].axhline(float(baseline['sens_drift_percent']), color=colors['sens_drift_percent'], linestyle='--', linewidth=1.2, alpha=0.75)
+        axes[0].axhline(float(baseline['linearity_percent']), color=colors['linearity_percent'], linestyle='--', linewidth=1.2, alpha=0.75)
+        axes[1].axhline(float(baseline['compute_cost']), color='#222222', linestyle='--', linewidth=1.2, alpha=0.75, label='baseline')
+    axes[0].set_title('(a) One-factor sensitivity of physical calibration metrics')
+    axes[0].set_ylabel('Metric value')
+    axes[0].legend(ncol=3, loc='upper right')
+    axes[1].set_title('(b) Static compute-cost estimate')
+    axes[1].set_ylabel('Compute cost')
+    axes[1].set_xticks(xticks)
+    axes[1].set_xticklabels(xticklabels, rotation=45, ha='right')
+    axes[1].legend(loc='upper left')
+    for ax in axes:
+        ax.grid(True, axis='y', alpha=0.28)
+    out = FIGURES_DIR / 'fig_18_hparam_sensitivity.png'
+    fig.savefig(out, bbox_inches='tight')
+    plt.close(fig)
+    save_json(out.with_suffix('.raw.json'), {
+        'source': 'ex_projects/compare/hparam_sensitivity_r15/data/summary.json',
+        'baseline': baseline,
+        'axis_summary': summary.get('axis_summary', {}),
+    })
+    return out.name
+
+
 def make_compute_cost_calibration_figure(calibration: Dict[str, Any]) -> str:
     pairs = calibration['pairs']
     labels = [item['label'] for item in pairs]
@@ -1116,6 +1184,32 @@ def curve_best_epoch(curve: Dict[str, Any]) -> str:
     return str(epochs[best_index])
 
 
+def _fmt_float(value: Any, digits: int = 2) -> str:
+    return f"{float(value):.{digits}f}"
+
+
+def _hparam_axis_values(summary: Dict[str, Any], axis: str) -> str:
+    vals = sorted({int(row['value']) for row in summary.get('rows', []) if row.get('axis') == axis and row.get('value') is not None})
+    return ', '.join(str(v) for v in vals)
+
+
+def _hparam_best_text(summary: Dict[str, Any], axis: str, key: str, unit: str, digits: int = 2) -> str:
+    rows = [row for row in summary.get('rows', []) if row.get('axis') == axis and row.get('status') == 'complete' and row.get(key) is not None]
+    if not rows:
+        return '-'
+    best = min(rows, key=lambda row: float(row[key]))
+    return f"{best['value']} ({_fmt_float(best[key], digits)}{unit})"
+
+
+def _hparam_cost_pattern(summary: Dict[str, Any], axis: str) -> str:
+    costs = sorted({float(row['compute_cost']) for row in summary.get('rows', []) if row.get('axis') == axis and row.get('status') == 'complete' and row.get('compute_cost') is not None})
+    if not costs:
+        return '-'
+    if len(costs) == 1:
+        return f"{costs[0]:.0f}"
+    return f"{costs[0]:.0f}--{costs[-1]:.0f}"
+
+
 def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     origin = payload['origin_metrics']
     wiener_parallel = payload.get('wiener_parallel_modeling', {})
@@ -1235,11 +1329,50 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     overrides['valDeployLutKeil'] = f"{float(lut['keil_fps']):.1f}"
     overrides['valDeployLutMae'] = f"{float(lut['keil_mae']):.3e}"
 
+    hparam = payload.get('hparam_sensitivity') or {}
+    hp_base = hparam.get('baseline') or {}
+    hp_axis_summary = hparam.get('axis_summary') or {}
+    hp_complete_axes = [axis for axis, info in hp_axis_summary.items() if info.get('missing_count', 0) == 0]
+    if hp_base:
+        overrides.update({
+            'valHpBaseFreq': _fmt_float(hp_base.get('freq_drift_hz', 0), 2),
+            'valHpBaseSens': _fmt_float(hp_base.get('sens_drift_percent', 0), 2),
+            'valHpBaseLinearity': _fmt_float(hp_base.get('linearity_percent', 0), 3),
+            'valHpBaseCost': f"{float(hp_base.get('compute_cost', 0)):.0f}",
+        })
     overrides.update({
-        'valHpHSet': '6, 8', 'valHpHBase': '8', 'valHpHBestMetric': overrides.get('valMainWienerKANIONS', '-'),
-        'valHpUSet': '6', 'valHpUBase': '6', 'valHpUBestMetric': overrides.get('valMainWienerKANIONS', '-'),
-        'valHpLSet': '3, 4, 6', 'valHpLBase': '6', 'valHpLBestMetric': overrides.get('valMainWienerKANIONS', '-'),
-        'valHpGridOrderSet': 'grid=8, order=2', 'valHpGridOrderBase': '8/2', 'valHpSplineBestMetric': overrides.get('valMainWienerKANIONS', '-'),
+        'valHpCompleteAxes': ', '.join(hp_complete_axes) or '-',
+        'valHpDominators': str(len(hparam.get('strict_dominators', []))),
+        'valHpHSet': _hparam_axis_values(hparam, 'H_UNITS'), 'valHpHBase': '8',
+        'valHpUSet': _hparam_axis_values(hparam, 'INNER_KAN_UNITS'), 'valHpUBase': '6',
+        'valHpLSet': _hparam_axis_values(hparam, 'INNER_KAN_LAYERS'), 'valHpLBase': '6',
+        'valHpGridSet': _hparam_axis_values(hparam, 'GRID_SIZE'), 'valHpOrderSet': _hparam_axis_values(hparam, 'SPLINE_ORDER'),
+        'valHpGridOrderBase': '8/2',
+        'valHpHBestFreq': _hparam_best_text(hparam, 'H_UNITS', 'freq_drift_hz', ' Hz', 2),
+        'valHpHBestSens': _hparam_best_text(hparam, 'H_UNITS', 'sens_drift_percent', '\\%', 2),
+        'valHpHBestLinearity': _hparam_best_text(hparam, 'H_UNITS', 'linearity_percent', '\\%', 3),
+        'valHpHCostPattern': _hparam_cost_pattern(hparam, 'H_UNITS'),
+        'valHpUBestFreq': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'freq_drift_hz', ' Hz', 2),
+        'valHpUBestSens': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'sens_drift_percent', '\\%', 2),
+        'valHpUBestLinearity': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'linearity_percent', '\\%', 3),
+        'valHpUCostPattern': _hparam_cost_pattern(hparam, 'INNER_KAN_UNITS'),
+        'valHpLBestFreq': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'freq_drift_hz', ' Hz', 2),
+        'valHpLBestSens': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'sens_drift_percent', '\\%', 2),
+        'valHpLBestLinearity': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'linearity_percent', '\\%', 3),
+        'valHpLCostPattern': _hparam_cost_pattern(hparam, 'INNER_KAN_LAYERS'),
+        'valHpGridBestFreq': _hparam_best_text(hparam, 'GRID_SIZE', 'freq_drift_hz', ' Hz', 2),
+        'valHpGridBestSens': _hparam_best_text(hparam, 'GRID_SIZE', 'sens_drift_percent', '\\%', 2),
+        'valHpGridBestLinearity': _hparam_best_text(hparam, 'GRID_SIZE', 'linearity_percent', '\\%', 3),
+        'valHpGridCostPattern': _hparam_cost_pattern(hparam, 'GRID_SIZE'),
+        'valHpOrderBestFreq': _hparam_best_text(hparam, 'SPLINE_ORDER', 'freq_drift_hz', ' Hz', 2),
+        'valHpOrderBestSens': _hparam_best_text(hparam, 'SPLINE_ORDER', 'sens_drift_percent', '\\%', 2),
+        'valHpOrderBestLinearity': _hparam_best_text(hparam, 'SPLINE_ORDER', 'linearity_percent', '\\%', 3),
+        'valHpOrderCostPattern': _hparam_cost_pattern(hparam, 'SPLINE_ORDER'),
+        'valHpHBestMetric': _hparam_best_text(hparam, 'H_UNITS', 'linearity_percent', '\\%', 3),
+        'valHpUBestMetric': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'freq_drift_hz', ' Hz', 2),
+        'valHpLBestMetric': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'linearity_percent', '\\%', 3),
+        'valHpGridOrderSet': f"grid={_hparam_axis_values(hparam, 'GRID_SIZE')}; order={_hparam_axis_values(hparam, 'SPLINE_ORDER')}",
+        'valHpSplineBestMetric': _hparam_best_text(hparam, 'SPLINE_ORDER', 'freq_drift_hz', ' Hz', 2),
     })
     return overrides
 
@@ -1410,6 +1543,7 @@ def save_figure_raw_files(payload: Dict[str, Any]) -> None:
         'fig_04_structure_ablation': {'structure_ablation': payload['structure_ablation']},
         'fig_05_onboard_inference': {'deployment': payload['deployment'], 'wiener_optimization_profiles': payload['wiener_optimization_profiles']},
         'fig_06_compute_cost_calibration': {'compute_cost_calibration': payload['compute_cost_calibration']},
+        'fig_18_hparam_sensitivity': {'hparam_sensitivity': payload.get('hparam_sensitivity')},
     }
     for stem, data in raw_payloads.items():
         save_json(FIGURES_DIR / f'{stem}.raw.json', data)
@@ -1428,6 +1562,7 @@ def generate_all() -> Dict[str, Any]:
     optimization_profiles = load_wiener_optimization_profiles()
     calibration = load_compute_cost_calibration()
     wiener_parallel = load_wiener_parallel_summary()
+    hparam_summary = load_hparam_sensitivity_summary()
 
     origin = {
         'freq': main_rows[0]['origin_freq_drift_hz'],
@@ -1442,6 +1577,7 @@ def generate_all() -> Dict[str, Any]:
         'structure_ablation': make_structure_figure(structure_rows),
         'onboard_inference': make_onboard_figure(deploy_rows, optimization_profiles),
         'compute_cost_calibration': make_compute_cost_calibration_figure(calibration),
+        'hparam_sensitivity': make_hparam_sensitivity_figure(hparam_summary),
         'met_nonlinear_mechanism': make_mechanism_schematic(),
         'parallel_wiener_principle': make_parallel_wiener_principle_schematic(),
         'lut_lookup_principles': copy_lut_lookup_principles_figure(),
@@ -1464,6 +1600,7 @@ def generate_all() -> Dict[str, Any]:
         'wiener_optimization_profiles': optimization_profiles,
         'compute_cost_calibration': calibration,
         'wiener_parallel_modeling': wiener_parallel,
+        'hparam_sensitivity': hparam_summary,
     }
     figures.update(create_additional_paper_figures(payload_stub))
 
@@ -1480,6 +1617,7 @@ def generate_all() -> Dict[str, Any]:
         'wiener_optimization_profiles': optimization_profiles,
         'compute_cost_calibration': calibration,
         'wiener_parallel_modeling': wiener_parallel,
+        'hparam_sensitivity': hparam_summary,
         'figures': figures,
     }
     save_json(DATA_DIR / 'results.json', payload)
