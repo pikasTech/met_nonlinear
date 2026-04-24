@@ -190,6 +190,7 @@ def load_metrics(rows: List[tuple[str, str]]) -> List[Dict[str, Any]]:
             'board_keil_speed_ms': board_keil_speed_ms,
             'board_keil_fps': board_keil_fps,
             'board_inference_ep_path': metrics_payload.get('board_inference_ep_path'),
+            'board_inference': metrics_payload.get('board_inference'),
             'origin_freq_drift_hz': float(metrics_payload['metric_details']['natural_frequency_drift_origin']['drift']),
             'origin_sens_drift_percent': float(metrics_payload['metric_details']['sensitivity_drift_origin']['drift']),
             'origin_linearity_percent': float(linearity_summary['origin_mean_percent']),
@@ -241,7 +242,31 @@ def percent_suppression(origin_value: float, value: float) -> float:
     return 100.0 * (origin_value - value) / origin_value
 
 
+def find_published_profile(entries: List[Dict[str, Any]], published_key: str | None = None) -> Dict[str, Any] | None:
+    for item in entries:
+        if bool(item.get('published', False)):
+            return item
+    if published_key is None:
+        return None
+    for item in entries:
+        if str(item.get('key', '')) == str(published_key):
+            return item
+    return None
+
+
 def parse_build_sizes(metrics_entry: Dict[str, Any]) -> Dict[str, Any] | None:
+    board_inference = metrics_entry.get('board_inference') or {}
+    published = find_published_profile(
+        list(board_inference.get('keil_optimization_profiles') or []),
+        board_inference.get('published_optimization_profile'),
+    )
+    if published and published.get('flash_bytes') is not None and published.get('ram_bytes') is not None:
+        return {
+            'build_output_path': published.get('build_output_path'),
+            'flash_bytes': int(published['flash_bytes']),
+            'ram_bytes': int(published['ram_bytes']),
+        }
+
     ep = metrics_entry.get('board_inference_ep_path')
     if not ep:
         return None
@@ -279,11 +304,21 @@ def load_lut_variants() -> List[Dict[str, Any]]:
     for label, ep_path in LUT_VARIANTS:
         benchmark_payload = load_json(f'{ep_path}/data/benchmark_summary.json')
         keil_payload = load_json(f'{ep_path}/data/keil_benchmark_summary.json')
-        build_path = ROOT / ep_path / 'keil_project' / 'MDK-ARM' / 'output' / 'build_output_MET405.txt'
-        build_match = BUILD_PATTERN.search(build_path.read_text(encoding='utf-8'))
-        if not build_match:
-            raise ValueError(f'Cannot parse Program Size in {build_path}')
-        code, ro, rw, zi = map(int, build_match.groups())
+        published = find_published_profile(
+            list(keil_payload.get('optimization_profiles') or []),
+            (keil_payload.get('keil_config') or {}).get('published_optimization_profile'),
+        )
+        if published and published.get('flash_bytes') is not None and published.get('ram_bytes') is not None:
+            flash_bytes = int(published['flash_bytes'])
+            ram_bytes = int(published['ram_bytes'])
+        else:
+            build_path = ROOT / ep_path / 'keil_project' / 'MDK-ARM' / 'output' / 'build_output_MET405.txt'
+            build_match = BUILD_PATTERN.search(build_path.read_text(encoding='utf-8'))
+            if not build_match:
+                raise ValueError(f'Cannot parse Program Size in {build_path}')
+            code, ro, rw, zi = map(int, build_match.groups())
+            flash_bytes = code + ro
+            ram_bytes = rw + zi
         speed_ms = keil_payload.get('keil_speed_ms_per_point')
         if speed_ms is None:
             parsed_output = keil_payload.get('parsed_output') or {}
@@ -302,8 +337,8 @@ def load_lut_variants() -> List[Dict[str, Any]]:
             'keil_mae': float(keil_payload['comparison']['mae']),
             'keil_speed_ms': speed_ms,
             'keil_fps': float(keil_payload.get('keil_speed_points_per_second') or speed_ms_to_fps(speed_ms)),
-            'flash_bytes': code + ro,
-            'ram_bytes': rw + zi,
+            'flash_bytes': flash_bytes,
+            'ram_bytes': ram_bytes,
         })
     return rows
 
@@ -752,10 +787,12 @@ def build_tables(
             f"{row['sens_drift_percent']:.2f}",
             f"{row['linearity_percent']:.3f}",
             f"{row['compute_cost']:.0f}",
+            format_optional(row['board_qemu_mae'], '{:.3e}'),
+            format_optional(row['board_keil_mae'], '{:.3e}'),
             format_optional(row['board_keil_fps'], '{:.1f}'),
         ]
         for row in loss_rows
-    ], ['Variant', 'Active loss', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'Compute Cost', 'KEIL speed (Points/s)'])
+    ], ['Variant', 'Active loss', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'Compute Cost', 'QEMU-MAE', 'KEIL-MAE', 'KEIL speed (Points/s)'])
 
     table_structure = make_table([
         [

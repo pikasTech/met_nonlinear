@@ -786,9 +786,7 @@ class ModelEngine:
         self.state_manager['val_mae'] = val_mae
         self.state_manager['val_afmae'] = val_afmae
         # 实例化回调函数
-        real_time_plotting_callback = RealTimeTrainingCallback(
-            self
-        )
+        real_time_plotting_callback = RealTimeTrainingCallback(self)
         # 开始训练
         print(f'x_train_feature shape: {x_train_feature.shape}')
         print(f'y_train_feature shape: {y_train_feature.shape}')
@@ -811,6 +809,11 @@ class ModelEngine:
                 f'项目 {self.project_name} 已有训练进程在运行，请勿并发训练同一项目。'
             ) from exc
         finally:
+            if real_time_plotting_callback is not None:
+                try:
+                    real_time_plotting_callback.close()
+                except Exception as exc:
+                    logger.warning('训练失败后的滚动日志清理失败: %s', exc)
             self.state_manager['training_alive'] = False
             if os.name == 'nt' and os.path.exists(training_lock_path):
                 try:

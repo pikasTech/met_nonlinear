@@ -6,6 +6,7 @@
   "output_files": [
     "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/data/keil_benchmark_summary.json",
     "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/data/keil_validation_comparison.json",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/data/keil_benchmark_metadata.json",
     "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/qemu_project",
     "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/keil_project",
     "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/data/waves/tf_output.wave",

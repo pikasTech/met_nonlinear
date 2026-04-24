@@ -1,6 +1,6 @@
 {
   "project_name": "FRIKANh8u6l6_e1k_lr7e4_puremae",
-  "generated_at": "2026-04-23T14:10:44.794182+08:00",
+  "generated_at": "2026-04-23T22:46:39.347084+08:00",
   "status": "partial",
   "calculation_standard": "ablation-study-v4-bounded-fit-freq-inband-linearity",
   "sources": {
@@ -211,8 +211,8 @@
   "board_inference_ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae",
   "board_qemu_mae": 0.021366632539911175,
   "board_keil_mae": 0.021366632539911175,
-  "board_keil_speed": 0.5370725000000001,
-  "board_keil_fps": 1861.9460128753565,
+  "board_keil_speed": 0.14313,
+  "board_keil_fps": 6986.655488017886,
   "board_inference": {
     "configured": true,
     "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae",
@@ -223,11 +223,11 @@
     "keil_summary_exists": true,
     "qemu_mae": 0.021366632539911175,
     "keil_mae": 0.021366632539911175,
-    "keil_wall_time_per_iter_ms": 214.829,
+    "keil_wall_time_per_iter_ms": 57.252,
     "keil_point_count_per_iter": 400,
-    "keil_speed_ms_per_point": 0.5370725000000001,
+    "keil_speed_ms_per_point": 0.14313,
     "keil_speed_unit": "ms/point",
-    "keil_speed_points_per_second": 1861.9460128753565,
+    "keil_speed_points_per_second": 6986.655488017886,
     "keil_speed_display_unit": "points/s",
     "published_optimization_profile": "project_default",
     "keil_optimization_profiles": [
@@ -236,11 +236,11 @@
         "label": "Project default",
         "status": "completed",
         "published": true,
-        "keil_speed_ms_per_point": 0.5370725000000001,
-        "keil_speed_points_per_second": 1861.9460128753565,
+        "keil_speed_ms_per_point": 0.14313,
+        "keil_speed_points_per_second": 6986.655488017886,
         "keil_mae": 0.021366632539911175,
-        "flash_bytes": 1046548,
-        "ram_bytes": 21704,
+        "flash_bytes": 736460,
+        "ram_bytes": 5704,
         "comparison_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/data/keil_validation_comparison.json",
         "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_puremae/data/build_logs/build_output_MET405_project_default.txt"
       }
@@ -264,7 +264,7 @@
     "Cosine Annealing": false,
     "QEMU-MAE": 0.021366632539911175,
     "KEIL-MAE": 0.021366632539911175,
-    "KEIL-SPEED": 0.5370725000000001,
-    "KEIL-FPS": 1861.9460128753565
+    "KEIL-SPEED": 0.14313,
+    "KEIL-FPS": 6986.655488017886
   }
 }

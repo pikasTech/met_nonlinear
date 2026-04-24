@@ -29,11 +29,11 @@
 Origin metrics: Freq Drift = 34.50 Hz, Sens Drift = 84.56 %, In-band linearity = 2.004 %.
 
 ## Loss ablation
-| Variant | Active loss | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | Compute Cost | KEIL speed (Points/s) |
-| --- | --- | --- | --- | --- | --- | --- |
-| MAE+AFMAE | MAE+AFMAE | 2.34 | 9.09 | 0.511 | 5066 | 6986.7 |
-| MAE | MAE | 13.00 | 20.28 | 0.793 | 5066 | 1861.9 |
-| AFMAE | AFMAE | 4.00 | 21.06 | 1.068 | 5066 | 1861.9 |
+| Variant | Active loss | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | Compute Cost | QEMU-MAE | KEIL-MAE | KEIL speed (Points/s) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| MAE+AFMAE | MAE+AFMAE | 2.34 | 9.09 | 0.511 | 5066 | 7.114e-03 | 7.114e-03 | 6986.7 |
+| MAE | MAE | 13.00 | 20.28 | 0.793 | 5066 | 2.137e-02 | 2.137e-02 | 6986.7 |
+| AFMAE | AFMAE | 4.00 | 21.06 | 1.068 | 5066 | 3.968e-03 | 3.968e-03 | 6986.7 |
 
 ## Structure ablation
 | Variant | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | Compute Cost |
@@ -48,7 +48,7 @@ Origin metrics: Freq Drift = 34.50 Hz, Sens Drift = 84.56 %, In-band linearity =
 ## On-board inference evaluation
 | Model | QEMU-MAE | KEIL-MAE | KEIL speed (Points/s) | Flash (KB) | RAM (KB) |
 | --- | --- | --- | --- | --- | --- |
-| Wiener-KAN | 7.114e-03 | 7.114e-03 | 6986.7 | 721.4 | 5.6 |
+| Wiener-KAN | 7.114e-03 | 7.114e-03 | 6986.7 | 719.2 | 5.6 |
 | TCN | 1.197e-06 | 1.197e-06 | 935.7 | 16.4 | 106.7 |
 | 1DCNN | 5.513e-04 | 5.513e-04 | 2009.9 | 12.3 | 50.9 |
 | LSTM | 5.070e-02 | 5.070e-02 | 1426.3 | 13.8 | 58.7 |
@@ -80,6 +80,6 @@ Default 1:1:6 log-RMSE = 0.2266; adopted 1:3:20 log-RMSE = 0.1341.
 ## LUT implementation variants
 | Variant | QEMU-MAE | KEIL-MAE | KEIL speed (Points/s) | Flash (KB) | RAM (KB) |
 | --- | --- | --- | --- | --- | --- |
-| LUT nearest | 7.114e-03 | 7.114e-03 | 6986.7 | 721.4 | 5.6 |
+| LUT nearest | 7.114e-03 | 7.114e-03 | 6986.7 | 719.2 | 5.6 |
 | LUT + interp | 1.902e-04 | 1.902e-04 | 3844.8 | 723.5 | 5.6 |
 | No LUT exact | 6.517e-07 | 6.517e-07 | 45.0 | 33.7 | 21.2 |

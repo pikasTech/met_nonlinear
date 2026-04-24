@@ -6,7 +6,9 @@ from queue import Queue
 
 class ScrollingLogHandler(threading.Thread):
     def __init__(self, log_queue: Queue):
-        super().__init__()
+        # Keep the log refresher from pinning the whole CLI process on
+        # unexpected training exceptions.
+        super().__init__(daemon=True)
         self.log_queue = log_queue
         self.print_queue = Queue()
         self.current_log = ""

@@ -212,6 +212,14 @@ $$
 \mathrm{RAM} = \mathrm{RW\text{-}data} + \mathrm{ZI\text{-}data}
 $$
 
+若当前部署任务启用了 Keil 多优化档 benchmark，则默认论文主表不应直接读取“当前工程目录里最后一次 build 后留下的 `build_output_<target>.txt`”。正确口径是：
+
+1. 先读取 `keil_benchmark_summary.json.optimization_profiles`；
+2. 找到 `published=true` 或 `published_optimization_profile` 指定的 profile；
+3. 再使用该 profile 聚合保存的 `flash_bytes` / `ram_bytes`。
+
+否则，当最后一次 build 恰好是 `-Ofast + LTO` 或其它非 published profile 时，论文就会把错误的 Flash / RAM 体积写成默认部署结果。
+
 如果论文需要保留更原始的编译器口径，可以在附录中同时列出 `Code`、`RO-data`、`RW-data` 与 `ZI-data` 四项。
 
 ### 板端时序指标

@@ -4,9 +4,9 @@
 
 ## Abstract
 
-电化学地震检波器（MET）在大震级工况下会出现显著的非线性频响漂移，表现为峰频偏移、100 Hz 灵敏度漂移以及输入输出非线性误差同时放大。本文围绕这一问题，基于当前仓库中已经固化的 canonical projects、统一指标汇总链和 MCU 部署产物，整理出一篇带有方法、图表和结果分析的中文论文草稿。本文采用 Wiener-KAN 作为主方法：用系统初始化的 Wiener/IIR 线性前端描述震级相关局部频响，再用 KAN 静态非线性主体完成前馈补偿，并以 MAE+AFMAE 组合损失联合约束时域误差与幅频响应误差。正式物理指标中，`Freq Drift (Hz)` 已更新为按 `fit_params` 恢复并限制在 `10-128 Hz` band 内的中心频率漂移，`Linearity (%)` 则固定为 `<=128 Hz` in-band 平均非线性误差。对比 Wiener-KAN、TCN、1DCNN、LSTM、LSTMTransformer、RNN、GRU 共 7 个代表性模型后可以看到：在当前受限 fit 口径与这组 canonical projects 内，Wiener-KAN 给出了最低的 `Freq Drift = 2.34 Hz`，低于 TCN (`2.65 Hz`) 与 1DCNN (`3.72 Hz`)；同时其 `Sens Drift = 9.09%` 与 in-band `Linearity = 0.511%` 也都是该组中的最低值。进一步结合 `Compute Cost = 5066` 与 `KEIL speed = 1861.9 Points/s` 可以看出，Wiener-KAN 当前最值得保留的优势是“物理指标、静态复杂度与板端速度的综合平衡”：虽然 RNN (`3652.9 Points/s`) 与当前 canonical 1DCNN (`2009.9 Points/s`) 在 STM32F405 上更快，但前者对应明显更差的 `KEIL-MAE = 8.74e-2` 且三项物理指标全面退化，后者则在三项正式物理指标上仍整体落后于 Wiener-KAN。
+电化学地震检波器（MET）在大震级工况下会出现显著的非线性频响漂移，表现为峰频偏移、100 Hz 灵敏度漂移以及输入输出非线性误差同时放大。本文围绕这一问题，基于当前仓库中已经固化的 canonical projects、统一指标汇总链和 MCU 部署产物，整理出一篇带有方法、图表和结果分析的中文论文草稿。本文采用 Wiener-KAN 作为主方法：用系统初始化的 Wiener/IIR 线性前端描述震级相关局部频响，再用 KAN 静态非线性主体完成前馈补偿，并以 MAE+AFMAE 组合损失联合约束时域误差与幅频响应误差。正式物理指标中，`Freq Drift (Hz)` 已更新为按 `fit_params` 恢复并限制在 `10-128 Hz` band 内的中心频率漂移，`Linearity (%)` 则固定为 `<=128 Hz` in-band 平均非线性误差。对比 Wiener-KAN、TCN、1DCNN、LSTM、LSTMTransformer、RNN、GRU 共 7 个代表性模型后可以看到：在当前受限 fit 口径与这组 canonical projects 内，Wiener-KAN 给出了最低的 `Freq Drift = 2.34 Hz`，低于 TCN (`2.65 Hz`) 与 1DCNN (`3.72 Hz`)；同时其 `Sens Drift = 9.09%` 与 in-band `Linearity = 0.511%` 也都是该组中的最低值。进一步结合 `Compute Cost = 5066`、`KEIL speed = 6986.7 Points/s` 与 `RAM = 5.6 KB` 可以看出，Wiener-KAN 当前最值得保留的优势已进一步收束为“在当前 canonical projects 内同时拿到三项正式物理指标最优、最高板端吞吐和最低 RAM 占用”。在 STM32F405 上，它不仅明显快于 TCN (`935.7 Points/s`)、1DCNN (`2009.9 Points/s`) 和 RNN (`3652.9 Points/s`)，也把 deployment-aware 叙事从原先的“综合平衡较好”推进到了“结构先验与工程实现同时成立”；需要单独交代的代价则仍是 `KEIL-MAE = 7.11e-03` 和显著高于序列基线的 Flash 占用。
 
-与未补偿原始响应相比，Wiener-KAN 仍将峰频漂移、灵敏度漂移和带内非线性误差分别压低 `93.23%`、`89.25%` 和 `74.50%`。与部署可比的强基线 TCN 相比，Wiener-KAN 的 `Freq Drift` 再降低 `11.72%`，灵敏度漂移再降低 `43.46%`，带内非线性误差再降低 `1.13%`，静态计算量降低 `41.80%`，板端吞吐提升到 `1.99x`；但 TCN 仍具有更低的 `KEIL-MAE`。新补齐的 RNN / 1DCNN 板端结果进一步说明：更低 `Compute Cost` 或更高 `KEIL speed (Points/s)` 并不会自动带来更好的物理校准或更可信的导出一致性。RNN 以 `3652.9 Points/s` 成为当前最快板端实现，但 `KEIL-MAE` 恶化到 `8.74e-2`；1DCNN 则把 `KEIL-MAE` 压到 `5.51e-4` 并达到 `2009.9 Points/s`，却依然在三项正式物理指标上落后于 Wiener-KAN。在工程论证上，本文把 `Compute Cost` 收口为三点：先用 STM32F405 真机时延把默认权重从旧启发式 `1:1:6` 标定为 `1:3:20`，再把这一默认值真正同步进 CLI 刷新链，最后按新口径重刷 draft 相关 project。这样处理后，标定集扩展到 Wiener-KAN、GRU、LSTM、LSTMTransformer、1DCNN、RNN 和 TCN 七类模型，默认模型的对数域 `RMSE` 从 `0.2266` 降到 `0.1341`。在 Wiener-KAN 自身部署实现上，`LUT + 一阶线性插值` 可将 `KEIL-MAE` 从 `7.11e-3` 压到 `1.90e-4`，代价是吞吐下降到 `1375.1 Points/s`；`No-LUT exact` 虽将 `KEIL-MAE` 进一步压到 `6.52e-7` 并把 Flash 降到 `33.7 KB`，但吞吐会降到 `45.0 Points/s`。此外，多优化档真机 benchmark 还表明：Wiener-KAN 在 `-O0` 下会因 Flash 溢出而构建失败，`-O2` 与 project default 基本重合，而 `-Ofast + LTO` 可将吞吐进一步推到 `1900.5 Points/s`。因此，更稳妥的写法是把 Wiener-KAN 表述为一种**在当前对比集合内同时兼顾三项正式物理指标、静态复杂度与板端速度的结构化校准方案**，并明确承认其 `KEIL-MAE` 与 Flash 仍是部署边界。
+与未补偿原始响应相比，Wiener-KAN 仍将峰频漂移、灵敏度漂移和带内非线性误差分别压低 `93.23%`、`89.25%` 和 `74.50%`。与部署可比的强基线 TCN 相比，Wiener-KAN 的 `Freq Drift` 再降低 `11.72%`，灵敏度漂移再降低 `43.46%`，带内非线性误差再降低 `1.13%`，静态计算量降低 `41.80%`，板端吞吐提升到 `7.47x`；但 TCN 仍具有更低的 `KEIL-MAE`。新补齐的 RNN / 1DCNN 板端结果进一步说明：更低 `Compute Cost` 或更高的结构简单性并不会自动带来更好的物理校准或更可信的导出一致性。即便拥有最低 `Compute Cost = 2816` 的 RNN，板端吞吐也只有 `3652.9 Points/s`，仍低于优化后的 Wiener-KAN；1DCNN 虽把 `KEIL-MAE` 压到 `5.51e-4`，却同样在三项正式物理指标上落后于 Wiener-KAN。在工程论证上，本文把 `Compute Cost` 收口为三点：先用 STM32F405 真机时延把默认权重从旧启发式 `1:1:6` 标定为 `1:3:20`，再把这一默认值真正同步进 CLI 刷新链，最后按新口径重刷 draft 相关 project。这样处理后，标定集扩展到 Wiener-KAN、GRU、LSTM、LSTMTransformer、1DCNN、RNN 和 TCN 七类模型，默认模型的对数域 `RMSE` 从 `0.2266` 降到 `0.1341`。在 Wiener-KAN 自身部署实现上，最近邻 LUT 经过 LUT 存储压缩与 benchmark-only LUT/IIR 专用路径优化后，published profile 已达到 `6986.7 Points/s`；`LUT + 一阶线性插值` 可将 `KEIL-MAE` 从 `7.11e-3` 压到 `1.90e-4`，同时仍保持 `3844.8 Points/s`；`No-LUT exact` 虽将 `KEIL-MAE` 进一步压到 `6.52e-7` 并把 Flash 降到 `33.7 KB`，但吞吐会降到 `45.0 Points/s`。此外，多优化档真机 benchmark 还表明：`-O0` 现已可以构建并运行（`2234.5 Points/s`、`728.1 KB Flash`、`86.8 KB RAM`），`-O2` 与 project default 基本重合，而 `-Ofast + LTO` 仅把吞吐进一步推到 `7059.3 Points/s`。因此，更稳妥的写法是把 Wiener-KAN 表述为一种**在当前对比集合内同时兼顾三项正式物理指标、最高板端吞吐与最低 RAM 占用的结构化校准方案**，并明确承认其 `KEIL-MAE` 与 Flash 仍是部署边界。
 
 **Keywords**: electrochemical seismometer; Wiener-KAN; nonlinear frequency-response drift; band-limited fitted center frequency; compute-cost calibration; embedded deployment
 
@@ -28,7 +28,7 @@
 1. 用统一 summary 链、统一图表脚本和统一 markdown 草稿，把当前仓库中的主横评、损失消融、结构消融、计算量标定和部署评估收口到同一套方法-结果链条中；
 2. 保留二阶 `fit_params` 的物理解释，同时把 `Freq Drift` 的中心频率限制在 `10-128 Hz` band 内，使其不再出现异常拟合导致的爆炸值；
 3. 用 STM32F405 真机时延对 `Compute Cost` 做反标，建立 `1:3:20` 的 add-normalized 默认成本模型；
-4. 明确指出 Wiener-KAN 当前最值得保留的主张是“在当前 canonical projects 中同时取得最低的三项正式物理指标、较低 `Compute Cost`、`1861.9 Points/s` 的板端吞吐，以及显式可解释的结构先验”，同时也清楚暴露出 board fidelity 与 Flash 边界，从而为后续 MN 方向成稿提供更克制、更工程化的叙事基础。
+4. 明确指出 Wiener-KAN 当前最值得保留的主张是“在当前 canonical projects 中同时取得最低的三项正式物理指标、`6986.7 Points/s` 的板端吞吐、`5.6 KB` 的 RAM 占用，以及显式可解释的结构先验”，同时也清楚暴露出 `KEIL-MAE` 与 Flash 仍是部署边界，从而为后续 MN 方向成稿提供更克制、更工程化的叙事基础。
 
 ## 2 系统设计与方法
 
@@ -195,7 +195,7 @@ $$
 
 | Model | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | Compute Cost | KEIL-MAE | KEIL speed (Points/s) | RAM (KB) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Wiener-KAN | 2.34 | 9.09 | 0.511 | 5066 | 7.11e-03 | 1861.9 | 21.2 |
+| Wiener-KAN | 2.34 | 9.09 | 0.511 | 5066 | 7.11e-03 | 6986.7 | 5.6 |
 | TCN | 2.65 | 16.08 | 0.517 | 8704 | 1.20e-06 | 935.7 | 106.7 |
 | 1DCNN | 3.72 | 16.24 | 0.920 | 3984 | 5.51e-04 | 2009.9 | 50.9 |
 | LSTM | 4.50 | 13.80 | 0.512 | 7520 | 5.07e-02 | 1426.3 | 58.7 |
@@ -205,12 +205,12 @@ $$
 
 从表 2 和图 2 可以归纳出四个更具体的观察：
 
-1. **Wiener-KAN 当前最有说服力的证据，是它在这组 canonical projects 中同时给出最低的三项正式物理指标，并保持中低复杂度与较高板端吞吐。** 在主横评中，它的 `Freq Drift = 2.34 Hz`、`Sens Drift = 9.09%` 与 `Linearity = 0.511%` 都是最低值；同时 `Compute Cost = 5066` 明显低于 TCN / LSTM / LSTMTransformer / GRU，`KEIL speed = 1861.9 Points/s` 也高于 TCN、LSTM、LSTMTransformer 与 GRU，而 `RAM = 21.2 KB` 仍是该组最低。
-2. **Wiener-KAN 相对 TCN 的对照更适合被写成“物理指标占优，复杂度和板端吞吐也占优，但部署一致性仍偏弱”。** 与 TCN 相比，Wiener-KAN 的 `Freq Drift` 再降低 `11.72%`，`Sens Drift` 再降低 `43.46%`，`Linearity` 再降低 `1.13%`，`Compute Cost` 再降低 `41.80%`，板端吞吐提升到 `1.99x`；但 TCN 仍有更低 `KEIL-MAE`。
-3. **1DCNN 现在是更强的部署导向基线，但其物理指标综合平衡仍不及 Wiener-KAN。** 当前 canonical 1DCNN 已补齐 `KEIL-MAE = 5.51e-04` 与 `KEIL speed = 2009.9 Points/s`，在板端一致性和吞吐上都优于 Wiener-KAN；但它的 `Freq Drift`、`Sens Drift` 与 `Linearity` 仍分别高出 `59.11%`、`78.63%` 和 `80.01%`。
-4. **RNN 的最低复杂度与最高吞吐，并没有换来可信的综合效果。** 它拥有最低 `Compute Cost = 2816` 和当前最快的 `KEIL speed = 3652.9 Points/s`，但 `KEIL-MAE` 恶化到 `8.74e-2`，且三项物理指标都明显落后于 Wiener-KAN、TCN 和 LSTM，说明在当前任务上，“极简模型”只能带来速度优势，无法替代结构先验与损失设计。
+1. **Wiener-KAN 当前最有说服力的证据，是它在这组 canonical projects 中同时给出最低的三项正式物理指标，并进一步拿到最高板端吞吐与最低 RAM。** 在主横评中，它的 `Freq Drift = 2.34 Hz`、`Sens Drift = 9.09%` 与 `Linearity = 0.511%` 都是最低值；同时 `Compute Cost = 5066` 明显低于 TCN / LSTM / LSTMTransformer / GRU，`KEIL speed = 6986.7 Points/s` 也是当前最高，而 `RAM = 5.6 KB` 仍是该组最低。
+2. **Wiener-KAN 相对 TCN 的对照更适合被写成“物理指标占优，复杂度和板端吞吐也显著占优，但部署一致性仍偏弱”。** 与 TCN 相比，Wiener-KAN 的 `Freq Drift` 再降低 `11.72%`，`Sens Drift` 再降低 `43.46%`，`Linearity` 再降低 `1.13%`，`Compute Cost` 再降低 `41.80%`，板端吞吐提升到 `7.47x`；但 TCN 仍有更低 `KEIL-MAE`。
+3. **1DCNN 仍是更强的部署导向卷积基线，但其优势主要体现在一致性而不是速度。** 当前 canonical 1DCNN 已补齐 `KEIL-MAE = 5.51e-04` 与 `KEIL speed = 2009.9 Points/s`，在 board fidelity 上仍优于 Wiener-KAN；但它的 `Freq Drift`、`Sens Drift` 与 `Linearity` 仍分别高出 `59.11%`、`78.63%` 和 `80.01%`，板端吞吐也显著低于优化后的 Wiener-KAN。
+4. **RNN 的最低复杂度既没有换来更好的物理指标，也没有换来最高吞吐。** 它拥有最低 `Compute Cost = 2816`，但 `KEIL speed = 3652.9 Points/s` 仍低于 Wiener-KAN，`KEIL-MAE` 还恶化到 `8.74e-2`，且三项物理指标都明显落后于 Wiener-KAN、TCN 和 LSTM，说明在当前任务上，“极简模型”既不能替代结构先验，也不会自动换来最优部署实现。
 
-因此，在新的 band-limited fit 指标、六指标雷达和 deployment-aware 展示下，Wiener-KAN 更适合被写成一种**在当前对比集合内，兼顾三项正式物理指标、复杂度、RAM 与板端吞吐的结构化方案**；但它不再是绝对最快的板端实现，`KEIL-MAE` 与 Flash 仍需单独交代。
+因此，在新的 band-limited fit 指标、六指标雷达和 deployment-aware 展示下，Wiener-KAN 更适合被写成一种**在当前对比集合内，同时兼顾三项正式物理指标、最高板端吞吐、最低 RAM 与中低静态复杂度的结构化方案**；但 `KEIL-MAE` 与 Flash 仍需单独交代。
 
 ### 3.2 收敛曲线与损失函数消融
 
@@ -222,18 +222,18 @@ $$
 
 **表 3  损失函数消融结果**
 
-| Variant | Active loss | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | Compute Cost | KEIL speed (Points/s) |
-| --- | --- | --- | --- | --- | --- | --- |
-| MAE+AFMAE | MAE+AFMAE | 2.34 | 9.09 | 0.511 | 5066 | 1861.9 |
-| MAE | MAE | 13.00 | 20.28 | 0.793 | 5066 | 1861.9 |
-| AFMAE | AFMAE | 4.00 | 21.06 | 1.068 | 5066 | 1861.9 |
+| Variant | Active loss | Freq Drift (Hz) | Sens Drift (%) | Linearity (in-band, %) | Compute Cost | QEMU-MAE | KEIL-MAE | KEIL speed (Points/s) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| MAE+AFMAE | MAE+AFMAE | 2.34 | 9.09 | 0.511 | 5066 | 7.114e-03 | 7.114e-03 | 6986.7 |
+| MAE | MAE | 13.00 | 20.28 | 0.793 | 5066 | 2.137e-02 | 2.137e-02 | 6986.7 |
+| AFMAE | AFMAE | 4.00 | 21.06 | 1.068 | 5066 | 3.968e-03 | 3.968e-03 | 6986.7 |
 
 受限 fit 峰频口径让这一节的结论重新变得更清晰：**组合损失不仅在 `Sens Drift` 与 `Linearity` 上领先，在 `Freq Drift` 上也重新获得了明显优势。** 相对纯 `MAE`，`MAE+AFMAE` 把 `Freq Drift` 再降低 `82.03%`；相对纯 `AFMAE`，该降幅为 `41.64%`。而另外两项指标上的优势仍然同样显著：
 
 - 相对纯 `MAE`，`MAE+AFMAE` 把 `Sens Drift` 再降低 `55.17%`，把 `Linearity` 再降低 `35.55%`；
 - 相对纯 `AFMAE`，`MAE+AFMAE` 把 `Sens Drift` 再降低 `56.82%`，把 `Linearity` 再降低 `52.14%`。
 
-图 3(e) 的线性收敛曲线进一步说明，这种优势不是偶然的最终点差异，而是整个优化过程更稳：组合损失的曲线虽然前期下降稍慢，但在约 `150` epoch 后进入最低平台；纯 `MAE` 与纯 `AFMAE` 的后期平台都更高。图 3(d) 中的六指标雷达则强调了另一件事：在当前 canonical loss 变体里，`Compute Cost`、`KEIL speed` 与 `KEIL RAM` 基本保持不变，真正拉开差距的是三项正式物理指标。因此，对于当前 MET 任务，更稳妥的写法仍然是用组合损失同时约束时域和幅频两类误差，并且这种优势现在在三项正式物理指标和优化过程上都能被直接观察到。
+图 3(e) 的线性收敛曲线进一步说明，这种优势不是偶然的最终点差异，而是整个优化过程更稳：组合损失的曲线虽然前期下降稍慢，但在约 `150` epoch 后进入最低平台；纯 `MAE` 与纯 `AFMAE` 的后期平台都更高。表 3 还补入了本轮自动 QEMU/Keil 复验后的部署列，可以更紧凑地读出另一个关键事实：三种同结构 Wiener-KAN loss 变体已经共享优化后的最近邻 LUT / IIR benchmark-only 导出路径，因此板端吞吐统一落在 `6986.7 Points/s`，部署侧差异主要收缩为 `QEMU-MAE` / `KEIL-MAE`。其中纯 `MAE` 为 `2.137e-02`，纯 `AFMAE` 为 `3.968e-03`，组合损失则为 `7.114e-03`。因此，本节的最终表述应收束为：**loss 消融真正区分开的是物理校准质量与优化稳定性，而不是同结构 Wiener-KAN 的最近邻 LUT 部署速度。** 对当前 MET 任务而言，更稳妥的写法仍然是用组合损失同时约束时域和幅频两类误差，并把部署侧结果作为“实现路径已对齐”的辅助证据。
 
 ### 3.3 结构消融：受限 fit 指标同时保留稳定性与结构排序
 
@@ -271,7 +271,7 @@ $$
 
 | Model | QEMU-MAE | KEIL-MAE | KEIL speed (Points/s) | Flash (KB) | RAM (KB) |
 | --- | --- | --- | --- | --- | --- |
-| Wiener-KAN | 7.114e-03 | 7.114e-03 | 1861.9 | 1023.2 | 21.2 |
+| Wiener-KAN | 7.114e-03 | 7.114e-03 | 6986.7 | 719.2 | 5.6 |
 | TCN | 1.197e-06 | 1.197e-06 | 935.7 | 16.4 | 106.7 |
 | 1DCNN | 5.513e-04 | 5.513e-04 | 2009.9 | 12.3 | 50.9 |
 | LSTM | 5.070e-02 | 5.070e-02 | 1426.3 | 13.8 | 58.7 |
@@ -281,12 +281,13 @@ $$
 
 部署结果显示出非常清晰的工程 trade-off：
 
-- **RNN 现在是当前部署子集里最快的板端实现，但它也是一致性最差的一档。** 它在 STM32F405 上达到 `3652.9 Points/s`，约比 Wiener-KAN 再高 `96.19%`；但 `KEIL-MAE = 8.74e-2`，说明这类极简路径更适合作为速度下界，而不是默认部署方案。
-- **1DCNN 成为更强的卷积部署基线。** 当前 canonical 1DCNN 达到 `2009.9 Points/s`，略高于 Wiener-KAN，同时把 `KEIL-MAE` 压到 `5.51e-4`；但它在三项物理指标上的正式表现仍明显弱于 Wiener-KAN。
-- **Wiener-KAN 已不再是绝对最快，但仍处在“物理指标最优 + 板端高吞吐”这一区间。** 它在当前 canonical 集合里保持 `1861.9 Points/s` 的板端吞吐，仍高于 GRU / LSTMTransformer / LSTM / TCN；代价则是 `7.11e-3` 的 `KEIL-MAE` 和极端偏大的 Flash。
-- **Wiener-KAN 的 RAM 占用最低，但 Flash 占用极端偏大。** 当前导出实现约占 `1023.2 KB` Flash，只比 1 MB 级容量上限低约 1 KB；这说明它虽然仍然较快，却几乎把程序空间用满。相反，TCN 以 `1.20e-6` 的 `KEIL-MAE` 给出当前最佳 board fidelity，却只有 `935.7 Points/s` 的最低吞吐。
+- **Wiener-KAN 经过最近一轮 LUT / IIR benchmark-only 优化后，已经成为当前部署子集里最快的板端实现。** 它在 STM32F405 上达到 `6986.7 Points/s`，约为 RNN 的 `1.91x`、TCN 的 `7.47x`，同时 `RAM` 仅 `5.6 KB`；需要单独交代的代价则仍是 `7.11e-3` 的 `KEIL-MAE`。
+- **TCN 仍代表当前最强的 board fidelity 基线，但吞吐最低。** 它以 `1.20e-6` 的 `KEIL-MAE` 给出当前最佳一致性，却只有 `935.7 Points/s` 的最低吞吐，说明极致 fidelity 与高吞吐在当前导出链上仍然存在明显张力。
+- **1DCNN 仍是更强的卷积部署基线，但优势主要体现在一致性而不是速度。** 当前 canonical 1DCNN 达到 `2009.9 Points/s`，并把 `KEIL-MAE` 压到 `5.51e-4`；但它在三项物理指标上的正式表现仍明显弱于 Wiener-KAN，板端吞吐也只有后者的约 `28.8%`。
+- **RNN 的最低复杂度并没有换来最优部署结果。** 它虽然拥有最低 `Compute Cost = 2816`，却只达到 `3652.9 Points/s`，仍低于 Wiener-KAN，且 `KEIL-MAE = 8.74e-2`，说明“结构最简”并不会自动导向“速度最快 + 一致性最好”。
+- **Wiener-KAN 的 Flash 占用仍是当前部署子集里最高的一档，但已经不再逼近 1 MB 上限。** 当前 published/default 导出实现约占 `719.2 KB` Flash，明显高于序列模型，但相较旧版 `1 MB` 级风险已经回落到更可控的工程边界。
 
-多优化档 benchmark 则给出了第二层工程结论。对 Wiener-KAN 基线而言，`project_default` 与 `-O2` 在本轮测量中基本重合，均为 `1861.9 Points/s`；`-O0` 会因为 Flash 溢出而构建失败；`-Ofast + LTO` 可把吞吐进一步提高到 `1900.5 Points/s`。也就是说，当前主实现已经接近 `-O2` 水平，再往上还能通过 `-Ofast + LTO` 获得小幅增益，但其前提是继续接受几乎用满 Flash 的部署边界。
+多优化档 benchmark 则给出了第二层工程结论。对 Wiener-KAN 基线而言，`project_default` 与 `-O2` 在本轮测量中基本重合，均为 `6986.7 Points/s`；`-O0` 现已可以构建并运行，对应 `2234.5 Points/s`、`728.1 KB Flash` 与 `86.8 KB RAM`；`-Ofast + LTO` 仅把吞吐进一步提高到 `7059.3 Points/s`，增幅约 `1.04%`。也就是说，当前主实现已经基本吃到结构性优化收益，继续上探编译器档位只能带来很小的额外吞吐收益，而更值得保留的变化反而是 LUT 存储压缩后所有 profile 都不再受旧版 Flash 溢出问题卡死。
 
 ### 3.5 Compute Cost 标定：从启发式 `1:1:6` 更新到真机标定 `1:3:20`
 
@@ -312,17 +313,17 @@ $$
 
 | Variant | QEMU-MAE | KEIL-MAE | KEIL speed (Points/s) | Flash (KB) | RAM (KB) |
 | --- | --- | --- | --- | --- | --- |
-| LUT nearest | 7.114e-03 | 7.114e-03 | 1861.9 | 1023.2 | 21.2 |
-| LUT + interp | 1.902e-04 | 1.902e-04 | 1375.1 | 1022.3 | 21.2 |
+| LUT nearest | 7.114e-03 | 7.114e-03 | 6986.7 | 719.2 | 5.6 |
+| LUT + interp | 1.902e-04 | 1.902e-04 | 3844.8 | 723.5 | 5.6 |
 | No LUT exact | 6.517e-07 | 6.517e-07 | 45.0 | 33.7 | 21.2 |
 
 这组结果非常有启发性：
 
-1. **最近邻 LUT 是当前最快的 Wiener-KAN 实现，但精度代价明显。** 它保住了 `1861.9 Points/s` 的最高吞吐，却对应 `7.11e-3` 的 `KEIL-MAE`。
-2. **LUT + 一阶线性插值是当前最有说服力的工程折中点。** 相对最近邻 LUT，它把 `KEIL-MAE` 再降低 `97.33%`，同时吞吐下降到 `1375.1 Points/s`；换算成低层时延，相当于增加约 `35.4%` 的单位点开销。Flash 几乎不变，仅增加约 `0.03%`。
-3. **No-LUT exact 更像精度上界而不是默认部署方案。** 它把 `KEIL-MAE` 进一步压到 `6.52e-7`，同时把 Flash 降到 `33.7 KB`；但吞吐骤降到 `45.0 Points/s`，约比最近邻 LUT 慢 `41x`。这说明当前 Flash 的主要来源确实是 LUT 表，而精确运行时求值虽然节省存储，却不适合实时 STM32 路径。
+1. **最近邻 LUT 现在已经不只是“可接受默认实现”，而是当前最快的 Wiener-KAN 路径。** 它把板端吞吐推到 `6986.7 Points/s`，同时把 Flash 压到 `719.2 KB`、RAM 压到 `5.6 KB`；代价则是 `7.11e-3` 的 `KEIL-MAE`。
+2. **LUT + 一阶线性插值仍然是当前最有说服力的工程折中点。** 相对最近邻 LUT，它把 `KEIL-MAE` 再降低 `97.33%`，同时仍保持 `3844.8 Points/s`，相当于保留了最近邻 LUT 约 `55.0%` 的吞吐；换算成低层时延，单位点开销增加约 `81.7%`，Flash 也只增加约 `0.60%`。
+3. **No-LUT exact 更像精度上界而不是默认部署方案。** 它把 `KEIL-MAE` 进一步压到 `6.52e-7`，同时把 Flash 降到 `33.7 KB`；但吞吐骤降到 `45.0 Points/s`，约比最近邻 LUT 慢 `155x`。这说明当前 Flash 的主要来源确实是 LUT 表，而精确运行时求值虽然节省存储，却不适合实时 STM32 路径。
 
-因此，如果论文部署部分希望保留“速度优先”的叙事，当前最近邻 LUT 仍是可接受的默认实现；但如果更强调 `KEIL-MAE` 的说服力，那么 `LUT + interp` 会是更平衡、更容易被审稿人接受的主展示版本。
+因此，如果论文部署部分希望突出“板端吞吐极限”，当前最近邻 LUT 已足以支撑这一叙事；但如果更强调 `KEIL-MAE` 的说服力、同时又不愿放弃 `kPoints/s` 级速度，那么 `LUT + interp` 仍是更平衡、更容易被审稿人接受的主展示版本。
 
 ### 3.7 适用范围与局限性
 
@@ -332,15 +333,15 @@ $$
 2. **横评不是严格等超参实验。** Wiener-KAN 使用 MAE+AFMAE，其余多数基线使用 MAE；学习率也并不完全一致，因此表 2 只能支撑“当前 canonical projects 的真实比较”。
 3. **虽然新的 band-limited fit 指标让 Wiener-KAN 重新回到三项物理指标第一，但这种领先仍然建立在当前 canonical projects 上。** `KEIL-MAE` 与 Flash 压力仍未解决，因此不能把它写成“毫无代价的全能方案”。
 4. **`Compute Cost` 的默认权重已经更合理，但仍然是平台相关代理模型。** `1:3:20` 来自 STM32F405，不应被写成所有 MCU 的普适常数。
-5. **部署链条尚未完全收口。** Wiener-KAN 的最近邻 LUT 实现速度最好，但精度与 Flash 都仍有明显风险；`LUT + interp` 和 `No-LUT exact` 说明还有进一步优化空间，但还需要针对目标应用选择最终实现。
+5. **部署链条尚未完全收口。** Wiener-KAN 的最近邻 LUT 实现已经把速度推到 `6986.7 Points/s`，并把 Flash 压到约 `719 KB`；但 `KEIL-MAE` 仍明显高于更高保真路径。`LUT + interp` 和 `No-LUT exact` 说明当前仍存在可继续权衡的精度/速度/存储边界，最终实现仍需结合目标应用选择。
 
 ## 4 结论
 
 本文整合了当前仓库中与 Wiener-KAN 相关的主横评、收敛曲线、损失消融、结构消融、计算量标定和嵌入式部署结果，形成了一篇适合继续向 MN 方向收敛的中文论文草稿。基于当前正式数据，可以得出以下结论：
 
 1. 在新的 band-limited fit `Freq Drift` 定义下，就当前 canonical projects 而言，Wiener-KAN 同时给出了最低的 `Freq Drift`、`Sens Drift` 与 in-band `Linearity`，因此三项正式物理指标在这组对比中均占优。
-2. Wiener-KAN 并不是最低 `Compute Cost`、也不再是最快 `KEIL speed` 的模型；但它以 `5066` 的中低静态成本保住了当前最低的三项正式物理指标，并维持 `1861.9 Points/s` 的高板端吞吐，因此它最主要的证据仍是**物理指标、复杂度、RAM 与板端速度的联合优势**；但 `KEIL-MAE` 与 Flash 仍然提醒我们，它不是“无代价的最优部署实现”。
-3. `MAE+AFMAE` 组合损失仍然比纯 `MAE` 或纯 `AFMAE` 更稳，而且在新的正式口径下对 `Freq Drift`、`Sens Drift` 与 `Linearity` 三项指标都表现出明确优势；新的收敛曲线也支持这种趋势。
+2. Wiener-KAN 并不是最低 `Compute Cost` 的模型，但在当前 canonical deployment subset 里已经成为最快 `KEIL speed` 的实现；它以 `5066` 的中低静态成本保住了当前最低的三项正式物理指标，并达到 `6986.7 Points/s` 的板端吞吐与 `5.6 KB` 的 RAM 占用，因此它最主要的证据已进一步收束为**物理指标、速度与内存占用的联合优势**；但 `KEIL-MAE` 与 Flash 仍然提醒我们，它不是“无代价的最优部署实现”。
+3. `MAE+AFMAE` 组合损失仍然比纯 `MAE` 或纯 `AFMAE` 更稳，而且在新的正式口径下对 `Freq Drift`、`Sens Drift` 与 `Linearity` 三项指标都表现出明确优势；本轮补跑还说明同结构 loss 变体的最近邻 LUT 部署吞吐已对齐到 `6986.7 Points/s`，因此新的收敛曲线与物理指标，而不是板端速度差异，才是支持这一判断的主要证据。
 4. 修正 CLI 默认覆写后，`Compute Cost` 的 `1:3:20` 默认权重已经真正进入默认流程，再配合 Wiener-KAN 的多优化档 Keil benchmark 与 LUT/插值专题实验，使本文的工程论证比旧稿更扎实：前者让静态复杂度更接近板端时延，后者则把速度、精度和存储之间的 trade-off 明确摆到了台面上。
 
 因此，本文更建议把 Wiener-KAN 写成一种**以物理响应稳定化和 deployment-aware 效率为主目标、兼顾结构化建模与 MCU 落地潜力的 MET 前馈校准方案**。沿着这一方向，后续成稿应继续补齐更严格的 protocol、更加干净的前端 2x2 消融，以及以 `LUT + interp` 为候选主线的部署优化。

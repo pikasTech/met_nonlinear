@@ -138,6 +138,8 @@ $$
 \mathrm{RAM} = \mathrm{RW\text{-}data} + \mathrm{ZI\text{-}data}
 $$
 
+如果某个 `qemu-c-inference` 任务启用了 Keil 多优化档 profile sweep，论文表格应优先读取 `keil_benchmark_summary.json.optimization_profiles` 中 `published=true` 或 `published_optimization_profile` 对应 profile 的 `flash_bytes` / `ram_bytes`。不要直接读取当前 `keil_project/MDK-ARM/output/build_output_<target>.txt` 作为默认资源占用，因为该文件可能已经被最后一次 profile build 覆盖，从而把 `-Ofast + LTO` 或其它非 published profile 的体积误写成默认值。
+
 ## 写作建议
 
 论文中推荐按如下逻辑组织该专题结果：

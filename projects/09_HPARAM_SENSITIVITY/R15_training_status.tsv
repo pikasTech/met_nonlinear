@@ -1,0 +1,28 @@
+﻿timestamp	project	status	completed_epoch	message
+2026-04-23 23:42:51	FRIKANh8u6l6g8s2_e1k_lr7e4_base	start	0	
+2026-04-24 00:19:11	FRIKANh8u6l6g8s2_e1k_lr7e4_base	completed	1000	
+2026-04-24 00:19:11	FRIKANh3u6l6g8s2_e1k_lr7e4_axisH	skip_completed	1000	
+2026-04-24 00:19:11	FRIKANh4u6l6g8s2_e1k_lr7e4_axisH	start	0	
+2026-04-24 00:52:07	FRIKANh4u6l6g8s2_e1k_lr7e4_axisH	completed	1000	
+2026-04-24 00:52:07	FRIKANh5u6l6g8s2_e1k_lr7e4_axisH	start	0	
+2026-04-24 01:25:45	FRIKANh5u6l6g8s2_e1k_lr7e4_axisH	completed	1000	
+2026-04-24 01:25:45	FRIKANh6u6l6g8s2_e1k_lr7e4_axisH	start	0	
+2026-04-24 02:00:00	FRIKANh6u6l6g8s2_e1k_lr7e4_axisH	completed	1000	
+2026-04-24 02:00:00	FRIKANh7u6l6g8s2_e1k_lr7e4_axisH	start	0	
+2026-04-24 02:34:47	FRIKANh7u6l6g8s2_e1k_lr7e4_axisH	completed	1000	
+2026-04-24 02:34:47	FRIKANh9u6l6g8s2_e1k_lr7e4_axisH	start	0	
+2026-04-24 03:10:44	FRIKANh9u6l6g8s2_e1k_lr7e4_axisH	completed	1000	
+2026-04-24 03:10:44	FRIKANh10u6l6g8s2_e1k_lr7e4_axisH	start	0	
+2026-04-24 03:47:13	FRIKANh10u6l6g8s2_e1k_lr7e4_axisH	completed	1000	
+2026-04-24 03:47:13	FRIKANh8u3l6g8s2_e1k_lr7e4_axisU	skip_completed	1000	
+2026-04-24 03:47:13	FRIKANh8u4l6g8s2_e1k_lr7e4_axisU	start	0	
+2026-04-24 04:12:44	FRIKANh8u4l6g8s2_e1k_lr7e4_axisU	completed	1000	
+2026-04-24 04:12:44	FRIKANh8u5l6g8s2_e1k_lr7e4_axisU	start	0	
+2026-04-24 04:43:05	FRIKANh8u5l6g8s2_e1k_lr7e4_axisU	completed	1000	
+2026-04-24 04:43:05	FRIKANh8u7l6g8s2_e1k_lr7e4_axisU	start	0	
+2026-04-24 07:38:11	FRIKANh8u7l6g8s2_e1k_lr7e4_axisU	failed	0	manual rerun exit=1 gpu oom at fast_FRIKAN/dense_kan_5/mul_3
+2026-04-24 08:06:24	FRIKANh8u6l4g8s2_e1k_lr7e4_axisL	failed	302	manual foreground run exit=1 CUDA_ERROR_ILLEGAL_ADDRESS
+2026-04-24 08:06:24	FRIKANh8u6l4g8s2_e1k_lr7e4_axisL	completed	1000	manual resume from epoch 302 completed
+2026-04-24 08:34:04	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	start	0	manual foreground run
+2026-04-24 09:06:06	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	failed	718	manual foreground run LASTEXIT=-1 CUDA_ERROR_ILLEGAL_ADDRESS fatal
+2026-04-24 09:06:06	FRIKANh8u6l5g8s2_e1k_lr7e4_axisL	resume	718	manual resume after stale lock cleanup

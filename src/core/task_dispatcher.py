@@ -113,6 +113,8 @@ def dispatch_task(task_type, project_names, args):
         _handle_freq_response_compare_task(project_names, args)
         return
     
+    failures = []
+
     for project_name in project_names:
         normalized_project_name = project_name.replace('\\', '/')
         if os.path.isabs(project_name):
@@ -160,7 +162,16 @@ def dispatch_task(task_type, project_names, args):
             error_msg = f"Error occurred while executing {task_type} task for project '{project_name}': {e}"
             logger.error(error_msg)
             traceback.print_exc()
+            failures.append((project_name, e))
             continue
+
+    if failures:
+        if len(failures) == 1:
+            raise failures[0][1]
+        failed_projects = ', '.join(project_name for project_name, _ in failures)
+        raise RuntimeError(
+            f"{len(failures)} project(s) failed during task '{task_type}': {failed_projects}"
+        )
 
 
 def _handle_train_task(project_path):

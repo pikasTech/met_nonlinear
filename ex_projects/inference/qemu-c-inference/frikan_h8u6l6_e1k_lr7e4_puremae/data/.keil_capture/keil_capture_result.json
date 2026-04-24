@@ -4,8 +4,8 @@
   "baud_rate": 115200,
   "timeout_seconds": 20,
   "timed_out": false,
-  "record_count": 29,
-  "stream_length": 4514,
+  "record_count": 30,
+  "stream_length": 4523,
   "matched_success_markers": [
     "validation_complete=1"
   ],
@@ -20,13 +20,13 @@
     "data": {
       "exportFile": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_puremae\\data\\.keil_capture\\capture_all.jsonl",
       "format": "jsonl",
-      "count": 3928,
-      "totalCount": 3928,
+      "count": 4487,
+      "totalCount": 4487,
       "dedupCount": 0,
       "limitApplied": "all",
       "timeRange": {
         "start": "2026-04-20T16:31:09.833+0800",
-        "end": "2026-04-23T13:17:19.128+0800"
+        "end": "2026-04-23T22:41:33.635+0800"
       }
     },
     "_return_code": 0,

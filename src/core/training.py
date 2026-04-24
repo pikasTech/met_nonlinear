@@ -27,6 +27,7 @@ class RealTimeTrainingCallback(Callback):
         self.hotkey_enabled = bool(getattr(sys.stdin, 'isatty', lambda: False)())
         self.scrolling_log_handler = ScrollingLogHandler(log_queue=Queue())
         self.scrolling_log_handler.start()
+        self._closed = False
         if not self.hotkey_enabled:
             logger.info('检测到非交互输入，禁用键盘停止热键；保留滚动训练日志。')
         self.state_manager = model_engine.state_manager
@@ -219,13 +220,21 @@ class RealTimeTrainingCallback(Callback):
                 logger.warning(f'键盘热键检测失败，已跳过本轮检测: {exc}')
 
     def on_train_end(self, logs=None):
-        # 训练结束时停止滚动日志处理器
+        self.close()
+
+    def close(self):
+        if self._closed:
+            return
+        self._closed = True
         self.state_manager['training_alive'] = False
         if self.scrolling_log_handler is not None:
             self.scrolling_log_handler.stop()
-            self.scrolling_log_handler.join()
-        self.user_model.exec_callback(
-            ModelEvent(ModelEventType.STOP))
+            if self.scrolling_log_handler.is_alive():
+                self.scrolling_log_handler.join(timeout=2.0)
+        try:
+            self.user_model.exec_callback(ModelEvent(ModelEventType.STOP))
+        except Exception as exc:
+            logger.warning(f'训练结束回调清理失败，已忽略: {exc}')
 
     def format_time(self, seconds):
         return str(timedelta(seconds=int(seconds)))
