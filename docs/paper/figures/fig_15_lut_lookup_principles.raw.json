@@ -1,0 +1,11 @@
+{
+  "source": "docs/paper/assets/fig_15_lut_lookup_principles_ai.png",
+  "generation": "AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset",
+  "elements": [
+    "trained KAN activation",
+    "uniform LUT samples",
+    "nearest-neighbor lookup",
+    "linear interpolation",
+    "MCU memory and compute trade-off"
+  ]
+}

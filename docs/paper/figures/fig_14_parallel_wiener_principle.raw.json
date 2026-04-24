@@ -1,0 +1,8 @@
+{
+  "source": "R14 parallel Wiener equivalent structure",
+  "branches": [
+    "low magnitude",
+    "middle magnitude",
+    "high magnitude"
+  ]
+}

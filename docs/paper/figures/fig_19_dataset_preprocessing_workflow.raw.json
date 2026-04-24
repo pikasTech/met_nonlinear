@@ -1,0 +1,11 @@
+{
+  "source": "docs/paper/assets/fig_19_dataset_preprocessing_workflow_ai.png",
+  "generation": "AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset",
+  "elements": [
+    "controlled MET excitation",
+    "ideal linear reference generation",
+    "frequency-magnitude paired waveform matrix",
+    "dataset split",
+    "windowing normalization and tensors"
+  ]
+}

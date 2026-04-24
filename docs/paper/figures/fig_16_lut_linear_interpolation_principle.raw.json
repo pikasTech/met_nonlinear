@@ -1,0 +1,11 @@
+{
+  "source": "docs/paper/assets/fig_16_lut_linear_interpolation_principle_ai.png",
+  "generation": "AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset",
+  "elements": [
+    "trained KAN activation",
+    "two neighboring LUT entries",
+    "fractional grid coordinate",
+    "linear interpolation",
+    "two reads plus multiply-add"
+  ]
+}

@@ -16,6 +16,7 @@ PAPER_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = PAPER_DIR / 'data'
 FIGURES_DIR = PAPER_DIR / 'figures'
 LATEX_DIR = PAPER_DIR / 'latex'
+WIENER_PARALLEL_DIR = ROOT / 'ex_projects' / 'compare' / 'wiener_parallel_modeling'
 sys.path.insert(0, str(ROOT))
 
 from src.core.metrics_summary import (  # noqa: E402
@@ -961,6 +962,144 @@ def build_tables(
 
 
 
+
+
+def make_mechanism_schematic() -> str:
+    src = PAPER_DIR / 'assets' / 'fig_14_met_nonlinear_mechanism_ai.png'
+    if not src.exists():
+        raise FileNotFoundError(f'Missing AI-rendered mechanism schematic: {src}')
+    out = FIGURES_DIR / 'fig_14_met_nonlinear_mechanism.png'
+    out.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, out)
+    save_json(out.with_suffix('.raw.json'), {
+        'source': str(src.relative_to(ROOT)).replace('\\', '/'),
+        'generation': 'AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset',
+        'elements': [
+            'large-deflection membrane and mass',
+            'electrolyte microchannel with vortical flow',
+            'porous anode and cathode',
+            'iodide/triiodide ion transport and concentration gradients',
+            'redox kinetics at electrode surfaces',
+            'amplitude-dependent frequency-response drift',
+        ],
+    })
+    return out.name
+
+
+def copy_ai_paper_asset(asset_name: str, figure_name: str, elements: List[str]) -> str:
+    src = PAPER_DIR / 'assets' / asset_name
+    if not src.exists():
+        raise FileNotFoundError(f'Missing AI-rendered paper asset: {src}')
+    out = FIGURES_DIR / figure_name
+    out.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, out)
+    save_json(out.with_suffix('.raw.json'), {
+        'source': str(src.relative_to(ROOT)).replace('\\', '/'),
+        'generation': 'AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset',
+        'elements': elements,
+    })
+    return out.name
+
+
+def copy_lut_lookup_principles_figure() -> str:
+    return copy_ai_paper_asset(
+        'fig_15_lut_lookup_principles_ai.png',
+        'fig_15_lut_lookup_principles.png',
+        ['trained KAN activation', 'uniform LUT samples', 'nearest-neighbor lookup', 'linear interpolation', 'MCU memory and compute trade-off'],
+    )
+
+
+def copy_afmae_loss_principle_figure() -> str:
+    return copy_ai_paper_asset(
+        'fig_18_afmae_loss_principle_ai.png',
+        'fig_18_afmae_loss_principle.png',
+        ['paired target and prediction waveforms', 'energy statistic', 'amplitude-frequency response estimate', 'log response error matrix', 'combined AFMAE and MAE loss'],
+    )
+
+
+def copy_dataset_preprocessing_workflow_figure() -> str:
+    return copy_ai_paper_asset(
+        'fig_19_dataset_preprocessing_workflow_ai.png',
+        'fig_19_dataset_preprocessing_workflow.png',
+        ['controlled MET excitation', 'ideal linear reference generation', 'frequency-magnitude paired waveform matrix', 'dataset split', 'windowing normalization and tensors'],
+    )
+
+
+def copy_board_inference_validation_workflow_figure() -> str:
+    return copy_ai_paper_asset(
+        'fig_17_board_inference_validation_workflow_ai.png',
+        'fig_17_board_inference_validation_workflow.png',
+        ['PC model export', 'weights normalization and LUT tables', 'QEMU validation', 'Keil STM32 hardware validation', 'MAE and ms-per-point metrics'],
+    )
+
+def make_parallel_wiener_principle_schematic() -> str:
+    fig, ax = plt.subplots(figsize=(10.8, 4.5), constrained_layout=True)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    ax.text(0.02, 0.94, 'Parallel Wiener equivalent model', ha='left', va='center', fontsize=13, weight='bold')
+    ax.text(0.08, 0.50, 'input\nx(t)', ha='center', va='center', fontsize=11, weight='bold')
+    ax.annotate('', xy=(0.18, 0.50), xytext=(0.12, 0.50), arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333'))
+    branch_y = [0.72, 0.50, 0.28]
+    branch_names = ['low magnitude', 'middle magnitude', 'high magnitude']
+    branch_colors = ['#1f4e79', '#0f6c5c', '#c96b00']
+    for i, (y, name, color) in enumerate(zip(branch_y, branch_names, branch_colors), start=1):
+        ax.plot([0.18, 0.22], [0.50, y], color='#666666', lw=1.6)
+        dyn = plt.Rectangle((0.22, y - 0.07), 0.18, 0.14, facecolor='#eaf2f8', edgecolor=color, lw=1.4)
+        nonlin = plt.Rectangle((0.48, y - 0.07), 0.18, 0.14, facecolor='#fff4e6', edgecolor=color, lw=1.4)
+        ax.add_patch(dyn)
+        ax.add_patch(nonlin)
+        ax.text(0.31, y + 0.025, f'h{i}(s)', ha='center', va='center', fontsize=11, weight='bold', color=color)
+        ax.text(0.31, y - 0.030, 'local IIR\ndynamics', ha='center', va='center', fontsize=7.5)
+        ax.annotate('', xy=(0.48, y), xytext=(0.40, y), arrowprops=dict(arrowstyle='->', lw=1.8, color=color))
+        ax.text(0.57, y + 0.025, f'f{i}(.)', ha='center', va='center', fontsize=11, weight='bold', color=color)
+        ax.text(0.57, y - 0.030, name, ha='center', va='center', fontsize=7.5)
+        ax.annotate('', xy=(0.75, 0.50), xytext=(0.66, y), arrowprops=dict(arrowstyle='->', lw=1.6, color=color))
+    sum_circle = plt.Circle((0.78, 0.50), 0.055, facecolor='#f2efe6', edgecolor='#333333', lw=1.3)
+    ax.add_patch(sum_circle)
+    ax.text(0.78, 0.50, r'$\Sigma$', ha='center', va='center', fontsize=16, weight='bold')
+    ax.annotate('', xy=(0.90, 0.50), xytext=(0.835, 0.50), arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333'))
+    ax.text(0.93, 0.50, 'output\ny(t)', ha='center', va='center', fontsize=11, weight='bold')
+    ax.text(0.50, 0.09, 'Local linear dynamics + static nonlinear mappings reproduce amplitude-dependent frequency-response drift.', ha='center', va='center', fontsize=9, color='#333333')
+    out = FIGURES_DIR / 'fig_14_parallel_wiener_principle.png'
+    fig.savefig(out, bbox_inches='tight')
+    plt.close(fig)
+    save_json(out.with_suffix('.raw.json'), {'source': 'R14 parallel Wiener equivalent structure', 'branches': branch_names})
+    return out.name
+
+def load_wiener_parallel_summary() -> Dict[str, Any]:
+    summary_path = WIENER_PARALLEL_DIR / 'data' / 'wiener_parallel_modeling_summary.json'
+    if not summary_path.exists():
+        raise FileNotFoundError(f'Missing Wiener parallel modeling summary: {summary_path}')
+    return load_json(summary_path)
+
+
+def copy_wiener_parallel_figures() -> Dict[str, str]:
+    image_dir = WIENER_PARALLEL_DIR / 'image'
+    figure_map = {
+        'parallel_wiener_response': '14.NN_extern_simu_reproduced_analysis',
+        'parallel_wiener_branch_weights': '14.NN_extern_simu_reproduced_fh_kx',
+    }
+    copied: Dict[str, str] = {}
+    for key, stem in figure_map.items():
+        src_png = image_dir / f'{stem}.png'
+        src_json = image_dir / f'{stem}.json'
+        if not src_png.exists():
+            raise FileNotFoundError(f'Missing Wiener parallel figure: {src_png}')
+        dst_png = FIGURES_DIR / f'fig_14_{key}.png'
+        dst_png.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src_png, dst_png)
+        copied[key] = dst_png.name
+        raw_payload: Dict[str, Any] = {
+            'source': str(src_png.relative_to(ROOT)).replace('\\', '/'),
+            'summary': str((WIENER_PARALLEL_DIR / 'data' / 'wiener_parallel_modeling_summary.json').relative_to(ROOT)).replace('\\', '/'),
+        }
+        if src_json.exists():
+            raw_payload['source_json'] = str(src_json.relative_to(ROOT)).replace('\\', '/')
+            raw_payload['data'] = load_json(src_json)
+        save_json(dst_png.with_suffix('.raw.json'), raw_payload)
+    return copied
+
 def metric_suppression_macros(row: Dict[str, Any], origin: Dict[str, float]) -> Dict[str, str]:
     return {
         'IONS': f"{percent_suppression(origin['linearity'], float(row['linearity_percent'])):.2f}\\%",
@@ -979,6 +1118,10 @@ def curve_best_epoch(curve: Dict[str, Any]) -> str:
 
 def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     origin = payload['origin_metrics']
+    wiener_parallel = payload.get('wiener_parallel_modeling', {})
+    wp_cf = wiener_parallel.get('center_frequency', {})
+    wp_gain = wiener_parallel.get('gain_at_target_frequency', {})
+
     overrides: Dict[str, str] = {
         'valDatasetFreqRange': '10--200~Hz sampled grid; evaluation band $\\leq 128$~Hz',
         'valDatasetMagnitudeRange': '0.24--6.0 m/s2',
@@ -989,6 +1132,12 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valTargetCurveSource': 'ideal frequency response fitted from low-magnitude calibration',
         'valOpenDataPackage': 'archived in docs/paper/data/results.json',
         'valOpenCodePackage': 'archived in docs/paper/src',
+        'valWienerParallelAmpCount': str(wiener_parallel.get('amplitude_count', 25)),
+        'valWienerParallelCfMae': f"{float(wp_cf.get('mae_hz', 1.8713121031247149)):.2f}",
+        'valWienerParallelCfRmse': f"{float(wp_cf.get('rmse_hz', 2.3355837762199854)):.2f}",
+        'valWienerParallelGainFreq': f"{float(wp_gain.get('frequency_hz', 100.0)):.0f}",
+        'valWienerParallelGainMae': f"{float(wp_gain.get('mae', 4.532628218217732)):.2f}",
+        'valWienerParallelGainRmse': f"{float(wp_gain.get('rmse', 5.530740547399083)):.2f}",
         'valExternalSensorPlan': 'repeat the frequency--magnitude matrix on a second MET sample',
         'valExternalExcitationPlan': 'repeat the protocol on an independent shaker table',
     }
@@ -1278,6 +1427,7 @@ def generate_all() -> Dict[str, Any]:
     loss_curves = load_convergence_curves(LOSS_ABLATION)
     optimization_profiles = load_wiener_optimization_profiles()
     calibration = load_compute_cost_calibration()
+    wiener_parallel = load_wiener_parallel_summary()
 
     origin = {
         'freq': main_rows[0]['origin_freq_drift_hz'],
@@ -1292,7 +1442,14 @@ def generate_all() -> Dict[str, Any]:
         'structure_ablation': make_structure_figure(structure_rows),
         'onboard_inference': make_onboard_figure(deploy_rows, optimization_profiles),
         'compute_cost_calibration': make_compute_cost_calibration_figure(calibration),
+        'met_nonlinear_mechanism': make_mechanism_schematic(),
+        'parallel_wiener_principle': make_parallel_wiener_principle_schematic(),
+        'lut_lookup_principles': copy_lut_lookup_principles_figure(),
+        'board_inference_validation_workflow': copy_board_inference_validation_workflow_figure(),
+        'afmae_loss_principle': copy_afmae_loss_principle_figure(),
+        'dataset_preprocessing_workflow': copy_dataset_preprocessing_workflow_figure(),
     }
+    figures.update(copy_wiener_parallel_figures())
 
     payload_stub = {
         'origin_metrics': origin,
@@ -1306,6 +1463,7 @@ def generate_all() -> Dict[str, Any]:
         'loss_convergence_curves': loss_curves,
         'wiener_optimization_profiles': optimization_profiles,
         'compute_cost_calibration': calibration,
+        'wiener_parallel_modeling': wiener_parallel,
     }
     figures.update(create_additional_paper_figures(payload_stub))
 
@@ -1321,6 +1479,7 @@ def generate_all() -> Dict[str, Any]:
         'loss_convergence_curves': loss_curves,
         'wiener_optimization_profiles': optimization_profiles,
         'compute_cost_calibration': calibration,
+        'wiener_parallel_modeling': wiener_parallel,
         'figures': figures,
     }
     save_json(DATA_DIR / 'results.json', payload)

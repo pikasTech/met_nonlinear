@@ -1,0 +1,11 @@
+{
+  "source": "docs/paper/assets/fig_17_board_inference_validation_workflow_ai.png",
+  "generation": "AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset",
+  "elements": [
+    "PC model export",
+    "weights normalization and LUT tables",
+    "QEMU validation",
+    "Keil STM32 hardware validation",
+    "MAE and ms-per-point metrics"
+  ]
+}

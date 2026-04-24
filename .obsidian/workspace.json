@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "24d48022de1ce836",
+        "id": "f04a86d0dd113231",
         "type": "tabs",
         "children": [
           {
-            "id": "cf28f74331b8a749",
+            "id": "a46c774690c10fce",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "docs/notes/文献笔记.md",
+                "file": "docs/paper/latex/build/main.pdf",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "文献笔记 的出链列表"
+              "title": "main 的出链列表"
             }
           },
           {
@@ -156,17 +156,16 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/notes/文献笔记.md",
+                "file": "docs/paper/latex/build/main.pdf",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "文献笔记 的大纲"
+              "title": "main 的大纲"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "horizontal",
@@ -183,65 +182,28 @@
       "bases:新建数据库": false
     }
   },
-  "floating": {
-    "id": "f49162206988dd78",
-    "type": "floating",
-    "children": [
-      {
-        "id": "565c81842a760101",
-        "type": "window",
-        "children": [
-          {
-            "id": "8b5d2db209752dff",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "ba8bc17c3f780672",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "[VIP]Schaller_2025_AutoML_Measurement"
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": -1290,
-        "y": 61,
-        "width": 1123,
-        "height": 888,
-        "maximize": false,
-        "zoom": 0.5
-      }
-    ]
-  },
-  "active": "cf28f74331b8a749",
+  "active": "a46c774690c10fce",
   "lastOpenFiles": [
-    "docs/research/literature/pdfs/[MN]_Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electrothermal_actuators.pdf",
-    "docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
-    "docs/notes/文献笔记.md",
     "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+    "docs/notes/文献笔记.md",
+    "AGENTS.md",
+    "docs/paper/latex/build/main.pdf",
+    "docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
+    "docs/MDTODO/20260327-转投.md.lock",
+    "docs/MDTODO/details/20260327-转投/20260424_172329_Task_Report.md",
+    "docs/paper/latex/build/xelatex72836.fls",
+    "docs/paper/latex/build/xelatex67748.fls",
+    "docs/paper/latex/build/main.synctex(busy)",
+    "docs/paper/latex/build/xelatex36012.fls",
+    "docs/paper/latex/build/xelatex41820.fls",
+    "docs/paper/figures/fig_14_parallel_wiener_branch_weights.raw.json",
+    "docs/paper/figures/fig_14_parallel_wiener_branch_weights.png",
+    "docs/paper/figures/fig_14_parallel_wiener_response.raw.json",
+    "docs/paper/figures/fig_14_parallel_wiener_response.png",
+    "docs/paper/latex/build/xelatex33604.fls",
     "docs/MDTODO/details/20260327-转投/20260423_221243_Task_Report.md",
     "docs/reference/paper_hyperparameter_sensitivity_method.md",
     "PEF待下载.md",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/training.lock",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/model_info.json",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/scalers/combined_scaler.json",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/scalers",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u8l6g8s2_e1k_lr7e4_axisU/data/training_state.json",
-    "logs/20260424_154306_cli.log",
-    "logs/20260424_154306_cli_errors.log",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data/training.lock",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data/model_info.json",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l8g8s2_e1k_lr7e4_axisL/data/scalers/combined_scaler.json",
-    "AGENTS.md",
     "docs/research/literature/markdown/images/bo_d75j7e491nqc73eobea0_1_294_148_1161_493_0.jpg",
     "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s1_e1k_lr7e4_axisS/data/predict_features_overview.png",
     "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s1_e1k_lr7e4_axisS/data/bode_plot_overlay.png",
@@ -259,7 +221,6 @@
     "docs/paper/draft/20260422/fig_04_loss_ablation.png",
     "docs/paper/draft/20260422/fig_03_convergence_curves.png",
     "docs/paper/draft/20260422/fig_02_horizontal_summary.png",
-    "docs/paper/draft/20260422/fig_01_drift_trajectories.png",
     "docs/paper/data/generated_tables.md",
     "docs/reference/paper_lut_interpolation_evaluation_method.md",
     "docs/MDTODO/details/20260327-转投/20260424_145735_Task_Report.md",
