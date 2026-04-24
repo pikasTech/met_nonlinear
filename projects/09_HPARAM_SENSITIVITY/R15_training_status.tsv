@@ -52,3 +52,9 @@
 2026-04-24 15:42:57	FRIKANh8u6l8g8s2_e1k_lr7e4_axisL	failed	0	manual foreground run exit=1 GPU OOM at fast_FRIKAN/dense_kan_8/mul_3
 2026-04-24 15:42:57	FRIKANh8u8l6g8s2_e1k_lr7e4_axisU	start	0	manual foreground run
 2026-04-24 15:44:40	FRIKANh8u8l6g8s2_e1k_lr7e4_axisU	failed	0	manual foreground run exit=1 GPU OOM at fast_FRIKAN/dense_kan/sub_2
+2026-04-24 17:35:11	FRIKANh8u7l6g8s2_e1k_lr7e4_axisU	completed	1000	rerun on RTX 2080 Ti CUDA_VISIBLE_DEVICES=1
+2026-04-24 17:57:45	FRIKANh8u8l6g8s2_e1k_lr7e4_axisU	completed	1000	rerun on RTX 2080 Ti CUDA_VISIBLE_DEVICES=1
+2026-04-24 18:17:49	FRIKANh8u6l7g8s2_e1k_lr7e4_axisL	completed	1000	rerun on RTX 2080 Ti CUDA_VISIBLE_DEVICES=1
+2026-04-24 18:40:07	FRIKANh8u6l8g8s2_e1k_lr7e4_axisL	completed	1000	rerun on RTX 2080 Ti CUDA_VISIBLE_DEVICES=1
+2026-04-24 19:08:45	FRIKANh8u6l6g8s3_e1k_lr7e4_axisS	completed	1000	rerun on RTX 2080 Ti CUDA_VISIBLE_DEVICES=1
+2026-04-24 19:16:40	ex_projects/compare/hparam_sensitivity_r15	completed		summary.json summary.csv summary.md figures generated

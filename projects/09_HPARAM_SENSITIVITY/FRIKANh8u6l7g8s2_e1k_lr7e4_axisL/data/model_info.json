@@ -28,7 +28,7 @@
             "num_params": 0
         },
         {
-            "name": "dropout",
+            "name": "dropout_1",
             "type": "Dropout",
             "output_shape": [
                 null,
@@ -39,7 +39,7 @@
             "num_params": 0
         },
         {
-            "name": "simoiir",
+            "name": "simoiir_1",
             "type": "SIMOIIR",
             "output_shape": [
                 null,
@@ -50,7 +50,7 @@
             "num_params": 192
         },
         {
-            "name": "dense_kan_1",
+            "name": "dense_kan_9",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -61,7 +61,7 @@
             "num_params": 486
         },
         {
-            "name": "dense_kan_2",
+            "name": "dense_kan_10",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -72,7 +72,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_3",
+            "name": "dense_kan_11",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -83,7 +83,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_4",
+            "name": "dense_kan_12",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -94,7 +94,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_5",
+            "name": "dense_kan_13",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -105,7 +105,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_6",
+            "name": "dense_kan_14",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -116,7 +116,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan_7",
+            "name": "dense_kan_15",
             "type": "DenseKAN",
             "output_shape": [
                 null,
@@ -127,7 +127,7 @@
             "num_params": 366
         },
         {
-            "name": "dense_kan",
+            "name": "dense_kan_8",
             "type": "DenseKAN",
             "output_shape": [
                 null,
