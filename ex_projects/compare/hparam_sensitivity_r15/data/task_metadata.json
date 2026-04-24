@@ -1,0 +1,14 @@
+{
+  "execution_time": "2026-04-24T19:18:39.159517",
+  "task_info": {
+    "task_type": "compare",
+    "task_name": "hparam_sensitivity_r15",
+    "analysis_type": "hparam-sensitivity",
+    "description": "R15 FRIKAN hyperparameter sensitivity analysis",
+    "version": "1.0"
+  },
+  "output_files": [
+    "F:\\Work\\met_nonlinear_worktrees\\met_nonlinear_master\\ex_projects\\compare\\hparam_sensitivity_r15\\data"
+  ],
+  "config_hash": "e48d3ebfdd6a76c575d1c674148fa0ee"
+}

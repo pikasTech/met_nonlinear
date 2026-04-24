@@ -830,6 +830,11 @@ def _execute_ablation_study_task(ep_path: ExternalPath, config: dict) -> bool:
                 task_root=ep_path.full_path,
                 output_dir=ep_path.output_path,
             )
+        elif analysis_type == 'hparam-sensitivity':
+            from visualization.hparam_sensitivity import HparamSensitivityAnalyzer
+
+            logger.info(f"????????????: {ep_path.task_name}")
+            analyzer = HparamSensitivityAnalyzer(config, ep_path.output_path)
         else:
             from visualization.ablation_study import AblationStudyAnalyzer
 

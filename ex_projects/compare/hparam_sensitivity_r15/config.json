@@ -1,0 +1,31 @@
+{
+  "task_info": {
+    "task_type": "compare",
+    "task_name": "hparam_sensitivity_r15",
+    "analysis_type": "hparam-sensitivity",
+    "description": "R15 FRIKAN hyperparameter sensitivity analysis",
+    "version": "1.0"
+  },
+  "visualization_config": {
+    "method": "compare",
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      10,
+      6
+    ],
+    "title": "hparam_sensitivity_r15 compare"
+  },
+  "project_root": "projects/09_HPARAM_SENSITIVITY",
+  "project_table": "projects/09_HPARAM_SENSITIVITY/R15_projects.tsv",
+  "baseline_project": "FRIKANh8u6l6g8s2_e1k_lr7e4_base",
+  "output": {
+    "files": [
+      "summary.json",
+      "summary.csv",
+      "summary.md",
+      "sensitivity_curves.png",
+      "compute_cost.png"
+    ]
+  }
+}
