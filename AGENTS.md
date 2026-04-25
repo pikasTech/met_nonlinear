@@ -14,6 +14,7 @@
 - 论文计算量标定方法：详见 [docs/reference/paper_compute_cost_calibration_method.md](docs/reference/paper_compute_cost_calibration_method.md)。
 - 论文 LUT 插值部署评估方法：详见 [docs/reference/paper_lut_interpolation_evaluation_method.md](docs/reference/paper_lut_interpolation_evaluation_method.md)。
 - 论文 AI 原理示意图绘制规范：详见 [docs/reference/paper_ai_schematic_figures.md](docs/reference/paper_ai_schematic_figures.md)。
+- Paper figure traceability and modification workflow: see [docs/reference/paper_figure_traceability.md](docs/reference/paper_figure_traceability.md).
 ## 最高原则
 
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。

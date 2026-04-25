@@ -3,37 +3,41 @@
     "task": "hparam_sensitivity_r15",
     "generated_at": "2026-04-24T19:18:37",
     "project_root": "projects/09_HPARAM_SENSITIVITY",
-    "baseline_project": "FRIKANh8u6l6g8s2_e1k_lr7e4_base",
+    "baseline_project": "FRIKANh8u6l6_e1k_lr7e4",
     "baseline": {
-      "name": "FRIKANh8u6l6g8s2_e1k_lr7e4_base",
-      "axis": "base",
+      "name": "FRIKANh8u6l6_e1k_lr7e4",
       "param": "",
-      "value": null,
-      "path": "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s2_e1k_lr7e4_base",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
       "status": "complete",
+      "metrics_status": "partial",
       "epochs": 1000,
-      "freq_drift_hz": 2.622053882145252,
-      "sens_drift_percent": 14.568897781471172,
-      "linearity_percent": 0.5570018196473653,
+      "freq_drift_hz": 2.3365656199771543,
+      "sens_drift_percent": 9.092567629369398,
+      "linearity_percent": 0.5111439183722523,
       "compute_cost": 5066.0,
-      "val_loss": 0.023409970104694366,
-      "val_afmae": 0.039905499666929245
+      "val_loss": null,
+      "val_afmae": null,
+      "source": "canonical_main_project",
+      "axis": "base",
+      "value": null
     },
     "rows": [
       {
-        "name": "FRIKANh8u6l6g8s2_e1k_lr7e4_base",
-        "axis": "base",
+        "name": "FRIKANh8u6l6_e1k_lr7e4",
         "param": "",
-        "value": null,
-        "path": "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s2_e1k_lr7e4_base",
+        "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
         "status": "complete",
+        "metrics_status": "partial",
         "epochs": 1000,
-        "freq_drift_hz": 2.622053882145252,
-        "sens_drift_percent": 14.568897781471172,
-        "linearity_percent": 0.5570018196473653,
+        "freq_drift_hz": 2.3365656199771543,
+        "sens_drift_percent": 9.092567629369398,
+        "linearity_percent": 0.5111439183722523,
         "compute_cost": 5066.0,
-        "val_loss": 0.023409970104694366,
-        "val_afmae": 0.039905499666929245
+        "val_loss": null,
+        "val_afmae": null,
+        "source": "canonical_main_project",
+        "axis": "base",
+        "value": null
       },
       {
         "name": "FRIKANh3u6l6g8s2_e1k_lr7e4_axisH",
@@ -111,6 +115,23 @@
         "val_afmae": 0.04111205413937569
       },
       {
+        "name": "FRIKANh8u6l6_e1k_lr7e4",
+        "param": "canonical_h8u6l6",
+        "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+        "status": "complete",
+        "metrics_status": "partial",
+        "epochs": 1000,
+        "freq_drift_hz": 2.3365656199771543,
+        "sens_drift_percent": 9.092567629369398,
+        "linearity_percent": 0.5111439183722523,
+        "compute_cost": 5066.0,
+        "val_loss": null,
+        "val_afmae": null,
+        "source": "canonical_main_project",
+        "axis": "H_UNITS",
+        "value": 8
+      },
+      {
         "name": "FRIKANh9u6l6g8s2_e1k_lr7e4_axisH",
         "axis": "H_UNITS",
         "param": "H_UNITS",
@@ -186,6 +207,23 @@
         "val_afmae": 0.04072508215904236
       },
       {
+        "name": "FRIKANh8u6l6_e1k_lr7e4",
+        "param": "canonical_h8u6l6",
+        "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+        "status": "complete",
+        "metrics_status": "partial",
+        "epochs": 1000,
+        "freq_drift_hz": 2.3365656199771543,
+        "sens_drift_percent": 9.092567629369398,
+        "linearity_percent": 0.5111439183722523,
+        "compute_cost": 5066.0,
+        "val_loss": null,
+        "val_afmae": null,
+        "source": "canonical_main_project",
+        "axis": "INNER_KAN_UNITS",
+        "value": 6
+      },
+      {
         "name": "FRIKANh8u7l6g8s2_e1k_lr7e4_axisU",
         "axis": "INNER_KAN_UNITS",
         "param": "INNER_KAN_UNITS",
@@ -259,6 +297,23 @@
         "compute_cost": 4310.0,
         "val_loss": 0.023126743733882904,
         "val_afmae": 0.04284828528761864
+      },
+      {
+        "name": "FRIKANh8u6l6_e1k_lr7e4",
+        "param": "canonical_h8u6l6",
+        "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+        "status": "complete",
+        "metrics_status": "partial",
+        "epochs": 1000,
+        "freq_drift_hz": 2.3365656199771543,
+        "sens_drift_percent": 9.092567629369398,
+        "linearity_percent": 0.5111439183722523,
+        "compute_cost": 5066.0,
+        "val_loss": null,
+        "val_afmae": null,
+        "source": "canonical_main_project",
+        "axis": "INNER_KAN_LAYERS",
+        "value": 6
       },
       {
         "name": "FRIKANh8u6l7g8s2_e1k_lr7e4_axisL",
@@ -366,6 +421,23 @@
         "val_afmae": 0.04916105046868324
       },
       {
+        "name": "FRIKANh8u6l6_e1k_lr7e4",
+        "param": "canonical_h8u6l6",
+        "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+        "status": "complete",
+        "metrics_status": "partial",
+        "epochs": 1000,
+        "freq_drift_hz": 2.3365656199771543,
+        "sens_drift_percent": 9.092567629369398,
+        "linearity_percent": 0.5111439183722523,
+        "compute_cost": 5066.0,
+        "val_loss": null,
+        "val_afmae": null,
+        "source": "canonical_main_project",
+        "axis": "GRID_SIZE",
+        "value": 8
+      },
+      {
         "name": "FRIKANh8u6l6g8s1_e1k_lr7e4_axisS",
         "axis": "SPLINE_ORDER",
         "param": "SPLINE_ORDER",
@@ -379,6 +451,23 @@
         "compute_cost": 5066.0,
         "val_loss": 0.0441838838160038,
         "val_afmae": 0.05350267514586449
+      },
+      {
+        "name": "FRIKANh8u6l6_e1k_lr7e4",
+        "param": "canonical_h8u6l6",
+        "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+        "status": "complete",
+        "metrics_status": "partial",
+        "epochs": 1000,
+        "freq_drift_hz": 2.3365656199771543,
+        "sens_drift_percent": 9.092567629369398,
+        "linearity_percent": 0.5111439183722523,
+        "compute_cost": 5066.0,
+        "val_loss": null,
+        "val_afmae": null,
+        "source": "canonical_main_project",
+        "axis": "SPLINE_ORDER",
+        "value": 2
       },
       {
         "name": "FRIKANh8u6l6g8s3_e1k_lr7e4_axisS",
@@ -586,6 +675,21 @@
       "Incomplete axes: none.",
       "Strict dominators found: 1.",
       "GRID_SIZE and SPLINE_ORDER keep the same current LUT compute-cost estimate when H/U/L are unchanged."
-    ]
+    ],
+    "canonical_main_project": {
+      "name": "FRIKANh8u6l6_e1k_lr7e4",
+      "param": "canonical_h8u6l6",
+      "path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+      "status": "complete",
+      "metrics_status": "partial",
+      "epochs": 1000,
+      "freq_drift_hz": 2.3365656199771543,
+      "sens_drift_percent": 9.092567629369398,
+      "linearity_percent": 0.5111439183722523,
+      "compute_cost": 5066.0,
+      "val_loss": null,
+      "val_afmae": null,
+      "source": "canonical_main_project"
+    }
   }
 }

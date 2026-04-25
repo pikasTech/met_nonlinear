@@ -1,5 +1,6 @@
 {
   "figure": "legacy_37_predict_features.png",
-  "source_asset": "37.predict_features.png",
-  "status": "legacy image migrated for manuscript continuity"
+  "source_trace": "C:/work/met_nonlinear_paper/plot_predict.py + data/predict_features.json",
+  "translation_method": "traced original plotting code with only text labels translated to English",
+  "note": "Legend and global axis labels translated; nearest-frequency/magnitude selection, filtering, normalization, and panel layout preserved."
 }

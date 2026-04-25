@@ -474,7 +474,7 @@ class ProjectResult:
 
             # Original response
             gain_origin = [gains_origin[k][i] for i in range(len(f))]
-            label_original = f'原始 @ {magnitude:.02f} m/s^2'
+            label_original = f'Uncompensated @ {magnitude:.02f} m/s^2'
             handle_origin, = plt.loglog(
                 f, gain_origin,
                 label=label_original, linestyle='-', marker='',  color=color, linewidth=1.5
@@ -495,8 +495,8 @@ class ProjectResult:
 
         plt.xlim(freq_range)
         plt.ylim(amp_range)
-        plt.xlabel('频率 (Hz)', fontsize=18)
-        plt.ylabel('灵敏度 (V·s/m)', fontsize=18)
+        plt.xlabel('Frequency (Hz)', fontsize=18)
+        plt.ylabel('Sensitivity (V s/m)', fontsize=18)
         ax_freq.tick_params(axis='both', which='major', labelsize=15)
         if subtitle:
             plt.text(0.5, -0.15, '(a)', transform=ax_freq.transAxes,
@@ -517,18 +517,18 @@ class ProjectResult:
                 key=lambda x: extract_magnitude(x[1])
             )
             origin_handles, origin_labels = zip(*origin_handle_labels)
-            origin_labels = [l.replace('原始', '').replace(
+            origin_labels = [l.replace('Uncompensated', '').replace(
                 'm/s^2', '$\\mathrm{m}/\\mathrm{s}^2$') for l in origin_labels]
             compensated_handles, compensated_labels = zip(
                 *compensated_handle_labels)
             compensated_labels = [l.replace('FRIKAN', '').replace('m/s^2', '$\\mathrm{m}/\\mathrm{s}^2$')
                                   for l in compensated_labels]
-            legend1 = (origin_handles, origin_labels, "原始响应")
-            legend2 = (compensated_handles, compensated_labels, "补偿后")
+            legend1 = (origin_handles, origin_labels, "Uncompensated response")
+            legend2 = (compensated_handles, compensated_labels, "Compensated")
         else:
-            labels = [l.replace('原始', '').replace(
+            labels = [l.replace('Uncompensated', '').replace(
                 'm/s^2', '$\\mathrm{m}/\\mathrm{s}^2$') for l in labels]
-            legend1 = (handles, labels, "响应曲线")
+            legend1 = (handles, labels, "Response curves")
             legend2 = None
 
         plt.grid(True, which="both", ls="--")

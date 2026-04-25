@@ -689,75 +689,52 @@ def load_wiener_optimization_profiles() -> List[Dict[str, Any]]:
     return rows
 
 
-def make_onboard_figure(deploy_rows: List[Dict[str, Any]], optimization_profiles: List[Dict[str, Any]]) -> str:
+def make_onboard_figure(deploy_rows: List[Dict[str, Any]], lut_rows: List[Dict[str, Any]]) -> str:
     labels = [row['label'] for row in deploy_rows]
     colors = [PALETTE.get(row['label'], '#444444') for row in deploy_rows]
 
-    fig = plt.figure(figsize=(15.0, 9.5), constrained_layout=True)
-    gs = fig.add_gridspec(2, 3)
+    fig, (ax_perf, ax_lut) = plt.subplots(1, 2, figsize=(13.8, 5.2), constrained_layout=True)
 
-    ax_qemu = fig.add_subplot(gs[0, 0])
-    ax_qemu.bar(labels, [row['board_qemu_mae'] for row in deploy_rows], color=colors)
-    ax_qemu.set_title('(a) QEMU-MAE')
-    ax_qemu.set_yscale('log')
-    ax_qemu.tick_params(axis='x', rotation=25)
-
-    ax_keil = fig.add_subplot(gs[0, 1])
-    ax_keil.bar(labels, [row['board_keil_mae'] for row in deploy_rows], color=colors)
-    ax_keil.set_title('(b) KEIL-MAE')
-    ax_keil.set_yscale('log')
-    ax_keil.tick_params(axis='x', rotation=25)
-
-    ax_speed = fig.add_subplot(gs[0, 2])
-    ax_speed.bar(labels, [row['board_keil_fps'] for row in deploy_rows], color=colors)
-    ax_speed.set_title('(c) KEIL speed (Points/s)')
-    ax_speed.tick_params(axis='x', rotation=25)
-
-    ax_mem = fig.add_subplot(gs[1, 0])
     x = np.arange(len(deploy_rows))
-    width = 0.36
-    ax_mem.bar(x - width / 2, [row['flash_bytes'] / 1024.0 for row in deploy_rows], width=width, color='#1f4e79', label='Flash (KB)')
-    ax_mem.bar(x + width / 2, [row['ram_bytes'] / 1024.0 for row in deploy_rows], width=width, color='#c96b00', label='RAM (KB)')
-    ax_mem.set_xticks(x)
-    ax_mem.set_xticklabels(labels, rotation=25, ha='right')
-    ax_mem.set_title('(d) MCU resource footprint')
-    ax_mem.legend(frameon=True)
+    width = 0.34
+    speed_values = [float(row['board_keil_fps'] or 0.0) for row in deploy_rows]
+    ram_values = [float(row['ram_bytes']) / 1024.0 if row.get('ram_bytes') is not None else 0.0 for row in deploy_rows]
+    speed_bars = ax_perf.bar(x - width / 2, speed_values, width=width, color=colors, label='Throughput (points/s)')
+    ax_ram = ax_perf.twinx()
+    ram_bars = ax_ram.bar(x + width / 2, ram_values, width=width, color='#c96b00', alpha=0.62, label='RAM (KB)')
+    ax_perf.set_title('(a) Embedded inference throughput comparison')
+    ax_perf.set_ylabel('KEIL throughput (points/s)')
+    ax_ram.set_ylabel('RAM usage (KB)')
+    ax_perf.set_xticks(x)
+    ax_perf.set_xticklabels(labels, rotation=25, ha='right')
+    ax_perf.grid(True, axis='y', alpha=0.22)
+    handles = [speed_bars, ram_bars]
+    ax_perf.legend(handles, [h.get_label() for h in handles], loc='upper right', frameon=True)
+    for idx, value in enumerate(speed_values):
+        ax_perf.annotate(
+            f'{value:.0f}',
+            (x[idx] - width / 2, value),
+            textcoords='offset points',
+            xytext=(0, 5),
+            ha='center',
+            fontsize=7.8,
+        )
 
-    ax_opt = fig.add_subplot(gs[1, 1:])
-    profile_subset = [item for item in optimization_profiles if item['key'] in {'o0', 'o2', 'ofast_lto'}]
-    order = {'o0': 0, 'o2': 1, 'ofast_lto': 2}
-    profile_subset.sort(key=lambda item: order[item['key']])
-    bars = []
-    for item in profile_subset:
-        value = float(item['keil_fps']) if item['keil_fps'] is not None else 0.0
-        color = PALETTE.get(item['label'], '#999999')
-        alpha = 0.85 if item['status'] == 'completed' else 0.35
-        hatch = '' if item['status'] == 'completed' else '//'
-        bars.append(ax_opt.bar(item['label'], value, color=color, alpha=alpha, hatch=hatch))
-    ax_opt.set_title('(e) Wiener-KAN compiler optimization sweep')
-    ax_opt.set_ylabel('KEIL speed (Points/s)')
-    for item, container in zip(profile_subset, bars):
-        patch = container.patches[0]
-        if item['status'] == 'completed':
-            ax_opt.annotate(
-                f"{item['keil_fps']:.1f}",
-                (patch.get_x() + patch.get_width() / 2, patch.get_height()),
-                textcoords='offset points',
-                xytext=(0, 6),
-                ha='center',
-                fontsize=8.5,
-            )
-        else:
-            ax_opt.annotate(
-                'build failed\n(flash overflow)',
-                (patch.get_x() + patch.get_width() / 2, 0.0),
-                textcoords='offset points',
-                xytext=(0, 10),
-                ha='center',
-                va='bottom',
-                fontsize=8.2,
-            )
-    ax_opt.text(0.02, 0.93, 'Project default overlaps with -O2 in this benchmark run.', transform=ax_opt.transAxes, fontsize=8.8)
+    lut_labels = [row['label'] for row in lut_rows]
+    lut_ram = np.array([float(row['ram_bytes']) / 1024.0 for row in lut_rows], dtype=float)
+    lut_error = np.array([float(row['keil_mae']) for row in lut_rows], dtype=float)
+    lut_speed = np.array([float(row['keil_fps']) for row in lut_rows], dtype=float)
+    sizes = 58.0 + 150.0 * (lut_speed / max(float(np.nanmax(lut_speed)), 1.0))
+    scatter = ax_lut.scatter(lut_ram, lut_error, s=sizes, c=lut_speed, cmap='viridis', edgecolor='#222222', linewidth=0.7)
+    for label, ram, error in zip(lut_labels, lut_ram, lut_error):
+        ax_lut.annotate(label, (ram, error), textcoords='offset points', xytext=(6, 5), fontsize=8.5)
+    ax_lut.set_title('(b) LUT accuracy versus memory trade-off')
+    ax_lut.set_xlabel('RAM usage (KB)')
+    ax_lut.set_ylabel('Validation error against TensorFlow')
+    ax_lut.set_yscale('log')
+    ax_lut.grid(True, axis='both', alpha=0.24)
+    cbar = fig.colorbar(scatter, ax=ax_lut, fraction=0.046, pad=0.04)
+    cbar.set_label('KEIL throughput (points/s)')
 
     out = FIGURES_DIR / 'fig_05_onboard_inference.png'
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -771,7 +748,53 @@ def load_compute_cost_calibration() -> Dict[str, Any]:
 
 
 def load_hparam_sensitivity_summary() -> Dict[str, Any]:
-    return load_json('ex_projects/compare/hparam_sensitivity_r15/data/summary.json')
+    summary = load_json('ex_projects/compare/hparam_sensitivity_r15/data/summary.json')
+    primary_metrics = load_json('projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json')
+    canonical_row = {
+        'name': 'FRIKANh8u6l6_e1k_lr7e4',
+        'param': 'canonical_h8u6l6',
+        'path': 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4',
+        # The main-project metrics file may be marked partial when optional sections are absent,
+        # but the hyperparameter plot only needs these four completed metrics.
+        'status': 'complete',
+        'metrics_status': primary_metrics.get('status', 'complete'),
+        'epochs': primary_metrics.get('epochs'),
+        'freq_drift_hz': primary_metrics.get('freq_drift_hz'),
+        'sens_drift_percent': primary_metrics.get('sens_drift_percent'),
+        'linearity_percent': primary_metrics.get('linearity_percent'),
+        'compute_cost': primary_metrics.get('compute_cost'),
+        'val_loss': primary_metrics.get('val_loss'),
+        'val_afmae': primary_metrics.get('val_afmae'),
+        'source': 'canonical_main_project',
+    }
+    canonical_values = {
+        'H_UNITS': 8,
+        'INNER_KAN_UNITS': 6,
+        'INNER_KAN_LAYERS': 6,
+        'GRID_SIZE': 8,
+        'SPLINE_ORDER': 2,
+    }
+    rows = [row for row in summary.get('rows', []) if row.get('axis') != 'base']
+    for axis, value in canonical_values.items():
+        rows = [row for row in rows if not (row.get('axis') == axis and int(row.get('value', -999999)) == value)]
+        axis_row = dict(canonical_row)
+        axis_row.update({'axis': axis, 'value': value})
+        rows.append(axis_row)
+    baseline = dict(canonical_row)
+    baseline.update({'axis': 'base', 'param': '', 'value': None})
+    summary['baseline'] = baseline
+    summary['baseline_project'] = 'FRIKANh8u6l6_e1k_lr7e4'
+    summary['rows'] = [baseline] + sorted(
+        rows,
+        key=lambda row: (
+            ['H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER'].index(row.get('axis'))
+            if row.get('axis') in ['H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER']
+            else 99,
+            float(row.get('value', 0) or 0),
+        ),
+    )
+    summary['canonical_main_project'] = canonical_row
+    return summary
 
 
 def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
@@ -779,54 +802,68 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
     baseline = summary.get('baseline', {})
     axis_order = ['H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER']
     axis_labels = {
-        'H_UNITS': 'Wiener slices h',
-        'INNER_KAN_UNITS': 'KAN width u',
-        'INNER_KAN_LAYERS': 'KAN depth l',
-        'GRID_SIZE': 'Spline grid g',
-        'SPLINE_ORDER': 'Spline order s',
+        'H_UNITS': 'Wiener slices $h$',
+        'INNER_KAN_UNITS': 'KAN width $u$',
+        'INNER_KAN_LAYERS': 'KAN depth $l$',
+        'GRID_SIZE': 'Spline grid $g$',
+        'SPLINE_ORDER': 'Spline order $s$',
     }
-    colors = {
-        'freq_drift_hz': '#1f4e79',
-        'sens_drift_percent': '#0f6c5c',
-        'linearity_percent': '#c96b00',
-        'compute_cost': '#666666',
-    }
-    fig, axes = plt.subplots(2, 1, figsize=(10.8, 7.2), sharex=False, constrained_layout=True)
-    offsets = [-0.18, 0.0, 0.18]
     metric_specs = [
-        ('freq_drift_hz', 'Freq drift (Hz)', offsets[0], 'o'),
-        ('sens_drift_percent', 'Sens drift (%)', offsets[1], 's'),
-        ('linearity_percent', 'Linearity (%)', offsets[2], '^'),
+        ('freq_drift_hz', 'Freq drift', '#1f4e79', 'o'),
+        ('sens_drift_percent', 'Sens drift', '#0f6c5c', 's'),
+        ('linearity_percent', 'Linearity', '#c96b00', '^'),
+        ('compute_cost', 'Compute cost', '#666666', 'D'),
     ]
-    xticks = []
-    xticklabels = []
-    position = 0.0
-    for axis in axis_order:
+    baseline_values = {key: float(baseline.get(key, 1.0) or 1.0) for key, *_ in metric_specs}
+
+    fig, axes = plt.subplots(2, 3, figsize=(13.2, 7.6), constrained_layout=True)
+    axes_flat = axes.flatten()
+    for panel_idx, axis in enumerate(axis_order):
+        ax = axes_flat[panel_idx]
         axis_rows = sorted([row for row in rows if row.get('axis') == axis], key=lambda r: float(r.get('value', 0)))
-        for row in axis_rows:
-            x = position
-            xticks.append(x)
-            xticklabels.append(f"{axis_labels[axis]}\n{row.get('value')}")
-            for key, label, offset, marker in metric_specs:
-                axes[0].scatter(x + offset, float(row[key]), color=colors[key], marker=marker, s=42, label=label if position == 0 else None, zorder=3)
-            axes[1].bar(x, float(row['compute_cost']), color=colors['compute_cost'], alpha=0.72, width=0.56)
-            position += 1.0
-        position += 0.7
-    if baseline:
-        axes[0].axhline(float(baseline['freq_drift_hz']), color=colors['freq_drift_hz'], linestyle='--', linewidth=1.2, alpha=0.75)
-        axes[0].axhline(float(baseline['sens_drift_percent']), color=colors['sens_drift_percent'], linestyle='--', linewidth=1.2, alpha=0.75)
-        axes[0].axhline(float(baseline['linearity_percent']), color=colors['linearity_percent'], linestyle='--', linewidth=1.2, alpha=0.75)
-        axes[1].axhline(float(baseline['compute_cost']), color='#222222', linestyle='--', linewidth=1.2, alpha=0.75, label='baseline')
-    axes[0].set_title('(a) One-factor sensitivity of physical calibration metrics')
-    axes[0].set_ylabel('Metric value')
-    axes[0].legend(ncol=3, loc='upper right')
-    axes[1].set_title('(b) Static compute-cost estimate')
-    axes[1].set_ylabel('Compute cost')
-    axes[1].set_xticks(xticks)
-    axes[1].set_xticklabels(xticklabels, rotation=45, ha='right')
-    axes[1].legend(loc='upper left')
-    for ax in axes:
-        ax.grid(True, axis='y', alpha=0.28)
+        x = np.array([float(row.get('value', 0)) for row in axis_rows], dtype=float)
+        for key, label, color, marker in metric_specs:
+            y = np.array([float(row.get(key, np.nan)) / baseline_values[key] * 100.0 for row in axis_rows], dtype=float)
+            ax.plot(x, y, marker=marker, linewidth=1.7, markersize=5.0, color=color, label=label)
+        ax.axhline(100.0, color='#222222', linestyle='--', linewidth=1.0, alpha=0.65)
+        if baseline.get('axis') == 'base':
+            base_value = {
+                'H_UNITS': 8,
+                'INNER_KAN_UNITS': 6,
+                'INNER_KAN_LAYERS': 6,
+                'GRID_SIZE': 8,
+                'SPLINE_ORDER': 2,
+            }.get(axis)
+            if base_value is not None and min(x) <= base_value <= max(x):
+                ax.axvline(float(base_value), color='#444444', linestyle=':', linewidth=1.0, alpha=0.7)
+        ax.set_title(f'({chr(97 + panel_idx)}) {axis_labels[axis]}')
+        ax.set_xlabel(axis_labels[axis])
+        ax.set_ylabel('Relative to baseline (%)')
+        ax.set_xticks(x)
+        if axis in {'H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER'}:
+            ax.set_xticklabels([str(int(v)) for v in x])
+        ax.grid(True, axis='both', alpha=0.24)
+        ax.margins(x=0.08)
+    legend_ax = axes_flat[-1]
+    legend_ax.axis('off')
+    handles, labels = axes_flat[0].get_legend_handles_labels()
+    legend_ax.legend(handles, labels, loc='center', frameon=True, title='Metric response')
+    baseline_text = (
+        'Baseline data (h=8, u=6, l=6, g=8, s=2):\n'
+        f"Freq drift = {baseline_values['freq_drift_hz']:.2f} Hz; "
+        f"Sens drift = {baseline_values['sens_drift_percent']:.2f}%;\n"
+        f"Linearity error = {baseline_values['linearity_percent']:.3f}%; "
+        f"Compute cost = {baseline_values['compute_cost']:.0f}"
+    )
+    legend_ax.text(
+        0.5,
+        0.23,
+        'Dashed horizontal line: baseline = 100%\nDotted vertical line: canonical value\n' + baseline_text,
+        ha='center',
+        va='center',
+        fontsize=8.8,
+    )
+    fig.suptitle('One-factor hyperparameter sensitivity of Wiener-KAN', fontsize=14, fontweight='bold')
     out = FIGURES_DIR / 'fig_18_hparam_sensitivity.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
@@ -834,6 +871,7 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
         'source': 'ex_projects/compare/hparam_sensitivity_r15/data/summary.json',
         'baseline': baseline,
         'axis_summary': summary.get('axis_summary', {}),
+        'plot_encoding': 'Each panel uses one hyperparameter as the x-axis; y-values are normalized to the canonical baseline.',
     })
     return out.name
 
@@ -1615,6 +1653,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     return generated
 
 
+
 def copy_legacy_images() -> None:
     for item in LEGACY_IMAGE_MIGRATIONS:
         source_name = str(item['source'])
@@ -1638,7 +1677,7 @@ def save_figure_raw_files(payload: Dict[str, Any]) -> None:
         'fig_02_horizontal_summary': {'main_benchmark': payload['main_benchmark'], 'origin_metrics': payload['origin_metrics'], 'main_convergence_curves': payload['main_convergence_curves']},
         'fig_03_loss_ablation': {'loss_ablation': payload['loss_ablation'], 'loss_convergence_curves': payload['loss_convergence_curves']},
         'fig_04_structure_ablation': {'structure_ablation': payload['structure_ablation']},
-        'fig_05_onboard_inference': {'deployment': payload['deployment'], 'wiener_optimization_profiles': payload['wiener_optimization_profiles']},
+        'fig_05_onboard_inference': {'deployment': payload['deployment'], 'lut_variants': payload['lut_variants']},
         'fig_06_compute_cost_calibration': {'compute_cost_calibration': payload['compute_cost_calibration']},
         'fig_18_hparam_sensitivity': {'hparam_sensitivity': payload.get('hparam_sensitivity')},
     }
@@ -1672,7 +1711,7 @@ def generate_all() -> Dict[str, Any]:
         'horizontal_summary': make_horizontal_figure(main_rows, origin, main_curves),
         'loss_ablation': make_loss_ablation_figure(loss_rows, loss_curves),
         'structure_ablation': make_structure_figure(structure_rows),
-        'onboard_inference': make_onboard_figure(deploy_rows, optimization_profiles),
+        'onboard_inference': make_onboard_figure(deploy_rows, lut_rows),
         'compute_cost_calibration': make_compute_cost_calibration_figure(calibration),
         'hparam_sensitivity': make_hparam_sensitivity_figure(hparam_summary),
         'met_nonlinear_mechanism': make_mechanism_schematic(),

@@ -11,14 +11,12 @@
             "id": "096231e3ffef865f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "AGENTS.md",
-                "mode": "source",
-                "source": false
+                "file": "docs/paper/latex/build/main.pdf"
               },
-              "icon": "lucide-file",
-              "title": "AGENTS"
+              "icon": "lucide-file-text",
+              "title": "main"
             }
           }
         ]
@@ -94,7 +92,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "AGENTS.md",
+                "file": "docs/paper/latex/build/main.pdf",
                 "collapseAll": true,
                 "extraContext": true,
                 "sortOrder": "alphabetical",
@@ -104,7 +102,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "AGENTS 的反向链接列表"
+              "title": "main 的反向链接列表"
             }
           },
           {
@@ -182,23 +180,34 @@
       "bases:新建数据库": false
     }
   },
-  "active": "87ddc586d11bf639",
+  "active": "096231e3ffef865f",
   "lastOpenFiles": [
+    "docs/reference/paper_figure_traceability.md",
+    "docs/paper/latex/build/page_screenshots/page-29.png",
+    "docs/paper/latex/build/page_screenshots/page-28.png",
+    "docs/paper/latex/build/page_screenshots/page-27.png",
+    "docs/paper/latex/build/page_screenshots/page-26.png",
+    "docs/paper/latex/build/page_screenshots/page-25.png",
+    "docs/paper/latex/build/page_screenshots/page-24.png",
+    "docs/paper/latex/build/page_screenshots/page-23.png",
+    "docs/paper/latex/build/page_screenshots/page-22.png",
+    "docs/paper/latex/build/page_screenshots/page-21.png",
+    "docs/paper/latex/build/page_screenshots/page-20.png",
     "docs/paper/latex/build/main.synctex(busy)",
-    "docs/paper/latex/build/xelatex47292.fls",
-    "docs/paper/latex/build/main.synctex.gz",
-    "docs/paper/latex/build/xelatex21468.fls",
-    "docs/paper/latex/build/xelatex90436.fls",
-    "docs/paper/latex/build/xelatex87620.fls",
-    "docs/paper/latex/build/xelatex87560.fls",
-    "docs/paper/latex/build/xelatex60492.fls",
-    "docs/paper/latex/build/xelatex30628.fls",
-    "docs/paper/latex/build/xelatex91276.fls",
-    "docs/paper/latex/build/xelatex34240.fls",
-    "docs/paper/latex/main.tex.md",
+    "docs/paper/latex/build/xelatex96340.fls",
+    "docs/paper/latex/build/xelatex89072.fls",
+    "docs/paper/latex/build/xelatex96920.fls",
+    "docs/paper/latex/build/xelatex96052.fls",
+    "docs/paper/latex/build/xelatex21352.fls",
+    "docs/paper/latex/build/xelatex93112.fls",
+    "docs/paper/latex/build/xelatex84920.fls",
+    "docs/paper/figures/legacy_35_FRIRNN_3D_response_slices.raw.json",
+    "docs/paper/latex/build/xelatex87776.fls",
     "AGENTS.md",
-    "CLAUDE.md",
+    "docs/paper/latex/main.tex.md",
     "docs/notes/文献笔记.md",
+    "docs/MDTODO/details/20260327-转投/20260425_021144_Task_Report.md",
+    "CLAUDE.md",
     "docs/MDTODO/details/20260327-转投/20260424_234407_Task_Report.md",
     "docs/MDTODO/details/20260327-转投/20260424_232935_Task_Report.md",
     "docs/MDTODO/details/20260327-转投/20260424_213942_Task_Report.md",
@@ -206,29 +215,18 @@
     "docs/MDTODO/details/20260327-转投/20260424_211522_Task_Report.md",
     "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
     "docs/MDTODO/details/20260327-转投/20260424_211707_Task_Report.md",
-    "docs/paper/figures/fig_18_hparam_sensitivity.png",
     "ex_projects/compare/hparam_sensitivity_r15/data/summary.md",
-    "ex_projects/compare/hparam_sensitivity_r15/data/sensitivity_curves.png",
-    "ex_projects/compare/hparam_sensitivity_r15/data/compute_cost.png",
     "docs/paper/draft/20260422/hyperparameter_sensitivity_note.md",
     "docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
     "docs/MDTODO/details/20260327-转投/20260424_172329_Task_Report.md",
-    "docs/paper/figures/fig_14_parallel_wiener_branch_weights.png",
-    "docs/paper/figures/fig_14_parallel_wiener_response.png",
     "docs/MDTODO/details/20260327-转投/20260423_221243_Task_Report.md",
     "docs/reference/paper_hyperparameter_sensitivity_method.md",
     "PEF待下载.md",
-    "docs/research/literature/markdown/images/bo_d75j7e491nqc73eobea0_1_294_148_1161_493_0.jpg",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s1_e1k_lr7e4_axisS/data/predict_features_overview.png",
-    "projects/09_HPARAM_SENSITIVITY/FRIKANh8u6l6g8s1_e1k_lr7e4_axisS/data/bode_plot_overlay.png",
     "docs/research/literature/markdown/[VIP]Chao_2025_Dynamic_Measurement.md",
     "docs/research/literature/markdown/[VIP]Lin_effect_2020.md",
     "docs/research/literature/markdown/[VIP]Electrochemical_vibration_sensor.md",
     "docs/research/literature/markdown/[VIP]Fang_2024_exploiting_nonlinearity.md",
     "docs/research/literature/markdown/[VPI]AI_Based_Sensor.md",
-    "[[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
-    "docs/paper/figures/legacy_3_MET_nonlinear_frequency_response.png",
-    "docs/reference/paper_latex_submission.md",
-    "docs/paper/draft/20260422/fig_05_onboard_inference.png"
+    "[[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md"
   ]
 }

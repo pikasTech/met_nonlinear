@@ -631,46 +631,36 @@
       "zi_bytes": 60104
     }
   ],
-  "wiener_optimization_profiles": [
+  "lut_variants": [
     {
-      "key": "project_default",
-      "label": "Project default",
-      "status": "completed",
-      "published": true,
+      "label": "LUT nearest",
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4",
+      "qemu_mae": 0.007114359431113517,
+      "keil_mae": 0.007114359431113517,
       "keil_speed_ms": 0.14313,
       "keil_fps": 6986.655488017886,
       "flash_bytes": 736460,
       "ram_bytes": 5704
     },
     {
-      "key": "o0",
-      "label": "-O0",
-      "status": "completed",
-      "published": false,
-      "keil_speed_ms": 0.44752499999999995,
-      "keil_fps": 2234.5120384336074,
-      "flash_bytes": 745612,
-      "ram_bytes": 88904
-    },
-    {
-      "key": "o2",
-      "label": "-O2",
-      "status": "completed",
-      "published": false,
-      "keil_speed_ms": 0.14313,
-      "keil_fps": 6986.655488017886,
-      "flash_bytes": 736460,
+      "label": "LUT + interp",
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_interp",
+      "qemu_mae": 0.00019023291761639783,
+      "keil_mae": 0.00019023291761639783,
+      "keil_speed_ms": 0.2600925,
+      "keil_fps": 3844.785989599854,
+      "flash_bytes": 740860,
       "ram_bytes": 5704
     },
     {
-      "key": "ofast_lto",
-      "label": "-Ofast + LTO",
-      "status": "completed",
-      "published": false,
-      "keil_speed_ms": 0.1416575,
-      "keil_fps": 7059.280306372766,
-      "flash_bytes": 738676,
-      "ram_bytes": 5704
+      "label": "No LUT exact",
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut",
+      "qemu_mae": 6.517199069779414e-07,
+      "keil_mae": 6.517199069779414e-07,
+      "keil_speed_ms": 22.244505,
+      "keil_fps": 44.954922575260724,
+      "flash_bytes": 34556,
+      "ram_bytes": 21704
     }
   ]
 }
