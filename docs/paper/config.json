@@ -122,41 +122,5 @@
       "label": "No LUT exact",
       "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut"
     }
-  ],
-  "legacy_figure_code": "docs/paper/src/legacy/figure_paper.py",
-  "legacy_image_dir": "docs/paper/image",
-  "legacy_image_migrations": [
-    {
-      "source": "3.MET_nonlinear_frequency_response.png",
-      "figure": "legacy_3_MET_nonlinear_frequency_response.png"
-    },
-    {
-      "source": "4.MET_structure.png",
-      "figure": "legacy_4_MET_structure.png"
-    },
-    {
-      "source": "39.Readout_circuit.png",
-      "figure": "legacy_39_Readout_circuit.png"
-    },
-    {
-      "source": "13.NN_extern2.png",
-      "figure": "legacy_13_NN_extern2.png"
-    },
-    {
-      "source": "34.PE_COMP.png",
-      "figure": "legacy_34_PE_COMP.png"
-    },
-    {
-      "source": "35.FRIRNN_3D_response_slices.png",
-      "figure": "legacy_35_FRIRNN_3D_response_slices.png"
-    },
-    {
-      "source": "5.Calibration_table_test.png",
-      "figure": "legacy_5_Calibration_table_test.png"
-    },
-    {
-      "source": "37.predict_features.png",
-      "figure": "legacy_37_predict_features.png"
-    }
   ]
 }

@@ -24,6 +24,7 @@ from src.core.metrics_summary import (  # noqa: E402
     DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ,
     _extract_natural_frequency_values,
 )
+from src.visualization.subfigure_montage import PanelSpec, compose_subfigures  # noqa: E402
 
 plt.style.use('seaborn-v0_8-whitegrid')
 plt.rcParams.update({
@@ -105,16 +106,8 @@ TRAJECTORY_MODELS = [
     ('Wiener-KAN', 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json'),
 ]
 
-LEGACY_IMAGE_MIGRATIONS = [
-    {'source': '3.MET_nonlinear_frequency_response.png', 'figure': 'legacy_3_MET_nonlinear_frequency_response.png'},
-    {'source': '4.MET_structure.png', 'figure': 'legacy_4_MET_structure.png'},
-    {'source': '39.Readout_circuit.png', 'figure': 'legacy_39_Readout_circuit.png'},
-    {'source': '13.NN_extern2.png', 'figure': 'legacy_13_NN_extern2.png'},
-    {'source': '34.PE_COMP.png', 'figure': 'legacy_34_PE_COMP.png'},
-    {'source': '35.FRIRNN_3D_response_slices.png', 'figure': 'legacy_35_FRIRNN_3D_response_slices.png'},
-    {'source': '5.Calibration_table_test.png', 'figure': 'legacy_5_Calibration_table_test.png'},
-    {'source': '37.predict_features.png', 'figure': 'legacy_37_predict_features.png'},
-]
+LEGACY_IMAGE_MIGRATIONS = []
+
 
 LUT_VARIANTS = [
     ('LUT nearest', 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4'),
@@ -156,8 +149,9 @@ def apply_config() -> Dict[str, Any]:
         LUT_VARIANTS = [(str(item['label']), str(item['ep_path'])) for item in config['lut_variants']]
     if config.get('trajectory_models'):
         TRAJECTORY_MODELS = [(str(item['label']), str(item['linear_response_path'])) for item in config['trajectory_models']]
-    if config.get('legacy_image_migrations'):
-        LEGACY_IMAGE_MIGRATIONS = [dict(item) for item in config['legacy_image_migrations']]
+    migration_rows = config.get('source_image_migrations') or config.get('legacy_image_migrations')
+    if migration_rows:
+        LEGACY_IMAGE_MIGRATIONS = [dict(item) for item in migration_rows]
     return config
 
 
@@ -243,6 +237,7 @@ def load_metrics(rows: List[tuple[str, str]]) -> List[Dict[str, Any]]:
             'linearity_full_frequency_count': int(linearity_summary['full_frequency_count']),
             'linearity_full_frequencies_hz': linearity_summary['full_frequencies_hz'],
             'calculation_standard': metrics_payload.get('calculation_standard'),
+            'metric_details': metrics_payload.get('metric_details', {}),
         })
     return data
 
@@ -1137,11 +1132,68 @@ def copy_afmae_loss_principle_figure() -> str:
     )
 
 
-def copy_dataset_preprocessing_workflow_figure() -> str:
-    return copy_ai_paper_asset(
-        'fig_19_dataset_preprocessing_workflow_ai.png',
-        'fig_19_dataset_preprocessing_workflow.png',
-        ['controlled MET excitation', 'ideal linear reference generation', 'frequency-magnitude paired waveform matrix', 'dataset split', 'windowing normalization and tensors'],
+def make_dataset_preprocessing_workflow_figure() -> str:
+    fig, ax = plt.subplots(figsize=(14.2, 5.4), constrained_layout=True)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    steps = [
+        ('1', 'MET excitation', 'Frequency sweep f\nMagnitude sweep m'),
+        ('2', 'Ideal reference', 'Low-magnitude fitted\nsecond-order response'),
+        ('3', 'Paired matrix D', 'Measured waveform +\nideal waveform'),
+        ('4', '50% / 50% split', '175 train records\n175 validation records'),
+        ('5', 'Windowing', 'Steady-state segment\n8000 samples'),
+        ('6', 'Normalization', 'Per-channel min-max\nscaling to [-1, 1]'),
+        ('7', 'Model tensors', 'Paired input and target\nsequences'),
+    ]
+    xs = np.linspace(0.07, 0.93, len(steps))
+    colors = ['#e8f1fb', '#eaf7ee', '#fff4df', '#f1ecfb', '#e8f6f7', '#eef2f7', '#fdeceb']
+    for idx, ((number, title, body), x, color) in enumerate(zip(steps, xs, colors)):
+        rect = plt.Rectangle((x - 0.055, 0.40), 0.11, 0.30, facecolor=color, edgecolor='#355070', lw=1.2)
+        ax.add_patch(rect)
+        ax.text(x - 0.045, 0.665, number, ha='center', va='center', fontsize=8.5, weight='bold', color='white',
+                bbox=dict(boxstyle='round,pad=0.25', facecolor='#355070', edgecolor='none'))
+        ax.text(x, 0.61, title, ha='center', va='center', fontsize=9.5, weight='bold')
+        ax.text(x, 0.50, body, ha='center', va='center', fontsize=8.2)
+        if idx < len(xs) - 1:
+            ax.annotate('', xy=(xs[idx + 1] - 0.066, 0.55), xytext=(x + 0.060, 0.55),
+                        arrowprops=dict(arrowstyle='->', lw=1.5, color='#4a5568'))
+    ax.text(0.5, 0.22,
+            'The split is performed over frequency--magnitude operating points after steady-state clipping; all subsequent metrics use the same split.',
+            ha='center', va='center', fontsize=9.2, color='#333333')
+    ax.text(0.5, 0.12, 'Notes: frequency grid 10--200 Hz; magnitude range 0.24--6.0 m/s^2; target is an ideal linear reference.',
+            ha='center', va='center', fontsize=8.6, color='#555555')
+    out = FIGURES_DIR / 'fig_19_dataset_preprocessing_workflow.png'
+    fig.savefig(out, bbox_inches='tight')
+    plt.close(fig)
+    save_json(out.with_suffix('.raw.json'), {
+        'source_trace': 'AI-rendered schematic asset existed without editable source; replaced by a code-generated schematic to enforce the documented 50/50 split.',
+        'modification_scope': 'dataset split label and simplified data-construction workflow',
+        'split': {'train_records': 175, 'validation_records': 175, 'unit': 'frequency--magnitude operating points'},
+    })
+    return out.name
+
+
+def copy_manual_paper_asset(source_name: str, target_name: str, note: str) -> str:
+    src = PAPER_DIR / 'image_manual' / source_name
+    dst = FIGURES_DIR / target_name
+    if not src.exists():
+        raise FileNotFoundError(f'Missing manual paper figure asset: {src}')
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    save_json(dst.with_suffix('.raw.json'), {
+        'source_trace': f'docs/paper/image_manual/{source_name}',
+        'generation': 'manual figure asset copied without code redraw',
+        'modification_scope': note,
+    })
+    return dst.name
+
+
+def make_wiener_kan_framework_figure() -> str:
+    return copy_manual_paper_asset(
+        'wiener_kan_framework.png',
+        'wiener_kan_framework.png',
+        'Manual Wiener-KAN framework schematic; do not redraw this figure from code.',
     )
 
 
@@ -1219,6 +1271,116 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
             raw_payload['data'] = load_json(src_json)
         save_json(dst_png.with_suffix('.raw.json'), raw_payload)
     return copied
+
+
+def make_bitmap_montage(
+    output_name: str,
+    panel_specs: List[Dict[str, Any]],
+    *,
+    layout: str,
+    rows: int | None = None,
+    cols: int | None = None,
+    padding: int | List[int] = 72,
+    gutter: int | tuple[int, int] = 72,
+    label_font_size: int = 58,
+    cell_widths: List[int] | None = None,
+    cell_heights: List[int] | None = None,
+    note: str,
+) -> str:
+    panels = [
+        PanelSpec(
+            path=FIGURES_DIR / str(spec['source']),
+            label=spec.get('label'),
+            scale=float(spec.get('scale', 1.0)),
+            fit_width=spec.get('fit_width'),
+            fit_height=spec.get('fit_height'),
+            align_x=str(spec.get('align_x', 'center')),
+            align_y=str(spec.get('align_y', 'center')),
+            trim_border=spec.get('trim_border'),
+            trim_tolerance=int(spec.get('trim_tolerance', 8)),
+        )
+        for spec in panel_specs
+    ]
+    out = FIGURES_DIR / output_name
+    metadata = compose_subfigures(
+        panels,
+        out,
+        layout=layout,
+        rows=rows,
+        cols=cols,
+        padding=padding,
+        gutter=gutter,
+        cell_widths=cell_widths,
+        cell_heights=cell_heights,
+        label_font_size=label_font_size,
+        label_position='top-left',
+        label_inset=24,
+        label_box=True,
+        label_box_padding=10,
+        dpi=(500, 500),
+    )
+    save_json(out.with_suffix('.raw.json'), {
+        'source_trace': 'bitmap subplot montage generated by src/visualization/subfigure_montage.py',
+        'source_figures': [str(spec['source']) for spec in panel_specs],
+        'modification_scope': note,
+        'montage': metadata,
+    })
+    return out.name
+
+
+def make_paper_bitmap_montages() -> Dict[str, str]:
+    montages: Dict[str, str] = {}
+    montages['met_structure_readout'] = make_bitmap_montage(
+        'fig_20_met_structure_readout_montage.png',
+        [
+            {'source': 'met_structure.png', 'label': '(a)', 'fit_width': 2500, 'align_y': 'top', 'trim_border': 28},
+            {'source': 'readout_circuit.png', 'label': '(b)', 'fit_width': 2500, 'align_y': 'top', 'trim_border': 28},
+        ],
+        layout='horizontal',
+        padding=[80, 70, 80, 70],
+        gutter=(140, 80),
+        label_font_size=66,
+        note='Combines the MET structural schematic and the readout circuit into one labeled two-panel figure.',
+    )
+    montages['experimental_setup_dataset_workflow'] = make_bitmap_montage(
+        'fig_21_experimental_setup_dataset_workflow_montage.png',
+        [
+            {'source': 'calibration_table_test.png', 'label': '(a)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 120},
+            {'source': 'fig_19_dataset_preprocessing_workflow.png', 'label': '(b)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 120},
+        ],
+        layout='vertical',
+        padding=[90, 80, 90, 80],
+        gutter=(90, 120),
+        label_font_size=68,
+        note='Stacks the experimental setup photograph above the dataset construction and preprocessing workflow.',
+    )
+    montages['parallel_wiener_equivalent'] = make_bitmap_montage(
+        'fig_22_parallel_wiener_equivalent_montage.png',
+        [
+            {'source': 'fig_14_parallel_wiener_principle.png', 'label': '(a)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 140},
+            {'source': 'fig_14_parallel_wiener_response.png', 'label': '(b)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 140},
+        ],
+        layout='vertical',
+        padding=[90, 80, 90, 80],
+        gutter=(90, 105),
+        label_font_size=68,
+        note='Stacks the parallel Wiener principle schematic and the reproduced amplitude-dependent response plot.',
+    )
+    montages['kan_neuron_compensation'] = make_bitmap_montage(
+        'fig_23_kan_neuron_compensation_montage.png',
+        [
+            {'source': 'kan_neuron_compensation.png', 'fit_width': 3156, 'align_x': 'center'},
+        ],
+        layout='matrix',
+        rows=1,
+        cols=1,
+        padding=0,
+        gutter=0,
+        label_font_size=54,
+        note='Normalizes the traced single KAN-neuron compensation bitmap through the same montage module.',
+    )
+    return montages
+
 
 def metric_value_macros(row: Dict[str, Any]) -> Dict[str, str]:
     ram_bytes = row.get('ram_bytes')
@@ -1358,7 +1520,6 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valMainWienerSensDrift': _fmt_float(origin['sens'], 2),
         'valMainWienerLinearity': _fmt_float(origin['linearity'], 3),
         'valMainWienerCost': '--',
-        'valMainRVTDCNNParams': '2,595',
     })
 
     loss_map = {row['label']: row for row in payload['loss_ablation']}
@@ -1395,18 +1556,6 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
             row = structure_map[label]
             for suffix, value in metric_value_macros(row).items():
                 overrides[prefix + suffix] = value
-
-    if 'Wiener-KAN' in main_map:
-        row = main_map['Wiener-KAN']
-        for act in ['BSpline']:
-            for suffix, value in metric_value_macros(row).items():
-                overrides[f'valAct{act}{suffix}'] = value
-    fallback_acts = {'ReLU': 'CNNKAN', 'Tanh': 'FRIMLP', 'Sigmoid': 'No symmetry'}
-    for act, label in fallback_acts.items():
-        if label in structure_map:
-            row = structure_map[label]
-            for suffix, value in metric_value_macros(row).items():
-                overrides[f'valAct{act}{suffix}'] = value
 
     deploy_map = {row['label']: row for row in payload['deployment']}
     deploy_sources = {'valDeployRaw': 'Wiener-KAN', 'valDeployGRU': 'GRU', 'valDeployLSTM': 'LSTM'}
@@ -1548,65 +1697,6 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'origin': origin, 'wiener_kan': wk, 'trajectories': trajectories})
     generated['frequency_response_comparison'] = out.name
 
-    act_sources = [('B-spline', 'Wiener-KAN'), ('ReLU', 'CNNKAN'), ('tanh', 'FRIMLP'), ('Sigmoid', 'No symmetry')]
-    act_rows = []
-    for activation, label in act_sources:
-        row = next(item for item in structure_rows if item['label'] == label)
-        act_rows.append({
-            'activation': activation,
-            'source_variant': label,
-            'freq_drift_hz': row['freq_drift_hz'],
-            'sens_drift_percent': row['sens_drift_percent'],
-            'linearity_percent': row['linearity_percent'],
-        })
-    fig, axes = plt.subplots(1, 3, figsize=(12.0, 3.8), constrained_layout=True)
-    for ax, key, title, ylabel in zip(
-        axes,
-        ['freq_drift_hz', 'sens_drift_percent', 'linearity_percent'],
-        ['Frequency drift', 'Sensitivity drift', 'Linearity error'],
-        ['Hz', '%', '%'],
-    ):
-        ax.bar([row['activation'] for row in act_rows], [row[key] for row in act_rows], color=['#0f6c5c', '#1f4e79', '#a61c3c', '#c96b00'])
-        ax.set_title(title)
-        ax.set_ylabel(ylabel)
-        ax.tick_params(axis='x', rotation=20)
-    out = FIGURES_DIR / 'fig_09_activation_ablation.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'rows': act_rows})
-    generated['activation_ablation'] = out.name
-
-    freq_sources = [('Data-only KAN', 'CNNKAN'), ('Frequency-conditioned KAN', 'FRIMLP'), ('Prior Wiener-KAN', 'Random trainable IIR'), ('Full Wiener-KAN', 'Wiener-KAN')]
-    freq_rows = []
-    for variant, label in freq_sources:
-        row = next(item for item in structure_rows if item['label'] == label)
-        freq_rows.append({
-            'variant': variant,
-            'source_variant': label,
-            'freq_drift_hz': row['freq_drift_hz'],
-            'sens_drift_percent': row['sens_drift_percent'],
-            'linearity_percent': row['linearity_percent'],
-        })
-    fig, ax = plt.subplots(figsize=(10.5, 4.6), constrained_layout=True)
-    x = np.arange(len(freq_rows))
-    width = 0.25
-    for offset, key, label, color in [
-        (-width, 'freq_drift_hz', 'Freq drift (Hz)', '#0f6c5c'),
-        (0.0, 'sens_drift_percent', 'Sens drift (%)', '#1f4e79'),
-        (width, 'linearity_percent', 'Linearity (%)', '#c96b00'),
-    ]:
-        ax.bar(x + offset, [row[key] for row in freq_rows], width=width, label=label, color=color)
-    ax.set_xticks(x)
-    ax.set_xticklabels([row['variant'] for row in freq_rows], rotation=18, ha='right')
-    ax.set_ylabel('Absolute metric value')
-    ax.set_title('Frequency input and Wiener prior contribution')
-    ax.legend(frameon=True)
-    out = FIGURES_DIR / 'fig_10_frequency_prior_ablation.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'rows': freq_rows})
-    generated['frequency_prior_ablation'] = out.name
-
     fig, ax = plt.subplots(figsize=(8.0, 5.0), constrained_layout=True)
     for curve in main_curves:
         ax.plot(curve['epochs'], curve['smoothed_normalized_val_loss'], label=curve['label'], linewidth=2.5 if curve['label'] == 'Wiener-KAN' else 1.4)
@@ -1635,19 +1725,54 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'curves': loss_curves})
     generated['loss_validation_detail'] = out.name
 
-    fig, axes = plt.subplots(1, 3, figsize=(12.5, 4.0), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(13.8, 4.8), constrained_layout=True)
     labels = [row['label'] for row in main_rows]
+    x = np.arange(len(labels))
     colors = ['#0f6c5c' if label == 'Wiener-KAN' else '#777777' for label in labels]
-    for ax, key, title in zip(axes, ['freq_drift_hz', 'sens_drift_percent', 'linearity_percent'], ['Frequency drift (Hz)', 'Sensitivity drift (%)', 'Linearity error (%)']):
-        ax.bar(labels, [row[key] for row in main_rows], color=colors)
+    dist_specs = [
+        ('natural_frequency_drift', 'fn', 'Natural frequency (Hz)', '(a) Natural-frequency range'),
+        ('sensitivity_drift', 'sens', 'Sensitivity at 100 Hz', '(b) Sensitivity range'),
+        ('linearity', 'linearity', 'Linearity error (%)', '(c) In-band linearity errors'),
+    ]
+    raw_distribution_rows = []
+    for ax, (detail_key, metric_name, ylabel, title) in zip(axes, dist_specs):
+        centers = []
+        lower = []
+        upper = []
+        for row in main_rows:
+            detail = row.get('metric_details', {}).get(detail_key, {})
+            if detail_key == 'linearity':
+                center = float(detail.get('mean', row['linearity_percent']))
+            else:
+                center = float(detail.get('median', 0.5 * (float(detail.get('min', 0.0)) + float(detail.get('max', 0.0)))))
+            min_value = float(detail.get('min', center))
+            max_value = float(detail.get('max', center))
+            centers.append(center)
+            lower.append(max(center - min_value, 0.0))
+            upper.append(max(max_value - center, 0.0))
+            raw_distribution_rows.append({
+                'label': row['label'],
+                'metric': metric_name,
+                'center': center,
+                'min': min_value,
+                'max': max_value,
+            })
+        ax.bar(x, centers, color=colors, alpha=0.72)
+        ax.errorbar(x, centers, yerr=np.vstack([lower, upper]), fmt='none', ecolor='#222222', elinewidth=1.1, capsize=3)
         ax.set_title(title)
-        ax.tick_params(axis='x', rotation=55)
-        if key != 'sens_drift_percent':
-            ax.set_yscale('log')
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+        ax.grid(axis='y', alpha=0.25)
     out = FIGURES_DIR / 'fig_13_compensation_distribution.png'
     fig.savefig(out, bbox_inches='tight')
     plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'rows': main_rows, 'metrics': ['freq_drift_hz', 'sens_drift_percent', 'linearity_percent']})
+    save_json(out.with_suffix('.raw.json'), {
+        'source_trace': 'paper results payload metric_details min/median/mean/max fields',
+        'rows': raw_distribution_rows,
+        'metrics': ['natural_frequency_range', 'sensitivity_range', 'linearity_error_range'],
+        'note': 'Error bars show min--max ranges across magnitudes for fn/sensitivity and across in-band frequencies for linearity.',
+    })
     generated['compensation_distribution'] = out.name
 
     return generated
@@ -1655,20 +1780,9 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
 
 
 def copy_legacy_images() -> None:
-    for item in LEGACY_IMAGE_MIGRATIONS:
-        source_name = str(item['source'])
-        figure_name = str(item['figure'])
-        source_path = PAPER_DIR / 'image' / source_name
-        figure_path = FIGURES_DIR / figure_name
-        if not source_path.exists():
-            continue
-        figure_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source_path, figure_path)
-        save_json(figure_path.with_suffix('.raw.json'), {
-            'figure': figure_name,
-            'source_asset': source_name,
-            'status': 'legacy image migrated for manuscript continuity',
-        })
+    # Pure bitmap copy migrations are disabled. Traceable figures must be
+    # regenerated from source code; manual figures must live in image_manual.
+    return
 
 
 def save_figure_raw_files(payload: Dict[str, Any]) -> None:
@@ -1719,9 +1833,11 @@ def generate_all() -> Dict[str, Any]:
         'lut_lookup_principles': copy_lut_lookup_principles_figure(),
         'board_inference_validation_workflow': copy_board_inference_validation_workflow_figure(),
         'afmae_loss_principle': copy_afmae_loss_principle_figure(),
-        'dataset_preprocessing_workflow': copy_dataset_preprocessing_workflow_figure(),
+        'dataset_preprocessing_workflow': make_dataset_preprocessing_workflow_figure(),
+        'wiener_kan_framework': make_wiener_kan_framework_figure(),
     }
     figures.update(copy_wiener_parallel_figures())
+    figures.update(make_paper_bitmap_montages())
 
     payload_stub = {
         'origin_metrics': origin,

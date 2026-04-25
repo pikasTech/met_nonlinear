@@ -1,5 +1,5 @@
 {
-  "figure": "legacy_37_predict_features.png",
+  "figure": "time_domain_outputs.png",
   "source_trace": "C:/work/met_nonlinear_paper/plot_predict.py + data/predict_features.json",
   "translation_method": "traced original plotting code with only text labels translated to English",
   "note": "English source-level redraw; legend, global axis labels, and panel text translated while preserving nearest-frequency/magnitude selection, filtering, normalization, and panel layout."

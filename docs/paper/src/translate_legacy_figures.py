@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import os
@@ -104,10 +104,10 @@ def plot_epoch_io():
         ax.label_outer()
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.05, hspace=0.05)
-    out = FIGURES_DIR / 'legacy_34_PE_COMP.png'
+    out = FIGURES_DIR / 'kan_neuron_compensation.png'
     fig.savefig(out, dpi=600)
     plt.close(fig)
-    write_raw(out, 'C:/work/met_nonlinear_paper/plot_epoch_IO.py + projects/FRIKANwp/data/epoch_*_IO.json', 'Column headers and epoch row labels translated; original epoch IO data and plotting logic preserved.')
+    write_raw(out, 'C:/work/met_nonlinear_paper/plot_epoch_IO.py + projects/FRIKANwp/data/epoch_*_IO.json', 'English redraw from traced source; column headers and epoch row labels translated while preserving original epoch IO data and plotting logic.')
 
 
 def preprocess_data(select_per_sample=3, sort_data=False):
@@ -200,7 +200,7 @@ def plot_frirnn_panel(ax, process_data_fn, z_ticks, zlabel):
         z[i, (f >= f_valid.min()) & (f <= f_valid.max())] = response_interp
     plot_3d_slices(ax, f, magnitudes_sorted, z, z_ticks)
     ax.set_xlabel('Frequency (Hz)', labelpad=10, fontsize=20)
-    ax.set_ylabel('Magnitude (m/s$^2$)', labelpad=10, fontsize=20)
+    ax.set_ylabel(r'Magnitude ($\mathrm{m}/\mathrm{s}^{2}$)', labelpad=18, fontsize=20)
     ax.set_zlabel('')
     ax.text2D(-0.10, 0.52, zlabel, transform=ax.transAxes, rotation=90, va='center', ha='center', fontsize=18)
     set_log_ticks(ax, [10, 20, 50, 100, 150], z_ticks)
@@ -218,20 +218,20 @@ def plot_frirnn():
     ax1 = fig1.add_subplot(111, projection='3d')
     plot_frirnn_panel(ax1, calculate_system_response, z_ticks=[30, 50, 100, 200], zlabel='Sensitivity (V s/m)')
     ax1.view_init(elev=40, azim=-140)
-    fig1.subplots_adjust(left=0.34, right=0.97, bottom=0.14, top=0.98)
-    fig1.savefig(original_path, dpi=600, bbox_inches='tight', pad_inches=0.25)
+    fig1.subplots_adjust(left=0.34, right=0.97, bottom=0.24, top=0.98)
+    fig1.savefig(original_path, dpi=600, bbox_inches='tight', pad_inches=0.45)
     plt.close(fig1)
 
     fig2 = plt.figure(figsize=(6.6, 5.4))
     ax2 = fig2.add_subplot(111, projection='3d')
     plot_frirnn_panel(ax2, calculate_system_response_comp, z_ticks=[0.2, 0.5, 1, 2], zlabel='Relative gain')
     ax2.view_init(elev=40, azim=-140)
-    fig2.subplots_adjust(left=0.30, right=0.97, bottom=0.14, top=0.98)
-    fig2.savefig(compensated_path, dpi=600, bbox_inches='tight', pad_inches=0.25)
+    fig2.subplots_adjust(left=0.30, right=0.97, bottom=0.24, top=0.98)
+    fig2.savefig(compensated_path, dpi=600, bbox_inches='tight', pad_inches=0.45)
     plt.close(fig2)
 
-    out = FIGURES_DIR / 'legacy_35_FRIRNN_3D_response_slices.png'
-    combine_images_with_labels([original_path, compensated_path], out)
+    out = FIGURES_DIR / 'local_transfer_slices.png'
+    combine_images_with_labels([original_path, compensated_path], out, label_width_ratio=0.075)
     write_raw(out, 'C:/work/met_nonlinear_paper/plot_frirnn.py embedded zeta/fn/Sn arrays', 'Axis labels translated; original analytical response equations, sampled magnitudes, camera, and two-panel composition preserved.')
 
 
@@ -306,18 +306,71 @@ def plot_predict():
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.07, hspace=0.07)
     plt.subplots_adjust(left=0.11, right=0.97, top=0.93, bottom=0.11)
-    out = FIGURES_DIR / 'legacy_37_predict_features.png'
+    out = FIGURES_DIR / 'time_domain_outputs.png'
+    legacy_out = FIGURES_DIR / 'legacy_37_predict_features.png'
     fig.savefig(out, dpi=600, bbox_inches='tight', pad_inches=0.1)
+    fig.savefig(legacy_out, dpi=600, bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
-    write_raw(out, 'C:/work/met_nonlinear_paper/plot_predict.py + data/predict_features.json', 'Legend and global axis labels translated; nearest-frequency/magnitude selection, filtering, normalization, and panel layout preserved.')
+    source = 'C:/work/met_nonlinear_paper/plot_predict.py + data/predict_features.json'
+    note = 'English source-level redraw; legend, global axis labels, and panel text translated while preserving nearest-frequency/magnitude selection, filtering, normalization, and panel layout.'
+    write_raw(out, source, note)
+    write_raw(legacy_out, source, note)
+
+
+def plot_met_nonlinear_frequency_response():
+    data_path = ROOT / 'projects' / '01_LR_STUDY' / 'FRIKANh8u6l6_e1k_lr7e4' / 'data' / 'linear_response.json'
+    with data_path.open('r', encoding='utf-8') as f:
+        data = json.load(f)
+    frequencies = np.array(data['frequencies'], dtype=float)
+    magnitudes_arr = np.array(data['magnitudes'], dtype=float)
+    gains_origin = [np.array(row, dtype=float) for row in data['gains_origin']]
+    fig, ax = plt.subplots(figsize=(7.2, 4.8))
+    cmap = plt.cm.get_cmap('tab20', len(magnitudes_arr))
+    handles = []
+    labels = []
+    for idx, (magnitude, gain) in enumerate(zip(magnitudes_arr, gains_origin)):
+        handle, = ax.loglog(
+            frequencies,
+            gain,
+            color=cmap(idx),
+            linewidth=1.35,
+            label=rf'{magnitude:.2f} m/s$^2$',
+        )
+        handles.append(handle)
+        labels.append(rf'{magnitude:.2f} m/s$^2$')
+    ax.set_xlim(10, 128)
+    ax.set_ylim(30, 250)
+    ax.set_xlabel('Frequency (Hz)', fontsize=12)
+    ax.set_ylabel('Sensitivity (V s/m)', fontsize=12)
+    ax.grid(True, which='both', linestyle='--', alpha=0.45)
+    ax.tick_params(axis='both', which='major', labelsize=10)
+    ax.legend(
+        handles,
+        labels,
+        title='Magnitude',
+        loc='center left',
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=False,
+        fontsize=8.5,
+        title_fontsize=9.5,
+        ncol=1,
+        borderaxespad=0.0,
+        handlelength=2.2,
+    )
+    fig.subplots_adjust(left=0.12, right=0.72, bottom=0.16, top=0.96)
+    out = FIGURES_DIR / 'met_nonlinear_frequency_response.png'
+    fig.savefig(out, dpi=600, bbox_inches='tight', pad_inches=0.08)
+    plt.close(fig)
+    write_raw(out, 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json:gains_origin', 'English source-level redraw; legend placed outside the main axes on the right as requested.')
 
 
 def main():
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     plot_epoch_io()
     plot_frirnn()
+    plot_met_nonlinear_frequency_response()
     plot_predict()
-    print('generated traced Fig.10, Fig.12, Fig.18')
+    print('generated traced Fig.6, Fig.10, Fig.12, Fig.18')
 
 
 if __name__ == '__main__':

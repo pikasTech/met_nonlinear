@@ -4,19 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "d8838af60301e038",
+        "id": "dff8d3bd63c5c784",
         "type": "tabs",
         "children": [
           {
-            "id": "096231e3ffef865f",
+            "id": "fe9fdbcac9f4760a",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "docs/paper/latex/build/main.pdf"
+                "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-file-text",
-              "title": "main"
+              "icon": "lucide-file",
+              "title": "[VIP]Schaller_2025_AutoML_Measurement"
             }
           }
         ]
@@ -76,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 214.51103591918945
+    "width": 267.51103591918945
   },
   "right": {
     "id": "bfa1cc7ceaf8a659",
@@ -92,9 +94,9 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/paper/latex/build/main.pdf",
-                "collapseAll": true,
-                "extraContext": true,
+                "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+                "collapseAll": false,
+                "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
@@ -102,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "main 的反向链接列表"
+              "title": "[VIP]Schaller_2025_AutoML_Measurement 的反向链接列表"
             }
           },
           {
@@ -154,20 +156,21 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/paper/latex/build/main.pdf",
+                "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "main 的大纲"
+              "title": "[VIP]Schaller_2025_AutoML_Measurement 的大纲"
             }
           }
-        ]
+        ],
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
-    "width": 235.5
+    "width": 368.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -180,32 +183,39 @@
       "bases:新建数据库": false
     }
   },
-  "active": "096231e3ffef865f",
+  "active": "fe9fdbcac9f4760a",
   "lastOpenFiles": [
-    "docs/reference/paper_figure_traceability.md",
-    "docs/paper/latex/build/page_screenshots/page-29.png",
-    "docs/paper/latex/build/page_screenshots/page-28.png",
-    "docs/paper/latex/build/page_screenshots/page-27.png",
-    "docs/paper/latex/build/page_screenshots/page-26.png",
+    "docs/paper/latex/build/xelatex46908.fls",
+    "docs/MDTODO/20260327-转投.md.lock",
+    "docs/paper/latex/build/main.synctex.gz",
+    "docs/paper/latex/build/main.synctex(busy)",
+    "docs/paper/latex/build/xelatex97780.fls",
+    "docs/MDTODO/details/20260327-转投/20260425_214022_Task_Report.md",
     "docs/paper/latex/build/page_screenshots/page-25.png",
     "docs/paper/latex/build/page_screenshots/page-24.png",
     "docs/paper/latex/build/page_screenshots/page-23.png",
     "docs/paper/latex/build/page_screenshots/page-22.png",
     "docs/paper/latex/build/page_screenshots/page-21.png",
     "docs/paper/latex/build/page_screenshots/page-20.png",
-    "docs/paper/latex/build/main.synctex(busy)",
-    "docs/paper/latex/build/xelatex96340.fls",
-    "docs/paper/latex/build/xelatex89072.fls",
-    "docs/paper/latex/build/xelatex96920.fls",
-    "docs/paper/latex/build/xelatex96052.fls",
-    "docs/paper/latex/build/xelatex21352.fls",
-    "docs/paper/latex/build/xelatex93112.fls",
-    "docs/paper/latex/build/xelatex84920.fls",
-    "docs/paper/figures/legacy_35_FRIRNN_3D_response_slices.raw.json",
-    "docs/paper/latex/build/xelatex87776.fls",
-    "AGENTS.md",
-    "docs/paper/latex/main.tex.md",
+    "docs/paper/latex/build/page_screenshots/page-19.png",
+    "docs/paper/latex/build/page_screenshots/page-18.png",
+    "docs/paper/latex/build/page_screenshots/page-17.png",
+    "docs/paper/latex/build/page_screenshots/page-16.png",
+    "docs/paper/latex/build/xelatex93408.fls",
+    "docs/paper/latex/build/xelatex69840.fls",
+    "docs/paper/latex/build/xelatex20756.fls",
+    "docs/paper/latex/build/xelatex83912.fls",
+    "docs/paper/latex/build/xelatex9032.fls",
+    "docs/paper/latex/build/xelatex56964.fls",
     "docs/notes/文献笔记.md",
+    "docs/research/literature/markdown/[VPI]AI_Based_Sensor.md",
+    "docs/MDTODO/details/20260327-转投/20260425_205520_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260425_210640_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260425_211823_Task_Report.md",
+    "AGENTS.md",
+    "docs/MDTODO/details/20260327-转投/20260425_172524_Task_Report.md",
+    "docs/reference/paper_figure_traceability.md",
+    "docs/paper/latex/main.tex.md",
     "docs/MDTODO/details/20260327-转投/20260425_021144_Task_Report.md",
     "CLAUDE.md",
     "docs/MDTODO/details/20260327-转投/20260424_234407_Task_Report.md",
@@ -220,13 +230,6 @@
     "docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
     "docs/MDTODO/details/20260327-转投/20260424_172329_Task_Report.md",
     "docs/MDTODO/details/20260327-转投/20260423_221243_Task_Report.md",
-    "docs/reference/paper_hyperparameter_sensitivity_method.md",
-    "PEF待下载.md",
-    "docs/research/literature/markdown/[VIP]Chao_2025_Dynamic_Measurement.md",
-    "docs/research/literature/markdown/[VIP]Lin_effect_2020.md",
-    "docs/research/literature/markdown/[VIP]Electrochemical_vibration_sensor.md",
-    "docs/research/literature/markdown/[VIP]Fang_2024_exploiting_nonlinearity.md",
-    "docs/research/literature/markdown/[VPI]AI_Based_Sensor.md",
-    "[[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md"
+    "docs/reference/paper_hyperparameter_sensitivity_method.md"
   ]
 }

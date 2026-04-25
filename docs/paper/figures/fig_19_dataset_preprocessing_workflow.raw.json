@@ -1,11 +1,9 @@
 {
-  "source": "docs/paper/assets/fig_19_dataset_preprocessing_workflow_ai.png",
-  "generation": "AI-rendered scientific schematic generated with imagegen and stored as a reproducible paper asset",
-  "elements": [
-    "controlled MET excitation",
-    "ideal linear reference generation",
-    "frequency-magnitude paired waveform matrix",
-    "dataset split",
-    "windowing normalization and tensors"
-  ]
+  "source_trace": "AI-rendered schematic asset existed without editable source; replaced by a code-generated schematic to enforce the documented 50/50 split.",
+  "modification_scope": "dataset split label and simplified data-construction workflow",
+  "split": {
+    "train_records": 175,
+    "validation_records": 175,
+    "unit": "frequency--magnitude operating points"
+  }
 }

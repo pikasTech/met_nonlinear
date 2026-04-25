@@ -32,14 +32,6 @@ RESULT_LIST = [
     'LSTMu22',  # 'FRIKANh8u6l6_4',
     # 'LSTMu22_5',
     'WIENER',
-    # 'RVTDCNN',
-    # 'RVTDCNNu12d7m8',
-    # 'RVTDCNN',
-    'RVTDCNN',
-    # 'RVTDCNNu12d7m8d0.2',
-    # 'RVTDCNNu12d7m10n2',
-    # 'RVTDCNNu12d7m10n2relu',
-    # 'RVTDCNNstd',
 ]
 
 # Set matplotlib to support Chinese fonts using SimHei
@@ -57,7 +49,6 @@ MODEL_COLOR_MAP = {
     "LSTM": "#F28E2B",
     "GRN": "#59A14F",
     "FRIKAN": "#E15759",
-    "RVTDCNN": "#76B7B2",
     "WIENER": "#FF9DA7",
 }
 
@@ -794,7 +785,6 @@ class ProjectResult:
             "LSTM": "s",    # 方形
             "GRN": "^",     # 三角形
             "FRIKAN": "D",  # 菱形
-            "RVTDCNN": "P"      # 五边形
         }
 
         # 对其他项目（others）：按 model_name 分组
@@ -1551,8 +1541,6 @@ def loss_and_val_bar(project_names):
             short_names.append(name.replace('LSTMu', 'LSTM\n', 1))
         elif name.startswith('GRNu'):
             short_names.append(name.replace('GRNu', 'GRU\n', 1))
-        elif name.startswith('RVTDCNN'):
-            short_names.append(name.replace('RVTDCNN', 'RVTD\nCNN', 1))
         else:
             short_names.append(name)
     ax.set_xticklabels(short_names, rotation=18, ha="right", fontstyle='italic')

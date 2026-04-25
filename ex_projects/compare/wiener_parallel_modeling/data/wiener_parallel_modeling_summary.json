@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-23T21:35:52",
+  "generated_at": "2026-04-25T18:23:09",
   "task_root": "C:\\work\\met_nonlinear_master\\ex_projects\\compare\\wiener_parallel_modeling",
   "target_source": "measured",
   "amplitude_count": 25,
@@ -22,7 +22,7 @@
     "frequency_hz": 100.0,
     "simulated": {
       "min": 55.868111165508545,
-      "max": 197.4977427004524,
+      "max": 197.49774270045236,
       "mean": 135.54007608568784
     },
     "target": {
@@ -30,8 +30,8 @@
       "max": 203.37222575507002,
       "mean": 136.48220741943715
     },
-    "mae": 4.532628218217732,
-    "rmse": 5.530740547399083,
+    "mae": 4.532628218217739,
+    "rmse": 5.530740547399088,
     "max_abs_error": 10.58586267216819
   },
   "generated_files": {

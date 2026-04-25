@@ -133,6 +133,126 @@
       200.0
     ],
     "calculation_standard": "ablation-study-v4-bounded-fit-freq-inband-linearity",
+    "metric_details": {
+      "natural_frequency_drift": {
+        "min": 30.750606868615943,
+        "max": 34.5075935645853,
+        "median": 33.0871724885931,
+        "count": 25,
+        "unit": "Hz",
+        "method": "max(|max-median|, |median-min|) from band-limited fitted center frequency (comped)",
+        "drift": 2.3365656199771543,
+        "band_min_hz": 10.0,
+        "band_max_hz": 128.0,
+        "source_frequency_points_hz": [
+          10.0,
+          13.0,
+          16.0,
+          20.0,
+          25.0,
+          32.0,
+          40.0,
+          50.0,
+          64.0,
+          80.0,
+          100.0,
+          128.0
+        ],
+        "fit_param_key": "fit_params_comped"
+      },
+      "sensitivity_drift": {
+        "min": 52.162163907568385,
+        "max": 67.64895013730865,
+        "median": 61.25473153693778,
+        "count": 25,
+        "unit": "%",
+        "method": "max(|max-median|, |median-min|) from interpolated sensitivity",
+        "drift": 9.092567629369398,
+        "frequency_hz": 100.0
+      },
+      "linearity": {
+        "mean": 0.5111439183722523,
+        "max": 1.6537699134284933,
+        "min": 0.10629129690267192,
+        "count": 12,
+        "unit": "%",
+        "method": "mean(1 - R^2) across in-band frequency points",
+        "band_max_hz": 128.0,
+        "frequencies_hz": [
+          10.0,
+          13.0,
+          16.0,
+          20.0,
+          25.0,
+          32.0,
+          40.0,
+          50.0,
+          64.0,
+          80.0,
+          100.0,
+          128.0
+        ]
+      },
+      "natural_frequency_drift_origin": {
+        "min": 34.24511188160566,
+        "max": 93.39109038646993,
+        "median": 58.89345106524416,
+        "count": 25,
+        "unit": "Hz",
+        "method": "max(|max-median|, |median-min|) from band-limited fitted center frequency (origin)",
+        "drift": 34.49763932122577,
+        "band_min_hz": 10.0,
+        "band_max_hz": 128.0,
+        "source_frequency_points_hz": [
+          10.0,
+          13.0,
+          16.0,
+          20.0,
+          25.0,
+          32.0,
+          40.0,
+          50.0,
+          64.0,
+          80.0,
+          100.0,
+          128.0
+        ],
+        "fit_param_key": "fit_params_origin"
+      },
+      "sensitivity_drift_origin": {
+        "min": 60.001934754356135,
+        "max": 203.37127543336493,
+        "median": 144.5628340451216,
+        "count": 25,
+        "unit": "%",
+        "method": "max(|max-median|, |median-min|) from interpolated origin sensitivity",
+        "drift": 84.56089929076546,
+        "frequency_hz": 100.0
+      },
+      "linearity_origin": {
+        "mean": 2.0043849708252406,
+        "max": 4.375669781001812,
+        "min": 0.359242046082775,
+        "count": 12,
+        "unit": "%",
+        "method": "mean(1 - R^2) across in-band frequency points",
+        "band_max_hz": 128.0,
+        "frequencies_hz": [
+          10.0,
+          13.0,
+          16.0,
+          20.0,
+          25.0,
+          32.0,
+          40.0,
+          50.0,
+          64.0,
+          80.0,
+          100.0,
+          128.0
+        ]
+      }
+    },
     "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4/data/build_logs/build_output_MET405_project_default.txt",
     "flash_bytes": 736460,
     "ram_bytes": 5704
