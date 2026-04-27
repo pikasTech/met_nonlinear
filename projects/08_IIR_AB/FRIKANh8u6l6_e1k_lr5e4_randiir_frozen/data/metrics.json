@@ -1,15 +1,18 @@
 {
   "project_name": "FRIKANh8u6l6_e1k_lr5e4_randiir_frozen",
-  "generated_at": "2026-04-19T10:41:27.699474+08:00",
+  "generated_at": "2026-04-26T23:27:41.046017+08:00",
   "status": "complete",
-  "calculation_standard": "ablation-study-v1",
+  "calculation_standard": "ablation-study-v4-bounded-fit-freq-inband-linearity",
   "sources": {
     "training_info": true,
     "compute_analysis": true,
     "model_info": true,
     "linear_response": true,
     "linearity_by_frequency": true,
-    "config": true
+    "config": true,
+    "board_inference_config": false,
+    "board_inference_qemu": false,
+    "board_inference_keil": false
   },
   "missing_sources": [],
   "missing_sections": [],
@@ -24,8 +27,41 @@
   "val_afmae": 0.04543917626142502,
   "weights_source": "best_val",
   "freq_drift_hz": 5.373933122692623,
+  "freq_drift_band_min_hz": 10.0,
+  "freq_drift_band_max_hz": 128.0,
+  "freq_drift_source_frequency_points_hz": [
+    10.0,
+    13.0,
+    16.0,
+    20.0,
+    25.0,
+    32.0,
+    40.0,
+    50.0,
+    64.0,
+    80.0,
+    100.0,
+    128.0
+  ],
+  "freq_drift_interpolation_points": null,
   "sens_drift_percent": 22.278412115780085,
-  "linearity_percent": 2.3257838557498127,
+  "linearity_percent": 1.3081758208023153,
+  "linearity_band_max_hz": 128.0,
+  "linearity_frequency_count": 12,
+  "linearity_frequency_points_hz": [
+    10.0,
+    13.0,
+    16.0,
+    20.0,
+    25.0,
+    32.0,
+    40.0,
+    50.0,
+    64.0,
+    80.0,
+    100.0,
+    128.0
+  ],
   "compute_cost": 1710.0,
   "total_params": 2569,
   "lr": 0.0005,
@@ -37,8 +73,25 @@
       "median": 22.80553454177498,
       "count": 25,
       "unit": "Hz",
-      "method": "max(|max-median|, |median-min|) from fn_comped",
-      "drift": 5.373933122692623
+      "method": "max(|max-median|, |median-min|) from band-limited fitted center frequency (comped)",
+      "drift": 5.373933122692623,
+      "band_min_hz": 10.0,
+      "band_max_hz": 128.0,
+      "source_frequency_points_hz": [
+        10.0,
+        13.0,
+        16.0,
+        20.0,
+        25.0,
+        32.0,
+        40.0,
+        50.0,
+        64.0,
+        80.0,
+        100.0,
+        128.0
+      ],
+      "fit_param_key": "fit_params_comped"
     },
     "sensitivity_drift": {
       "min": 3.631331458763256,
@@ -51,12 +104,27 @@
       "frequency_hz": 100.0
     },
     "linearity": {
-      "mean": 2.3257838557498127,
-      "max": 12.96188439539183,
+      "mean": 1.3081758208023153,
+      "max": 4.482024473881152,
       "min": 0.1274991922295743,
-      "count": 14,
+      "count": 12,
       "unit": "%",
-      "method": "mean(1 - R^2) across frequency points"
+      "method": "mean(1 - R^2) across in-band frequency points",
+      "band_max_hz": 128.0,
+      "frequencies_hz": [
+        10.0,
+        13.0,
+        16.0,
+        20.0,
+        25.0,
+        32.0,
+        40.0,
+        50.0,
+        64.0,
+        80.0,
+        100.0,
+        128.0
+      ]
     },
     "natural_frequency_drift_origin": {
       "min": 34.24511188160566,
@@ -64,8 +132,25 @@
       "median": 58.89345106524416,
       "count": 25,
       "unit": "Hz",
-      "method": "max(|max-median|, |median-min|) from fn_origin",
-      "drift": 34.49763932122577
+      "method": "max(|max-median|, |median-min|) from band-limited fitted center frequency (origin)",
+      "drift": 34.49763932122577,
+      "band_min_hz": 10.0,
+      "band_max_hz": 128.0,
+      "source_frequency_points_hz": [
+        10.0,
+        13.0,
+        16.0,
+        20.0,
+        25.0,
+        32.0,
+        40.0,
+        50.0,
+        64.0,
+        80.0,
+        100.0,
+        128.0
+      ],
+      "fit_param_key": "fit_params_origin"
     },
     "sensitivity_drift_origin": {
       "min": 60.001934754356135,
@@ -78,12 +163,27 @@
       "frequency_hz": 100.0
     },
     "linearity_origin": {
-      "mean": 2.5499568401843997,
-      "max": 6.418887454843169,
+      "mean": 2.0043849708252406,
+      "max": 4.375669781001812,
       "min": 0.359242046082775,
-      "count": 14,
+      "count": 12,
       "unit": "%",
-      "method": "mean(1 - R^2) across frequency points"
+      "method": "mean(1 - R^2) across in-band frequency points",
+      "band_max_hz": 128.0,
+      "frequencies_hz": [
+        10.0,
+        13.0,
+        16.0,
+        20.0,
+        25.0,
+        32.0,
+        40.0,
+        50.0,
+        64.0,
+        80.0,
+        100.0,
+        128.0
+      ]
     }
   },
   "compute_details": {
@@ -106,6 +206,32 @@
   "loss_function": "MAE+AFMAE",
   "loss_function_key": "power_log_mae",
   "loss_function_source": "config.use_power_loss",
+  "board_inference_ep_path": null,
+  "board_qemu_mae": null,
+  "board_keil_mae": null,
+  "board_keil_speed": null,
+  "board_keil_fps": null,
+  "board_inference": {
+    "configured": false,
+    "ep_path": null,
+    "project_dir": null,
+    "qemu_summary_path": null,
+    "keil_summary_path": null,
+    "qemu_summary_exists": false,
+    "keil_summary_exists": false,
+    "qemu_mae": null,
+    "keil_mae": null,
+    "keil_wall_time_per_iter_ms": null,
+    "keil_point_count_per_iter": null,
+    "keil_speed_ms_per_point": null,
+    "keil_speed_unit": "ms/point",
+    "keil_speed_points_per_second": null,
+    "keil_speed_display_unit": "points/s",
+    "published_optimization_profile": null,
+    "keil_optimization_profiles": [],
+    "missing_sources": [],
+    "missing_sections": []
+  },
   "display_metrics": {
     "Loss Function": "MAE+AFMAE",
     "TRAIN_MAE": 0.23536567389965057,
@@ -114,11 +240,15 @@
     "VAL_AFMAE": 0.04543917626142502,
     "Freq Drift (Hz)": 5.373933122692623,
     "Sens Drift (%)": 22.278412115780085,
-    "Linearity (%)": 2.3257838557498127,
+    "Linearity (%)": 1.3081758208023153,
     "Compute Cost": 1710.0,
     "Total Params": 2569,
     "Epochs": 1000,
     "LR": 0.0005,
-    "Cosine Annealing": false
+    "Cosine Annealing": false,
+    "QEMU-MAE": null,
+    "KEIL-MAE": null,
+    "KEIL-SPEED": null,
+    "KEIL-FPS": null
   }
 }

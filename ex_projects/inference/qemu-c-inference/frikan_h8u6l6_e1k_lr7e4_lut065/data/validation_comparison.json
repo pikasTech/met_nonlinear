@@ -1,0 +1,346 @@
+{
+  "overall": {
+    "record_count": 1,
+    "sample_count": 400,
+    "mae": 5.071385210417617,
+    "mse": 29.48507130709381,
+    "max_abs_error": 17.811086379629977,
+    "c_output_stats": {
+      "min": -17.82168,
+      "max": 14.029096,
+      "mean": 0.4699592250000002,
+      "energy": 11833.94734282047
+    },
+    "tf_output_stats": {
+      "min": -0.08575947358650836,
+      "max": 0.10754314605276995,
+      "mean": 0.0029351753189268675,
+      "energy": 0.20830241078317024
+    },
+    "diff_stats": {
+      "min": -17.811086379629977,
+      "max": 14.02025106401961,
+      "mean": 0.4670240496810733,
+      "energy": 11794.028522837525
+    }
+  },
+  "per_record": [
+    {
+      "record_id": "mag0.24_freq10",
+      "magnitude": 0.24,
+      "frequency": 10.0,
+      "mae": 5.071385210417617,
+      "mse": 29.48507130709381,
+      "max_abs_error": 17.811086379629977,
+      "c_output_stats": {
+        "min": -17.82168,
+        "max": 14.029096,
+        "mean": 0.4699592250000002,
+        "energy": 11833.94734282047
+      },
+      "tf_output_stats": {
+        "min": -0.08575947358650836,
+        "max": 0.10754314605276995,
+        "mean": 0.0029351753189268675,
+        "energy": 0.20830241078317024
+      },
+      "diff_stats": {
+        "min": -17.811086379629977,
+        "max": 14.02025106401961,
+        "mean": 0.4670240496810733,
+        "energy": 11794.028522837525
+      }
+    }
+  ],
+  "intermediate": {
+    "iir_output": {
+      "record_count": 1,
+      "sample_count": 3200,
+      "channel_count": 8,
+      "mae": 4.90046144255256e-07,
+      "mse": 3.2269971128356075e-13,
+      "max_abs_error": 9.993086040603106e-07,
+      "c_output_stats": {
+        "min": -0.000515,
+        "max": 0.000289,
+        "mean": -5.464687499999999e-06,
+        "energy": 7.714670500000001e-05
+      },
+      "tf_output_stats": {
+        "min": -0.0005151424984540287,
+        "max": 0.0002895156003651177,
+        "mean": -5.4427084173354885e-06,
+        "energy": 7.751835486267603e-05
+      },
+      "diff_stats": {
+        "min": -9.978520920150879e-07,
+        "max": 9.993086040603106e-07,
+        "mean": -2.1979082664507535e-08,
+        "energy": 1.0326390761073944e-09
+      }
+    },
+    "input_scaled": {
+      "record_count": 1,
+      "sample_count": 400,
+      "channel_count": 1,
+      "mae": 5.120575300417391e-07,
+      "mse": 3.4539828722157364e-13,
+      "max_abs_error": 9.996619789330126e-07,
+      "c_output_stats": {
+        "min": -0.000428,
+        "max": 0.000224,
+        "mean": -9.630000000000001e-06,
+        "energy": 8.32063e-06
+      },
+      "tf_output_stats": {
+        "min": -0.0004282975008554402,
+        "max": 0.00022443246211575497,
+        "mean": -9.583125584671644e-06,
+        "energy": 8.364811365606144e-06
+      },
+      "diff_stats": {
+        "min": -9.996619789330126e-07,
+        "max": 9.988473557851136e-07,
+        "mean": -4.6874415328355316e-08,
+        "energy": 1.3815931488862945e-10
+      }
+    },
+    "kan_layer_0": {
+      "record_count": 1,
+      "sample_count": 2400,
+      "channel_count": 6,
+      "mae": 0.0002589444137742657,
+      "mse": 1.4529211275328542e-07,
+      "max_abs_error": 0.0017734993778365515,
+      "c_output_stats": {
+        "min": -0.806499,
+        "max": 0.806756,
+        "mean": 0.02644509625000001,
+        "energy": 1037.695655667923
+      },
+      "tf_output_stats": {
+        "min": -0.8074084624140829,
+        "max": 0.8072459186183858,
+        "mean": 0.026448386627997943,
+        "energy": 1037.7077918223586
+      },
+      "diff_stats": {
+        "min": -0.0014228854028434101,
+        "max": 0.0017734993778365515,
+        "mean": -3.2903779979399944e-06,
+        "energy": 0.000348701070607885
+      }
+    },
+    "kan_layer_1": {
+      "record_count": 1,
+      "sample_count": 2400,
+      "channel_count": 6,
+      "mae": 0.011870388261104429,
+      "mse": 0.00019143535406769633,
+      "max_abs_error": 0.03171574168519031,
+      "c_output_stats": {
+        "min": -0.844902,
+        "max": 0.845991,
+        "mean": 0.021190500000000015,
+        "energy": 605.659189813776
+      },
+      "tf_output_stats": {
+        "min": -0.8318924235412062,
+        "max": 0.832408653553077,
+        "mean": 0.022375291822085308,
+        "energy": 628.045638164711
+      },
+      "diff_stats": {
+        "min": -0.030600900733611214,
+        "max": 0.03171574168519031,
+        "mean": -0.0011847918220853123,
+        "energy": 0.4594448497624712
+      }
+    },
+    "kan_layer_2": {
+      "record_count": 1,
+      "sample_count": 2400,
+      "channel_count": 6,
+      "mae": 0.021238352490303633,
+      "mse": 0.0006344253569813842,
+      "max_abs_error": 0.050437204507832845,
+      "c_output_stats": {
+        "min": -0.691678,
+        "max": 0.690346,
+        "mean": 0.024740189166666676,
+        "energy": 715.3931669541721
+      },
+      "tf_output_stats": {
+        "min": -0.737592920589688,
+        "max": 0.7374611936637571,
+        "mean": 0.02407492062476096,
+        "energy": 695.8144785739964
+      },
+      "diff_stats": {
+        "min": -0.04955608216174823,
+        "max": 0.050437204507832845,
+        "mean": 0.0006652685419057262,
+        "energy": 1.522620856755322
+      }
+    },
+    "kan_layer_3": {
+      "record_count": 1,
+      "sample_count": 2400,
+      "channel_count": 6,
+      "mae": 0.015134931513246309,
+      "mse": 0.0003168963421872444,
+      "max_abs_error": 0.08480731085190135,
+      "c_output_stats": {
+        "min": -0.567925,
+        "max": 0.563773,
+        "mean": 0.017961116666666648,
+        "energy": 398.5832169047
+      },
+      "tf_output_stats": {
+        "min": -0.5244727890618112,
+        "max": 0.5206291458455239,
+        "mean": 0.01786567901458025,
+        "energy": 407.01012307193525
+      },
+      "diff_stats": {
+        "min": -0.08480731085190135,
+        "max": 0.07821793144842482,
+        "mean": 9.543765208642604e-05,
+        "energy": 0.7605512212493866
+      }
+    },
+    "kan_layer_4": {
+      "record_count": 1,
+      "sample_count": 2400,
+      "channel_count": 6,
+      "mae": 0.027999480745035374,
+      "mse": 0.0009043449998864772,
+      "max_abs_error": 0.07882233906080333,
+      "c_output_stats": {
+        "min": -0.615743,
+        "max": 0.607807,
+        "mean": 0.017167842083333287,
+        "energy": 507.94088709695103
+      },
+      "tf_output_stats": {
+        "min": -0.6075227673976656,
+        "max": 0.6128262153125447,
+        "mean": 0.02083581442567225,
+        "energy": 556.2009065929683
+      },
+      "diff_stats": {
+        "min": -0.07882233906080333,
+        "max": 0.07653700388386397,
+        "mean": -0.0036679723423389053,
+        "energy": 2.1704279997275453
+      }
+    },
+    "kan_layer_5": {
+      "record_count": 1,
+      "sample_count": 2400,
+      "channel_count": 6,
+      "mae": 0.05436189451274546,
+      "mse": 0.0038331020354741142,
+      "max_abs_error": 0.18205776244017347,
+      "c_output_stats": {
+        "min": -0.666242,
+        "max": 0.675231,
+        "mean": 0.02426820541666663,
+        "energy": 465.476136252479
+      },
+      "tf_output_stats": {
+        "min": -0.5254045943566562,
+        "max": 0.5284977790447641,
+        "mean": 0.018892246991812953,
+        "energy": 436.57873487151505
+      },
+      "diff_stats": {
+        "min": -0.171690949024704,
+        "max": 0.18205776244017347,
+        "mean": 0.005375958424853722,
+        "energy": 9.199444885137874
+      }
+    },
+    "kan_layer_6": {
+      "record_count": 1,
+      "sample_count": 400,
+      "channel_count": 1,
+      "mae": 0.015458173401423915,
+      "mse": 0.0017002450138994768,
+      "max_abs_error": 0.3341308719329277,
+      "c_output_stats": {
+        "min": -0.333883,
+        "max": 0.107423,
+        "mean": -0.005809212499999999,
+        "energy": 0.679554022947
+      },
+      "tf_output_stats": {
+        "min": -0.001606678104813965,
+        "max": 0.002014788697501738,
+        "mean": 5.498963229937601e-05,
+        "energy": 7.311186019139489e-05
+      },
+      "diff_stats": {
+        "min": -0.3341308719329277,
+        "max": 0.10902967810481397,
+        "mean": -0.005864202132299374,
+        "energy": 0.6800980055597907
+      }
+    },
+    "output_scaled": {
+      "record_count": 1,
+      "sample_count": 400,
+      "channel_count": 1,
+      "mae": 0.09501062704277073,
+      "mse": 0.010348886012172938,
+      "max_abs_error": 0.33368453168871703,
+      "c_output_stats": {
+        "min": -0.333883,
+        "max": 0.26283,
+        "mean": 0.008804392500000003,
+        "energy": 4.153565397867
+      },
+      "tf_output_stats": {
+        "min": -0.001606678104813965,
+        "max": 0.002014788697501738,
+        "mean": 5.498963229937601e-05,
+        "energy": 7.311186019139489e-05
+      },
+      "diff_stats": {
+        "min": -0.33368453168871703,
+        "max": 0.2626642927680889,
+        "mean": 0.008749402867700628,
+        "energy": 4.139554404869175
+      }
+    }
+  },
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/target_output.wave",
+    "c_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_output.wave",
+    "tf_input_scaled_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_input_scaled.wave",
+    "tf_iir_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_iir_output.wave",
+    "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_output_scaled.wave",
+    "tf_kan_layer_0_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_0.wave",
+    "tf_kan_layer_1_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_1.wave",
+    "tf_kan_layer_2_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_2.wave",
+    "tf_kan_layer_3_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_3.wave",
+    "tf_kan_layer_4_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_4.wave",
+    "tf_kan_layer_5_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_5.wave",
+    "tf_kan_layer_6_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/tf_kan_layer_6.wave",
+    "c_iir_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_iir_output.wave",
+    "c_input_scaled_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_input_scaled.wave",
+    "c_kan_layer_0_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_0.wave",
+    "c_kan_layer_1_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_1.wave",
+    "c_kan_layer_2_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_2.wave",
+    "c_kan_layer_3_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_3.wave",
+    "c_kan_layer_4_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_4.wave",
+    "c_kan_layer_5_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_5.wave",
+    "c_kan_layer_6_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_kan_layer_6.wave",
+    "c_output_scaled_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/waves/c_output_scaled.wave"
+  },
+  "plot_paths": {
+    "comparison_plot_0": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065/data/plots/mag0_24_freq10_comparison.png"
+  }
+}

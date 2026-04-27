@@ -49,7 +49,7 @@
       "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json"
     },
     {
-      "label": "CNNKAN",
+      "label": "CNN-KAN",
       "metrics_path": "projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05/data/metrics.json"
     },
     {
@@ -61,12 +61,30 @@
       "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr14e5_randfrirnn_r2/data/metrics.json"
     },
     {
-      "label": "FRIMLP",
+      "label": "Wiener-MLP",
       "metrics_path": "projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00/data/metrics.json"
     },
     {
       "label": "No positive (stress)",
       "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nopositive/data/metrics.json"
+    }
+  ],
+  "wiener_frontend_ablation": [
+    {
+      "label": "System prior, frozen",
+      "metrics_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json"
+    },
+    {
+      "label": "Random, frozen",
+      "metrics_path": "projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr5e4_randiir_frozen/data/metrics.json"
+    },
+    {
+      "label": "System prior, trainable",
+      "metrics_path": "projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr2e4_sysiir_trainable/data/metrics.json"
+    },
+    {
+      "label": "Random, trainable",
+      "metrics_path": "projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr1e4_randiir_trainable/data/metrics.json"
     }
   ],
   "deployment": [
@@ -121,6 +139,58 @@
     {
       "label": "No LUT exact",
       "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut"
+    }
+  ],
+  "lut_point_sweep": [
+    {
+      "mode": "nearest",
+      "points": 65,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065"
+    },
+    {
+      "mode": "interp",
+      "points": 65,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065_interp"
+    },
+    {
+      "mode": "nearest",
+      "points": 129,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129"
+    },
+    {
+      "mode": "interp",
+      "points": 129,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp"
+    },
+    {
+      "mode": "nearest",
+      "points": 257,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut257"
+    },
+    {
+      "mode": "interp",
+      "points": 257,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut257_interp"
+    },
+    {
+      "mode": "nearest",
+      "points": 513,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut513"
+    },
+    {
+      "mode": "interp",
+      "points": 513,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut513_interp"
+    },
+    {
+      "mode": "nearest",
+      "points": 769,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4"
+    },
+    {
+      "mode": "interp",
+      "points": 769,
+      "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_interp"
     }
   ]
 }

@@ -11,10 +11,10 @@
 当前横向对比实验服务于三个核心问题：
 
 1. 方法有效性：验证 Wiener-KAN 相对于主流时序补偿模型，是否能在同一任务协议下取得更优的物理补偿性能。
-2. 精度-复杂度权衡：验证 Wiener-KAN 的性能提升是否建立在可接受的参数量与计算代价之上，而不是单纯依赖更大的模型规模。
-3. 工程可用性：为后续部署子章节提供候选模型子集，判断哪些模型在保持数值效果的同时具备进一步做 QEMU / Keil 板端验证的价值。
+2. 精度-部署权衡：验证 Wiener-KAN 的性能提升是否能在目标板实测吞吐率和内存占用约束下保持可用。
+3. 工程可用性：为部署子章节提供候选模型子集，判断哪些模型在保持数值效果的同时具备进一步做 QEMU / Keil 板端验证的价值。
 
-因此，当前横向对比实验的目标不是仅比较时域误差，而是从物理指标、复杂度指标和可部署性三个维度回答：Wiener-KAN 在当前电化学非线性补偿任务中，相比主流时序模型是否更适合作为主方法。
+因此，当前横向对比实验的目标是从物理指标、板端实测吞吐率和可部署性三个维度回答：Wiener-KAN 在当前电化学非线性补偿任务中，相比主流时序模型是否更适合作为主方法。
 
 ## 实验设计
 
@@ -43,17 +43,19 @@
 
 从论文叙述上，这一组实验可概括为“覆盖物理先验型模型、循环时序模型、注意力增强循环模型与卷积时序模型的跨家族横向比较”。
 
-当前这 7 个 canonical projects 都已经具备合法的 `board_inference_ep_path`，因此主横评表现在可以附带 `KEIL-MAE` 与 `KEIL-FPS (Points/s)` 两列，作为 deployment-aware 的辅助比较；更细的 Flash / RAM 和串口 validation 细节仍留到部署子章节展开。
+当前这 7 个 canonical projects 都已经具备合法的 `board_inference_ep_path`，因此主横评表可以附带 `KEIL-MAE`、`KEIL-FPS (Points/s)` 与 RAM 列，作为 deployment-aware 的辅助比较；更细的 Flash 和串口 validation 细节仍留到部署子章节展开。
 
 ### 正式主图组织建议
 
 当前主横评最稳定的图组组织方式，不是把所有模型都堆进同一张物理轨迹图，而是按“物理轨迹突出主方法、其余模型用摘要图比较”的结构展开：
 
 1. 物理漂移轨迹主图建议只保留 `Origin` 与 `Wiener-KAN`，用于直接展示未补偿响应与主方法校准后的物理轨迹差异，避免多模型叠线稀释主结论。
-2. 主横评摘要图建议同时包含四个子图：物理指标相对 `Origin` 的抑制率柱状图、`Compute Cost` vs. 板端速度散点图、六指标雷达图，以及主横评收敛曲线。
-3. 当前六指标雷达图的稳定指标集合为：`Freq Drift`、`Sens Drift`、`Linearity`、`Compute Cost`、`KEIL-FPS`、`KEIL RAM`；其中前五项来自统一 summary，`KEIL RAM` 来自部署侧稳定产物。
+2. 主横评摘要图建议同时包含六个子图：固有频率范围、100 Hz 灵敏度范围、带内线性度误差范围、板端实测吞吐率柱状图、五指标雷达图，以及主横评收敛曲线。
+3. 当前五指标雷达图的稳定指标集合为：`Freq Drift`、`Sens Drift`、`Linearity`、`KEIL-FPS`、`KEIL RAM`；前三项来自统一 summary，后两项来自部署侧稳定产物。
 4. 主横评收敛曲线应直接嵌入主横评摘要图，并使用线性坐标；不要再把“收敛曲线”单独拆成独立子章节。
 5. 板端速度的人类可读展示单位统一使用 `Points/s`；若底层产物仍保留 `ms/point`，应只把它作为推导和排障用原始量。
+
+当前主横评摘要图的规范产物是 `docs/paper/figures/fig_02_horizontal_summary.png`，由 `docs/paper/src/paper_pipeline.py` 中的 `make_horizontal_figure()` 生成。该图的六个子图顺序应保持为：固有频率范围、100 Hz 灵敏度范围、带内线性度误差范围、板端实测吞吐率、五指标雷达图、主横评收敛曲线。正文横评小节应在 `tab:models` 之后引用该摘要图；`fig_13_compensation_distribution.png` 可作为同源备用产物保留，但正文不再将其作为独立补充图引用。
 
 ### 共享控制变量
 
@@ -99,14 +101,14 @@
 3. 使用 `python cli.py -t PROJECT_NAME` 训练各模型；
 4. 使用 `python cli.py -e PROJECT_NAME` 刷新评估产物；
 5. 通过 `python cli.py --metrics PROJECT_NAME` 或自动刷新链，生成 `metrics.json`；
-6. 论文主横评表统一从 `metrics.json` 读取物理指标与复杂度指标；
-7. 若 project 已完成 `board_inference_ep_path` 对应的 QEMU / Keil 产物并刷新 `metrics.json`，则主横评表可附带 `KEIL-MAE` 与 `KEIL-FPS (Points/s)` 作为辅助列；Flash / RAM 与更细的部署一致性细节仍在部署子章节单独展开。
+6. 论文主横评表统一从 `metrics.json` 读取物理指标与板端部署指标；
+7. 若 project 已完成 `board_inference_ep_path` 对应的 QEMU / Keil 产物并刷新 `metrics.json`，则主横评表可附带 `KEIL-MAE`、`KEIL-FPS (Points/s)` 与 RAM 作为辅助列；Flash 与更细的部署一致性细节仍在部署子章节单独展开。
 
 与代码的对应关系为：
 
 1. `ProjectManager.prepare_dataset_and_model()` 负责加载数据集、在需要时调用 `prepare_systems()` 并构建模型；
 2. `ModelEngine.build_model()` 根据 `config.use_model` 实例化真实模型结构；
-3. `ProjectManager.evaluate()` 负责生成 `training_info.json`、`compute_analysis.json`、`linear_response.json` 与 `linearity_by_frequency.json` 等评估产物；
+3. `ProjectManager.evaluate()` 负责生成 `training_info.json`、`linear_response.json` 与 `linearity_by_frequency.json` 等评估产物；
 4. `task_dispatcher._refresh_metrics_summary()` 与 `ProjectManager.export_metrics_summary()` 负责统一导出 `metrics.json`。
 
 ## 必要公式与实现口径
@@ -146,8 +148,8 @@ $$
 d_f(p),\,
 d_s(p),\,
 e_{\mathrm{lin}}(p),\,
-C(p),\,
-P(p)
+F_{\mathrm{KEIL}}(p),\,
+R_{\mathrm{KEIL}}(p)
 \right]^{\top}
 $$
 
@@ -156,8 +158,8 @@ $$
 - $d_f(p)$：`Freq Drift (Hz)`；
 - $d_s(p)$：`Sens Drift (%)`；
 - $e_{\mathrm{lin}}(p)$：`Linearity (%)`，当前语义是 `<=128 Hz` in-band 平均非线性误差百分比；
-- $C(p)$：`Compute Cost`；
-- $P(p)$：`Total Params`。
+- $F_{\mathrm{KEIL}}(p)$：`KEIL-FPS (Points/s)`；
+- $R_{\mathrm{KEIL}}(p)$：`KEIL RAM`。
 
 若该 project 同时具备合法部署路径，则部署子章节再扩展为：
 
@@ -168,11 +170,11 @@ $$
 \mathbf{M}(p),\,
 E_{\mathrm{QEMU}}(p),\,
 E_{\mathrm{KEIL}}(p),\,
-F_{\mathrm{KEIL}}(p)
+S_{\mathrm{Flash}}(p)
 \right]^{\top}
 $$
 
-其中 $E_{\mathrm{QEMU}}$、$E_{\mathrm{KEIL}}$ 与 $F_{\mathrm{KEIL}}$ 分别对应 `QEMU-MAE`、`KEIL-MAE` 与 `KEIL-FPS (Points/s)`。若需要回看低层时序定义，再回到部署产物中的 `ms/point` 原始量。
+其中 $E_{\mathrm{QEMU}}$、$E_{\mathrm{KEIL}}$ 与 $S_{\mathrm{Flash}}$ 分别对应 `QEMU-MAE`、`KEIL-MAE` 与 Flash 占用。若需要回看低层时序定义，再回到部署产物中的 `ms/point` 原始量。
 
 ### 当前代码没有单一加权总分
 
@@ -191,9 +193,9 @@ $$
 - `Freq Drift (Hz)`
 - `Sens Drift (%)`
 - `Linearity (%)`
-- `Compute Cost`
 - `KEIL-MAE`
 - `KEIL-FPS (Points/s)`
+- `KEIL RAM`
 
 建议保留为辅助复现实验设置的字段包括：
 
@@ -203,7 +205,7 @@ $$
 - `LR`
 - `QEMU-MAE`
 
-如果正文主图采用六指标雷达，则应额外补读部署产物中的 `KEIL RAM`，并与上述五项共同构成图级比较向量。
+如果正文主图采用五指标雷达，则应补读部署产物中的 `KEIL RAM`，并与三项物理指标和 `KEIL-FPS (Points/s)` 共同构成图级比较向量。
 
 ## 写作边界
 

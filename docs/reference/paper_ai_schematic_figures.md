@@ -35,6 +35,18 @@
 - 若图中英文标注过多，应减少到关键短语；复杂解释放入正文和 caption。
 - 最终验收包括：图像可读、正文位置合理、`gen_data.py` 不会覆盖、LaTeX 编译通过。
 
+## 密集流程图的简化策略
+
+当 AI 生成的算法流程图在单栏或双栏版面中显得过小、过密时，优先改为代码生成的简化 schematic，而不是继续放大原图。稳定做法是先保留正文真正需要的主链路，再删除次要装饰和重复信息：
+
+- 每张原理图只回答一个核心问题，例如“AFMAE 如何从波形误差转为幅频响应误差”或“LUT 如何把 KAN 激活的在线求值变为查表”。
+- 子图数量优先控制为两段式结构：第一段解释关键变换路径，第二段解释训练或部署中的取舍；不要把公式推导、矩阵索引、硬件图标和性能结论都塞入同一画面。
+- 每个框只保留短语或核心符号，长公式留给正文 equation；例如图中写 `uniform LUT`、`v_0,\ldots,v_{Q-1}`，正文再给出完整采样公式。
+- 曲线小图只承担“形状提示”作用，能去掉坐标轴、图例和多余刻度时应去掉，避免在缩放后的 PDF 中变成不可读细节。
+- 对于并列路径，应突出主差异词：如 `one table read` 与 `two reads + blend`、`MAE pointwise` 与 `AFMAE response`；辅助说明放入 caption 或正文段落。
+- 对于嵌入式验证流程图，应把主链路压缩为“导出一次”和“两个目标验证”：上半部分说明训练项目导出同一份 C 实现，下半部分并列展示 QEMU 数值一致性和目标板吞吐/内存验证；逐文件产物、归一化公式、串口包级步骤和硬件装饰图标放到正文或省略。
+- `.raw.json` 应记录简化焦点和被省略的次要内容，使后续维护者知道删减是有意设计，而不是信息遗漏。
+
 ## 项目落地方式
 
 1. 使用 `imagegen` 生成图像，保留默认生成目录中的原始图。
@@ -53,9 +65,14 @@ python docs/paper/gen_data.py
 python C:/Users/lyon/.agents/skills/latex/scripts/latex-cli.py build --workdir c:/work/met_nonlinear_master/docs/paper/latex --tex main.tex --engine xelatex --passes 2
 ```
 
+当图已从 AI 资产改为代码生成的简化 schematic 时，项目落地方式调整为：在 `docs/paper/src/paper_pipeline.py` 中保留单独的 `make_<figure>_figure()` 函数，由 `gen_data.py` 刷新 PNG 和 `.raw.json`；`main.tex` 只引用 `docs/paper/figures/` 下的稳定产物，不直接引用 `docs/paper/assets/`。
+
 ## 当前 canonical 示例
 
 - MET 非线性机理图资产：`docs/paper/assets/fig_14_met_nonlinear_mechanism_ai.png`
 - 论文引用图：`docs/paper/figures/fig_14_met_nonlinear_mechanism.png`
 - 生成流水线：`docs/paper/src/paper_pipeline.py` 中的 `make_mechanism_schematic()`
 - 正文位置：`docs/paper/latex/main.tex` 中 `eq:nonlinear_mechanism_terms` 附近
+- AFMAE 简化原理图：`docs/paper/src/paper_pipeline.py` 中的 `make_afmae_loss_principle_figure()`，用于展示“波形对 -> 能量 -> 幅频响应 -> 对数响应误差”和 “MAE + AFMAE -> total loss” 两条主链路。
+- LUT 简化部署图：`docs/paper/src/paper_pipeline.py` 中的 `make_lut_lookup_principles_figure()`，用于展示“离线采样成表”和“在线 nearest / linear 查表取舍”两条主链路。
+- 板端验证简化流程图：`docs/paper/src/paper_pipeline.py` 中的 `make_board_inference_validation_workflow_figure()`，用于展示“trained Wiener-KAN project -> C export package -> embedded C inference kernel”和“QEMU / STM32F405 两条验证路径”。

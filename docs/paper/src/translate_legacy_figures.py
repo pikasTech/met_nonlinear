@@ -28,6 +28,25 @@ OLD_ROOT = Path(r'C:/work/met_nonlinear_paper')
 FIGURES_DIR = ROOT / 'docs' / 'paper' / 'figures'
 TMP_DIR = ROOT / 'docs' / 'paper' / 'figures' / '_traced_tmp'
 FONT = Path('C:/Windows/Fonts/times.ttf')
+sys.path.insert(0, str(ROOT))
+
+from src.visualization.subfigure_montage import PanelSpec, compose_subfigures  # noqa: E402
+try:
+    from src.figure_visual_audit import (  # type: ignore  # noqa: E402
+        VISUAL_AUDIT_KEY,
+        audit_image_file,
+        audit_matplotlib_figure,
+        audit_montage_layout,
+        combine_audits,
+    )
+except ImportError:  # pragma: no cover - direct script execution
+    from figure_visual_audit import (  # type: ignore  # noqa: E402
+        VISUAL_AUDIT_KEY,
+        audit_image_file,
+        audit_matplotlib_figure,
+        audit_montage_layout,
+        combine_audits,
+    )
 
 red = '#E13723'
 blue = '#4B75B1'
@@ -42,8 +61,12 @@ Sn_origin = [82.3065473476387, 99.07914475866514, 114.29307223621167, 128.374430
 magnitudes = np.linspace(0.24, 6.0, 25).tolist()
 
 
-def write_raw(out: Path, source: str, note: str) -> None:
+def write_raw(out: Path, source: str, note: str, extra=None) -> None:
     payload = {'figure': out.name, 'source_trace': source, 'translation_method': 'traced original plotting code with only text labels translated to English', 'note': note}
+    if extra:
+        payload.update(extra)
+    if VISUAL_AUDIT_KEY not in payload:
+        payload[VISUAL_AUDIT_KEY] = audit_image_file(out, context=out.name)
     out.with_suffix('.raw.json').write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
@@ -75,8 +98,6 @@ def plot_epoch_io():
     data_dir = OLD_ROOT / 'projects' / 'FRIKANwp' / 'data'
     epochs = [1, 10, 30, 50]
     fig, axes = plt.subplots(len(epochs), 3, figsize=(5.4, 6.2), sharex=True, sharey=True)
-    for j, title in enumerate(['Input\nvs raw output', 'KAN\ncompensator', 'Input\nvs compensated output']):
-        axes[0, j].set_title(title, fontsize=8, weight='bold', pad=5)
     for i, epoch in enumerate(epochs):
         with (data_dir / f'epoch_{epoch}_IO.json').open('r', encoding='utf-8') as f:
             data = json.load(f)
@@ -199,40 +220,72 @@ def plot_frirnn_panel(ax, process_data_fn, z_ticks, zlabel):
         f_valid, response_interp = interpolate_response(f, response, cut)
         z[i, (f >= f_valid.min()) & (f <= f_valid.max())] = response_interp
     plot_3d_slices(ax, f, magnitudes_sorted, z, z_ticks)
-    ax.set_xlabel('Frequency (Hz)', labelpad=10, fontsize=20)
-    ax.set_ylabel(r'Magnitude ($\mathrm{m}/\mathrm{s}^{2}$)', labelpad=18, fontsize=20)
+    ax.set_xlabel('Frequency (Hz)', labelpad=8, fontsize=11)
+    ax.set_ylabel(r'Magnitude ($\mathrm{m}/\mathrm{s}^{2}$)', labelpad=9, fontsize=11)
     ax.set_zlabel('')
-    ax.text2D(-0.10, 0.52, zlabel, transform=ax.transAxes, rotation=90, va='center', ha='center', fontsize=18)
+    ax.text2D(-0.07, 0.52, zlabel, transform=ax.transAxes, rotation=90, va='center', ha='center', fontsize=11)
     set_log_ticks(ax, [10, 20, 50, 100, 150], z_ticks)
     ax.set_xlim(np.log10(f.min()), np.log10(f.max()))
-    ax.tick_params(axis='x', which='both', pad=2)
-    ax.tick_params(axis='y', which='both', pad=3)
-    ax.tick_params(axis='z', which='both', pad=2)
+    ax.tick_params(axis='x', which='both', pad=2, labelsize=9)
+    ax.tick_params(axis='y', which='both', pad=3, labelsize=9)
+    ax.tick_params(axis='z', which='both', pad=2, labelsize=9)
 
 
 def plot_frirnn():
     TMP_DIR.mkdir(parents=True, exist_ok=True)
     original_path = TMP_DIR / 'response_original_temp.png'
     compensated_path = TMP_DIR / 'response_compensated_temp.png'
-    fig1 = plt.figure(figsize=(6.6, 5.4))
+    fig1 = plt.figure(figsize=(6.8, 5.4))
     ax1 = fig1.add_subplot(111, projection='3d')
     plot_frirnn_panel(ax1, calculate_system_response, z_ticks=[30, 50, 100, 200], zlabel='Sensitivity (V s/m)')
     ax1.view_init(elev=40, azim=-140)
-    fig1.subplots_adjust(left=0.34, right=0.97, bottom=0.24, top=0.98)
-    fig1.savefig(original_path, dpi=600, bbox_inches='tight', pad_inches=0.45)
+    fig1.subplots_adjust(left=0.16, right=0.97, bottom=0.18, top=0.98)
+    audit_original = audit_matplotlib_figure(fig1, context='local_transfer_slices panel (a)')
+    fig1.savefig(original_path, dpi=600, bbox_inches='tight', pad_inches=0.22)
     plt.close(fig1)
 
-    fig2 = plt.figure(figsize=(6.6, 5.4))
+    fig2 = plt.figure(figsize=(6.8, 5.4))
     ax2 = fig2.add_subplot(111, projection='3d')
     plot_frirnn_panel(ax2, calculate_system_response_comp, z_ticks=[0.2, 0.5, 1, 2], zlabel='Relative gain')
     ax2.view_init(elev=40, azim=-140)
-    fig2.subplots_adjust(left=0.30, right=0.97, bottom=0.24, top=0.98)
-    fig2.savefig(compensated_path, dpi=600, bbox_inches='tight', pad_inches=0.45)
+    fig2.subplots_adjust(left=0.15, right=0.97, bottom=0.18, top=0.98)
+    audit_compensated = audit_matplotlib_figure(fig2, context='local_transfer_slices panel (b)')
+    fig2.savefig(compensated_path, dpi=600, bbox_inches='tight', pad_inches=0.22)
     plt.close(fig2)
 
     out = FIGURES_DIR / 'local_transfer_slices.png'
-    combine_images_with_labels([original_path, compensated_path], out, label_width_ratio=0.075)
-    write_raw(out, 'C:/work/met_nonlinear_paper/plot_frirnn.py embedded zeta/fn/Sn arrays', 'Axis labels translated; original analytical response equations, sampled magnitudes, camera, and two-panel composition preserved.')
+    metadata = compose_subfigures(
+        [
+            PanelSpec(original_path, label='(a)', fit_width=2700, trim_border=80),
+            PanelSpec(compensated_path, label='(b)', fit_width=2700, trim_border=80),
+        ],
+        out,
+        layout='horizontal',
+        padding=[85, 75, 85, 85],
+        gutter=(120, 80),
+        label_font_size=62,
+        label_font_size_pt=8.0,
+        label_reference_width_pt=372.0,
+        latex_width_fraction=1.0,
+        label_position='outside-top-left',
+        label_inset=24,
+        label_gap=24,
+        label_box=False,
+        dpi=(500, 500),
+    )
+    visual_audit = combine_audits(
+        audit_original,
+        audit_compensated,
+        audit_montage_layout(metadata, context='local_transfer_slices montage'),
+        audit_image_file(out, context='local_transfer_slices.png'),
+        context='local_transfer_slices.png',
+    )
+    write_raw(
+        out,
+        'C:/work/met_nonlinear_paper/plot_frirnn.py embedded zeta/fn/Sn arrays',
+        'Axis labels translated; original analytical response equations, sampled magnitudes, camera, and camera-preserved panels recomposed with the unified montage module.',
+        {'montage': metadata, VISUAL_AUDIT_KEY: visual_audit},
+    )
 
 
 def plot_predict():
@@ -291,7 +344,7 @@ def plot_predict():
                 ax.plot(t, y_tgt, label='Target')
                 ax.text(0.5, 0.90, f'{f_match} Hz, {m_match:.02f} $\\mathrm{{m}}/\\mathrm{{s}}^2$', ha='center', transform=ax.transAxes)
             else:
-                ax.set_title(f'No data for (f={f_req}, m={m_req})')
+                ax.text(0.5, 0.5, f'No data\nf={f_req}, m={m_req}', ha='center', va='center', transform=ax.transAxes)
             ax.grid(True, linestyle='--', alpha=0.5)
             ax.tick_params(axis='both', which='both', direction='in')
             ax.tick_params(axis='x', which='both', top=False)
@@ -347,12 +400,10 @@ def plot_met_nonlinear_frequency_response():
     ax.legend(
         handles,
         labels,
-        title='Magnitude',
         loc='center left',
         bbox_to_anchor=(1.02, 0.5),
         frameon=False,
         fontsize=8.5,
-        title_fontsize=9.5,
         ncol=1,
         borderaxespad=0.0,
         handlelength=2.2,

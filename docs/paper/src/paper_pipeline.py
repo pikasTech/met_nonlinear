@@ -10,6 +10,9 @@ from typing import Any, Dict, List
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import LogNorm
+from matplotlib.lines import Line2D
+from matplotlib.patches import Circle, FancyBboxPatch, Polygon
 
 ROOT = Path(__file__).resolve().parents[3]
 PAPER_DIR = Path(__file__).resolve().parents[1]
@@ -24,6 +27,26 @@ from src.core.metrics_summary import (  # noqa: E402
     DEFAULT_FREQ_DRIFT_INBAND_MIN_HZ,
     _extract_natural_frequency_values,
 )
+try:
+    from src.figure_visual_audit import (  # type: ignore  # noqa: E402
+        VISUAL_AUDIT_KEY,
+        audit_schematic_geometry,
+        audit_image_file,
+        audit_matplotlib_figure,
+        audit_montage_layout,
+        combine_audits,
+        validate_raw_visual_quality,
+    )
+except ImportError:  # pragma: no cover - direct script execution
+    from figure_visual_audit import (  # type: ignore  # noqa: E402
+        VISUAL_AUDIT_KEY,
+        audit_schematic_geometry,
+        audit_image_file,
+        audit_matplotlib_figure,
+        audit_montage_layout,
+        combine_audits,
+        validate_raw_visual_quality,
+    )
 from src.visualization.subfigure_montage import PanelSpec, compose_subfigures  # noqa: E402
 
 plt.style.use('seaborn-v0_8-whitegrid')
@@ -38,6 +61,72 @@ plt.rcParams.update({
     'ytick.labelsize': 9,
 })
 
+SHORT_CONNECTOR_FRACTION = 2.0 / 3.0
+
+
+def _polyline_length(points: List[tuple[float, float]]) -> float:
+    return sum(math.hypot(end[0] - start[0], end[1] - start[1]) for start, end in zip(points[:-1], points[1:]))
+
+
+def _point_at_polyline_distance(points: List[tuple[float, float]], distance: float) -> tuple[float, float]:
+    if not points:
+        return (0.0, 0.0)
+    if distance <= 0:
+        return points[0]
+    travelled = 0.0
+    for start, end in zip(points[:-1], points[1:]):
+        segment = math.hypot(end[0] - start[0], end[1] - start[1])
+        if travelled + segment >= distance:
+            ratio = 0.0 if segment <= 0 else (distance - travelled) / segment
+            return (start[0] + (end[0] - start[0]) * ratio, start[1] + (end[1] - start[1]) * ratio)
+        travelled += segment
+    return points[-1]
+
+
+def _shorten_polyline(points: List[tuple[float, float]], fraction: float = SHORT_CONNECTOR_FRACTION) -> List[tuple[float, float]]:
+    if len(points) < 2:
+        return points
+    total = _polyline_length(points)
+    if total <= 0:
+        return points
+    trim = total * (1.0 - fraction) / 2.0
+    start_distance = trim
+    end_distance = total - trim
+    shortened = [_point_at_polyline_distance(points, start_distance)]
+    travelled = 0.0
+    for start, end in zip(points[:-1], points[1:]):
+        travelled += math.hypot(end[0] - start[0], end[1] - start[1])
+        if start_distance < travelled < end_distance:
+            shortened.append(end)
+    shortened.append(_point_at_polyline_distance(points, end_distance))
+    return shortened
+
+
+def _short_arrow_payload(
+    arrow_id: str,
+    full_points: List[tuple[float, float]],
+    *,
+    source: str | None = None,
+    target: str | None = None,
+    require_axis_aligned: bool = False,
+) -> tuple[List[tuple[float, float]], Dict[str, Any]]:
+    points = _shorten_polyline(full_points)
+    payload: Dict[str, Any] = {
+        'id': arrow_id,
+        'points': [[float(x), float(y)] for x, y in points],
+        'full_points': [[float(x), float(y)] for x, y in full_points],
+        'endpoint_policy': 'outside_clearance',
+        'max_length_fraction': SHORT_CONNECTOR_FRACTION,
+    }
+    if source is not None:
+        payload['source'] = source
+    if target is not None:
+        payload['target'] = target
+    if require_axis_aligned:
+        payload['require_axis_aligned'] = True
+    return points, payload
+
+
 PALETTE = {
     'Wiener-KAN': '#0f6c5c',
     'TCN': '#1f4e79',
@@ -50,10 +139,10 @@ PALETTE = {
     'MAE+AFMAE': '#0f6c5c',
     'MAE': '#b54d00',
     'AFMAE': '#3366cc',
-    'CNNKAN': '#1f4e79',
+    'CNN-KAN': '#1f4e79',
     'No symmetry': '#b54d00',
     'Random trainable IIR': '#6a3d9a',
-    'FRIMLP': '#a61c3c',
+    'Wiener-MLP': '#a61c3c',
     'No positive (stress)': '#555555',
     'Project default': '#0f6c5c',
     '-O0': '#999999',
@@ -69,7 +158,6 @@ RADAR_METRICS = [
     ('Freq Drift', 'freq_drift_hz', 'min'),
     ('Sens Drift', 'sens_drift_percent', 'min'),
     ('Linearity', 'linearity_percent', 'min'),
-    ('Compute Cost', 'compute_cost', 'min'),
     ('KEIL FPS', 'board_keil_fps', 'max'),
     ('KEIL RAM', 'ram_bytes', 'min'),
 ]
@@ -92,11 +180,18 @@ LOSS_ABLATION = [
 
 STRUCTURE_ABLATION = [
     ('Wiener-KAN', 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json'),
-    ('CNNKAN', 'projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05/data/metrics.json'),
+    ('CNN-KAN', 'projects/01_LR_STUDY/CNNKANh8u6l6_e1k_lr28e5_c8k5d05/data/metrics.json'),
     ('No symmetry', 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nosym_r5/data/metrics.json'),
     ('Random trainable IIR', 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr14e5_randfrirnn_r2/data/metrics.json'),
-    ('FRIMLP', 'projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00/data/metrics.json'),
+    ('Wiener-MLP', 'projects/04_FRIMLP/FRIMLPh8u6l6_e1k_lr7e4_mlp20l6_tanh_d00/data/metrics.json'),
     ('No positive (stress)', 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4_nopositive/data/metrics.json'),
+]
+
+WIENER_FRONTEND_ABLATION = [
+    ('System prior, frozen', 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/metrics.json'),
+    ('Random, frozen', 'projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr5e4_randiir_frozen/data/metrics.json'),
+    ('System prior, trainable', 'projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr2e4_sysiir_trainable/data/metrics.json'),
+    ('Random, trainable', 'projects/08_IIR_AB/FRIKANh8u6l6_e1k_lr1e4_randiir_trainable/data/metrics.json'),
 ]
 
 DEPLOYMENT = MAIN_BENCHMARK
@@ -115,16 +210,20 @@ LUT_VARIANTS = [
     ('No LUT exact', 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_no_lut'),
 ]
 
+LUT_POINT_SWEEP = [
+    {'mode': 'nearest', 'points': 65, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065'},
+    {'mode': 'interp', 'points': 65, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut065_interp'},
+    {'mode': 'nearest', 'points': 129, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129'},
+    {'mode': 'interp', 'points': 129, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp'},
+    {'mode': 'nearest', 'points': 257, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut257'},
+    {'mode': 'interp', 'points': 257, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut257_interp'},
+    {'mode': 'nearest', 'points': 513, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut513'},
+    {'mode': 'interp', 'points': 513, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut513_interp'},
+    {'mode': 'nearest', 'points': 769, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4'},
+    {'mode': 'interp', 'points': 769, 'ep_path': 'ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_interp'},
+]
+
 BUILD_PATTERN = re.compile(r'Program Size: Code=(\d+) RO-data=(\d+) RW-data=(\d+) ZI-data=(\d+)')
-SCATTER_OFFSETS = {
-    'Wiener-KAN': (10, -14),
-    'RNN': (10, 12),
-    '1DCNN': (10, -16),
-    'GRU': (10, 12),
-    'LSTMTransformer': (10, -8),
-    'LSTM': (10, -16),
-    'TCN': (10, 10),
-}
 
 
 
@@ -140,13 +239,23 @@ def apply_config() -> Dict[str, Any]:
             return default
         return [(str(item['label']), str(item['metrics_path'])) for item in rows]
 
-    global MAIN_BENCHMARK, LOSS_ABLATION, STRUCTURE_ABLATION, DEPLOYMENT, LUT_VARIANTS, TRAJECTORY_MODELS, LEGACY_IMAGE_MIGRATIONS
+    global MAIN_BENCHMARK, LOSS_ABLATION, STRUCTURE_ABLATION, WIENER_FRONTEND_ABLATION, DEPLOYMENT, LUT_VARIANTS, LUT_POINT_SWEEP, TRAJECTORY_MODELS, LEGACY_IMAGE_MIGRATIONS
     MAIN_BENCHMARK = metric_pairs('main_benchmark', MAIN_BENCHMARK)
     LOSS_ABLATION = metric_pairs('loss_ablation', LOSS_ABLATION)
     STRUCTURE_ABLATION = metric_pairs('structure_ablation', STRUCTURE_ABLATION)
+    WIENER_FRONTEND_ABLATION = metric_pairs('wiener_frontend_ablation', WIENER_FRONTEND_ABLATION)
     DEPLOYMENT = metric_pairs('deployment', DEPLOYMENT)
     if config.get('lut_variants'):
         LUT_VARIANTS = [(str(item['label']), str(item['ep_path'])) for item in config['lut_variants']]
+    if config.get('lut_point_sweep'):
+        LUT_POINT_SWEEP = [
+            {
+                'mode': str(item['mode']),
+                'points': int(item['points']),
+                'ep_path': str(item['ep_path']),
+            }
+            for item in config['lut_point_sweep']
+        ]
     if config.get('trajectory_models'):
         TRAJECTORY_MODELS = [(str(item['label']), str(item['linear_response_path'])) for item in config['trajectory_models']]
     migration_rows = config.get('source_image_migrations') or config.get('legacy_image_migrations')
@@ -217,7 +326,6 @@ def load_metrics(rows: List[tuple[str, str]]) -> List[Dict[str, Any]]:
             'freq_drift_hz': float(metrics_payload['freq_drift_hz']),
             'sens_drift_percent': float(metrics_payload['sens_drift_percent']),
             'linearity_percent': float(linearity_summary['comped_mean_percent']),
-            'compute_cost': float(metrics_payload['compute_cost']),
             'total_params': int(metrics_payload['total_params']),
             'epochs': int(metrics_payload['epochs']),
             'lr': float(metrics_payload['lr']),
@@ -333,26 +441,28 @@ def enrich_with_deployment_fields(rows: List[Dict[str, Any]]) -> List[Dict[str, 
     return enriched
 
 
+def resolve_keil_build_sizes(ep_path: str, keil_payload: Dict[str, Any]) -> tuple[int, int]:
+    published = find_published_profile(
+        list(keil_payload.get('optimization_profiles') or []),
+        (keil_payload.get('keil_config') or {}).get('published_optimization_profile'),
+    )
+    if published and published.get('flash_bytes') is not None and published.get('ram_bytes') is not None:
+        return int(published['flash_bytes']), int(published['ram_bytes'])
+
+    build_path = ROOT / ep_path / 'keil_project' / 'MDK-ARM' / 'output' / 'build_output_MET405.txt'
+    build_match = BUILD_PATTERN.search(build_path.read_text(encoding='utf-8'))
+    if not build_match:
+        raise ValueError(f'Cannot parse Program Size in {build_path}')
+    code, ro, rw, zi = map(int, build_match.groups())
+    return code + ro, rw + zi
+
+
 def load_lut_variants() -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
     for label, ep_path in LUT_VARIANTS:
         benchmark_payload = load_json(f'{ep_path}/data/benchmark_summary.json')
         keil_payload = load_json(f'{ep_path}/data/keil_benchmark_summary.json')
-        published = find_published_profile(
-            list(keil_payload.get('optimization_profiles') or []),
-            (keil_payload.get('keil_config') or {}).get('published_optimization_profile'),
-        )
-        if published and published.get('flash_bytes') is not None and published.get('ram_bytes') is not None:
-            flash_bytes = int(published['flash_bytes'])
-            ram_bytes = int(published['ram_bytes'])
-        else:
-            build_path = ROOT / ep_path / 'keil_project' / 'MDK-ARM' / 'output' / 'build_output_MET405.txt'
-            build_match = BUILD_PATTERN.search(build_path.read_text(encoding='utf-8'))
-            if not build_match:
-                raise ValueError(f'Cannot parse Program Size in {build_path}')
-            code, ro, rw, zi = map(int, build_match.groups())
-            flash_bytes = code + ro
-            ram_bytes = rw + zi
+        flash_bytes, ram_bytes = resolve_keil_build_sizes(ep_path, keil_payload)
         speed_ms = keil_payload.get('keil_speed_ms_per_point')
         if speed_ms is None:
             parsed_output = keil_payload.get('parsed_output') or {}
@@ -375,6 +485,33 @@ def load_lut_variants() -> List[Dict[str, Any]]:
             'ram_bytes': ram_bytes,
         })
     return rows
+
+
+def load_lut_point_sweep() -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    mode_labels = {
+        'nearest': 'LUT nearest',
+        'interp': 'LUT + interp',
+    }
+    for item in LUT_POINT_SWEEP:
+        mode = str(item['mode'])
+        ep_path = str(item['ep_path'])
+        points = int(item['points'])
+        if mode not in mode_labels:
+            raise ValueError(f'Unsupported LUT sweep mode: {mode}')
+        benchmark_payload = load_json(f'{ep_path}/data/benchmark_summary.json')
+        keil_payload = load_json(f'{ep_path}/data/keil_benchmark_summary.json')
+        flash_bytes, ram_bytes = resolve_keil_build_sizes(ep_path, keil_payload)
+        rows.append({
+            'mode': mode,
+            'label': mode_labels[mode],
+            'points': points,
+            'ep_path': ep_path,
+            'qemu_mae': float(benchmark_payload['comparison']['mae']),
+            'flash_bytes': flash_bytes,
+            'ram_bytes': ram_bytes,
+        })
+    return sorted(rows, key=lambda row: (row['points'], 0 if row['mode'] == 'nearest' else 1))
 
 
 def load_convergence_curves(rows: List[tuple[str, str]]) -> List[Dict[str, Any]]:
@@ -425,10 +562,23 @@ def smooth_curve(values: List[float], window: int = 25) -> List[float]:
 
 def sanitize_for_public_json(value: Any) -> Any:
     if isinstance(value, dict):
-        return {key: sanitize_for_public_json(item) for key, item in value.items()}
+        cleaned: Dict[str, Any] = {}
+        for key, item in value.items():
+            if ('compute' + '_cost') in str(key).lower():
+                continue
+            cleaned_item = sanitize_for_public_json(item)
+            if cleaned_item is not None:
+                cleaned[key] = cleaned_item
+        return cleaned
     if isinstance(value, list):
-        return [sanitize_for_public_json(item) for item in value]
+        return [
+            cleaned_item
+            for item in value
+            if (cleaned_item := sanitize_for_public_json(item)) is not None
+        ]
     if isinstance(value, str):
+        if ('compute' + '-cost') in value.lower():
+            return None
         normalized = value.replace('\\', '/')
         root = str(ROOT).replace('\\', '/')
         if normalized.startswith(root + '/'):
@@ -441,6 +591,212 @@ def save_json(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     safe_payload = sanitize_for_public_json(payload)
     path.write_text(json.dumps(safe_payload, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
+FORBIDDEN_RAW_TITLE_KEYS = {
+    'title',
+    'titles',
+    'subtitle',
+    'subtitles',
+    'suptitle',
+    'suptitles',
+    'figure_title',
+    'figure_titles',
+    'panel_title',
+    'panel_titles',
+    'subplot_title',
+    'subplot_titles',
+    'axis_title',
+    'axes_title',
+    'plot_title',
+    'plot_titles',
+    'legend_title',
+    'legend_titles',
+}
+RAW_TITLE_ARTIFACT_KEYS = {
+    'title_artifacts',
+    'matplotlib_title_artifacts',
+    'manual_title_artifacts',
+    'visual_title_artifacts',
+}
+
+
+def _clean_title_text(text: Any) -> str:
+    return str(text or '').strip()
+
+
+def collect_matplotlib_title_artifacts(fig: Any) -> List[Dict[str, Any]]:
+    artifacts: List[Dict[str, Any]] = []
+    suptitle = getattr(fig, '_suptitle', None)
+    if suptitle is not None:
+        text = _clean_title_text(suptitle.get_text())
+        if text:
+            artifacts.append({'kind': 'figure_suptitle', 'text': text})
+
+    for ax_index, ax in enumerate(getattr(fig, 'axes', [])):
+        if hasattr(ax, 'get_title'):
+            for loc in ('left', 'center', 'right'):
+                text = _clean_title_text(ax.get_title(loc=loc))
+                if text:
+                    artifacts.append({
+                        'kind': 'axes_title',
+                        'axis_index': ax_index,
+                        'location': loc,
+                        'text': text,
+                    })
+        legend = ax.get_legend() if hasattr(ax, 'get_legend') else None
+        if legend is not None:
+            text = _clean_title_text(legend.get_title().get_text())
+            if text:
+                artifacts.append({
+                    'kind': 'legend_title',
+                    'axis_index': ax_index,
+                    'text': text,
+                })
+
+    for legend_index, legend in enumerate(getattr(fig, 'legends', [])):
+        text = _clean_title_text(legend.get_title().get_text())
+        if text:
+            artifacts.append({
+                'kind': 'figure_legend_title',
+                'legend_index': legend_index,
+                'text': text,
+            })
+    return artifacts
+
+
+def _raw_title_audit_payload(fig: Any) -> Dict[str, Any]:
+    return {'matplotlib_title_artifacts': collect_matplotlib_title_artifacts(fig)}
+
+
+def _save_matplotlib_figure(
+    fig: Any,
+    out: Path,
+    *,
+    raw_payload: Dict[str, Any] | None = None,
+    **savefig_kwargs: Any,
+) -> str:
+    out.parent.mkdir(parents=True, exist_ok=True)
+    merged_raw = dict(raw_payload or {})
+    audit_payload = _raw_title_audit_payload(fig)
+    visual_audit = audit_matplotlib_figure(fig, context=str(out.relative_to(PAPER_DIR)).replace('\\', '/'))
+    existing_visual_audit = merged_raw.pop(VISUAL_AUDIT_KEY, None)
+    existing = merged_raw.get('matplotlib_title_artifacts')
+    if existing:
+        audit_payload['matplotlib_title_artifacts'] = list(existing) + audit_payload['matplotlib_title_artifacts']
+    merged_raw.update(audit_payload)
+    fig.savefig(out, **savefig_kwargs)
+    image_audit = audit_image_file(out, context=str(out.relative_to(PAPER_DIR)).replace('\\', '/'))
+    audits_to_combine = [audit for audit in [existing_visual_audit, visual_audit, image_audit] if audit]
+    merged_raw[VISUAL_AUDIT_KEY] = combine_audits(*audits_to_combine, context=str(out.relative_to(PAPER_DIR)).replace('\\', '/'))
+    plt.close(fig)
+    save_json(out.with_suffix('.raw.json'), merged_raw)
+    return out.name
+
+
+def _normalize_raw_key(key: Any) -> str:
+    return str(key).strip().lower().replace('-', '_').replace(' ', '_')
+
+
+def _raw_title_value_present(value: Any) -> bool:
+    if value is None or value is False:
+        return False
+    if isinstance(value, str):
+        return bool(value.strip()) and value.strip().lower() not in {'none', 'null', 'n/a', 'na'}
+    if isinstance(value, (int, float)):
+        return True
+    if isinstance(value, list):
+        return any(_raw_title_value_present(item) for item in value)
+    if isinstance(value, dict):
+        return any(_raw_title_value_present(item) for item in value.values())
+    return bool(value)
+
+
+def _summarize_raw_title_value(value: Any) -> str:
+    if isinstance(value, dict):
+        for key in ('text', 'title', 'subtitle', 'kind'):
+            if key in value and _raw_title_value_present(value[key]):
+                return str(value[key])
+        return json.dumps(value, ensure_ascii=False)[:160]
+    if isinstance(value, list):
+        first = next((item for item in value if _raw_title_value_present(item)), '')
+        return _summarize_raw_title_value(first)
+    return str(value)
+
+
+def _iter_raw_title_violations(value: Any, json_path: tuple[str, ...] = ()):
+    if isinstance(value, dict):
+        for key, item in value.items():
+            normalized = _normalize_raw_key(key)
+            child_path = json_path + (str(key),)
+            if normalized in RAW_TITLE_ARTIFACT_KEYS and _raw_title_value_present(item):
+                yield child_path, _summarize_raw_title_value(item)
+            elif normalized in FORBIDDEN_RAW_TITLE_KEYS and _raw_title_value_present(item):
+                yield child_path, _summarize_raw_title_value(item)
+            yield from _iter_raw_title_violations(item, child_path)
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            yield from _iter_raw_title_violations(item, json_path + (f'[{index}]',))
+
+
+def validate_raw_title_free(raw_paths: List[Path] | None = None) -> None:
+    paths = raw_paths if raw_paths is not None else sorted(FIGURES_DIR.rglob('*.raw.json'))
+    violations: List[str] = []
+    for raw_path in paths:
+        raw_path = Path(raw_path).resolve()
+        try:
+            payload = json.loads(raw_path.read_text(encoding='utf-8'))
+        except json.JSONDecodeError as exc:
+            raise ValueError(f'Invalid figure raw JSON: {raw_path}') from exc
+        try:
+            rel_path = str(raw_path.relative_to(ROOT)).replace('\\', '/')
+        except ValueError:
+            rel_path = str(raw_path).replace('\\', '/')
+        for json_path, text in _iter_raw_title_violations(payload):
+            locator = '.'.join(json_path)
+            violations.append(f'{rel_path}:{locator} -> {text}')
+    if violations:
+        preview = '\n'.join(f' - {item}' for item in violations[:60])
+        if len(violations) > 60:
+            preview += f'\n - ... {len(violations) - 60} more'
+        raise ValueError(
+            'Paper figure raw title audit failed. Remove figure, subplot, '
+            f'or legend titles before publication.\n{preview}'
+        )
+
+
+def validate_raw_publication_quality(raw_paths: List[Path] | None = None) -> None:
+    paths = raw_paths if raw_paths is not None else sorted(FIGURES_DIR.rglob('*.raw.json'))
+    validate_raw_visual_quality(paths, root=ROOT)
+
+
+MONTAGE_PANEL_DIR = FIGURES_DIR / '_montage_panels'
+SUBFIGURE_LABEL_TARGET_PT = 8.0
+SN_A4_TEXT_WIDTH_PT = 372.0
+
+
+def panel_source_name(name: str) -> str:
+    return str(Path('_montage_panels') / name).replace('\\', '/')
+
+
+def save_panel_figure(fig: Any, name: str, *, dpi: int = 300, pad_inches: float = 0.08, raw_payload: Dict[str, Any] | None = None) -> str:
+    rel_name = panel_source_name(name)
+    out = FIGURES_DIR / rel_name
+    payload = {
+        'figure': rel_name,
+        'source_trace': 'docs/paper/src/paper_pipeline.py:save_panel_figure',
+    }
+    if raw_payload:
+        payload.update(raw_payload)
+    _save_matplotlib_figure(
+        fig,
+        out,
+        raw_payload=payload,
+        dpi=dpi,
+        bbox_inches='tight',
+        pad_inches=pad_inches,
+    )
+    return rel_name
 
 
 def format_optional(value: Any, fmt: str) -> str:
@@ -458,7 +814,7 @@ def format_profile_note(profile: Dict[str, Any]) -> str:
     return status.replace('_', ' ')
 
 
-def plot_radar(ax: Any, rows: List[Dict[str, Any]], title: str) -> None:
+def plot_radar(ax: Any, rows: List[Dict[str, Any]]) -> None:
     categories = [item[0] for item in RADAR_METRICS]
     angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
     angles += angles[:1]
@@ -480,7 +836,6 @@ def plot_radar(ax: Any, rows: List[Dict[str, Any]], title: str) -> None:
     ax.set_ylim(0.0, 1.05)
     ax.set_yticks([0.25, 0.5, 0.75, 1.0])
     ax.set_yticklabels(['0.25', '0.50', '0.75', '1.00'])
-    ax.set_title(title, pad=18)
 
     for index, row in enumerate(rows):
         values = [normalized[metric_name][index] for metric_name, _, _ in RADAR_METRICS]
@@ -501,160 +856,265 @@ def make_trajectory_figure(trajectories: Dict[str, Dict[str, List[float]]]) -> s
         axes[0].plot(series['magnitudes'], series['natural_frequency_hz'], label=label, color=color, linestyle=linestyle, linewidth=linewidth)
         axes[1].plot(series['magnitudes'], series['sensitivity_100hz'], label=label, color=color, linestyle=linestyle, linewidth=linewidth)
 
-    axes[0].set_title('(a) In-band peak-frequency trajectory')
     axes[0].set_xlabel('Magnitude (m/s^2)')
     axes[0].set_ylabel('Peak frequency (Hz)')
-    axes[1].set_title('(b) Sensitivity at 100 Hz')
     axes[1].set_xlabel('Magnitude (m/s^2)')
-    axes[1].set_ylabel('Sensitivity (%)')
+    axes[1].set_ylabel('Sensitivity at 100 Hz (%)')
     axes[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.18), ncol=2, frameon=True)
     out = FIGURES_DIR / 'fig_01_drift_trajectories.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    return out.name
+    return _save_matplotlib_figure(
+        fig,
+        out,
+        raw_payload={'trajectories': trajectories},
+        bbox_inches='tight',
+    )
+
+
+def make_metric_range_panel_specs(
+    main_rows: List[Dict[str, Any]],
+    *,
+    output_prefix: str,
+    label_offset: int = 0,
+    fit_width: int = 1650,
+    trim_border: int = 28,
+    figsize: tuple[float, float] = (4.8, 4.2),
+) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    labels = [row['label'] for row in main_rows]
+    x = np.arange(len(labels))
+    colors = ['#0f6c5c' if label == 'Wiener-KAN' else '#777777' for label in labels]
+    dist_specs = [
+        ('natural_frequency_drift', 'fn', 'Natural frequency (Hz)'),
+        ('sensitivity_drift', 'sens', 'Sensitivity at 100 Hz'),
+        ('linearity', 'linearity', 'Linearity error (%)'),
+    ]
+    raw_distribution_rows: List[Dict[str, Any]] = []
+    distribution_panels: List[Dict[str, Any]] = []
+    for idx, (detail_key, metric_name, ylabel) in enumerate(dist_specs):
+        fig_dist, ax = plt.subplots(figsize=figsize, constrained_layout=True)
+        centers = []
+        lower = []
+        upper = []
+        panel_rows = []
+        for row in main_rows:
+            detail = row.get('metric_details', {}).get(detail_key, {})
+            if detail_key == 'linearity':
+                center = float(detail.get('mean', row['linearity_percent']))
+            else:
+                center = float(detail.get('median', 0.5 * (float(detail.get('min', 0.0)) + float(detail.get('max', 0.0)))))
+            min_value = float(detail.get('min', center))
+            max_value = float(detail.get('max', center))
+            centers.append(center)
+            lower.append(max(center - min_value, 0.0))
+            upper.append(max(max_value - center, 0.0))
+            panel_row = {
+                'label': row['label'],
+                'metric': metric_name,
+                'center': center,
+                'min': min_value,
+                'max': max_value,
+            }
+            panel_rows.append(panel_row)
+            raw_distribution_rows.append(panel_row)
+        ax.bar(x, centers, color=colors, alpha=0.72)
+        ax.errorbar(x, centers, yerr=np.vstack([lower, upper]), fmt='none', ecolor='#222222', elinewidth=1.1, capsize=3)
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+        ax.grid(axis='y', alpha=0.25)
+        panel = save_panel_figure(
+            fig_dist,
+            f'{output_prefix}_{idx + 1}_{metric_name}.png',
+            raw_payload={
+                'source_trace': 'paper results payload metric_details min/median/mean/max fields',
+                'metric': metric_name,
+                'rows': panel_rows,
+            },
+        )
+        distribution_panels.append({
+            'source': panel,
+            'label': f'({chr(97 + label_offset + idx)})',
+            'fit_width': fit_width,
+            'trim_border': trim_border,
+            'align_y': 'top',
+        })
+    return distribution_panels, raw_distribution_rows
 
 
 def make_horizontal_figure(main_rows: List[Dict[str, Any]], origin: Dict[str, float], main_curves: List[Dict[str, Any]]) -> str:
     labels = [row['label'] for row in main_rows]
-    freq_values = [float(row['freq_drift_hz']) for row in main_rows]
-    sens_values = [float(row['sens_drift_percent']) for row in main_rows]
-    lin_values = [float(row['linearity_percent']) for row in main_rows]
-
-    fig = plt.figure(figsize=(14.5, 10.2), constrained_layout=True)
-    gs = fig.add_gridspec(2, 2)
-
-    ax_bar = fig.add_subplot(gs[0, 0])
     x = np.arange(len(labels))
-    width = 0.24
-    ax_bar.bar(x - width, freq_values, width=width, color='#0f6c5c', label='Freq drift (Hz)')
-    ax_bar.bar(x, sens_values, width=width, color='#1f4e79', label='Sens drift (%)')
-    ax_bar.bar(x + width, lin_values, width=width, color='#c96b00', label='Linearity (%)')
-    ax_bar.axhline(origin['freq'], color='#0f6c5c', linestyle='--', linewidth=0.8, alpha=0.6)
-    ax_bar.axhline(origin['sens'], color='#1f4e79', linestyle='--', linewidth=0.8, alpha=0.6)
-    ax_bar.axhline(origin['linearity'], color='#c96b00', linestyle='--', linewidth=0.8, alpha=0.6)
-    ax_bar.set_xticks(x)
-    ax_bar.set_xticklabels(labels, rotation=25, ha='right')
-    ax_bar.set_ylabel('Absolute metric value')
-    ax_bar.set_title('(a) Physical calibration metrics')
-    ax_bar.set_ylim(0.0, max(max(freq_values), max(sens_values), max(lin_values), origin['sens']) * 1.18)
-    ax_bar.legend(loc='upper left', frameon=True)
+    range_panels, range_rows = make_metric_range_panel_specs(
+        main_rows,
+        output_prefix='fig_02_horizontal_summary',
+        label_offset=0,
+        fit_width=1680,
+        trim_border=28,
+    )
 
-    ax_scatter = fig.add_subplot(gs[0, 1])
-    for row in main_rows:
-        color = PALETTE.get(row['label'], '#444444')
-        ax_scatter.scatter(
-            row['compute_cost'],
-            row['board_keil_fps'],
-            s=125,
-            color=color,
-            edgecolors='black',
-            linewidths=0.6,
-            zorder=3,
+    fig_speed, ax_speed = plt.subplots(figsize=(7.2, 4.6), constrained_layout=True)
+    speed_values = [float(row['board_keil_fps']) for row in main_rows]
+    colors = [PALETTE.get(row['label'], '#444444') for row in main_rows]
+    ax_speed.bar(x, speed_values, color=colors, alpha=0.86, edgecolor='#222222', linewidth=0.5)
+    for idx, row in enumerate(main_rows):
+        ax_speed.text(
+            idx,
+            speed_values[idx] * 1.02,
+            f"MAE={row['board_keil_mae']:.1e}",
+            ha='center',
+            va='bottom',
+            fontsize=7.8,
+            rotation=90,
         )
-        ax_scatter.annotate(
-            f"{row['label']}\nKEIL-MAE={row['board_keil_mae']:.2e}",
-            (row['compute_cost'], row['board_keil_fps']),
-            textcoords='offset points',
-            xytext=SCATTER_OFFSETS.get(row['label'], (8, 8)),
-            ha='left',
-            va='center',
-            fontsize=8.4,
-            bbox={'boxstyle': 'round,pad=0.2', 'facecolor': 'white', 'alpha': 0.85, 'edgecolor': color},
-        )
-    ax_scatter.set_xlabel('Compute Cost (static weighted units)')
-    ax_scatter.set_ylabel('KEIL speed (Points/s)')
-    ax_scatter.set_title('(b) Static compute cost vs. STM32 measured speed')
-    ax_scatter.grid(True, linestyle='--', alpha=0.35)
-    ax_scatter.text(0.03, 0.05, 'Lower cost and higher speed are better', transform=ax_scatter.transAxes, fontsize=9)
+    ax_speed.set_xticks(x)
+    ax_speed.set_xticklabels(labels, rotation=25, ha='right')
+    ax_speed.set_ylabel('KEIL throughput (points/s; higher is better)')
+    ax_speed.set_ylim(0.0, max(speed_values) * 1.30)
+    ax_speed.grid(True, axis='y', linestyle='--', alpha=0.35)
+    panel_speed = save_panel_figure(fig_speed, 'fig_02_horizontal_summary_4_throughput.png')
 
-    ax_radar = fig.add_subplot(gs[1, 0], polar=True)
-    plot_radar(ax_radar, main_rows, '(c) Six-metric radar across main benchmark models')
+    fig_radar = plt.figure(figsize=(6.8, 5.3), constrained_layout=True)
+    ax_radar = fig_radar.add_subplot(111, polar=True)
+    plot_radar(ax_radar, main_rows)
     ax_radar.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=False)
+    panel_radar = save_panel_figure(fig_radar, 'fig_02_horizontal_summary_5_radar.png')
 
-    ax_curve = fig.add_subplot(gs[1, 1])
+    fig_curve, ax_curve = plt.subplots(figsize=(7.2, 4.6), constrained_layout=True)
     for curve in main_curves:
         color = PALETTE.get(curve['label'], '#444444')
         linewidth = 2.6 if curve['label'] == 'Wiener-KAN' else 1.5
         ax_curve.plot(curve['epochs'], curve['smoothed_normalized_val_loss'], color=color, linewidth=linewidth, label=curve['label'])
-    ax_curve.set_title('(d) Main-benchmark convergence (linear scale)')
     ax_curve.set_xlabel('Epoch')
     ax_curve.set_ylabel('Normalized val loss')
     ax_curve.set_xlim(left=0)
     ax_curve.set_ylim(bottom=0)
     ax_curve.legend(ncol=2, frameon=True)
+    panel_curve = save_panel_figure(fig_curve, 'fig_02_horizontal_summary_6_convergence.png')
 
-    out = FIGURES_DIR / 'fig_02_horizontal_summary.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    return out.name
+    name = make_bitmap_montage(
+        'fig_02_horizontal_summary.png',
+        range_panels + [
+            {'source': panel_speed, 'label': '(d)', 'fit_width': 1680, 'align_y': 'top', 'trim_border': 35},
+            {'source': panel_radar, 'label': '(e)', 'fit_width': 1680, 'align_y': 'top', 'trim_border': 35},
+            {'source': panel_curve, 'label': '(f)', 'fit_width': 1680, 'align_y': 'top', 'trim_border': 35},
+        ],
+        layout='matrix',
+        rows=2,
+        cols=3,
+        padding=[75, 70, 75, 70],
+        gutter=(85, 95),
+        label_font_size=58,
+        note='Composes the metric-range, throughput, radar and convergence panels with the unified bitmap montage module.',
+        latex_width_fraction=0.98,
+    )
+    raw_path = FIGURES_DIR / 'fig_02_horizontal_summary.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
+        'origin_metric_reference': origin,
+        'metric_range_rows': range_rows,
+        'panel_policy': 'The previous physical-metric bar panel is replaced by three metric-range panels.',
+    })
+    save_json(raw_path, raw_payload)
+    return name
+
+
+def _loss_panel_slug(label: str) -> str:
+    slug = re.sub(r'[^a-z0-9]+', '', label.lower())
+    return slug or 'loss'
+
+
+def make_loss_ablation_panel_specs(
+    loss_rows: List[Dict[str, Any]],
+    loss_curves: List[Dict[str, Any]],
+    *,
+    label_offset: int = 0,
+    fit_width: int = 1500,
+    trim_border: int = 26,
+) -> List[Dict[str, Any]]:
+    curve_map = {curve['label']: curve for curve in loss_curves}
+    ordered_labels = [row['label'] for row in loss_rows if row['label'] in curve_map]
+    ymax = max(
+        max(float(value) for value in curve_map[label]['smoothed_normalized_val_loss'])
+        for label in ordered_labels
+    )
+    panel_specs: List[Dict[str, Any]] = []
+    for idx, label in enumerate(ordered_labels):
+        curve = curve_map[label]
+        fig, ax = plt.subplots(figsize=(4.2, 4.2), constrained_layout=True)
+        color = PALETTE.get(label, '#444444')
+        ax.plot(
+            curve['epochs'],
+            curve['smoothed_normalized_val_loss'],
+            color=color,
+            linewidth=2.6,
+            label=label,
+        )
+        ax.set_xlabel('Epoch')
+        ax.set_ylabel('Normalized val loss')
+        ax.set_xlim(left=0)
+        ax.set_ylim(0.0, ymax * 1.05)
+        ax.legend(frameon=True, loc='upper right')
+        ax.grid(True, alpha=0.25)
+        source = save_panel_figure(fig, f'fig_03_loss_ablation_{idx + 1}_{_loss_panel_slug(label)}.png', raw_payload={
+            'source': 'paper results payload',
+            'label': label,
+            'epoch_count': len(curve['epochs']),
+            'final_normalized_val_loss': float(curve['smoothed_normalized_val_loss'][-1]),
+        })
+        panel_specs.append({
+            'source': source,
+            'label': f'({chr(97 + label_offset + idx)})',
+            'fit_width': fit_width,
+            'fit_height': fit_width,
+            'trim_border': trim_border,
+            'align_y': 'top',
+        })
+    return panel_specs
 
 
 def make_loss_ablation_figure(loss_rows: List[Dict[str, Any]], loss_curves: List[Dict[str, Any]]) -> str:
-    labels = [row['label'] for row in loss_rows]
-    colors = [PALETTE[row['label']] for row in loss_rows]
-
-    fig = plt.figure(figsize=(14.5, 9.0), constrained_layout=True)
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.1, 1.0])
-    gs_metrics = gs[:, 0].subgridspec(3, 1, hspace=0.30)
-
-    metric_specs = [
-        ('freq_drift_hz', 'Freq drift (Hz)', '(a) Loss ablation: freq drift'),
-        ('sens_drift_percent', 'Sensitivity drift (%)', '(b) Loss ablation: sensitivity drift'),
-        ('linearity_percent', 'In-band linearity error (%)', '(c) Loss ablation: in-band linearity'),
-    ]
-    for index, (key, ylabel, title) in enumerate(metric_specs):
-        ax = fig.add_subplot(gs_metrics[index, 0])
-        ax.bar(labels, [row[key] for row in loss_rows], color=colors)
-        ax.set_ylabel(ylabel)
-        ax.set_title(title)
-        ax.tick_params(axis='x', rotation=15)
-
-    ax_radar = fig.add_subplot(gs[0, 1], polar=True)
-    plot_radar(ax_radar, loss_rows, '(d) Six-metric radar across Wiener-KAN loss variants')
-    ax_radar.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=False)
-
-    ax_curve = fig.add_subplot(gs[1, 1])
-    for curve in loss_curves:
-        color = PALETTE.get(curve['label'], '#444444')
-        linewidth = 2.6 if curve['label'] == 'MAE+AFMAE' else 1.7
-        ax_curve.plot(curve['epochs'], curve['smoothed_normalized_val_loss'], color=color, linewidth=linewidth, label=curve['label'])
-    ax_curve.set_title('(e) Loss-ablation convergence (linear scale)')
-    ax_curve.set_xlabel('Epoch')
-    ax_curve.set_ylabel('Normalized val loss')
-    ax_curve.set_xlim(left=0)
-    ax_curve.set_ylim(bottom=0)
-    ax_curve.legend(frameon=True)
-
-    out = FIGURES_DIR / 'fig_03_loss_ablation.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    return out.name
+    panel_specs = make_loss_ablation_panel_specs(loss_rows, loss_curves, label_offset=0, fit_width=1550)
+    name = make_bitmap_montage(
+        'fig_03_loss_ablation.png',
+        panel_specs,
+        layout='horizontal',
+        padding=[65, 60, 65, 60],
+        gutter=(70, 60),
+        label_font_size=46,
+        note='Composes the loss-ablation convergence panels as one row of square panels.',
+        latex_width_fraction=0.98,
+    )
+    raw_path = FIGURES_DIR / 'fig_03_loss_ablation.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
+        'loss_ablation': [row['label'] for row in loss_rows],
+        'layout': 'one horizontal row of square convergence panels',
+    })
+    save_json(raw_path, raw_payload)
+    return name
 
 
 def make_structure_figure(rows: List[Dict[str, Any]]) -> str:
-    fig, axes = plt.subplots(2, 2, figsize=(13.8, 8.8), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(14.2, 4.6), constrained_layout=True)
     labels = [row['label'] for row in rows]
     colors = [PALETTE[row['label']] for row in rows]
     specs = [
         ('freq_drift_hz', 'Freq drift (Hz)', True),
         ('sens_drift_percent', 'Sensitivity drift (%)', False),
         ('linearity_percent', 'In-band linearity error (%)', True),
-        ('compute_cost', 'Compute cost (weighted units)', False),
     ]
-    for ax, (key, title, use_log) in zip(axes.flatten(), specs):
+    for ax, (key, title, use_log) in zip(axes, specs):
         ax.bar(labels, [row[key] for row in rows], color=colors)
-        ax.set_title(title)
+        ax.set_ylabel(title)
         if use_log:
             ax.set_yscale('log')
         ax.tick_params(axis='x', rotation=25)
     out = FIGURES_DIR / 'fig_04_structure_ablation.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    return out.name
+    return _save_matplotlib_figure(
+        fig,
+        out,
+        raw_payload={'structure_ablation': rows},
+        bbox_inches='tight',
+    )
 
 
 def load_wiener_optimization_profiles() -> List[Dict[str, Any]]:
@@ -684,62 +1144,243 @@ def load_wiener_optimization_profiles() -> List[Dict[str, Any]]:
     return rows
 
 
-def make_onboard_figure(deploy_rows: List[Dict[str, Any]], lut_rows: List[Dict[str, Any]]) -> str:
-    labels = [row['label'] for row in deploy_rows]
-    colors = [PALETTE.get(row['label'], '#444444') for row in deploy_rows]
-
-    fig, (ax_perf, ax_lut) = plt.subplots(1, 2, figsize=(13.8, 5.2), constrained_layout=True)
-
-    x = np.arange(len(deploy_rows))
-    width = 0.34
-    speed_values = [float(row['board_keil_fps'] or 0.0) for row in deploy_rows]
-    ram_values = [float(row['ram_bytes']) / 1024.0 if row.get('ram_bytes') is not None else 0.0 for row in deploy_rows]
-    speed_bars = ax_perf.bar(x - width / 2, speed_values, width=width, color=colors, label='Throughput (points/s)')
-    ax_ram = ax_perf.twinx()
-    ram_bars = ax_ram.bar(x + width / 2, ram_values, width=width, color='#c96b00', alpha=0.62, label='RAM (KB)')
-    ax_perf.set_title('(a) Embedded inference throughput comparison')
-    ax_perf.set_ylabel('KEIL throughput (points/s)')
-    ax_ram.set_ylabel('RAM usage (KB)')
-    ax_perf.set_xticks(x)
-    ax_perf.set_xticklabels(labels, rotation=25, ha='right')
-    ax_perf.grid(True, axis='y', alpha=0.22)
-    handles = [speed_bars, ram_bars]
-    ax_perf.legend(handles, [h.get_label() for h in handles], loc='upper right', frameon=True)
-    for idx, value in enumerate(speed_values):
-        ax_perf.annotate(
-            f'{value:.0f}',
-            (x[idx] - width / 2, value),
-            textcoords='offset points',
-            xytext=(0, 5),
-            ha='center',
-            fontsize=7.8,
+def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
+    fig, ax_mae = plt.subplots(figsize=(6.6, 4.2))
+    ax_flash = ax_mae.twinx()
+    style_map = {
+        'nearest': {'label': 'LUT nearest', 'color': '#c96b00'},
+        'interp': {'label': 'LUT + interp', 'color': '#0f6c5c'},
+    }
+    legend_handles: List[Any] = []
+    legend_labels: List[str] = []
+    for mode in ['nearest', 'interp']:
+        subset = [row for row in rows if row['mode'] == mode]
+        if not subset:
+            continue
+        subset.sort(key=lambda row: int(row['points']))
+        x = np.array([int(row['points']) for row in subset], dtype=float)
+        qemu_mae = np.array([float(row['qemu_mae']) for row in subset], dtype=float)
+        flash_kb = np.array([float(row['flash_bytes']) / 1024.0 for row in subset], dtype=float)
+        style = style_map[mode]
+        mae_handle, = ax_mae.plot(
+            x,
+            qemu_mae,
+            color=style['color'],
+            marker='o',
+            markersize=5.2,
+            linewidth=2.2,
+            label=f"{style['label']} QEMU-MAE",
         )
+        flash_handle, = ax_flash.plot(
+            x,
+            flash_kb,
+            color=style['color'],
+            marker='s',
+            markersize=4.8,
+            linewidth=2.0,
+            linestyle='--',
+            label=f"{style['label']} Flash",
+        )
+        legend_handles.extend([mae_handle, flash_handle])
+        legend_labels.extend([f"{style['label']} QEMU-MAE", f"{style['label']} Flash"])
 
-    lut_labels = [row['label'] for row in lut_rows]
-    lut_ram = np.array([float(row['ram_bytes']) / 1024.0 for row in lut_rows], dtype=float)
-    lut_error = np.array([float(row['keil_mae']) for row in lut_rows], dtype=float)
-    lut_speed = np.array([float(row['keil_fps']) for row in lut_rows], dtype=float)
-    sizes = 58.0 + 150.0 * (lut_speed / max(float(np.nanmax(lut_speed)), 1.0))
-    scatter = ax_lut.scatter(lut_ram, lut_error, s=sizes, c=lut_speed, cmap='viridis', edgecolor='#222222', linewidth=0.7)
-    for label, ram, error in zip(lut_labels, lut_ram, lut_error):
-        ax_lut.annotate(label, (ram, error), textcoords='offset points', xytext=(6, 5), fontsize=8.5)
-    ax_lut.set_title('(b) LUT accuracy versus memory trade-off')
-    ax_lut.set_xlabel('RAM usage (KB)')
-    ax_lut.set_ylabel('Validation error against TensorFlow')
-    ax_lut.set_yscale('log')
-    ax_lut.grid(True, axis='both', alpha=0.24)
-    cbar = fig.colorbar(scatter, ax=ax_lut, fraction=0.046, pad=0.04)
-    cbar.set_label('KEIL throughput (points/s)')
+    unique_points = sorted({int(row['points']) for row in rows})
+    ax_mae.set_xlabel('LUT quantization points')
+    ax_mae.set_ylabel('QEMU-MAE against TensorFlow')
+    ax_mae.set_yscale('log')
+    ax_flash.set_ylabel('Flash usage (KB)')
+    ax_mae.set_xticks(unique_points)
+    ax_mae.set_xlim(left=max(unique_points[0] - 30, 0), right=unique_points[-1] + 35)
+    ax_mae.grid(True, axis='both', alpha=0.22)
+    ax_mae.legend(
+        legend_handles,
+        legend_labels,
+        loc='center left',
+        bbox_to_anchor=(1.02, 0.5),
+        frameon=True,
+        fontsize=7.6,
+        ncol=1,
+        borderaxespad=0.0,
+    )
+    fig.subplots_adjust(left=0.11, right=0.74, bottom=0.16, top=0.96)
+    panel_rows = []
+    for row in rows:
+        panel_rows.append({
+            'mode': row['mode'],
+            'label': row['label'],
+            'points': int(row['points']),
+            'qemu_mae': float(row['qemu_mae']),
+            'flash_kb': float(row['flash_bytes']) / 1024.0,
+        })
+    return save_panel_figure(
+        fig,
+        'fig_05_onboard_inference_d_lut_point_tradeoff.png',
+        raw_payload={
+            'source_trace': 'paper results payload lut_point_sweep field',
+            'rows': panel_rows,
+            'axis_encoding': {
+                'x': 'LUT quantization points',
+                'left_y': 'QEMU-MAE against TensorFlow',
+                'right_y': 'Flash usage (KB)',
+                'line_style': 'metric type',
+                'color': 'LUT lookup mode',
+            },
+            'panel_policy': 'Panel d sweeps LUT point count for the same Wiener-KAN weights and compares nearest lookup against linear interpolation.',
+        },
+    )
 
-    out = FIGURES_DIR / 'fig_05_onboard_inference.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    return out.name
 
+def make_onboard_figure(
+    deploy_rows: List[Dict[str, Any]],
+    lut_rows: List[Dict[str, Any]],
+    lut_point_rows: List[Dict[str, Any]],
+) -> str:
+    # Always refresh the shared workflow panels so Fig. 12 and the standalone
+    # workflow figure stay visually consistent after layout tweaks.
+    make_board_inference_validation_workflow_figure()
+    panel_export = panel_source_name('fig_17_board_inference_validation_workflow_a_export.png')
+    panel_validate = panel_source_name('fig_17_board_inference_validation_workflow_b_validate.png')
 
-def load_compute_cost_calibration() -> Dict[str, Any]:
-    return load_json('ex_projects/compare/compute_cost_calibration/data/compute_cost_calibration_results.json')
+    performance_rows: List[Dict[str, Any]] = []
+    for row in deploy_rows:
+        if row['label'] == 'Wiener-KAN':
+            continue
+        if row.get('ram_bytes') is None or row.get('board_keil_mae') is None or row.get('board_keil_fps') is None:
+            continue
+        performance_rows.append({
+            'label': row['label'],
+            'category': 'Baseline export',
+            'ram_kb': float(row['ram_bytes']) / 1024.0,
+            'flash_kb': float(row['flash_bytes']) / 1024.0 if row.get('flash_bytes') is not None else None,
+            'keil_mae': float(row['board_keil_mae']),
+            'qemu_mae': float(row['board_qemu_mae']),
+            'keil_fps': float(row['board_keil_fps']),
+            'marker': 'o',
+        })
+
+    lut_label_map = {
+        'LUT nearest': 'Wiener-KAN\n(LUT nearest)',
+        'LUT + interp': 'Wiener-KAN\n(LUT interp)',
+        'No LUT exact': 'Wiener-KAN\n(No LUT)',
+    }
+    for row in lut_rows:
+        if row.get('ram_bytes') is None or row.get('keil_mae') is None or row.get('keil_fps') is None:
+            continue
+        performance_rows.append({
+            'label': lut_label_map.get(row['label'], f"Wiener-KAN\n({row['label']})"),
+            'source_label': row['label'],
+            'category': 'Wiener-KAN variant',
+            'ram_kb': float(row['ram_bytes']) / 1024.0,
+            'flash_kb': float(row['flash_bytes']) / 1024.0 if row.get('flash_bytes') is not None else None,
+            'keil_mae': float(row['keil_mae']),
+            'qemu_mae': float(row['qemu_mae']),
+            'keil_fps': float(row['keil_fps']),
+            'marker': 'D',
+        })
+
+    fig_perf, ax_perf = plt.subplots(figsize=(6.0, 4.4), constrained_layout=True)
+    speeds = np.array([row['keil_fps'] for row in performance_rows], dtype=float)
+    errors = np.array([row['keil_mae'] for row in performance_rows], dtype=float)
+    ram_values = np.array([row['ram_kb'] for row in performance_rows], dtype=float)
+    mae_norm = LogNorm(vmin=max(float(np.nanmin(errors)) * 0.8, 1e-9), vmax=float(np.nanmax(errors)) * 1.2)
+    scatter_for_colorbar = None
+    for category, marker in [('Baseline export', 'o'), ('Wiener-KAN variant', 'D')]:
+        idx = [i for i, row in enumerate(performance_rows) if row['category'] == category]
+        if not idx:
+            continue
+        scatter_for_colorbar = ax_perf.scatter(
+            ram_values[idx],
+            speeds[idx],
+            s=118 if category == 'Baseline export' else 138,
+            c=errors[idx],
+            cmap='magma',
+            norm=mae_norm,
+            marker=marker,
+            edgecolor='#222222',
+            linewidth=0.8,
+            alpha=0.92,
+            label=category,
+        )
+    label_offsets = {
+        'TCN': (-34, 8),
+        '1DCNN': (8, 12),
+        'LSTM': (-42, 0),
+        'LSTMTransformer': (8, 8),
+        'RNN': (8, 8),
+        'GRU': (8, -18),
+        'Wiener-KAN\n(LUT nearest)': (8, -12),
+        'Wiener-KAN\n(LUT interp)': (8, -18),
+        'Wiener-KAN\n(No LUT)': (8, 8),
+    }
+    for row in performance_rows:
+        ax_perf.annotate(
+            row['label'],
+            (row['ram_kb'], row['keil_fps']),
+            textcoords='offset points',
+            xytext=label_offsets.get(row['label'], (7, 6)),
+            ha='left',
+            va='center',
+            fontsize=7.8,
+            bbox={'boxstyle': 'round,pad=0.18', 'facecolor': 'white', 'edgecolor': 'none', 'alpha': 0.78},
+        )
+    ax_perf.set_xlabel('RAM usage (KB)')
+    ax_perf.set_ylabel('KEIL throughput (points/s; higher is better)')
+    ax_perf.set_yscale('log')
+    ax_perf.set_xlim(left=0.0, right=max(float(np.nanmax(ram_values)) * 1.18, 10.0))
+    ax_perf.set_ylim(bottom=max(float(np.nanmin(speeds)) * 0.55, 1.0), top=float(np.nanmax(speeds)) * 2.0)
+    ax_perf.grid(True, axis='both', alpha=0.24)
+    ax_perf.legend(loc='upper right', frameon=True)
+    if scatter_for_colorbar is not None:
+        cbar = fig_perf.colorbar(scatter_for_colorbar, ax=ax_perf, fraction=0.046, pad=0.04)
+        cbar.set_label('KEIL-MAE against TensorFlow')
+    panel_performance = save_panel_figure(
+        fig_perf,
+        'fig_05_onboard_inference_c_embedded_performance.png',
+        raw_payload={
+            'source_trace': 'paper results payload deployment and lut_variants fields',
+            'rows': performance_rows,
+            'axis_encoding': {
+                'x': 'RAM usage (KB)',
+                'y': 'KEIL throughput (points/s)',
+                'color': 'KEIL-MAE against TensorFlow',
+                'marker_shape': 'export family',
+            },
+            'panel_policy': 'Panel c combines exported baseline models and the three Wiener-KAN LUT implementation variants.',
+        },
+    )
+
+    panel_tradeoff = make_lut_point_tradeoff_figure(lut_point_rows)
+
+    name = make_bitmap_montage(
+        'fig_05_onboard_inference.png',
+        [
+            {'source': panel_export, 'label': '(a)', 'fit_width': 1820, 'trim_border': 120, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_validate, 'label': '(b)', 'fit_width': 1820, 'trim_border': 120, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_performance, 'label': '(c)', 'fit_width': 1820, 'trim_border': 35, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_tradeoff, 'label': '(d)', 'fit_width': 1820, 'trim_border': 35, 'align_x': 'center', 'align_y': 'top'},
+        ],
+        layout='matrix',
+        rows=2,
+        cols=2,
+        padding=[50, 55, 50, 55],
+        gutter=(60, 68),
+        cell_widths=[1820, 1820],
+        label_font_size=52,
+        note='Composes the export, validation, embedded-performance, and LUT trade-off panels in one 2 x 2 montage so all subfigure labels share the same final scaling rule.',
+        latex_width_fraction=1.0,
+    )
+    raw_path = FIGURES_DIR / 'fig_05_onboard_inference.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
+        'source': 'generated from paper_pipeline.make_onboard_figure',
+        'focus': 'Combined embedded validation workflow and deployment performance.',
+        'performance_rows': performance_rows,
+        'lut_point_sweep_rows': lut_point_rows,
+        'panels': ['C export workflow', 'QEMU and STM32F405 validation workflow', 'baseline and Wiener-KAN variant performance', 'LUT point-count trade-off'],
+        'layout_policy': 'Single-pass 2 x 2 montage; avoids nested montage rescaling between workflow and metric panels.',
+    })
+    save_json(raw_path, raw_payload)
+    return name
 
 
 def load_hparam_sensitivity_summary() -> Dict[str, Any]:
@@ -757,7 +1398,6 @@ def load_hparam_sensitivity_summary() -> Dict[str, Any]:
         'freq_drift_hz': primary_metrics.get('freq_drift_hz'),
         'sens_drift_percent': primary_metrics.get('sens_drift_percent'),
         'linearity_percent': primary_metrics.get('linearity_percent'),
-        'compute_cost': primary_metrics.get('compute_cost'),
         'val_loss': primary_metrics.get('val_loss'),
         'val_afmae': primary_metrics.get('val_afmae'),
         'source': 'canonical_main_project',
@@ -792,7 +1432,7 @@ def load_hparam_sensitivity_summary() -> Dict[str, Any]:
     return summary
 
 
-def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
+def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict[str, Any]], loss_curves: List[Dict[str, Any]]) -> str:
     rows = [row for row in summary.get('rows', []) if row.get('axis') != 'base' and row.get('status') == 'complete']
     baseline = summary.get('baseline', {})
     axis_order = ['H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER']
@@ -807,14 +1447,12 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
         ('freq_drift_hz', 'Freq drift', '#1f4e79', 'o'),
         ('sens_drift_percent', 'Sens drift', '#0f6c5c', 's'),
         ('linearity_percent', 'Linearity', '#c96b00', '^'),
-        ('compute_cost', 'Compute cost', '#666666', 'D'),
     ]
     baseline_values = {key: float(baseline.get(key, 1.0) or 1.0) for key, *_ in metric_specs}
 
-    fig, axes = plt.subplots(2, 3, figsize=(13.2, 7.6), constrained_layout=True)
-    axes_flat = axes.flatten()
+    panel_specs: List[Dict[str, Any]] = []
     for panel_idx, axis in enumerate(axis_order):
-        ax = axes_flat[panel_idx]
+        fig, ax = plt.subplots(figsize=(4.5, 3.3), constrained_layout=True)
         axis_rows = sorted([row for row in rows if row.get('axis') == axis], key=lambda r: float(r.get('value', 0)))
         x = np.array([float(row.get('value', 0)) for row in axis_rows], dtype=float)
         for key, label, color, marker in metric_specs:
@@ -831,7 +1469,6 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
             }.get(axis)
             if base_value is not None and min(x) <= base_value <= max(x):
                 ax.axvline(float(base_value), color='#444444', linestyle=':', linewidth=1.0, alpha=0.7)
-        ax.set_title(f'({chr(97 + panel_idx)}) {axis_labels[axis]}')
         ax.set_xlabel(axis_labels[axis])
         ax.set_ylabel('Relative to baseline (%)')
         ax.set_xticks(x)
@@ -839,16 +1476,22 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
             ax.set_xticklabels([str(int(v)) for v in x])
         ax.grid(True, axis='both', alpha=0.24)
         ax.margins(x=0.08)
-    legend_ax = axes_flat[-1]
+        source = save_panel_figure(fig, f'fig_18_hparam_sensitivity_{panel_idx + 1}_{axis.lower()}.png')
+        panel_specs.append({'source': source, 'label': f'({chr(97 + panel_idx)})', 'fit_width': 1500, 'trim_border': 26})
+
+    fig_legend, legend_ax = plt.subplots(figsize=(4.5, 3.3), constrained_layout=True)
     legend_ax.axis('off')
-    handles, labels = axes_flat[0].get_legend_handles_labels()
-    legend_ax.legend(handles, labels, loc='center', frameon=True, title='Metric response')
+    handles = [
+        Line2D([0], [0], color=color, marker=marker, linewidth=1.7, markersize=5.0)
+        for _, _, color, marker in metric_specs
+    ]
+    labels = [label for _, label, _, _ in metric_specs]
+    legend_ax.legend(handles, labels, loc='center', frameon=True)
     baseline_text = (
         'Baseline data (h=8, u=6, l=6, g=8, s=2):\n'
         f"Freq drift = {baseline_values['freq_drift_hz']:.2f} Hz; "
         f"Sens drift = {baseline_values['sens_drift_percent']:.2f}%;\n"
-        f"Linearity error = {baseline_values['linearity_percent']:.3f}%; "
-        f"Compute cost = {baseline_values['compute_cost']:.0f}"
+        f"Linearity error = {baseline_values['linearity_percent']:.3f}%"
     )
     legend_ax.text(
         0.5,
@@ -858,54 +1501,34 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any]) -> str:
         va='center',
         fontsize=8.8,
     )
-    fig.suptitle('One-factor hyperparameter sensitivity of Wiener-KAN', fontsize=14, fontweight='bold')
-    out = FIGURES_DIR / 'fig_18_hparam_sensitivity.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {
+    legend_source = save_panel_figure(fig_legend, 'fig_18_hparam_sensitivity_6_legend.png')
+    panel_specs.append({'source': legend_source, 'fit_width': 1500, 'trim_border': 26})
+    panel_specs.extend(make_loss_ablation_panel_specs(loss_rows, loss_curves, label_offset=5, fit_width=1500, trim_border=26))
+
+    name = make_bitmap_montage(
+        'fig_18_hparam_sensitivity.png',
+        panel_specs,
+        layout='matrix',
+        rows=3,
+        cols=3,
+        padding=[70, 65, 70, 65],
+        gutter=(70, 80),
+        label_font_size=46,
+        note='Composes five one-factor hyperparameter panels, one unnumbered legend panel, and three loss-ablation panels in a 3 x 3 unified montage.',
+        latex_width_fraction=0.98,
+    )
+    raw_path = FIGURES_DIR / 'fig_18_hparam_sensitivity.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
         'source': 'ex_projects/compare/hparam_sensitivity_r15/data/summary.json',
         'baseline': baseline,
         'axis_summary': summary.get('axis_summary', {}),
         'plot_encoding': 'Each panel uses one hyperparameter as the x-axis; y-values are normalized to the canonical baseline.',
+        'loss_ablation': [row['label'] for row in loss_rows],
+        'loss_panel_policy': 'The third row contains square convergence panels for the joint, MAE-only and AFMAE-only loss objectives.',
     })
-    return out.name
-
-
-def make_compute_cost_calibration_figure(calibration: Dict[str, Any]) -> str:
-    pairs = calibration['pairs']
-    labels = [item['label'] for item in pairs]
-    measured = [1000.0 / float(item['measured_speed_ms_per_point']) for item in pairs]
-    default_pred = [1000.0 / float(item['default_predicted_speed_ms_per_point']) for item in pairs]
-    adopted_pred = [1000.0 / float(item['adopted_predicted_speed_ms_per_point']) for item in pairs]
-    default_err = [float(item['default_relative_error_percent']) for item in pairs]
-    adopted_err = [float(item['adopted_relative_error_percent']) for item in pairs]
-
-    fig, axes = plt.subplots(1, 2, figsize=(14.2, 5.2), constrained_layout=True)
-    x = np.arange(len(labels))
-    width = 0.25
-    axes[0].bar(x - width, measured, width=width, color=PALETTE['Measured'], label='Measured')
-    axes[0].bar(x, default_pred, width=width, color=PALETTE['Default 1:1:6'], label='Default 1:1:6')
-    axes[0].bar(x + width, adopted_pred, width=width, color=PALETTE['Adopted 1:3:20'], label='Adopted 1:3:20')
-    axes[0].set_xticks(x)
-    axes[0].set_xticklabels(labels, rotation=25, ha='right')
-    axes[0].set_ylabel('Board speed (Points/s)')
-    axes[0].set_title('(a) Measured vs. predicted board speed')
-    axes[0].legend(frameon=True)
-
-    axes[1].axhline(0.0, color='black', linewidth=1.0)
-    axes[1].bar(x - width / 2, default_err, width=width, color=PALETTE['Default 1:1:6'], label='Default 1:1:6')
-    axes[1].bar(x + width / 2, adopted_err, width=width, color=PALETTE['Adopted 1:3:20'], label='Adopted 1:3:20')
-    axes[1].set_xticks(x)
-    axes[1].set_xticklabels(labels, rotation=25, ha='right')
-    axes[1].set_ylabel('Relative error (%)')
-    axes[1].set_title('(b) Relative speed error after recalibration')
-    axes[1].legend(frameon=True)
-
-    out = FIGURES_DIR / 'fig_06_compute_cost_calibration.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    return out.name
+    save_json(raw_path, raw_payload)
+    return name
 
 
 def make_table(lines: List[List[str]], headers: List[str]) -> str:
@@ -915,34 +1538,196 @@ def make_table(lines: List[List[str]], headers: List[str]) -> str:
     return '\n'.join(rows)
 
 
+def _metric_row_for_ablation(
+    group: str,
+    variant: str,
+    contrast: str,
+    row: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        'group': group,
+        'variant': variant,
+        'contrast': contrast,
+        'freq_drift_hz': _fmt_float(row['freq_drift_hz'], 2),
+        'sens_drift_percent': _fmt_float(row['sens_drift_percent'], 2),
+        'linearity_percent': _fmt_float(row['linearity_percent'], 3),
+        'emphasize': False,
+    }
+
+
+def _hparam_best_cell(axis_summary: Dict[str, Any], best_key: str, metric_key: str, digits: int) -> str:
+    best = axis_summary.get(best_key) or {}
+    if best.get('value') is None or best.get(metric_key) is None:
+        return '-'
+    return f"{best['value']}: {_fmt_float(best[metric_key], digits)}"
+
+
+def build_ablation_overview_rows(
+    loss_rows: List[Dict[str, Any]],
+    structure_rows: List[Dict[str, Any]],
+    iir_rows: List[Dict[str, Any]],
+    _hparam_summary: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    structure_map = {row['label']: row for row in structure_rows}
+    iir_map = {row['label']: row for row in iir_rows}
+    loss_map = {row['label']: row for row in loss_rows}
+
+    def add_structure(label: str, group: str, variant: str, contrast: str) -> None:
+        if label not in structure_map:
+            raise KeyError(f'Missing structure ablation row: {label}')
+        rows.append(_metric_row_for_ablation(group, variant, contrast, structure_map[label]))
+
+    def add_iir(label: str, variant: str, contrast: str) -> None:
+        if label not in iir_map:
+            raise KeyError(f'Missing Wiener front-end ablation row: {label}')
+        rows.append(_metric_row_for_ablation('Wiener front', variant, contrast, iir_map[label]))
+
+    def add_loss(label: str, variant: str, contrast: str) -> None:
+        if label not in loss_map:
+            raise KeyError(f'Missing loss ablation row: {label}')
+        rows.append(_metric_row_for_ablation('Loss', variant, contrast, loss_map[label]))
+
+    baseline_reference = _metric_row_for_ablation(
+        'Baseline',
+        'B-spline + Odd+pos. + System, fixed, + MAE + AFMAE',
+        'Shared canonical Wiener-KAN setting',
+        structure_map['Wiener-KAN'],
+    )
+    baseline_candidates = [
+        iir_map['System prior, frozen'],
+        loss_map['MAE+AFMAE'],
+    ]
+    for candidate in baseline_candidates:
+        if any(
+            baseline_reference[key] != _fmt_float(candidate[source_key], digits)
+            for key, source_key, digits in (
+                ('freq_drift_hz', 'freq_drift_hz', 2),
+                ('sens_drift_percent', 'sens_drift_percent', 2),
+                ('linearity_percent', 'linearity_percent', 3),
+            )
+        ):
+            raise ValueError('Baseline ablation rows diverged; cannot collapse Table 5 baseline safely.')
+    baseline_reference['emphasize'] = True
+    rows.append(baseline_reference)
+
+    add_structure('CNN-KAN', 'Struct', 'CNN-KAN', 'Conv front replaces Wiener front')
+    add_structure('Wiener-MLP', 'Struct', 'Wiener-MLP', 'MLP replaces KAN mapping')
+
+    add_structure('No symmetry', 'Constr.', 'Positive', 'No odd symmetry')
+    add_structure('No positive (stress)', 'Constr.', 'Odd', 'No positive basis')
+
+    add_iir('Random, frozen', 'Random / fixed', 'Random init., frozen')
+    add_iir('System prior, trainable', 'System / trainable', 'Measured init., trainable')
+    add_iir('Random, trainable', 'Random / trainable', 'Random init., trainable')
+
+    add_loss('MAE', 'MAE', 'Time-domain pointwise loss')
+    add_loss('AFMAE', 'AFMAE', 'Amplitude-frequency loss')
+    return rows
+
+
+def latex_escape(text: Any) -> str:
+    value = str(text)
+    replacements = {
+        '\\': r'\textbackslash{}',
+        '&': r'\&',
+        '%': r'\%',
+        '$': r'\$',
+        '#': r'\#',
+        '_': r'\_',
+        '{': r'\{',
+        '}': r'\}',
+    }
+    return ''.join(replacements.get(char, char) for char in value)
+
+
+def latex_bold(text: Any) -> str:
+    return rf'\textbf{{{latex_escape(text)}}}'
+
+
+def markdown_bold(text: Any) -> str:
+    return f"**{text}**"
+
+
+def ablation_detail_tex(label: Any) -> str:
+    safe_label = re.sub(r'[^A-Za-z0-9_:\-]+', '', str(label))
+    return rf"Tab.~\ref{{{safe_label}}}"
+
+
+def ablation_detail_markdown(label: Any) -> str:
+    return str(label)
+
+
+def write_ablation_overview_tex(rows: List[Dict[str, Any]]) -> None:
+    table_dir = LATEX_DIR / 'tables'
+    table_dir.mkdir(parents=True, exist_ok=True)
+
+    group_spans: Dict[int, int] = {}
+    index = 0
+    while index < len(rows):
+        group = rows[index]['group']
+        span = 1
+        while index + span < len(rows) and rows[index + span]['group'] == group:
+            span += 1
+        group_spans[index] = span
+        index += span
+
+    lines = [
+        '% Auto-generated table; do not edit manually.',
+        r'\begingroup',
+        r'\renewcommand{\arraystretch}{1.22}',
+        r'\begin{tabular}{@{}p{0.12\textwidth}p{0.18\textwidth}p{0.40\textwidth}ccc@{}}',
+        r'\hline\hline',
+        r'\textbf{Group} & \textbf{Variant} & \textbf{Controlled contrast} & \makecell{\textbf{Freq}\\\textbf{drift}\\(Hz)} & \makecell{\textbf{Sens}\\\textbf{drift}\\(\%)} & \makecell{\textbf{Linearity}\\(\%)} \\ \hline',
+    ]
+    for row_index, row in enumerate(rows):
+        render_cell = latex_bold if row.get('emphasize') else latex_escape
+        if row_index in group_spans:
+            if group_spans[row_index] == 1:
+                group_cell = render_cell(row['group'])
+            else:
+                group_cell = rf"\multirow{{{group_spans[row_index]}}}{{=}}{{{render_cell(row['group'])}}}"
+        else:
+            group_cell = ''
+        cells = [
+            group_cell,
+            render_cell(row['variant']),
+            render_cell(row['contrast']),
+            render_cell(row['freq_drift_hz']),
+            render_cell(row['sens_drift_percent']),
+            render_cell(row['linearity_percent']),
+        ]
+        lines.append(' & '.join(cells) + r' \\')
+        if row_index + 1 < len(rows) and rows[row_index + 1]['group'] != row['group']:
+            lines.append(r'\hdashline')
+    lines.extend([r'\hline\hline', r'\end{tabular}', r'\endgroup', ''])
+    (table_dir / 'ablation_overview.tex').write_text('\n'.join(lines), encoding='utf-8')
+
+
 def build_tables(
     main_rows: List[Dict[str, Any]],
     loss_rows: List[Dict[str, Any]],
     structure_rows: List[Dict[str, Any]],
+    iir_rows: List[Dict[str, Any]],
+    ablation_overview_rows: List[Dict[str, Any]],
     deploy_rows: List[Dict[str, Any]],
     lut_rows: List[Dict[str, Any]],
+    lut_point_rows: List[Dict[str, Any]],
     origin: Dict[str, float],
     optimization_profiles: List[Dict[str, Any]],
-    calibration: Dict[str, Any],
 ) -> None:
-    adopted_fit = calibration['adopted_fit']
-    cost_model_label = (
-        f"add:multiply:MAP = 1:{adopted_fit['mul_weight']:.0f}:{adopted_fit['map_weight']:.0f}"
-    )
-
     table_main = make_table([
         [
             row['label'],
             f"{row['freq_drift_hz']:.2f}",
             f"{row['sens_drift_percent']:.2f}",
             f"{row['linearity_percent']:.3f}",
-            f"{row['compute_cost']:.0f}",
             format_optional(row['board_keil_mae'], '{:.2e}'),
             format_optional(row['board_keil_fps'], '{:.1f}'),
             format_optional(row.get('ram_bytes', None) / 1024.0 if row.get('ram_bytes') is not None else None, '{:.1f}'),
         ]
         for row in main_rows
-    ], ['Model', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'Compute Cost', 'KEIL-MAE', 'KEIL speed (Points/s)', 'RAM (KB)'])
+    ], ['Model', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'KEIL-MAE', 'KEIL speed (Points/s)', 'RAM (KB)'])
 
     table_loss = make_table([
         [
@@ -951,13 +1736,12 @@ def build_tables(
             f"{row['freq_drift_hz']:.2f}",
             f"{row['sens_drift_percent']:.2f}",
             f"{row['linearity_percent']:.3f}",
-            f"{row['compute_cost']:.0f}",
             format_optional(row['board_qemu_mae'], '{:.3e}'),
             format_optional(row['board_keil_mae'], '{:.3e}'),
             format_optional(row['board_keil_fps'], '{:.1f}'),
         ]
         for row in loss_rows
-    ], ['Variant', 'Active loss', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'Compute Cost', 'QEMU-MAE', 'KEIL-MAE', 'KEIL speed (Points/s)'])
+    ], ['Variant', 'Active loss', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'QEMU-MAE', 'KEIL-MAE', 'KEIL speed (Points/s)'])
 
     table_structure = make_table([
         [
@@ -965,10 +1749,32 @@ def build_tables(
             f"{row['freq_drift_hz']:.2f}",
             f"{row['sens_drift_percent']:.2f}",
             f"{row['linearity_percent']:.3f}",
-            f"{row['compute_cost']:.0f}",
         ]
         for row in structure_rows
-    ], ['Variant', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'Compute Cost'])
+    ], ['Variant', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)'])
+
+    table_iir = make_table([
+        [
+            row['label'],
+            str(int(row['epochs'])),
+            f"{row['freq_drift_hz']:.2f}",
+            f"{row['sens_drift_percent']:.2f}",
+            f"{row['linearity_percent']:.3f}",
+        ]
+        for row in iir_rows
+    ], ['Variant', 'Epochs', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)'])
+
+    table_ablation_overview = make_table([
+        [
+            markdown_bold(row['group']) if row.get('emphasize') else row['group'],
+            markdown_bold(row['variant']) if row.get('emphasize') else row['variant'],
+            markdown_bold(row['contrast']) if row.get('emphasize') else row['contrast'],
+            markdown_bold(row['freq_drift_hz']) if row.get('emphasize') else row['freq_drift_hz'],
+            markdown_bold(row['sens_drift_percent']) if row.get('emphasize') else row['sens_drift_percent'],
+            markdown_bold(row['linearity_percent']) if row.get('emphasize') else row['linearity_percent'],
+        ]
+        for row in ablation_overview_rows
+    ], ['Group', 'Variant', 'Controlled contrast', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)'])
 
     table_deploy = make_table([
         [
@@ -995,18 +1801,6 @@ def build_tables(
         if item['key'] in {'project_default', 'o0', 'o2', 'ofast_lto'}
     ], ['Profile', 'Status', 'KEIL speed (Points/s)', 'Flash (KB)', 'RAM (KB)', 'Note'])
 
-    table_calibration = make_table([
-        [
-            item['label'],
-            f"{1000.0 / float(item['measured_speed_ms_per_point']):.1f}",
-            f"{1000.0 / float(item['default_predicted_speed_ms_per_point']):.1f}",
-            f"{1000.0 / float(item['adopted_predicted_speed_ms_per_point']):.1f}",
-            f"{float(item['default_relative_error_percent']):.2f}",
-            f"{float(item['adopted_relative_error_percent']):.2f}",
-        ]
-        for item in calibration['pairs']
-    ], ['Model', 'Measured speed (Points/s)', 'Default 1:1:6', 'Adopted 1:3:20', 'Default error (%)', 'Adopted error (%)'])
-
     table_lut = make_table([
         [
             row['label'],
@@ -1018,6 +1812,18 @@ def build_tables(
         ]
         for row in lut_rows
     ], ['Variant', 'QEMU-MAE', 'KEIL-MAE', 'KEIL speed (Points/s)', 'Flash (KB)', 'RAM (KB)'])
+
+    lut_point_map = {(row['mode'], int(row['points'])): row for row in lut_point_rows}
+    table_lut_point_sweep = make_table([
+        [
+            str(points),
+            f"{lut_point_map[('nearest', points)]['qemu_mae']:.3e}",
+            f"{lut_point_map[('interp', points)]['qemu_mae']:.3e}",
+            f"{lut_point_map[('nearest', points)]['flash_bytes'] / 1024.0:.1f}",
+            f"{lut_point_map[('interp', points)]['flash_bytes'] / 1024.0:.1f}",
+        ]
+        for points in sorted({int(row['points']) for row in lut_point_rows})
+    ], ['LUT points', 'Nearest QEMU-MAE', 'Interp QEMU-MAE', 'Nearest Flash (KB)', 'Interp Flash (KB)'])
 
     band_freqs = ', '.join(f"{int(value) if float(value).is_integer() else value:g}" for value in main_rows[0]['linearity_band_frequencies_hz'])
     full_grid_desc = (
@@ -1036,11 +1842,9 @@ def build_tables(
         ['Reference sensitivity point', '100 Hz'],
         ['Freq-drift fitted center-frequency band', '10-128 Hz with band-limited fit_params'],
         ['Linearity band (this draft)', f"<= {main_rows[0]['linearity_band_max_hz']:.0f} Hz, {main_rows[0]['linearity_band_count']} points ({band_freqs} Hz)"],
-        ['Compute cost model', cost_model_label],
     ], ['Item', 'Value'])
 
-    adopted = calibration['adopted_fit']
-    default_fit = calibration['default_fit']
+    write_ablation_overview_tex(ablation_overview_rows)
     note_lines = [
         '# Machine-readable tables for the 20260422 draft',
         '',
@@ -1055,8 +1859,14 @@ def build_tables(
         '## Loss ablation',
         table_loss,
         '',
-        '## Structure ablation',
+        '## Structural ablation',
         table_structure,
+        '',
+        '## Wiener front-end ablation',
+        table_iir,
+        '',
+        '## Ablation overview',
+        table_ablation_overview,
         '',
         '## On-board inference evaluation',
         table_deploy,
@@ -1064,13 +1874,11 @@ def build_tables(
         '## Wiener-KAN optimization sweep',
         table_opt,
         '',
-        '## Compute-cost calibration summary',
-        f"Default 1:1:6 log-RMSE = {default_fit['log_rmse']:.4f}; adopted 1:3:20 log-RMSE = {adopted['log_rmse']:.4f}.",
-        '',
-        table_calibration,
-        '',
         '## LUT implementation variants',
         table_lut,
+        '',
+        '## LUT quantization-point sweep',
+        table_lut_point_sweep,
     ]
     (DATA_DIR / 'generated_tables.md').write_text('\n'.join(note_lines), encoding='utf-8')
 
@@ -1116,61 +1924,392 @@ def copy_ai_paper_asset(asset_name: str, figure_name: str, elements: List[str]) 
     return out.name
 
 
-def copy_lut_lookup_principles_figure() -> str:
-    return copy_ai_paper_asset(
-        'fig_15_lut_lookup_principles_ai.png',
+def make_lut_lookup_principles_figure() -> str:
+    def draw_box(
+        ax: Any,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        text: str,
+        face: str,
+        edge: str,
+        size: float = 9.6,
+        weight: str = 'normal',
+    ) -> None:
+        rect = FancyBboxPatch(
+            (x, y),
+            w,
+            h,
+            boxstyle='round,pad=0.012,rounding_size=0.018',
+            facecolor=face,
+            edgecolor=edge,
+            lw=1.4,
+        )
+        ax.add_patch(rect)
+        ax.text(x + w / 2, y + h / 2, text, ha='center', va='center', fontsize=size, weight=weight, color='#222222')
+
+    def arrow(ax: Any, start: tuple[float, float], end: tuple[float, float], color: str = '#333333') -> None:
+        ax.annotate('', xy=end, xytext=start, zorder=8, arrowprops=dict(arrowstyle='->', lw=1.8, color=color, shrinkA=0, shrinkB=0))
+
+    def draw_lut_table(ax: Any, x: float, y: float, w: float, h: float) -> None:
+        draw_box(ax, x, y, w, h, '', '#eaf6f1', '#0f6c5c')
+        rows = 6
+        for i in range(1, rows):
+            yy = y + h * i / rows
+            ax.plot([x + 0.025, x + w - 0.025], [yy, yy], color='#95bfb2', lw=0.8)
+        ax.text(x + w * 0.20, y + h * 0.84, 'q', ha='center', va='center', fontsize=8.4, weight='bold', color='#0f6c5c')
+        ax.text(x + w * 0.66, y + h * 0.84, r'$v_q$', ha='center', va='center', fontsize=8.4, weight='bold', color='#0f6c5c')
+        for i, (q_text, v_text) in enumerate([('0', r'$v_0$'), ('1', r'$v_1$'), ('...', '...'), (r'$Q-2$', r'$v_{Q-2}$'), (r'$Q-1$', r'$v_{Q-1}$')]):
+            yy = y + h * (0.68 - 0.13 * i)
+            ax.text(x + w * 0.20, yy, q_text, ha='center', va='center', fontsize=7.6, color='#222222')
+            ax.text(x + w * 0.66, yy, v_text, ha='center', va='center', fontsize=7.6, color='#222222')
+        ax.text(x + w / 2, y - 0.055, 'sampled table', ha='center', va='center', fontsize=8.0, color='#0f6c5c', weight='bold')
+
+    def draw_flash_chip(ax: Any, x: float, y: float, w: float, h: float) -> None:
+        chip = FancyBboxPatch(
+            (x, y),
+            w,
+            h,
+            boxstyle='round,pad=0.010,rounding_size=0.018',
+            facecolor='#f7fbff',
+            edgecolor='#1f4e79',
+            lw=1.6,
+        )
+        ax.add_patch(chip)
+        pin_y = np.linspace(y + h * 0.18, y + h * 0.82, 5)
+        for yy in pin_y:
+            ax.plot([x - 0.022, x], [yy, yy], color='#1f4e79', lw=1.2)
+            ax.plot([x + w, x + w + 0.022], [yy, yy], color='#1f4e79', lw=1.2)
+        ax.text(x + w / 2, y + h * 0.58, 'Flash', ha='center', va='center', fontsize=10.0, weight='bold', color='#1f4e79')
+        ax.text(x + w / 2, y + h * 0.38, 'LUT', ha='center', va='center', fontsize=10.0, weight='bold', color='#1f4e79')
+
+    fig_offline, ax_offline = plt.subplots(figsize=(6.8, 3.25), constrained_layout=True)
+    ax_offline.set_xlim(0, 1)
+    ax_offline.set_ylim(0, 1)
+    ax_offline.axis('off')
+    offline_boxes = [
+        {'id': 'activation_curve', 'bbox': [0.05, 0.21, 0.35, 0.81]},
+        {'id': 'sampled_table', 'bbox': [0.47, 0.22, 0.69, 0.80]},
+        {'id': 'flash_chip', 'bbox': [0.778, 0.30, 0.952, 0.72]},
+    ]
+    curve_to_table_points, curve_to_table_raw = _short_arrow_payload(
+        'curve_to_table',
+        [(0.35, 0.51), (0.47, 0.51)],
+        source='activation_curve',
+        target='sampled_table',
+        require_axis_aligned=True,
+    )
+    table_to_flash_points, table_to_flash_raw = _short_arrow_payload(
+        'table_to_flash',
+        [(0.69, 0.51), (0.778, 0.51)],
+        source='sampled_table',
+        target='flash_chip',
+        require_axis_aligned=True,
+    )
+    offline_arrows = [curve_to_table_raw, table_to_flash_raw]
+    curve_ax = ax_offline.inset_axes([0.05, 0.21, 0.30, 0.60])
+    x_dense = np.linspace(-1.0, 1.0, 300)
+    y_dense = 0.65 * np.sin(1.7 * x_dense) + 0.20 * x_dense**3
+    x_samples = np.linspace(-1.0, 1.0, 9)
+    y_samples = 0.65 * np.sin(1.7 * x_samples) + 0.20 * x_samples**3
+    curve_ax.plot(x_dense, y_dense, color='#0f6c5c', lw=2.4, label='trained activation')
+    curve_ax.scatter(x_samples, y_samples, s=34, color='#c96b00', edgecolor='white', zorder=4, label='LUT samples')
+    curve_ax.set_xticks([])
+    curve_ax.set_yticks([])
+    curve_ax.grid(True, alpha=0.25)
+    curve_ax.text(0.06, 0.86, 'trained\nactivation', transform=curve_ax.transAxes, color='#0f6c5c', fontsize=8.0, weight='bold')
+    curve_ax.text(0.61, 0.14, 'uniform\nsamples', transform=curve_ax.transAxes, color='#c96b00', fontsize=8.0, weight='bold')
+    draw_lut_table(ax_offline, 0.47, 0.22, 0.22, 0.58)
+    draw_flash_chip(ax_offline, 0.80, 0.30, 0.13, 0.42)
+    arrow(ax_offline, curve_to_table_points[0], curve_to_table_points[-1], '#0f6c5c')
+    arrow(ax_offline, table_to_flash_points[0], table_to_flash_points[-1], '#0f6c5c')
+    offline_source = save_panel_figure(
+        fig_offline,
+        'fig_15_lut_lookup_principles_a_offline.png',
+        raw_payload={
+            VISUAL_AUDIT_KEY: audit_schematic_geometry(
+                offline_boxes,
+                offline_arrows,
+                context='LUT offline construction schematic geometry',
+            )
+        },
+    )
+
+    fig_runtime, ax_runtime = plt.subplots(figsize=(6.8, 3.45), constrained_layout=True)
+    ax_runtime.set_xlim(0, 1)
+    ax_runtime.set_ylim(0, 1)
+    ax_runtime.axis('off')
+    runtime_boxes = [
+        {'id': 'input_scalar', 'bbox': [0.05, 0.42, 0.17, 0.59]},
+        {'id': 'address_mapping', 'bbox': [0.26, 0.35, 0.46, 0.67]},
+        {'id': 'nearest_lookup', 'bbox': [0.56, 0.62, 0.83, 0.87]},
+        {'id': 'linear_interp', 'bbox': [0.56, 0.13, 0.83, 0.43]},
+        {'id': 'output_scalar', 'bbox': [0.91, 0.42, 0.985, 0.62]},
+    ]
+    input_to_address_points, input_to_address_raw = _short_arrow_payload(
+        'input_to_address',
+        [(0.17, 0.51), (0.26, 0.51)],
+        source='input_scalar',
+        target='address_mapping',
+        require_axis_aligned=True,
+    )
+    address_to_nearest_points, address_to_nearest_raw = _short_arrow_payload(
+        'address_to_nearest',
+        [(0.46, 0.55), (0.56, 0.73)],
+        source='address_mapping',
+        target='nearest_lookup',
+    )
+    address_to_linear_points, address_to_linear_raw = _short_arrow_payload(
+        'address_to_linear',
+        [(0.46, 0.45), (0.56, 0.28)],
+        source='address_mapping',
+        target='linear_interp',
+    )
+    nearest_to_output_points, nearest_to_output_raw = _short_arrow_payload(
+        'nearest_to_output',
+        [(0.83, 0.74), (0.91, 0.57)],
+        source='nearest_lookup',
+        target='output_scalar',
+    )
+    linear_to_output_points, linear_to_output_raw = _short_arrow_payload(
+        'linear_to_output',
+        [(0.83, 0.27), (0.91, 0.48)],
+        source='linear_interp',
+        target='output_scalar',
+    )
+    runtime_arrows = [
+        input_to_address_raw,
+        address_to_nearest_raw,
+        address_to_linear_raw,
+        nearest_to_output_raw,
+        linear_to_output_raw,
+    ]
+    draw_box(ax_runtime, 0.05, 0.42, 0.12, 0.17, r'input $x$', '#f7f7f7', '#555555', size=10.6, weight='bold')
+    ax_runtime.plot([0.07, 0.15], [0.34, 0.34], color='#555555', lw=1.1)
+    ax_runtime.scatter([0.12], [0.34], s=42, color='#c96b00', zorder=3)
+    ax_runtime.text(0.07, 0.29, r'$x_{\min}$', ha='center', va='center', fontsize=7.4, color='#555555')
+    ax_runtime.text(0.15, 0.29, r'$x_{\max}$', ha='center', va='center', fontsize=7.4, color='#555555')
+    arrow(ax_runtime, input_to_address_points[0], input_to_address_points[-1])
+    draw_box(ax_runtime, 0.26, 0.35, 0.20, 0.32, 'address\nmapping', '#fff7e8', '#c96b00', size=9.6, weight='bold')
+    for k in range(6):
+        xx = 0.29 + 0.026 * k
+        ax_runtime.plot([xx, xx], [0.42, 0.48], color='#c96b00', lw=1.0)
+    ax_runtime.plot([0.29, 0.42], [0.45, 0.45], color='#c96b00', lw=1.2)
+    ax_runtime.scatter([0.36], [0.45], s=48, color='#0f6c5c', edgecolor='white', zorder=4)
+    ax_runtime.text(0.36, 0.30, r'$q,\lambda$', ha='center', va='center', fontsize=8.3, weight='bold', color='#c96b00')
+    arrow(ax_runtime, address_to_nearest_points[0], address_to_nearest_points[-1], '#c96b00')
+    arrow(ax_runtime, address_to_linear_points[0], address_to_linear_points[-1], '#1f4e79')
+
+    draw_box(ax_runtime, 0.56, 0.62, 0.27, 0.25, '', '#eaf6f1', '#0f6c5c')
+    ax_runtime.text(0.695, 0.82, 'nearest lookup', ha='center', va='center', fontsize=8.9, weight='bold', color='#0f6c5c')
+    cell_x = np.linspace(0.60, 0.78, 5)
+    ax_runtime.plot([cell_x[0], cell_x[-1]], [0.72, 0.72], color='#0f6c5c', lw=1.1)
+    for xx in cell_x:
+        ax_runtime.plot([xx, xx], [0.68, 0.76], color='#0f6c5c', lw=1.0)
+    ax_runtime.add_patch(plt.Rectangle((cell_x[2] - 0.018, 0.675), 0.036, 0.09, facecolor='#cfe9df', edgecolor='#0f6c5c', lw=1.0))
+    ax_runtime.scatter([cell_x[2]], [0.72], s=46, color='#0f6c5c', zorder=4)
+    ax_runtime.text(0.695, 0.65, 'one table read', ha='center', va='center', fontsize=7.8, color='#333333')
+
+    draw_box(ax_runtime, 0.56, 0.13, 0.27, 0.30, '', '#eef3fb', '#1f4e79')
+    ax_runtime.text(0.695, 0.37, 'linear interpolation', ha='center', va='center', fontsize=8.6, weight='bold', color='#1f4e79')
+    x0, x1 = 0.61, 0.78
+    y0, y1 = 0.21, 0.30
+    ax_runtime.plot([x0, x1], [y0, y1], color='#1f4e79', lw=1.7)
+    ax_runtime.scatter([x0, x1], [y0, y1], s=42, color='#1f4e79', edgecolor='white', zorder=4)
+    blend_x = 0.70
+    blend_y = y0 + (y1 - y0) * (blend_x - x0) / (x1 - x0)
+    ax_runtime.scatter([blend_x], [blend_y], s=58, color='#c96b00', edgecolor='white', zorder=5)
+    ax_runtime.text(0.695, 0.17, r'$(1-\lambda)v_q+\lambda v_{q+1}$', ha='center', va='center', fontsize=7.5, color='#333333')
+
+    arrow(ax_runtime, nearest_to_output_points[0], nearest_to_output_points[-1], '#0f6c5c')
+    arrow(ax_runtime, linear_to_output_points[0], linear_to_output_points[-1], '#1f4e79')
+    draw_box(ax_runtime, 0.91, 0.42, 0.075, 0.20, r'$\tilde{\phi}(x)$', '#ffffff', '#333333', size=11.0, weight='bold')
+    runtime_source = save_panel_figure(
+        fig_runtime,
+        'fig_15_lut_lookup_principles_b_runtime.png',
+        raw_payload={
+            VISUAL_AUDIT_KEY: audit_schematic_geometry(
+                runtime_boxes,
+                runtime_arrows,
+                context='LUT runtime lookup schematic geometry',
+            )
+        },
+    )
+
+    name = make_bitmap_montage(
         'fig_15_lut_lookup_principles.png',
-        ['trained KAN activation', 'uniform LUT samples', 'nearest-neighbor lookup', 'linear interpolation', 'MCU memory and compute trade-off'],
+        [
+            {'source': offline_source, 'label': '(a)', 'fit_width': 2100, 'trim_border': 120},
+            {'source': runtime_source, 'label': '(b)', 'fit_width': 2100, 'trim_border': 120},
+        ],
+        layout='vertical',
+        padding=[60, 55, 60, 55],
+        gutter=(60, 60),
+        label_font_size=48,
+        note='Composes the offline LUT construction and runtime lookup panels with the unified bitmap montage module.',
+        latex_width_fraction=0.78,
     )
-
-
-def copy_afmae_loss_principle_figure() -> str:
-    return copy_ai_paper_asset(
-        'fig_18_afmae_loss_principle_ai.png',
-        'fig_18_afmae_loss_principle.png',
-        ['paired target and prediction waveforms', 'energy statistic', 'amplitude-frequency response estimate', 'log response error matrix', 'combined AFMAE and MAE loss'],
-    )
-
+    raw_path = FIGURES_DIR / 'fig_15_lut_lookup_principles.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
+        'source': 'generated schematic from paper_pipeline.make_lut_lookup_principles_figure',
+        'focus': 'Simplified LUT deployment principle with offline sampling and runtime nearest/linear lookup paths.',
+        'omitted_secondary_details': [
+            'full MCU memory layout',
+            'dense procedural flowchart',
+            'auxiliary diagnostic icons',
+            'duplicate miniature activation plots',
+        ],
+        'panels': ['offline table construction', 'runtime MCU lookup'],
+    })
+    save_json(raw_path, raw_payload)
+    return name
 
 def make_dataset_preprocessing_workflow_figure() -> str:
-    fig, ax = plt.subplots(figsize=(14.2, 5.4), constrained_layout=True)
+    fig, ax = plt.subplots(figsize=(7.2, 9.2), constrained_layout=True)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
+    schematic_boxes: List[Dict[str, Any]] = []
+    schematic_arrows: List[Dict[str, Any]] = []
+
+    def draw_round_box(x: float, y: float, w: float, h: float, face: str, edge: str) -> None:
+        box = FancyBboxPatch(
+            (x, y),
+            w,
+            h,
+            boxstyle='round,pad=0.012,rounding_size=0.022',
+            facecolor=face,
+            edgecolor=edge,
+            lw=1.35,
+        )
+        ax.add_patch(box)
+
+    def draw_sine_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        xs = np.linspace(x, x + w, 120)
+        ys = y + h * (0.50 + 0.28 * np.sin(np.linspace(0, 2.5 * np.pi, 120)))
+        ax.plot(xs, ys, color=color, lw=1.8)
+        ax.plot([x, x + w], [y + h * 0.18, y + h * 0.18], color='#8a96a3', lw=0.8)
+        ax.plot([x, x], [y + h * 0.18, y + h * 0.84], color='#8a96a3', lw=0.8)
+        ax.scatter([x + w * 0.75], [y + h * 0.78], s=26, color='#c96b00', zorder=4)
+
+    def draw_response_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        xs = np.linspace(x, x + w, 100)
+        center = x + w * 0.58
+        ys = y + h * (0.22 + 0.58 / (1.0 + ((xs - center) / (w * 0.18)) ** 2))
+        ax.plot(xs, ys, color=color, lw=1.8)
+        ax.fill_between(xs, y + h * 0.18, ys, color=color, alpha=0.12)
+        ax.plot([x, x + w], [y + h * 0.18, y + h * 0.18], color='#8a96a3', lw=0.8)
+
+    def draw_pair_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        xs = np.linspace(x, x + w * 0.78, 90)
+        for offset, alpha, line_color in [(0.67, 1.0, color), (0.34, 0.85, '#c96b00')]:
+            ys = y + h * (offset + 0.11 * np.sin(np.linspace(0, 2.3 * np.pi, 90)))
+            ax.plot(xs, ys, color=line_color, lw=1.45, alpha=alpha)
+        for i in range(3):
+            ax.add_patch(plt.Rectangle((x + w * (0.82 + i * 0.055), y + h * 0.25), w * 0.035, h * 0.55, facecolor='#ffffff', edgecolor='#9aa6b2', lw=0.8))
+
+    def draw_split_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        ax.add_patch(plt.Rectangle((x, y + h * 0.23), w * 0.42, h * 0.54, facecolor='#dcefe7', edgecolor=color, lw=1.1))
+        ax.add_patch(plt.Rectangle((x + w * 0.48, y + h * 0.23), w * 0.42, h * 0.54, facecolor='#f4e8fb', edgecolor='#6a3d9a', lw=1.1))
+        ax.plot([x + w * 0.45, x + w * 0.45], [y + h * 0.20, y + h * 0.82], color='#555555', lw=1.0, ls='--')
+        ax.text(x + w * 0.21, y + h * 0.50, '50', ha='center', va='center', fontsize=7.0, color=color, weight='bold')
+        ax.text(x + w * 0.69, y + h * 0.50, '50', ha='center', va='center', fontsize=7.0, color='#6a3d9a', weight='bold')
+
+    def draw_window_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        xs = np.linspace(x, x + w, 120)
+        ys = y + h * (0.50 + 0.22 * np.sin(np.linspace(0, 3.0 * np.pi, 120)))
+        ax.plot(xs, ys, color='#617182', lw=1.2)
+        win_x = x + w * 0.37
+        ax.add_patch(plt.Rectangle((win_x, y + h * 0.17), w * 0.34, h * 0.66, facecolor=color, edgecolor=color, alpha=0.16, lw=1.0))
+        ax.plot(xs[(xs >= win_x) & (xs <= win_x + w * 0.34)], ys[(xs >= win_x) & (xs <= win_x + w * 0.34)], color=color, lw=2.0)
+
+    def draw_norm_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        ax.plot([x + w * 0.12, x + w * 0.88], [y + h * 0.34, y + h * 0.34], color='#8a96a3', lw=1.0)
+        ax.plot([x + w * 0.12, x + w * 0.12], [y + h * 0.25, y + h * 0.75], color='#8a96a3', lw=1.0)
+        ax.plot([x + w * 0.88, x + w * 0.88], [y + h * 0.25, y + h * 0.75], color='#8a96a3', lw=1.0)
+        ax.add_patch(plt.Rectangle((x + w * 0.20, y + h * 0.30), w * 0.14, h * 0.34, facecolor='#dfe6ee', edgecolor='#617182', lw=0.8))
+        ax.add_patch(plt.Rectangle((x + w * 0.47, y + h * 0.30), w * 0.14, h * 0.48, facecolor='#dfe6ee', edgecolor='#617182', lw=0.8))
+        ax.add_patch(plt.Rectangle((x + w * 0.72, y + h * 0.30), w * 0.14, h * 0.24, facecolor=color, edgecolor=color, lw=0.8, alpha=0.65))
+        ax.text(x + w * 0.12, y + h * 0.14, '-1', ha='center', va='center', fontsize=6.8, color='#617182')
+        ax.text(x + w * 0.88, y + h * 0.14, '1', ha='center', va='center', fontsize=6.8, color='#617182')
+
+    def draw_tensor_icon(x: float, y: float, w: float, h: float, color: str) -> None:
+        base = np.array([[x + w * 0.18, y + h * 0.28], [x + w * 0.68, y + h * 0.28], [x + w * 0.68, y + h * 0.65], [x + w * 0.18, y + h * 0.65]])
+        shift = np.array([w * 0.16, h * 0.13])
+        ax.add_patch(Polygon(base + shift, closed=True, facecolor='#fbe3df', edgecolor='#a61c3c', lw=1.0, alpha=0.78))
+        ax.add_patch(Polygon(base, closed=True, facecolor='#ffffff', edgecolor=color, lw=1.1))
+        for p0, p1 in zip(base, base + shift):
+            ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color='#9aa6b2', lw=0.8)
+        for frac in [0.33, 0.66]:
+            ax.plot([base[0, 0] + (base[1, 0] - base[0, 0]) * frac, base[3, 0] + (base[2, 0] - base[3, 0]) * frac], [base[0, 1], base[3, 1]], color='#9aa6b2', lw=0.65)
+            ax.plot([base[0, 0], base[1, 0]], [base[0, 1] + (base[3, 1] - base[0, 1]) * frac, base[1, 1] + (base[2, 1] - base[1, 1]) * frac], color='#9aa6b2', lw=0.65)
+
     steps = [
-        ('1', 'MET excitation', 'Frequency sweep f\nMagnitude sweep m'),
-        ('2', 'Ideal reference', 'Low-magnitude fitted\nsecond-order response'),
-        ('3', 'Paired matrix D', 'Measured waveform +\nideal waveform'),
-        ('4', '50% / 50% split', '175 train records\n175 validation records'),
-        ('5', 'Windowing', 'Steady-state segment\n8000 samples'),
-        ('6', 'Normalization', 'Per-channel min-max\nscaling to [-1, 1]'),
-        ('7', 'Model tensors', 'Paired input and target\nsequences'),
+        ('1', 'MET excitation', 'frequency sweep f; magnitude sweep m', draw_sine_icon),
+        ('2', 'Ideal reference', 'low-magnitude fitted second-order response', draw_response_icon),
+        ('3', 'Paired matrix D', 'measured waveform paired with ideal waveform', draw_pair_icon),
+        ('4', '50% / 50% split', '175 train records; 175 validation records', draw_split_icon),
+        ('5', 'Windowing', 'steady-state segment, 8000 samples', draw_window_icon),
+        ('6', 'Normalization', 'per-channel min-max scaling to [-1, 1]', draw_norm_icon),
+        ('7', 'Model tensors', 'paired input and target sequences', draw_tensor_icon),
     ]
-    xs = np.linspace(0.07, 0.93, len(steps))
     colors = ['#e8f1fb', '#eaf7ee', '#fff4df', '#f1ecfb', '#e8f6f7', '#eef2f7', '#fdeceb']
-    for idx, ((number, title, body), x, color) in enumerate(zip(steps, xs, colors)):
-        rect = plt.Rectangle((x - 0.055, 0.40), 0.11, 0.30, facecolor=color, edgecolor='#355070', lw=1.2)
-        ax.add_patch(rect)
-        ax.text(x - 0.045, 0.665, number, ha='center', va='center', fontsize=8.5, weight='bold', color='white',
-                bbox=dict(boxstyle='round,pad=0.25', facecolor='#355070', edgecolor='none'))
-        ax.text(x, 0.61, title, ha='center', va='center', fontsize=9.5, weight='bold')
-        ax.text(x, 0.50, body, ha='center', va='center', fontsize=8.2)
-        if idx < len(xs) - 1:
-            ax.annotate('', xy=(xs[idx + 1] - 0.066, 0.55), xytext=(x + 0.060, 0.55),
-                        arrowprops=dict(arrowstyle='->', lw=1.5, color='#4a5568'))
-    ax.text(0.5, 0.22,
-            'The split is performed over frequency--magnitude operating points after steady-state clipping; all subsequent metrics use the same split.',
-            ha='center', va='center', fontsize=9.2, color='#333333')
-    ax.text(0.5, 0.12, 'Notes: frequency grid 10--200 Hz; magnitude range 0.24--6.0 m/s^2; target is an ideal linear reference.',
-            ha='center', va='center', fontsize=8.6, color='#555555')
+    ys = np.linspace(0.86, 0.12, len(steps))
+    box_x = 0.12
+    box_w = 0.78
+    box_h = 0.092
+    icon_x = 0.17
+    icon_w = 0.18
+    edge = '#355070'
+    for idx, ((number, title, body, icon_func), y_center, color) in enumerate(zip(steps, ys, colors)):
+        y = y_center - box_h / 2
+        draw_round_box(box_x, y, box_w, box_h, color, edge)
+        box_id = f'step_{number}'
+        schematic_boxes.append({'id': box_id, 'bbox': [box_x, y, box_x + box_w, y + box_h]})
+        ax.text(
+            box_x - 0.045,
+            y_center,
+            number,
+            ha='center',
+            va='center',
+            fontsize=8.8,
+            weight='bold',
+            color='white',
+            bbox=dict(boxstyle='circle,pad=0.25', facecolor=edge, edgecolor='none'),
+        )
+        icon_func(icon_x, y + box_h * 0.13, icon_w, box_h * 0.74, edge)
+        ax.text(0.405, y_center + box_h * 0.18, title, ha='left', va='center', fontsize=10.6, weight='bold', color='#222222')
+        ax.text(0.405, y_center - box_h * 0.20, body, ha='left', va='center', fontsize=8.8, color='#333333')
+        if idx < len(ys) - 1:
+            start = (0.51, y_center - box_h / 2)
+            end = (0.51, ys[idx + 1] + box_h / 2)
+            ax.annotate(
+                '',
+                xy=end,
+                xytext=start,
+                arrowprops=dict(arrowstyle='->', lw=1.45, color='#4a5568'),
+            )
+            schematic_arrows.append({
+                'id': f'step_{number}_to_step_{steps[idx + 1][0]}',
+                'points': [list(start), list(end)],
+                'source': box_id,
+                'target': f'step_{steps[idx + 1][0]}',
+                'require_axis_aligned': True,
+            })
     out = FIGURES_DIR / 'fig_19_dataset_preprocessing_workflow.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {
+    _save_matplotlib_figure(fig, out, raw_payload={
         'source_trace': 'AI-rendered schematic asset existed without editable source; replaced by a code-generated schematic to enforce the documented 50/50 split.',
-        'modification_scope': 'dataset split label and simplified data-construction workflow',
+        'modification_scope': 'vertical illustrated dataset split and data-construction workflow',
         'split': {'train_records': 175, 'validation_records': 175, 'unit': 'frequency--magnitude operating points'},
-    })
+        'visual_elements': ['sine sweep icon', 'second-order response icon', 'paired waveform icon', 'split icon', 'windowed waveform icon', 'normalization scale icon', 'tensor grid icon'],
+        VISUAL_AUDIT_KEY: audit_schematic_geometry(
+            schematic_boxes,
+            schematic_arrows,
+            context='dataset preprocessing workflow schematic geometry',
+        ),
+    }, bbox_inches='tight')
     return out.name
 
 
@@ -1197,47 +2336,408 @@ def make_wiener_kan_framework_figure() -> str:
     )
 
 
-def copy_board_inference_validation_workflow_figure() -> str:
-    return copy_ai_paper_asset(
-        'fig_17_board_inference_validation_workflow_ai.png',
-        'fig_17_board_inference_validation_workflow.png',
-        ['PC model export', 'weights normalization and LUT tables', 'QEMU validation', 'Keil STM32 hardware validation', 'MAE and ms-per-point metrics'],
+def make_board_inference_validation_workflow_figure() -> str:
+    schematic_boxes: List[Dict[str, Any]] = []
+    schematic_arrows: List[Dict[str, Any]] = []
+
+    def reset_schematic_geometry() -> None:
+        schematic_boxes.clear()
+        schematic_arrows.clear()
+
+    def schematic_payload(context: str) -> Dict[str, Any]:
+        return {
+            VISUAL_AUDIT_KEY: audit_schematic_geometry(
+                list(schematic_boxes),
+                list(schematic_arrows),
+                context=context,
+            )
+        }
+
+    def configure_axis(ax: Any) -> None:
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+
+    def draw_card(
+        ax: Any,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        title: str,
+        body: str,
+        face: str,
+        edge: str,
+        *,
+        card_id: str | None = None,
+        title_size: float = 9.2,
+        body_size: float = 7.6,
+    ) -> None:
+        rect = FancyBboxPatch(
+            (x, y),
+            w,
+            h,
+            boxstyle='round,pad=0.012,rounding_size=0.020',
+            facecolor=face,
+            edgecolor=edge,
+            lw=1.45,
+        )
+        ax.add_patch(rect)
+        if card_id:
+            schematic_boxes.append({'id': card_id, 'bbox': [x, y, x + w, y + h]})
+        ax.text(x + w / 2, y + h * 0.34, title, ha='center', va='center', fontsize=title_size, weight='bold', color='#222222')
+        ax.text(x + w / 2, y + h * 0.17, body, ha='center', va='center', fontsize=body_size, color='#333333')
+
+    def routed_arrow(
+        ax: Any,
+        points: List[tuple[float, float]],
+        color: str = '#333333',
+        lw: float = 1.6,
+        *,
+        arrow_id: str,
+        source: str,
+        target: str,
+        full_points: List[tuple[float, float]] | None = None,
+        require_axis_aligned: bool = True,
+    ) -> None:
+        for start, end in zip(points[:-2], points[1:-1]):
+            ax.plot([start[0], end[0]], [start[1], end[1]], color=color, lw=lw, solid_capstyle='round')
+        ax.annotate('', xy=points[-1], xytext=points[-2], arrowprops=dict(arrowstyle='->', lw=lw, color=color, shrinkA=0, shrinkB=0))
+        arrow_payload: Dict[str, Any] = {
+            'id': arrow_id,
+            'points': [[float(x), float(y)] for x, y in points],
+            'source': source,
+            'target': target,
+            'endpoint_policy': 'outside_clearance',
+        }
+        if require_axis_aligned:
+            arrow_payload['require_axis_aligned'] = True
+        if full_points is not None:
+            arrow_payload['full_points'] = [[float(x), float(y)] for x, y in full_points]
+            arrow_payload['max_length_fraction'] = SHORT_CONNECTOR_FRACTION
+        schematic_arrows.append(arrow_payload)
+
+    def icon_neural_project(ax: Any, x: float, y: float, w: float, h: float, color: str) -> None:
+        xs = [x + w * 0.18, x + w * 0.50, x + w * 0.82]
+        ys_left = [y + h * 0.28, y + h * 0.72]
+        ys_mid = [y + h * 0.22, y + h * 0.50, y + h * 0.78]
+        ys_right = [y + h * 0.50]
+        for yy0 in ys_left:
+            for yy1 in ys_mid:
+                ax.plot([xs[0], xs[1]], [yy0, yy1], color=color, lw=0.75, alpha=0.55)
+        for yy0 in ys_mid:
+            ax.plot([xs[1], xs[2]], [yy0, ys_right[0]], color=color, lw=0.75, alpha=0.55)
+        for xx, y_list in [(xs[0], ys_left), (xs[1], ys_mid), (xs[2], ys_right)]:
+            for yy in y_list:
+                ax.add_patch(Circle((xx, yy), w * 0.045, facecolor='white', edgecolor=color, lw=1.1))
+        t = np.linspace(0.0, 1.0, 80)
+        ax.plot(x + w * (0.10 + 0.78 * t), y + h * (0.06 + 0.08 * np.sin(2 * np.pi * t)), color='#c96b00', lw=1.1)
+
+    def icon_c_package(ax: Any, x: float, y: float, w: float, h: float, color: str) -> None:
+        sheet = Polygon(
+            [[x + w * 0.18, y + h * 0.12], [x + w * 0.74, y + h * 0.12], [x + w * 0.74, y + h * 0.84], [x + w * 0.52, y + h * 0.84], [x + w * 0.18, y + h * 0.64]],
+            closed=True,
+            facecolor='white',
+            edgecolor=color,
+            lw=1.2,
+        )
+        ax.add_patch(sheet)
+        ax.plot([x + w * 0.52, x + w * 0.52, x + w * 0.74], [y + h * 0.84, y + h * 0.64, y + h * 0.64], color=color, lw=1.0)
+        ax.text(x + w * 0.45, y + h * 0.55, 'C', ha='center', va='center', fontsize=13, weight='bold', color=color)
+        for i in range(4):
+            yy = y + h * (0.24 + 0.08 * i)
+            ax.plot([x + w * 0.30, x + w * 0.62], [yy, yy], color='#9cc7bc', lw=1.0)
+        ax.add_patch(plt.Rectangle((x + w * 0.79, y + h * 0.24), w * 0.11, h * 0.12, facecolor='#dcefe7', edgecolor=color, lw=0.9))
+        ax.add_patch(plt.Rectangle((x + w * 0.79, y + h * 0.42), w * 0.11, h * 0.12, facecolor='#dcefe7', edgecolor=color, lw=0.9))
+        ax.add_patch(plt.Rectangle((x + w * 0.79, y + h * 0.60), w * 0.11, h * 0.12, facecolor='#dcefe7', edgecolor=color, lw=0.9))
+
+    def icon_chip(ax: Any, x: float, y: float, w: float, h: float, color: str, label: str = 'MCU') -> None:
+        chip = FancyBboxPatch(
+            (x + w * 0.22, y + h * 0.18),
+            w * 0.56,
+            h * 0.58,
+            boxstyle='round,pad=0.006,rounding_size=0.012',
+            facecolor='white',
+            edgecolor=color,
+            lw=1.3,
+        )
+        ax.add_patch(chip)
+        for yy in np.linspace(y + h * 0.27, y + h * 0.67, 4):
+            ax.plot([x + w * 0.12, x + w * 0.22], [yy, yy], color=color, lw=1.0)
+            ax.plot([x + w * 0.78, x + w * 0.88], [yy, yy], color=color, lw=1.0)
+        for xx in np.linspace(x + w * 0.33, x + w * 0.67, 3):
+            ax.plot([xx, xx], [y + h * 0.08, y + h * 0.18], color=color, lw=1.0)
+            ax.plot([xx, xx], [y + h * 0.76, y + h * 0.86], color=color, lw=1.0)
+        ax.text(x + w * 0.50, y + h * 0.49, label, ha='center', va='center', fontsize=8.6, weight='bold', color=color)
+
+    def icon_wave_reference(ax: Any, x: float, y: float, w: float, h: float) -> None:
+        t = np.linspace(0.0, 1.0, 120)
+        ax.plot(x + w * (0.05 + 0.62 * t), y + h * (0.30 + 0.18 * np.sin(2.5 * np.pi * t)), color='#1f4e79', lw=1.2)
+        ax.plot(x + w * (0.05 + 0.62 * t), y + h * (0.64 + 0.12 * np.sin(2.5 * np.pi * t + 0.25)), color='#c96b00', lw=1.2)
+        for xx, height in [(0.78, 0.45), (0.86, 0.62), (0.94, 0.34)]:
+            ax.add_patch(plt.Rectangle((x + w * xx, y + h * 0.18), w * 0.045, h * height, facecolor='#f7f7f7', edgecolor='#555555', lw=0.8))
+        ax.text(x + w * 0.83, y + h * 0.82, 'TF', ha='center', va='center', fontsize=7.3, weight='bold', color='#555555')
+
+    def icon_qemu(ax: Any, x: float, y: float, w: float, h: float) -> None:
+        monitor = plt.Rectangle((x + w * 0.12, y + h * 0.34), w * 0.58, h * 0.42, facecolor='white', edgecolor='#0f6c5c', lw=1.1)
+        ax.add_patch(monitor)
+        t = np.linspace(0.0, 1.0, 50)
+        ax.plot(x + w * (0.18 + 0.46 * t), y + h * (0.55 + 0.10 * np.sin(2 * np.pi * t)), color='#0f6c5c', lw=1.1)
+        ax.plot([x + w * 0.35, x + w * 0.47], [y + h * 0.25, y + h * 0.25], color='#0f6c5c', lw=1.1)
+        ax.plot([x + w * 0.41, x + w * 0.41], [y + h * 0.25, y + h * 0.34], color='#0f6c5c', lw=1.1)
+        ax.add_patch(Circle((x + w * 0.82, y + h * 0.55), w * 0.085, facecolor='#eaf6f1', edgecolor='#0f6c5c', lw=1.1))
+        ax.text(x + w * 0.82, y + h * 0.55, 'Q', ha='center', va='center', fontsize=8.2, weight='bold', color='#0f6c5c')
+
+    def icon_uart_metrics(ax: Any, x: float, y: float, w: float, h: float) -> None:
+        icon_chip(ax, x + w * 0.02, y + h * 0.08, w * 0.50, h * 0.82, '#1f4e79', label='F405')
+        ax.plot([x + w * 0.54, x + w * 0.72], [y + h * 0.55, y + h * 0.55], color='#1f4e79', lw=1.0)
+        for i in range(3):
+            ax.add_patch(Circle((x + w * (0.76 + 0.07 * i), y + h * 0.55), w * 0.018, facecolor='#c96b00', edgecolor='none'))
+        ax.text(x + w * 0.77, y + h * 0.72, 'UART', ha='center', va='center', fontsize=6.8, color='#1f4e79', weight='bold')
+
+    def icon_metric_card(ax: Any, x: float, y: float, w: float, h: float, color: str) -> None:
+        ax.add_patch(Circle((x + w * 0.24, y + h * 0.54), w * 0.12, facecolor='#ffffff', edgecolor=color, lw=1.1))
+        ax.plot([x + w * 0.24, x + w * 0.31], [y + h * 0.54, y + h * 0.62], color=color, lw=1.1)
+        bars = [0.30, 0.48, 0.66]
+        for idx, xx in enumerate(bars):
+            ax.add_patch(plt.Rectangle((x + w * xx, y + h * 0.22), w * 0.055, h * (0.22 + 0.08 * idx), facecolor=color, edgecolor=color, lw=0.8, alpha=0.55))
+
+    fig_export, ax_export = plt.subplots(figsize=(7.15, 3.9), constrained_layout=True)
+    configure_axis(ax_export)
+    reset_schematic_geometry()
+    draw_card(ax_export, 0.05, 0.17, 0.23, 0.67, 'trained\nWiener-KAN', 'weights + norms', '#eef3fb', '#1f4e79', card_id='trained_project', title_size=9.5, body_size=7.5)
+    draw_card(ax_export, 0.37, 0.13, 0.28, 0.75, 'C export\npackage', 'arrays, LUTs,\nscales', '#f1f8f5', '#0f6c5c', card_id='c_export', title_size=9.5, body_size=7.4)
+    draw_card(ax_export, 0.77, 0.17, 0.18, 0.67, 'embedded C\nkernel', 'sample-by-sample\ninference', '#fff7e8', '#c96b00', card_id='embedded_kernel', title_size=9.3, body_size=7.1)
+    icon_neural_project(ax_export, 0.08, 0.48, 0.17, 0.32, '#1f4e79')
+    icon_c_package(ax_export, 0.42, 0.41, 0.19, 0.40, '#0f6c5c')
+    icon_chip(ax_export, 0.79, 0.47, 0.13, 0.33, '#c96b00', label='C')
+    trained_to_export_full = [(0.28, 0.505), (0.37, 0.505)]
+    export_to_kernel_full = [(0.65, 0.505), (0.77, 0.505)]
+    routed_arrow(
+        ax_export,
+        _shorten_polyline(trained_to_export_full),
+        '#1f4e79',
+        lw=1.9,
+        arrow_id='trained_to_export',
+        source='trained_project',
+        target='c_export',
+        full_points=trained_to_export_full,
     )
+    routed_arrow(
+        ax_export,
+        _shorten_polyline(export_to_kernel_full),
+        '#0f6c5c',
+        lw=1.9,
+        arrow_id='export_to_kernel',
+        source='c_export',
+        target='embedded_kernel',
+        full_points=export_to_kernel_full,
+    )
+    export_source = save_panel_figure(
+        fig_export,
+        'fig_17_board_inference_validation_workflow_a_export.png',
+        raw_payload=schematic_payload('board inference export panel'),
+    )
+
+    fig_validate, ax_validate = plt.subplots(figsize=(7.15, 4.25), constrained_layout=True)
+    configure_axis(ax_validate)
+    reset_schematic_geometry()
+    draw_card(ax_validate, 0.04, 0.33, 0.24, 0.40, 'test window\n+ TF reference', 'same input trace', '#f7f7f7', '#555555', card_id='test_window', title_size=8.9, body_size=7.0)
+    draw_card(ax_validate, 0.36, 0.56, 0.28, 0.34, 'QEMU run', 'numerical\nconsistency', '#eaf6f1', '#0f6c5c', card_id='qemu_run', title_size=9.2, body_size=7.0)
+    draw_card(ax_validate, 0.36, 0.10, 0.28, 0.39, 'STM32F405', 'Keil build\n+ UART loop', '#eef3fb', '#1f4e79', card_id='stm32_run', title_size=9.2, body_size=7.0)
+    draw_card(ax_validate, 0.74, 0.58, 0.21, 0.28, 'QEMU-MAE', 'C vs TF', '#ffffff', '#0f6c5c', card_id='qemu_metric', title_size=9.4, body_size=7.0)
+    draw_card(ax_validate, 0.74, 0.14, 0.21, 0.34, 'KEIL metrics', 'MAE, speed,\nRAM / Flash', '#ffffff', '#1f4e79', card_id='keil_metric', title_size=9.2, body_size=6.8)
+    icon_wave_reference(ax_validate, 0.07, 0.45, 0.18, 0.20)
+    icon_qemu(ax_validate, 0.41, 0.67, 0.19, 0.17)
+    icon_uart_metrics(ax_validate, 0.40, 0.18, 0.21, 0.20)
+    icon_metric_card(ax_validate, 0.78, 0.67, 0.15, 0.15, '#0f6c5c')
+    icon_metric_card(ax_validate, 0.78, 0.24, 0.15, 0.18, '#1f4e79')
+    test_to_qemu_full = [(0.28, 0.58), (0.36, 0.72)]
+    test_to_stm32_full = [(0.28, 0.48), (0.36, 0.29)]
+    qemu_to_metric_full = [(0.64, 0.72), (0.74, 0.72)]
+    stm32_to_metric_full = [(0.64, 0.29), (0.74, 0.29)]
+    routed_arrow(
+        ax_validate,
+        _shorten_polyline(test_to_qemu_full),
+        '#555555',
+        lw=1.8,
+        arrow_id='test_to_qemu',
+        source='test_window',
+        target='qemu_run',
+        full_points=test_to_qemu_full,
+        require_axis_aligned=False,
+    )
+    routed_arrow(
+        ax_validate,
+        _shorten_polyline(test_to_stm32_full),
+        '#555555',
+        lw=1.8,
+        arrow_id='test_to_stm32',
+        source='test_window',
+        target='stm32_run',
+        full_points=test_to_stm32_full,
+        require_axis_aligned=False,
+    )
+    routed_arrow(
+        ax_validate,
+        _shorten_polyline(qemu_to_metric_full),
+        '#0f6c5c',
+        lw=1.8,
+        arrow_id='qemu_to_metric',
+        source='qemu_run',
+        target='qemu_metric',
+        full_points=qemu_to_metric_full,
+    )
+    routed_arrow(
+        ax_validate,
+        _shorten_polyline(stm32_to_metric_full),
+        '#1f4e79',
+        lw=1.8,
+        arrow_id='stm32_to_metric',
+        source='stm32_run',
+        target='keil_metric',
+        full_points=stm32_to_metric_full,
+    )
+    validate_source = save_panel_figure(
+        fig_validate,
+        'fig_17_board_inference_validation_workflow_b_validate.png',
+        raw_payload=schematic_payload('board inference validation panel'),
+    )
+
+    name = make_bitmap_montage(
+        'fig_17_board_inference_validation_workflow.png',
+        [
+            {'source': export_source, 'label': '(a)', 'fit_width': 2200, 'trim_border': 120},
+            {'source': validate_source, 'label': '(b)', 'fit_width': 2200, 'trim_border': 120},
+        ],
+        layout='vertical',
+        padding=[60, 55, 60, 55],
+        gutter=(60, 60),
+        label_font_size=50,
+        note='Composes the export and two-target validation panels with the unified bitmap montage module.',
+    )
+    raw_path = FIGURES_DIR / 'fig_17_board_inference_validation_workflow.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
+        'source': 'generated schematic from paper_pipeline.make_board_inference_validation_workflow_figure',
+        'focus': 'Simplified embedded validation workflow with one C export and two validation targets.',
+        'omitted_secondary_details': [
+            'per-file generated C artifacts',
+            'normalization formula blocks',
+            'UART packet-level steps',
+            'dense metric sidebars',
+        ],
+        'visual_elements': [
+            'neural network project icon',
+            'C source package and LUT table icons',
+            'embedded chip icon',
+            'paired waveform and TensorFlow reference icon',
+            'QEMU monitor icon',
+            'STM32F405 chip and UART dots icon',
+            'metric gauge and bar icons',
+        ],
+        'panels': ['export once', 'validate on two targets'],
+    })
+    save_json(raw_path, raw_payload)
+    return name
 
 def make_parallel_wiener_principle_schematic() -> str:
     fig, ax = plt.subplots(figsize=(10.8, 4.5), constrained_layout=True)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
-    ax.text(0.02, 0.94, 'Parallel Wiener equivalent model', ha='left', va='center', fontsize=13, weight='bold')
+    schematic_boxes: List[Dict[str, Any]] = []
+    schematic_arrows: List[Dict[str, Any]] = []
+    split_point = (0.15, 0.50)
     ax.text(0.08, 0.50, 'input\nx(t)', ha='center', va='center', fontsize=11, weight='bold')
-    ax.annotate('', xy=(0.18, 0.50), xytext=(0.12, 0.50), arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333'))
+    input_arrow_points, input_arrow_raw = _short_arrow_payload(
+        'input_to_split',
+        [(0.11, 0.50), split_point],
+        require_axis_aligned=True,
+    )
+    ax.annotate('', xy=input_arrow_points[-1], xytext=input_arrow_points[0], arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333', shrinkA=0, shrinkB=0))
+    schematic_arrows.append(input_arrow_raw)
+    ax.add_patch(Circle(split_point, 0.006, facecolor='#666666', edgecolor='none', zorder=4))
     branch_y = [0.72, 0.50, 0.28]
     branch_names = ['low magnitude', 'middle magnitude', 'high magnitude']
     branch_colors = ['#1f4e79', '#0f6c5c', '#c96b00']
+    sum_center = (0.82, 0.50)
+    sum_radius = 0.052
+    sum_circle = Circle(sum_center, sum_radius, facecolor='#f2efe6', edgecolor='#333333', lw=1.3)
+    ax.add_patch(sum_circle)
+    schematic_boxes.append({'id': 'sum', 'bbox': [sum_center[0] - sum_radius, sum_center[1] - sum_radius, sum_center[0] + sum_radius, sum_center[1] + sum_radius]})
     for i, (y, name, color) in enumerate(zip(branch_y, branch_names, branch_colors), start=1):
-        ax.plot([0.18, 0.22], [0.50, y], color='#666666', lw=1.6)
-        dyn = plt.Rectangle((0.22, y - 0.07), 0.18, 0.14, facecolor='#eaf2f8', edgecolor=color, lw=1.4)
-        nonlin = plt.Rectangle((0.48, y - 0.07), 0.18, 0.14, facecolor='#fff4e6', edgecolor=color, lw=1.4)
+        dyn = FancyBboxPatch((0.22, y - 0.07), 0.18, 0.14, boxstyle='round,pad=0.010,rounding_size=0.010', facecolor='#eaf2f8', edgecolor=color, lw=1.4)
+        nonlin = FancyBboxPatch((0.48, y - 0.07), 0.18, 0.14, boxstyle='round,pad=0.010,rounding_size=0.010', facecolor='#fff4e6', edgecolor=color, lw=1.4)
         ax.add_patch(dyn)
         ax.add_patch(nonlin)
+        schematic_boxes.append({'id': f'h{i}', 'bbox': [0.22, y - 0.07, 0.40, y + 0.07]})
+        schematic_boxes.append({'id': f'f{i}', 'bbox': [0.48, y - 0.07, 0.66, y + 0.07]})
+        split_to_h_points, split_to_h_raw = _short_arrow_payload(
+            f'split_to_h{i}',
+            [split_point, (0.22, y)],
+            target=f'h{i}',
+            require_axis_aligned=(abs(y - split_point[1]) < 1e-9),
+        )
+        ax.annotate('', xy=split_to_h_points[-1], xytext=split_to_h_points[0], arrowprops=dict(arrowstyle='->', lw=1.7, color='#666666', shrinkA=0, shrinkB=0))
+        schematic_arrows.append(split_to_h_raw)
         ax.text(0.31, y + 0.025, f'h{i}(s)', ha='center', va='center', fontsize=11, weight='bold', color=color)
         ax.text(0.31, y - 0.030, 'local IIR\ndynamics', ha='center', va='center', fontsize=7.5)
-        ax.annotate('', xy=(0.48, y), xytext=(0.40, y), arrowprops=dict(arrowstyle='->', lw=1.8, color=color))
+        h_to_f_points, h_to_f_raw = _short_arrow_payload(
+            f'h{i}_to_f{i}',
+            [(0.40, y), (0.48, y)],
+            source=f'h{i}',
+            target=f'f{i}',
+            require_axis_aligned=True,
+        )
+        ax.annotate('', xy=h_to_f_points[-1], xytext=h_to_f_points[0], arrowprops=dict(arrowstyle='->', lw=1.8, color=color, shrinkA=0, shrinkB=0))
+        schematic_arrows.append(h_to_f_raw)
         ax.text(0.57, y + 0.025, f'f{i}(.)', ha='center', va='center', fontsize=11, weight='bold', color=color)
         ax.text(0.57, y - 0.030, name, ha='center', va='center', fontsize=7.5)
-        ax.annotate('', xy=(0.75, 0.50), xytext=(0.66, y), arrowprops=dict(arrowstyle='->', lw=1.6, color=color))
-    sum_circle = plt.Circle((0.78, 0.50), 0.055, facecolor='#f2efe6', edgecolor='#333333', lw=1.3)
-    ax.add_patch(sum_circle)
-    ax.text(0.78, 0.50, r'$\Sigma$', ha='center', va='center', fontsize=16, weight='bold')
-    ax.annotate('', xy=(0.90, 0.50), xytext=(0.835, 0.50), arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333'))
-    ax.text(0.93, 0.50, 'output\ny(t)', ha='center', va='center', fontsize=11, weight='bold')
-    ax.text(0.50, 0.09, 'Local linear dynamics + static nonlinear mappings reproduce amplitude-dependent frequency-response drift.', ha='center', va='center', fontsize=9, color='#333333')
-    out = FIGURES_DIR / 'fig_14_parallel_wiener_principle.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'R14 parallel Wiener equivalent structure', 'branches': branch_names})
-    return out.name
+        sum_target_y = 0.50 + (y - 0.50) * 0.10
+        f_to_sum_points, f_to_sum_raw = _short_arrow_payload(
+            f'f{i}_to_sum',
+            [(0.66, y), (sum_center[0] - sum_radius - 0.010, sum_target_y)],
+            source=f'f{i}',
+            target='sum',
+        )
+        ax.annotate('', xy=f_to_sum_points[-1], xytext=f_to_sum_points[0], arrowprops=dict(arrowstyle='->', lw=1.65, color=color, shrinkA=0, shrinkB=0))
+        schematic_arrows.append(f_to_sum_raw)
+    ax.text(sum_center[0], sum_center[1], r'$\Sigma$', ha='center', va='center', fontsize=16, weight='bold')
+    sum_to_output_points, sum_to_output_raw = _short_arrow_payload(
+        'sum_to_output',
+        [(sum_center[0] + sum_radius + 0.006, 0.50), (0.91, 0.50)],
+        source='sum',
+        require_axis_aligned=True,
+    )
+    ax.annotate('', xy=sum_to_output_points[-1], xytext=sum_to_output_points[0], arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333', shrinkA=0, shrinkB=0))
+    schematic_arrows.append(sum_to_output_raw)
+    ax.text(0.94, 0.50, 'output\ny(t)', ha='center', va='center', fontsize=11, weight='bold')
+    raw_payload = {
+        'source': 'R14 parallel Wiener equivalent structure',
+        'branches': branch_names,
+        'modification_scope': 'shortened all arrows to two-thirds of their original connector lengths and replaced the merge bus with three direct convergence arrows into the summation node',
+        VISUAL_AUDIT_KEY: audit_schematic_geometry(
+            schematic_boxes,
+            schematic_arrows,
+            context='parallel Wiener principle schematic geometry',
+        ),
+    }
+    panel_name = 'fig_22_parallel_wiener_equivalent_montage_a_principle.png'
+    panel_rel = save_panel_figure(
+        fig,
+        panel_name,
+        dpi=300,
+        pad_inches=0.08,
+        raw_payload=raw_payload,
+    )
+    root_png = FIGURES_DIR / 'fig_14_parallel_wiener_principle.png'
+    root_raw = root_png.with_suffix('.raw.json')
+    panel_png = FIGURES_DIR / panel_rel
+    panel_raw = panel_png.with_suffix('.raw.json')
+    shutil.copy2(panel_png, root_png)
+    shutil.copy2(panel_raw, root_raw)
+    return root_png.name
 
 def load_wiener_parallel_summary() -> Dict[str, Any]:
     summary_path = WIENER_PARALLEL_DIR / 'data' / 'wiener_parallel_modeling_summary.json'
@@ -1248,12 +2748,8 @@ def load_wiener_parallel_summary() -> Dict[str, Any]:
 
 def copy_wiener_parallel_figures() -> Dict[str, str]:
     image_dir = WIENER_PARALLEL_DIR / 'image'
-    figure_map = {
-        'parallel_wiener_response': '14.NN_extern_simu_reproduced_analysis',
-        'parallel_wiener_branch_weights': '14.NN_extern_simu_reproduced_fh_kx',
-    }
     copied: Dict[str, str] = {}
-    for key, stem in figure_map.items():
+    for key, stem in {'parallel_wiener_branch_weights': '14.NN_extern_simu_reproduced_fh_kx'}.items():
         src_png = image_dir / f'{stem}.png'
         src_json = image_dir / f'{stem}.json'
         if not src_png.exists():
@@ -1270,6 +2766,64 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
             raw_payload['source_json'] = src_json.name
             raw_payload['data'] = load_json(src_json)
         save_json(dst_png.with_suffix('.raw.json'), raw_payload)
+    analysis = load_json(str((image_dir / '14.NN_extern_simu_reproduced_analysis.json').relative_to(ROOT)).replace('\\', '/'))
+
+    def plot_response_panel(
+        name: str,
+        title: str,
+        y_label: str,
+        sim_key: str,
+        measured_key: str,
+    ) -> str:
+        fig, ax = plt.subplots(figsize=(5.8, 4.2), constrained_layout=True)
+        ax.plot(
+            analysis['amplitudes'],
+            analysis[sim_key],
+            color='#1f77b4',
+            marker='o',
+            linewidth=2.0,
+            label='Wiener simu',
+        )
+        ax.plot(
+            analysis['fitted_magnitudes'],
+            analysis[measured_key],
+            color='#ff7f50',
+            marker='s',
+            linewidth=2.0,
+            label='Measured',
+        )
+        ax.set_xscale('log')
+        ax.set_xlabel('Magnitude (m/s^2)')
+        ax.set_ylabel(y_label)
+        ax.grid(True, which='both', linestyle='--', alpha=0.35)
+        ax.legend(frameon=True, loc='upper left')
+        out = FIGURES_DIR / name
+        return _save_matplotlib_figure(
+            fig,
+            out,
+            raw_payload={
+                'source': 'ex_projects/compare/wiener_parallel_modeling/image/14.NN_extern_simu_reproduced_analysis.json',
+                'target_source': analysis.get('target_source'),
+                'x': 'amplitudes',
+                'y': [sim_key, measured_key],
+            },
+            bbox_inches='tight',
+        )
+
+    copied['parallel_wiener_center_frequency'] = plot_response_panel(
+        'fig_14_parallel_wiener_center_frequency.png',
+        'Center frequency vs magnitude',
+        'Center frequency (Hz)',
+        'center_freqs',
+        'fitted_center_freqs',
+    )
+    copied['parallel_wiener_gain_100hz'] = plot_response_panel(
+        'fig_14_parallel_wiener_gain_100hz.png',
+        'Gain at 100 Hz vs magnitude',
+        'Gain at 100 Hz',
+        'gain_at_100',
+        'fitted_gain_at_100',
+    )
     return copied
 
 
@@ -1283,9 +2837,12 @@ def make_bitmap_montage(
     padding: int | List[int] = 72,
     gutter: int | tuple[int, int] = 72,
     label_font_size: int = 58,
+    label_box: bool = False,
     cell_widths: List[int] | None = None,
     cell_heights: List[int] | None = None,
     note: str,
+    latex_width_fraction: float = 1.0,
+    label_font_size_pt: float = SUBFIGURE_LABEL_TARGET_PT,
 ) -> str:
     panels = [
         PanelSpec(
@@ -1296,6 +2853,8 @@ def make_bitmap_montage(
             fit_height=spec.get('fit_height'),
             align_x=str(spec.get('align_x', 'center')),
             align_y=str(spec.get('align_y', 'center')),
+            row_span=int(spec.get('row_span', 1)),
+            col_span=int(spec.get('col_span', 1)),
             trim_border=spec.get('trim_border'),
             trim_tolerance=int(spec.get('trim_tolerance', 8)),
         )
@@ -1313,17 +2872,27 @@ def make_bitmap_montage(
         cell_widths=cell_widths,
         cell_heights=cell_heights,
         label_font_size=label_font_size,
-        label_position='top-left',
+        label_font_size_pt=label_font_size_pt,
+        label_reference_width_pt=SN_A4_TEXT_WIDTH_PT,
+        latex_width_fraction=latex_width_fraction,
+        label_position='outside-top-left',
         label_inset=24,
-        label_box=True,
+        label_gap=24,
+        label_box=label_box,
         label_box_padding=10,
         dpi=(500, 500),
+    )
+    visual_audit = combine_audits(
+        audit_montage_layout(metadata, context=output_name),
+        audit_image_file(out, context=output_name),
+        context=output_name,
     )
     save_json(out.with_suffix('.raw.json'), {
         'source_trace': 'bitmap subplot montage generated by src/visualization/subfigure_montage.py',
         'source_figures': [str(spec['source']) for spec in panel_specs],
         'modification_scope': note,
         'montage': metadata,
+        VISUAL_AUDIT_KEY: visual_audit,
     })
     return out.name
 
@@ -1345,26 +2914,38 @@ def make_paper_bitmap_montages() -> Dict[str, str]:
     montages['experimental_setup_dataset_workflow'] = make_bitmap_montage(
         'fig_21_experimental_setup_dataset_workflow_montage.png',
         [
-            {'source': 'calibration_table_test.png', 'label': '(a)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 120},
-            {'source': 'fig_19_dataset_preprocessing_workflow.png', 'label': '(b)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 120},
+            {'source': 'calibration_table_test.png', 'label': '(a)', 'fit_width': 3600, 'align_x': 'center', 'align_y': 'center', 'trim_border': 90},
+            {'source': 'fig_19_dataset_preprocessing_workflow.png', 'label': '(b)', 'fit_height': 2700, 'align_x': 'center', 'align_y': 'top', 'trim_border': 90},
         ],
-        layout='vertical',
+        layout='horizontal',
         padding=[90, 80, 90, 80],
-        gutter=(90, 120),
-        label_font_size=68,
-        note='Stacks the experimental setup photograph above the dataset construction and preprocessing workflow.',
+        gutter=(110, 90),
+        label_font_size=64,
+        note='Places the experimental setup photograph and vertical illustrated dataset construction workflow side by side.',
+    )
+    montages['parallel_wiener_response_row'] = make_bitmap_montage(
+        'fig_22_parallel_wiener_response_row.png',
+        [
+            {'source': 'fig_14_parallel_wiener_center_frequency.png', 'label': '(b)', 'fit_width': 1800, 'align_y': 'top', 'trim_border': 40},
+            {'source': 'fig_14_parallel_wiener_gain_100hz.png', 'label': '(c)', 'fit_width': 1800, 'align_y': 'top', 'trim_border': 40},
+        ],
+        layout='horizontal',
+        padding=[50, 45, 50, 45],
+        gutter=(75, 60),
+        label_font_size=50,
+        note='Composes the two response-trajectory plots as the second row of the parallel Wiener equivalent figure.',
     )
     montages['parallel_wiener_equivalent'] = make_bitmap_montage(
         'fig_22_parallel_wiener_equivalent_montage.png',
         [
-            {'source': 'fig_14_parallel_wiener_principle.png', 'label': '(a)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 140},
-            {'source': 'fig_14_parallel_wiener_response.png', 'label': '(b)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 140},
+            {'source': panel_source_name('fig_22_parallel_wiener_equivalent_montage_a_principle.png'), 'label': '(a)', 'fit_width': 3600, 'align_x': 'center', 'trim_border': 140},
+            {'source': 'fig_22_parallel_wiener_response_row.png', 'label': None, 'fit_width': 3600, 'align_x': 'center', 'trim_border': 0},
         ],
         layout='vertical',
         padding=[90, 80, 90, 80],
         gutter=(90, 105),
         label_font_size=68,
-        note='Stacks the parallel Wiener principle schematic and the reproduced amplitude-dependent response plot.',
+        note='Composes the parallel Wiener principle as the first row and the two response plots as the second row.',
     )
     montages['kan_neuron_compensation'] = make_bitmap_montage(
         'fig_23_kan_neuron_compensation_montage.png',
@@ -1388,7 +2969,6 @@ def metric_value_macros(row: Dict[str, Any]) -> Dict[str, str]:
         'FreqDrift': _fmt_float(row['freq_drift_hz'], 2),
         'SensDrift': _fmt_float(row['sens_drift_percent'], 2),
         'Linearity': _fmt_float(row['linearity_percent'], 3),
-        'Cost': f"{float(row['compute_cost']):.0f}",
         'KeilFps': format_optional(row.get('board_keil_fps'), '{:.1f}'),
         'KeilRamKB': format_optional(ram_bytes / 1024.0 if ram_bytes is not None else None, '{:.1f}'),
         'Params': f"{int(row['total_params']):,}",
@@ -1428,15 +3008,6 @@ def _hparam_best_text(summary: Dict[str, Any], axis: str, key: str, unit: str, d
     return f"{best['value']} ({_fmt_float(best[key], digits)}{unit})"
 
 
-def _hparam_cost_pattern(summary: Dict[str, Any], axis: str) -> str:
-    costs = sorted({float(row['compute_cost']) for row in summary.get('rows', []) if row.get('axis') == axis and row.get('status') == 'complete' and row.get('compute_cost') is not None})
-    if not costs:
-        return '-'
-    if len(costs) == 1:
-        return f"{costs[0]:.0f}"
-    return f"{costs[0]:.0f}--{costs[-1]:.0f}"
-
-
 def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     origin = payload['origin_metrics']
     wiener_parallel = payload.get('wiener_parallel_modeling', {})
@@ -1461,6 +3032,7 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valWienerParallelGainRmse': f"{float(wp_gain.get('rmse', 5.530740547399083)):.2f}",
         'valExternalSensorPlan': 'repeat the frequency--magnitude matrix on a second MET sample',
         'valExternalExcitationPlan': 'repeat the protocol on an independent shaker table',
+        'valAblationOverviewRowCount': str(len(payload.get('ablation_overview', []))),
     }
 
     main_map = {row['label']: row for row in payload['main_benchmark']}
@@ -1497,7 +3069,6 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valPrimaryFreqDrift': primary_values['FreqDrift'],
         'valPrimarySensDrift': primary_values['SensDrift'],
         'valPrimaryLinearity': primary_values['Linearity'],
-        'valPrimaryComputeCost': primary_values['Cost'],
         'valPrimaryKeilFps': primary_values['KeilFps'],
         'valPrimaryKeilRamKB': primary_values['KeilRamKB'],
         'valPrimaryParams': primary_values['Params'],
@@ -1519,7 +3090,6 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valMainWienerFreqDrift': _fmt_float(origin['freq'], 2),
         'valMainWienerSensDrift': _fmt_float(origin['sens'], 2),
         'valMainWienerLinearity': _fmt_float(origin['linearity'], 3),
-        'valMainWienerCost': '--',
     })
 
     loss_map = {row['label']: row for row in payload['loss_ablation']}
@@ -1537,7 +3107,7 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valConFull': 'Wiener-KAN',
         'valConUncon': 'No symmetry',
         'valConOdd': 'No positive (stress)',
-        'valConPos': 'CNNKAN',
+        'valConPos': 'CNN-KAN',
     }
     for prefix, label in constraint_sources.items():
         if label in structure_map:
@@ -1548,8 +3118,8 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     freq_sources = {
         'valFreqYesYes': 'Wiener-KAN',
         'valFreqNoYes': 'Random trainable IIR',
-        'valFreqYesNo': 'FRIMLP',
-        'valFreqNoNo': 'CNNKAN',
+        'valFreqYesNo': 'Wiener-MLP',
+        'valFreqNoNo': 'CNN-KAN',
     }
     for prefix, label in freq_sources.items():
         if label in structure_map:
@@ -1557,22 +3127,64 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
             for suffix, value in metric_value_macros(row).items():
                 overrides[prefix + suffix] = value
 
+    activation_sources = {
+        'valActBSpline': 'Wiener-KAN',
+        'valActReLU': 'CNN-KAN',
+        'valActTanh': 'Wiener-MLP',
+        'valActSigmoid': 'No symmetry',
+    }
+    missing_activation = [label for label in activation_sources.values() if label not in structure_map]
+    if missing_activation:
+        raise KeyError(f"Missing structure_ablation rows for activation macros: {', '.join(missing_activation)}")
+    for prefix, label in activation_sources.items():
+        row = structure_map[label]
+        for suffix, value in metric_value_macros(row).items():
+            overrides[prefix + suffix] = value
+
+    iir_map = {row['label']: row for row in payload.get('wiener_frontend_ablation', [])}
+    iir_sources = {
+        'valIirBase': 'System prior, frozen',
+        'valIirRandomFrozen': 'Random, frozen',
+        'valIirSystemTrainable': 'System prior, trainable',
+        'valIirRandomTrainable': 'Random, trainable',
+    }
+    missing_iir = [label for label in iir_sources.values() if label not in iir_map]
+    if missing_iir:
+        raise KeyError(f"Missing wiener_frontend_ablation rows for value macros: {', '.join(missing_iir)}")
+    for prefix, label in iir_sources.items():
+        row = iir_map[label]
+        overrides[prefix + 'Epoch'] = str(int(row['epochs']))
+        for suffix, value in metric_value_macros(row).items():
+            overrides[prefix + suffix] = value
+
     deploy_map = {row['label']: row for row in payload['deployment']}
     deploy_sources = {'valDeployRaw': 'Wiener-KAN', 'valDeployGRU': 'GRU', 'valDeployLSTM': 'LSTM'}
     for prefix, label in deploy_sources.items():
         if label in deploy_map:
             row = deploy_map[label]
-            overrides[prefix + 'Cost'] = f"{float(row['compute_cost']):.0f}"
             overrides[prefix + 'Qemu'] = f"{float(row['board_qemu_mae']):.3e}"
             overrides[prefix + 'KeilFps'] = f"{float(row['board_keil_fps']):.1f}"
             overrides[prefix + 'Mae'] = f"{float(row['board_keil_mae']):.3e}"
             overrides[prefix + 'RamKB'] = format_optional(row.get('ram_bytes') / 1024.0 if row.get('ram_bytes') is not None else None, '{:.1f}')
-    lut = next((row for row in payload['lut_variants'] if row['label'] == 'LUT + interp'), None) or payload['lut_variants'][0]
-    overrides['valDeployLutCost'] = 'lookup+interp'
+    lut_map = {row['label']: row for row in payload['lut_variants']}
+    lut = lut_map.get('LUT + interp') or payload['lut_variants'][0]
     overrides['valDeployLutQemu'] = f"{float(lut['qemu_mae']):.3e}"
     overrides['valDeployLutKeilFps'] = f"{float(lut['keil_fps']):.1f}"
     overrides['valDeployLutMae'] = f"{float(lut['keil_mae']):.3e}"
     overrides['valDeployLutRamKB'] = format_optional(lut.get('ram_bytes') / 1024.0 if lut.get('ram_bytes') is not None else None, '{:.1f}')
+    lut_macro_sources = {
+        'valDeployLutNearest': 'LUT nearest',
+        'valDeployLutInterp': 'LUT + interp',
+        'valDeployNoLut': 'No LUT exact',
+    }
+    for prefix, label in lut_macro_sources.items():
+        if label not in lut_map:
+            continue
+        row = lut_map[label]
+        overrides[prefix + 'Qemu'] = f"{float(row['qemu_mae']):.3e}"
+        overrides[prefix + 'KeilFps'] = f"{float(row['keil_fps']):.1f}"
+        overrides[prefix + 'Mae'] = f"{float(row['keil_mae']):.3e}"
+        overrides[prefix + 'RamKB'] = format_optional(row.get('ram_bytes') / 1024.0 if row.get('ram_bytes') is not None else None, '{:.1f}')
 
     hparam = payload.get('hparam_sensitivity') or {}
     hp_base = hparam.get('baseline') or {}
@@ -1583,7 +3195,6 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
             'valHpBaseFreq': _fmt_float(hp_base.get('freq_drift_hz', 0), 2),
             'valHpBaseSens': _fmt_float(hp_base.get('sens_drift_percent', 0), 2),
             'valHpBaseLinearity': _fmt_float(hp_base.get('linearity_percent', 0), 3),
-            'valHpBaseCost': f"{float(hp_base.get('compute_cost', 0)):.0f}",
         })
     overrides.update({
         'valHpCompleteAxes': ', '.join(hp_complete_axes) or '-',
@@ -1596,23 +3207,18 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valHpHBestFreq': _hparam_best_text(hparam, 'H_UNITS', 'freq_drift_hz', ' Hz', 2),
         'valHpHBestSens': _hparam_best_text(hparam, 'H_UNITS', 'sens_drift_percent', '\\%', 2),
         'valHpHBestLinearity': _hparam_best_text(hparam, 'H_UNITS', 'linearity_percent', '\\%', 3),
-        'valHpHCostPattern': _hparam_cost_pattern(hparam, 'H_UNITS'),
         'valHpUBestFreq': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'freq_drift_hz', ' Hz', 2),
         'valHpUBestSens': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'sens_drift_percent', '\\%', 2),
         'valHpUBestLinearity': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'linearity_percent', '\\%', 3),
-        'valHpUCostPattern': _hparam_cost_pattern(hparam, 'INNER_KAN_UNITS'),
         'valHpLBestFreq': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'freq_drift_hz', ' Hz', 2),
         'valHpLBestSens': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'sens_drift_percent', '\\%', 2),
         'valHpLBestLinearity': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'linearity_percent', '\\%', 3),
-        'valHpLCostPattern': _hparam_cost_pattern(hparam, 'INNER_KAN_LAYERS'),
         'valHpGridBestFreq': _hparam_best_text(hparam, 'GRID_SIZE', 'freq_drift_hz', ' Hz', 2),
         'valHpGridBestSens': _hparam_best_text(hparam, 'GRID_SIZE', 'sens_drift_percent', '\\%', 2),
         'valHpGridBestLinearity': _hparam_best_text(hparam, 'GRID_SIZE', 'linearity_percent', '\\%', 3),
-        'valHpGridCostPattern': _hparam_cost_pattern(hparam, 'GRID_SIZE'),
         'valHpOrderBestFreq': _hparam_best_text(hparam, 'SPLINE_ORDER', 'freq_drift_hz', ' Hz', 2),
         'valHpOrderBestSens': _hparam_best_text(hparam, 'SPLINE_ORDER', 'sens_drift_percent', '\\%', 2),
         'valHpOrderBestLinearity': _hparam_best_text(hparam, 'SPLINE_ORDER', 'linearity_percent', '\\%', 3),
-        'valHpOrderCostPattern': _hparam_cost_pattern(hparam, 'SPLINE_ORDER'),
         'valHpHBestMetric': _hparam_best_text(hparam, 'H_UNITS', 'linearity_percent', '\\%', 3),
         'valHpUBestMetric': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'freq_drift_hz', ' Hz', 2),
         'valHpLBestMetric': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'linearity_percent', '\\%', 3),
@@ -1637,6 +3243,8 @@ def write_values_tex(payload: Dict[str, Any]) -> None:
             'valLatency' + 'PointCount$',
             r'val(?:Cosine|Restart)Period$',
             'valDeploy(?:Raw|GRU|LSTM|Lut)' + 'K' + 'eil$',
+            r'valSpeedup$',
+            r'val.*Cost.*',
         ]
     ]
 
@@ -1671,109 +3279,189 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
 
     generated: Dict[str, str] = {}
 
-    fig, axes = plt.subplots(2, 2, figsize=(11.0, 8.0), constrained_layout=True)
+    fig_fn, ax_fn = plt.subplots(figsize=(5.6, 4.0), constrained_layout=True)
     for label, series in trajectories.items():
         linestyle = '--' if label == 'Origin' else '-'
-        axes[0, 0].plot(series['magnitudes'], series['natural_frequency_hz'], linestyle, label=label, linewidth=2.2)
-        axes[0, 1].plot(series['magnitudes'], series['sensitivity_100hz'], linestyle, label=label, linewidth=2.2)
-    axes[0, 0].set_title('(a) Natural-frequency trajectory')
-    axes[0, 0].set_xlabel('Magnitude (m/s2)')
-    axes[0, 0].set_ylabel('Hz')
-    axes[0, 1].set_title('(b) Sensitivity trajectory at 100 Hz')
-    axes[0, 1].set_xlabel('Magnitude (m/s2)')
-    axes[0, 1].set_ylabel('Sensitivity')
-    axes[0, 1].legend(frameon=True)
+        ax_fn.plot(series['magnitudes'], series['natural_frequency_hz'], linestyle, label=label, linewidth=2.2)
+    ax_fn.set_xlabel(r'Magnitude (m/s$^2$)')
+    ax_fn.set_ylabel('Natural frequency (Hz)')
+    ax_fn.legend(frameon=True)
+    panel_fn = save_panel_figure(fig_fn, 'fig_08_frequency_response_comparison_a_fn.png')
+
+    fig_sens, ax_sens = plt.subplots(figsize=(5.6, 4.0), constrained_layout=True)
+    for label, series in trajectories.items():
+        linestyle = '--' if label == 'Origin' else '-'
+        ax_sens.plot(series['magnitudes'], series['sensitivity_100hz'], linestyle, label=label, linewidth=2.2)
+    ax_sens.set_xlabel(r'Magnitude (m/s$^2$)')
+    ax_sens.set_ylabel('Sensitivity at 100 Hz')
+    ax_sens.legend(frameon=True)
+    panel_sens = save_panel_figure(fig_sens, 'fig_08_frequency_response_comparison_b_sensitivity.png')
+
     wk = next(row for row in main_rows if row['label'] == 'Wiener-KAN')
-    axes[1, 0].bar(['Origin', 'Wiener-KAN'], [origin['freq'], wk['freq_drift_hz']], color=['#555555', '#0f6c5c'])
-    axes[1, 0].set_title('(c) Frequency-drift reduction')
-    axes[1, 0].set_ylabel('Hz')
-    axes[1, 1].bar(['Origin', 'Wiener-KAN'], [origin['sens'], wk['sens_drift_percent']], color=['#555555', '#0f6c5c'])
-    axes[1, 1].set_title('(d) Sensitivity-drift reduction')
-    axes[1, 1].set_ylabel('%')
-    out = FIGURES_DIR / 'fig_08_frequency_response_comparison.png'
-    out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'origin': origin, 'wiener_kan': wk, 'trajectories': trajectories})
-    generated['frequency_response_comparison'] = out.name
+    fig_reduction, ax_reduction = plt.subplots(figsize=(5.8, 4.4), constrained_layout=True)
+    metric_groups = ['Freq drift\n(Hz)', 'Sens drift\n(%)']
+    x = np.arange(len(metric_groups), dtype=float)
+    width = 0.34
+    origin_values = [origin['freq'], origin['sens']]
+    wk_values = [wk['freq_drift_hz'], wk['sens_drift_percent']]
+    bars_origin = ax_reduction.bar(x - width / 2, origin_values, width=width, color='#555555', label='Origin')
+    bars_wk = ax_reduction.bar(x + width / 2, wk_values, width=width, color='#0f6c5c', label='Wiener-KAN')
+    ax_reduction.set_ylabel('Metric value')
+    ax_reduction.set_xticks(x, metric_groups)
+    ax_reduction.set_ylim(0, max(origin_values + wk_values) * 1.18)
+    ax_reduction.grid(True, axis='y', alpha=0.22)
+    ax_reduction.legend(frameon=True, loc='upper right', fontsize=8.0)
+    for bars in (bars_origin, bars_wk):
+        for bar in bars:
+            value = float(bar.get_height())
+            ax_reduction.text(
+                bar.get_x() + bar.get_width() / 2,
+                value + max(origin_values + wk_values) * 0.028,
+                f'{value:.2f}',
+                ha='center',
+                va='bottom',
+                fontsize=7.8,
+                color='#222222',
+            )
+    panel_reduction = save_panel_figure(fig_reduction, 'fig_08_frequency_response_comparison_c_drift_reduction.png')
+
+    response_path = TRAJECTORY_MODELS[0][1]
+    response_payload = load_json(response_path)
+    response_freqs = np.array(response_payload['frequencies'], dtype=float)
+    response_mags = np.array(response_payload['magnitudes'], dtype=float)
+    response_origin = [np.array(row, dtype=float) for row in response_payload['gains_origin']]
+    response_comped = [np.array(row, dtype=float) for row in response_payload['gains_comped']]
+    selected_indices = np.linspace(0, len(response_mags) - 1, 5, dtype=int).tolist()
+    fig_response, ax_response = plt.subplots(figsize=(5.4, 5.0))
+    cmap = plt.cm.get_cmap('viridis', len(selected_indices) + 2)
+    magnitude_handles: List[Line2D] = []
+    magnitude_labels: List[str] = []
+    for color_idx, mag_idx in enumerate(selected_indices):
+        color = cmap(color_idx + 1)
+        ax_response.loglog(response_freqs, response_origin[mag_idx], linestyle='--', color=color, lw=1.5, alpha=0.72)
+        handle, = ax_response.loglog(response_freqs, response_comped[mag_idx], linestyle='-', color=color, lw=1.85)
+        magnitude_handles.append(handle)
+        magnitude_labels.append(rf'{response_mags[mag_idx]:.2f} m/s$^2$')
+    style_handles = [
+        Line2D([0], [0], color='#333333', lw=1.6, linestyle='--', label='Origin'),
+        Line2D([0], [0], color='#333333', lw=1.8, linestyle='-', label='Wiener-KAN'),
+    ]
+    first_legend = ax_response.legend(
+        magnitude_handles,
+        magnitude_labels,
+        loc='center left',
+        bbox_to_anchor=(1.02, 0.55),
+        frameon=False,
+        fontsize=7.1,
+        borderaxespad=0.0,
+        handlelength=2.0,
+    )
+    ax_response.add_artist(first_legend)
+    ax_response.legend(handles=style_handles, loc='lower left', frameon=True, fontsize=7.4)
+    ax_response.set_xlim(10, 128)
+    ax_response.set_ylim(30, 250)
+    ax_response.set_xlabel('Frequency (Hz)')
+    ax_response.set_ylabel('Sensitivity (V s/m)')
+    ax_response.grid(True, which='both', linestyle='--', alpha=0.42)
+    fig_response.subplots_adjust(left=0.14, right=0.72, bottom=0.14, top=0.97)
+    panel_response = save_panel_figure(fig_response, 'fig_08_frequency_response_comparison_d_response_before_after.png')
+
+    name = make_bitmap_montage(
+        'fig_08_frequency_response_comparison.png',
+        [
+            {'source': panel_response, 'label': '(d)', 'fit_height': 2550, 'trim_border': 28, 'row_span': 2, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_fn, 'label': '(a)', 'fit_width': 1720, 'trim_border': 28, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_sens, 'label': '(b)', 'fit_width': 1720, 'trim_border': 28, 'align_x': 'center', 'align_y': 'top'},
+            {'source': 'time_domain_outputs.png', 'label': '(e)', 'fit_width': 2140, 'trim_border': 24, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_reduction, 'label': '(c)', 'fit_width': 1720, 'trim_border': 24, 'align_x': 'center', 'align_y': 'top'},
+        ],
+        layout='matrix',
+        rows=3,
+        cols=2,
+        padding=[55, 55, 55, 55],
+        gutter=(58, 52),
+        cell_widths=[2140, 1720],
+        label_font_size=48,
+        note='Composes the frequency-response comparison figure with panel (d) in the upper-left, panels (a) and (b) vertically stacked on the upper-right, panel (e) at the lower-left, and the four-bar panel (c) at the lower-right.',
+        latex_width_fraction=0.85,
+    )
+    raw_path = FIGURES_DIR / 'fig_08_frequency_response_comparison.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
+        'source': 'paper results payload',
+        'origin': origin,
+        'wiener_kan': wk,
+        'trajectories': trajectories,
+        'response_comparison': {
+            'linear_response_path': response_path,
+            'selected_magnitudes': [float(response_mags[idx]) for idx in selected_indices],
+            'curves': ['gains_origin', 'gains_comped'],
+        },
+        'time_domain_panel': {
+            'source_figure': 'time_domain_outputs.png',
+            'panel_role': 'Representative time-domain outputs under selected frequency and magnitude conditions.',
+        },
+    })
+    save_json(raw_path, raw_payload)
+    generated['frequency_response_comparison'] = name
 
     fig, ax = plt.subplots(figsize=(8.0, 5.0), constrained_layout=True)
     for curve in main_curves:
         ax.plot(curve['epochs'], curve['smoothed_normalized_val_loss'], label=curve['label'], linewidth=2.5 if curve['label'] == 'Wiener-KAN' else 1.4)
-    ax.set_title('Main-benchmark validation-loss trajectories')
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Normalized validation loss')
     ax.set_ylim(bottom=0)
     ax.legend(ncol=2, fontsize=8, frameon=True)
     out = FIGURES_DIR / 'fig_11_main_training_loss.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'curves': main_curves})
-    generated['main_training_loss'] = out.name
+    generated['main_training_loss'] = _save_matplotlib_figure(
+        fig,
+        out,
+        raw_payload={'source': 'paper results payload', 'curves': main_curves},
+        bbox_inches='tight',
+    )
 
     fig, ax = plt.subplots(figsize=(7.5, 4.6), constrained_layout=True)
     for curve in loss_curves:
         ax.plot(curve['epochs'], curve['smoothed_normalized_val_loss'], label=curve['label'], linewidth=2.0)
-    ax.set_title('Loss-objective validation trajectories')
     ax.set_xlabel('Epoch')
     ax.set_ylabel('Normalized validation loss')
     ax.set_ylim(bottom=0)
     ax.legend(frameon=True)
     out = FIGURES_DIR / 'fig_12_loss_validation_detail.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {'source': 'paper results payload', 'curves': loss_curves})
-    generated['loss_validation_detail'] = out.name
+    generated['loss_validation_detail'] = _save_matplotlib_figure(
+        fig,
+        out,
+        raw_payload={'source': 'paper results payload', 'curves': loss_curves},
+        bbox_inches='tight',
+    )
 
-    fig, axes = plt.subplots(1, 3, figsize=(13.8, 4.8), constrained_layout=True)
-    labels = [row['label'] for row in main_rows]
-    x = np.arange(len(labels))
-    colors = ['#0f6c5c' if label == 'Wiener-KAN' else '#777777' for label in labels]
-    dist_specs = [
-        ('natural_frequency_drift', 'fn', 'Natural frequency (Hz)', '(a) Natural-frequency range'),
-        ('sensitivity_drift', 'sens', 'Sensitivity at 100 Hz', '(b) Sensitivity range'),
-        ('linearity', 'linearity', 'Linearity error (%)', '(c) In-band linearity errors'),
-    ]
-    raw_distribution_rows = []
-    for ax, (detail_key, metric_name, ylabel, title) in zip(axes, dist_specs):
-        centers = []
-        lower = []
-        upper = []
-        for row in main_rows:
-            detail = row.get('metric_details', {}).get(detail_key, {})
-            if detail_key == 'linearity':
-                center = float(detail.get('mean', row['linearity_percent']))
-            else:
-                center = float(detail.get('median', 0.5 * (float(detail.get('min', 0.0)) + float(detail.get('max', 0.0)))))
-            min_value = float(detail.get('min', center))
-            max_value = float(detail.get('max', center))
-            centers.append(center)
-            lower.append(max(center - min_value, 0.0))
-            upper.append(max(max_value - center, 0.0))
-            raw_distribution_rows.append({
-                'label': row['label'],
-                'metric': metric_name,
-                'center': center,
-                'min': min_value,
-                'max': max_value,
-            })
-        ax.bar(x, centers, color=colors, alpha=0.72)
-        ax.errorbar(x, centers, yerr=np.vstack([lower, upper]), fmt='none', ecolor='#222222', elinewidth=1.1, capsize=3)
-        ax.set_title(title)
-        ax.set_ylabel(ylabel)
-        ax.set_xticks(x)
-        ax.set_xticklabels(labels, rotation=45, ha='right')
-        ax.grid(axis='y', alpha=0.25)
-    out = FIGURES_DIR / 'fig_13_compensation_distribution.png'
-    fig.savefig(out, bbox_inches='tight')
-    plt.close(fig)
-    save_json(out.with_suffix('.raw.json'), {
+    distribution_panels, raw_distribution_rows = make_metric_range_panel_specs(
+        main_rows,
+        output_prefix='fig_13_compensation_distribution',
+        label_offset=0,
+        fit_width=1650,
+        trim_border=28,
+    )
+    name = make_bitmap_montage(
+        'fig_13_compensation_distribution.png',
+        distribution_panels,
+        layout='horizontal',
+        padding=[65, 60, 65, 60],
+        gutter=(70, 60),
+        label_font_size=46,
+        note='Composes the representative metric-range panels with the unified bitmap montage module.',
+        latex_width_fraction=0.86,
+    )
+    raw_path = FIGURES_DIR / 'fig_13_compensation_distribution.raw.json'
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload.update({
         'source_trace': 'paper results payload metric_details min/median/mean/max fields',
         'rows': raw_distribution_rows,
         'metrics': ['natural_frequency_range', 'sensitivity_range', 'linearity_error_range'],
         'note': 'Error bars show min--max ranges across magnitudes for fn/sensitivity and across in-band frequencies for linearity.',
     })
-    generated['compensation_distribution'] = out.name
+    save_json(raw_path, raw_payload)
+    generated['compensation_distribution'] = name
 
     return generated
 
@@ -1791,12 +3479,24 @@ def save_figure_raw_files(payload: Dict[str, Any]) -> None:
         'fig_02_horizontal_summary': {'main_benchmark': payload['main_benchmark'], 'origin_metrics': payload['origin_metrics'], 'main_convergence_curves': payload['main_convergence_curves']},
         'fig_03_loss_ablation': {'loss_ablation': payload['loss_ablation'], 'loss_convergence_curves': payload['loss_convergence_curves']},
         'fig_04_structure_ablation': {'structure_ablation': payload['structure_ablation']},
-        'fig_05_onboard_inference': {'deployment': payload['deployment'], 'lut_variants': payload['lut_variants']},
-        'fig_06_compute_cost_calibration': {'compute_cost_calibration': payload['compute_cost_calibration']},
-        'fig_18_hparam_sensitivity': {'hparam_sensitivity': payload.get('hparam_sensitivity')},
+        'fig_05_onboard_inference': {'deployment': payload['deployment'], 'lut_variants': payload['lut_variants'], 'lut_point_sweep': payload['lut_point_sweep']},
+        'fig_18_hparam_sensitivity': {
+            'hparam_sensitivity': payload.get('hparam_sensitivity'),
+            'loss_ablation': payload['loss_ablation'],
+            'loss_convergence_curves': payload['loss_convergence_curves'],
+        },
     }
     for stem, data in raw_payloads.items():
-        save_json(FIGURES_DIR / f'{stem}.raw.json', data)
+        raw_path = FIGURES_DIR / f'{stem}.raw.json'
+        if raw_path.exists():
+            try:
+                merged = json.loads(raw_path.read_text(encoding='utf-8'))
+            except json.JSONDecodeError:
+                merged = {}
+        else:
+            merged = {}
+        merged['data_payload'] = data
+        save_json(raw_path, merged)
 
 
 def generate_all() -> Dict[str, Any]:
@@ -1804,15 +3504,17 @@ def generate_all() -> Dict[str, Any]:
     main_rows = enrich_with_deployment_fields(load_metrics(MAIN_BENCHMARK))
     loss_rows = enrich_with_deployment_fields(load_metrics(LOSS_ABLATION))
     structure_rows = load_metrics(STRUCTURE_ABLATION)
+    iir_rows = load_metrics(WIENER_FRONTEND_ABLATION)
     deploy_rows = enrich_with_deployment_fields(load_metrics(DEPLOYMENT))
     lut_rows = load_lut_variants()
+    lut_point_rows = load_lut_point_sweep()
     trajectories = load_trajectories()
     main_curves = load_convergence_curves(MAIN_BENCHMARK)
     loss_curves = load_convergence_curves(LOSS_ABLATION)
     optimization_profiles = load_wiener_optimization_profiles()
-    calibration = load_compute_cost_calibration()
     wiener_parallel = load_wiener_parallel_summary()
     hparam_summary = load_hparam_sensitivity_summary()
+    ablation_overview_rows = build_ablation_overview_rows(loss_rows, structure_rows, iir_rows, hparam_summary)
 
     origin = {
         'freq': main_rows[0]['origin_freq_drift_hz'],
@@ -1825,14 +3527,12 @@ def generate_all() -> Dict[str, Any]:
         'horizontal_summary': make_horizontal_figure(main_rows, origin, main_curves),
         'loss_ablation': make_loss_ablation_figure(loss_rows, loss_curves),
         'structure_ablation': make_structure_figure(structure_rows),
-        'onboard_inference': make_onboard_figure(deploy_rows, lut_rows),
-        'compute_cost_calibration': make_compute_cost_calibration_figure(calibration),
-        'hparam_sensitivity': make_hparam_sensitivity_figure(hparam_summary),
+        'onboard_inference': make_onboard_figure(deploy_rows, lut_rows, lut_point_rows),
+        'hparam_sensitivity': make_hparam_sensitivity_figure(hparam_summary, loss_rows, loss_curves),
         'met_nonlinear_mechanism': make_mechanism_schematic(),
         'parallel_wiener_principle': make_parallel_wiener_principle_schematic(),
-        'lut_lookup_principles': copy_lut_lookup_principles_figure(),
-        'board_inference_validation_workflow': copy_board_inference_validation_workflow_figure(),
-        'afmae_loss_principle': copy_afmae_loss_principle_figure(),
+        'lut_lookup_principles': make_lut_lookup_principles_figure(),
+        'board_inference_validation_workflow': make_board_inference_validation_workflow_figure(),
         'dataset_preprocessing_workflow': make_dataset_preprocessing_workflow_figure(),
         'wiener_kan_framework': make_wiener_kan_framework_figure(),
     }
@@ -1844,39 +3544,51 @@ def generate_all() -> Dict[str, Any]:
         'main_benchmark': main_rows,
         'loss_ablation': loss_rows,
         'structure_ablation': structure_rows,
+        'wiener_frontend_ablation': iir_rows,
         'deployment': deploy_rows,
         'lut_variants': lut_rows,
+        'lut_point_sweep': lut_point_rows,
         'trajectories': trajectories,
         'main_convergence_curves': main_curves,
         'loss_convergence_curves': loss_curves,
         'wiener_optimization_profiles': optimization_profiles,
-        'compute_cost_calibration': calibration,
         'wiener_parallel_modeling': wiener_parallel,
         'hparam_sensitivity': hparam_summary,
+        'ablation_overview': ablation_overview_rows,
     }
     figures.update(create_additional_paper_figures(payload_stub))
+    try:
+        from src.translate_legacy_figures import plot_frirnn  # type: ignore  # noqa: E402
+    except ImportError:  # pragma: no cover - direct script execution
+        from translate_legacy_figures import plot_frirnn  # type: ignore  # noqa: E402
+    plot_frirnn()
+    figures['local_transfer_slices'] = 'local_transfer_slices.png'
 
     payload = {
         'origin_metrics': origin,
         'main_benchmark': main_rows,
         'loss_ablation': loss_rows,
         'structure_ablation': structure_rows,
+        'wiener_frontend_ablation': iir_rows,
         'deployment': deploy_rows,
         'lut_variants': lut_rows,
+        'lut_point_sweep': lut_point_rows,
         'trajectories': trajectories,
         'main_convergence_curves': main_curves,
         'loss_convergence_curves': loss_curves,
         'wiener_optimization_profiles': optimization_profiles,
-        'compute_cost_calibration': calibration,
         'wiener_parallel_modeling': wiener_parallel,
         'hparam_sensitivity': hparam_summary,
+        'ablation_overview': ablation_overview_rows,
         'figures': figures,
     }
     save_json(DATA_DIR / 'results.json', payload)
     write_values_tex(payload)
     save_figure_raw_files(payload)
     copy_legacy_images()
-    build_tables(main_rows, loss_rows, structure_rows, deploy_rows, lut_rows, origin, optimization_profiles, calibration)
+    validate_raw_title_free()
+    validate_raw_publication_quality()
+    build_tables(main_rows, loss_rows, structure_rows, iir_rows, ablation_overview_rows, deploy_rows, lut_rows, lut_point_rows, origin, optimization_profiles)
     return payload
 
 

@@ -9,8 +9,8 @@ This document records the stable workflow for `docs/paper/`. The goal is to keep
 `docs/paper/` uses these responsibilities:
 
 - `docs/paper/config.json`: canonical paper data-source configuration for project metrics, ex_project outputs, legacy image migrations, and legacy plotting-code provenance.
-- `docs/paper/gen_data.py`: top-level data entry; refreshes the frozen paper data snapshot and `latex/values.tex`.
-- `docs/paper/gen_figures.py`: top-level figure entry; refreshes generated figures and migrated legacy figures.
+- `docs/paper/gen_data.py`: top-level data entry; refreshes the frozen paper data snapshot, generated tables, `latex/values.tex`, generated figures, and figure raw records.
+- `docs/paper/gen_figures.py`: top-level figure entry; calls the same generation pipeline when a figure-focused refresh command is desired.
 - `docs/paper/src/`: implementation code for data collection, derived metrics, plotting, and migration helpers.
 - `docs/paper/src/legacy/`: migrated legacy plotting code kept for provenance and future extraction; new execution should still enter through `gen_data.py` or `gen_figures.py`.
 - `docs/paper/data/results.json`: frozen paper data snapshot used by generated figures and tables.
@@ -25,9 +25,9 @@ The stable flow is:
 
 1. `docs/paper/config.json` declares external project paths, ex_project paths, legacy image mappings, and legacy plotting-code provenance.
 2. `python docs/paper/gen_data.py` reads those sources and writes `docs/paper/data/results.json` as a frozen snapshot.
-3. The same data entry refreshes `docs/paper/latex/values.tex`; manuscript text should cite numeric values through `\val...` macros.
-4. `python docs/paper/gen_figures.py` uses `results.json`, migrated images, and code under `docs/paper/src/` to write `docs/paper/figures/`.
-5. `docs/paper/latex/main.tex` references only repository-local `values.tex`, `figures/`, and `latex/nonlinear.bib` resources.
+3. The same data entry refreshes `docs/paper/latex/values.tex`, generated table fragments, `docs/paper/figures/`, and same-stem figure `.raw.json` files; manuscript text should cite numeric values through `\val...` macros.
+4. `python docs/paper/gen_figures.py` is an equivalent figure-oriented entry to the same pipeline; use it when a workflow explicitly separates data and figure refresh, then verify that `results.json` and `.raw.json` remain aligned.
+5. `docs/paper/latex/main.tex` references only repository-local `values.tex`, `figures/`, generated table fragments, and `latex/nonlinear.bib` resources.
 
 A valid paper data flow satisfies these checks:
 
@@ -45,6 +45,7 @@ When adding or replacing paper figures:
 - Do not reuse one figure file for two different figure semantics; generate distinct files and distinct raw records.
 - Legacy manually composed figures may be kept, but their `.raw.json` must record the migrated source path.
 - Tables, figure labels, and text values must come from the same `results.json` snapshot or from an explicit migrated raw record.
+- The canonical main horizontal-comparison summary figure is `fig_02_horizontal_summary.png`; its same-stem raw record must include the main benchmark rows, origin metrics, metric-range rows, and convergence curves used by the metric-range, compute-speed, radar, and convergence subplots.
 
 ## Bibliography Rules
 
@@ -72,7 +73,7 @@ After migration, the current repository is authoritative. Future edits should up
 After updating paper data, figures, bibliography, or LaTeX references, use this order:
 
 1. `python docs/paper/gen_data.py`
-2. `python docs/paper/gen_figures.py`
+2. Run `python docs/paper/gen_figures.py` only when the workflow deliberately performs a separate figure refresh; the default `gen_data.py` entry already refreshes the current generated figure set.
 3. Check that all `main.tex` figure paths exist and have same-stem `.raw.json` files.
 4. Check that all `\val...` macros used by `main.tex` exist in `values.tex` and no used value is `TBD`.
 5. If bibliography changed, run `xelatex -> bibtex -> xelatex -> xelatex` in `docs/paper/latex`.
@@ -82,7 +83,7 @@ After updating paper data, figures, bibliography, or LaTeX references, use this 
 
 A paper pipeline change is complete when:
 
-- `gen_data.py` and `gen_figures.py` finish successfully.
+- `gen_data.py` finishes successfully; `gen_figures.py` is also run successfully when the chosen workflow separates the figure refresh step.
 - `results.json`, `values.tex`, generated figures, migrated figures, and `.raw.json` files are internally consistent.
 - `main.tex` has no absolute image or bibliography paths.
 - The final LaTeX build produces `docs/paper/latex/build/main.pdf` with return code `0`.

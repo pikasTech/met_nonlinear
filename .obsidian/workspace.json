@@ -4,21 +4,19 @@
     "type": "split",
     "children": [
       {
-        "id": "dff8d3bd63c5c784",
+        "id": "9fc25711554ef90e",
         "type": "tabs",
         "children": [
           {
-            "id": "fe9fdbcac9f4760a",
+            "id": "d7908b361fa1bd93",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "pdf",
               "state": {
-                "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
-                "mode": "source",
-                "source": false
+                "file": "docs/paper/latex/build/main.pdf"
               },
-              "icon": "lucide-file",
-              "title": "[VIP]Schaller_2025_AutoML_Measurement"
+              "icon": "lucide-file-text",
+              "title": "main"
             }
           }
         ]
@@ -78,7 +76,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 267.51103591918945
+    "width": 200
   },
   "right": {
     "id": "bfa1cc7ceaf8a659",
@@ -94,17 +92,17 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+                "file": "docs/paper/latex/build/main.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
                 "showSearch": false,
                 "searchQuery": "",
                 "backlinkCollapsed": false,
-                "unlinkedCollapsed": true
+                "unlinkedCollapsed": false
               },
               "icon": "links-coming-in",
-              "title": "[VIP]Schaller_2025_AutoML_Measurement 的反向链接列表"
+              "title": "main 的反向链接列表"
             }
           },
           {
@@ -156,21 +154,20 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
+                "file": "docs/paper/latex/build/main.pdf",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "[VIP]Schaller_2025_AutoML_Measurement 的大纲"
+              "title": "main 的大纲"
             }
           }
-        ],
-        "currentTab": 4
+        ]
       }
     ],
     "direction": "horizontal",
-    "width": 368.5
+    "width": 256.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -183,53 +180,55 @@
       "bases:新建数据库": false
     }
   },
-  "active": "fe9fdbcac9f4760a",
+  "active": "d7908b361fa1bd93",
   "lastOpenFiles": [
-    "docs/paper/latex/build/xelatex46908.fls",
-    "docs/MDTODO/20260327-转投.md.lock",
-    "docs/paper/latex/build/main.synctex.gz",
-    "docs/paper/latex/build/main.synctex(busy)",
-    "docs/paper/latex/build/xelatex97780.fls",
-    "docs/MDTODO/details/20260327-转投/20260425_214022_Task_Report.md",
-    "docs/paper/latex/build/page_screenshots/page-25.png",
-    "docs/paper/latex/build/page_screenshots/page-24.png",
-    "docs/paper/latex/build/page_screenshots/page-23.png",
-    "docs/paper/latex/build/page_screenshots/page-22.png",
-    "docs/paper/latex/build/page_screenshots/page-21.png",
-    "docs/paper/latex/build/page_screenshots/page-20.png",
-    "docs/paper/latex/build/page_screenshots/page-19.png",
-    "docs/paper/latex/build/page_screenshots/page-18.png",
-    "docs/paper/latex/build/page_screenshots/page-17.png",
-    "docs/paper/latex/build/page_screenshots/page-16.png",
-    "docs/paper/latex/build/xelatex93408.fls",
-    "docs/paper/latex/build/xelatex69840.fls",
-    "docs/paper/latex/build/xelatex20756.fls",
-    "docs/paper/latex/build/xelatex83912.fls",
-    "docs/paper/latex/build/xelatex9032.fls",
-    "docs/paper/latex/build/xelatex56964.fls",
-    "docs/notes/文献笔记.md",
-    "docs/research/literature/markdown/[VPI]AI_Based_Sensor.md",
-    "docs/MDTODO/details/20260327-转投/20260425_205520_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260425_210640_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260425_211823_Task_Report.md",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/training_log.jsonl",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/best_val.weights.json",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/best_val.weights.h5",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/best.weights.json",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/best.weights.h5",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/training.lock",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/model_info.json",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/scalers/combined_scaler.json",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/scalers",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data/training_state.json",
+    "projects/01_LR_STUDY/LSTMu16_e1k_lr7e5_puremae_r8_r24/data",
+    "projects/01_LR_STUDY/LSTMTransformeru6_e1k_lr1e3_puremae_r24/data/predict_features_overview.png",
+    "projects/01_LR_STUDY/LSTMTransformeru6_e1k_lr1e3_puremae_r24/data/bode_plot_overlay.png",
+    "docs/MDTODO/details/20260327-转投/20260427_170012_Task_Report.md",
+    "docs/paper/latex/build/page_screenshots/page-28.png",
+    "docs/MDTODO/details/20260327-转投/20260427_165400_Task_Report.md",
+    "docs/paper/figures/fig_05_onboard_inference_cd_metrics.png",
+    "docs/paper/figures/_montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png",
+    "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e5_r24/data/predict_features_overview.png",
+    "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e5_r24/data/bode_plot_overlay.png",
+    "docs/MDTODO/details/20260327-转投/20260427_165031_Task_Report.md",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut513_interp/data/plots/mag0_24_freq10_comparison.png",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut513/data/plots/mag0_24_freq10_comparison.png",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut257_interp/data/plots/mag0_24_freq10_comparison.png",
+    "docs/MDTODO/details/20260327-转投/20260427_164218_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260427_163859_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260427_163507_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260427_162646_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260427_162055_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260427_161015_Task_Report.md",
     "AGENTS.md",
-    "docs/MDTODO/details/20260327-转投/20260425_172524_Task_Report.md",
-    "docs/reference/paper_figure_traceability.md",
-    "docs/paper/latex/main.tex.md",
-    "docs/MDTODO/details/20260327-转投/20260425_021144_Task_Report.md",
-    "CLAUDE.md",
-    "docs/MDTODO/details/20260327-转投/20260424_234407_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260424_232935_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260424_213942_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260424_213216_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260424_211522_Task_Report.md",
-    "docs/research/literature/markdown/[VIP]Schaller_2025_AutoML_Measurement.md",
-    "docs/MDTODO/details/20260327-转投/20260424_211707_Task_Report.md",
-    "ex_projects/compare/hparam_sensitivity_r15/data/summary.md",
-    "docs/paper/draft/20260422/hyperparameter_sensitivity_note.md",
     "docs/research/literature/markdown/[MN]Machine_learning_driven_metastructure_design_for_sensor_free_linearization_of_MEMS_electroth.md",
-    "docs/MDTODO/details/20260327-转投/20260424_172329_Task_Report.md",
-    "docs/MDTODO/details/20260327-转投/20260423_221243_Task_Report.md",
-    "docs/reference/paper_hyperparameter_sensitivity_method.md"
+    "docs/MDTODO/details/20260327-转投/20260427_160656_Task_Report.md",
+    "docs/notes/文献笔记.md",
+    "docs/MDTODO/details/20260327-转投/20260427_160251_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260427_154337_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_235857_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_225423_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_225028_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_224637_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_220502_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_134853_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_125401_Task_Report.md",
+    "docs/MDTODO/details/20260327-转投/20260426_114621_Task_Report.md",
+    "src/webui/node_modules/recharts/AGENTS.md",
+    "未命名 1.canvas",
+    "docs/MDTODO/05_1DCNN_KAN.md",
+    "未命名.canvas"
   ]
 }

@@ -1,0 +1,180 @@
+{
+  "figure": "_montage_panels/fig_18_hparam_sensitivity_1_h_units.png",
+  "source_trace": "docs/paper/src/paper_pipeline.py:save_panel_figure",
+  "matplotlib_title_artifacts": [],
+  "visual_quality_audit": {
+    "version": 1,
+    "context": "figures/_montage_panels/fig_18_hparam_sensitivity_1_h_units.png",
+    "thresholds": {
+      "text_clip_margin_px": 1.0,
+      "text_text_overlap_min_area_px": 25.0,
+      "text_text_overlap_min_fraction": 0.08,
+      "text_data_overlap_min_area_px": 45.0,
+      "text_data_overlap_min_fraction": 0.12,
+      "axis_label_tick_font_ratio_max": 1.85,
+      "axis_label_font_min_pt": 14.0,
+      "edge_guard_px": 4,
+      "edge_dark_luminance_max": 245,
+      "edge_nonwhite_delta_min": 14,
+      "edge_dark_pixel_min_count": 28,
+      "edge_dark_pixel_min_ratio": 0.0015,
+      "schematic_endpoint_tolerance": 0.018,
+      "schematic_box_margin": 0.006,
+      "schematic_axis_alignment_tolerance": 0.006,
+      "schematic_arrow_overlap_min_length": 0.03,
+      "schematic_arrow_length_fraction_max": 0.7,
+      "schematic_arrow_length_fraction_tolerance": 0.006,
+      "schematic_endpoint_intrusion_tolerance": 0.003,
+      "schematic_endpoint_clearance_min": 0.01,
+      "schematic_endpoint_clearance_max": 0.06
+    },
+    "checks": {
+      "figures/_montage_panels/fig_18_hparam_sensitivity_1_h_units.png": {
+        "image_edge_content": {
+          "size": [
+            1372,
+            1012
+          ],
+          "edge_guard_px": 4,
+          "edge_pixel_count": 19008,
+          "edge_dark_pixels": 0,
+          "edge_ratio": 0.0,
+          "violation": false
+        }
+      }
+    },
+    "violations": [],
+    "children": [
+      {
+        "version": 1,
+        "context": "figures/_montage_panels/fig_18_hparam_sensitivity_1_h_units.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "matplotlib_text_count": 20,
+          "matplotlib_patch_count": 0,
+          "matplotlib_canvas_bbox": [
+            0.0,
+            0.0,
+            720.0,
+            528.0
+          ],
+          "bbox_reliable_text_count": 20,
+          "three_d_axes_bbox_checks_skipped": [],
+          "matplotlib_canvas_overflows": [
+            {
+              "text": {
+                "text": "260",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  35.65,
+                  516.117,
+                  69.025,
+                  535.117
+                ]
+              },
+              "details": {
+                "bbox": [
+                  35.65,
+                  516.117,
+                  69.025,
+                  535.117
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  720.0,
+                  528.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 6.117
+                }
+              }
+            }
+          ],
+          "matplotlib_canvas_overflow_count": 1,
+          "axes_font_balance": [
+            {
+              "axis_index": 0,
+              "max_axis_label_font_pt": 10.0,
+              "median_tick_label_font_pt": 9.0,
+              "ratio": 1.111,
+              "violation": false
+            }
+          ]
+        },
+        "violations": [],
+        "status": "pass"
+      },
+      {
+        "version": 1,
+        "context": "figures/_montage_panels/fig_18_hparam_sensitivity_1_h_units.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "image_edge_content": {
+            "size": [
+              1372,
+              1012
+            ],
+            "edge_guard_px": 4,
+            "edge_pixel_count": 19008,
+            "edge_dark_pixels": 0,
+            "edge_ratio": 0.0,
+            "violation": false
+          }
+        },
+        "violations": [],
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  }
+}

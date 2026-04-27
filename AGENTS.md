@@ -3,6 +3,7 @@
 ## 论文撰写
 
 - 构建后的主 Papaer [[main.pdf]] [main.tex](docs\paper\latex\main.tex)
+	- 过程文档 [20260327-转投](docs\MDTODO\20260327-转投.md)
 - [[文献笔记]] - 用户自己写的文献阅读笔记，不要修改
 - 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考。
 - 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。
@@ -15,6 +16,7 @@
 - 论文 LUT 插值部署评估方法：详见 [docs/reference/paper_lut_interpolation_evaluation_method.md](docs/reference/paper_lut_interpolation_evaluation_method.md)。
 - 论文 AI 原理示意图绘制规范：详见 [docs/reference/paper_ai_schematic_figures.md](docs/reference/paper_ai_schematic_figures.md)。
 - Paper figure traceability and modification workflow: see [docs/reference/paper_figure_traceability.md](docs/reference/paper_figure_traceability.md).
+- 文献索引 [[docs/research/literature/analyze/index|index]]
 ## 最高原则
 
 - **禁止直接编写配置文件**：创建新项目变体时，禁止直接用 Write 工具编写 config.json，必须先从同类型项目 Copy 已有的 config.json，再用 sed/replace 命令修改所需参数，避免引入幻觉差异。
@@ -35,6 +37,7 @@
 - 问题定义与建模原则：详见 [docs/reference/modeling_principles.md](docs/reference/modeling_principles.md)。
 - 模型结构演化与取舍：详见 [docs/reference/model_architecture_selection.md](docs/reference/model_architecture_selection.md)。
 - 真实 1DCNN / TCN 卷积时序基线：详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
+	- 过程文档 [[05_1DCNN_KAN]]
 - 数据集设计与覆盖边界：详见 [docs/reference/dataset_design.md](docs/reference/dataset_design.md)。
 - 实验验证与外推边界：详见 [docs/reference/validation_boundaries.md](docs/reference/validation_boundaries.md)。
 - 模拟电路实现与 SPICE 验证：详见 [docs/reference/circuit_realization.md](docs/reference/circuit_realization.md)。
@@ -49,6 +52,7 @@
 - 测试入口与约定：详见 [docs/reference/testing.md](docs/reference/testing.md)。
 - 拓展项目与边缘仿真：详见 [docs/reference/ep.md](docs/reference/ep.md)、[docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。其中 EP 项目索引、常见路径和 WNET5 电路验证图产物约定统一收敛在 `ep.md`。
 - WNET5 分层验证中的 Project 权重加载、E96 量化误差仿真、SVF 拟合误差建模与报告约束：详见 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
+	- 过程文档 [[02_SVF层误差]]
 - WebUI 可视化服务：详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
 
@@ -205,6 +209,7 @@
 
 
 ### 测试命令
+- 过程文档 [[03_单元测试]]
 
 - `python cli.py --test`
 	- CLI 测试入口：通过 CLI 入口运行测试集，详见 [docs/reference/testing.md](docs/reference/testing.md)。

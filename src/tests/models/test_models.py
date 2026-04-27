@@ -1780,6 +1780,49 @@ class TestCNNKANSubcfg:
             np.testing.assert_allclose(result, restored_output.reshape(1, 2, 1))
 
 
+class TestFRIKANConstraintSubcfg:
+    """Regression tests for FRIKAN constraint-related subcfg wiring."""
+
+    def test_frikan_propagates_constraint_subcfg_to_all_kan_layers(self):
+        """FRIKAN should pass constraint flags from model_subcfg to every DenseKAN layer."""
+        from models.frikan_models import FRIKAN
+
+        iir_params = [
+            {'a1': -1.5, 'a2': 0.7, 'b0': 0.5, 'b1': 0.0, 'b2': 0.0}
+        ]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            model = FRIKAN(
+                iir_params_list=iir_params,
+                grid_size=5,
+                fs=2000,
+                checkpoint_dir=tmpdir,
+                dropout_rate=0.0,
+                use_fast_model=False,
+                inner_kan_units=3,
+                inner_kan_layers=2,
+                model_subcfg={
+                    'only_positive': False,
+                    'use_even': False,
+                    'use_symmetry': True,
+                }
+            )
+
+            assert model.only_positive is False
+            assert model.use_even is False
+            assert model.use_symmetry is True
+
+            assert model.kan.only_positive is False
+            assert model.kan.use_even is False
+            assert model.kan.use_symmetry is True
+
+            assert len(model.kan_inner_layers) == 2
+            for layer in model.kan_inner_layers:
+                assert layer.only_positive is False
+                assert layer.use_even is False
+                assert layer.use_symmetry is True
+
+
 class TestFRIKANGridMethods:
     """Test cases for FRIKAN grid assignment methods."""
 

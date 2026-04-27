@@ -1,0 +1,26 @@
+{
+  "task_info": {
+    "task_type": "qemu-c-inference",
+    "description": "MET subset validation for Wiener-KAN LUT interp, lut_points=129"
+  },
+  "output_files": [
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/keil_benchmark_summary.json",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/qemu_project",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/keil_project",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/origin_input.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/target_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_input_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_iir_output.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_output_scaled.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_0.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_1.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_2.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_3.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_4.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_5.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_6.wave",
+    "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/build_logs/build_output_MET405_project_default.txt"
+  ],
+  "action": "keil-bench"
+}

@@ -1,0 +1,23 @@
+% Auto-generated table; do not edit manually.
+\begingroup
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}p{0.12\textwidth}p{0.18\textwidth}p{0.40\textwidth}ccc@{}}
+\hline\hline
+\textbf{Group} & \textbf{Variant} & \textbf{Controlled contrast} & \makecell{\textbf{Freq}\\\textbf{drift}\\(Hz)} & \makecell{\textbf{Sens}\\\textbf{drift}\\(\%)} & \makecell{\textbf{Linearity}\\(\%)} \\ \hline
+\textbf{Baseline} & \textbf{B-spline + Odd+pos. + System, fixed, + MAE + AFMAE} & \textbf{Shared canonical Wiener-KAN setting} & \textbf{2.34} & \textbf{9.09} & \textbf{0.511} \\
+\hdashline
+\multirow{2}{=}{Struct} & CNN-KAN & Conv front replaces Wiener front & 2.43 & 9.22 & 0.883 \\
+ & Wiener-MLP & MLP replaces KAN mapping & 5.82 & 27.48 & 0.782 \\
+\hdashline
+\multirow{2}{=}{Constr.} & Positive & No odd symmetry & 10.91 & 10.61 & 2.109 \\
+ & Odd & No positive basis & 58.03 & 50.87 & 38.586 \\
+\hdashline
+\multirow{3}{=}{Wiener front} & Random / fixed & Random init., frozen & 5.37 & 22.28 & 1.308 \\
+ & System / trainable & Measured init., trainable & 94.87 & 64.68 & 7.478 \\
+ & Random / trainable & Random init., trainable & 102.57 & 16.65 & 5.144 \\
+\hdashline
+\multirow{2}{=}{Loss} & MAE & Time-domain pointwise loss & 13.00 & 20.28 & 0.793 \\
+ & AFMAE & Amplitude-frequency loss & 4.00 & 21.06 & 1.068 \\
+\hline\hline
+\end{tabular}
+\endgroup

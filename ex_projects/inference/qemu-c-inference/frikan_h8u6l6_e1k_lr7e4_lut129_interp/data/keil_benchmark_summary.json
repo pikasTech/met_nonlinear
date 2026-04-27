@@ -1,0 +1,165 @@
+{
+  "task_type": "qemu-c-inference",
+  "action": "keil-bench",
+  "model_type": "frikan",
+  "model_project_name": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4",
+  "weights_json_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/best_val.weights.json",
+  "loaded_weights_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/best_val.weights.h5",
+  "generated_project_dir": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/qemu_project",
+  "keil_project_dir": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/keil_project",
+  "keil_project_file": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/keil_project/MDK-ARM/Electrochemical geophone.uvprojx",
+  "benchmark_config": {
+    "iterations": 10,
+    "reset_state_each_run": true,
+    "repeat_runs": 1
+  },
+  "validation": {
+    "dataset": {
+      "dataset_type": "MET",
+      "full_data_path": "D:\\BaiduSyncdisk\\data/M50",
+      "sample_rate": 2000.0
+    },
+    "selection": {
+      "start_time_s": 0.0,
+      "end_time_s": 0.2,
+      "sample_count": 400
+    },
+    "record_count": 1,
+    "seq_len": 400
+  },
+  "keil_config": {
+    "action": "build",
+    "target": "MET405",
+    "programmer": "daplink",
+    "program_backend": "keil",
+    "probe_uid": "205536951525",
+    "serial_port": "COM8",
+    "baud_rate": 115200,
+    "capture_timeout": 20,
+    "job_timeout": 300,
+    "success_markers": [
+      "validation_complete=1"
+    ],
+    "published_optimization_profile": "project_default",
+    "keil_cli_path": "C:\\Users\\lyon\\.agents\\skills\\keil\\keil-cli.py",
+    "optimization_profiles": []
+  },
+  "wave_paths": {
+    "tf_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_output.wave",
+    "origin_input_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/origin_input.wave",
+    "target_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/target_output.wave",
+    "tf_input_scaled_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_input_scaled.wave",
+    "tf_iir_output_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_iir_output.wave",
+    "tf_output_scaled_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_output_scaled.wave",
+    "tf_kan_layer_0_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_0.wave",
+    "tf_kan_layer_1_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_1.wave",
+    "tf_kan_layer_2_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_2.wave",
+    "tf_kan_layer_3_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_3.wave",
+    "tf_kan_layer_4_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_4.wave",
+    "tf_kan_layer_5_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_5.wave",
+    "tf_kan_layer_6_wave": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/waves/tf_kan_layer_6.wave"
+  },
+  "status": "build_completed",
+  "keil_build": {
+    "job_id": "20260427_171903_8176c9d5",
+    "command": "build",
+    "status": "completed",
+    "created_at": "2026-04-27T17:19:03.975306",
+    "started_at": "2026-04-27T17:19:04.740884",
+    "finished_at": "2026-04-27T17:19:41.590551",
+    "return_code": 0,
+    "success": true,
+    "params": {
+      "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+      "programmer": null,
+      "probe": null,
+      "target": "MET405",
+      "program_backend": null
+    },
+    "result": {
+      "return_code": 0,
+      "success": true,
+      "message": "Build completed successfully",
+      "hex_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\output\\MET405\\MET405_BENCHMARK.hex",
+      "axf_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\output\\MET405\\MET405_BENCHMARK.axf",
+      "warning_count": 0,
+      "target": "MET405",
+      "shared_output_cleanup": {
+        "performed": false,
+        "patterns": [],
+        "removed_count": 0,
+        "removed_files": []
+      },
+      "cleared_build_state_file": null,
+      "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+      "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260427\\keil_build_20260427_171904.jsonl"
+    },
+    "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260427\\keil_build_20260427_171904.jsonl",
+    "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260427_171903_8176c9d5.json"
+  },
+  "published_optimization_profile": "project_default",
+  "optimization_profiles": [
+    {
+      "key": "project_default",
+      "label": "Project default",
+      "published": true,
+      "use_project_defaults": true,
+      "optim_value": null,
+      "misc_controls": "",
+      "enable_lto": false,
+      "status": "build_completed",
+      "keil_build": {
+        "job_id": "20260427_171903_8176c9d5",
+        "command": "build",
+        "status": "completed",
+        "created_at": "2026-04-27T17:19:03.975306",
+        "started_at": "2026-04-27T17:19:04.740884",
+        "finished_at": "2026-04-27T17:19:41.590551",
+        "return_code": 0,
+        "success": true,
+        "params": {
+          "project": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\Electrochemical geophone.uvprojx",
+          "programmer": null,
+          "probe": null,
+          "target": "MET405",
+          "program_backend": null
+        },
+        "result": {
+          "return_code": 0,
+          "success": true,
+          "message": "Build completed successfully",
+          "hex_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\output\\MET405\\MET405_BENCHMARK.hex",
+          "axf_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\output\\MET405\\MET405_BENCHMARK.axf",
+          "warning_count": 0,
+          "target": "MET405",
+          "shared_output_cleanup": {
+            "performed": false,
+            "patterns": [],
+            "removed_count": 0,
+            "removed_files": []
+          },
+          "cleared_build_state_file": null,
+          "build_state_file": "C:\\work\\met_nonlinear_master\\ex_projects\\inference\\qemu-c-inference\\frikan_h8u6l6_e1k_lr7e4_lut129_interp\\keil_project\\MDK-ARM\\output\\.keil_target_build_state.json",
+          "_log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260427\\keil_build_20260427_171904.jsonl"
+        },
+        "log_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\logs\\20260427\\keil_build_20260427_171904.jsonl",
+        "state_file": "C:\\Users\\lyon\\.agents\\skills\\keil\\.state\\jobs\\20260427_171903_8176c9d5.json"
+      },
+      "build_output_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_lut129_interp/data/build_logs/build_output_MET405_project_default.txt",
+      "build_size": {
+        "code_bytes": 18304,
+        "ro_bytes": 123260,
+        "rw_bytes": 0,
+        "zi_bytes": 5704,
+        "flash_bytes": 141564,
+        "ram_bytes": 5704
+      },
+      "code_bytes": 18304,
+      "ro_bytes": 123260,
+      "rw_bytes": 0,
+      "zi_bytes": 5704,
+      "flash_bytes": 141564,
+      "ram_bytes": 5704
+    }
+  ]
+}

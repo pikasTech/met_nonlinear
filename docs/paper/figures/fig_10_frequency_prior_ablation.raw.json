@@ -3,14 +3,14 @@
   "rows": [
     {
       "variant": "Data-only KAN",
-      "source_variant": "CNNKAN",
+      "source_variant": "CNN-KAN",
       "freq_drift_hz": 2.4307339655957065,
       "sens_drift_percent": 9.223698963799492,
       "linearity_percent": 0.8832526103351029
     },
     {
       "variant": "Frequency-conditioned KAN",
-      "source_variant": "FRIMLP",
+      "source_variant": "Wiener-MLP",
       "freq_drift_hz": 5.817886622907654,
       "sens_drift_percent": 27.48032651317834,
       "linearity_percent": 0.7823864528104176

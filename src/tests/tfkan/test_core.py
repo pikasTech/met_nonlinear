@@ -558,6 +558,48 @@ class TestLayerKAN(unittest.TestCase):
 
         self.assertEqual(spline_out.shape, (8, 4, 2))
 
+    def test_only_positive_branch_projects_negative_kernel(self):
+        """`only_positive` should change the training-path spline branch semantics."""
+        x = tf.constant([[0.1], [0.5], [0.9]], dtype=tf.float32)
+
+        positive_layer = DenseKAN(
+            units=1,
+            grid_size=4,
+            spline_order=2,
+            grid_range=(0.0, 1.0),
+            basis_activation='linear',
+            fix_scale_factor=True,
+            disable_basis_activation=True,
+            only_positive=True,
+            use_even=False,
+            use_symmetry=True,
+        )
+        positive_layer.build(input_shape=(None, 1))
+        positive_layer.spline_kernel.assign(-tf.ones_like(positive_layer.spline_kernel))
+        positive_output = positive_layer.compute_spline_output(x).numpy()[:, 0, 0]
+
+        self.assertTrue(np.all(positive_layer.spline_kernel.numpy() >= 0.0))
+        self.assertTrue(np.all(positive_output >= -1e-6))
+
+        unconstrained_layer = DenseKAN(
+            units=1,
+            grid_size=4,
+            spline_order=2,
+            grid_range=(0.0, 1.0),
+            basis_activation='linear',
+            fix_scale_factor=True,
+            disable_basis_activation=True,
+            only_positive=False,
+            use_even=False,
+            use_symmetry=True,
+        )
+        unconstrained_layer.build(input_shape=(None, 1))
+        unconstrained_layer.spline_kernel.assign(-tf.ones_like(unconstrained_layer.spline_kernel))
+        unconstrained_output = unconstrained_layer.compute_spline_output(x).numpy()[:, 0, 0]
+
+        self.assertTrue(np.any(unconstrained_layer.spline_kernel.numpy() < 0.0))
+        self.assertTrue(np.any(unconstrained_output < -1e-6))
+
 
 if __name__ == "__main__":
     unittest.main()
