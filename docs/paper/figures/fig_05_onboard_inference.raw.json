@@ -159,12 +159,12 @@
         "source": "docs/paper/figures/_montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png",
         "label": "(d)",
         "original_size": [
-          1960,
-          1184
+          1958,
+          1022
         ],
         "rendered_size": [
           1820,
-          1099
+          950
         ],
         "scale": 1.0,
         "fit_width": 1820,
@@ -191,7 +191,7 @@
           1930,
           1358,
           3750,
-          2457
+          2308
         ]
       }
     ]

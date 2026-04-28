@@ -12,7 +12,7 @@
     "output": "docs/paper/figures/fig_08_frequency_response_comparison.png",
     "size": [
       4028,
-      4623
+      3795
     ],
     "layout": "matrix",
     "rows": 3,
@@ -42,19 +42,21 @@
     "panels": [
       {
         "source": "docs/paper/figures/_montage_panels/fig_08_frequency_response_comparison_d_response_before_after.png",
-        "label": "(d)",
+        "label": "(a)",
         "original_size": [
-          1184,
-          1423
+          1176,
+          1109
         ],
         "rendered_size": [
-          2122,
-          2550
+          1803,
+          1700
         ],
         "scale": 1.0,
-        "fit_height": 2550,
+        "fit_height": 1700,
         "align_x": "center",
         "align_y": "top",
+        "offset_x": 113,
+        "offset_y": 145,
         "row_span": 2,
         "col_span": 1,
         "trim_border": 28,
@@ -67,33 +69,35 @@
           "x": 55,
           "y": 55,
           "width": 2140,
-          "height": 2778,
+          "height": 1950,
           "content_y": 169,
-          "content_height": 2664,
+          "content_height": 1836,
           "label_band_height": 114
         },
         "paste_box": [
-          64,
-          169,
-          2186,
-          2719
+          336,
+          314,
+          2139,
+          2014
         ]
       },
       {
         "source": "docs/paper/figures/_montage_panels/fig_08_frequency_response_comparison_a_fn.png",
-        "label": "(a)",
+        "label": "(b)",
         "original_size": [
           1715,
-          1232
+          833
         ],
         "rendered_size": [
           1720,
-          1236
+          835
         ],
         "scale": 1.0,
         "fit_width": 1720,
         "align_x": "center",
-        "align_y": "top",
+        "align_y": "bottom",
+        "offset_x": 0,
+        "offset_y": 0,
         "row_span": 1,
         "col_span": 1,
         "trim_border": 28,
@@ -106,33 +110,35 @@
           "x": 2253,
           "y": 55,
           "width": 1720,
-          "height": 1364,
+          "height": 949,
           "content_y": 169,
-          "content_height": 1250,
+          "content_height": 835,
           "label_band_height": 114
         },
         "paste_box": [
           2253,
           169,
           3973,
-          1405
+          1004
         ]
       },
       {
         "source": "docs/paper/figures/_montage_panels/fig_08_frequency_response_comparison_b_sensitivity.png",
-        "label": "(b)",
+        "label": "(c)",
         "original_size": [
           1716,
-          1232
+          833
         ],
         "rendered_size": [
           1720,
-          1235
+          835
         ],
         "scale": 1.0,
         "fit_width": 1720,
         "align_x": "center",
         "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
         "row_span": 1,
         "col_span": 1,
         "trim_border": 28,
@@ -143,23 +149,23 @@
           "row_span": 1,
           "col_span": 1,
           "x": 2253,
-          "y": 1471,
+          "y": 1056,
           "width": 1720,
-          "height": 1362,
-          "content_y": 1585,
-          "content_height": 1248,
+          "height": 949,
+          "content_y": 1170,
+          "content_height": 835,
           "label_band_height": 114
         },
         "paste_box": [
           2253,
-          1585,
+          1170,
           3973,
-          2820
+          2005
         ]
       },
       {
         "source": "docs/paper/figures/time_domain_outputs.png",
-        "label": "(e)",
+        "label": "(d)",
         "original_size": [
           3985,
           2922
@@ -172,6 +178,8 @@
         "fit_width": 2140,
         "align_x": "center",
         "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
         "row_span": 1,
         "col_span": 1,
         "trim_border": 24,
@@ -182,23 +190,23 @@
           "row_span": 1,
           "col_span": 1,
           "x": 55,
-          "y": 2885,
+          "y": 2057,
           "width": 2140,
           "height": 1683,
-          "content_y": 2999,
+          "content_y": 2171,
           "content_height": 1569,
           "label_band_height": 114
         },
         "paste_box": [
           55,
-          2999,
+          2171,
           2195,
-          4568
+          3740
         ]
       },
       {
         "source": "docs/paper/figures/_montage_panels/fig_08_frequency_response_comparison_c_drift_reduction.png",
-        "label": "(c)",
+        "label": "(e)",
         "original_size": [
           1767,
           1347
@@ -211,6 +219,8 @@
         "fit_width": 1720,
         "align_x": "center",
         "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
         "row_span": 1,
         "col_span": 1,
         "trim_border": 24,
@@ -221,18 +231,18 @@
           "row_span": 1,
           "col_span": 1,
           "x": 2253,
-          "y": 2885,
+          "y": 2057,
           "width": 1720,
           "height": 1683,
-          "content_y": 2999,
+          "content_y": 2171,
           "content_height": 1569,
           "label_band_height": 114
         },
         "paste_box": [
           2253,
-          2999,
+          2171,
           3973,
-          4310
+          3482
         ]
       }
     ]
@@ -268,10 +278,10 @@
         "image_edge_content": {
           "size": [
             4028,
-            4623
+            3795
           ],
           "edge_guard_px": 4,
-          "edge_pixel_count": 69144,
+          "edge_pixel_count": 62520,
           "edge_dark_pixels": 0,
           "edge_ratio": 0.0,
           "violation": false
@@ -310,7 +320,7 @@
           "montage_panel_count": 5,
           "montage_size": [
             4028,
-            4623
+            3795
           ]
         },
         "violations": [],
@@ -346,10 +356,10 @@
           "image_edge_content": {
             "size": [
               4028,
-              4623
+              3795
             ],
             "edge_guard_px": 4,
-            "edge_pixel_count": 69144,
+            "edge_pixel_count": 62520,
             "edge_dark_pixels": 0,
             "edge_ratio": 0.0,
             "violation": false

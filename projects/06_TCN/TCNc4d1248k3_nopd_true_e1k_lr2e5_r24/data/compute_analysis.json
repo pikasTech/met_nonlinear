@@ -1,0 +1,1627 @@
+{
+    "analysis_type": "single_timestep_inference_compute",
+    "analysis_method": "Counts are derived from TensorFlow/Keras layer classes, actual weight tensor shapes, and layer parameter counts.",
+    "model_type": "TCN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 1697,
+    "trainable_params": 1697,
+    "non_trainable_params": 0,
+    "assumptions": {
+        "batch_size": 1,
+        "time_steps": 1,
+        "dropout_active": false,
+        "maps_definition": "Each nonlinear activation evaluation counts as one MAP."
+    },
+    "analysis_target": "keras_model",
+    "platform_cost_model": {
+        "platform": "stm32f405",
+        "unit": "add_equivalent",
+        "add_weight": 1.0,
+        "mul_weight": 3.0,
+        "map_weight": 20.0,
+        "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+        "source_notes": [
+            "STM32F405 uses an ARM Cortex-M4F core.",
+            "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+            "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+            "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+        ]
+    },
+    "estimated_cost": {
+        "platform": "stm32f405",
+        "unit": "add_equivalent",
+        "weights": {
+            "additions": 1.0,
+            "multiplications": 3.0,
+            "maps": 20.0
+        },
+        "weighted_units": {
+            "additions": 1616.0,
+            "multiplications": 4848.0,
+            "maps": 2240.0,
+            "total": 8704.0
+        },
+        "weighted_share_pct": {
+            "additions": 18.566176470588236,
+            "multiplications": 55.6985294117647,
+            "maps": 25.735294117647058
+        },
+        "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+        "source_notes": [
+            "STM32F405 uses an ARM Cortex-M4F core.",
+            "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+            "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+            "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+        ]
+    },
+    "estimate_status": "complete",
+    "totals": {
+        "additions": 1616,
+        "multiplications": 1616,
+        "maps": 112,
+        "total": 3344
+    },
+    "layers": [
+        {
+            "name": "input",
+            "type": "InputLayer",
+            "trainable": true,
+            "input_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "output_shape": [
+                [
+                    null,
+                    null,
+                    1
+                ]
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "reason": "input_layer"
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 0,
+                "total": 0
+            },
+            "formula": "Input layer does not perform arithmetic operations.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0,
+                    "total": 0.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "initial_projection",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                1
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 16,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 1,
+                "input_channels": 1,
+                "input_channels_per_group": 1,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 1,
+                "padding": "same",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 8,
+                "multiplications": 8,
+                "maps": 0,
+                "total": 16
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 8.0,
+                    "multiplications": 24.0,
+                    "maps": 0.0,
+                    "total": 32.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "initial_projection_activation",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_1_conv_1",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 1,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_1_activation_1",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_1_conv_2",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 1,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_1_activation_2",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_1_output_activation",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_2_conv_1",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 2,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_2_activation_1",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_2_conv_2",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 2,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_2_activation_2",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_2_output_activation",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_3_conv_1",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 4,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_3_activation_1",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_3_conv_2",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 4,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_3_activation_2",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_3_output_activation",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_4_conv_1",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 8,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_4_activation_1",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_4_conv_2",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 200,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 3,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 8,
+                "padding": "causal",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 192,
+                "multiplications": 192,
+                "maps": 0,
+                "total": 384
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 192.0,
+                    "multiplications": 576.0,
+                    "maps": 0.0,
+                    "total": 768.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_4_activation_2",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "temporal_block_4_output_activation",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "post_dense_1",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 72,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 1,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 8,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 1,
+                "padding": "same",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 64,
+                "multiplications": 64,
+                "maps": 0,
+                "total": 128
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 64.0,
+                    "multiplications": 192.0,
+                    "maps": 0.0,
+                    "total": 256.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "post_dense_activation_1",
+            "type": "Activation",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                8
+            ],
+            "num_params": 0,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "activation": "relu",
+                "output_elements": 8
+            },
+            "compute": {
+                "additions": 0,
+                "multiplications": 0,
+                "maps": 8,
+                "total": 8
+            },
+            "formula": "Activation(single timestep): linear activation costs 0; each nonlinear output element is counted as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 160.0,
+                    "total": 160.0
+                },
+                "weighted_share_pct": {
+                    "additions": 0.0,
+                    "multiplications": 0.0,
+                    "maps": 100.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        },
+        {
+            "name": "output_conv",
+            "type": "Conv1D",
+            "trainable": true,
+            "input_shape": [
+                null,
+                null,
+                8
+            ],
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "num_params": 9,
+            "supported": true,
+            "operation_scope": "single_timestep_single_sample",
+            "details": {
+                "kernel_size": 1,
+                "input_channels": 8,
+                "input_channels_per_group": 8,
+                "output_channels": 1,
+                "groups": 1,
+                "strides": 1,
+                "dilation_rate": 1,
+                "padding": "same",
+                "use_bias": true,
+                "activation": "linear"
+            },
+            "compute": {
+                "additions": 8,
+                "multiplications": 8,
+                "maps": 0,
+                "total": 16
+            },
+            "formula": "Conv1D(single output timestep): each output channel computes one kernel_size * in_channels_per_group dot product, so the layer uses kernel_size * in_channels_per_group * output_channels multiplications and output_channels * ((kernel_size * in_channels_per_group - 1) + bias) additions; nonlinear activation per output element counts as one MAP.",
+            "estimated_cost": {
+                "platform": "stm32f405",
+                "unit": "add_equivalent",
+                "weights": {
+                    "additions": 1.0,
+                    "multiplications": 3.0,
+                    "maps": 20.0
+                },
+                "weighted_units": {
+                    "additions": 8.0,
+                    "multiplications": 24.0,
+                    "maps": 0.0,
+                    "total": 32.0
+                },
+                "weighted_share_pct": {
+                    "additions": 25.0,
+                    "multiplications": 75.0,
+                    "maps": 0.0
+                },
+                "basis": "Calibrated for STM32F405 (Cortex-M4F) against measured board latency. The default add-normalized ratio is 1:3:20 for add:multiply:MAP, which provides a better fit than the previous heuristic 1:1:6.",
+                "source_notes": [
+                    "STM32F405 uses an ARM Cortex-M4F core.",
+                    "The default ratio is calibrated from measured on-board latency of representative deployed models.",
+                    "The unconstrained fit tends to drive the add term toward negligible weight; the default 1:3:20 model keeps add normalized to 1 while remaining interpretable.",
+                    "MAP still represents the heaviest semantic operation because it bundles nonlinear evaluation and its surrounding indexing / memory-access overhead."
+                ]
+            }
+        }
+    ],
+    "unsupported_layers": [],
+    "has_unsupported_layers": false,
+    "unsupported_layer_count": 0,
+    "unsupported_layer_details": [],
+    "estimate_warning": null
+}

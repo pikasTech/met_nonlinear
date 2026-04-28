@@ -26,6 +26,8 @@ class PanelSpec:
     fit_height: int | None = None
     align_x: str = "center"
     align_y: str = "center"
+    offset_x: int = 0
+    offset_y: int = 0
     row_span: int = 1
     col_span: int = 1
     trim_border: int | None = None
@@ -88,6 +90,8 @@ def compose_subfigures(
                 "fit_height": panel.fit_height,
                 "align_x": panel.align_x,
                 "align_y": panel.align_y,
+                "offset_x": panel.offset_x,
+                "offset_y": panel.offset_y,
                 "row_span": panel.row_span,
                 "col_span": panel.col_span,
                 "trim_border": panel.trim_border,
@@ -145,8 +149,8 @@ def compose_subfigures(
         extra_row_label_height = sum(row_label_heights[row + 1:row + row_span])
         content_height = sum(heights[row:row + row_span]) + extra_row_label_height + gutter_y * (row_span - 1)
         content_y = cell_y + row_label_heights[row]
-        paste_x = cell_x + _alignment_offset(cell_width, image.width, panel.align_x, axis="x")
-        paste_y = content_y + _alignment_offset(content_height, image.height, panel.align_y, axis="y")
+        paste_x = cell_x + _alignment_offset(cell_width, image.width, panel.align_x, axis="x") + int(panel.offset_x)
+        paste_y = content_y + _alignment_offset(content_height, image.height, panel.align_y, axis="y") + int(panel.offset_y)
         canvas.paste(image, (paste_x, paste_y))
 
         panel_meta[idx]["cell"] = {

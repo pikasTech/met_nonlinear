@@ -1145,7 +1145,7 @@ def load_wiener_optimization_profiles() -> List[Dict[str, Any]]:
 
 
 def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
-    fig, ax_mae = plt.subplots(figsize=(6.6, 4.2))
+    fig, ax_mae = plt.subplots(figsize=(6.8, 4.2))
     ax_flash = ax_mae.twinx()
     style_map = {
         'nearest': {'label': 'LUT nearest', 'color': '#c96b00'},
@@ -1169,7 +1169,7 @@ def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
             marker='o',
             markersize=5.2,
             linewidth=2.2,
-            label=f"{style['label']} QEMU-MAE",
+            label=f"{style['label']} MAE",
         )
         flash_handle, = ax_flash.plot(
             x,
@@ -1182,7 +1182,7 @@ def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
             label=f"{style['label']} Flash",
         )
         legend_handles.extend([mae_handle, flash_handle])
-        legend_labels.extend([f"{style['label']} QEMU-MAE", f"{style['label']} Flash"])
+        legend_labels.extend([f"{style['label']} MAE", f"{style['label']} Flash"])
 
     unique_points = sorted({int(row['points']) for row in rows})
     ax_mae.set_xlabel('LUT quantization points')
@@ -1195,14 +1195,16 @@ def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
     ax_mae.legend(
         legend_handles,
         legend_labels,
-        loc='center left',
-        bbox_to_anchor=(1.02, 0.5),
-        frameon=True,
-        fontsize=7.6,
-        ncol=1,
+        loc='lower center',
+        bbox_to_anchor=(0.5, 1.05),
+        frameon=False,
+        fontsize=7.2,
+        ncol=4,
         borderaxespad=0.0,
+        handlelength=1.9,
+        columnspacing=1.1,
     )
-    fig.subplots_adjust(left=0.11, right=0.74, bottom=0.16, top=0.96)
+    fig.subplots_adjust(left=0.11, right=0.90, bottom=0.16, top=0.77)
     panel_rows = []
     for row in rows:
         panel_rows.append({
@@ -2853,6 +2855,8 @@ def make_bitmap_montage(
             fit_height=spec.get('fit_height'),
             align_x=str(spec.get('align_x', 'center')),
             align_y=str(spec.get('align_y', 'center')),
+            offset_x=int(spec.get('offset_x', 0)),
+            offset_y=int(spec.get('offset_y', 0)),
             row_span=int(spec.get('row_span', 1)),
             col_span=int(spec.get('col_span', 1)),
             trim_border=spec.get('trim_border'),
@@ -3279,7 +3283,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
 
     generated: Dict[str, str] = {}
 
-    fig_fn, ax_fn = plt.subplots(figsize=(5.6, 4.0), constrained_layout=True)
+    fig_fn, ax_fn = plt.subplots(figsize=(5.6, 2.67), constrained_layout=True)
     for label, series in trajectories.items():
         linestyle = '--' if label == 'Origin' else '-'
         ax_fn.plot(series['magnitudes'], series['natural_frequency_hz'], linestyle, label=label, linewidth=2.2)
@@ -3288,7 +3292,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     ax_fn.legend(frameon=True)
     panel_fn = save_panel_figure(fig_fn, 'fig_08_frequency_response_comparison_a_fn.png')
 
-    fig_sens, ax_sens = plt.subplots(figsize=(5.6, 4.0), constrained_layout=True)
+    fig_sens, ax_sens = plt.subplots(figsize=(5.6, 2.67), constrained_layout=True)
     for label, series in trajectories.items():
         linestyle = '--' if label == 'Origin' else '-'
         ax_sens.plot(series['magnitudes'], series['sensitivity_100hz'], linestyle, label=label, linewidth=2.2)
@@ -3332,7 +3336,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     response_origin = [np.array(row, dtype=float) for row in response_payload['gains_origin']]
     response_comped = [np.array(row, dtype=float) for row in response_payload['gains_comped']]
     selected_indices = np.linspace(0, len(response_mags) - 1, 5, dtype=int).tolist()
-    fig_response, ax_response = plt.subplots(figsize=(5.4, 5.0))
+    fig_response, ax_response = plt.subplots(figsize=(5.35, 5.35))
     cmap = plt.cm.get_cmap('viridis', len(selected_indices) + 2)
     magnitude_handles: List[Line2D] = []
     magnitude_labels: List[str] = []
@@ -3362,6 +3366,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     ax_response.set_ylim(30, 250)
     ax_response.set_xlabel('Frequency (Hz)')
     ax_response.set_ylabel('Sensitivity (V s/m)')
+    ax_response.set_box_aspect(1.0)
     ax_response.grid(True, which='both', linestyle='--', alpha=0.42)
     fig_response.subplots_adjust(left=0.14, right=0.72, bottom=0.14, top=0.97)
     panel_response = save_panel_figure(fig_response, 'fig_08_frequency_response_comparison_d_response_before_after.png')
@@ -3369,11 +3374,11 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     name = make_bitmap_montage(
         'fig_08_frequency_response_comparison.png',
         [
-            {'source': panel_response, 'label': '(d)', 'fit_height': 2550, 'trim_border': 28, 'row_span': 2, 'align_x': 'center', 'align_y': 'top'},
-            {'source': panel_fn, 'label': '(a)', 'fit_width': 1720, 'trim_border': 28, 'align_x': 'center', 'align_y': 'top'},
-            {'source': panel_sens, 'label': '(b)', 'fit_width': 1720, 'trim_border': 28, 'align_x': 'center', 'align_y': 'top'},
-            {'source': 'time_domain_outputs.png', 'label': '(e)', 'fit_width': 2140, 'trim_border': 24, 'align_x': 'center', 'align_y': 'top'},
-            {'source': panel_reduction, 'label': '(c)', 'fit_width': 1720, 'trim_border': 24, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_response, 'label': '(a)', 'fit_height': 1700, 'trim_border': 28, 'row_span': 2, 'align_x': 'center', 'align_y': 'top', 'offset_x': 113, 'offset_y': 145},
+            {'source': panel_fn, 'label': '(b)', 'fit_width': 1720, 'trim_border': 28, 'align_x': 'center', 'align_y': 'bottom'},
+            {'source': panel_sens, 'label': '(c)', 'fit_width': 1720, 'trim_border': 28, 'align_x': 'center', 'align_y': 'top'},
+            {'source': 'time_domain_outputs.png', 'label': '(d)', 'fit_width': 2140, 'trim_border': 24, 'align_x': 'center', 'align_y': 'top'},
+            {'source': panel_reduction, 'label': '(e)', 'fit_width': 1720, 'trim_border': 24, 'align_x': 'center', 'align_y': 'top'},
         ],
         layout='matrix',
         rows=3,

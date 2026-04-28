@@ -1,0 +1,51 @@
+{
+    "model_type": "GRN",
+    "input_shape": [
+        null,
+        null,
+        1
+    ],
+    "output_shape": [
+        null,
+        null,
+        1
+    ],
+    "total_params": 1201,
+    "trainable_params": 1201,
+    "non_trainable_params": 0,
+    "model_summary": [
+        {
+            "name": "gru_1",
+            "type": "GRU",
+            "output_shape": [
+                null,
+                null,
+                16
+            ],
+            "trainable": true,
+            "num_params": 912
+        },
+        {
+            "name": "dense_2",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                16
+            ],
+            "trainable": true,
+            "num_params": 272
+        },
+        {
+            "name": "dense_3",
+            "type": "Dense",
+            "output_shape": [
+                null,
+                null,
+                1
+            ],
+            "trainable": true,
+            "num_params": 17
+        }
+    ]
+}

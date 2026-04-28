@@ -112,11 +112,11 @@
       "figures/_montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png": {
         "image_edge_content": {
           "size": [
-            1934,
-            1159
+            1935,
+            1010
           ],
           "edge_guard_px": 4,
-          "edge_pixel_count": 24680,
+          "edge_pixel_count": 23496,
           "edge_dark_pixels": 0,
           "edge_ratio": 0.0,
           "violation": false
@@ -157,116 +157,13 @@
           "matplotlib_canvas_bbox": [
             0.0,
             0.0,
-            1056.0,
+            1088.0,
             672.0
           ],
           "bbox_reliable_text_count": 34,
           "three_d_axes_bbox_checks_skipped": [],
-          "matplotlib_canvas_overflows": [
-            {
-              "text": {
-                "text": "$/mathdefault{10^{-5}}$",
-                "role": "tick_label_y",
-                "axis_index": 0,
-                "font_size_pt": 9.0,
-                "bbox": [
-                  68.471,
-                  -26.029,
-                  108.382,
-                  3.41
-                ]
-              },
-              "details": {
-                "bbox": [
-                  68.471,
-                  -26.029,
-                  108.382,
-                  3.41
-                ],
-                "canvas_bbox": [
-                  0.0,
-                  0.0,
-                  1056.0,
-                  672.0
-                ],
-                "overflow": {
-                  "left_px": 0.0,
-                  "bottom_px": 25.029,
-                  "right_px": 0.0,
-                  "top_px": 0.0
-                }
-              }
-            },
-            {
-              "text": {
-                "text": "$/mathdefault{10^{2}}$",
-                "role": "tick_label_y",
-                "axis_index": 0,
-                "font_size_pt": 9.0,
-                "bbox": [
-                  76.772,
-                  746.952,
-                  108.382,
-                  776.391
-                ]
-              },
-              "details": {
-                "bbox": [
-                  76.772,
-                  746.952,
-                  108.382,
-                  776.391
-                ],
-                "canvas_bbox": [
-                  0.0,
-                  0.0,
-                  1056.0,
-                  672.0
-                ],
-                "overflow": {
-                  "left_px": 0.0,
-                  "bottom_px": 0.0,
-                  "right_px": 0.0,
-                  "top_px": 103.391
-                }
-              }
-            },
-            {
-              "text": {
-                "text": "800",
-                "role": "tick_label_y",
-                "axis_index": 1,
-                "font_size_pt": 9.0,
-                "bbox": [
-                  789.218,
-                  666.904,
-                  822.468,
-                  685.904
-                ]
-              },
-              "details": {
-                "bbox": [
-                  789.218,
-                  666.904,
-                  822.468,
-                  685.904
-                ],
-                "canvas_bbox": [
-                  0.0,
-                  0.0,
-                  1056.0,
-                  672.0
-                ],
-                "overflow": {
-                  "left_px": 0.0,
-                  "bottom_px": 0.0,
-                  "right_px": 0.0,
-                  "top_px": 12.904
-                }
-              }
-            }
-          ],
-          "matplotlib_canvas_overflow_count": 3,
+          "matplotlib_canvas_overflows": [],
+          "matplotlib_canvas_overflow_count": 0,
           "axes_font_balance": [
             {
               "axis_index": 0,
@@ -316,11 +213,11 @@
         "checks": {
           "image_edge_content": {
             "size": [
-              1934,
-              1159
+              1935,
+              1010
             ],
             "edge_guard_px": 4,
-            "edge_pixel_count": 24680,
+            "edge_pixel_count": 23496,
             "edge_dark_pixels": 0,
             "edge_ratio": 0.0,
             "violation": false
