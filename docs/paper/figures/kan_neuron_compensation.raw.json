@@ -1,6 +1,0 @@
-{
-  "figure": "kan_neuron_compensation.png",
-  "source_trace": "C:/work/met_nonlinear_paper/plot_epoch_IO.py + projects/FRIKANwp/data/epoch_*_IO.json",
-  "translation_method": "traced original plotting code with only text labels translated to English",
-  "note": "English redraw from traced source; column headers and epoch row labels translated while preserving original epoch IO data and plotting logic."
-}

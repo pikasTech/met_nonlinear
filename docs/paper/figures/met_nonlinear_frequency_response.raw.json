@@ -1,6 +1,0 @@
-{
-  "figure": "met_nonlinear_frequency_response.png",
-  "source_trace": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json:gains_origin",
-  "translation_method": "traced original plotting code with only text labels translated to English",
-  "note": "English source-level redraw; legend placed outside the main axes on the right as requested."
-}

@@ -9,7 +9,7 @@
     "output": "docs/paper/figures/fig_15_lut_lookup_principles.png",
     "size": [
       2220,
-      2200
+      2199
     ],
     "layout": "vertical",
     "rows": 2,
@@ -51,12 +51,16 @@
         "fit_width": 2100,
         "align_x": "center",
         "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
         "col_span": 1,
         "trim_border": 120,
         "trim_tolerance": 8,
         "cell": {
           "row": 0,
           "col": 0,
+          "row_span": 1,
           "col_span": 1,
           "x": 60,
           "y": 55,
@@ -77,37 +81,41 @@
         "source": "docs/paper/figures/_montage_panels/fig_15_lut_lookup_principles_b_runtime.png",
         "label": "(b)",
         "original_size": [
-          2179,
+          2182,
           1018
         ],
         "rendered_size": [
           2100,
-          981
+          980
         ],
         "scale": 1.0,
         "fit_width": 2100,
         "align_x": "center",
         "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
         "col_span": 1,
         "trim_border": 120,
         "trim_tolerance": 8,
         "cell": {
           "row": 1,
           "col": 0,
+          "row_span": 1,
           "col_span": 1,
           "x": 60,
           "y": 1085,
           "width": 2100,
-          "height": 1060,
+          "height": 1059,
           "content_y": 1164,
-          "content_height": 981,
+          "content_height": 980,
           "label_band_height": 79
         },
         "paste_box": [
           60,
           1164,
           2160,
-          2145
+          2144
         ]
       }
     ]
@@ -143,10 +151,10 @@
         "image_edge_content": {
           "size": [
             2220,
-            2200
+            2199
           ],
           "edge_guard_px": 4,
-          "edge_pixel_count": 35296,
+          "edge_pixel_count": 35288,
           "edge_dark_pixels": 0,
           "edge_ratio": 0.0,
           "violation": false
@@ -185,7 +193,7 @@
           "montage_panel_count": 2,
           "montage_size": [
             2220,
-            2200
+            2199
           ]
         },
         "violations": [],
@@ -221,10 +229,10 @@
           "image_edge_content": {
             "size": [
               2220,
-              2200
+              2199
             ],
             "edge_guard_px": 4,
-            "edge_pixel_count": 35296,
+            "edge_pixel_count": 35288,
             "edge_dark_pixels": 0,
             "edge_ratio": 0.0,
             "violation": false
