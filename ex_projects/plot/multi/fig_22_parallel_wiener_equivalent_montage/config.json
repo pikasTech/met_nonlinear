@@ -1,0 +1,112 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_22_parallel_wiener_equivalent_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_22_parallel_wiener_equivalent_montage",
+    "kind": "montage",
+    "title": "Parallel Wiener equivalent montage",
+    "description": "Principle panel plus response row for the parallel Wiener equivalent model.",
+    "output_name": "fig_22_parallel_wiener_equivalent_montage.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/fig_22_parallel_wiener_equivalent_montage_a_principle",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_22_parallel_wiener_response_row_b",
+        "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_22_parallel_wiener_response_row_c",
+        "label": "(c)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Parallel Wiener equivalent montage",
+      "description": "Principle panel plus response row for the parallel Wiener equivalent model.",
+      "output_name": "fig_22_parallel_wiener_equivalent_montage.png",
+      "principle_panel": {
+        "figsize": [
+          10.8,
+          4.5
+        ]
+      },
+      "response_panel": {
+        "figsize": [
+          5.8,
+          4.2
+        ],
+        "line_width": 2,
+        "grid_alpha": 0.35,
+        "legend_loc": "upper left",
+        "legend_frameon": true
+      },
+      "panels": [
+        {
+          "fit_width": 3600,
+          "fit_height": 1326,
+          "fit_mode": "width",
+          "row_span": 1,
+          "col_span": 2,
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 0
+        },
+        {
+          "fit_width": 1800,
+          "fit_height": 1326,
+          "fit_mode": "width",
+          "row_span": 1,
+          "col_span": 1,
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 40
+        },
+        {
+          "fit_width": 1800,
+          "fit_height": 1326,
+          "fit_mode": "width",
+          "row_span": 1,
+          "col_span": 1,
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 40
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 2,
+        "cols": 2,
+        "padding": [
+          90,
+          70,
+          90,
+          80
+        ],
+        "gutter": [
+          90,
+          95
+        ],
+        "label_font_size": 68,
+        "label_font_size_pt": 8,
+        "label_position": "outside-top-left",
+        "label_gap": 24,
+        "label_outside_top": true
+      },
+      "subfigures": [
+        "fig_22_parallel_wiener_equivalent_montage_a_principle",
+        "fig_22_parallel_wiener_response_row_b",
+        "fig_22_parallel_wiener_response_row_c"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_22_parallel_wiener_equivalent_montage.png",
+      "pixel_exact": true
+    }
+  }
+}

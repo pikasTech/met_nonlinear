@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import List, Optional
 import logging
 import os
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,9 @@ class ExternalPathParser:
         'model-export',
         'performance-benchmark',
         'ablation-study',
-        'compare'
+        'compare',
+        'paper-figure-single',
+        'paper-figure-multi',
     ]
     
     def __init__(self, base_dir: Optional[Path] = None):
@@ -337,6 +340,42 @@ class ExternalPathParser:
     def _parse_universal_path(self, path_str: str) -> ExternalPath:
         """通用路径解析 - 支持任何路径格式"""
         parts = path_str.split('/')
+
+        # 处理 ex_projects/plot/**/{figure_project}: 直接读取 config.json，
+        # 不再要求固定 single/multi 两层路径。
+        if len(parts) >= 3 and parts[0] in {'ex_projects', 'ep_projects'} and parts[1] == 'plot':
+            full_path = Path(self.base_dir) / path_str
+            config_path = full_path / 'config.json'
+            task_name = parts[-1]
+            task_type = None
+            if config_path.exists():
+                try:
+                    config = json.loads(config_path.read_text(encoding='utf-8'))
+                    task_info = config.get('task_info', {}) if isinstance(config, dict) else {}
+                    paper_figure = config.get('paper_figure', {}) if isinstance(config, dict) else {}
+                    configured_type = task_info.get('task_type') if isinstance(task_info, dict) else None
+                    if isinstance(configured_type, str) and configured_type:
+                        task_type = configured_type
+                    else:
+                        kind = paper_figure.get('kind') if isinstance(paper_figure, dict) else None
+                        if kind in {'multi', 'montage'}:
+                            task_type = 'paper-figure-multi'
+                        elif kind == 'single':
+                            task_type = 'paper-figure-single'
+                except Exception as e:
+                    logger.warning(f"读取 paper figure config 失败，按路径推断任务类型: {e}")
+            if task_type is None:
+                task_type = 'paper-figure-multi' if 'multi' in parts[2:] else 'paper-figure-single'
+            project_name = task_name
+            output_path = full_path / 'data'
+            return ExternalPath(
+                project_name=project_name,
+                task_type=task_type,
+                task_name=task_name,
+                config_path=config_path,
+                output_path=output_path,
+                full_path=full_path
+            )
 
         # 处理 ex_projects/inference/{task_type}/{task_name} 与 ex_projects/visualization/{task_type}/{task_name}
         if (len(parts) >= 4 and parts[0] in {'ex_projects', 'ep_projects'} and

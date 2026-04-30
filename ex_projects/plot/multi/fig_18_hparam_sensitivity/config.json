@@ -1,0 +1,182 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_18_hparam_sensitivity",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_18_hparam_sensitivity",
+    "kind": "montage",
+    "title": "Hyperparameter sensitivity",
+    "description": "Five sensitivity panels, one legend panel and three loss curves.",
+    "output_name": "fig_18_hparam_sensitivity.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_1_h_units",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_2_inner_kan_units",
+        "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_3_inner_kan_layers",
+        "label": "(c)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_4_grid_size",
+        "label": "(d)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_5_spline_order",
+        "label": "(e)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_6_legend"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_7_loss_maeafmae",
+        "label": "(f)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_8_loss_mae",
+        "label": "(g)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_9_loss_afmae",
+        "label": "(h)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Hyperparameter sensitivity",
+      "description": "Five sensitivity panels, one legend panel and three loss curves.",
+      "output_name": "fig_18_hparam_sensitivity.png",
+      "font_scale": 1,
+      "metric_panels": {
+        "figsize": [
+          4.5,
+          3.3
+        ],
+        "line_width": 1.7,
+        "marker_size": 5,
+        "baseline_linewidth": 1,
+        "baseline_alpha": 0.65,
+        "canonical_linewidth": 1,
+        "canonical_alpha": 0.7,
+        "grid_alpha": 0.24,
+        "x_margin": 0.08,
+        "fit_width": 1500,
+        "trim_border": 26
+      },
+      "legend_panel": {
+        "figsize": [
+          4.5,
+          3.3
+        ],
+        "text_fontsize": 8.8,
+        "fit_width": 1500,
+        "trim_border": 26,
+        "loss_fit_width": 1500,
+        "loss_trim_border": 26
+      },
+      "curve_panels": {
+        "figsize": [
+          4.2,
+          4.2
+        ],
+        "line_width": 2.6,
+        "legend_frameon": true,
+        "legend_loc": "upper right",
+        "grid_alpha": 0.25,
+        "ylim_pad_ratio": 1.05,
+        "fit_width": 1500,
+        "fit_height": 1500,
+        "trim_border": 26
+      },
+      "montage": {
+        "layout": "matrix",
+        "rows": 3,
+        "cols": 3,
+        "padding": [
+          70,
+          65,
+          70,
+          65
+        ],
+        "gutter": [
+          70,
+          80
+        ],
+        "label_font_size": 46,
+        "latex_width_fraction": 0.98,
+        "label_font_size_pt": 8.0,
+        "label_position": "outside-top-left",
+        "label_gap": 24
+      },
+      "subfigures": [
+        "fig_18_hparam_sensitivity_1_h_units",
+        "fig_18_hparam_sensitivity_2_inner_kan_units",
+        "fig_18_hparam_sensitivity_3_inner_kan_layers",
+        "fig_18_hparam_sensitivity_4_grid_size",
+        "fig_18_hparam_sensitivity_5_spline_order",
+        "fig_18_hparam_sensitivity_6_legend",
+        "fig_18_hparam_sensitivity_7_loss_maeafmae",
+        "fig_18_hparam_sensitivity_8_loss_mae",
+        "fig_18_hparam_sensitivity_9_loss_afmae"
+      ],
+      "panels": [
+        {
+          "align_x": "center",
+          "align_y": "center",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "center",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "center",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "center",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "center",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "center",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "top",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "top",
+          "col_span": 1
+        },
+        {
+          "align_x": "center",
+          "align_y": "top",
+          "col_span": 1
+        }
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_18_hparam_sensitivity.png",
+      "pixel_exact": true
+    }
+  }
+}

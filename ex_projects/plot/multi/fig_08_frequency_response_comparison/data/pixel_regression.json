@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/multi/fig_08_frequency_response_comparison/data/fig_08_frequency_response_comparison.png",
+  "baseline": "ex_projects/plot/multi/fig_08_frequency_response_comparison/source_baseline_montage.png",
+  "shape": [
+    4338,
+    4938,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 2213673,
+  "total_pixels": 21421044,
+  "mismatch_ratio": 0.10334104164110769,
+  "max_abs_channel_diff": 255
+}

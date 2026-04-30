@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T21:49:40.280427",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "time_domain_outputs",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\time_domain_outputs\\data"
+  ],
+  "config_hash": "2ffca64007e050f509acfdc55c9ee9e8"
+}

@@ -1,0 +1,43 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_08_frequency_response_comparison_a_fn",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_08_frequency_response_comparison_a_fn",
+    "kind": "single",
+    "title": "fig 08 frequency response comparison a fn",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_08_frequency_response_comparison_a_fn.png.",
+    "output_name": "fig_08_frequency_response_comparison_a_fn.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_a_fn.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 08 frequency response comparison a fn",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_08_frequency_response_comparison_a_fn.png.",
+      "output_name": "fig_08_frequency_response_comparison_a_fn.png",
+      "parent_montages": [
+        "fig_08_frequency_response_comparison"
+      ],
+      "fn_panel": {
+        "figsize": [
+          5.6,
+          2.67
+        ],
+        "line_width": 2.2,
+        "legend_frameon": true,
+        "legend_loc": "best"
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_a_fn.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_08_frequency_response_comparison"
+    ],
+    "legacy_render_id": "fig_08_frequency_response_comparison",
+    "panel_output_name": "fig_08_frequency_response_comparison_a_fn.png"
+  }
+}

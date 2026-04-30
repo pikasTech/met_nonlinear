@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T23:26:08.150868",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_02_horizontal_summary",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_02_horizontal_summary\\data"
+  ],
+  "config_hash": "2555ed30702e83f391776cfbcdea6d0c"
+}

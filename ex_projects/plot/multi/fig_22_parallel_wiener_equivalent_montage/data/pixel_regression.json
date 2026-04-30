@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/multi/fig_22_parallel_wiener_equivalent_montage/data/fig_22_parallel_wiener_equivalent_montage.png",
+  "baseline": "docs/paper/figures/legacy/fig_22_parallel_wiener_equivalent_montage.png",
+  "output_shape": [
+    2758,
+    3870,
+    4
+  ],
+  "baseline_shape": [
+    2958,
+    3780,
+    4
+  ],
+  "pixel_exact": false
+}

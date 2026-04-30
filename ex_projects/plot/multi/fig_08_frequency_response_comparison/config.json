@@ -1,0 +1,198 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_08_frequency_response_comparison",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_08_frequency_response_comparison",
+    "kind": "montage",
+    "title": "Frequency-response comparison",
+    "description": "Response comparison montage mixing log-log curves, trajectory cuts and time-domain outputs.",
+    "output_name": "fig_08_frequency_response_comparison.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/fig_08_frequency_response_comparison_d_response_before_after",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_08_frequency_response_comparison_a_fn",
+        "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_08_frequency_response_comparison_b_sensitivity",
+        "label": "(c)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/time_domain_outputs",
+        "label": "(d)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_08_frequency_response_comparison_c_drift_reduction",
+        "label": "(e)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Frequency-response comparison",
+      "description": "Response comparison montage mixing log-log curves, trajectory cuts and time-domain outputs.",
+      "output_name": "fig_08_frequency_response_comparison.png",
+      "fn_panel": {
+        "figsize": [
+          5.6,
+          2.67
+        ],
+        "line_width": 2.2,
+        "legend_frameon": true,
+        "legend_loc": "best"
+      },
+      "sensitivity_panel": {
+        "figsize": [
+          5.6,
+          2.67
+        ],
+        "line_width": 2.2,
+        "legend_frameon": true
+      },
+      "reduction_panel": {
+        "figsize": [
+          5.8,
+          4.4
+        ],
+        "legend_loc": "upper right",
+        "legend_frameon": true,
+        "legend_fontsize": 8,
+        "annotation_fontsize": 7.8
+      },
+      "response_panel": {
+        "figsize": [
+          8.4,
+          6.25
+        ],
+        "curve_mode": "all_magnitudes_dual_legend",
+        "linear_response_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json",
+        "colormap": "tab20",
+        "origin_linewidth": 1.55,
+        "origin_linestyle": "-",
+        "origin_alpha": 0.95,
+        "comped_linewidth": 1.55,
+        "comped_linestyle": "--",
+        "comped_alpha": 0.95,
+        "legend_fontsize": 8,
+        "legend_title_fontsize": 8.8,
+        "legend_handlelength": 2.15,
+        "legend_labelspacing": 0.42,
+        "legend_borderaxespad": 0,
+        "origin_legend_title": "ORIGIN",
+        "origin_legend_loc": "upper left",
+        "origin_legend_bbox_to_anchor": [
+          1.02,
+          1
+        ],
+        "origin_legend_frameon": false,
+        "origin_legend_ncol": 1,
+        "compensated_legend_title": "Compensated",
+        "compensated_legend_loc": "upper left",
+        "compensated_legend_bbox_to_anchor": [
+          1.37,
+          1
+        ],
+        "compensated_legend_frameon": false,
+        "compensated_legend_ncol": 1,
+        "grid_alpha": 0.42,
+        "xy_plot": {
+          "xlim": [
+            10,
+            128
+          ],
+          "ylim": [
+            30,
+            250
+          ],
+          "label_fontsize": 10,
+          "tick_fontsize": 9,
+          "labelpad": 4,
+          "tick_pad": 3,
+          "xlabel": "Frequency (Hz)",
+          "ylabel": "Sensitivity (V $\\cdot$ s/m)"
+        },
+        "margins": {
+          "left": 0.1,
+          "right": 0.66,
+          "bottom": 0.12,
+          "top": 0.98
+        },
+        "legend_column_gap": 0.35
+      },
+      "panels": [
+        {
+          "trim_border": 0,
+          "row_span": 2,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 145,
+          "fit_height": 1900
+        },
+        {
+          "fit_width": 1720,
+          "trim_border": 28,
+          "align_x": "center",
+          "align_y": "bottom"
+        },
+        {
+          "fit_width": 1720,
+          "trim_border": 28,
+          "align_x": "center",
+          "align_y": "top"
+        },
+        {
+          "fit_width": 2500,
+          "trim_border": 24,
+          "align_x": "center",
+          "align_y": "top"
+        },
+        {
+          "fit_width": 1720,
+          "trim_border": 24,
+          "align_x": "center",
+          "align_y": "top"
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 3,
+        "cols": 2,
+        "padding": [
+          55,
+          55,
+          55,
+          55
+        ],
+        "gutter": [
+          58,
+          52
+        ],
+        "cell_widths": [
+          3050,
+          1720
+        ],
+        "label_font_size": 48,
+        "latex_width_fraction": 0.85
+      },
+      "subfigures": [
+        "fig_08_frequency_response_comparison_d_response_before_after",
+        "fig_08_frequency_response_comparison_a_fn",
+        "fig_08_frequency_response_comparison_b_sensitivity",
+        "time_domain_outputs",
+        "fig_08_frequency_response_comparison_c_drift_reduction"
+      ],
+      "child_render_policy": "missing"
+    },
+    "regression": {
+      "baseline_path": "ex_projects/plot/multi/fig_08_frequency_response_comparison/source_baseline_montage.png",
+      "pixel_exact": true
+    }
+  }
+}

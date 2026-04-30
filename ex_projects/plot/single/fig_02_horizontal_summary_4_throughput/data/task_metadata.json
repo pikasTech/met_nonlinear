@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T22:22:50.940667",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_02_horizontal_summary_4_throughput",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_02_horizontal_summary_4_throughput\\data"
+  ],
+  "config_hash": "8ece29cc659db90d60de4dc5326c193f"
+}

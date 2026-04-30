@@ -1,0 +1,48 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "kan_neuron_compensation",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "kan_neuron_compensation",
+    "kind": "single",
+    "title": "KAN neuron compensation source bitmap",
+    "description": "Source bitmap used by Fig. 23; adjustable before the montage is rebuilt.",
+    "output_name": "kan_neuron_compensation.png",
+    "generation_mode": "bitmap_compose",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/kan_neuron_compensation_source.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "KAN neuron compensation source bitmap",
+      "description": "Source bitmap used by Fig. 23; adjustable before the montage is rebuilt.",
+      "output_name": "kan_neuron_compensation.png",
+      "panels": [
+        {
+          "fit_width": 3156,
+          "align_x": "center",
+          "align_y": "center",
+          "trim_border": 0
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 1,
+        "cols": 1,
+        "padding": 0,
+        "gutter": 0,
+        "label_font_size": 54
+      },
+      "parent_montages": [
+        "fig_23_kan_neuron_compensation_montage"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/kan_neuron_compensation.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_23_kan_neuron_compensation_montage"
+    ]
+  }
+}

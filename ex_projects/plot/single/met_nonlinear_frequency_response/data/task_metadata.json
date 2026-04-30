@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T22:50:50.241278",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "met_nonlinear_frequency_response",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\met_nonlinear_frequency_response\\data"
+  ],
+  "config_hash": "e4cb5c74907310bac3a534918ec9bbd3"
+}

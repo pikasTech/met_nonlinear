@@ -1,0 +1,76 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_15_lut_lookup_principles",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_15_lut_lookup_principles",
+    "kind": "montage",
+    "title": "LUT lookup principles",
+    "description": "Offline LUT creation and runtime lookup principle panels.",
+    "output_name": "fig_15_lut_lookup_principles.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/fig_15_lut_lookup_principles_a_offline",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_15_lut_lookup_principles_b_runtime",
+        "label": "(b)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "LUT lookup principles",
+      "description": "Offline LUT creation and runtime lookup principle panels.",
+      "output_name": "fig_15_lut_lookup_principles.png",
+      "offline_panel": {
+        "figsize": [
+          6.8,
+          3.25
+        ]
+      },
+      "runtime_panel": {
+        "figsize": [
+          6.8,
+          3.45
+        ]
+      },
+      "panels": [
+        {
+          "fit_width": 2100,
+          "trim_border": 0
+        },
+        {
+          "fit_width": 2100,
+          "trim_border": 0
+        }
+      ],
+      "montage": {
+        "layout": "vertical",
+        "padding": [
+          60,
+          55,
+          60,
+          55
+        ],
+        "gutter": [
+          60,
+          60
+        ],
+        "label_font_size": 48,
+        "latex_width_fraction": 0.78
+      },
+      "subfigures": [
+        "fig_15_lut_lookup_principles_a_offline",
+        "fig_15_lut_lookup_principles_b_runtime"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_15_lut_lookup_principles.png",
+      "pixel_exact": true
+    }
+  }
+}

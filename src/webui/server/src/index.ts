@@ -3,6 +3,12 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import {
+  getRenderJob,
+  listPaperFigures,
+  startRenderJob,
+  updatePaperFigureConfig,
+} from './paperFigures.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,6 +17,10 @@ const DIST_WEBUI = path.join(ROOT_DIR, 'src', 'webui', 'dist');
 const CACHE_WEBUI_DIR = path.join(ROOT_DIR, 'cache', 'webui');
 const PRESETS_DIR = path.join(CACHE_WEBUI_DIR, 'presets');
 const STATE_FILE = path.join(CACHE_WEBUI_DIR, 'state.json');
+const PAPER_DIR = path.join(ROOT_DIR, 'docs', 'paper');
+const PAPER_CONFIG_PATH = path.join(PAPER_DIR, 'config.json');
+const PAPER_FIGURES_DIR = path.join(PAPER_DIR, 'figures');
+const PAPER_PLOT_DIR = path.join(ROOT_DIR, 'ex_projects', 'plot');
 
 // Ensure directories exist
 if (!fs.existsSync(CACHE_WEBUI_DIR)) {
@@ -23,6 +33,8 @@ if (!fs.existsSync(PRESETS_DIR)) {
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
+app.use('/paper-figures-assets', express.static(PAPER_FIGURES_DIR));
+app.use('/paper-plot-assets', express.static(PAPER_PLOT_DIR));
 
 function readJsonlFile(filePath: string): Array<Record<string, unknown>> {
   if (!fs.existsSync(filePath)) {
@@ -245,6 +257,48 @@ app.post('/api/state', (req, res) => {
     console.error('[State] Failed to save state:', e);
     res.status(500).json({ error: 'Failed to save state' });
   }
+});
+
+app.get('/api/paper-figures/catalog', (_req, res) => {
+  try {
+    const catalog = listPaperFigures(ROOT_DIR, PAPER_CONFIG_PATH);
+    res.json(catalog);
+  } catch (error) {
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to load paper figure catalog' });
+  }
+});
+
+app.put('/api/paper-figures/config/:id', (req, res) => {
+  try {
+    const updated = updatePaperFigureConfig(ROOT_DIR, PAPER_CONFIG_PATH, req.params.id, req.body);
+    res.json(updated);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update paper figure config';
+    const status = /not found/i.test(message) ? 404 : 500;
+    res.status(status).json({ error: message });
+  }
+});
+
+app.post('/api/paper-figures/render', (req, res) => {
+  const figureIds = Array.isArray(req.body?.figureIds)
+    ? req.body.figureIds.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
+    : [];
+  try {
+    const job = startRenderJob(ROOT_DIR, PAPER_CONFIG_PATH, figureIds);
+    res.status(202).json(job);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to start render job';
+    const status = /required|not found/i.test(message) ? 400 : 500;
+    res.status(status).json({ error: message });
+  }
+});
+
+app.get('/api/paper-figures/render/:jobId', (req, res) => {
+  const job = getRenderJob(req.params.jobId);
+  if (!job) {
+    return res.status(404).json({ error: 'Render job not found' });
+  }
+  return res.json(job);
 });
 
 if (fs.existsSync(DIST_WEBUI)) {

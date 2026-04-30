@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/fig_13_compensation_distribution_3_linearity/data/fig_13_compensation_distribution_3_linearity.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_13_compensation_distribution_3_linearity.png",
+  "shape": [
+    1234,
+    1414,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 1744876,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

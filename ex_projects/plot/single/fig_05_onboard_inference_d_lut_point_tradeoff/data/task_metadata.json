@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T09:36:38.977367",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_05_onboard_inference_d_lut_point_tradeoff",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_05_onboard_inference_d_lut_point_tradeoff\\data"
+  ],
+  "config_hash": "b1a2a0c789cd54b872fbba04fa331efc"
+}

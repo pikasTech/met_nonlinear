@@ -1,0 +1,427 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/fig_18_hparam_sensitivity_1_h_units/data/fig_18_hparam_sensitivity_1_h_units.png",
+    "ex_projects/plot/single/fig_18_hparam_sensitivity_2_inner_kan_units/data/fig_18_hparam_sensitivity_2_inner_kan_units.png",
+    "ex_projects/plot/single/fig_18_hparam_sensitivity_3_inner_kan_layers/data/fig_18_hparam_sensitivity_3_inner_kan_layers.png",
+    "ex_projects/plot/single/fig_18_hparam_sensitivity_4_grid_size/data/fig_18_hparam_sensitivity_4_grid_size.png",
+    "ex_projects/plot/single/fig_18_hparam_sensitivity_5_spline_order/data/fig_18_hparam_sensitivity_5_spline_order.png",
+    "ex_projects/plot/single/fig_18_hparam_sensitivity_6_legend/data/fig_18_hparam_sensitivity_6_legend.png",
+    "ex_projects/plot/single/fig_03_loss_ablation_1_maeafmae/data/fig_03_loss_ablation_1_maeafmae.png",
+    "ex_projects/plot/single/fig_03_loss_ablation_2_mae/data/fig_03_loss_ablation_2_mae.png",
+    "ex_projects/plot/single/fig_03_loss_ablation_3_afmae/data/fig_03_loss_ablation_3_afmae.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_18_hparam_sensitivity.",
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_18_hparam_sensitivity/data/fig_18_hparam_sensitivity.png",
+    "size": [
+      4780,
+      4355
+    ],
+    "layout": "matrix",
+    "rows": 3,
+    "cols": 3,
+    "padding": [
+      70,
+      65,
+      70,
+      65
+    ],
+    "gutter": [
+      70,
+      80
+    ],
+    "label_font_size_px": 105,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 0.98,
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      117,
+      117,
+      117
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_1_h_units/data/fig_18_hparam_sensitivity_1_h_units.png",
+        "label": "(a)",
+        "original_size": [
+          1500,
+          1100
+        ],
+        "rendered_size": [
+          1500,
+          1100
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 70,
+          "y": 65,
+          "width": 1500,
+          "height": 1224,
+          "content_y": 182,
+          "content_height": 1107,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          70,
+          185,
+          1570,
+          1285
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_2_inner_kan_units/data/fig_18_hparam_sensitivity_2_inner_kan_units.png",
+        "label": "(b)",
+        "original_size": [
+          1500,
+          1101
+        ],
+        "rendered_size": [
+          1500,
+          1101
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1640,
+          "y": 65,
+          "width": 1500,
+          "height": 1224,
+          "content_y": 182,
+          "content_height": 1107,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          1640,
+          185,
+          3140,
+          1286
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_3_inner_kan_layers/data/fig_18_hparam_sensitivity_3_inner_kan_layers.png",
+        "label": "(c)",
+        "original_size": [
+          1500,
+          1107
+        ],
+        "rendered_size": [
+          1500,
+          1107
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 2,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3210,
+          "y": 65,
+          "width": 1500,
+          "height": 1224,
+          "content_y": 182,
+          "content_height": 1107,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          3210,
+          182,
+          4710,
+          1289
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_4_grid_size/data/fig_18_hparam_sensitivity_4_grid_size.png",
+        "label": "(d)",
+        "original_size": [
+          1500,
+          1107
+        ],
+        "rendered_size": [
+          1500,
+          1107
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 70,
+          "y": 1369,
+          "width": 1500,
+          "height": 1224,
+          "content_y": 1486,
+          "content_height": 1107,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          70,
+          1486,
+          1570,
+          2593
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_5_spline_order/data/fig_18_hparam_sensitivity_5_spline_order.png",
+        "label": "(e)",
+        "original_size": [
+          1500,
+          1107
+        ],
+        "rendered_size": [
+          1500,
+          1107
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1640,
+          "y": 1369,
+          "width": 1500,
+          "height": 1224,
+          "content_y": 1486,
+          "content_height": 1107,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          1640,
+          1486,
+          3140,
+          2593
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_6_legend/data/fig_18_hparam_sensitivity_6_legend.png",
+        "label": null,
+        "original_size": [
+          1500,
+          1052
+        ],
+        "rendered_size": [
+          1500,
+          1052
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 2,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3210,
+          "y": 1369,
+          "width": 1500,
+          "height": 1224,
+          "content_y": 1486,
+          "content_height": 1107,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          3210,
+          1513,
+          4710,
+          2565
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_03_loss_ablation_1_maeafmae/data/fig_03_loss_ablation_1_maeafmae.png",
+        "label": "(f)",
+        "original_size": [
+          1500,
+          1500
+        ],
+        "rendered_size": [
+          1500,
+          1500
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 2,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 70,
+          "y": 2673,
+          "width": 1500,
+          "height": 1617,
+          "content_y": 2790,
+          "content_height": 1500,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          70,
+          2790,
+          1570,
+          4290
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_03_loss_ablation_2_mae/data/fig_03_loss_ablation_2_mae.png",
+        "label": "(g)",
+        "original_size": [
+          1500,
+          1500
+        ],
+        "rendered_size": [
+          1500,
+          1500
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 2,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1640,
+          "y": 2673,
+          "width": 1500,
+          "height": 1617,
+          "content_y": 2790,
+          "content_height": 1500,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          1640,
+          2790,
+          3140,
+          4290
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_03_loss_ablation_3_afmae/data/fig_03_loss_ablation_3_afmae.png",
+        "label": "(h)",
+        "original_size": [
+          1500,
+          1500
+        ],
+        "rendered_size": [
+          1500,
+          1500
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 2,
+          "col": 2,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3210,
+          "y": 2673,
+          "width": 1500,
+          "height": 1617,
+          "content_y": 2790,
+          "content_height": 1500,
+          "label_band_height": 117
+        },
+        "paste_box": [
+          3210,
+          2790,
+          4710,
+          4290
+        ]
+      }
+    ]
+  }
+}

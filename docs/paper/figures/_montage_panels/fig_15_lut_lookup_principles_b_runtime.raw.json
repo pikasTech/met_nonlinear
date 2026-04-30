@@ -56,15 +56,15 @@
           },
           {
             "arrow": "nearest_to_output",
-            "actual_length": 0.125255,
-            "full_length": 0.187883,
+            "actual_length": 0.167871,
+            "full_length": 0.251806,
             "fraction": 0.666667,
             "max_length_fraction": 0.6666666666666666
           },
           {
             "arrow": "linear_to_output",
-            "actual_length": 0.149815,
-            "full_length": 0.224722,
+            "actual_length": 0.1856,
+            "full_length": 0.278399,
             "fraction": 0.666667,
             "max_length_fraction": 0.6666666666666666
           }
@@ -84,7 +84,108 @@
         }
       }
     },
-    "violations": [],
+    "violations": [
+      {
+        "kind": "schematic_arrow_endpoint_box_intrusion",
+        "message": "A schematic arrow endpoint touches or intrudes into the declared box instead of leaving a visible gap.",
+        "details": {
+          "arrow": "nearest_to_output",
+          "endpoint": "target",
+          "point": [
+            0.9320833333333334,
+            0.5566666666666666
+          ],
+          "box_id": "output_scalar",
+          "box": [
+            0.915,
+            0.42,
+            0.99,
+            0.62
+          ],
+          "endpoint_policy": "outside_clearance"
+        },
+        "context": "LUT runtime lookup schematic geometry"
+      },
+      {
+        "kind": "schematic_arrow_declared_box_intrusion",
+        "message": "A schematic arrow crosses into a declared endpoint box despite requiring outside clearance.",
+        "details": {
+          "arrow": "nearest_to_output",
+          "segment_index": 0,
+          "segment": [
+            [
+              0.8504166666666666,
+              0.7033333333333334
+            ],
+            [
+              0.9320833333333334,
+              0.5566666666666666
+            ]
+          ],
+          "box_id": "output_scalar",
+          "box": [
+            0.915,
+            0.42,
+            0.99,
+            0.62
+          ],
+          "intersection": {
+            "kind": "endpoint_inside"
+          }
+        },
+        "context": "LUT runtime lookup schematic geometry"
+      },
+      {
+        "kind": "schematic_arrow_endpoint_box_intrusion",
+        "message": "A schematic arrow endpoint touches or intrudes into the declared box instead of leaving a visible gap.",
+        "details": {
+          "arrow": "linear_to_output",
+          "endpoint": "target",
+          "point": [
+            0.9320833333333334,
+            0.47833333333333333
+          ],
+          "box_id": "output_scalar",
+          "box": [
+            0.915,
+            0.42,
+            0.99,
+            0.62
+          ],
+          "endpoint_policy": "outside_clearance"
+        },
+        "context": "LUT runtime lookup schematic geometry"
+      },
+      {
+        "kind": "schematic_arrow_declared_box_intrusion",
+        "message": "A schematic arrow crosses into a declared endpoint box despite requiring outside clearance.",
+        "details": {
+          "arrow": "linear_to_output",
+          "segment_index": 0,
+          "segment": [
+            [
+              0.8504166666666666,
+              0.3116666666666667
+            ],
+            [
+              0.9320833333333334,
+              0.47833333333333333
+            ]
+          ],
+          "box_id": "output_scalar",
+          "box": [
+            0.915,
+            0.42,
+            0.99,
+            0.62
+          ],
+          "intersection": {
+            "kind": "endpoint_inside"
+          }
+        },
+        "context": "LUT runtime lookup schematic geometry"
+      }
+    ],
     "children": [
       {
         "version": 1,
@@ -139,22 +240,119 @@
             },
             {
               "arrow": "nearest_to_output",
-              "actual_length": 0.125255,
-              "full_length": 0.187883,
+              "actual_length": 0.167871,
+              "full_length": 0.251806,
               "fraction": 0.666667,
               "max_length_fraction": 0.6666666666666666
             },
             {
               "arrow": "linear_to_output",
-              "actual_length": 0.149815,
-              "full_length": 0.224722,
+              "actual_length": 0.1856,
+              "full_length": 0.278399,
               "fraction": 0.666667,
               "max_length_fraction": 0.6666666666666666
             }
           ]
         },
-        "violations": [],
-        "status": "pass",
+        "violations": [
+          {
+            "kind": "schematic_arrow_endpoint_box_intrusion",
+            "message": "A schematic arrow endpoint touches or intrudes into the declared box instead of leaving a visible gap.",
+            "details": {
+              "arrow": "nearest_to_output",
+              "endpoint": "target",
+              "point": [
+                0.9320833333333334,
+                0.5566666666666666
+              ],
+              "box_id": "output_scalar",
+              "box": [
+                0.915,
+                0.42,
+                0.99,
+                0.62
+              ],
+              "endpoint_policy": "outside_clearance"
+            }
+          },
+          {
+            "kind": "schematic_arrow_declared_box_intrusion",
+            "message": "A schematic arrow crosses into a declared endpoint box despite requiring outside clearance.",
+            "details": {
+              "arrow": "nearest_to_output",
+              "segment_index": 0,
+              "segment": [
+                [
+                  0.8504166666666666,
+                  0.7033333333333334
+                ],
+                [
+                  0.9320833333333334,
+                  0.5566666666666666
+                ]
+              ],
+              "box_id": "output_scalar",
+              "box": [
+                0.915,
+                0.42,
+                0.99,
+                0.62
+              ],
+              "intersection": {
+                "kind": "endpoint_inside"
+              }
+            }
+          },
+          {
+            "kind": "schematic_arrow_endpoint_box_intrusion",
+            "message": "A schematic arrow endpoint touches or intrudes into the declared box instead of leaving a visible gap.",
+            "details": {
+              "arrow": "linear_to_output",
+              "endpoint": "target",
+              "point": [
+                0.9320833333333334,
+                0.47833333333333333
+              ],
+              "box_id": "output_scalar",
+              "box": [
+                0.915,
+                0.42,
+                0.99,
+                0.62
+              ],
+              "endpoint_policy": "outside_clearance"
+            }
+          },
+          {
+            "kind": "schematic_arrow_declared_box_intrusion",
+            "message": "A schematic arrow crosses into a declared endpoint box despite requiring outside clearance.",
+            "details": {
+              "arrow": "linear_to_output",
+              "segment_index": 0,
+              "segment": [
+                [
+                  0.8504166666666666,
+                  0.3116666666666667
+                ],
+                [
+                  0.9320833333333334,
+                  0.47833333333333333
+                ]
+              ],
+              "box_id": "output_scalar",
+              "box": [
+                0.915,
+                0.42,
+                0.99,
+                0.62
+              ],
+              "intersection": {
+                "kind": "endpoint_inside"
+              }
+            }
+          }
+        ],
+        "status": "fail",
         "kind": "schematic_geometry_audit"
       },
       {
@@ -653,6 +851,6 @@
         "status": "pass"
       }
     ],
-    "status": "pass"
+    "status": "fail"
   }
 }

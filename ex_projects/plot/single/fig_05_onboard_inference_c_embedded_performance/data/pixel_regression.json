@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_05_onboard_inference_c_embedded_performance/data/fig_05_onboard_inference_c_embedded_performance.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+  "output_shape": [
+    1294,
+    1772,
+    4
+  ],
+  "baseline_shape": [
+    1342,
+    1820,
+    4
+  ],
+  "pixel_exact": false
+}

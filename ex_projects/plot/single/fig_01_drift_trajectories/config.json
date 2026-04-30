@@ -1,0 +1,64 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_01_drift_trajectories",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_01_drift_trajectories",
+    "kind": "single",
+    "title": "Drift trajectories",
+    "description": "Natural-frequency and sensitivity drift trajectories across input magnitude.",
+    "output_name": "fig_01_drift_trajectories.png",
+    "generation_mode": "legacy",
+    "legacy_render_id": "fig_01_drift_trajectories",
+    "figure_config": {
+      "kind": "single",
+      "title": "Drift trajectories",
+      "description": "Natural-frequency and sensitivity drift trajectories across input magnitude.",
+      "output_name": "fig_01_drift_trajectories.png",
+      "figsize": [
+        10,
+        4.8
+      ],
+      "wiener_linewidth": 3.5,
+      "other_linewidth": 2,
+      "xy_plot": {
+        "xlim": [
+          0,
+          6.2
+        ],
+        "left_ylim": [
+          28,
+          98
+        ],
+        "right_ylim": [
+          45,
+          210
+        ],
+        "label_fontsize": 17,
+        "tick_fontsize": 15,
+        "labelpad": 6,
+        "tick_pad": 3
+      },
+      "legend": {
+        "loc": "upper center",
+        "bbox_to_anchor": [
+          0.5,
+          1.18
+        ],
+        "ncol": 2,
+        "frameon": false
+      },
+      "palette": {
+        "Origin": "#444444",
+        "Wiener-KAN": "#0f6c5c"
+      },
+      "font_scale": 1.5
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_01_drift_trajectories.png",
+      "pixel_exact": true
+    }
+  }
+}

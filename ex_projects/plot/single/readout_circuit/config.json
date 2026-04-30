@@ -1,0 +1,48 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "readout_circuit",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "readout_circuit",
+    "kind": "single",
+    "title": "Readout circuit source panel",
+    "description": "Subfigure source used by Fig. 20; adjustable before the montage is rebuilt.",
+    "output_name": "readout_circuit.png",
+    "generation_mode": "bitmap_compose",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/readout_circuit_source.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "Readout circuit source panel",
+      "description": "Subfigure source used by Fig. 20; adjustable before the montage is rebuilt.",
+      "output_name": "readout_circuit.png",
+      "panels": [
+        {
+          "fit_width": 2500,
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 28
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 1,
+        "cols": 1,
+        "padding": 0,
+        "gutter": 0,
+        "label_font_size": 54
+      },
+      "parent_montages": [
+        "fig_20_met_structure_readout_montage"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/readout_circuit.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_20_met_structure_readout_montage"
+    ]
+  }
+}

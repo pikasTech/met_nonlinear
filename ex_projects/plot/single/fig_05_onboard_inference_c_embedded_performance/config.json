@@ -1,0 +1,56 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_05_onboard_inference_c_embedded_performance",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_05_onboard_inference_c_embedded_performance",
+    "kind": "single",
+    "title": "fig 05 onboard inference c embedded performance",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_05_onboard_inference_c_embedded_performance.png.",
+    "output_name": "fig_05_onboard_inference_c_embedded_performance.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 05 onboard inference c embedded performance",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_05_onboard_inference_c_embedded_performance.png.",
+      "output_name": "fig_05_onboard_inference_c_embedded_performance.png",
+      "parent_montages": [
+        "fig_05_onboard_inference"
+      ],
+      "performance_panel": {
+        "figsize": [
+          6,
+          4.4
+        ],
+        "baseline_marker_area": 118,
+        "variant_marker_area": 138,
+        "colormap": "magma",
+        "edge_color": "#222222",
+        "edge_linewidth": 0.8,
+        "marker_alpha": 0.92,
+        "annotation_fontsize": 7.8,
+        "annotation_box_alpha": 0.78,
+        "mae_vmin_scale": 0.8,
+        "mae_vmax_scale": 1.2,
+        "xmax_scale": 1.18,
+        "ymin_scale": 0.55,
+        "ymax_scale": 2,
+        "grid_alpha": 0.24,
+        "legend_loc": "upper right",
+        "legend_frameon": true
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_05_onboard_inference"
+    ],
+    "legacy_render_id": "fig_05_onboard_inference",
+    "panel_output_name": "fig_05_onboard_inference_c_embedded_performance.png"
+  }
+}

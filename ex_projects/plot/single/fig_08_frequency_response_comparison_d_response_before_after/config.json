@@ -1,0 +1,94 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_08_frequency_response_comparison_d_response_before_after",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_08_frequency_response_comparison_d_response_before_after",
+    "kind": "single",
+    "title": "fig 08 frequency response comparison d response before after",
+    "description": "Full-magnitude FRIKANh8u6l6_e1k_lr7e4 frequency response before/after compensation.",
+    "output_name": "fig_08_frequency_response_comparison_d_response_before_after.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_d_response_before_after.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 08 frequency response comparison d response before after",
+      "description": "Full-magnitude FRIKANh8u6l6_e1k_lr7e4 frequency response before/after compensation.",
+      "output_name": "fig_08_frequency_response_comparison_d_response_before_after.png",
+      "parent_montages": [
+        "fig_08_frequency_response_comparison"
+      ],
+      "response_panel": {
+        "figsize": [
+          8.4,
+          6.25
+        ],
+        "curve_mode": "all_magnitudes_dual_legend",
+        "linear_response_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json",
+        "colormap": "tab20",
+        "origin_linewidth": 1.55,
+        "origin_linestyle": "-",
+        "origin_alpha": 0.95,
+        "comped_linewidth": 1.55,
+        "comped_linestyle": "--",
+        "comped_alpha": 0.95,
+        "legend_fontsize": 8,
+        "legend_title_fontsize": 8.8,
+        "legend_handlelength": 2.15,
+        "legend_labelspacing": 0.42,
+        "legend_borderaxespad": 0,
+        "origin_legend_title": "ORIGIN",
+        "origin_legend_loc": "upper left",
+        "origin_legend_bbox_to_anchor": [
+          1.02,
+          1
+        ],
+        "origin_legend_frameon": false,
+        "origin_legend_ncol": 1,
+        "compensated_legend_title": "Compensated",
+        "compensated_legend_loc": "upper left",
+        "compensated_legend_bbox_to_anchor": [
+          1.37,
+          1
+        ],
+        "compensated_legend_frameon": false,
+        "compensated_legend_ncol": 1,
+        "grid_alpha": 0.42,
+        "xy_plot": {
+          "xlim": [
+            10,
+            128
+          ],
+          "ylim": [
+            30,
+            250
+          ],
+          "label_fontsize": 10,
+          "tick_fontsize": 9,
+          "labelpad": 4,
+          "tick_pad": 3,
+          "xlabel": "Frequency (Hz)",
+          "ylabel": "Sensitivity (V $\\cdot$ s/m)"
+        },
+        "margins": {
+          "left": 0.1,
+          "right": 0.66,
+          "bottom": 0.12,
+          "top": 0.98
+        },
+        "legend_column_gap": 0.25
+      }
+    },
+    "regression": {
+      "baseline_path": "ex_projects/plot/single/fig_08_frequency_response_comparison_d_response_before_after/source_baseline_panel.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_08_frequency_response_comparison"
+    ],
+    "legacy_render_id": "fig_08_frequency_response_comparison",
+    "panel_output_name": "fig_08_frequency_response_comparison_d_response_before_after.png"
+  }
+}

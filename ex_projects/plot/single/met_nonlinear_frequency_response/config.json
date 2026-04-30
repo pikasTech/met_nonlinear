@@ -1,0 +1,63 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "met_nonlinear_frequency_response",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "met_nonlinear_frequency_response",
+    "kind": "single",
+    "title": "MET nonlinear frequency response",
+    "description": "Log-frequency response curves of the nonlinear MET sensor, directly cited in main.tex.",
+    "output_name": "met_nonlinear_frequency_response.png",
+    "generation_mode": "legacy",
+    "legacy_render_id": "met_nonlinear_frequency_response",
+    "figure_config": {
+      "kind": "single",
+      "title": "MET nonlinear frequency response",
+      "description": "Log-frequency response curves of the nonlinear MET sensor, directly cited in main.tex.",
+      "output_name": "met_nonlinear_frequency_response.png",
+      "figsize": [
+        7.2,
+        4.8
+      ],
+      "line_width": 1.35,
+      "colormap": "tab20",
+      "grid_alpha": 0.45,
+      "xy_plot": {
+        "xlim": [
+          10,
+          128
+        ],
+        "ylim": [
+          30,
+          250
+        ],
+        "label_fontsize": 12,
+        "tick_fontsize": 10,
+        "labelpad": 4,
+        "tick_pad": 3
+      },
+      "legend": {
+        "loc": "center left",
+        "bbox_to_anchor": [
+          1.02,
+          0.5
+        ],
+        "ncol": 1,
+        "frameon": false,
+        "fontsize": 8.5
+      },
+      "margins": {
+        "left": 0.12,
+        "right": 0.72,
+        "bottom": 0.16,
+        "top": 0.96
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/met_nonlinear_frequency_response.png",
+      "pixel_exact": true
+    }
+  }
+}

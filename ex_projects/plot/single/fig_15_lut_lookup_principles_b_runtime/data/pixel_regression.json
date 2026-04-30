@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_15_lut_lookup_principles_b_runtime/data/fig_15_lut_lookup_principles_b_runtime.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_15_lut_lookup_principles_b_runtime.png",
+  "output_shape": [
+    889,
+    2284,
+    4
+  ],
+  "baseline_shape": [
+    1057,
+    2062,
+    4
+  ],
+  "pixel_exact": false
+}

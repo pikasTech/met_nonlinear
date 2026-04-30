@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T20:02:31.436270",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_18_hparam_sensitivity",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_18_hparam_sensitivity\\data"
+  ],
+  "config_hash": "d73e8b59c43961b2b1a40bb25c457a24"
+}

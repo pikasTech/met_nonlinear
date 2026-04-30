@@ -1,0 +1,57 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_02_horizontal_summary_4_throughput",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_02_horizontal_summary_4_throughput",
+    "kind": "single",
+    "title": "fig 02 horizontal summary 4 throughput",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_4_throughput.png.",
+    "output_name": "fig_02_horizontal_summary_4_throughput.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_02_horizontal_summary_4_throughput/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 02 horizontal summary 4 throughput",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_4_throughput.png.",
+      "output_name": "fig_02_horizontal_summary_4_throughput.png",
+      "parent_montages": [
+        "fig_02_horizontal_summary"
+      ],
+      "throughput_panel": {
+        "figsize": [
+          7.2,
+          8
+        ],
+        "bar_alpha": 0.86,
+        "edge_color": "#222222",
+        "edge_linewidth": 0.5,
+        "annotation_fontsize": 7.8,
+        "xtick_rotation": 25,
+        "ylim_pad_ratio": 1.3,
+        "grid_alpha": 0.35
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_02_horizontal_summary_4_throughput.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_02_horizontal_summary"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_02_horizontal_summary",
+      "paste_box": [
+        75,
+        1892,
+        1755,
+        2974
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_02_horizontal_summary",
+    "panel_output_name": "fig_02_horizontal_summary_4_throughput.png"
+  }
+}

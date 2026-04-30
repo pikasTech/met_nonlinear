@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T22:17:18.340769",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_08_frequency_response_comparison_d_response_before_after",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_08_frequency_response_comparison_d_response_before_after\\data"
+  ],
+  "config_hash": "ae9d9c4539fbe8318d5aadeaa91ac125"
+}

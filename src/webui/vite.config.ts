@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   root: './src',
-  base: './',
+  base: '/',
   build: {
     outDir: '../dist',
     emptyOutDir: true
@@ -12,7 +12,8 @@ export default defineConfig({
   server: {
     port: 3001,
     proxy: {
-      '/api': 'http://localhost:3000'
+      '/api': 'http://localhost:3000',
+      '/paper-figures-assets': 'http://localhost:3000'
     }
   }
 })

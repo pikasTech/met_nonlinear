@@ -1,0 +1,35 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_14_parallel_wiener_principle",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_14_parallel_wiener_principle",
+    "kind": "single",
+    "title": "Parallel Wiener principle source panel",
+    "description": "Principle subfigure used by Fig. 22; adjustable before the montage is rebuilt.",
+    "output_name": "fig_14_parallel_wiener_principle.png",
+    "generation_mode": "legacy",
+    "legacy_render_id": "fig_14_parallel_wiener_principle",
+    "figure_config": {
+      "kind": "single",
+      "title": "Parallel Wiener principle source panel",
+      "description": "Principle subfigure used by Fig. 22; adjustable before the montage is rebuilt.",
+      "output_name": "fig_14_parallel_wiener_principle.png",
+      "principle_panel": {
+        "figsize": [
+          10.8,
+          4.5
+        ]
+      },
+      "parent_montages": [
+        "fig_22_parallel_wiener_equivalent_montage"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_14_parallel_wiener_principle.png",
+      "pixel_exact": true
+    }
+  }
+}

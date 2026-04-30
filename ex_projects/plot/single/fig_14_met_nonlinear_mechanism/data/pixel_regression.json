@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/fig_14_met_nonlinear_mechanism/data/fig_14_met_nonlinear_mechanism.png",
+  "baseline": "docs/paper/figures/legacy/fig_14_met_nonlinear_mechanism.png",
+  "shape": [
+    1102,
+    2400,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 2644800,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

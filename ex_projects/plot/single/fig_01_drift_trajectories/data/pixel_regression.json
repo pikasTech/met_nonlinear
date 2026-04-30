@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/single/fig_01_drift_trajectories/data/fig_01_drift_trajectories.png",
+  "baseline": "docs/paper/figures/legacy/fig_01_drift_trajectories.png",
+  "shape": [
+    1081,
+    2225,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 221645,
+  "total_pixels": 2405225,
+  "mismatch_ratio": 0.09215146192144186,
+  "max_abs_channel_diff": 240
+}

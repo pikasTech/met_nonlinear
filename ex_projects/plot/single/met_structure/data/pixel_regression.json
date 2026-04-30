@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/met_structure/data/met_structure.png",
+  "baseline": "docs/paper/figures/legacy/met_structure.png",
+  "shape": [
+    1271,
+    2500,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 3177500,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

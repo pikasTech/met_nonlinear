@@ -42,8 +42,8 @@
           },
           {
             "arrow": "table_to_flash",
-            "actual_length": 0.058667,
-            "full_length": 0.088,
+            "actual_length": 0.073333,
+            "full_length": 0.11,
             "fraction": 0.666667,
             "max_length_fraction": 0.6666666666666666
           }
@@ -104,8 +104,8 @@
             },
             {
               "arrow": "table_to_flash",
-              "actual_length": 0.058667,
-              "full_length": 0.088,
+              "actual_length": 0.073333,
+              "full_length": 0.11,
               "fraction": 0.666667,
               "max_length_fraction": 0.6666666666666666
             }

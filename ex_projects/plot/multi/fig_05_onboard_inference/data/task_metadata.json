@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T12:01:05.505004",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_05_onboard_inference",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_05_onboard_inference\\data"
+  ],
+  "config_hash": "529e2665fb7d7988e5807e10ba536e55"
+}

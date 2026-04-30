@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/readout_circuit/data/readout_circuit.png",
+  "baseline": "docs/paper/figures/legacy/readout_circuit.png",
+  "shape": [
+    1288,
+    2500,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 3220000,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

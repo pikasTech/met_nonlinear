@@ -1,0 +1,66 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_17_board_inference_validation_workflow_a_export",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_17_board_inference_validation_workflow_a_export",
+    "kind": "single",
+    "title": "fig 17 board inference validation workflow a export",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_17_board_inference_validation_workflow_a_export.png.",
+    "output_name": "fig_17_board_inference_validation_workflow_a_export.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_17_board_inference_validation_workflow_a_export.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 17 board inference validation workflow a export",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_17_board_inference_validation_workflow_a_export.png.",
+      "output_name": "fig_17_board_inference_validation_workflow_a_export.png",
+      "parent_montages": [
+        "fig_05_onboard_inference",
+        "fig_17_board_inference_validation_workflow"
+      ],
+      "export_panel": {
+        "figsize": [
+          7.15,
+          3.9
+        ],
+        "card_title_size": 12,
+        "card_body_size": 9,
+        "embedded_card_title_size": 12,
+        "embedded_card_body_size": 9,
+        "c_export_card_body_size": 9,
+        "arrow_lw": 1.9,
+        "icon_neural_project": {
+          "x": 0.1,
+          "y": 0.48,
+          "w": 0.13,
+          "h": 0.32
+        },
+        "icon_c_package": {
+          "x": 0.42,
+          "y": 0.43,
+          "w": 0.19,
+          "h": 0.4
+        },
+        "icon_chip": {
+          "x": 0.797,
+          "y": 0.5,
+          "w": 0.13,
+          "h": 0.25
+        }
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_17_board_inference_validation_workflow_a_export.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_05_onboard_inference",
+      "fig_17_board_inference_validation_workflow"
+    ],
+    "legacy_render_id": "fig_17_board_inference_validation_workflow",
+    "panel_output_name": "fig_17_board_inference_validation_workflow_a_export.png"
+  }
+}

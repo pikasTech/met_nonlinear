@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/time_domain_outputs/data/time_domain_outputs.png",
+  "baseline": "docs/paper/figures/legacy/time_domain_outputs.png",
+  "output_shape": [
+    3084,
+    4053,
+    4
+  ],
+  "baseline_shape": [
+    3028,
+    4053,
+    4
+  ],
+  "pixel_exact": false
+}

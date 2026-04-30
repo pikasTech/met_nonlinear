@@ -1,0 +1,79 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_17_board_inference_validation_workflow_b_validate",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_17_board_inference_validation_workflow_b_validate",
+    "kind": "single",
+    "title": "fig 17 board inference validation workflow b validate",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_17_board_inference_validation_workflow_b_validate.png.",
+    "output_name": "fig_17_board_inference_validation_workflow_b_validate.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_17_board_inference_validation_workflow_b_validate.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 17 board inference validation workflow b validate",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_17_board_inference_validation_workflow_b_validate.png.",
+      "output_name": "fig_17_board_inference_validation_workflow_b_validate.png",
+      "parent_montages": [
+        "fig_05_onboard_inference",
+        "fig_17_board_inference_validation_workflow"
+      ],
+      "validate_panel": {
+        "figsize": [
+          7.15,
+          4.25
+        ],
+        "card_title_size": 9.2,
+        "card_body_size": 8,
+        "metric_title_size": 9.4,
+        "metric_body_size": 6.8,
+        "test_title_size": 8.9,
+        "test_body_size": 7,
+        "arrow_lw": 1.8,
+        "icon_wave_reference": {
+          "x": 0.07,
+          "y": 0.5,
+          "w": 0.18,
+          "h": 0.2
+        },
+        "icon_qemu": {
+          "x": 0.42,
+          "y": 0.67,
+          "w": 0.19,
+          "h": 0.27
+        },
+        "icon_uart_metrics": {
+          "x": 0.44,
+          "y": 0.26,
+          "w": 0.21,
+          "h": 0.21
+        },
+        "icon_metric_card_qemu": {
+          "x": 0.8,
+          "y": 0.67,
+          "w": 0.1,
+          "h": 0.26
+        },
+        "icon_metric_card_keil": {
+          "x": 0.8,
+          "y": 0.26,
+          "w": 0.1,
+          "h": 0.26
+        }
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_17_board_inference_validation_workflow_b_validate.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_05_onboard_inference",
+      "fig_17_board_inference_validation_workflow"
+    ],
+    "legacy_render_id": "fig_17_board_inference_validation_workflow",
+    "panel_output_name": "fig_17_board_inference_validation_workflow_b_validate.png"
+  }
+}

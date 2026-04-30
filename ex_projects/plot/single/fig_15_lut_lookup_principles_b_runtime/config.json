@@ -1,0 +1,82 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_15_lut_lookup_principles_b_runtime",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_15_lut_lookup_principles_b_runtime",
+    "kind": "single",
+    "title": "fig 15 lut lookup principles b runtime",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_15_lut_lookup_principles_b_runtime.png.",
+    "output_name": "fig_15_lut_lookup_principles_b_runtime.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_15_lut_lookup_principles_b_runtime.png",
+    "legacy_render_id": "fig_15_lut_lookup_principles",
+    "panel_output_name": "fig_15_lut_lookup_principles_b_runtime.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 15 lut lookup principles b runtime",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_15_lut_lookup_principles_b_runtime.png.",
+      "output_name": "fig_15_lut_lookup_principles_b_runtime.png",
+      "parent_montages": [
+        "fig_15_lut_lookup_principles"
+      ],
+      "figsize": [
+        6.8,
+        3.45
+      ],
+      "runtime_panel": {
+        "figsize": [
+          7.5,
+          3.45
+        ],
+        "pad_inches": 0.1,
+        "margin_left": 0,
+        "margin_right": 0,
+        "margin_top": 0.3,
+        "margin_bottom": 0.3,
+        "box_font_size": 9.6,
+        "input_box_size": 10.6,
+        "arrow_lw": 1.8,
+        "input_scalar": {
+          "x": 0.1,
+          "y": 0.505,
+          "w": 0.12,
+          "h": 0.17
+        },
+        "address_mapping": {
+          "x": 0.36,
+          "y": 0.51,
+          "w": 0.2,
+          "h": 0.32
+        },
+        "nearest_lookup": {
+          "x": 0.695,
+          "y": 0.745,
+          "w": 0.27,
+          "h": 0.25
+        },
+        "linear_interp": {
+          "x": 0.695,
+          "y": 0.28,
+          "w": 0.27,
+          "h": 0.3
+        },
+        "output_scalar": {
+          "x": 0.95,
+          "y": 0.52,
+          "w": 0.075,
+          "h": 0.2
+        }
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_15_lut_lookup_principles_b_runtime.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_15_lut_lookup_principles"
+    ]
+  }
+}

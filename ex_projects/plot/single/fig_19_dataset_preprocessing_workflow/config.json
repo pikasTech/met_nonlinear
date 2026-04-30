@@ -1,0 +1,36 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_19_dataset_preprocessing_workflow",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_19_dataset_preprocessing_workflow",
+    "kind": "single",
+    "title": "Dataset preprocessing workflow",
+    "description": "Vertical code-generated workflow for dataset construction and preprocessing.",
+    "output_name": "fig_19_dataset_preprocessing_workflow.png",
+    "generation_mode": "legacy",
+    "legacy_render_id": "fig_19_dataset_preprocessing_workflow",
+    "figure_config": {
+      "kind": "single",
+      "title": "Dataset preprocessing workflow",
+      "description": "Vertical code-generated workflow for dataset construction and preprocessing.",
+      "output_name": "fig_19_dataset_preprocessing_workflow.png",
+      "figsize": [
+        7.2,
+        9.2
+      ],
+      "parent_montages": [
+        "fig_21_experimental_setup_dataset_workflow_montage"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_19_dataset_preprocessing_workflow.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_21_experimental_setup_dataset_workflow_montage"
+    ]
+  }
+}

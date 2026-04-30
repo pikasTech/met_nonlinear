@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/multi/local_transfer_slices/data/local_transfer_slices.png",
+  "baseline": "docs/paper/figures/legacy/local_transfer_slices.png",
+  "shape": [
+    2840,
+    5690,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 16159600,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

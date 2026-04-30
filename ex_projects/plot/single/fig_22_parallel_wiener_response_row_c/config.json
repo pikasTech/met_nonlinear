@@ -1,0 +1,32 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_22_parallel_wiener_response_row_c",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_22_parallel_wiener_response_row_c",
+    "kind": "single",
+    "title": "Parallel Wiener 100 Hz gain panel (c)",
+    "description": "Response subfigure (c) used by Fig. 22 response row.",
+    "output_name": "fig_22_parallel_wiener_response_row_c.png",
+    "generation_mode": "copy_source",
+    "source_path": "docs/paper/figures/legacy/fig_14_parallel_wiener_gain_100hz.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "Parallel Wiener 100 Hz gain panel (c)",
+      "description": "Response subfigure (c) used by Fig. 22 response row.",
+      "output_name": "fig_22_parallel_wiener_response_row_c.png",
+      "parent_montages": [
+        "fig_22_parallel_wiener_equivalent_montage"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_14_parallel_wiener_gain_100hz.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_22_parallel_wiener_equivalent_montage"
+    ]
+  }
+}

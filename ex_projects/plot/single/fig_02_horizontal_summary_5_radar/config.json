@@ -1,0 +1,57 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_02_horizontal_summary_5_radar",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_02_horizontal_summary_5_radar",
+    "kind": "single",
+    "title": "fig 02 horizontal summary 5 radar",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_5_radar.png.",
+    "output_name": "fig_02_horizontal_summary_5_radar.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_02_horizontal_summary_5_radar/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 02 horizontal summary 5 radar",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_5_radar.png.",
+      "output_name": "fig_02_horizontal_summary_5_radar.png",
+      "parent_montages": [
+        "fig_02_horizontal_summary"
+      ],
+      "radar_panel": {
+        "figsize": [
+          6.8,
+          5.3
+        ],
+        "legend_loc": "upper center",
+        "legend_bbox_to_anchor": [
+          0.5,
+          -0.12
+        ],
+        "legend_ncol": 3,
+        "legend_frameon": false
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_02_horizontal_summary_5_radar.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_02_horizontal_summary"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_02_horizontal_summary",
+      "paste_box": [
+        1840,
+        1892,
+        3520,
+        3768
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_02_horizontal_summary",
+    "panel_output_name": "fig_02_horizontal_summary_5_radar.png"
+  }
+}

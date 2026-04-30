@@ -1,0 +1,276 @@
+{
+  "figure": "_montage_panels/fig_13_compensation_distribution_2_sens.png",
+  "source_trace": "paper results payload metric_details min/median/mean/max fields",
+  "metric": "sens",
+  "rows": [
+    {
+      "label": "Wiener-KAN",
+      "metric": "sens",
+      "center": 61.25473153693778,
+      "min": 52.162163907568385,
+      "max": 67.64895013730865
+    },
+    {
+      "label": "TCN",
+      "metric": "sens",
+      "center": 63.21116674277311,
+      "min": 47.12994007444538,
+      "max": 68.7039577730375
+    },
+    {
+      "label": "1DCNN",
+      "metric": "sens",
+      "center": 64.21016636414984,
+      "min": 47.96774676915708,
+      "max": 69.83418808789138
+    },
+    {
+      "label": "LSTM",
+      "metric": "sens",
+      "center": 64.73712061929838,
+      "min": 50.93517618103717,
+      "max": 67.92727013167078
+    },
+    {
+      "label": "LSTMTransformer",
+      "metric": "sens",
+      "center": 67.37511778675331,
+      "min": 48.99017917623917,
+      "max": 71.88216161636605
+    },
+    {
+      "label": "RNN",
+      "metric": "sens",
+      "center": 68.97867375219938,
+      "min": 45.22766818996685,
+      "max": 70.93226038169463
+    },
+    {
+      "label": "GRU",
+      "metric": "sens",
+      "center": 67.13832308609933,
+      "min": 39.992544725978135,
+      "max": 72.77615313251081
+    }
+  ],
+  "matplotlib_title_artifacts": [],
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "visual_quality_audit": {
+    "version": 1,
+    "context": "figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png",
+    "thresholds": {
+      "text_clip_margin_px": 1.0,
+      "text_text_overlap_min_area_px": 25.0,
+      "text_text_overlap_min_fraction": 0.08,
+      "text_data_overlap_min_area_px": 45.0,
+      "text_data_overlap_min_fraction": 0.12,
+      "axis_label_tick_font_ratio_max": 1.85,
+      "axis_label_font_min_pt": 14.0,
+      "edge_guard_px": 4,
+      "edge_dark_luminance_max": 245,
+      "edge_nonwhite_delta_min": 14,
+      "edge_dark_pixel_min_count": 28,
+      "edge_dark_pixel_min_ratio": 0.0015,
+      "schematic_endpoint_tolerance": 0.018,
+      "schematic_box_margin": 0.006,
+      "schematic_axis_alignment_tolerance": 0.006,
+      "schematic_arrow_overlap_min_length": 0.03,
+      "schematic_arrow_length_fraction_max": 0.7,
+      "schematic_arrow_length_fraction_tolerance": 0.006,
+      "schematic_endpoint_intrusion_tolerance": 0.003,
+      "schematic_endpoint_clearance_min": 0.01,
+      "schematic_endpoint_clearance_max": 0.06
+    },
+    "checks": {
+      "figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png": {
+        "image_edge_content": {
+          "size": [
+            1414,
+            1234
+          ],
+          "edge_guard_px": 4,
+          "edge_pixel_count": 21120,
+          "edge_dark_pixels": 871,
+          "edge_ratio": 0.041241,
+          "violation": true
+        }
+      }
+    },
+    "violations": [
+      {
+        "kind": "edge_content_clipping",
+        "message": "Dark non-background pixels touch the saved bitmap edge.",
+        "details": {
+          "size": [
+            1414,
+            1234
+          ],
+          "edge_guard_px": 4,
+          "edge_pixel_count": 21120,
+          "edge_dark_pixels": 871,
+          "edge_ratio": 0.041241,
+          "violation": true
+        },
+        "image": "docs/paper/figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png",
+        "context": "figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png"
+      }
+    ],
+    "children": [
+      {
+        "version": 1,
+        "context": "figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "matplotlib_text_count": 17,
+          "matplotlib_patch_count": 7,
+          "matplotlib_canvas_bbox": [
+            0.0,
+            0.0,
+            2880.0,
+            2520.0
+          ],
+          "bbox_reliable_text_count": 17,
+          "three_d_axes_bbox_checks_skipped": [],
+          "matplotlib_canvas_overflows": [
+            {
+              "text": {
+                "text": "80",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  133.335,
+                  2545.733,
+                  208.335,
+                  2614.733
+                ]
+              },
+              "details": {
+                "bbox": [
+                  133.335,
+                  2545.733,
+                  208.335,
+                  2614.733
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  2880.0,
+                  2520.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 93.733
+                }
+              }
+            }
+          ],
+          "matplotlib_canvas_overflow_count": 1,
+          "axes_font_balance": [
+            {
+              "axis_index": 0,
+              "max_axis_label_font_pt": 10.0,
+              "median_tick_label_font_pt": 9.0,
+              "ratio": 1.111,
+              "violation": false
+            }
+          ]
+        },
+        "violations": [],
+        "status": "pass"
+      },
+      {
+        "version": 1,
+        "context": "figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "image_edge_content": {
+            "size": [
+              1414,
+              1234
+            ],
+            "edge_guard_px": 4,
+            "edge_pixel_count": 21120,
+            "edge_dark_pixels": 871,
+            "edge_ratio": 0.041241,
+            "violation": true
+          }
+        },
+        "violations": [
+          {
+            "kind": "edge_content_clipping",
+            "message": "Dark non-background pixels touch the saved bitmap edge.",
+            "details": {
+              "size": [
+                1414,
+                1234
+              ],
+              "edge_guard_px": 4,
+              "edge_pixel_count": 21120,
+              "edge_dark_pixels": 871,
+              "edge_ratio": 0.041241,
+              "violation": true
+            },
+            "image": "docs/paper/figures/legacy/_montage_panels/fig_13_compensation_distribution_2_sens.png"
+          }
+        ],
+        "status": "fail"
+      }
+    ],
+    "status": "fail"
+  }
+}

@@ -1,6 +1,6 @@
 # 论文图可追溯与修改工作流
 
-本文档记录 `docs/paper/latex/main.tex` 所引用论文图的长期修改规范，适用于实验曲线图、机理示意图、结构框图，以及从旧论文迁移来的历史图。
+本文档记录 `docs/paper/latex/main.tex` 所引用论文图的长期修改规范，适用于实验曲线图、机理示意图、结构框图，以及从旧论文迁移来的历史图。当前论文图的可编辑入口统一收敛到 `ex_projects/plot/**/config.json`，渲染输出统一落到对应 ex_project 的 `data/` 目录。
 
 ## 不可违反的规则
 
@@ -14,11 +14,12 @@
 ## 追溯顺序
 
 1. 从 `docs/paper/latex/main.tex` 开始，确认图号、caption、`\includegraphics` 路径和正文上下文。
-2. 检查 `docs/paper/figures/` 下被引用的图，再与 `docs/paper/image/`、`docs/paper/assets/` 比较，判断它是迁移图还是 pipeline 生成图。
-3. 在当前仓库中按图片名、输出文件名、caption 关键词、绘图函数名和数据文件名搜索。优先使用 `rg --files` 和 `rg -n`。
-4. 如果当前仓库信息不完整，继续搜索 `C:/work/met_nonlinear_paper`，重点检查 `cli.py`、`plot_*.py`、`figure_paper.py`、`fig_pdf.py`、`data/` 和旧 `projects/`。
-5. 只有当输出文件名、输入数据、子图结构、坐标轴、采样方式、图例、视角和最终拼图方式都能对应到稿件图时，才算追溯成功。
-6. 将可复现入口迁移到 `docs/paper/src/` 或现有 paper pipeline，并在生成图旁写出 `.raw.json`，记录 `source_trace`、`translation_method` 和 `note`。
+2. 检查 `\includegraphics` 是否指向 `ex_projects/plot/**/data/*.png`，再打开同级或父级 ex_project 的 `config.json`，确认 `paper_figure.figure_id`、`paper_figure.output_name`、`generation_mode` 和 `regression.baseline_path`。
+3. 如果是拼图，检查 `paper_figure.subfigures[].project_path`，逐个追溯子图 ex_project；拼图配置不得绕过子图 ex_project 直接引用最终论文位图。
+4. 在当前仓库中按图片名、输出文件名、caption 关键词、绘图函数名和数据文件名搜索。优先使用 `rg --files` 和 `rg -n`。
+5. 如果当前仓库信息不完整，继续搜索 `C:/work/met_nonlinear_paper`，重点检查 `cli.py`、`plot_*.py`、`figure_paper.py`、`fig_pdf.py`、`data/` 和旧 `projects/`。
+6. 只有当输出文件名、输入数据、子图结构、坐标轴、采样方式、图例、视角和最终拼图方式都能对应到稿件图时，才算追溯成功。
+7. 将可复现入口迁移到 `ex_projects/plot/`，并在 ex_project 的 `data/` 目录写出 `.raw.json`，记录 `source_trace`、`translation_method` 和 `note`。
 
 ## 修改方式
 
@@ -27,6 +28,8 @@
 - 如果标签被裁切或位置不佳，应通过 `figsize`、`subplots_adjust`、`bbox_inches`、`labelpad`、字号或布局参数修复，不要直接编辑位图。
 - 如果旧数据位于当前仓库之外，要从已追溯的旧路径显式读取，或把必要数据迁移到可复现的数据位置。不要从截图反推数值。
 - 生成后必须目视检查是否仍有非英文标签、裁切、重叠、错误数据、caption 语义不匹配或不必要的布局漂移。
+- 正常渲染入口是 `python cli.py ep ex_projects/plot/.../<figure_project>`；`docs/paper/gen_figures.py` 已废弃，不能作为新的修改入口。
+- 精细调整约定：若需暴露绘图参数（如图标位置、卡片字体、线宽、figsize）供 Figure Studio 调节，详见 [paper_figure_studio_adjusters.md](paper_figure_studio_adjusters.md)。
 
 ## 图标题策略
 
@@ -39,20 +42,21 @@
 
 ## raw 标题审计
 
-- `docs/paper/src/paper_pipeline.py` 是论文 raw 标题防线的权威入口。新增 Matplotlib 生成的论文图时，应使用共享保存路径，使相邻 `.raw.json` 记录 `matplotlib_title_artifacts`。
+- 论文图 ex_project runner 和复用的 paper plotting helper 是 raw 标题防线的权威入口。新增 Matplotlib 生成的论文图时，应使用共享保存路径，使相邻 `.raw.json` 记录 `matplotlib_title_artifacts`。
 - paper pipeline 应在 raw 文件生成后调用 `validate_raw_title_free()`。审计必须在发现非空标题痕迹或 raw metadata 中出现 `title`、`subtitle`、`suptitle`、`figure_title`、`panel_title`、`subplot_title`、`axes_title`、`plot_title`、`legend_title` 等字段时失败。
 - raw 审计通过只表示 metadata 中没有已知标题痕迹，不能替代目视检查。手工复制图、AI 渲染图或外部位图仍需查看渲染结果，确认没有可见的标题类文字。
 - 不要通过重命名 raw metadata 字段绕过审计。如果信息属于论文内容，应写入 LaTeX caption 或正文；如果信息属于溯源，应使用 `source_trace`、`modification_scope`、`note` 或数据专用字段等非标题字段。
 
 ## 位图拼图标签
 
-- 多子图位图应通过 paper pipeline 调用 `src/visualization/subfigure_montage.py`，不要手工把 `(a)`、`(b)`、`(c)` 粘到导出的 PNG 上。
+- 多子图位图应通过 `ex_projects/plot/multi/**/config.json` 调用 `src/visualization/subfigure_montage.py`，不要手工把 `(a)`、`(b)`、`(c)` 粘到导出的 PNG 上。
+- 拼图的每个子图应优先拥有独立的 `ex_projects/plot/single/**/config.json`；拼图通过 `paper_figure.subfigures[].project_path` 引用子图工程。
 - 子图标签的标准目标字号为 `8 pt`，该字号指拼图缩放到 `docs/paper/latex/main.tex` 使用的 Springer Nature A4 正文宽度后的最终物理字号。
 - 拼图工具应按 `label_font_size_pt * canvas_width_px / (label_reference_width_pt * latex_width_fraction)` 计算像素字号，使标签大小与源图分辨率无关。
-- `label_reference_width_pt` 应与稿件正文宽度保持一致，当前在 `docs/paper/src/paper_pipeline.py` 中由 `SN_A4_TEXT_WIDTH_PT` 表示。
+- `label_reference_width_pt` 应与稿件正文宽度保持一致，当前采用 Springer Nature A4 正文宽度作为统一参考。
 - `latex_width_fraction` 应来自 LaTeX `\includegraphics` 的插入宽度。比如某图以 `0.5\textwidth` 插入时，应设置 `latex_width_fraction=0.5`，这样位图标签会按比例变大，并在最终 PDF 中仍显示为 `8 pt`。
 - 子图标签默认应置于子图内容外部。优先使用 `outside-top-left` 和按行分配的标签带，确保标签不遮挡坐标轴、图例、曲线、示意文字或面板内容。
-- 同名 `.raw.json` 应记录最终像素字号、目标物理字号、参考宽度、LaTeX 宽度比例、标签位置和行标签带高度。
+- 同名 `.raw.json` 应写在 ex_project 的 `data/` 目录，并记录最终像素字号、目标物理字号、参考宽度、LaTeX 宽度比例、标签位置和行标签带高度。
 
 ## Fig. 10、Fig. 12 和 Fig. 18 的经验
 
@@ -64,8 +68,9 @@
 
 ## 验收标准
 
-- 每个修改后的图都有可复现生成入口，并写入稿件实际引用的 `docs/paper/figures/` 路径。
+- 每个修改后的图都有可复现 ex_project 入口，并写入稿件实际引用的 `ex_projects/plot/**/data/*.png` 路径。
 - 每个修改后的图旁都有 `.raw.json`，记录源代码、源数据和修改范围。
+- 对视觉应保持不变的迁移图，`pixel_regression.json` 应显示当前 `data/*.png` 与 `docs/paper/figures/legacy/` 基线像素一致。
 - raw 标题审计通过，并通过目视检查确认图和子图中不存在独立的顶部或底部标题。
 - 所有被移除的图内标题信息，都已在 `docs/paper/latex/main.tex` 的 caption 或相邻正文中用明确的 `(a)/(b)/(c)` 子图引用保留。
 - LaTeX 编译成功，且 `latex` skill 的 layout check 不报告 `question_mark_in_pdf`、`underfilled_page`、`margin_overflow_risk` 或图表布局错误。

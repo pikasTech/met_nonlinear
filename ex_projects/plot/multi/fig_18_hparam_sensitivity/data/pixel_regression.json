@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/multi/fig_18_hparam_sensitivity/data/fig_18_hparam_sensitivity.png",
+  "baseline": "docs/paper/figures/legacy/fig_18_hparam_sensitivity.png",
+  "output_shape": [
+    4370,
+    4780,
+    4
+  ],
+  "baseline_shape": [
+    4355,
+    4780,
+    4
+  ],
+  "pixel_exact": false
+}

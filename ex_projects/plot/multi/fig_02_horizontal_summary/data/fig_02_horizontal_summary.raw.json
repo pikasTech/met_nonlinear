@@ -1,0 +1,332 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/fig_02_horizontal_summary_1_fn/data/fig_02_horizontal_summary_1_fn.png",
+    "ex_projects/plot/single/fig_02_horizontal_summary_2_sens/data/fig_02_horizontal_summary_2_sens.png",
+    "ex_projects/plot/single/fig_02_horizontal_summary_3_linearity/data/fig_02_horizontal_summary_3_linearity.png",
+    "ex_projects/plot/single/fig_02_horizontal_summary_4_throughput/data/fig_02_horizontal_summary_4_throughput.png",
+    "ex_projects/plot/single/fig_02_horizontal_summary_5_radar/data/fig_02_horizontal_summary_5_radar.png",
+    "ex_projects/plot/single/fig_02_horizontal_summary_6_convergence/data/fig_02_horizontal_summary_6_convergence.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_02_horizontal_summary.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_02_horizontal_summary/data/fig_02_horizontal_summary.png",
+    "size": [
+      5360,
+      3838
+    ],
+    "layout": "matrix",
+    "rows": 2,
+    "cols": 3,
+    "padding": [
+      75,
+      70,
+      75,
+      70
+    ],
+    "gutter": [
+      85,
+      95
+    ],
+    "label_font_size_px": 118,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 0.98,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      129,
+      129
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_02_horizontal_summary_1_fn/data/fig_02_horizontal_summary_1_fn.png",
+        "label": "(a)",
+        "original_size": [
+          1470,
+          1286
+        ],
+        "rendered_size": [
+          1680,
+          1470
+        ],
+        "scale": 1.0,
+        "fit_width": 1680,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 75,
+          "y": 70,
+          "width": 1680,
+          "height": 1599,
+          "content_y": 199,
+          "content_height": 1470,
+          "label_band_height": 129
+        },
+        "paste_box": [
+          75,
+          199,
+          1755,
+          1669
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_02_horizontal_summary_2_sens/data/fig_02_horizontal_summary_2_sens.png",
+        "label": "(b)",
+        "original_size": [
+          1470,
+          1286
+        ],
+        "rendered_size": [
+          1680,
+          1470
+        ],
+        "scale": 1.0,
+        "fit_width": 1680,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1840,
+          "y": 70,
+          "width": 1680,
+          "height": 1599,
+          "content_y": 199,
+          "content_height": 1470,
+          "label_band_height": 129
+        },
+        "paste_box": [
+          1840,
+          199,
+          3520,
+          1669
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_02_horizontal_summary_3_linearity/data/fig_02_horizontal_summary_3_linearity.png",
+        "label": "(c)",
+        "original_size": [
+          1470,
+          1286
+        ],
+        "rendered_size": [
+          1680,
+          1470
+        ],
+        "scale": 1.0,
+        "fit_width": 1680,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 2,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3605,
+          "y": 70,
+          "width": 1680,
+          "height": 1599,
+          "content_y": 199,
+          "content_height": 1470,
+          "label_band_height": 129
+        },
+        "paste_box": [
+          3605,
+          199,
+          5285,
+          1669
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_02_horizontal_summary_4_throughput/data/fig_02_horizontal_summary_4_throughput.png",
+        "label": "(d)",
+        "original_size": [
+          2204,
+          2438
+        ],
+        "rendered_size": [
+          1680,
+          1858
+        ],
+        "scale": 1.0,
+        "fit_width": 1680,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 35,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 75,
+          "y": 1764,
+          "width": 1680,
+          "height": 2004,
+          "content_y": 1893,
+          "content_height": 1875,
+          "label_band_height": 129
+        },
+        "paste_box": [
+          75,
+          1893,
+          1755,
+          3751
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_02_horizontal_summary_5_radar/data/fig_02_horizontal_summary_5_radar.png",
+        "label": "(e)",
+        "original_size": [
+          1446,
+          1614
+        ],
+        "rendered_size": [
+          1680,
+          1875
+        ],
+        "scale": 1.0,
+        "fit_width": 1680,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 35,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1840,
+          "y": 1764,
+          "width": 1680,
+          "height": 2004,
+          "content_y": 1893,
+          "content_height": 1875,
+          "label_band_height": 129
+        },
+        "paste_box": [
+          1840,
+          1893,
+          3520,
+          3768
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_02_horizontal_summary_6_convergence/data/fig_02_horizontal_summary_6_convergence.png",
+        "label": "(f)",
+        "original_size": [
+          2204,
+          2444
+        ],
+        "rendered_size": [
+          1680,
+          1863
+        ],
+        "scale": 1.0,
+        "fit_width": 1680,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 35,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 2,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3605,
+          "y": 1764,
+          "width": 1680,
+          "height": 2004,
+          "content_y": 1893,
+          "content_height": 1875,
+          "label_band_height": 129
+        },
+        "paste_box": [
+          3605,
+          1893,
+          5285,
+          3756
+        ]
+      }
+    ]
+  }
+}

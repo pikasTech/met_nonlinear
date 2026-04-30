@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_15_lut_lookup_principles_a_offline/data/fig_15_lut_lookup_principles_a_offline.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_15_lut_lookup_principles_a_offline.png",
+  "output_shape": [
+    709,
+    2014,
+    4
+  ],
+  "baseline_shape": [
+    997,
+    2062,
+    4
+  ],
+  "pixel_exact": false
+}

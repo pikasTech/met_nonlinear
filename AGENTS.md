@@ -17,6 +17,7 @@
 - 论文 LUT 插值部署评估方法：详见 [docs/reference/paper_lut_interpolation_evaluation_method.md](docs/reference/paper_lut_interpolation_evaluation_method.md)。
 - 论文 AI 原理示意图绘制规范：详见 [docs/reference/paper_ai_schematic_figures.md](docs/reference/paper_ai_schematic_figures.md)。
 - Paper figure traceability and modification workflow: see [docs/reference/paper_figure_traceability.md](docs/reference/paper_figure_traceability.md).
+- Paper figure fine-grained adjusters: see [docs/reference/paper_figure_studio_adjusters.md](docs/reference/paper_figure_studio_adjusters.md).
 - 文献索引 [[docs/research/literature/analyze/index|index]]
 ## 最高原则
 
@@ -36,6 +37,8 @@
 参考索引：
 - 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
 - 问题定义与建模原则：详见 [docs/reference/modeling_principles.md](docs/reference/modeling_principles.md)。
+- 并联 Wiener 模型到 Wiener-KAN 的逆解与补偿推导：详见 [docs/reference/wiener_kan_derivation.md](docs/reference/wiener_kan_derivation.md)。
+- 准线性补偿视角下的 Wiener-KAN 结构可行性论证：详见 [docs/reference/quasi_linear_compensation_kan.md](docs/reference/quasi_linear_compensation_kan.md)。
 - 模型结构演化与取舍：详见 [docs/reference/model_architecture_selection.md](docs/reference/model_architecture_selection.md)。
 - 真实 1DCNN / TCN 卷积时序基线：详见 [docs/reference/conv_sequence_baselines.md](docs/reference/conv_sequence_baselines.md)。
 	- 过程文档 [[05_1DCNN_KAN]]
@@ -155,6 +158,7 @@
 - `python cli.py server start`
 	- 服务启动：启动 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 	- 视图约定：WebUI 对比页当前只保留 `Loss Curves` 和 `Table`，其中 `Loss Curves` 基于 `training_log.jsonl` 交互查看 train/val loss，详见 [docs/reference/webui.md](docs/reference/webui.md)。
+	- Figure Studio：论文图 Studio 自动扫描 `ex_projects/plot/**/config.json` 并渲染到各 figure ex_project 的 `data/`，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 	- 前端构建：修改 `src/webui/src/` 后必须重新执行 `cd src/webui && npm run build`，否则服务仍会提供旧的 `dist` 静态资源，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 - `python cli.py server stop`
 	- 服务停止：停止 WebUI 可视化服务器，详见 [docs/reference/webui.md](docs/reference/webui.md)。
@@ -179,6 +183,7 @@
 	- 配置驱动执行：仅执行已有配置的外部任务，若配置缺失则直接报错退出，详见 [docs/reference/ep.md](docs/reference/ep.md)。
 	- 项目索引：仓库内常见 EP 路径、典型项目名和 WNET5 图产物约定统一维护在 [docs/reference/ep.md](docs/reference/ep.md)。
 	- WNET5 长期约束：分层验证的权重来源、E96 量化误差仿真、SVF 拟合与报告产物规则统一维护在 [docs/reference/wnet5_circuit_validation.md](docs/reference/wnet5_circuit_validation.md)。
+	- 论文图生成：`ex_projects/plot/**/config.json` 是论文图的标准工程入口，单图和拼图都通过 `python cli.py ep ex_projects/plot/.../<figure_project>` 渲染到自身 `data/`，详见 [docs/reference/paper_data_figure_pipeline.md](docs/reference/paper_data_figure_pipeline.md)。
 - `python cli.py ep keil-bench "PROJECT/qemu-c-inference/task-name"`
 	- 真机一键基准：对 `qemu-c-inference` EP 自动生成工程、Keil 编译、烧录、抓取串口并解析独立 JSON，详见 [docs/reference/ep.md](docs/reference/ep.md) 与 [docs/reference/edge_device_emulation.md](docs/reference/edge_device_emulation.md)。
 - `python cli.py ep "compare/mae_vs_afmae"`

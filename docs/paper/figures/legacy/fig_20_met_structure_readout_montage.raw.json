@@ -1,0 +1,124 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/met_structure/data/met_structure.png",
+    "ex_projects/plot/single/readout_circuit/data/readout_circuit.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_20_met_structure_readout_montage.",
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_20_met_structure_readout_montage/data/fig_20_met_structure_readout_montage.png",
+    "size": [
+      5300,
+      1548
+    ],
+    "layout": "horizontal",
+    "rows": 1,
+    "cols": 2,
+    "padding": [
+      80,
+      70,
+      80,
+      70
+    ],
+    "gutter": [
+      140,
+      80
+    ],
+    "label_font_size_px": 114,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      125
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/met_structure/data/met_structure.png",
+        "label": "(a)",
+        "original_size": [
+          2524,
+          1295
+        ],
+        "rendered_size": [
+          2500,
+          1283
+        ],
+        "scale": 1.0,
+        "fit_width": 2500,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 80,
+          "y": 70,
+          "width": 2500,
+          "height": 1408,
+          "content_y": 195,
+          "content_height": 1283,
+          "label_band_height": 125
+        },
+        "paste_box": [
+          80,
+          195,
+          2580,
+          1478
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/readout_circuit/data/readout_circuit.png",
+        "label": "(b)",
+        "original_size": [
+          2473,
+          1258
+        ],
+        "rendered_size": [
+          2500,
+          1272
+        ],
+        "scale": 1.0,
+        "fit_width": 2500,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 2720,
+          "y": 70,
+          "width": 2500,
+          "height": 1408,
+          "content_y": 195,
+          "content_height": 1283,
+          "label_band_height": 125
+        },
+        "paste_box": [
+          2720,
+          195,
+          5220,
+          1467
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/calibration_table_test/data/calibration_table_test.png",
+  "baseline": "docs/paper/figures/legacy/calibration_table_test.png",
+  "shape": [
+    2050,
+    3600,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 7380000,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

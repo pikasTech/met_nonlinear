@@ -1,0 +1,96 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "docs/paper/figures/legacy/_montage_panels/kan_neuron_compensation_source.png"
+  ],
+  "modification_scope": "Single bitmap composed inside ex_projects/plot/single/kan_neuron_compensation.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/single/kan_neuron_compensation/data/kan_neuron_compensation.png",
+    "size": [
+      3156,
+      1433
+    ],
+    "layout": "matrix",
+    "rows": 1,
+    "cols": 1,
+    "padding": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "gutter": [
+      0,
+      0
+    ],
+    "label_font_size_px": 68,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      0
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/docs/paper/figures/legacy/_montage_panels/kan_neuron_compensation_source.png",
+        "label": null,
+        "original_size": [
+          1656,
+          752
+        ],
+        "rendered_size": [
+          3156,
+          1433
+        ],
+        "scale": 1.0,
+        "fit_width": 3156,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 0,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 0,
+          "y": 0,
+          "width": 3156,
+          "height": 1433,
+          "content_y": 0,
+          "content_height": 1433,
+          "label_band_height": 0
+        },
+        "paste_box": [
+          0,
+          0,
+          3156,
+          1433
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/met_nonlinear_frequency_response/data/met_nonlinear_frequency_response.png",
+  "baseline": "docs/paper/figures/legacy/met_nonlinear_frequency_response.png",
+  "output_shape": [
+    1160,
+    1336,
+    4
+  ],
+  "baseline_shape": [
+    1080,
+    1356,
+    4
+  ],
+  "pixel_exact": false
+}

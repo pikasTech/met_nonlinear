@@ -19,17 +19,19 @@ try:
     plt.style.use(['science', 'ieee'])
 except Exception:
     pass
-plt.rcParams['text.usetex'] = False
-plt.rcParams['font.family'] = ['Times New Roman']
-plt.rcParams['axes.unicode_minus'] = False
 
 ROOT = Path(__file__).resolve().parents[3]
 OLD_ROOT = Path(r'C:/work/met_nonlinear_paper')
 FIGURES_DIR = ROOT / 'docs' / 'paper' / 'figures'
 TMP_DIR = ROOT / 'docs' / 'paper' / 'figures' / '_traced_tmp'
-FONT = Path('C:/Windows/Fonts/times.ttf')
+PLOT_PREDICT_CONFIG = {}
 sys.path.insert(0, str(ROOT))
 
+from src.visualization.paper_plot_style import (  # noqa: E402
+    apply_paper_matplotlib_style,
+    paper_plot_style_payload,
+    resolve_paper_font_path,
+)
 from src.visualization.subfigure_montage import PanelSpec, compose_subfigures  # noqa: E402
 try:
     from src.figure_visual_audit import (  # type: ignore  # noqa: E402
@@ -48,6 +50,9 @@ except ImportError:  # pragma: no cover - direct script execution
         combine_audits,
     )
 
+apply_paper_matplotlib_style()
+FONT = resolve_paper_font_path() or Path('C:/Windows/Fonts/times.ttf')
+
 red = '#E13723'
 blue = '#4B75B1'
 green = '#608040'
@@ -63,6 +68,7 @@ magnitudes = np.linspace(0.24, 6.0, 25).tolist()
 
 def write_raw(out: Path, source: str, note: str, extra=None) -> None:
     payload = {'figure': out.name, 'source_trace': source, 'translation_method': 'traced original plotting code with only text labels translated to English', 'note': note}
+    payload.update(paper_plot_style_payload())
     if extra:
         payload.update(extra)
     if VISUAL_AUDIT_KEY not in payload:
@@ -289,12 +295,13 @@ def plot_frirnn():
 
 
 def plot_predict():
+    panel_cfg = PLOT_PREDICT_CONFIG.get('time_panel') if isinstance(PLOT_PREDICT_CONFIG.get('time_panel'), dict) else PLOT_PREDICT_CONFIG
     sys.path.insert(0, str(ROOT / 'src'))
     sys.path.insert(0, str(OLD_ROOT))
     from calibration_analyzer import exam_class
     json_file = OLD_ROOT / 'data' / 'predict_features.json'
-    freq_indices = [20, 40, 100]
-    magn_indices = [0.72, 1.2, 6.0]
+    freq_indices = [float(value) for value in panel_cfg.get('freq_indices', [20, 40, 100])]
+    magn_indices = [float(value) for value in panel_cfg.get('magn_indices', [0.72, 1.2, 6.0])]
     with json_file.open('r', encoding='utf-8') as f:
         json_data = json.load(f)
     data_dict = {}
@@ -310,9 +317,29 @@ def plot_predict():
     magn_available = sorted(magn_available)
     def find_closest(x, values):
         return min(values, key=lambda v: abs(v - x))
-    fig, axes = plt.subplots(len(magn_indices), len(freq_indices), figsize=(len(freq_indices) * 2.3, len(magn_indices) * 1.7), sharex=True, sharey=True)
+    default_figsize = (len(freq_indices) * 2.3, len(magn_indices) * 1.7)
+    figsize = panel_cfg.get('figsize', default_figsize)
+    if isinstance(figsize, (list, tuple)) and len(figsize) == 2:
+        figsize = (float(figsize[0]), float(figsize[1]))
+    else:
+        figsize = default_figsize
+    fig, axes = plt.subplots(len(magn_indices), len(freq_indices), figsize=figsize, sharex=True, sharey=True)
     global_max = 0.0
     t = np.array([0.0])
+    line_width = float(panel_cfg.get('line_width', 1.0))
+    grid_alpha = float(panel_cfg.get('grid_alpha', 0.5))
+    filter_band = panel_cfg.get('filter_band', [10, 128])
+    if isinstance(filter_band, (list, tuple)) and len(filter_band) == 2:
+        filter_band = (float(filter_band[0]), float(filter_band[1]))
+    else:
+        filter_band = (10, 128)
+    clip_window = panel_cfg.get('clip_window', [1.0, 1.1])
+    if isinstance(clip_window, (list, tuple)) and len(clip_window) == 2:
+        clip_window = (float(clip_window[0]), float(clip_window[1]))
+    else:
+        clip_window = (1.0, 1.1)
+    legend_cfg = panel_cfg.get('legend') if isinstance(panel_cfg.get('legend'), dict) else {}
+    xy_cfg = panel_cfg.get('xy_plot') if isinstance(panel_cfg.get('xy_plot'), dict) else {}
     for i, m_req in enumerate(magn_indices):
         for j, f_req in enumerate(freq_indices):
             ax = axes[i, j]
@@ -324,12 +351,12 @@ def plot_predict():
                 x = item['data']['origin']
                 y_pred = item['data']['comped']
                 y_tgt = item['data']['target']
-                x = exam_class.TimeSeries(x, fs).filter('bandpass', (10, 128)).numpy()
-                y_pred = exam_class.TimeSeries(y_pred, fs).filter('bandpass', (10, 128)).numpy()
-                y_tgt = exam_class.TimeSeries(y_tgt, fs).filter('bandpass', (10, 128)).numpy()
-                x = exam_class.TimeSeries(x, fs).clip(start_time=1.0, end_time=1.1).tonumpy()
-                y_pred = exam_class.TimeSeries(y_pred, fs).clip(start_time=1.0, end_time=1.1).tonumpy()
-                y_tgt = exam_class.TimeSeries(y_tgt, fs).clip(start_time=1.0, end_time=1.1).tonumpy()
+                x = exam_class.TimeSeries(x, fs).filter('bandpass', filter_band).numpy()
+                y_pred = exam_class.TimeSeries(y_pred, fs).filter('bandpass', filter_band).numpy()
+                y_tgt = exam_class.TimeSeries(y_tgt, fs).filter('bandpass', filter_band).numpy()
+                x = exam_class.TimeSeries(x, fs).clip(start_time=clip_window[0], end_time=clip_window[1]).tonumpy()
+                y_pred = exam_class.TimeSeries(y_pred, fs).clip(start_time=clip_window[0], end_time=clip_window[1]).tonumpy()
+                y_tgt = exam_class.TimeSeries(y_tgt, fs).clip(start_time=clip_window[0], end_time=clip_window[1]).tonumpy()
                 max_y_tgt = max(abs(val) for val in y_tgt) if len(y_tgt) > 0 else 1.0
                 if max_y_tgt < 1e-12:
                     max_y_tgt = 1.0
@@ -339,30 +366,51 @@ def plot_predict():
                 y_tgt = [val * scale for val in y_tgt]
                 global_max = max(global_max, max(max(abs(val) for val in x), max(abs(val) for val in y_pred), max(abs(val) for val in y_tgt)))
                 t = np.arange(len(x)) / fs
-                ax.plot(t, x, label='Raw')
-                ax.plot(t, y_pred, label='Compensated')
-                ax.plot(t, y_tgt, label='Target')
-                ax.text(0.5, 0.90, f'{f_match} Hz, {m_match:.02f} $\\mathrm{{m}}/\\mathrm{{s}}^2$', ha='center', transform=ax.transAxes)
+                ax.plot(t, x, label='Raw', linewidth=line_width)
+                ax.plot(t, y_pred, label='Compensated', linewidth=line_width)
+                ax.plot(t, y_tgt, label='Target', linewidth=line_width)
+                ax.text(0.5, 0.90, f'{f_match:g} Hz, {m_match:.02f} $\\mathrm{{m}}/\\mathrm{{s}}^2$', ha='center', transform=ax.transAxes)
             else:
                 ax.text(0.5, 0.5, f'No data\nf={f_req}, m={m_req}', ha='center', va='center', transform=ax.transAxes)
-            ax.grid(True, linestyle='--', alpha=0.5)
+            ax.grid(True, linestyle='--', alpha=grid_alpha)
             ax.tick_params(axis='both', which='both', direction='in')
             ax.tick_params(axis='x', which='both', top=False)
             ax.tick_params(axis='y', which='both', right=False)
+            if 'tick_fontsize' in xy_cfg:
+                ax.tick_params(axis='both', which='major', labelsize=float(xy_cfg.get('tick_fontsize', 10.0)))
+            if 'tick_pad' in xy_cfg:
+                ax.tick_params(axis='both', which='major', pad=float(xy_cfg.get('tick_pad', 3.0)))
             if i == 0 and j == 0:
-                ax.legend(loc='upper center', bbox_to_anchor=(0.95, 1.18), fontsize=10, frameon=False, ncol=3)
+                ax.legend(
+                    loc=str(legend_cfg.get('loc', 'upper center')),
+                    bbox_to_anchor=tuple(legend_cfg.get('bbox_to_anchor', [0.95, 1.18])),
+                    fontsize=float(legend_cfg.get('fontsize', 10)),
+                    frameon=bool(legend_cfg.get('frameon', False)),
+                    ncol=int(legend_cfg.get('ncol', 3)),
+                )
     for ax in axes.ravel():
-        ax.set_ylim([-global_max - 0.5, global_max + 1.4])
-        ax.set_xlim([t[0] - 0.01, t[-1] + 0.01])
-    fig.text(0.02, 0.5, 'Output (normalized)', va='center', rotation='vertical', fontsize=12)
-    fig.text(0.5, 0.02, 'Time (s)', ha='center', fontsize=12)
+        ylim = xy_cfg.get('ylim', [-global_max - 0.5, global_max + 1.4])
+        xlim = xy_cfg.get('xlim', [float(t[0] - 0.01), float(t[-1] + 0.01)])
+        ax.set_ylim([float(ylim[0]), float(ylim[1])] if isinstance(ylim, (list, tuple)) and len(ylim) == 2 else [-global_max - 0.5, global_max + 1.4])
+        ax.set_xlim([float(xlim[0]), float(xlim[1])] if isinstance(xlim, (list, tuple)) and len(xlim) == 2 else [t[0] - 0.01, t[-1] + 0.01])
+    label_fontsize = float(xy_cfg.get('label_fontsize', 12))
+    fig.text(0.02, 0.5, 'Output (normalized)', va='center', rotation='vertical', fontsize=label_fontsize)
+    fig.text(0.5, 0.02, 'Time (s)', ha='center', fontsize=label_fontsize)
     plt.tight_layout()
     plt.subplots_adjust(wspace=0.07, hspace=0.07)
-    plt.subplots_adjust(left=0.11, right=0.97, top=0.93, bottom=0.11)
+    margins = panel_cfg.get('margins') if isinstance(panel_cfg.get('margins'), dict) else {}
+    plt.subplots_adjust(
+        left=float(margins.get('left', 0.11)),
+        right=float(margins.get('right', 0.97)),
+        top=float(margins.get('top', 0.93)),
+        bottom=float(margins.get('bottom', 0.11)),
+    )
     out = FIGURES_DIR / 'time_domain_outputs.png'
     legacy_out = FIGURES_DIR / 'legacy_37_predict_features.png'
-    fig.savefig(out, dpi=600, bbox_inches='tight', pad_inches=0.1)
-    fig.savefig(legacy_out, dpi=600, bbox_inches='tight', pad_inches=0.1)
+    save_dpi = int(panel_cfg.get('dpi', 600))
+    pad_inches = float(panel_cfg.get('pad_inches', 0.1))
+    fig.savefig(out, dpi=save_dpi, bbox_inches='tight', pad_inches=pad_inches)
+    fig.savefig(legacy_out, dpi=save_dpi, bbox_inches='tight', pad_inches=pad_inches)
     plt.close(fig)
     source = 'C:/work/met_nonlinear_paper/plot_predict.py + data/predict_features.json'
     note = 'English source-level redraw; legend, global axis labels, and panel text translated while preserving nearest-frequency/magnitude selection, filtering, normalization, and panel layout.'

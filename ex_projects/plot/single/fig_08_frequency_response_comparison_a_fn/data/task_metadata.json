@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T20:11:55.123343",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_08_frequency_response_comparison_a_fn",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_08_frequency_response_comparison_a_fn\\data"
+  ],
+  "config_hash": "3139e999aba32b417f7e40ac7d71d817"
+}

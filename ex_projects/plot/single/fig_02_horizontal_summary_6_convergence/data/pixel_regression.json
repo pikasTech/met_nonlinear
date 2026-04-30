@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_02_horizontal_summary_6_convergence/data/fig_02_horizontal_summary_6_convergence.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_02_horizontal_summary_6_convergence.png",
+  "output_shape": [
+    2374,
+    2134,
+    4
+  ],
+  "baseline_shape": [
+    1402,
+    2182,
+    4
+  ],
+  "pixel_exact": false
+}

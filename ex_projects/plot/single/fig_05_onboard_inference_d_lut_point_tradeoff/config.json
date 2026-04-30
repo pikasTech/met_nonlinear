@@ -1,0 +1,56 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_05_onboard_inference_d_lut_point_tradeoff",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_05_onboard_inference_d_lut_point_tradeoff",
+    "kind": "single",
+    "title": "fig 05 onboard inference d lut point tradeoff",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png.",
+    "output_name": "fig_05_onboard_inference_d_lut_point_tradeoff.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 05 onboard inference d lut point tradeoff",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png.",
+      "output_name": "fig_05_onboard_inference_d_lut_point_tradeoff.png",
+      "parent_montages": [
+        "fig_05_onboard_inference"
+      ],
+      "lut_tradeoff_panel": {
+        "figsize": [
+          6.8,
+          6.5
+        ],
+        "nearest_color": "#c96b00",
+        "interp_color": "#0f6c5c",
+        "mae_marker_size": 5.2,
+        "flash_marker_size": 4.8,
+        "mae_linewidth": 2.2,
+        "flash_linewidth": 2,
+        "x_left_margin": 30,
+        "x_right_margin": 35,
+        "grid_alpha": 0.22,
+        "legend_fontsize": 7.2,
+        "margins": {
+          "left": 0.11,
+          "right": 0.9,
+          "bottom": 0.16,
+          "top": 0.77
+        }
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_05_onboard_inference"
+    ],
+    "legacy_render_id": "fig_05_onboard_inference",
+    "panel_output_name": "fig_05_onboard_inference_d_lut_point_tradeoff.png"
+  }
+}

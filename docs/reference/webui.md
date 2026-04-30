@@ -11,6 +11,8 @@ WebUI 是基于 React + TypeScript 的项目可视化平台，用于浏览、选
 
 其中 loss 曲线视图已经不再保留旧的指标图标签页，也不再显示底部缩略 rangeslider。
 
+Figure Studio 页面用于调整论文图。它不维护硬编码图清单，后端递归扫描 `ex_projects/plot/**/config.json`，把每个 `paper_figure` 配置暴露给前端；渲染结果读取对应 ex_project 的 `data/` 目录。
+
 ## 技术架构
 
 ```
@@ -136,6 +138,23 @@ GET /api/projects/*/training-log
 - `Loss Curves` 视图优先读取该接口，而不是从 `training_info.json` 推断整条曲线
 - 接口只负责把 `training_log.jsonl` 解析成结构化数据，不会补算缺失训练日志
 
+### 论文图 Studio
+
+```
+GET /api/paper-figures/catalog
+PUT /api/paper-figures/config/{figure_id}
+POST /api/paper-figures/render
+GET /api/paper-figures/render/{job_id}
+```
+
+说明：
+
+- Catalog 来源是 `ex_projects/plot/**/config.json` 的递归扫描结果，不再读取 `docs/paper/config.json` 中的静态 figure 清单。
+- Preview URL 指向 `/paper-plot-assets/.../data/<output_name>`，也就是每个 figure ex_project 的 canonical 输出。
+- 保存配置时只写回该 figure ex_project 的 `config.json`。
+- 重绘时后端调用 `python -m src.visualization.paper_figure_projects run-ids --figure-id <id>`；标准人工入口仍是 `python cli.py ep ex_projects/plot/.../<figure_project>`。
+- 拼图和子图跳转关系来自 `paper_figure.subfigures[].project_path` 以及扫描阶段反向推导出的 parent montage。
+
 ## 前端功能
 
 ### 项目浏览器
@@ -147,6 +166,17 @@ GET /api/projects/*/training-log
 - 支持多选项目进行横向对比
 - **Loss Curves 视图**：通过 `training-log` 接口读取 `training_log.jsonl`，使用 Plotly 渲染交互曲线
 - **表格视图**：直接读取 `metrics.json`，支持筛选、排序（TanStack Table）
+
+### Figure Studio
+
+- 递归扫描 `ex_projects/plot/` 下所有带 `paper_figure` 的 `config.json`，自动区分 single 与 montage。
+- 右侧 inspector 编辑的是当前 ex_project 的 `paper_figure.figure_config`，保存后写回原 config。
+- 所有绘图输出进入对应 ex_project 的 `data/` 目录；Studio 不把新图写入 `docs/paper/figures/`。
+- Montage 不显示 Legend adjuster；子图和拼图之间通过配置中的 project path 互相跳转。
+- 正在重绘时，旧图固定在左侧，新图区域显示 spinner；渲染完成后进入左右对比。
+- **配置持久化**：单图/montage tab 与具体 figure id 都写入 localStorage；页面刷新后优先恢复保存的 figure id，只有该 id 不在当前 tab 的扫描结果中时才回退到当前 tab 的首个 figure。
+- **状态恢复约束**：catalog 异步加载完成前不得把恢复出的 `selectedFigureId` 清成 `null`，也不得让持久化 effect 把这个临时空值写回 localStorage；兜底选择只能在 `figures.length > 0` 且当前 id 已确认不在当前 tab pool 中时执行。
+- **持久化验收**：修改 Figure Studio 选择逻辑后必须用 Playwright 覆盖刷新恢复场景，至少验证 single 与 montage 各自保存一个非首个 figure 后刷新，目标 tab、左侧 thumb、右侧 stage 标题和 localStorage 中的 `{ figureId, kind }` 都保持一致。
 
 ### Loss Curves 视图
 - 当前只展示 `loss` 与 `val_loss`，**合并在同一张图中**

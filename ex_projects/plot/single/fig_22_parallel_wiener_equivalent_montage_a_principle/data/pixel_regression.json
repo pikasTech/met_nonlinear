@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/single/fig_22_parallel_wiener_equivalent_montage_a_principle/data/fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+  "shape": [
+    1372,
+    3262,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 48828,
+  "total_pixels": 4475464,
+  "mismatch_ratio": 0.010910153673451512,
+  "max_abs_channel_diff": 255
+}

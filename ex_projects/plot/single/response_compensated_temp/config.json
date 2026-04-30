@@ -1,0 +1,32 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "response_compensated_temp",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "response_compensated_temp",
+    "kind": "single",
+    "title": "response compensated temp",
+    "description": "Source bitmap subfigure migrated from C:/work/met_nonlinear_master/docs/paper/figures/legacy/legacy/_traced_tmp/response_compensated_temp.png.",
+    "output_name": "response_compensated_temp.png",
+    "generation_mode": "copy_source",
+    "source_path": "docs/paper/figures/legacy/_traced_tmp/response_compensated_temp.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "response compensated temp",
+      "description": "Source bitmap subfigure migrated from C:/work/met_nonlinear_master/docs/paper/figures/legacy/legacy/_traced_tmp/response_compensated_temp.png.",
+      "output_name": "response_compensated_temp.png",
+      "parent_montages": [
+        "local_transfer_slices"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_traced_tmp/response_compensated_temp.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "local_transfer_slices"
+    ]
+  }
+}

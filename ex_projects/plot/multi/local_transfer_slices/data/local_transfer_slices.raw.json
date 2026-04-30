@@ -1,0 +1,143 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/response_original_temp/data/response_original_temp.png",
+    "ex_projects/plot/single/response_compensated_temp/data/response_compensated_temp.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/local_transfer_slices.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/local_transfer_slices/data/local_transfer_slices.png",
+    "size": [
+      5690,
+      2840
+    ],
+    "layout": "horizontal",
+    "rows": 1,
+    "cols": 2,
+    "padding": [
+      85,
+      75,
+      85,
+      85
+    ],
+    "gutter": [
+      120,
+      80
+    ],
+    "label_font_size_px": 122,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      133
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/response_original_temp/data/response_original_temp.png",
+        "label": "(a)",
+        "original_size": [
+          2963,
+          2794
+        ],
+        "rendered_size": [
+          2700,
+          2546
+        ],
+        "scale": 1.0,
+        "fit_width": 2700,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 80,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 85,
+          "y": 75,
+          "width": 2700,
+          "height": 2680,
+          "content_y": 208,
+          "content_height": 2547,
+          "label_band_height": 133
+        },
+        "paste_box": [
+          85,
+          208,
+          2785,
+          2754
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/response_compensated_temp/data/response_compensated_temp.png",
+        "label": "(b)",
+        "original_size": [
+          2962,
+          2794
+        ],
+        "rendered_size": [
+          2700,
+          2547
+        ],
+        "scale": 1.0,
+        "fit_width": 2700,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 80,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 2905,
+          "y": 75,
+          "width": 2700,
+          "height": 2680,
+          "content_y": 208,
+          "content_height": 2547,
+          "label_band_height": 133
+        },
+        "paste_box": [
+          2905,
+          208,
+          5605,
+          2755
+        ]
+      }
+    ]
+  }
+}

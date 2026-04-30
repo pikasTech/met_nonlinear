@@ -1,0 +1,194 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_02_horizontal_summary",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_02_horizontal_summary",
+    "kind": "montage",
+    "title": "Horizontal benchmark summary",
+    "description": "Six-panel main benchmark montage with range panels, throughput, radar and convergence.",
+    "output_name": "fig_02_horizontal_summary.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/fig_02_horizontal_summary_1_fn",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_02_horizontal_summary_2_sens",
+        "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_02_horizontal_summary_3_linearity",
+        "label": "(c)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_02_horizontal_summary_4_throughput",
+        "label": "(d)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_02_horizontal_summary_5_radar",
+        "label": "(e)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_02_horizontal_summary_6_convergence",
+        "label": "(f)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Horizontal benchmark summary",
+      "description": "Six-panel main benchmark montage with range panels, throughput, radar and convergence.",
+      "output_name": "fig_02_horizontal_summary.png",
+      "range_panels": {
+        "figsize": [
+          4.8,
+          4.2
+        ],
+        "fit_width": 1680,
+        "trim_border": 28,
+        "highlight_color": "#0f6c5c",
+        "baseline_color": "#777777",
+        "bar_alpha": 0.72,
+        "error_color": "#222222",
+        "error_linewidth": 1.1,
+        "error_capsize": 3,
+        "xtick_rotation": 45,
+        "grid_alpha": 0.25
+      },
+      "throughput_panel": {
+        "figsize": [
+          7.2,
+          4.6
+        ],
+        "bar_alpha": 0.86,
+        "edge_color": "#222222",
+        "edge_linewidth": 0.5,
+        "annotation_fontsize": 7.8,
+        "annotation_y_ratio": 1.02,
+        "xtick_rotation": 25,
+        "ylim_pad_ratio": 1.3,
+        "grid_alpha": 0.35
+      },
+      "radar_panel": {
+        "figsize": [
+          6.8,
+          5.3
+        ],
+        "legend_loc": "upper center",
+        "legend_bbox_to_anchor": [
+          0.5,
+          -0.12
+        ],
+        "legend_ncol": 3,
+        "legend_frameon": false
+      },
+      "convergence_panel": {
+        "figsize": [
+          7.2,
+          4.6
+        ],
+        "wiener_linewidth": 2.6,
+        "other_linewidth": 1.5,
+        "legend_ncol": 2,
+        "legend_frameon": true
+      },
+      "panels": [
+        {
+          "fit_width": 1680,
+          "trim_border": 28,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 0,
+          "row_span": 1,
+          "col_span": 1
+        },
+        {
+          "fit_width": 1680,
+          "trim_border": 28,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 0,
+          "row_span": 1,
+          "col_span": 1
+        },
+        {
+          "fit_width": 1680,
+          "trim_border": 28,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 0,
+          "row_span": 1,
+          "col_span": 1
+        },
+        {
+          "fit_width": 1680,
+          "trim_border": 35,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 0,
+          "row_span": 1,
+          "col_span": 1
+        },
+        {
+          "fit_width": 1680,
+          "trim_border": 35,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 0,
+          "row_span": 1,
+          "col_span": 1
+        },
+        {
+          "fit_width": 1680,
+          "trim_border": 35,
+          "align_x": "center",
+          "align_y": "top",
+          "offset_x": 0,
+          "offset_y": 0,
+          "row_span": 1,
+          "col_span": 1
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 2,
+        "cols": 3,
+        "padding": [
+          75,
+          70,
+          75,
+          70
+        ],
+        "gutter": [
+          85,
+          95
+        ],
+        "label_font_size": 58,
+        "latex_width_fraction": 0.98,
+        "label_font_size_pt": 8.0,
+        "label_position": "outside-top-left",
+        "label_gap": 24
+      },
+      "subfigures": [
+        "fig_02_horizontal_summary_1_fn",
+        "fig_02_horizontal_summary_2_sens",
+        "fig_02_horizontal_summary_3_linearity",
+        "fig_02_horizontal_summary_4_throughput",
+        "fig_02_horizontal_summary_5_radar",
+        "fig_02_horizontal_summary_6_convergence"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_02_horizontal_summary.png",
+      "pixel_exact": true
+    }
+  }
+}

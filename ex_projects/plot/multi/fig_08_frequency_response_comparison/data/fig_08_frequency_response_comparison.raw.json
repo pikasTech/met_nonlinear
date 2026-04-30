@@ -1,0 +1,286 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/fig_08_frequency_response_comparison_d_response_before_after/data/fig_08_frequency_response_comparison_d_response_before_after.png",
+    "ex_projects/plot/single/fig_08_frequency_response_comparison_a_fn/data/fig_08_frequency_response_comparison_a_fn.png",
+    "ex_projects/plot/single/fig_08_frequency_response_comparison_b_sensitivity/data/fig_08_frequency_response_comparison_b_sensitivity.png",
+    "ex_projects/plot/single/time_domain_outputs/data/time_domain_outputs.png",
+    "ex_projects/plot/single/fig_08_frequency_response_comparison_c_drift_reduction/data/fig_08_frequency_response_comparison_c_drift_reduction.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_08_frequency_response_comparison.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_08_frequency_response_comparison/data/fig_08_frequency_response_comparison.png",
+    "size": [
+      4938,
+      4338
+    ],
+    "layout": "matrix",
+    "rows": 3,
+    "cols": 2,
+    "padding": [
+      55,
+      55,
+      55,
+      55
+    ],
+    "gutter": [
+      58,
+      52
+    ],
+    "label_font_size_px": 125,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 0.85,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      136,
+      136,
+      136
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_08_frequency_response_comparison_d_response_before_after/data/fig_08_frequency_response_comparison_d_response_before_after.png",
+        "label": "(a)",
+        "original_size": [
+          2245,
+          1573
+        ],
+        "rendered_size": [
+          2712,
+          1900
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": 1900,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 145,
+        "row_span": 2,
+        "col_span": 1,
+        "trim_border": 0,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 2,
+          "col_span": 1,
+          "x": 55,
+          "y": 55,
+          "width": 3050,
+          "height": 2172,
+          "content_y": 191,
+          "content_height": 2036,
+          "label_band_height": 136
+        },
+        "paste_box": [
+          224,
+          336,
+          2936,
+          2236
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_08_frequency_response_comparison_a_fn/data/fig_08_frequency_response_comparison_a_fn.png",
+        "label": "(b)",
+        "original_size": [
+          1710,
+          829
+        ],
+        "rendered_size": [
+          1720,
+          834
+        ],
+        "scale": 1.0,
+        "fit_width": 1720,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "bottom",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3163,
+          "y": 55,
+          "width": 1720,
+          "height": 1060,
+          "content_y": 191,
+          "content_height": 924,
+          "label_band_height": 136
+        },
+        "paste_box": [
+          3163,
+          281,
+          4883,
+          1115
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_08_frequency_response_comparison_b_sensitivity/data/fig_08_frequency_response_comparison_b_sensitivity.png",
+        "label": "(c)",
+        "original_size": [
+          1710,
+          829
+        ],
+        "rendered_size": [
+          1720,
+          834
+        ],
+        "scale": 1.0,
+        "fit_width": 1720,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 28,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3163,
+          "y": 1167,
+          "width": 1720,
+          "height": 1060,
+          "content_y": 1303,
+          "content_height": 924,
+          "label_band_height": 136
+        },
+        "paste_box": [
+          3163,
+          1303,
+          4883,
+          2137
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/time_domain_outputs/data/time_domain_outputs.png",
+        "label": "(d)",
+        "original_size": [
+          3985,
+          2978
+        ],
+        "rendered_size": [
+          2500,
+          1868
+        ],
+        "scale": 1.0,
+        "fit_width": 2500,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 24,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 2,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 55,
+          "y": 2279,
+          "width": 3050,
+          "height": 2004,
+          "content_y": 2415,
+          "content_height": 1868,
+          "label_band_height": 136
+        },
+        "paste_box": [
+          330,
+          2415,
+          2830,
+          4283
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_08_frequency_response_comparison_c_drift_reduction/data/fig_08_frequency_response_comparison_c_drift_reduction.png",
+        "label": "(e)",
+        "original_size": [
+          1762,
+          1822
+        ],
+        "rendered_size": [
+          1720,
+          1779
+        ],
+        "scale": 1.0,
+        "fit_width": 1720,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 24,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 2,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3163,
+          "y": 2279,
+          "width": 1720,
+          "height": 2004,
+          "content_y": 2415,
+          "content_height": 1868,
+          "label_band_height": 136
+        },
+        "paste_box": [
+          3163,
+          2415,
+          4883,
+          4194
+        ]
+      }
+    ]
+  }
+}

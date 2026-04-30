@@ -1,0 +1,76 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_15_lut_lookup_principles_a_offline",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_15_lut_lookup_principles_a_offline",
+    "kind": "single",
+    "title": "fig 15 lut lookup principles a offline",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_15_lut_lookup_principles_a_offline.png.",
+    "output_name": "fig_15_lut_lookup_principles_a_offline.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_15_lut_lookup_principles_a_offline.png",
+    "legacy_render_id": "fig_15_lut_lookup_principles",
+    "panel_output_name": "fig_15_lut_lookup_principles_a_offline.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 15 lut lookup principles a offline",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_15_lut_lookup_principles_a_offline.png.",
+      "output_name": "fig_15_lut_lookup_principles_a_offline.png",
+      "parent_montages": [
+        "fig_15_lut_lookup_principles"
+      ],
+      "figsize": [
+        6.8,
+        2.5
+      ],
+      "offline_panel": {
+        "figsize": [
+          6.8,
+          3.25
+        ],
+        "margin_left": 0,
+        "margin_right": 0,
+        "margin_top": 0.5,
+        "margin_bottom": 0.3,
+        "box_font_size": 9.6,
+        "arrow_lw": 1.8,
+        "lut_table": {
+          "x": 0.58,
+          "y": 0.51,
+          "w": 0.22,
+          "h": 0.58,
+          "表头Q位置X": 0.3,
+          "表头V位置X": 0.66,
+          "表头位置Y": 0.9,
+          "行列Q位置X": 0.3,
+          "行列V位置X": 0.66,
+          "首行位置Y": 0.73,
+          "行间距": 0.166,
+          "行列字号": 9,
+          "表头字号": 9.5,
+          "横线边距": 0.025,
+          "横线线宽": 0.8,
+          "标签字号": 8,
+          "标签偏移Y": -1.1
+        },
+        "flash_chip": {
+          "x": 0.865,
+          "y": 0.51,
+          "w": 0.13,
+          "h": 0.42
+        },
+        "curve_text_fontsize": 8
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_15_lut_lookup_principles_a_offline.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_15_lut_lookup_principles"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T22:16:10.701744",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_08_frequency_response_comparison_c_drift_reduction",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_08_frequency_response_comparison_c_drift_reduction\\data"
+  ],
+  "config_hash": "02447c466c21be8896f5e506f07b8011"
+}

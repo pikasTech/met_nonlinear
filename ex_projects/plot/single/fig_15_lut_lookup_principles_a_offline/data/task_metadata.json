@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T11:47:13.494686",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_15_lut_lookup_principles_a_offline",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_15_lut_lookup_principles_a_offline\\data"
+  ],
+  "config_hash": "31b37a1eafd2b994911c8376278eabfe"
+}

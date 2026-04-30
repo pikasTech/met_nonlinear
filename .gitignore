@@ -109,6 +109,13 @@ tmp**
 screenshots/
 scripts/
 **/dist/
+
+# Paper figure legacy artifacts
+docs/paper/figures/legacy/_generated_stage/
+docs/paper/figures/legacy/_traced_tmp/
+
+# Claude Code artifacts
+.codex-artifacts/
 **/node_modules/
 .state/
 **/screenshot/

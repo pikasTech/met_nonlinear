@@ -1,0 +1,83 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "local_transfer_slices",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "local_transfer_slices",
+    "kind": "montage",
+    "title": "Local transfer slices",
+    "description": "Two-panel 3D local transfer slices cited in main.tex.",
+    "output_name": "local_transfer_slices.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/response_original_temp",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/response_compensated_temp",
+        "label": "(b)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Local transfer slices",
+      "description": "Two-panel 3D local transfer slices cited in main.tex.",
+      "output_name": "local_transfer_slices.png",
+      "surface_panels": {
+        "figsize": [
+          6.8,
+          5.4
+        ],
+        "elev": 40,
+        "azim": -140,
+        "tick_fontsize": 9,
+        "left": 0.16,
+        "right": 0.97,
+        "bottom": 0.18,
+        "top": 0.98,
+        "pad_inches": 0.22
+      },
+      "panels": [
+        {
+          "fit_width": 2700,
+          "align_x": "center",
+          "align_y": "center",
+          "trim_border": 80
+        },
+        {
+          "fit_width": 2700,
+          "align_x": "center",
+          "align_y": "center",
+          "trim_border": 80
+        }
+      ],
+      "montage": {
+        "layout": "horizontal",
+        "padding": [
+          85,
+          75,
+          85,
+          85
+        ],
+        "gutter": [
+          120,
+          80
+        ],
+        "label_font_size": 62,
+        "label_font_size_pt": 8,
+        "latex_width_fraction": 1
+      },
+      "subfigures": [
+        "response_original_temp",
+        "response_compensated_temp"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/local_transfer_slices.png",
+      "pixel_exact": true
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_03_loss_ablation_2_mae/data/fig_03_loss_ablation_2_mae.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_03_loss_ablation_2_mae.png",
+  "output_shape": [
+    1234,
+    1234,
+    4
+  ],
+  "baseline_shape": [
+    1282,
+    1282,
+    4
+  ],
+  "pixel_exact": false
+}

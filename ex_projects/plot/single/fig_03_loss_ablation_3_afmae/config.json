@@ -1,0 +1,60 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_03_loss_ablation_3_afmae",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_03_loss_ablation_3_afmae",
+    "kind": "single",
+    "title": "fig 03 loss ablation 3 afmae",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_03_loss_ablation_3_afmae.png.",
+    "output_name": "fig_03_loss_ablation_3_afmae.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_03_loss_ablation_3_afmae/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 03 loss ablation 3 afmae",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_03_loss_ablation_3_afmae.png.",
+      "output_name": "fig_03_loss_ablation_3_afmae.png",
+      "parent_montages": [
+        "fig_18_hparam_sensitivity",
+        "fig_03_loss_ablation"
+      ],
+      "curve_panels": {
+        "figsize": [
+          4.2,
+          4.2
+        ],
+        "line_width": 2.6,
+        "legend_frameon": true,
+        "legend_loc": "upper right",
+        "grid_alpha": 0.25,
+        "ylim_pad_ratio": 1.05,
+        "fit_width": 1550,
+        "fit_height": 1550,
+        "trim_border": 26
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_03_loss_ablation_3_afmae.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_18_hparam_sensitivity",
+      "fig_03_loss_ablation"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_18_hparam_sensitivity",
+      "paste_box": [
+        3210,
+        2790,
+        4710,
+        4290
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_03_loss_ablation",
+    "panel_output_name": "fig_03_loss_ablation_3_afmae.png"
+  }
+}

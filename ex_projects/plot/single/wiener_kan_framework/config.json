@@ -1,0 +1,42 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "wiener_kan_framework",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "wiener_kan_framework",
+    "kind": "single",
+    "title": "Wiener-KAN framework schematic",
+    "description": "Studio-adjustable wrapper for the manual Wiener-KAN framework schematic cited in main.tex.",
+    "output_name": "wiener_kan_framework.png",
+    "generation_mode": "bitmap_compose",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/wiener_kan_framework_source.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "Wiener-KAN framework schematic",
+      "description": "Studio-adjustable wrapper for the manual Wiener-KAN framework schematic cited in main.tex.",
+      "output_name": "wiener_kan_framework.png",
+      "panels": [
+        {
+          "fit_width": 3000,
+          "align_x": "center",
+          "align_y": "center",
+          "trim_border": 0
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 1,
+        "cols": 1,
+        "padding": 0,
+        "gutter": 0,
+        "label_font_size": 54
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/wiener_kan_framework.png",
+      "pixel_exact": true
+    }
+  }
+}

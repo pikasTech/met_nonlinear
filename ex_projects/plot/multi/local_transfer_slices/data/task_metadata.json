@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T20:12:30.311202",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "local_transfer_slices",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\local_transfer_slices\\data"
+  ],
+  "config_hash": "9f728369b1a3622da803b83769955e22"
+}

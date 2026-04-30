@@ -1,0 +1,609 @@
+{
+  "source_trace": "AI-rendered schematic asset existed without editable source; replaced by a code-generated schematic to enforce the documented 50/50 split.",
+  "modification_scope": "vertical illustrated dataset split and data-construction workflow",
+  "split": {
+    "train_records": 175,
+    "validation_records": 175,
+    "unit": "frequency--magnitude operating points"
+  },
+  "visual_elements": [
+    "sine sweep icon",
+    "second-order response icon",
+    "paired waveform icon",
+    "split icon",
+    "windowed waveform icon",
+    "normalization scale icon",
+    "tensor grid icon"
+  ],
+  "matplotlib_title_artifacts": [],
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "visual_quality_audit": {
+    "version": 1,
+    "context": "figures/legacy/_generated_stage/fig_19_dataset_preprocessing_workflow/fig_19_dataset_preprocessing_workflow.png",
+    "thresholds": {
+      "text_clip_margin_px": 1.0,
+      "text_text_overlap_min_area_px": 25.0,
+      "text_text_overlap_min_fraction": 0.08,
+      "text_data_overlap_min_area_px": 45.0,
+      "text_data_overlap_min_fraction": 0.12,
+      "axis_label_tick_font_ratio_max": 1.85,
+      "axis_label_font_min_pt": 14.0,
+      "edge_guard_px": 4,
+      "edge_dark_luminance_max": 245,
+      "edge_nonwhite_delta_min": 14,
+      "edge_dark_pixel_min_count": 28,
+      "edge_dark_pixel_min_ratio": 0.0015,
+      "schematic_endpoint_tolerance": 0.018,
+      "schematic_box_margin": 0.006,
+      "schematic_axis_alignment_tolerance": 0.006,
+      "schematic_arrow_overlap_min_length": 0.03,
+      "schematic_arrow_length_fraction_max": 0.7,
+      "schematic_arrow_length_fraction_tolerance": 0.006,
+      "schematic_endpoint_intrusion_tolerance": 0.003,
+      "schematic_endpoint_clearance_min": 0.01,
+      "schematic_endpoint_clearance_max": 0.06
+    },
+    "checks": {
+      "dataset preprocessing workflow schematic geometry": {
+        "schematic_box_count": 7,
+        "schematic_arrow_count": 6,
+        "schematic_arrow_length_fractions": []
+      },
+      "figures/legacy/_generated_stage/fig_19_dataset_preprocessing_workflow/fig_19_dataset_preprocessing_workflow.png": {
+        "image_edge_content": {
+          "size": [
+            1587,
+            2027
+          ],
+          "edge_guard_px": 4,
+          "edge_pixel_count": 28848,
+          "edge_dark_pixels": 0,
+          "edge_ratio": 0.0,
+          "violation": false
+        }
+      }
+    },
+    "violations": [],
+    "children": [
+      {
+        "version": 1,
+        "context": "dataset preprocessing workflow schematic geometry",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "schematic_box_count": 7,
+          "schematic_arrow_count": 6,
+          "schematic_arrow_length_fractions": []
+        },
+        "violations": [],
+        "status": "pass",
+        "kind": "schematic_geometry_audit"
+      },
+      {
+        "version": 1,
+        "context": "figures/legacy/_generated_stage/fig_19_dataset_preprocessing_workflow/fig_19_dataset_preprocessing_workflow.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "matplotlib_text_count": 37,
+          "matplotlib_patch_count": 0,
+          "matplotlib_canvas_bbox": [
+            0.0,
+            0.0,
+            4320.0,
+            5520.0
+          ],
+          "bbox_reliable_text_count": 37,
+          "three_d_axes_bbox_checks_skipped": [],
+          "matplotlib_canvas_overflows": [
+            {
+              "text": {
+                "text": "0.0",
+                "role": "tick_label_x",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -21.811,
+                  -73.165,
+                  71.814,
+                  -4.165
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -21.811,
+                  -73.165,
+                  71.814,
+                  -4.165
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 20.811,
+                  "bottom_px": 72.165,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.2",
+                "role": "tick_label_x",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  832.189,
+                  -73.165,
+                  925.814,
+                  -4.165
+                ]
+              },
+              "details": {
+                "bbox": [
+                  832.189,
+                  -73.165,
+                  925.814,
+                  -4.165
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 72.165,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.4",
+                "role": "tick_label_x",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  1686.188,
+                  -73.165,
+                  1779.813,
+                  -4.165
+                ]
+              },
+              "details": {
+                "bbox": [
+                  1686.188,
+                  -73.165,
+                  1779.813,
+                  -4.165
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 72.165,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.6",
+                "role": "tick_label_x",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  2540.187,
+                  -73.165,
+                  2633.812,
+                  -4.165
+                ]
+              },
+              "details": {
+                "bbox": [
+                  2540.187,
+                  -73.165,
+                  2633.812,
+                  -4.165
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 72.165,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.8",
+                "role": "tick_label_x",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  3394.186,
+                  -73.165,
+                  3487.811,
+                  -4.165
+                ]
+              },
+              "details": {
+                "bbox": [
+                  3394.186,
+                  -73.165,
+                  3487.811,
+                  -4.165
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 72.165,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "1.0",
+                "role": "tick_label_x",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  4248.248,
+                  -73.165,
+                  4341.748,
+                  -4.165
+                ]
+              },
+              "details": {
+                "bbox": [
+                  4248.248,
+                  -73.165,
+                  4341.748,
+                  -4.165
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 72.165,
+                  "right_px": 20.748,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.0",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -97.79,
+                  -17.498,
+                  -4.165,
+                  51.502
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -97.79,
+                  -17.498,
+                  -4.165,
+                  51.502
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 96.79,
+                  "bottom_px": 16.498,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.2",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -97.79,
+                  1076.501,
+                  -4.165,
+                  1145.501
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -97.79,
+                  1076.501,
+                  -4.165,
+                  1145.501
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 96.79,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.4",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -97.79,
+                  2170.5,
+                  -4.165,
+                  2239.5
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -97.79,
+                  2170.5,
+                  -4.165,
+                  2239.5
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 96.79,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.6",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -97.79,
+                  3264.5,
+                  -4.165,
+                  3333.5
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -97.79,
+                  3264.5,
+                  -4.165,
+                  3333.5
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 96.79,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "0.8",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -97.79,
+                  4358.499,
+                  -4.165,
+                  4427.499
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -97.79,
+                  4358.499,
+                  -4.165,
+                  4427.499
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 96.79,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "1.0",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  -97.665,
+                  5452.498,
+                  -4.165,
+                  5521.498
+                ]
+              },
+              "details": {
+                "bbox": [
+                  -97.665,
+                  5452.498,
+                  -4.165,
+                  5521.498
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  4320.0,
+                  5520.0
+                ],
+                "overflow": {
+                  "left_px": 96.665,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 0.498
+                }
+              }
+            }
+          ],
+          "matplotlib_canvas_overflow_count": 12,
+          "axes_font_balance": []
+        },
+        "violations": [],
+        "status": "pass"
+      },
+      {
+        "version": 1,
+        "context": "figures/legacy/_generated_stage/fig_19_dataset_preprocessing_workflow/fig_19_dataset_preprocessing_workflow.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "image_edge_content": {
+            "size": [
+              1587,
+              2027
+            ],
+            "edge_guard_px": 4,
+            "edge_pixel_count": 28848,
+            "edge_dark_pixels": 0,
+            "edge_ratio": 0.0,
+            "violation": false
+          }
+        },
+        "violations": [],
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  }
+}

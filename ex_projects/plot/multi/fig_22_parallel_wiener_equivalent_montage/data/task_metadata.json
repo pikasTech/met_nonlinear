@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T16:37:56.642700",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_22_parallel_wiener_equivalent_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_22_parallel_wiener_equivalent_montage\\data"
+  ],
+  "config_hash": "483cda281d99f42b6ea64e7e040e139c"
+}

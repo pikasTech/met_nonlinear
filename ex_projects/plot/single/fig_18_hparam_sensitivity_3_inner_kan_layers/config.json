@@ -1,0 +1,92 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_18_hparam_sensitivity_3_inner_kan_layers",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_18_hparam_sensitivity_3_inner_kan_layers",
+    "kind": "single",
+    "title": "fig 18 hparam sensitivity 3 inner kan layers",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_18_hparam_sensitivity_3_inner_kan_layers.png.",
+    "output_name": "fig_18_hparam_sensitivity_3_inner_kan_layers.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_3_inner_kan_layers/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 18 hparam sensitivity 3 inner kan layers",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_18_hparam_sensitivity_3_inner_kan_layers.png.",
+      "output_name": "fig_18_hparam_sensitivity_3_inner_kan_layers.png",
+      "parent_montages": [
+        "fig_18_hparam_sensitivity"
+      ],
+      "font_scale": 1,
+      "metric_panels": {
+        "figsize": [
+          4.5,
+          3.3
+        ],
+        "line_width": 1.7,
+        "marker_size": 5,
+        "baseline_linewidth": 1,
+        "baseline_alpha": 0.65,
+        "canonical_linewidth": 1,
+        "canonical_alpha": 0.7,
+        "grid_alpha": 0.24,
+        "x_margin": 0.08,
+        "fit_width": 1500,
+        "trim_border": 26
+      }
+    },
+    "regression": {
+      "baseline_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_3_inner_kan_layers/source_baseline_panel.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_18_hparam_sensitivity"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_18_hparam_sensitivity",
+      "paste_box": [
+        3210,
+        182,
+        4710,
+        1289
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_18_hparam_sensitivity",
+    "panel_output_name": "fig_18_hparam_sensitivity_3_inner_kan_layers.png",
+    "default_figure_config": {
+      "kind": "single",
+      "title": "fig 18 hparam sensitivity 3 inner kan layers",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_18_hparam_sensitivity_3_inner_kan_layers.png.",
+      "output_name": "fig_18_hparam_sensitivity_3_inner_kan_layers.png",
+      "parent_montages": [
+        "fig_18_hparam_sensitivity"
+      ],
+      "font_scale": 1,
+      "metric_panels": {
+        "figsize": [
+          4.5,
+          3.3
+        ],
+        "line_width": 1.7,
+        "marker_size": 5,
+        "baseline_linewidth": 1,
+        "baseline_alpha": 0.65,
+        "canonical_linewidth": 1,
+        "canonical_alpha": 0.7,
+        "grid_alpha": 0.24,
+        "x_margin": 0.08,
+        "fit_width": 1500,
+        "trim_border": 26
+      }
+    },
+    "default_source_path": "source_baseline_panel.png",
+    "panel_transform": {
+      "fit_width": 1500,
+      "trim_border": 26
+    }
+  }
+}

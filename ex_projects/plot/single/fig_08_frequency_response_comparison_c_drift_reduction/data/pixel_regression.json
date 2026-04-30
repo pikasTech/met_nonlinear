@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_08_frequency_response_comparison_c_drift_reduction/data/fig_08_frequency_response_comparison_c_drift_reduction.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_c_drift_reduction.png",
+  "output_shape": [
+    1774,
+    1714,
+    4
+  ],
+  "baseline_shape": [
+    1294,
+    1714,
+    4
+  ],
+  "pixel_exact": false
+}

@@ -435,6 +435,8 @@ def _execute_task(ep_path: ExternalPath) -> bool:
             return _execute_qemu_c_inference_task(ep_path, validated_config)
         elif ep_path.task_type in ('ablation-study', 'compare'):
             return _execute_ablation_study_task(ep_path, validated_config)
+        elif ep_path.task_type in ('paper-figure-single', 'paper-figure-multi'):
+            return _execute_paper_figure_task(ep_path, validated_config)
         else:
             logger.error(f"不支持的任务类型: {ep_path.task_type}")
             return False
@@ -473,7 +475,7 @@ def _validate_config(config: dict, task_type: str) -> dict:
     from .config_validator import validate_visualization_config_data, ConfigValidationError
 
     # 跳过验证的任务类型（使用自定义配置格式）
-    skip_validation_types = {'ablation-study', 'compare'}
+    skip_validation_types = {'ablation-study', 'compare', 'paper-figure-single', 'paper-figure-multi'}
     if task_type in skip_validation_types:
         logger.info(f"跳过配置验证 (自定义格式): {task_type}")
         return config
@@ -807,6 +809,21 @@ def _execute_qemu_c_inference_keil_bench_task(ep_path: ExternalPath,
         return False
     except Exception as e:
         logger.error(f"QEMU C 推理 Keil bench 任务执行失败: {e}")
+        return False
+
+
+def _execute_paper_figure_task(ep_path: ExternalPath, config: dict) -> bool:
+    """执行 ex_projects/plot paper figure 任务。"""
+    try:
+        from visualization.paper_figure_projects import project_from_path, run_project
+
+        logger.info(f"执行 paper figure plot 任务: {ep_path.task_name}")
+        result = run_project(project_from_path(ep_path.full_path), sync_paper=False, strict_regression=False)
+        logger.info(f"[OK] paper figure 输出: {result['output']} ({result.get('render_status', 'unknown')})")
+        _save_task_metadata(ep_path, config, str(ep_path.output_path))
+        return True
+    except Exception as e:
+        logger.error(f"paper figure plot 任务执行失败: {e}")
         return False
 
 

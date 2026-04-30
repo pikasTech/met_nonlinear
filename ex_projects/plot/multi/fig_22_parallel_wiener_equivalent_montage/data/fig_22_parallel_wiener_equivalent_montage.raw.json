@@ -1,0 +1,191 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/fig_22_parallel_wiener_equivalent_montage_a_principle/data/fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+    "ex_projects/plot/single/fig_22_parallel_wiener_response_row_b/data/fig_22_parallel_wiener_response_row_b.png",
+    "ex_projects/plot/single/fig_22_parallel_wiener_response_row_c/data/fig_22_parallel_wiener_response_row_c.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_22_parallel_wiener_equivalent_montage.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_22_parallel_wiener_equivalent_montage/data/fig_22_parallel_wiener_equivalent_montage.png",
+    "size": [
+      3870,
+      2758
+    ],
+    "layout": "matrix",
+    "rows": 2,
+    "cols": 2,
+    "padding": [
+      90,
+      70,
+      90,
+      80
+    ],
+    "gutter": [
+      90,
+      95
+    ],
+    "label_font_size_px": 83,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      97,
+      97
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_22_parallel_wiener_equivalent_montage_a_principle/data/fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+        "label": "(a)",
+        "original_size": [
+          2912,
+          801
+        ],
+        "rendered_size": [
+          3600,
+          990
+        ],
+        "scale": 1.0,
+        "fit_width": 3600,
+        "fit_height": 1326,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 2,
+        "trim_border": 0,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 2,
+          "x": 90,
+          "y": 70,
+          "width": 3690,
+          "height": 1087,
+          "content_y": 167,
+          "content_height": 990,
+          "label_band_height": 97
+        },
+        "paste_box": [
+          135,
+          167,
+          3735,
+          1157
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_22_parallel_wiener_response_row_b/data/fig_22_parallel_wiener_response_row_b.png",
+        "label": "(b)",
+        "original_size": [
+          1339,
+          989
+        ],
+        "rendered_size": [
+          1800,
+          1329
+        ],
+        "scale": 1.0,
+        "fit_width": 1800,
+        "fit_height": 1326,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 40,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 90,
+          "y": 1252,
+          "width": 1800,
+          "height": 1426,
+          "content_y": 1349,
+          "content_height": 1329,
+          "label_band_height": 97
+        },
+        "paste_box": [
+          90,
+          1349,
+          1890,
+          2678
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_22_parallel_wiener_response_row_c/data/fig_22_parallel_wiener_response_row_c.png",
+        "label": "(c)",
+        "original_size": [
+          1340,
+          989
+        ],
+        "rendered_size": [
+          1800,
+          1329
+        ],
+        "scale": 1.0,
+        "fit_width": 1800,
+        "fit_height": 1326,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 40,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1980,
+          "y": 1252,
+          "width": 1800,
+          "height": 1426,
+          "content_y": 1349,
+          "content_height": 1329,
+          "label_band_height": 97
+        },
+        "paste_box": [
+          1980,
+          1349,
+          3780,
+          2678
+        ]
+      }
+    ]
+  }
+}

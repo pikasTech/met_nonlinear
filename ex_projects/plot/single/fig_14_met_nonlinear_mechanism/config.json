@@ -1,0 +1,42 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_14_met_nonlinear_mechanism",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_14_met_nonlinear_mechanism",
+    "kind": "single",
+    "title": "MET nonlinear mechanism schematic",
+    "description": "Studio-adjustable single-bitmap wrapper for the MET large-signal nonlinear mechanism schematic cited in main.tex.",
+    "output_name": "fig_14_met_nonlinear_mechanism.png",
+    "generation_mode": "bitmap_compose",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_14_met_nonlinear_mechanism_source.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "MET nonlinear mechanism schematic",
+      "description": "Studio-adjustable single-bitmap wrapper for the MET large-signal nonlinear mechanism schematic cited in main.tex.",
+      "output_name": "fig_14_met_nonlinear_mechanism.png",
+      "panels": [
+        {
+          "fit_width": 2400,
+          "align_x": "center",
+          "align_y": "center",
+          "trim_border": 0
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 1,
+        "cols": 1,
+        "padding": 0,
+        "gutter": 0,
+        "label_font_size": 54
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_14_met_nonlinear_mechanism.png",
+      "pixel_exact": true
+    }
+  }
+}

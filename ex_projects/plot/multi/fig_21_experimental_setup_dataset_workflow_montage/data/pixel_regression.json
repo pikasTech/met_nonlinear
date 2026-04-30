@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/multi/fig_21_experimental_setup_dataset_workflow_montage/data/fig_21_experimental_setup_dataset_workflow_montage.png",
+  "baseline": "docs/paper/figures/legacy/fig_21_experimental_setup_dataset_workflow_montage.png",
+  "shape": [
+    3001,
+    6036,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 224009,
+  "total_pixels": 18114036,
+  "mismatch_ratio": 0.0123665979243941,
+  "max_abs_channel_diff": 255
+}

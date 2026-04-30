@@ -1,0 +1,143 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/calibration_table_test/data/calibration_table_test.png",
+    "ex_projects/plot/single/fig_19_dataset_preprocessing_workflow/data/fig_19_dataset_preprocessing_workflow.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_21_experimental_setup_dataset_workflow_montage.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_21_experimental_setup_dataset_workflow_montage/data/fig_21_experimental_setup_dataset_workflow_montage.png",
+    "size": [
+      6036,
+      3001
+    ],
+    "layout": "horizontal",
+    "rows": 1,
+    "cols": 2,
+    "padding": [
+      90,
+      80,
+      90,
+      80
+    ],
+    "gutter": [
+      110,
+      90
+    ],
+    "label_font_size_px": 130,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      141
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/calibration_table_test/data/calibration_table_test.png",
+        "label": "(a)",
+        "original_size": [
+          3602,
+          2052
+        ],
+        "rendered_size": [
+          3600,
+          2051
+        ],
+        "scale": 1.0,
+        "fit_width": 3600,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 90,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 90,
+          "y": 80,
+          "width": 3600,
+          "height": 2841,
+          "content_y": 221,
+          "content_height": 2700,
+          "label_band_height": 141
+        },
+        "paste_box": [
+          90,
+          545,
+          3690,
+          2596
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_19_dataset_preprocessing_workflow/data/fig_19_dataset_preprocessing_workflow.png",
+        "label": "(b)",
+        "original_size": [
+          1512,
+          1902
+        ],
+        "rendered_size": [
+          2146,
+          2700
+        ],
+        "scale": 1.0,
+        "fit_width": null,
+        "fit_height": 2700,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 90,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 3800,
+          "y": 80,
+          "width": 2146,
+          "height": 2841,
+          "content_y": 221,
+          "content_height": 2700,
+          "label_band_height": 141
+        },
+        "paste_box": [
+          3800,
+          221,
+          5946,
+          2921
+        ]
+      }
+    ]
+  }
+}

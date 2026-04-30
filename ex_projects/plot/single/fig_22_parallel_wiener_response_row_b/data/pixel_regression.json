@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/fig_22_parallel_wiener_response_row_b/data/fig_22_parallel_wiener_response_row_b.png",
+  "baseline": "docs/paper/figures/legacy/fig_14_parallel_wiener_center_frequency.png",
+  "shape": [
+    927,
+    1279,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 1185633,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

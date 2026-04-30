@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/single/fig_14_parallel_wiener_principle/data/fig_14_parallel_wiener_principle.png",
+  "baseline": "docs/paper/figures/legacy/fig_14_parallel_wiener_principle.png",
+  "shape": [
+    1372,
+    3262,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 36115,
+  "total_pixels": 4475464,
+  "mismatch_ratio": 0.008069554352353186,
+  "max_abs_channel_diff": 255
+}

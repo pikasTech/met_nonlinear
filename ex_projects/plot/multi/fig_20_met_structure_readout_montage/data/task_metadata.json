@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-28T18:59:25.069304",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_20_met_structure_readout_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_20_met_structure_readout_montage\\data"
+  ],
+  "config_hash": "22cd88e2b78232a96944607238af3ff5"
+}

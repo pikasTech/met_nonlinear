@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/single/fig_18_hparam_sensitivity_9_loss_afmae/data/fig_18_hparam_sensitivity_9_loss_afmae.png",
+  "baseline": "ex_projects/plot/single/fig_18_hparam_sensitivity_9_loss_afmae/source_baseline_panel.png",
+  "shape": [
+    1500,
+    1500,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 214763,
+  "total_pixels": 2250000,
+  "mismatch_ratio": 0.09545022222222223,
+  "max_abs_channel_diff": 255
+}

@@ -55,7 +55,7 @@
 4. 主横评收敛曲线应直接嵌入主横评摘要图，并使用线性坐标；不要再把“收敛曲线”单独拆成独立子章节。
 5. 板端速度的人类可读展示单位统一使用 `Points/s`；若底层产物仍保留 `ms/point`，应只把它作为推导和排障用原始量。
 
-当前主横评摘要图的规范产物是 `docs/paper/figures/fig_02_horizontal_summary.png`，由 `docs/paper/src/paper_pipeline.py` 中的 `make_horizontal_figure()` 生成。该图的六个子图顺序应保持为：固有频率范围、100 Hz 灵敏度范围、带内线性度误差范围、板端实测吞吐率、五指标雷达图、主横评收敛曲线。正文横评小节应在 `tab:models` 之后引用该摘要图；`fig_13_compensation_distribution.png` 可作为同源备用产物保留，但正文不再将其作为独立补充图引用。
+当前主横评摘要图的规范产物是 `ex_projects/plot/multi/fig_02_horizontal_summary/data/fig_02_horizontal_summary.png`，生成入口是 `python cli.py ep ex_projects/plot/multi/fig_02_horizontal_summary`。该图的六个子图顺序应保持为：固有频率范围、100 Hz 灵敏度范围、带内线性度误差范围、板端实测吞吐率、五指标雷达图、主横评收敛曲线。正文横评小节应在 `tab:models` 之后引用该摘要图；`fig_13_compensation_distribution` 可作为同源备用 ex_project 保留，但正文不再将其作为独立补充图引用。
 
 ### 共享控制变量
 

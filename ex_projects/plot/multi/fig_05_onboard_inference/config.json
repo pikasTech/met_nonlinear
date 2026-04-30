@@ -1,0 +1,140 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_05_onboard_inference",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_05_onboard_inference",
+    "kind": "montage",
+    "title": "Embedded inference workflow and performance",
+    "description": "Workflow, validation, performance and LUT trade-off montage for deployment.",
+    "output_name": "fig_05_onboard_inference.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/fig_17_board_inference_validation_workflow_a_export",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_17_board_inference_validation_workflow_b_validate",
+        "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_05_onboard_inference_c_embedded_performance",
+        "label": "(c)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_05_onboard_inference_d_lut_point_tradeoff",
+        "label": "(d)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Embedded inference workflow and performance",
+      "description": "Workflow, validation, performance and LUT trade-off montage for deployment.",
+      "output_name": "fig_05_onboard_inference.png",
+      "performance_panel": {
+        "figsize": [
+          6,
+          4.4
+        ],
+        "baseline_marker_area": 118,
+        "variant_marker_area": 138,
+        "colormap": "magma",
+        "edge_color": "#222222",
+        "edge_linewidth": 0.8,
+        "marker_alpha": 0.92,
+        "annotation_fontsize": 7.8,
+        "annotation_box_alpha": 0.78,
+        "mae_vmin_scale": 0.8,
+        "mae_vmax_scale": 1.2,
+        "xmax_scale": 1.18,
+        "ymin_scale": 0.55,
+        "ymax_scale": 2,
+        "grid_alpha": 0.24,
+        "legend_loc": "upper right",
+        "legend_frameon": true
+      },
+      "lut_tradeoff_panel": {
+        "figsize": [
+          6.8,
+          4.2
+        ],
+        "nearest_color": "#c96b00",
+        "interp_color": "#0f6c5c",
+        "mae_marker_size": 5.2,
+        "flash_marker_size": 4.8,
+        "mae_linewidth": 2.2,
+        "flash_linewidth": 2,
+        "x_left_margin": 30,
+        "x_right_margin": 35,
+        "grid_alpha": 0.22,
+        "legend_fontsize": 7.2,
+        "margins": {
+          "left": 0.11,
+          "right": 0.9,
+          "bottom": 0.16,
+          "top": 0.77
+        }
+      },
+      "panels": [
+        {
+          "fit_width": 1820,
+          "trim_border": 30,
+          "align_x": "center",
+          "align_y": "top"
+        },
+        {
+          "fit_width": 1820,
+          "trim_border": 30,
+          "align_x": "center",
+          "align_y": "top"
+        },
+        {
+          "fit_width": 1820,
+          "trim_border": 30,
+          "align_x": "center",
+          "align_y": "top"
+        },
+        {
+          "fit_width": 1820,
+          "trim_border": 30,
+          "align_x": "center",
+          "align_y": "center"
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 2,
+        "cols": 2,
+        "padding": [
+          50,
+          55,
+          50,
+          55
+        ],
+        "gutter": [
+          60,
+          68
+        ],
+        "cell_widths": [
+          1820,
+          1820
+        ],
+        "label_font_size": 52,
+        "latex_width_fraction": 1
+      },
+      "subfigures": [
+        "fig_17_board_inference_validation_workflow_a_export",
+        "fig_17_board_inference_validation_workflow_b_validate",
+        "fig_05_onboard_inference_c_embedded_performance",
+        "fig_05_onboard_inference_d_lut_point_tradeoff"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_05_onboard_inference.png",
+      "pixel_exact": true
+    }
+  }
+}

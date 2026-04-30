@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/response_original_temp/data/response_original_temp.png",
+  "baseline": "docs/paper/figures/legacy/_traced_tmp/response_original_temp.png",
+  "shape": [
+    2960,
+    3079,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 9113840,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

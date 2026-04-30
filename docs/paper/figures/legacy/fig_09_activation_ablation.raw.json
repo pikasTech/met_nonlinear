@@ -1,0 +1,33 @@
+{
+  "source": "paper results payload",
+  "rows": [
+    {
+      "activation": "B-spline",
+      "source_variant": "Wiener-KAN",
+      "freq_drift_hz": 2.3365656199771543,
+      "sens_drift_percent": 9.092567629369398,
+      "linearity_percent": 0.5111439183722523
+    },
+    {
+      "activation": "ReLU",
+      "source_variant": "CNN-KAN",
+      "freq_drift_hz": 2.4307339655957065,
+      "sens_drift_percent": 9.223698963799492,
+      "linearity_percent": 0.8832526103351029
+    },
+    {
+      "activation": "tanh",
+      "source_variant": "Wiener-MLP",
+      "freq_drift_hz": 5.817886622907654,
+      "sens_drift_percent": 27.48032651317834,
+      "linearity_percent": 0.7823864528104176
+    },
+    {
+      "activation": "Sigmoid",
+      "source_variant": "No symmetry",
+      "freq_drift_hz": 10.912781133652594,
+      "sens_drift_percent": 10.613472403874454,
+      "linearity_percent": 2.109262161072563
+    }
+  ]
+}

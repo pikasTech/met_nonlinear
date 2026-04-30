@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/kan_neuron_compensation/data/kan_neuron_compensation.png",
+  "baseline": "docs/paper/figures/legacy/kan_neuron_compensation.png",
+  "shape": [
+    1433,
+    3156,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 4522548,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

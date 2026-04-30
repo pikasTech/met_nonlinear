@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T15:56:00.952804",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_15_lut_lookup_principles_b_runtime",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_15_lut_lookup_principles_b_runtime\\data"
+  ],
+  "config_hash": "b20ada899e36e58efe33b26869383199"
+}

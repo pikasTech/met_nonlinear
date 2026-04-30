@@ -1,0 +1,32 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_04_structure_ablation",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_04_structure_ablation",
+    "kind": "single",
+    "title": "Structure ablation",
+    "description": "Three aligned bar charts for structural ablation metrics.",
+    "output_name": "fig_04_structure_ablation.png",
+    "generation_mode": "legacy",
+    "legacy_render_id": "fig_04_structure_ablation",
+    "figure_config": {
+      "kind": "single",
+      "title": "Structure ablation",
+      "description": "Three aligned bar charts for structural ablation metrics.",
+      "output_name": "fig_04_structure_ablation.png",
+      "figsize": [
+        14.2,
+        4.6
+      ],
+      "bar_alpha": 0.88,
+      "xtick_rotation": 25
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_04_structure_ablation.png",
+      "pixel_exact": true
+    }
+  }
+}

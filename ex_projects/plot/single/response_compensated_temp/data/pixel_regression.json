@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/response_compensated_temp/data/response_compensated_temp.png",
+  "baseline": "docs/paper/figures/legacy/_traced_tmp/response_compensated_temp.png",
+  "shape": [
+    2960,
+    3078,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 9110880,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

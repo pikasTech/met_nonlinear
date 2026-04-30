@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/single/fig_04_structure_ablation/data/fig_04_structure_ablation.png",
+  "baseline": "docs/paper/figures/legacy/fig_04_structure_ablation.png",
+  "shape": [
+    1037,
+    3149,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 927819,
+  "total_pixels": 3265513,
+  "mismatch_ratio": 0.2841265675561543,
+  "max_abs_channel_diff": 255
+}

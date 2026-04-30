@@ -1,0 +1,52 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_14_parallel_wiener_center_frequency",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_14_parallel_wiener_center_frequency",
+    "kind": "single",
+    "title": "Parallel Wiener center-frequency panel",
+    "description": "Response subfigure used by Fig. 22 response row.",
+    "output_name": "fig_14_parallel_wiener_center_frequency.png",
+    "generation_mode": "legacy",
+    "legacy_render_id": "fig_14_parallel_wiener_center_frequency",
+    "figure_config": {
+      "kind": "single",
+      "title": "Parallel Wiener center-frequency panel",
+      "description": "Response subfigure used by Fig. 22 response row.",
+      "output_name": "fig_14_parallel_wiener_center_frequency.png",
+      "response_panel": {
+        "figsize": [
+          5.8,
+          4.2
+        ],
+        "line_width": 2,
+        "grid_alpha": 0.35,
+        "xy_plot": {
+          "label_fontsize": 10,
+          "tick_fontsize": 9,
+          "labelpad": 4,
+          "tick_pad": 3
+        },
+        "legend": {
+          "loc": "upper left",
+          "ncol": 1,
+          "frameon": true,
+          "fontsize": 8.5
+        }
+      },
+      "parent_montages": [
+        "fig_22_parallel_wiener_response_row"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_14_parallel_wiener_center_frequency.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_22_parallel_wiener_response_row"
+    ]
+  }
+}

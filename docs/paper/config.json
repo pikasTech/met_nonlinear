@@ -192,5 +192,1154 @@
       "points": 769,
       "ep_path": "ex_projects/inference/qemu-c-inference/frikan_h8u6l6_e1k_lr7e4_interp"
     }
-  ]
+  ],
+  "figure_pipeline": {
+    "auto_render_debounce_ms": 900,
+    "figures": {
+      "fig_01_drift_trajectories": {
+        "kind": "single",
+        "title": "Drift trajectories",
+        "description": "Natural-frequency and sensitivity drift trajectories across input magnitude.",
+        "output_name": "fig_01_drift_trajectories.png",
+        "figsize": [
+          10,
+          4.8
+        ],
+        "wiener_linewidth": 3.5,
+        "other_linewidth": 2,
+        "xy_plot": {
+          "xlim": [
+            0,
+            6.2
+          ],
+          "left_ylim": [
+            28,
+            98
+          ],
+          "right_ylim": [
+            45,
+            210
+          ],
+          "label_fontsize": 17,
+          "tick_fontsize": 15,
+          "labelpad": 6,
+          "tick_pad": 3
+        },
+        "legend": {
+          "loc": "upper center",
+          "bbox_to_anchor": [
+            0.5,
+            1.18
+          ],
+          "ncol": 2,
+          "frameon": true
+        },
+        "palette": {
+          "Origin": "#444444",
+          "Wiener-KAN": "#0f6c5c"
+        },
+        "font_scale": 1.5
+      },
+      "fig_02_horizontal_summary": {
+        "kind": "montage",
+        "title": "Horizontal benchmark summary",
+        "description": "Six-panel main benchmark montage with range panels, throughput, radar and convergence.",
+        "output_name": "fig_02_horizontal_summary.png",
+        "range_panels": {
+          "figsize": [
+            4.8,
+            4.2
+          ],
+          "fit_width": 1680,
+          "trim_border": 28,
+          "highlight_color": "#0f6c5c",
+          "baseline_color": "#777777",
+          "bar_alpha": 0.72,
+          "error_color": "#222222",
+          "error_linewidth": 1.1,
+          "error_capsize": 3,
+          "xtick_rotation": 45,
+          "grid_alpha": 0.25
+        },
+        "throughput_panel": {
+          "figsize": [
+            7.2,
+            4.6
+          ],
+          "bar_alpha": 0.86,
+          "edge_color": "#222222",
+          "edge_linewidth": 0.5,
+          "annotation_fontsize": 7.8,
+          "annotation_y_ratio": 1.02,
+          "xtick_rotation": 25,
+          "ylim_pad_ratio": 1.3,
+          "grid_alpha": 0.35
+        },
+        "radar_panel": {
+          "figsize": [
+            6.8,
+            5.3
+          ],
+          "legend_loc": "upper center",
+          "legend_bbox_to_anchor": [
+            0.5,
+            -0.12
+          ],
+          "legend_ncol": 3,
+          "legend_frameon": false
+        },
+        "convergence_panel": {
+          "figsize": [
+            7.2,
+            4.6
+          ],
+          "wiener_linewidth": 2.6,
+          "other_linewidth": 1.5,
+          "legend_ncol": 2,
+          "legend_frameon": true
+        },
+        "panels": [
+          {},
+          {},
+          {},
+          {
+            "fit_width": 1680,
+            "trim_border": 35,
+            "align_y": "top"
+          },
+          {
+            "fit_width": 1680,
+            "trim_border": 35,
+            "align_y": "top"
+          },
+          {
+            "fit_width": 1680,
+            "trim_border": 35,
+            "align_y": "top"
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 2,
+          "cols": 3,
+          "padding": [
+            75,
+            70,
+            75,
+            70
+          ],
+          "gutter": [
+            85,
+            95
+          ],
+          "label_font_size": 58,
+          "latex_width_fraction": 0.98
+        }
+      },
+      "fig_03_loss_ablation": {
+        "kind": "montage",
+        "title": "Loss ablation curves",
+        "description": "Square convergence panels for joint, MAE-only and AFMAE-only objectives.",
+        "output_name": "fig_03_loss_ablation.png",
+        "curve_panels": {
+          "figsize": [
+            4.2,
+            4.2
+          ],
+          "line_width": 2.6,
+          "legend_frameon": true,
+          "legend_loc": "upper right",
+          "grid_alpha": 0.25,
+          "ylim_pad_ratio": 1.05,
+          "fit_width": 1550,
+          "fit_height": 1550,
+          "trim_border": 26
+        },
+        "montage": {
+          "layout": "horizontal",
+          "padding": [
+            65,
+            60,
+            65,
+            60
+          ],
+          "gutter": [
+            70,
+            60
+          ],
+          "label_font_size": 46,
+          "latex_width_fraction": 0.98
+        }
+      },
+      "fig_04_structure_ablation": {
+        "kind": "single",
+        "title": "Structure ablation",
+        "description": "Three aligned bar charts for structural ablation metrics.",
+        "output_name": "fig_04_structure_ablation.png",
+        "figsize": [
+          14.2,
+          4.6
+        ],
+        "bar_alpha": 0.88,
+        "xtick_rotation": 25
+      },
+      "fig_05_onboard_inference": {
+        "kind": "montage",
+        "title": "Embedded inference workflow and performance",
+        "description": "Workflow, validation, performance and LUT trade-off montage for deployment.",
+        "output_name": "fig_05_onboard_inference.png",
+        "performance_panel": {
+          "figsize": [
+            6,
+            4.4
+          ],
+          "baseline_marker_area": 118,
+          "variant_marker_area": 138,
+          "colormap": "magma",
+          "edge_color": "#222222",
+          "edge_linewidth": 0.8,
+          "marker_alpha": 0.92,
+          "annotation_fontsize": 7.8,
+          "annotation_box_alpha": 0.78,
+          "mae_vmin_scale": 0.8,
+          "mae_vmax_scale": 1.2,
+          "xmax_scale": 1.18,
+          "ymin_scale": 0.55,
+          "ymax_scale": 2,
+          "grid_alpha": 0.24,
+          "legend_loc": "upper right",
+          "legend_frameon": true
+        },
+        "lut_tradeoff_panel": {
+          "figsize": [
+            6.8,
+            4.2
+          ],
+          "nearest_color": "#c96b00",
+          "interp_color": "#0f6c5c",
+          "mae_marker_size": 5.2,
+          "flash_marker_size": 4.8,
+          "mae_linewidth": 2.2,
+          "flash_linewidth": 2,
+          "x_left_margin": 30,
+          "x_right_margin": 35,
+          "grid_alpha": 0.22,
+          "legend_fontsize": 7.2,
+          "margins": {
+            "left": 0.11,
+            "right": 0.9,
+            "bottom": 0.16,
+            "top": 0.77
+          }
+        },
+        "panels": [
+          {
+            "fit_width": 1820,
+            "trim_border": 120,
+            "align_x": "center",
+            "align_y": "top"
+          },
+          {
+            "fit_width": 1820,
+            "trim_border": 120,
+            "align_x": "center",
+            "align_y": "top"
+          },
+          {
+            "fit_width": 1820,
+            "trim_border": 35,
+            "align_x": "center",
+            "align_y": "top"
+          },
+          {
+            "fit_width": 1820,
+            "trim_border": 35,
+            "align_x": "center",
+            "align_y": "center"
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 2,
+          "cols": 2,
+          "padding": [
+            50,
+            55,
+            50,
+            55
+          ],
+          "gutter": [
+            60,
+            68
+          ],
+          "cell_widths": [
+            1820,
+            1820
+          ],
+          "label_font_size": 52,
+          "latex_width_fraction": 1
+        },
+        "subfigures": [
+          "fig_17_board_inference_validation_workflow"
+        ]
+      },
+      "fig_08_frequency_response_comparison": {
+        "kind": "montage",
+        "title": "Frequency-response comparison",
+        "description": "Response comparison montage mixing log-log curves, trajectory cuts and time-domain outputs.",
+        "output_name": "fig_08_frequency_response_comparison.png",
+        "fn_panel": {
+          "figsize": [
+            5.6,
+            2.67
+          ],
+          "line_width": 2.2,
+          "legend_frameon": true,
+          "legend_loc": "best"
+        },
+        "sensitivity_panel": {
+          "figsize": [
+            5.6,
+            2.67
+          ],
+          "line_width": 2.2,
+          "legend_frameon": true
+        },
+        "reduction_panel": {
+          "figsize": [
+            5.8,
+            4.4
+          ],
+          "legend_loc": "upper right",
+          "legend_frameon": true,
+          "legend_fontsize": 8,
+          "annotation_fontsize": 7.8
+        },
+        "response_panel": {
+          "figsize": [
+            8.4,
+            6.25
+          ],
+          "curve_mode": "all_magnitudes_dual_legend",
+          "linear_response_path": "projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json",
+          "colormap": "tab20",
+          "origin_linewidth": 1.55,
+          "origin_linestyle": "-",
+          "origin_alpha": 0.95,
+          "comped_linewidth": 1.55,
+          "comped_linestyle": "--",
+          "comped_alpha": 0.95,
+          "legend_fontsize": 8.0,
+          "legend_title_fontsize": 8.8,
+          "legend_handlelength": 2.15,
+          "legend_labelspacing": 0.42,
+          "legend_borderaxespad": 0.0,
+          "origin_legend_title": "ORIGIN",
+          "origin_legend_loc": "upper left",
+          "origin_legend_bbox_to_anchor": [
+            1.02,
+            1.0
+          ],
+          "origin_legend_frameon": false,
+          "origin_legend_ncol": 1,
+          "compensated_legend_title": "Compensated",
+          "compensated_legend_loc": "upper left",
+          "compensated_legend_bbox_to_anchor": [
+            1.37,
+            1.0
+          ],
+          "compensated_legend_frameon": false,
+          "compensated_legend_ncol": 1,
+          "grid_alpha": 0.42,
+          "xy_plot": {
+            "xlim": [
+              10,
+              128
+            ],
+            "ylim": [
+              30,
+              250
+            ],
+            "label_fontsize": 10.0,
+            "tick_fontsize": 9.0,
+            "labelpad": 4.0,
+            "tick_pad": 3.0,
+            "xlabel": "Frequency (Hz)",
+            "ylabel": "Sensitivity (V $\\cdot$ s/m)"
+          },
+          "margins": {
+            "left": 0.1,
+            "right": 0.66,
+            "bottom": 0.12,
+            "top": 0.98
+          },
+          "legend_column_gap": 0.35
+        },
+        "panels": [
+          {
+            "trim_border": 0,
+            "row_span": 2,
+            "align_x": "center",
+            "align_y": "top",
+            "offset_x": 0,
+            "offset_y": 145,
+            "fit_height": 1900
+          },
+          {
+            "fit_width": 1720,
+            "trim_border": 28,
+            "align_x": "center",
+            "align_y": "bottom"
+          },
+          {
+            "fit_width": 1720,
+            "trim_border": 28,
+            "align_x": "center",
+            "align_y": "top"
+          },
+          {
+            "fit_width": 2140,
+            "trim_border": 24,
+            "align_x": "center",
+            "align_y": "top"
+          },
+          {
+            "fit_width": 1720,
+            "trim_border": 24,
+            "align_x": "center",
+            "align_y": "top"
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 3,
+          "cols": 2,
+          "padding": [
+            55,
+            55,
+            55,
+            55
+          ],
+          "gutter": [
+            58,
+            52
+          ],
+          "cell_widths": [
+            3050,
+            1720
+          ],
+          "label_font_size": 48,
+          "latex_width_fraction": 0.85
+        },
+        "child_render_policy": "missing"
+      },
+      "fig_13_compensation_distribution": {
+        "kind": "montage",
+        "title": "Compensation distribution",
+        "description": "Representative metric-range montage for compensation distribution summary.",
+        "output_name": "fig_13_compensation_distribution.png",
+        "range_panels": {
+          "figsize": [
+            4.8,
+            4.2
+          ],
+          "fit_width": 1650,
+          "trim_border": 28,
+          "highlight_color": "#0f6c5c",
+          "baseline_color": "#777777",
+          "bar_alpha": 0.72,
+          "error_color": "#222222",
+          "error_linewidth": 1.1,
+          "error_capsize": 3,
+          "xtick_rotation": 45,
+          "grid_alpha": 0.25
+        },
+        "montage": {
+          "layout": "horizontal",
+          "padding": [
+            65,
+            60,
+            65,
+            60
+          ],
+          "gutter": [
+            70,
+            60
+          ],
+          "label_font_size": 46,
+          "latex_width_fraction": 0.86
+        }
+      },
+      "fig_15_lut_lookup_principles": {
+        "kind": "montage",
+        "title": "LUT lookup principles",
+        "description": "Offline LUT creation and runtime lookup principle panels.",
+        "output_name": "fig_15_lut_lookup_principles.png",
+        "offline_panel": {
+          "figsize": [
+            6.8,
+            3.25
+          ]
+        },
+        "runtime_panel": {
+          "figsize": [
+            6.8,
+            3.45
+          ]
+        },
+        "panels": [
+          {
+            "fit_width": 2100,
+            "trim_border": 120
+          },
+          {
+            "fit_width": 2100,
+            "trim_border": 120
+          }
+        ],
+        "montage": {
+          "layout": "vertical",
+          "padding": [
+            60,
+            55,
+            60,
+            55
+          ],
+          "gutter": [
+            60,
+            60
+          ],
+          "label_font_size": 48,
+          "latex_width_fraction": 0.78
+        }
+      },
+      "fig_17_board_inference_validation_workflow": {
+        "kind": "montage",
+        "title": "Board inference validation workflow",
+        "description": "Two-panel export and validation workflow schematic.",
+        "output_name": "fig_17_board_inference_validation_workflow.png",
+        "export_panel": {
+          "figsize": [
+            7.15,
+            3.9
+          ]
+        },
+        "validate_panel": {
+          "figsize": [
+            7.15,
+            4.25
+          ]
+        },
+        "panels": [
+          {
+            "fit_width": 2200,
+            "trim_border": 120
+          },
+          {
+            "fit_width": 2200,
+            "trim_border": 120
+          }
+        ],
+        "montage": {
+          "layout": "vertical",
+          "padding": [
+            60,
+            55,
+            60,
+            55
+          ],
+          "gutter": [
+            60,
+            60
+          ],
+          "label_font_size": 50
+        },
+        "parent_montages": [
+          "fig_05_onboard_inference"
+        ]
+      },
+      "fig_18_hparam_sensitivity": {
+        "kind": "montage",
+        "title": "Hyperparameter sensitivity",
+        "description": "Five sensitivity panels, one legend panel and three loss curves.",
+        "output_name": "fig_18_hparam_sensitivity.png",
+        "font_scale": 1,
+        "metric_panels": {
+          "figsize": [
+            4.5,
+            3.3
+          ],
+          "line_width": 1.7,
+          "marker_size": 5,
+          "baseline_linewidth": 1,
+          "baseline_alpha": 0.65,
+          "canonical_linewidth": 1,
+          "canonical_alpha": 0.7,
+          "grid_alpha": 0.24,
+          "x_margin": 0.08,
+          "fit_width": 1500,
+          "trim_border": 26
+        },
+        "legend_panel": {
+          "figsize": [
+            4.5,
+            3.3
+          ],
+          "text_fontsize": 8.8,
+          "fit_width": 1500,
+          "trim_border": 26,
+          "loss_fit_width": 1500,
+          "loss_trim_border": 26
+        },
+        "curve_panels": {
+          "figsize": [
+            4.2,
+            4.2
+          ],
+          "line_width": 2.6,
+          "legend_frameon": true,
+          "legend_loc": "upper right",
+          "grid_alpha": 0.25,
+          "ylim_pad_ratio": 1.05,
+          "fit_width": 1500,
+          "fit_height": 1500,
+          "trim_border": 26
+        },
+        "montage": {
+          "layout": "matrix",
+          "rows": 3,
+          "cols": 3,
+          "padding": [
+            70,
+            65,
+            70,
+            65
+          ],
+          "gutter": [
+            70,
+            80
+          ],
+          "label_font_size": 46,
+          "latex_width_fraction": 0.98
+        }
+      },
+      "fig_19_dataset_preprocessing_workflow": {
+        "kind": "single",
+        "title": "Dataset preprocessing workflow",
+        "description": "Vertical code-generated workflow for dataset construction and preprocessing.",
+        "output_name": "fig_19_dataset_preprocessing_workflow.png",
+        "figsize": [
+          7.2,
+          9.2
+        ],
+        "parent_montages": [
+          "fig_21_experimental_setup_dataset_workflow_montage"
+        ]
+      },
+      "fig_20_met_structure_readout_montage": {
+        "kind": "montage",
+        "title": "MET structure and readout montage",
+        "description": "Two-panel montage of MET structure and readout circuit.",
+        "output_name": "fig_20_met_structure_readout_montage.png",
+        "panels": [
+          {
+            "fit_width": 2500,
+            "align_y": "top",
+            "trim_border": 28
+          },
+          {
+            "fit_width": 2500,
+            "align_y": "top",
+            "trim_border": 28
+          }
+        ],
+        "montage": {
+          "layout": "horizontal",
+          "padding": [
+            80,
+            70,
+            80,
+            70
+          ],
+          "gutter": [
+            140,
+            80
+          ],
+          "label_font_size": 66
+        },
+        "subfigures": [
+          "met_structure",
+          "readout_circuit"
+        ]
+      },
+      "fig_21_experimental_setup_dataset_workflow_montage": {
+        "kind": "montage",
+        "title": "Experimental setup + dataset workflow montage",
+        "description": "Photograph and vertical dataset workflow side by side.",
+        "output_name": "fig_21_experimental_setup_dataset_workflow_montage.png",
+        "panels": [
+          {
+            "fit_width": 3600,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 90
+          },
+          {
+            "fit_height": 2700,
+            "align_x": "center",
+            "align_y": "top",
+            "trim_border": 90
+          }
+        ],
+        "montage": {
+          "layout": "horizontal",
+          "padding": [
+            90,
+            80,
+            90,
+            80
+          ],
+          "gutter": [
+            110,
+            90
+          ],
+          "label_font_size": 64
+        },
+        "subfigures": [
+          "calibration_table_test",
+          "fig_19_dataset_preprocessing_workflow"
+        ]
+      },
+      "fig_22_parallel_wiener_response_row": {
+        "kind": "montage",
+        "title": "Parallel Wiener response row",
+        "description": "Two response plots used as the second row of the parallel Wiener montage.",
+        "output_name": "fig_22_parallel_wiener_response_row.png",
+        "panels": [
+          {
+            "fit_width": 1800,
+            "align_y": "top",
+            "trim_border": 40
+          },
+          {
+            "fit_width": 1800,
+            "align_y": "top",
+            "trim_border": 40
+          }
+        ],
+        "montage": {
+          "layout": "horizontal",
+          "padding": [
+            50,
+            45,
+            50,
+            45
+          ],
+          "gutter": [
+            75,
+            60
+          ],
+          "label_font_size": 50
+        },
+        "subfigures": [
+          "fig_14_parallel_wiener_center_frequency",
+          "fig_14_parallel_wiener_gain_100hz"
+        ],
+        "parent_montages": [
+          "fig_22_parallel_wiener_equivalent_montage"
+        ]
+      },
+      "fig_22_parallel_wiener_equivalent_montage": {
+        "kind": "montage",
+        "title": "Parallel Wiener equivalent montage",
+        "description": "Principle panel plus response row for the parallel Wiener equivalent model.",
+        "output_name": "fig_22_parallel_wiener_equivalent_montage.png",
+        "principle_panel": {
+          "figsize": [
+            10.8,
+            4.5
+          ]
+        },
+        "response_panel": {
+          "figsize": [
+            5.8,
+            4.2
+          ],
+          "line_width": 2,
+          "grid_alpha": 0.35,
+          "legend_loc": "upper left",
+          "legend_frameon": true
+        },
+        "panels": [
+          {
+            "fit_width": 3600,
+            "align_x": "center",
+            "trim_border": 140
+          },
+          {
+            "fit_width": 3600,
+            "align_x": "center",
+            "trim_border": 0
+          }
+        ],
+        "montage": {
+          "layout": "vertical",
+          "padding": [
+            90,
+            80,
+            90,
+            80
+          ],
+          "gutter": [
+            90,
+            105
+          ],
+          "label_font_size": 68
+        },
+        "subfigures": [
+          "fig_14_parallel_wiener_principle",
+          "fig_22_parallel_wiener_response_row"
+        ]
+      },
+      "fig_23_kan_neuron_compensation_montage": {
+        "kind": "montage",
+        "title": "KAN neuron compensation montage",
+        "description": "Single-panel normalization wrapper for the KAN neuron compensation bitmap.",
+        "output_name": "fig_23_kan_neuron_compensation_montage.png",
+        "panels": [
+          {
+            "fit_width": 3156,
+            "align_x": "center"
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        },
+        "subfigures": [
+          "kan_neuron_compensation"
+        ]
+      },
+      "fig_14_met_nonlinear_mechanism": {
+        "kind": "single",
+        "title": "MET nonlinear mechanism schematic",
+        "description": "Studio-adjustable single-bitmap wrapper for the MET large-signal nonlinear mechanism schematic cited in main.tex.",
+        "output_name": "fig_14_met_nonlinear_mechanism.png",
+        "panels": [
+          {
+            "fit_width": 2400,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 0
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        }
+      },
+      "met_nonlinear_frequency_response": {
+        "kind": "single",
+        "title": "MET nonlinear frequency response",
+        "description": "Log-frequency response curves of the nonlinear MET sensor, directly cited in main.tex.",
+        "output_name": "met_nonlinear_frequency_response.png",
+        "figsize": [
+          7.2,
+          4.8
+        ],
+        "line_width": 1.35,
+        "colormap": "tab20",
+        "grid_alpha": 0.45,
+        "xy_plot": {
+          "xlim": [
+            10,
+            128
+          ],
+          "ylim": [
+            30,
+            250
+          ],
+          "label_fontsize": 12,
+          "tick_fontsize": 10,
+          "labelpad": 4,
+          "tick_pad": 3
+        },
+        "legend": {
+          "loc": "center left",
+          "bbox_to_anchor": [
+            1.02,
+            0.5
+          ],
+          "ncol": 1,
+          "frameon": false,
+          "fontsize": 8.5
+        },
+        "margins": {
+          "left": 0.12,
+          "right": 0.72,
+          "bottom": 0.16,
+          "top": 0.96
+        }
+      },
+      "wiener_kan_framework": {
+        "kind": "single",
+        "title": "Wiener-KAN framework schematic",
+        "description": "Studio-adjustable wrapper for the manual Wiener-KAN framework schematic cited in main.tex.",
+        "output_name": "wiener_kan_framework.png",
+        "panels": [
+          {
+            "fit_width": 3000,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 0
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        }
+      },
+      "local_transfer_slices": {
+        "kind": "montage",
+        "title": "Local transfer slices",
+        "description": "Two-panel 3D local transfer slices cited in main.tex.",
+        "output_name": "local_transfer_slices.png",
+        "surface_panels": {
+          "figsize": [
+            6.8,
+            5.4
+          ],
+          "elev": 40,
+          "azim": -140,
+          "tick_fontsize": 9,
+          "left": 0.16,
+          "right": 0.97,
+          "bottom": 0.18,
+          "top": 0.98,
+          "pad_inches": 0.22
+        },
+        "panels": [
+          {
+            "fit_width": 2700,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 80
+          },
+          {
+            "fit_width": 2700,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 80
+          }
+        ],
+        "montage": {
+          "layout": "horizontal",
+          "padding": [
+            85,
+            75,
+            85,
+            85
+          ],
+          "gutter": [
+            120,
+            80
+          ],
+          "label_font_size": 62,
+          "label_font_size_pt": 8,
+          "latex_width_fraction": 1
+        }
+      },
+      "met_structure": {
+        "kind": "single",
+        "title": "MET structure source panel",
+        "description": "Subfigure source used by Fig. 20; adjustable before the montage is rebuilt.",
+        "output_name": "met_structure.png",
+        "panels": [
+          {
+            "fit_width": 2500,
+            "align_x": "center",
+            "align_y": "top",
+            "trim_border": 28
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        },
+        "parent_montages": [
+          "fig_20_met_structure_readout_montage"
+        ]
+      },
+      "readout_circuit": {
+        "kind": "single",
+        "title": "Readout circuit source panel",
+        "description": "Subfigure source used by Fig. 20; adjustable before the montage is rebuilt.",
+        "output_name": "readout_circuit.png",
+        "panels": [
+          {
+            "fit_width": 2500,
+            "align_x": "center",
+            "align_y": "top",
+            "trim_border": 28
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        },
+        "parent_montages": [
+          "fig_20_met_structure_readout_montage"
+        ]
+      },
+      "calibration_table_test": {
+        "kind": "single",
+        "title": "Experimental setup photograph",
+        "description": "Subfigure source used by Fig. 21; adjustable before the montage is rebuilt.",
+        "output_name": "calibration_table_test.png",
+        "panels": [
+          {
+            "fit_width": 3600,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 90
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        },
+        "parent_montages": [
+          "fig_21_experimental_setup_dataset_workflow_montage"
+        ]
+      },
+      "fig_14_parallel_wiener_principle": {
+        "kind": "single",
+        "title": "Parallel Wiener principle source panel",
+        "description": "Principle subfigure used by Fig. 22; adjustable before the montage is rebuilt.",
+        "output_name": "fig_14_parallel_wiener_principle.png",
+        "margins": {
+          "left": 0.1,
+          "right": 0.66,
+          "bottom": 0.12,
+          "top": 0.1
+        },
+        "principle_panel": {
+          "figsize": [
+            10.8,
+            4.5
+          ]
+        },
+        "parent_montages": [
+          "fig_22_parallel_wiener_equivalent_montage"
+        ]
+      },
+      "fig_14_parallel_wiener_center_frequency": {
+        "kind": "single",
+        "title": "Parallel Wiener center-frequency panel",
+        "description": "Response subfigure used by Fig. 22 response row.",
+        "output_name": "fig_14_parallel_wiener_center_frequency.png",
+        "response_panel": {
+          "figsize": [
+            5.8,
+            4.2
+          ],
+          "line_width": 2,
+          "grid_alpha": 0.35,
+          "xy_plot": {
+            "label_fontsize": 10,
+            "tick_fontsize": 9,
+            "labelpad": 4,
+            "tick_pad": 3
+          },
+          "legend": {
+            "loc": "upper left",
+            "ncol": 1,
+            "frameon": true,
+            "fontsize": 8.5
+          }
+        },
+        "parent_montages": [
+          "fig_22_parallel_wiener_response_row"
+        ]
+      },
+      "fig_14_parallel_wiener_gain_100hz": {
+        "kind": "single",
+        "title": "Parallel Wiener 100 Hz gain panel",
+        "description": "Response subfigure used by Fig. 22 response row.",
+        "output_name": "fig_14_parallel_wiener_gain_100hz.png",
+        "response_panel": {
+          "figsize": [
+            5.8,
+            4.2
+          ],
+          "line_width": 2,
+          "grid_alpha": 0.35,
+          "xy_plot": {
+            "label_fontsize": 10,
+            "tick_fontsize": 9,
+            "labelpad": 4,
+            "tick_pad": 3
+          },
+          "legend": {
+            "loc": "upper left",
+            "ncol": 1,
+            "frameon": true,
+            "fontsize": 8.5
+          }
+        },
+        "parent_montages": [
+          "fig_22_parallel_wiener_response_row"
+        ]
+      },
+      "kan_neuron_compensation": {
+        "kind": "single",
+        "title": "KAN neuron compensation source bitmap",
+        "description": "Source bitmap used by Fig. 23; adjustable before the montage is rebuilt.",
+        "output_name": "kan_neuron_compensation.png",
+        "panels": [
+          {
+            "fit_width": 3156,
+            "align_x": "center",
+            "align_y": "center",
+            "trim_border": 0
+          }
+        ],
+        "montage": {
+          "layout": "matrix",
+          "rows": 1,
+          "cols": 1,
+          "padding": 0,
+          "gutter": 0,
+          "label_font_size": 54
+        },
+        "parent_montages": [
+          "fig_23_kan_neuron_compensation_montage"
+        ]
+      }
+    }
+  }
 }

@@ -6,7 +6,7 @@
 
 - 适合用 AI 生成的图：物理机理示意图、算法原理图、结构先验图、硬件部署流程图、带少量标注的二维说明图。
 - 更适合用代码生成的图：定量曲线、柱状图、箱线图、雷达图、数据对比图、需要精确坐标或可重复数值绘制的图。
-- AI 图必须作为论文资产落到 `docs/paper/assets/`，再由 `docs/paper/src/paper_pipeline.py` 复制到 `docs/paper/figures/`，避免后续生成流程覆盖或丢失。
+- AI 图必须作为论文资产落到 `docs/paper/assets/`，再由对应的 `ex_projects/plot/single/**/config.json` 或 `ex_projects/plot/multi/**/config.json` 读入并输出到自身 `data/` 目录，避免旧 figure pipeline 覆盖或丢失。
 
 ## 生成前判断
 
@@ -33,7 +33,7 @@
 - 若图重复已有结构图，应继续简化结构，只保留服务机理解释的局部结构。
 - 若图把电化学反应画成完整原电池，应要求只保留局部电极反应示意，避免和传感器结构含义冲突。
 - 若图中英文标注过多，应减少到关键短语；复杂解释放入正文和 caption。
-- 最终验收包括：图像可读、正文位置合理、`gen_data.py` 不会覆盖、LaTeX 编译通过。
+- 最终验收包括：图像可读、正文位置合理、`python cli.py ep ex_projects/plot/.../<figure_project>` 可重复生成、LaTeX 编译通过。
 
 ## 密集流程图的简化策略
 
@@ -51,12 +51,12 @@
 
 1. 使用 `imagegen` 生成图像，保留默认生成目录中的原始图。
 2. 将选定版本复制到 `docs/paper/assets/<figure_name>_ai.png`。
-3. 在 `docs/paper/src/paper_pipeline.py` 中写入复制逻辑，把 assets 中的图复制到 `docs/paper/figures/<figure_name>.png`。
-4. 同步写入 `.raw.json`，记录来源、图类型和关键表达元素。
+3. 创建或更新 `ex_projects/plot/single/<figure_name>/config.json`，把资产路径写入 `paper_figure.source_path` 或等价绘图配置。
+4. 渲染后在 ex_project 的 `data/` 目录同步写入 `.raw.json`，记录来源、图类型和关键表达元素。
 5. 执行：
 
 ```bash
-python docs/paper/gen_data.py
+python cli.py ep ex_projects/plot/single/<figure_name>
 ```
 
 6. 编译验证：
@@ -65,14 +65,14 @@ python docs/paper/gen_data.py
 python C:/Users/lyon/.agents/skills/latex/scripts/latex-cli.py build --workdir c:/work/met_nonlinear_master/docs/paper/latex --tex main.tex --engine xelatex --passes 2
 ```
 
-当图已从 AI 资产改为代码生成的简化 schematic 时，项目落地方式调整为：在 `docs/paper/src/paper_pipeline.py` 中保留单独的 `make_<figure>_figure()` 函数，由 `gen_data.py` 刷新 PNG 和 `.raw.json`；`main.tex` 只引用 `docs/paper/figures/` 下的稳定产物，不直接引用 `docs/paper/assets/`。
+当图已从 AI 资产改为代码生成的简化 schematic 时，项目落地方式调整为：在 `ex_projects/plot/` 中保留可运行的 figure project，由 `python cli.py ep ...` 刷新 PNG 和 `.raw.json`；`main.tex` 只引用对应 ex_project `data/` 下的稳定产物，不直接引用 `docs/paper/assets/`。
 
 ## 当前 canonical 示例
 
 - MET 非线性机理图资产：`docs/paper/assets/fig_14_met_nonlinear_mechanism_ai.png`
-- 论文引用图：`docs/paper/figures/fig_14_met_nonlinear_mechanism.png`
-- 生成流水线：`docs/paper/src/paper_pipeline.py` 中的 `make_mechanism_schematic()`
+- 论文引用图：`ex_projects/plot/single/fig_14_met_nonlinear_mechanism/data/fig_14_met_nonlinear_mechanism.png`
+- 生成入口：`python cli.py ep ex_projects/plot/single/fig_14_met_nonlinear_mechanism`
 - 正文位置：`docs/paper/latex/main.tex` 中 `eq:nonlinear_mechanism_terms` 附近
-- AFMAE 简化原理图：`docs/paper/src/paper_pipeline.py` 中的 `make_afmae_loss_principle_figure()`，用于展示“波形对 -> 能量 -> 幅频响应 -> 对数响应误差”和 “MAE + AFMAE -> total loss” 两条主链路。
-- LUT 简化部署图：`docs/paper/src/paper_pipeline.py` 中的 `make_lut_lookup_principles_figure()`，用于展示“离线采样成表”和“在线 nearest / linear 查表取舍”两条主链路。
-- 板端验证简化流程图：`docs/paper/src/paper_pipeline.py` 中的 `make_board_inference_validation_workflow_figure()`，用于展示“trained Wiener-KAN project -> C export package -> embedded C inference kernel”和“QEMU / STM32F405 两条验证路径”。
+- AFMAE 简化原理图相关面板：`ex_projects/plot/single/fig_03_loss_ablation_1_maeafmae` 和同组 loss-ablation ex_projects，用于展示 MAE/AFMAE 训练对比。
+- LUT 简化部署图：`ex_projects/plot/multi/fig_15_lut_lookup_principles`，用于展示“离线采样成表”和“在线 nearest / linear 查表取舍”两条主链路。
+- 板端验证简化流程图：`ex_projects/plot/multi/fig_17_board_inference_validation_workflow`，用于展示“trained Wiener-KAN project -> C export package -> embedded C inference kernel”和“QEMU / STM32F405 两条验证路径”。

@@ -1,0 +1,48 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "calibration_table_test",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "calibration_table_test",
+    "kind": "single",
+    "title": "Experimental setup photograph",
+    "description": "Subfigure source used by Fig. 21; adjustable before the montage is rebuilt.",
+    "output_name": "calibration_table_test.png",
+    "generation_mode": "bitmap_compose",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/calibration_table_test_source.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "Experimental setup photograph",
+      "description": "Subfigure source used by Fig. 21; adjustable before the montage is rebuilt.",
+      "output_name": "calibration_table_test.png",
+      "panels": [
+        {
+          "fit_width": 3600,
+          "align_x": "",
+          "align_y": "center",
+          "trim_border": 90
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 1,
+        "cols": 1,
+        "padding": 0,
+        "gutter": 0,
+        "label_font_size": 54
+      },
+      "parent_montages": [
+        "fig_21_experimental_setup_dataset_workflow_montage"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/calibration_table_test.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_21_experimental_setup_dataset_workflow_montage"
+    ]
+  }
+}

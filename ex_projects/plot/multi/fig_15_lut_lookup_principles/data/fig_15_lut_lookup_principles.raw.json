@@ -1,0 +1,144 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/fig_15_lut_lookup_principles_a_offline/data/fig_15_lut_lookup_principles_a_offline.png",
+    "ex_projects/plot/single/fig_15_lut_lookup_principles_b_runtime/data/fig_15_lut_lookup_principles_b_runtime.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_15_lut_lookup_principles.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_15_lut_lookup_principles/data/fig_15_lut_lookup_principles.png",
+    "size": [
+      2220,
+      1816
+    ],
+    "layout": "vertical",
+    "rows": 2,
+    "cols": 1,
+    "padding": [
+      60,
+      55,
+      60,
+      55
+    ],
+    "gutter": [
+      60,
+      60
+    ],
+    "label_font_size_px": 61,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 0.78,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      79,
+      79
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_15_lut_lookup_principles_a_offline/data/fig_15_lut_lookup_principles_a_offline.png",
+        "label": "(a)",
+        "original_size": [
+          1823,
+          637
+        ],
+        "rendered_size": [
+          2100,
+          734
+        ],
+        "scale": 1.0,
+        "fit_width": 2100,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 0,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 60,
+          "y": 55,
+          "width": 2100,
+          "height": 813,
+          "content_y": 134,
+          "content_height": 734,
+          "label_band_height": 79
+        },
+        "paste_box": [
+          60,
+          134,
+          2160,
+          868
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_15_lut_lookup_principles_b_runtime/data/fig_15_lut_lookup_principles_b_runtime.png",
+        "label": "(b)",
+        "original_size": [
+          2166,
+          778
+        ],
+        "rendered_size": [
+          2100,
+          754
+        ],
+        "scale": 1.0,
+        "fit_width": 2100,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 0,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 60,
+          "y": 928,
+          "width": 2100,
+          "height": 833,
+          "content_y": 1007,
+          "content_height": 754,
+          "label_band_height": 79
+        },
+        "paste_box": [
+          60,
+          1007,
+          2160,
+          1761
+        ]
+      }
+    ]
+  }
+}

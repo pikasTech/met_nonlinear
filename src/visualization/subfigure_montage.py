@@ -24,6 +24,7 @@ class PanelSpec:
     scale: float = 1.0
     fit_width: int | None = None
     fit_height: int | None = None
+    fit_mode: str = "both"  # "width" | "height" | "both"
     align_x: str = "center"
     align_y: str = "center"
     offset_x: int = 0
@@ -31,7 +32,15 @@ class PanelSpec:
     row_span: int = 1
     col_span: int = 1
     trim_border: int | None = None
+    trim_border_left: int | None = None
+    trim_border_right: int | None = None
+    trim_border_top: int | None = None
+    trim_border_bottom: int | None = None
     trim_tolerance: int = 8
+    margin_left: int = 0
+    margin_right: int = 0
+    margin_top: int = 0
+    margin_bottom: int = 0
 
 
 def compose_subfigures(
@@ -95,6 +104,10 @@ def compose_subfigures(
                 "row_span": panel.row_span,
                 "col_span": panel.col_span,
                 "trim_border": panel.trim_border,
+                "trim_border_left": panel.trim_border_left,
+                "trim_border_right": panel.trim_border_right,
+                "trim_border_top": panel.trim_border_top,
+                "trim_border_bottom": panel.trim_border_bottom,
                 "trim_tolerance": panel.trim_tolerance,
             }
         )
@@ -197,6 +210,8 @@ def compose_subfigures(
         "label_font_size_pt": label_font_size_pt,
         "label_reference_width_pt": label_reference_width_pt,
         "latex_width_fraction": latex_width_fraction,
+        "label_font_family": "Times New Roman",
+        "label_font_path": _path_text(getattr(font, "path", "")) if getattr(font, "path", None) else None,
         "label_position": label_position,
         "label_gap": label_gap,
         "label_outside_top": label_outside_top,
@@ -333,7 +348,24 @@ def _load_panel_image(panel: PanelSpec) -> Image.Image:
         background.alpha_composite(image)
         rgb_image = background.convert("RGB")
         if panel.trim_border is not None:
-            return _trim_uniform_background(rgb_image, panel.trim_border, panel.trim_tolerance)
+            rgb_image = _trim_uniform_background(rgb_image, panel.trim_border, panel.trim_tolerance)
+        elif (panel.trim_border_left is not None or panel.trim_border_right is not None
+              or panel.trim_border_top is not None or panel.trim_border_bottom is not None):
+            rgb_image = _trim_directional_background(
+                rgb_image,
+                panel.trim_border_left,
+                panel.trim_border_right,
+                panel.trim_border_top,
+                panel.trim_border_bottom,
+                panel.trim_tolerance,
+            )
+        rgb_image = _apply_margin(
+            rgb_image,
+            panel.margin_left,
+            panel.margin_right,
+            panel.margin_top,
+            panel.margin_bottom,
+        )
         return rgb_image
 
 
@@ -354,16 +386,72 @@ def _trim_uniform_background(image: Image.Image, border: int, tolerance: int) ->
     return framed
 
 
+def _trim_directional_background(
+    image: Image.Image,
+    left: int | None,
+    right: int | None,
+    top: int | None,
+    bottom: int | None,
+    tolerance: int,
+) -> Image.Image:
+    if left is not None and left < 0:
+        raise ValueError("trim_border_left must be non-negative")
+    if right is not None and right < 0:
+        raise ValueError("trim_border_right must be non-negative")
+    if top is not None and top < 0:
+        raise ValueError("trim_border_top must be non-negative")
+    if bottom is not None and bottom < 0:
+        raise ValueError("trim_border_bottom must be non-negative")
+    background = Image.new("RGB", image.size, (255, 255, 255))
+    diff = ImageChops.difference(image, background).convert("L")
+    mask = diff.point(lambda value: 255 if value > tolerance else 0)
+    bbox = mask.getbbox()
+    if bbox is None:
+        return image.copy()
+    cropped = image.crop(bbox)
+    L = left if left is not None else 0
+    R = right if right is not None else 0
+    T = top if top is not None else 0
+    B = bottom if bottom is not None else 0
+    framed = Image.new("RGB", (cropped.width + L + R, cropped.height + T + B), (255, 255, 255))
+    framed.paste(cropped, (L, T))
+    return framed
+
+
+def _apply_margin(
+    image: Image.Image,
+    margin_left: int,
+    margin_right: int,
+    margin_top: int,
+    margin_bottom: int,
+) -> Image.Image:
+    if margin_left == 0 and margin_right == 0 and margin_top == 0 and margin_bottom == 0:
+        return image
+    new_width = image.width + margin_left + margin_right
+    new_height = image.height + margin_top + margin_bottom
+    result = Image.new("RGB", (new_width, new_height), (255, 255, 255))
+    result.paste(image, (margin_left, margin_top))
+    return result
+
+
 def _resize_panel(image: Image.Image, panel: PanelSpec) -> Image.Image:
     if panel.scale <= 0:
         raise ValueError("panel scale must be positive")
+    mode = panel.fit_mode.lower().strip() if panel.fit_mode else "both"
     fit_ratios: list[float] = []
     if panel.fit_width is not None:
         fit_ratios.append(float(panel.fit_width) / float(image.width))
     if panel.fit_height is not None:
         fit_ratios.append(float(panel.fit_height) / float(image.height))
-    ratio = min(fit_ratios) if fit_ratios else 1.0
-    ratio *= panel.scale
+    if not fit_ratios:
+        ratio = panel.scale
+    elif mode == "width":
+        ratio = float(panel.fit_width) / float(image.width) if panel.fit_width else panel.scale
+    elif mode == "height":
+        ratio = float(panel.fit_height) / float(image.height) if panel.fit_height else panel.scale
+    else:
+        ratio = min(fit_ratios) if fit_ratios else 1.0
+        ratio *= panel.scale
     width = max(1, int(round(image.width * ratio)))
     height = max(1, int(round(image.height * ratio)))
     if (width, height) == image.size:
@@ -387,12 +475,20 @@ def _load_font(size: int, font_path: str | Path | None) -> ImageFont.FreeTypeFon
     if font_path is not None:
         candidates = [Path(font_path)]
     else:
-        candidates = [
-            Path("C:/Windows/Fonts/timesbd.ttf"),
-            Path("C:/Windows/Fonts/times.ttf"),
-            Path("C:/Windows/Fonts/arialbd.ttf"),
-            Path("C:/Windows/Fonts/arial.ttf"),
-        ]
+        try:
+            from src.visualization.paper_plot_style import paper_font_candidates
+
+            candidates = list(paper_font_candidates(bold=True)) + [
+                Path("C:/Windows/Fonts/arialbd.ttf"),
+                Path("C:/Windows/Fonts/arial.ttf"),
+            ]
+        except Exception:  # pragma: no cover - standalone helper fallback
+            candidates = [
+                Path("C:/Windows/Fonts/timesbd.ttf"),
+                Path("C:/Windows/Fonts/times.ttf"),
+                Path("C:/Windows/Fonts/arialbd.ttf"),
+                Path("C:/Windows/Fonts/arial.ttf"),
+            ]
     for candidate in candidates:
         if candidate.exists():
             return ImageFont.truetype(str(candidate), size)

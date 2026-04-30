@@ -1,0 +1,571 @@
+{
+  "figure": "_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+  "source_trace": "paper results payload deployment and lut_variants fields",
+  "rows": [
+    {
+      "label": "TCN",
+      "category": "Baseline export",
+      "ram_kb": 106.6640625,
+      "flash_kb": 16.44921875,
+      "keil_mae": 1.197487024631967e-06,
+      "qemu_mae": 1.197487024631967e-06,
+      "keil_fps": 935.743044959854,
+      "marker": "o"
+    },
+    {
+      "label": "1DCNN",
+      "category": "Baseline export",
+      "ram_kb": 50.8828125,
+      "flash_kb": 12.28515625,
+      "keil_mae": 0.0005513119388866424,
+      "qemu_mae": 0.0005513119388866424,
+      "keil_fps": 2009.9492487814682,
+      "marker": "o"
+    },
+    {
+      "label": "LSTM",
+      "category": "Baseline export",
+      "ram_kb": 58.6953125,
+      "flash_kb": 13.83984375,
+      "keil_mae": 0.05070218251205572,
+      "qemu_mae": 0.05070218251205572,
+      "keil_fps": 1426.2842798512386,
+      "marker": "o"
+    },
+    {
+      "label": "LSTMTransformer",
+      "category": "Baseline export",
+      "ram_kb": 83.6953125,
+      "flash_kb": 19.92578125,
+      "keil_mae": 0.005048724868074981,
+      "qemu_mae": 0.005048724868074981,
+      "keil_fps": 1461.5128850629728,
+      "marker": "o"
+    },
+    {
+      "label": "RNN",
+      "category": "Baseline export",
+      "ram_kb": 58.6953125,
+      "flash_kb": 10.015625,
+      "keil_mae": 0.08739156808402271,
+      "qemu_mae": 0.08739156808402271,
+      "keil_fps": 3652.9013168709253,
+      "marker": "o"
+    },
+    {
+      "label": "GRU",
+      "category": "Baseline export",
+      "ram_kb": 58.6953125,
+      "flash_kb": 12.66796875,
+      "keil_mae": 0.002450907266641147,
+      "qemu_mae": 0.002450907266641147,
+      "keil_fps": 1660.08167601846,
+      "marker": "o"
+    },
+    {
+      "label": "Wiener-KAN\n(LUT nearest)",
+      "source_label": "LUT nearest",
+      "category": "Wiener-KAN variant",
+      "ram_kb": 5.5703125,
+      "flash_kb": 719.19921875,
+      "keil_mae": 0.007114359431113517,
+      "qemu_mae": 0.007114359431113517,
+      "keil_fps": 6986.655488017886,
+      "marker": "D"
+    },
+    {
+      "label": "Wiener-KAN\n(LUT interp)",
+      "source_label": "LUT + interp",
+      "category": "Wiener-KAN variant",
+      "ram_kb": 5.5703125,
+      "flash_kb": 723.49609375,
+      "keil_mae": 0.00019023291761639783,
+      "qemu_mae": 0.00019023291761639783,
+      "keil_fps": 3844.785989599854,
+      "marker": "D"
+    },
+    {
+      "label": "Wiener-KAN\n(No LUT)",
+      "source_label": "No LUT exact",
+      "category": "Wiener-KAN variant",
+      "ram_kb": 21.1953125,
+      "flash_kb": 33.74609375,
+      "keil_mae": 6.517199069779414e-07,
+      "qemu_mae": 6.517199069779414e-07,
+      "keil_fps": 44.954922575260724,
+      "marker": "D"
+    }
+  ],
+  "axis_encoding": {
+    "x": "RAM usage (KB)",
+    "y": "KEIL throughput (points/s)",
+    "color": "KEIL-MAE against TensorFlow",
+    "marker_shape": "export family"
+  },
+  "panel_policy": "Panel c combines exported baseline models and the three Wiener-KAN LUT implementation variants.",
+  "matplotlib_title_artifacts": [],
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "visual_quality_audit": {
+    "version": 1,
+    "context": "figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+    "thresholds": {
+      "text_clip_margin_px": 1.0,
+      "text_text_overlap_min_area_px": 25.0,
+      "text_text_overlap_min_fraction": 0.08,
+      "text_data_overlap_min_area_px": 45.0,
+      "text_data_overlap_min_fraction": 0.12,
+      "axis_label_tick_font_ratio_max": 1.85,
+      "axis_label_font_min_pt": 14.0,
+      "edge_guard_px": 4,
+      "edge_dark_luminance_max": 245,
+      "edge_nonwhite_delta_min": 14,
+      "edge_dark_pixel_min_count": 28,
+      "edge_dark_pixel_min_ratio": 0.0015,
+      "schematic_endpoint_tolerance": 0.018,
+      "schematic_box_margin": 0.006,
+      "schematic_axis_alignment_tolerance": 0.006,
+      "schematic_arrow_overlap_min_length": 0.03,
+      "schematic_arrow_length_fraction_max": 0.7,
+      "schematic_arrow_length_fraction_tolerance": 0.006,
+      "schematic_endpoint_intrusion_tolerance": 0.003,
+      "schematic_endpoint_clearance_min": 0.01,
+      "schematic_endpoint_clearance_max": 0.06
+    },
+    "checks": {
+      "figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png": {
+        "image_edge_content": {
+          "size": [
+            1772,
+            1294
+          ],
+          "edge_guard_px": 4,
+          "edge_pixel_count": 24464,
+          "edge_dark_pixels": 499,
+          "edge_ratio": 0.020397,
+          "violation": true
+        }
+      }
+    },
+    "violations": [
+      {
+        "kind": "edge_content_clipping",
+        "message": "Dark non-background pixels touch the saved bitmap edge.",
+        "details": {
+          "size": [
+            1772,
+            1294
+          ],
+          "edge_guard_px": 4,
+          "edge_pixel_count": 24464,
+          "edge_dark_pixels": 499,
+          "edge_ratio": 0.020397,
+          "violation": true
+        },
+        "image": "docs/paper/figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+        "context": "figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png"
+      }
+    ],
+    "children": [
+      {
+        "version": 1,
+        "context": "figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "matplotlib_text_count": 39,
+          "matplotlib_patch_count": 0,
+          "matplotlib_canvas_bbox": [
+            0.0,
+            0.0,
+            960.0,
+            704.0
+          ],
+          "bbox_reliable_text_count": 39,
+          "three_d_axes_bbox_checks_skipped": [],
+          "matplotlib_canvas_overflows": [
+            {
+              "text": {
+                "text": "$/mathdefault{10^{0}}$",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  35.65,
+                  -271.361,
+                  64.45,
+                  -244.439
+                ]
+              },
+              "details": {
+                "bbox": [
+                  35.65,
+                  -271.361,
+                  64.45,
+                  -244.439
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 270.361,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{1}}$",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  36.853,
+                  -43.583,
+                  64.45,
+                  -16.66
+                ]
+              },
+              "details": {
+                "bbox": [
+                  36.853,
+                  -43.583,
+                  64.45,
+                  -16.66
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 42.583,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{5}}$",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  36.119,
+                  867.533,
+                  64.45,
+                  894.455
+                ]
+              },
+              "details": {
+                "bbox": [
+                  36.119,
+                  867.533,
+                  64.45,
+                  894.455
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 189.455
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{6}}$",
+                "role": "tick_label_y",
+                "axis_index": 0,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  35.634,
+                  1095.312,
+                  64.45,
+                  1122.234
+                ]
+              },
+              "details": {
+                "bbox": [
+                  35.634,
+                  1095.312,
+                  64.45,
+                  1122.234
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 417.234
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{-8}}$",
+                "role": "tick_label_y",
+                "axis_index": 1,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  886.331,
+                  -157.004,
+                  922.777,
+                  -130.082
+                ]
+              },
+              "details": {
+                "bbox": [
+                  886.331,
+                  -157.004,
+                  922.777,
+                  -130.082
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 156.004,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{-7}}$",
+                "role": "tick_label_y",
+                "axis_index": 1,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  886.331,
+                  -38.802,
+                  922.902,
+                  -11.88
+                ]
+              },
+              "details": {
+                "bbox": [
+                  886.331,
+                  -38.802,
+                  922.902,
+                  -11.88
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 37.802,
+                  "right_px": 0.0,
+                  "top_px": 0.0
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{0}}$",
+                "role": "tick_label_y",
+                "axis_index": 1,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  886.331,
+                  788.611,
+                  915.131,
+                  815.533
+                ]
+              },
+              "details": {
+                "bbox": [
+                  886.331,
+                  788.611,
+                  915.131,
+                  815.533
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 110.533
+                }
+              }
+            },
+            {
+              "text": {
+                "text": "$/mathdefault{10^{1}}$",
+                "role": "tick_label_y",
+                "axis_index": 1,
+                "font_size_pt": 9.0,
+                "bbox": [
+                  886.331,
+                  906.813,
+                  913.928,
+                  933.735
+                ]
+              },
+              "details": {
+                "bbox": [
+                  886.331,
+                  906.813,
+                  913.928,
+                  933.735
+                ],
+                "canvas_bbox": [
+                  0.0,
+                  0.0,
+                  960.0,
+                  704.0
+                ],
+                "overflow": {
+                  "left_px": 0.0,
+                  "bottom_px": 0.0,
+                  "right_px": 0.0,
+                  "top_px": 228.735
+                }
+              }
+            }
+          ],
+          "matplotlib_canvas_overflow_count": 8,
+          "axes_font_balance": [
+            {
+              "axis_index": 0,
+              "max_axis_label_font_pt": 10.0,
+              "median_tick_label_font_pt": 9.0,
+              "ratio": 1.111,
+              "violation": false
+            },
+            {
+              "axis_index": 1,
+              "max_axis_label_font_pt": 10.0,
+              "median_tick_label_font_pt": 9.0,
+              "ratio": 1.111,
+              "violation": false
+            }
+          ]
+        },
+        "violations": [],
+        "status": "pass"
+      },
+      {
+        "version": 1,
+        "context": "figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png",
+        "thresholds": {
+          "text_clip_margin_px": 1.0,
+          "text_text_overlap_min_area_px": 25.0,
+          "text_text_overlap_min_fraction": 0.08,
+          "text_data_overlap_min_area_px": 45.0,
+          "text_data_overlap_min_fraction": 0.12,
+          "axis_label_tick_font_ratio_max": 1.85,
+          "axis_label_font_min_pt": 14.0,
+          "edge_guard_px": 4,
+          "edge_dark_luminance_max": 245,
+          "edge_nonwhite_delta_min": 14,
+          "edge_dark_pixel_min_count": 28,
+          "edge_dark_pixel_min_ratio": 0.0015,
+          "schematic_endpoint_tolerance": 0.018,
+          "schematic_box_margin": 0.006,
+          "schematic_axis_alignment_tolerance": 0.006,
+          "schematic_arrow_overlap_min_length": 0.03,
+          "schematic_arrow_length_fraction_max": 0.7,
+          "schematic_arrow_length_fraction_tolerance": 0.006,
+          "schematic_endpoint_intrusion_tolerance": 0.003,
+          "schematic_endpoint_clearance_min": 0.01,
+          "schematic_endpoint_clearance_max": 0.06
+        },
+        "checks": {
+          "image_edge_content": {
+            "size": [
+              1772,
+              1294
+            ],
+            "edge_guard_px": 4,
+            "edge_pixel_count": 24464,
+            "edge_dark_pixels": 499,
+            "edge_ratio": 0.020397,
+            "violation": true
+          }
+        },
+        "violations": [
+          {
+            "kind": "edge_content_clipping",
+            "message": "Dark non-background pixels touch the saved bitmap edge.",
+            "details": {
+              "size": [
+                1772,
+                1294
+              ],
+              "edge_guard_px": 4,
+              "edge_pixel_count": 24464,
+              "edge_dark_pixels": 499,
+              "edge_ratio": 0.020397,
+              "violation": true
+            },
+            "image": "docs/paper/figures/legacy/_generated_stage/fig_05_onboard_inference_c_embedded_performance/_montage_panels/fig_05_onboard_inference_c_embedded_performance.png"
+          }
+        ],
+        "status": "fail"
+      }
+    ],
+    "status": "fail"
+  }
+}

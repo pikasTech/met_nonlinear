@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_19_dataset_preprocessing_workflow/data/fig_19_dataset_preprocessing_workflow.png",
+  "baseline": "docs/paper/figures/legacy/fig_19_dataset_preprocessing_workflow.png",
+  "output_shape": [
+    2027,
+    1587,
+    4
+  ],
+  "baseline_shape": [
+    2049,
+    1609,
+    4
+  ],
+  "pixel_exact": false
+}

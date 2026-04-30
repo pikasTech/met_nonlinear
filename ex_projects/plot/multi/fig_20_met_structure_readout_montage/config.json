@@ -1,0 +1,65 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_20_met_structure_readout_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_20_met_structure_readout_montage",
+    "kind": "montage",
+    "title": "MET structure and readout montage",
+    "description": "Two-panel montage of MET structure and readout circuit.",
+    "output_name": "fig_20_met_structure_readout_montage.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/met_structure",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/readout_circuit",
+        "label": "(b)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "MET structure and readout montage",
+      "description": "Two-panel montage of MET structure and readout circuit.",
+      "output_name": "fig_20_met_structure_readout_montage.png",
+      "panels": [
+        {
+          "fit_width": 2500,
+          "align_y": "top",
+          "trim_border": 28
+        },
+        {
+          "fit_width": 2500,
+          "align_y": "top",
+          "trim_border": 28
+        }
+      ],
+      "montage": {
+        "layout": "horizontal",
+        "padding": [
+          80,
+          70,
+          80,
+          70
+        ],
+        "gutter": [
+          140,
+          80
+        ],
+        "label_font_size": 66
+      },
+      "subfigures": [
+        "met_structure",
+        "readout_circuit"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/fig_20_met_structure_readout_montage.png",
+      "pixel_exact": true
+    }
+  }
+}

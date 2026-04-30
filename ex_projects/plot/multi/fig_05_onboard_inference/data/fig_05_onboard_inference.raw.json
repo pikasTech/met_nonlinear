@@ -1,0 +1,238 @@
+{
+  "source_trace": "ex_projects/plot paper figure workflow",
+  "source_figures": [
+    "ex_projects/plot/single/fig_17_board_inference_validation_workflow_a_export/data/fig_17_board_inference_validation_workflow_a_export.png",
+    "ex_projects/plot/single/fig_17_board_inference_validation_workflow_b_validate/data/fig_17_board_inference_validation_workflow_b_validate.png",
+    "ex_projects/plot/single/fig_05_onboard_inference_c_embedded_performance/data/fig_05_onboard_inference_c_embedded_performance.png",
+    "ex_projects/plot/single/fig_05_onboard_inference_d_lut_point_tradeoff/data/fig_05_onboard_inference_d_lut_point_tradeoff.png"
+  ],
+  "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_05_onboard_inference.",
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_05_onboard_inference/data/fig_05_onboard_inference.png",
+    "size": [
+      3800,
+      2714
+    ],
+    "layout": "matrix",
+    "rows": 2,
+    "cols": 2,
+    "padding": [
+      50,
+      55,
+      50,
+      55
+    ],
+    "gutter": [
+      60,
+      68
+    ],
+    "label_font_size_px": 82,
+    "label_font_size_pt": 8.0,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "outside-top-left",
+    "label_gap": 24,
+    "label_outside_top": true,
+    "row_label_heights": [
+      96,
+      96
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_17_board_inference_validation_workflow_a_export/data/fig_17_board_inference_validation_workflow_a_export.png",
+        "label": "(a)",
+        "original_size": [
+          2026,
+          953
+        ],
+        "rendered_size": [
+          1820,
+          856
+        ],
+        "scale": 1.0,
+        "fit_width": 1820,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 30,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 50,
+          "y": 55,
+          "width": 1820,
+          "height": 1070,
+          "content_y": 151,
+          "content_height": 974,
+          "label_band_height": 96
+        },
+        "paste_box": [
+          50,
+          151,
+          1870,
+          1007
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_17_board_inference_validation_workflow_b_validate/data/fig_17_board_inference_validation_workflow_b_validate.png",
+        "label": "(b)",
+        "original_size": [
+          2047,
+          1096
+        ],
+        "rendered_size": [
+          1820,
+          974
+        ],
+        "scale": 1.0,
+        "fit_width": 1820,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 30,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1930,
+          "y": 55,
+          "width": 1820,
+          "height": 1070,
+          "content_y": 151,
+          "content_height": 974,
+          "label_band_height": 96
+        },
+        "paste_box": [
+          1930,
+          151,
+          3750,
+          1125
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_05_onboard_inference_c_embedded_performance/data/fig_05_onboard_inference_c_embedded_performance.png",
+        "label": "(c)",
+        "original_size": [
+          1832,
+          1354
+        ],
+        "rendered_size": [
+          1820,
+          1345
+        ],
+        "scale": 1.0,
+        "fit_width": 1820,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 30,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 50,
+          "y": 1193,
+          "width": 1820,
+          "height": 1466,
+          "content_y": 1289,
+          "content_height": 1370,
+          "label_band_height": 96
+        },
+        "paste_box": [
+          50,
+          1289,
+          1870,
+          2634
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_05_onboard_inference_d_lut_point_tradeoff/data/fig_05_onboard_inference_d_lut_point_tradeoff.png",
+        "label": "(d)",
+        "original_size": [
+          1933,
+          1455
+        ],
+        "rendered_size": [
+          1820,
+          1370
+        ],
+        "scale": 1.0,
+        "fit_width": 1820,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 30,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 1,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 1930,
+          "y": 1193,
+          "width": 1820,
+          "height": 1466,
+          "content_y": 1289,
+          "content_height": 1370,
+          "label_band_height": 96
+        },
+        "paste_box": [
+          1930,
+          1289,
+          3750,
+          2659
+        ]
+      }
+    ]
+  }
+}

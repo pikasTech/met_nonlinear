@@ -1,0 +1,54 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_02_horizontal_summary_6_convergence",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_02_horizontal_summary_6_convergence",
+    "kind": "single",
+    "title": "fig 02 horizontal summary 6 convergence",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_6_convergence.png.",
+    "output_name": "fig_02_horizontal_summary_6_convergence.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_02_horizontal_summary_6_convergence/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 02 horizontal summary 6 convergence",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_6_convergence.png.",
+      "output_name": "fig_02_horizontal_summary_6_convergence.png",
+      "parent_montages": [
+        "fig_02_horizontal_summary"
+      ],
+      "convergence_panel": {
+        "figsize": [
+          7.2,
+          8
+        ],
+        "wiener_linewidth": 2.6,
+        "other_linewidth": 1.5,
+        "legend_ncol": 2,
+        "legend_frameon": true
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_02_horizontal_summary_6_convergence.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_02_horizontal_summary"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_02_horizontal_summary",
+      "paste_box": [
+        3605,
+        1892,
+        5285,
+        2979
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_02_horizontal_summary",
+    "panel_output_name": "fig_02_horizontal_summary_6_convergence.png"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/fig_08_frequency_response_comparison_b_sensitivity/data/fig_08_frequency_response_comparison_b_sensitivity.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_b_sensitivity.png",
+  "shape": [
+    775,
+    1654,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 1281850,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_05_onboard_inference_d_lut_point_tradeoff/data/fig_05_onboard_inference_d_lut_point_tradeoff.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_05_onboard_inference_d_lut_point_tradeoff.png",
+  "output_shape": [
+    1404,
+    1873,
+    4
+  ],
+  "baseline_shape": [
+    1010,
+    1935,
+    4
+  ],
+  "pixel_exact": false
+}

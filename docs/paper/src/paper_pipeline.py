@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import math
 import re
@@ -48,6 +49,10 @@ except ImportError:  # pragma: no cover - direct script execution
         validate_raw_visual_quality,
     )
 from src.visualization.subfigure_montage import PanelSpec, compose_subfigures  # noqa: E402
+from src.visualization.paper_plot_style import (  # noqa: E402
+    apply_paper_matplotlib_style,
+    paper_plot_style_payload,
+)
 
 plt.style.use('seaborn-v0_8-whitegrid')
 plt.rcParams.update({
@@ -60,6 +65,7 @@ plt.rcParams.update({
     'xtick.labelsize': 9,
     'ytick.labelsize': 9,
 })
+apply_paper_matplotlib_style()
 
 SHORT_CONNECTOR_FRACTION = 2.0 / 3.0
 
@@ -224,6 +230,7 @@ LUT_POINT_SWEEP = [
 ]
 
 BUILD_PATTERN = re.compile(r'Program Size: Code=(\d+) RO-data=(\d+) RW-data=(\d+) ZI-data=(\d+)')
+FIGURE_PIPELINE_CONFIG: Dict[str, Any] = {}
 
 
 
@@ -239,7 +246,7 @@ def apply_config() -> Dict[str, Any]:
             return default
         return [(str(item['label']), str(item['metrics_path'])) for item in rows]
 
-    global MAIN_BENCHMARK, LOSS_ABLATION, STRUCTURE_ABLATION, WIENER_FRONTEND_ABLATION, DEPLOYMENT, LUT_VARIANTS, LUT_POINT_SWEEP, TRAJECTORY_MODELS, LEGACY_IMAGE_MIGRATIONS
+    global MAIN_BENCHMARK, LOSS_ABLATION, STRUCTURE_ABLATION, WIENER_FRONTEND_ABLATION, DEPLOYMENT, LUT_VARIANTS, LUT_POINT_SWEEP, TRAJECTORY_MODELS, LEGACY_IMAGE_MIGRATIONS, FIGURE_PIPELINE_CONFIG
     MAIN_BENCHMARK = metric_pairs('main_benchmark', MAIN_BENCHMARK)
     LOSS_ABLATION = metric_pairs('loss_ablation', LOSS_ABLATION)
     STRUCTURE_ABLATION = metric_pairs('structure_ablation', STRUCTURE_ABLATION)
@@ -261,7 +268,76 @@ def apply_config() -> Dict[str, Any]:
     migration_rows = config.get('source_image_migrations') or config.get('legacy_image_migrations')
     if migration_rows:
         LEGACY_IMAGE_MIGRATIONS = [dict(item) for item in migration_rows]
+    FIGURE_PIPELINE_CONFIG = copy.deepcopy(config.get('figure_pipeline') or {})
     return config
+
+
+def _as_float_tuple(value: Any, default: tuple[float, float]) -> tuple[float, float]:
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        return (float(value[0]), float(value[1]))
+    return default
+
+
+def _as_int_list(value: Any, default: List[int] | None = None) -> List[int] | None:
+    if value is None:
+        return default
+    if isinstance(value, (list, tuple)):
+        return [int(item) for item in value]
+    return default
+
+
+def _as_int_spacing(value: Any, default: int | tuple[int, int] | List[int]) -> int | tuple[int, int] | List[int]:
+    if isinstance(default, tuple):
+        if isinstance(value, (list, tuple)) and len(value) == len(default):
+            return tuple(int(item) for item in value)
+        if isinstance(value, (int, float)):
+            return int(value)
+        return default
+    if isinstance(default, list):
+        if isinstance(value, (list, tuple)) and len(value) == len(default):
+            return [int(item) for item in value]
+        if isinstance(value, (int, float)):
+            return int(value)
+        return default
+    if isinstance(value, (int, float)):
+        return int(value)
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        return tuple(int(item) for item in value)
+    return default
+
+
+def _deep_merge(base: Any, override: Any) -> Any:
+    if isinstance(base, dict) and isinstance(override, dict):
+        merged = {key: copy.deepcopy(value) for key, value in base.items()}
+        for key, value in override.items():
+            merged[key] = _deep_merge(merged[key], value) if key in merged else copy.deepcopy(value)
+        return merged
+    return copy.deepcopy(override)
+
+
+def _merge_panel_specs(panel_specs: List[Dict[str, Any]], overrides: Any) -> List[Dict[str, Any]]:
+    merged_specs: List[Dict[str, Any]] = []
+    override_rows = overrides if isinstance(overrides, list) else []
+    for index, spec in enumerate(panel_specs):
+        merged = dict(spec)
+        if index < len(override_rows) and isinstance(override_rows[index], dict):
+            merged = _deep_merge(merged, override_rows[index])
+        merged_specs.append(merged)
+    return merged_specs
+
+
+def get_figure_config(figure_key: str) -> Dict[str, Any]:
+    figures = FIGURE_PIPELINE_CONFIG.get('figures') or {}
+    cfg = figures.get(figure_key)
+    return copy.deepcopy(cfg) if isinstance(cfg, dict) else {}
+
+
+def get_palette_color(label: str, *, figure_key: str | None = None, fallback: str = '#444444') -> str:
+    if figure_key:
+        palette = get_figure_config(figure_key).get('palette') or {}
+        if label in palette:
+            return str(palette[label])
+    return str(PALETTE.get(label, fallback))
 
 
 def load_json(rel_path: str) -> Dict[str, Any]:
@@ -589,6 +665,8 @@ def sanitize_for_public_json(value: Any) -> Any:
 
 def save_json(path: Path, payload: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.name.endswith('.raw.json') and 'paper_plot_style' not in payload:
+        payload = {**payload, **paper_plot_style_payload()}
     safe_payload = sanitize_for_public_json(payload)
     path.write_text(json.dumps(safe_payload, ensure_ascii=False, indent=2), encoding='utf-8')
 
@@ -685,6 +763,7 @@ def _save_matplotlib_figure(
     if existing:
         audit_payload['matplotlib_title_artifacts'] = list(existing) + audit_payload['matplotlib_title_artifacts']
     merged_raw.update(audit_payload)
+    merged_raw.update(paper_plot_style_payload())
     fig.savefig(out, **savefig_kwargs)
     image_audit = audit_image_file(out, context=str(out.relative_to(PAPER_DIR)).replace('\\', '/'))
     audits_to_combine = [audit for audit in [existing_visual_audit, visual_audit, image_audit] if audit]
@@ -779,7 +858,18 @@ def panel_source_name(name: str) -> str:
     return str(Path('_montage_panels') / name).replace('\\', '/')
 
 
-def save_panel_figure(fig: Any, name: str, *, dpi: int = 300, pad_inches: float = 0.08, raw_payload: Dict[str, Any] | None = None) -> str:
+def save_panel_figure(
+    fig: Any,
+    name: str,
+    *,
+    dpi: int = 300,
+    pad_inches: float = 0.0,
+    margin_left: float = 0.0,
+    margin_right: float = 0.0,
+    margin_top: float = 0.0,
+    margin_bottom: float = 0.0,
+    raw_payload: Dict[str, Any] | None = None,
+) -> str:
     rel_name = panel_source_name(name)
     out = FIGURES_DIR / rel_name
     payload = {
@@ -788,14 +878,46 @@ def save_panel_figure(fig: Any, name: str, *, dpi: int = 300, pad_inches: float 
     }
     if raw_payload:
         payload.update(raw_payload)
-    _save_matplotlib_figure(
-        fig,
-        out,
-        raw_payload=payload,
-        dpi=dpi,
-        bbox_inches='tight',
-        pad_inches=pad_inches,
-    )
+
+    has_margin = any(m != 0.0 for m in [margin_left, margin_right, margin_top, margin_bottom])
+    if has_margin:
+        # Save with pad_inches to expand content area (before tight bbox),
+        # then crop per-side margins from the result
+        tmp_out = out.with_name(out.name + '.tmp.png')
+        _save_matplotlib_figure(fig, tmp_out, raw_payload=payload, dpi=dpi, bbox_inches='tight', pad_inches=pad_inches)
+        try:
+            from PIL import Image
+            img = Image.open(tmp_out)
+            w_px, h_px = img.size
+            left_px = int(round(margin_left * dpi))
+            right_px = int(round(margin_right * dpi))
+            top_px = int(round(margin_top * dpi))
+            bottom_px = int(round(margin_bottom * dpi))
+            cropped = img.crop((left_px, top_px, w_px - right_px, h_px - bottom_px))
+            cropped.save(out, dpi=(dpi, dpi))
+            img.close()
+            cropped.close()
+            tmp_raw = tmp_out.with_suffix('.raw.json')
+            if tmp_raw.exists():
+                cropped_raw = json.loads(tmp_raw.read_text(encoding='utf-8'))
+                cropped_raw.update({
+                    'postprocess': 'per-side margin crop after tight matplotlib save',
+                    'crop_margins_inches': {
+                        'left': margin_left,
+                        'right': margin_right,
+                        'top': margin_top,
+                        'bottom': margin_bottom,
+                    },
+                    'cropped_output': str(out.relative_to(PAPER_DIR)).replace('\\', '/'),
+                })
+                save_json(out.with_suffix('.raw.json'), cropped_raw)
+                tmp_raw.unlink()
+            tmp_out.unlink()
+        except Exception:
+            # PIL not available, fall back to tight save with uniform pad_inches
+            _save_matplotlib_figure(fig, out, raw_payload=payload, dpi=dpi, bbox_inches='tight', pad_inches=pad_inches)
+    else:
+        _save_matplotlib_figure(fig, out, raw_payload=payload, dpi=dpi, bbox_inches='tight', pad_inches=pad_inches)
     return rel_name
 
 
@@ -848,19 +970,52 @@ def plot_radar(ax: Any, rows: List[Dict[str, Any]]) -> None:
 
 
 def make_trajectory_figure(trajectories: Dict[str, Dict[str, List[float]]]) -> str:
-    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.8), constrained_layout=True)
+    cfg = get_figure_config('fig_01_drift_trajectories')
+    font_scale = float(cfg.get('font_scale', 1.0))
+    xy_cfg = cfg.get('xy_plot') if isinstance(cfg.get('xy_plot'), dict) else {}
+    label_fontsize = float(xy_cfg.get('label_fontsize', 10.0 * font_scale))
+    tick_fontsize = float(xy_cfg.get('tick_fontsize', 9.0 * font_scale))
+    labelpad = float(xy_cfg.get('labelpad', 4.0))
+    tick_pad = float(xy_cfg.get('tick_pad', 3.0))
+    fig, axes = plt.subplots(
+        1,
+        2,
+        figsize=_as_float_tuple(cfg.get('figsize'), (12.5, 4.8)),
+        constrained_layout=True,
+    )
     for label, series in trajectories.items():
-        color = PALETTE.get(label, '#444444')
+        color = get_palette_color(label, figure_key='fig_01_drift_trajectories')
         linestyle = '--' if label == 'Origin' else '-'
-        linewidth = 2.6 if label == 'Wiener-KAN' else 2.0
+        linewidth = float(cfg.get('wiener_linewidth', 2.6)) if label == 'Wiener-KAN' else float(cfg.get('other_linewidth', 2.0))
         axes[0].plot(series['magnitudes'], series['natural_frequency_hz'], label=label, color=color, linestyle=linestyle, linewidth=linewidth)
         axes[1].plot(series['magnitudes'], series['sensitivity_100hz'], label=label, color=color, linestyle=linestyle, linewidth=linewidth)
 
-    axes[0].set_xlabel('Magnitude (m/s^2)')
-    axes[0].set_ylabel('Peak frequency (Hz)')
-    axes[1].set_xlabel('Magnitude (m/s^2)')
-    axes[1].set_ylabel('Sensitivity at 100 Hz (%)')
-    axes[1].legend(loc='upper center', bbox_to_anchor=(0.5, 1.18), ncol=2, frameon=True)
+    axes[0].set_xlabel('Magnitude (m/s^2)', fontsize=label_fontsize, labelpad=labelpad)
+    axes[0].set_ylabel('Peak frequency (Hz)', fontsize=label_fontsize, labelpad=labelpad)
+    axes[1].set_xlabel('Magnitude (m/s^2)', fontsize=label_fontsize, labelpad=labelpad)
+    axes[1].set_ylabel('Sensitivity at 100 Hz (%)', fontsize=label_fontsize, labelpad=labelpad)
+    for ax in axes:
+        ax.tick_params(axis='both', which='major', labelsize=tick_fontsize, pad=tick_pad)
+    if 'xlim' in xy_cfg:
+        xlim = _as_float_tuple(xy_cfg.get('xlim'), axes[0].get_xlim())
+        for ax in axes:
+            ax.set_xlim(*xlim)
+    if 'ylim' in xy_cfg:
+        ylim = _as_float_tuple(xy_cfg.get('ylim'), axes[0].get_ylim())
+        for ax in axes:
+            ax.set_ylim(*ylim)
+    if 'left_ylim' in xy_cfg:
+        axes[0].set_ylim(*_as_float_tuple(xy_cfg.get('left_ylim'), axes[0].get_ylim()))
+    if 'right_ylim' in xy_cfg:
+        axes[1].set_ylim(*_as_float_tuple(xy_cfg.get('right_ylim'), axes[1].get_ylim()))
+    legend_cfg = cfg.get('legend') or {}
+    axes[1].legend(
+        loc=str(legend_cfg.get('loc', 'upper center')),
+        bbox_to_anchor=tuple(legend_cfg.get('bbox_to_anchor', [0.5, 1.18])),
+        ncol=int(legend_cfg.get('ncol', 2)),
+        frameon=bool(legend_cfg.get('frameon', True)),
+        fontsize=8.5 * font_scale,
+    )
     out = FIGURES_DIR / 'fig_01_drift_trajectories.png'
     return _save_matplotlib_figure(
         fig,
@@ -878,10 +1033,16 @@ def make_metric_range_panel_specs(
     fit_width: int = 1650,
     trim_border: int = 28,
     figsize: tuple[float, float] = (4.8, 4.2),
+    figure_key: str | None = None,
 ) -> tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    cfg = get_figure_config(figure_key) if figure_key else {}
+    range_cfg = cfg.get('range_panels') or {}
     labels = [row['label'] for row in main_rows]
     x = np.arange(len(labels))
-    colors = ['#0f6c5c' if label == 'Wiener-KAN' else '#777777' for label in labels]
+    colors = [
+        str(range_cfg.get('highlight_color', '#0f6c5c')) if label == 'Wiener-KAN' else str(range_cfg.get('baseline_color', '#777777'))
+        for label in labels
+    ]
     dist_specs = [
         ('natural_frequency_drift', 'fn', 'Natural frequency (Hz)'),
         ('sensitivity_drift', 'sens', 'Sensitivity at 100 Hz'),
@@ -890,7 +1051,10 @@ def make_metric_range_panel_specs(
     raw_distribution_rows: List[Dict[str, Any]] = []
     distribution_panels: List[Dict[str, Any]] = []
     for idx, (detail_key, metric_name, ylabel) in enumerate(dist_specs):
-        fig_dist, ax = plt.subplots(figsize=figsize, constrained_layout=True)
+        fig_dist, ax = plt.subplots(
+            figsize=_as_float_tuple(range_cfg.get('figsize'), figsize),
+            constrained_layout=True,
+        )
         centers = []
         lower = []
         upper = []
@@ -915,12 +1079,20 @@ def make_metric_range_panel_specs(
             }
             panel_rows.append(panel_row)
             raw_distribution_rows.append(panel_row)
-        ax.bar(x, centers, color=colors, alpha=0.72)
-        ax.errorbar(x, centers, yerr=np.vstack([lower, upper]), fmt='none', ecolor='#222222', elinewidth=1.1, capsize=3)
+        ax.bar(x, centers, color=colors, alpha=float(range_cfg.get('bar_alpha', 0.72)))
+        ax.errorbar(
+            x,
+            centers,
+            yerr=np.vstack([lower, upper]),
+            fmt='none',
+            ecolor=str(range_cfg.get('error_color', '#222222')),
+            elinewidth=float(range_cfg.get('error_linewidth', 1.1)),
+            capsize=float(range_cfg.get('error_capsize', 3.0)),
+        )
         ax.set_ylabel(ylabel)
         ax.set_xticks(x)
-        ax.set_xticklabels(labels, rotation=45, ha='right')
-        ax.grid(axis='y', alpha=0.25)
+        ax.set_xticklabels(labels, rotation=float(range_cfg.get('xtick_rotation', 45.0)), ha='right')
+        ax.grid(axis='y', alpha=float(range_cfg.get('grid_alpha', 0.25)))
         panel = save_panel_figure(
             fig_dist,
             f'{output_prefix}_{idx + 1}_{metric_name}.png',
@@ -933,61 +1105,92 @@ def make_metric_range_panel_specs(
         distribution_panels.append({
             'source': panel,
             'label': f'({chr(97 + label_offset + idx)})',
-            'fit_width': fit_width,
-            'trim_border': trim_border,
+            'fit_width': int(range_cfg.get('fit_width', fit_width)),
+            'trim_border': int(range_cfg.get('trim_border', trim_border)),
             'align_y': 'top',
         })
     return distribution_panels, raw_distribution_rows
 
 
 def make_horizontal_figure(main_rows: List[Dict[str, Any]], origin: Dict[str, float], main_curves: List[Dict[str, Any]]) -> str:
+    cfg = get_figure_config('fig_02_horizontal_summary')
     labels = [row['label'] for row in main_rows]
     x = np.arange(len(labels))
+    range_cfg = cfg.get('range_panels') or {}
     range_panels, range_rows = make_metric_range_panel_specs(
         main_rows,
         output_prefix='fig_02_horizontal_summary',
         label_offset=0,
-        fit_width=1680,
-        trim_border=28,
+        fit_width=int(range_cfg.get('fit_width', 1680)),
+        trim_border=int(range_cfg.get('trim_border', 28)),
+        figsize=_as_float_tuple(range_cfg.get('figsize'), (4.8, 4.2)),
+        figure_key='fig_02_horizontal_summary',
     )
 
-    fig_speed, ax_speed = plt.subplots(figsize=(7.2, 4.6), constrained_layout=True)
+    throughput_cfg = cfg.get('throughput_panel') or {}
+    fig_speed, ax_speed = plt.subplots(
+        figsize=_as_float_tuple(throughput_cfg.get('figsize'), (7.2, 4.6)),
+        constrained_layout=True,
+    )
     speed_values = [float(row['board_keil_fps']) for row in main_rows]
-    colors = [PALETTE.get(row['label'], '#444444') for row in main_rows]
-    ax_speed.bar(x, speed_values, color=colors, alpha=0.86, edgecolor='#222222', linewidth=0.5)
+    colors = [get_palette_color(row['label'], figure_key='fig_02_horizontal_summary') for row in main_rows]
+    ax_speed.bar(
+        x,
+        speed_values,
+        color=colors,
+        alpha=float(throughput_cfg.get('bar_alpha', 0.86)),
+        edgecolor=str(throughput_cfg.get('edge_color', '#222222')),
+        linewidth=float(throughput_cfg.get('edge_linewidth', 0.5)),
+    )
     for idx, row in enumerate(main_rows):
         ax_speed.text(
             idx,
-            speed_values[idx] * 1.02,
+            speed_values[idx] * float(throughput_cfg.get('annotation_y_ratio', 1.02)),
             f"MAE={row['board_keil_mae']:.1e}",
             ha='center',
             va='bottom',
-            fontsize=7.8,
+            fontsize=float(throughput_cfg.get('annotation_fontsize', 7.8)),
             rotation=90,
         )
     ax_speed.set_xticks(x)
-    ax_speed.set_xticklabels(labels, rotation=25, ha='right')
+    ax_speed.set_xticklabels(labels, rotation=float(throughput_cfg.get('xtick_rotation', 25)), ha='right')
     ax_speed.set_ylabel('KEIL throughput (points/s; higher is better)')
-    ax_speed.set_ylim(0.0, max(speed_values) * 1.30)
-    ax_speed.grid(True, axis='y', linestyle='--', alpha=0.35)
+    ax_speed.set_ylim(0.0, max(speed_values) * float(throughput_cfg.get('ylim_pad_ratio', 1.30)))
+    ax_speed.grid(True, axis='y', linestyle='--', alpha=float(throughput_cfg.get('grid_alpha', 0.35)))
     panel_speed = save_panel_figure(fig_speed, 'fig_02_horizontal_summary_4_throughput.png')
 
-    fig_radar = plt.figure(figsize=(6.8, 5.3), constrained_layout=True)
+    radar_cfg = cfg.get('radar_panel') or {}
+    fig_radar = plt.figure(
+        figsize=_as_float_tuple(radar_cfg.get('figsize'), (6.8, 5.3)),
+        constrained_layout=True,
+    )
     ax_radar = fig_radar.add_subplot(111, polar=True)
     plot_radar(ax_radar, main_rows)
-    ax_radar.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=False)
+    ax_radar.legend(
+        loc=str(radar_cfg.get('legend_loc', 'upper center')),
+        bbox_to_anchor=tuple(radar_cfg.get('legend_bbox_to_anchor', [0.5, -0.12])),
+        ncol=int(radar_cfg.get('legend_ncol', 3)),
+        frameon=bool(radar_cfg.get('legend_frameon', False)),
+    )
     panel_radar = save_panel_figure(fig_radar, 'fig_02_horizontal_summary_5_radar.png')
 
-    fig_curve, ax_curve = plt.subplots(figsize=(7.2, 4.6), constrained_layout=True)
+    curve_cfg = cfg.get('convergence_panel') or {}
+    fig_curve, ax_curve = plt.subplots(
+        figsize=_as_float_tuple(curve_cfg.get('figsize'), (7.2, 4.6)),
+        constrained_layout=True,
+    )
     for curve in main_curves:
-        color = PALETTE.get(curve['label'], '#444444')
-        linewidth = 2.6 if curve['label'] == 'Wiener-KAN' else 1.5
+        color = get_palette_color(curve['label'], figure_key='fig_02_horizontal_summary')
+        linewidth = float(curve_cfg.get('wiener_linewidth', 2.6)) if curve['label'] == 'Wiener-KAN' else float(curve_cfg.get('other_linewidth', 1.5))
         ax_curve.plot(curve['epochs'], curve['smoothed_normalized_val_loss'], color=color, linewidth=linewidth, label=curve['label'])
     ax_curve.set_xlabel('Epoch')
     ax_curve.set_ylabel('Normalized val loss')
     ax_curve.set_xlim(left=0)
     ax_curve.set_ylim(bottom=0)
-    ax_curve.legend(ncol=2, frameon=True)
+    ax_curve.legend(
+        ncol=int(curve_cfg.get('legend_ncol', 2)),
+        frameon=bool(curve_cfg.get('legend_frameon', True)),
+    )
     panel_curve = save_panel_figure(fig_curve, 'fig_02_horizontal_summary_6_convergence.png')
 
     name = make_bitmap_montage(
@@ -1005,6 +1208,7 @@ def make_horizontal_figure(main_rows: List[Dict[str, Any]], origin: Dict[str, fl
         label_font_size=58,
         note='Composes the metric-range, throughput, radar and convergence panels with the unified bitmap montage module.',
         latex_width_fraction=0.98,
+        figure_key='fig_02_horizontal_summary',
     )
     raw_path = FIGURES_DIR / 'fig_02_horizontal_summary.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -1029,7 +1233,10 @@ def make_loss_ablation_panel_specs(
     label_offset: int = 0,
     fit_width: int = 1500,
     trim_border: int = 26,
+    figure_key: str | None = None,
 ) -> List[Dict[str, Any]]:
+    cfg = get_figure_config(figure_key) if figure_key else {}
+    panel_cfg = cfg.get('curve_panels') or {}
     curve_map = {curve['label']: curve for curve in loss_curves}
     ordered_labels = [row['label'] for row in loss_rows if row['label'] in curve_map]
     ymax = max(
@@ -1039,21 +1246,27 @@ def make_loss_ablation_panel_specs(
     panel_specs: List[Dict[str, Any]] = []
     for idx, label in enumerate(ordered_labels):
         curve = curve_map[label]
-        fig, ax = plt.subplots(figsize=(4.2, 4.2), constrained_layout=True)
-        color = PALETTE.get(label, '#444444')
+        fig, ax = plt.subplots(
+            figsize=_as_float_tuple(panel_cfg.get('figsize'), (4.2, 4.2)),
+            constrained_layout=True,
+        )
+        color = get_palette_color(label, figure_key=figure_key)
         ax.plot(
             curve['epochs'],
             curve['smoothed_normalized_val_loss'],
             color=color,
-            linewidth=2.6,
+            linewidth=float(panel_cfg.get('line_width', 2.6)),
             label=label,
         )
         ax.set_xlabel('Epoch')
         ax.set_ylabel('Normalized val loss')
         ax.set_xlim(left=0)
-        ax.set_ylim(0.0, ymax * 1.05)
-        ax.legend(frameon=True, loc='upper right')
-        ax.grid(True, alpha=0.25)
+        ax.set_ylim(0.0, ymax * float(panel_cfg.get('ylim_pad_ratio', 1.05)))
+        ax.legend(
+            frameon=bool(panel_cfg.get('legend_frameon', True)),
+            loc=str(panel_cfg.get('legend_loc', 'upper right')),
+        )
+        ax.grid(True, alpha=float(panel_cfg.get('grid_alpha', 0.25)))
         source = save_panel_figure(fig, f'fig_03_loss_ablation_{idx + 1}_{_loss_panel_slug(label)}.png', raw_payload={
             'source': 'paper results payload',
             'label': label,
@@ -1063,16 +1276,22 @@ def make_loss_ablation_panel_specs(
         panel_specs.append({
             'source': source,
             'label': f'({chr(97 + label_offset + idx)})',
-            'fit_width': fit_width,
-            'fit_height': fit_width,
-            'trim_border': trim_border,
+            'fit_width': int(panel_cfg.get('fit_width', fit_width)),
+            'fit_height': int(panel_cfg.get('fit_height', panel_cfg.get('fit_width', fit_width))),
+            'trim_border': int(panel_cfg.get('trim_border', trim_border)),
             'align_y': 'top',
         })
     return panel_specs
 
 
 def make_loss_ablation_figure(loss_rows: List[Dict[str, Any]], loss_curves: List[Dict[str, Any]]) -> str:
-    panel_specs = make_loss_ablation_panel_specs(loss_rows, loss_curves, label_offset=0, fit_width=1550)
+    panel_specs = make_loss_ablation_panel_specs(
+        loss_rows,
+        loss_curves,
+        label_offset=0,
+        fit_width=1550,
+        figure_key='fig_03_loss_ablation',
+    )
     name = make_bitmap_montage(
         'fig_03_loss_ablation.png',
         panel_specs,
@@ -1082,6 +1301,7 @@ def make_loss_ablation_figure(loss_rows: List[Dict[str, Any]], loss_curves: List
         label_font_size=46,
         note='Composes the loss-ablation convergence panels as one row of square panels.',
         latex_width_fraction=0.98,
+        figure_key='fig_03_loss_ablation',
     )
     raw_path = FIGURES_DIR / 'fig_03_loss_ablation.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -1094,20 +1314,26 @@ def make_loss_ablation_figure(loss_rows: List[Dict[str, Any]], loss_curves: List
 
 
 def make_structure_figure(rows: List[Dict[str, Any]]) -> str:
-    fig, axes = plt.subplots(1, 3, figsize=(14.2, 4.6), constrained_layout=True)
+    cfg = get_figure_config('fig_04_structure_ablation')
+    fig, axes = plt.subplots(
+        1,
+        3,
+        figsize=_as_float_tuple(cfg.get('figsize'), (14.2, 4.6)),
+        constrained_layout=True,
+    )
     labels = [row['label'] for row in rows]
-    colors = [PALETTE[row['label']] for row in rows]
+    colors = [get_palette_color(row['label'], figure_key='fig_04_structure_ablation') for row in rows]
     specs = [
         ('freq_drift_hz', 'Freq drift (Hz)', True),
         ('sens_drift_percent', 'Sensitivity drift (%)', False),
         ('linearity_percent', 'In-band linearity error (%)', True),
     ]
     for ax, (key, title, use_log) in zip(axes, specs):
-        ax.bar(labels, [row[key] for row in rows], color=colors)
+        ax.bar(labels, [row[key] for row in rows], color=colors, alpha=float(cfg.get('bar_alpha', 0.88)))
         ax.set_ylabel(title)
         if use_log:
             ax.set_yscale('log')
-        ax.tick_params(axis='x', rotation=25)
+        ax.tick_params(axis='x', rotation=float(cfg.get('xtick_rotation', 25.0)))
     out = FIGURES_DIR / 'fig_04_structure_ablation.png'
     return _save_matplotlib_figure(
         fig,
@@ -1145,11 +1371,13 @@ def load_wiener_optimization_profiles() -> List[Dict[str, Any]]:
 
 
 def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
-    fig, ax_mae = plt.subplots(figsize=(6.8, 4.2))
+    cfg = get_figure_config('fig_05_onboard_inference')
+    panel_cfg = cfg.get('lut_tradeoff_panel') or {}
+    fig, ax_mae = plt.subplots(figsize=_as_float_tuple(panel_cfg.get('figsize'), (6.8, 4.2)))
     ax_flash = ax_mae.twinx()
     style_map = {
-        'nearest': {'label': 'LUT nearest', 'color': '#c96b00'},
-        'interp': {'label': 'LUT + interp', 'color': '#0f6c5c'},
+        'nearest': {'label': 'LUT nearest', 'color': str(panel_cfg.get('nearest_color', '#c96b00'))},
+        'interp': {'label': 'LUT + interp', 'color': str(panel_cfg.get('interp_color', '#0f6c5c'))},
     }
     legend_handles: List[Any] = []
     legend_labels: List[str] = []
@@ -1167,8 +1395,8 @@ def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
             qemu_mae,
             color=style['color'],
             marker='o',
-            markersize=5.2,
-            linewidth=2.2,
+            markersize=float(panel_cfg.get('mae_marker_size', 5.2)),
+            linewidth=float(panel_cfg.get('mae_linewidth', 2.2)),
             label=f"{style['label']} MAE",
         )
         flash_handle, = ax_flash.plot(
@@ -1176,8 +1404,8 @@ def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
             flash_kb,
             color=style['color'],
             marker='s',
-            markersize=4.8,
-            linewidth=2.0,
+            markersize=float(panel_cfg.get('flash_marker_size', 4.8)),
+            linewidth=float(panel_cfg.get('flash_linewidth', 2.0)),
             linestyle='--',
             label=f"{style['label']} Flash",
         )
@@ -1190,21 +1418,30 @@ def make_lut_point_tradeoff_figure(rows: List[Dict[str, Any]]) -> str:
     ax_mae.set_yscale('log')
     ax_flash.set_ylabel('Flash usage (KB)')
     ax_mae.set_xticks(unique_points)
-    ax_mae.set_xlim(left=max(unique_points[0] - 30, 0), right=unique_points[-1] + 35)
-    ax_mae.grid(True, axis='both', alpha=0.22)
+    ax_mae.set_xlim(
+        left=max(unique_points[0] - int(panel_cfg.get('x_left_margin', 30)), 0),
+        right=unique_points[-1] + int(panel_cfg.get('x_right_margin', 35)),
+    )
+    ax_mae.grid(True, axis='both', alpha=float(panel_cfg.get('grid_alpha', 0.22)))
     ax_mae.legend(
         legend_handles,
         legend_labels,
         loc='lower center',
         bbox_to_anchor=(0.5, 1.05),
         frameon=False,
-        fontsize=7.2,
+        fontsize=float(panel_cfg.get('legend_fontsize', 7.2)),
         ncol=4,
         borderaxespad=0.0,
         handlelength=1.9,
         columnspacing=1.1,
     )
-    fig.subplots_adjust(left=0.11, right=0.90, bottom=0.16, top=0.77)
+    margins = panel_cfg.get('margins') or {}
+    fig.subplots_adjust(
+        left=float(margins.get('left', 0.11)),
+        right=float(margins.get('right', 0.90)),
+        bottom=float(margins.get('bottom', 0.16)),
+        top=float(margins.get('top', 0.77)),
+    )
     panel_rows = []
     for row in rows:
         panel_rows.append({
@@ -1237,6 +1474,7 @@ def make_onboard_figure(
     lut_rows: List[Dict[str, Any]],
     lut_point_rows: List[Dict[str, Any]],
 ) -> str:
+    cfg = get_figure_config('fig_05_onboard_inference')
     # Always refresh the shared workflow panels so Fig. 12 and the standalone
     # workflow figure stay visually consistent after layout tweaks.
     make_board_inference_validation_workflow_figure()
@@ -1280,11 +1518,18 @@ def make_onboard_figure(
             'marker': 'D',
         })
 
-    fig_perf, ax_perf = plt.subplots(figsize=(6.0, 4.4), constrained_layout=True)
+    perf_cfg = cfg.get('performance_panel') or {}
+    fig_perf, ax_perf = plt.subplots(
+        figsize=_as_float_tuple(perf_cfg.get('figsize'), (6.0, 4.4)),
+        constrained_layout=True,
+    )
     speeds = np.array([row['keil_fps'] for row in performance_rows], dtype=float)
     errors = np.array([row['keil_mae'] for row in performance_rows], dtype=float)
     ram_values = np.array([row['ram_kb'] for row in performance_rows], dtype=float)
-    mae_norm = LogNorm(vmin=max(float(np.nanmin(errors)) * 0.8, 1e-9), vmax=float(np.nanmax(errors)) * 1.2)
+    mae_norm = LogNorm(
+        vmin=max(float(np.nanmin(errors)) * float(perf_cfg.get('mae_vmin_scale', 0.8)), 1e-9),
+        vmax=float(np.nanmax(errors)) * float(perf_cfg.get('mae_vmax_scale', 1.2)),
+    )
     scatter_for_colorbar = None
     for category, marker in [('Baseline export', 'o'), ('Wiener-KAN variant', 'D')]:
         idx = [i for i, row in enumerate(performance_rows) if row['category'] == category]
@@ -1293,14 +1538,14 @@ def make_onboard_figure(
         scatter_for_colorbar = ax_perf.scatter(
             ram_values[idx],
             speeds[idx],
-            s=118 if category == 'Baseline export' else 138,
+            s=float(perf_cfg.get('baseline_marker_area', 118)) if category == 'Baseline export' else float(perf_cfg.get('variant_marker_area', 138)),
             c=errors[idx],
-            cmap='magma',
+            cmap=str(perf_cfg.get('colormap', 'magma')),
             norm=mae_norm,
             marker=marker,
-            edgecolor='#222222',
-            linewidth=0.8,
-            alpha=0.92,
+            edgecolor=str(perf_cfg.get('edge_color', '#222222')),
+            linewidth=float(perf_cfg.get('edge_linewidth', 0.8)),
+            alpha=float(perf_cfg.get('marker_alpha', 0.92)),
             label=category,
         )
     label_offsets = {
@@ -1322,16 +1567,19 @@ def make_onboard_figure(
             xytext=label_offsets.get(row['label'], (7, 6)),
             ha='left',
             va='center',
-            fontsize=7.8,
-            bbox={'boxstyle': 'round,pad=0.18', 'facecolor': 'white', 'edgecolor': 'none', 'alpha': 0.78},
+            fontsize=float(perf_cfg.get('annotation_fontsize', 7.8)),
+            bbox={'boxstyle': 'round,pad=0.18', 'facecolor': 'white', 'edgecolor': 'none', 'alpha': float(perf_cfg.get('annotation_box_alpha', 0.78))},
         )
     ax_perf.set_xlabel('RAM usage (KB)')
     ax_perf.set_ylabel('KEIL throughput (points/s; higher is better)')
     ax_perf.set_yscale('log')
-    ax_perf.set_xlim(left=0.0, right=max(float(np.nanmax(ram_values)) * 1.18, 10.0))
-    ax_perf.set_ylim(bottom=max(float(np.nanmin(speeds)) * 0.55, 1.0), top=float(np.nanmax(speeds)) * 2.0)
-    ax_perf.grid(True, axis='both', alpha=0.24)
-    ax_perf.legend(loc='upper right', frameon=True)
+    ax_perf.set_xlim(left=0.0, right=max(float(np.nanmax(ram_values)) * float(perf_cfg.get('xmax_scale', 1.18)), 10.0))
+    ax_perf.set_ylim(
+        bottom=max(float(np.nanmin(speeds)) * float(perf_cfg.get('ymin_scale', 0.55)), 1.0),
+        top=float(np.nanmax(speeds)) * float(perf_cfg.get('ymax_scale', 2.0)),
+    )
+    ax_perf.grid(True, axis='both', alpha=float(perf_cfg.get('grid_alpha', 0.24)))
+    ax_perf.legend(loc=str(perf_cfg.get('legend_loc', 'upper right')), frameon=bool(perf_cfg.get('legend_frameon', True)))
     if scatter_for_colorbar is not None:
         cbar = fig_perf.colorbar(scatter_for_colorbar, ax=ax_perf, fraction=0.046, pad=0.04)
         cbar.set_label('KEIL-MAE against TensorFlow')
@@ -1370,6 +1618,7 @@ def make_onboard_figure(
         label_font_size=52,
         note='Composes the export, validation, embedded-performance, and LUT trade-off panels in one 2 x 2 montage so all subfigure labels share the same final scaling rule.',
         latex_width_fraction=1.0,
+        figure_key='fig_05_onboard_inference',
     )
     raw_path = FIGURES_DIR / 'fig_05_onboard_inference.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -1435,6 +1684,8 @@ def load_hparam_sensitivity_summary() -> Dict[str, Any]:
 
 
 def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict[str, Any]], loss_curves: List[Dict[str, Any]]) -> str:
+    cfg = get_figure_config('fig_18_hparam_sensitivity')
+    font_scale = float(cfg.get('font_scale', 1.0))
     rows = [row for row in summary.get('rows', []) if row.get('axis') != 'base' and row.get('status') == 'complete']
     baseline = summary.get('baseline', {})
     axis_order = ['H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER']
@@ -1453,14 +1704,26 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict
     baseline_values = {key: float(baseline.get(key, 1.0) or 1.0) for key, *_ in metric_specs}
 
     panel_specs: List[Dict[str, Any]] = []
+    panel_cfg = cfg.get('metric_panels') or {}
     for panel_idx, axis in enumerate(axis_order):
-        fig, ax = plt.subplots(figsize=(4.5, 3.3), constrained_layout=True)
+        fig, ax = plt.subplots(
+            figsize=_as_float_tuple(panel_cfg.get('figsize'), (4.5, 3.3)),
+            constrained_layout=True,
+        )
         axis_rows = sorted([row for row in rows if row.get('axis') == axis], key=lambda r: float(r.get('value', 0)))
         x = np.array([float(row.get('value', 0)) for row in axis_rows], dtype=float)
         for key, label, color, marker in metric_specs:
             y = np.array([float(row.get(key, np.nan)) / baseline_values[key] * 100.0 for row in axis_rows], dtype=float)
-            ax.plot(x, y, marker=marker, linewidth=1.7, markersize=5.0, color=color, label=label)
-        ax.axhline(100.0, color='#222222', linestyle='--', linewidth=1.0, alpha=0.65)
+            ax.plot(
+                x,
+                y,
+                marker=marker,
+                linewidth=float(panel_cfg.get('line_width', 1.7)),
+                markersize=float(panel_cfg.get('marker_size', 5.0)),
+                color=color,
+                label=label,
+            )
+        ax.axhline(100.0, color='#222222', linestyle='--', linewidth=float(panel_cfg.get('baseline_linewidth', 1.0)), alpha=float(panel_cfg.get('baseline_alpha', 0.65)))
         if baseline.get('axis') == 'base':
             base_value = {
                 'H_UNITS': 8,
@@ -1470,25 +1733,34 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict
                 'SPLINE_ORDER': 2,
             }.get(axis)
             if base_value is not None and min(x) <= base_value <= max(x):
-                ax.axvline(float(base_value), color='#444444', linestyle=':', linewidth=1.0, alpha=0.7)
+                ax.axvline(float(base_value), color='#444444', linestyle=':', linewidth=float(panel_cfg.get('canonical_linewidth', 1.0)), alpha=float(panel_cfg.get('canonical_alpha', 0.7)))
         ax.set_xlabel(axis_labels[axis])
         ax.set_ylabel('Relative to baseline (%)')
         ax.set_xticks(x)
         if axis in {'H_UNITS', 'INNER_KAN_UNITS', 'INNER_KAN_LAYERS', 'GRID_SIZE', 'SPLINE_ORDER'}:
             ax.set_xticklabels([str(int(v)) for v in x])
-        ax.grid(True, axis='both', alpha=0.24)
-        ax.margins(x=0.08)
+        ax.grid(True, axis='both', alpha=float(panel_cfg.get('grid_alpha', 0.24)))
+        ax.margins(x=float(panel_cfg.get('x_margin', 0.08)))
         source = save_panel_figure(fig, f'fig_18_hparam_sensitivity_{panel_idx + 1}_{axis.lower()}.png')
-        panel_specs.append({'source': source, 'label': f'({chr(97 + panel_idx)})', 'fit_width': 1500, 'trim_border': 26})
+        panel_specs.append({
+            'source': source,
+            'label': f'({chr(97 + panel_idx)})',
+            'fit_width': int(panel_cfg.get('fit_width', 1500)),
+            'trim_border': int(panel_cfg.get('trim_border', 26)),
+        })
 
-    fig_legend, legend_ax = plt.subplots(figsize=(4.5, 3.3), constrained_layout=True)
+    legend_cfg = cfg.get('legend_panel') or {}
+    fig_legend, legend_ax = plt.subplots(
+        figsize=_as_float_tuple(legend_cfg.get('figsize'), (4.5, 3.3)),
+        constrained_layout=True,
+    )
     legend_ax.axis('off')
     handles = [
-        Line2D([0], [0], color=color, marker=marker, linewidth=1.7, markersize=5.0)
+        Line2D([0], [0], color=color, marker=marker, linewidth=float(panel_cfg.get('line_width', 1.7)), markersize=float(panel_cfg.get('marker_size', 5.0)))
         for _, _, color, marker in metric_specs
     ]
     labels = [label for _, label, _, _ in metric_specs]
-    legend_ax.legend(handles, labels, loc='center', frameon=True)
+    legend_ax.legend(handles, labels, loc='center', frameon=True, fontsize=8.0 * font_scale)
     baseline_text = (
         'Baseline data (h=8, u=6, l=6, g=8, s=2):\n'
         f"Freq drift = {baseline_values['freq_drift_hz']:.2f} Hz; "
@@ -1501,11 +1773,22 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict
         'Dashed horizontal line: baseline = 100%\nDotted vertical line: canonical value\n' + baseline_text,
         ha='center',
         va='center',
-        fontsize=8.8,
+        fontsize=float(legend_cfg.get('text_fontsize', 8.8)) * font_scale,
     )
     legend_source = save_panel_figure(fig_legend, 'fig_18_hparam_sensitivity_6_legend.png')
-    panel_specs.append({'source': legend_source, 'fit_width': 1500, 'trim_border': 26})
-    panel_specs.extend(make_loss_ablation_panel_specs(loss_rows, loss_curves, label_offset=5, fit_width=1500, trim_border=26))
+    panel_specs.append({
+        'source': legend_source,
+        'fit_width': int(legend_cfg.get('fit_width', 1500)),
+        'trim_border': int(legend_cfg.get('trim_border', 26)),
+    })
+    panel_specs.extend(make_loss_ablation_panel_specs(
+        loss_rows,
+        loss_curves,
+        label_offset=5,
+        fit_width=int(legend_cfg.get('loss_fit_width', 1500)),
+        trim_border=int(legend_cfg.get('loss_trim_border', 26)),
+        figure_key='fig_18_hparam_sensitivity',
+    ))
 
     name = make_bitmap_montage(
         'fig_18_hparam_sensitivity.png',
@@ -1518,6 +1801,7 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict
         label_font_size=46,
         note='Composes five one-factor hyperparameter panels, one unnumbered legend panel, and three loss-ablation panels in a 3 x 3 unified montage.',
         latex_width_fraction=0.98,
+        figure_key='fig_18_hparam_sensitivity',
     )
     raw_path = FIGURES_DIR / 'fig_18_hparam_sensitivity.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -1927,6 +2211,11 @@ def copy_ai_paper_asset(asset_name: str, figure_name: str, elements: List[str]) 
 
 
 def make_lut_lookup_principles_figure() -> str:
+    cfg = get_figure_config('fig_15_lut_lookup_principles')
+
+    def center_to_bottom_left(cx: float, cy: float, w: float, h: float) -> tuple[float, float]:
+        return cx - w / 2, cy - h / 2
+
     def draw_box(
         ax: Any,
         x: float,
@@ -1951,22 +2240,57 @@ def make_lut_lookup_principles_figure() -> str:
         ax.add_patch(rect)
         ax.text(x + w / 2, y + h / 2, text, ha='center', va='center', fontsize=size, weight=weight, color='#222222')
 
-    def arrow(ax: Any, start: tuple[float, float], end: tuple[float, float], color: str = '#333333') -> None:
-        ax.annotate('', xy=end, xytext=start, zorder=8, arrowprops=dict(arrowstyle='->', lw=1.8, color=color, shrinkA=0, shrinkB=0))
+    def draw_box_center(
+        ax: Any,
+        cx: float,
+        cy: float,
+        w: float,
+        h: float,
+        text: str,
+        face: str,
+        edge: str,
+        size: float = 9.6,
+        weight: str = 'normal',
+    ) -> None:
+        bx, by = center_to_bottom_left(cx, cy, w, h)
+        draw_box(ax, bx, by, w, h, text, face, edge, size=size, weight=weight)
 
-    def draw_lut_table(ax: Any, x: float, y: float, w: float, h: float) -> None:
+    def arrow(ax: Any, start: tuple[float, float], end: tuple[float, float], color: str = '#333333', lw: float = 1.8) -> None:
+        ax.annotate('', xy=end, xytext=start, zorder=8, arrowprops=dict(arrowstyle='->', lw=lw, color=color, shrinkA=0, shrinkB=0))
+
+    def draw_lut_table(
+        ax: Any,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        *,
+        header_q_frac: float = 0.20,
+        header_v_frac: float = 0.66,
+        header_y_frac: float = 0.84,
+        row_q_frac: float = 0.20,
+        row_v_frac: float = 0.66,
+        row_start_y_frac: float = 0.68,
+        row_spacing_frac: float = 0.13,
+        row_font_size: float = 7.6,
+        header_font_size: float = 8.4,
+        line_margin_frac: float = 0.025,
+        line_lw: float = 0.8,
+        label_font_size: float = 8.0,
+        label_y_offset: float = 0.055,
+    ) -> None:
         draw_box(ax, x, y, w, h, '', '#eaf6f1', '#0f6c5c')
         rows = 6
         for i in range(1, rows):
             yy = y + h * i / rows
-            ax.plot([x + 0.025, x + w - 0.025], [yy, yy], color='#95bfb2', lw=0.8)
-        ax.text(x + w * 0.20, y + h * 0.84, 'q', ha='center', va='center', fontsize=8.4, weight='bold', color='#0f6c5c')
-        ax.text(x + w * 0.66, y + h * 0.84, r'$v_q$', ha='center', va='center', fontsize=8.4, weight='bold', color='#0f6c5c')
+            ax.plot([x + w * line_margin_frac, x + w * (1 - line_margin_frac)], [yy, yy], color='#95bfb2', lw=line_lw)
+        ax.text(x + w * header_q_frac, y + h * header_y_frac, 'q', ha='center', va='center', fontsize=header_font_size, weight='bold', color='#0f6c5c')
+        ax.text(x + w * header_v_frac, y + h * header_y_frac, r'$v_q$', ha='center', va='center', fontsize=header_font_size, weight='bold', color='#0f6c5c')
         for i, (q_text, v_text) in enumerate([('0', r'$v_0$'), ('1', r'$v_1$'), ('...', '...'), (r'$Q-2$', r'$v_{Q-2}$'), (r'$Q-1$', r'$v_{Q-1}$')]):
-            yy = y + h * (0.68 - 0.13 * i)
-            ax.text(x + w * 0.20, yy, q_text, ha='center', va='center', fontsize=7.6, color='#222222')
-            ax.text(x + w * 0.66, yy, v_text, ha='center', va='center', fontsize=7.6, color='#222222')
-        ax.text(x + w / 2, y - 0.055, 'sampled table', ha='center', va='center', fontsize=8.0, color='#0f6c5c', weight='bold')
+            yy = y + h * (row_start_y_frac - row_spacing_frac * i)
+            ax.text(x + w * row_q_frac, yy, q_text, ha='center', va='center', fontsize=row_font_size, color='#222222')
+            ax.text(x + w * row_v_frac, yy, v_text, ha='center', va='center', fontsize=row_font_size, color='#222222')
+        ax.text(x + w / 2, y + h + h * label_y_offset, 'sampled table', ha='center', va='center', fontsize=label_font_size, color='#0f6c5c', weight='bold')
 
     def draw_flash_chip(ax: Any, x: float, y: float, w: float, h: float) -> None:
         chip = FancyBboxPatch(
@@ -1986,14 +2310,18 @@ def make_lut_lookup_principles_figure() -> str:
         ax.text(x + w / 2, y + h * 0.58, 'Flash', ha='center', va='center', fontsize=10.0, weight='bold', color='#1f4e79')
         ax.text(x + w / 2, y + h * 0.38, 'LUT', ha='center', va='center', fontsize=10.0, weight='bold', color='#1f4e79')
 
-    fig_offline, ax_offline = plt.subplots(figsize=(6.8, 3.25), constrained_layout=True)
+    offline_cfg = cfg.get('offline_panel') or {}
+    fig_offline, ax_offline = plt.subplots(
+        figsize=_as_float_tuple(offline_cfg.get('figsize'), (6.8, 3.25)),
+        constrained_layout=True,
+    )
     ax_offline.set_xlim(0, 1)
     ax_offline.set_ylim(0, 1)
     ax_offline.axis('off')
     offline_boxes = [
         {'id': 'activation_curve', 'bbox': [0.05, 0.21, 0.35, 0.81]},
         {'id': 'sampled_table', 'bbox': [0.47, 0.22, 0.69, 0.80]},
-        {'id': 'flash_chip', 'bbox': [0.778, 0.30, 0.952, 0.72]},
+        {'id': 'flash_chip', 'bbox': [0.80, 0.30, 0.93, 0.72]},
     ]
     curve_to_table_points, curve_to_table_raw = _short_arrow_payload(
         'curve_to_table',
@@ -2004,7 +2332,7 @@ def make_lut_lookup_principles_figure() -> str:
     )
     table_to_flash_points, table_to_flash_raw = _short_arrow_payload(
         'table_to_flash',
-        [(0.69, 0.51), (0.778, 0.51)],
+        [(0.69, 0.51), (0.80, 0.51)],
         source='sampled_table',
         target='flash_chip',
         require_axis_aligned=True,
@@ -2020,15 +2348,39 @@ def make_lut_lookup_principles_figure() -> str:
     curve_ax.set_xticks([])
     curve_ax.set_yticks([])
     curve_ax.grid(True, alpha=0.25)
-    curve_ax.text(0.06, 0.86, 'trained\nactivation', transform=curve_ax.transAxes, color='#0f6c5c', fontsize=8.0, weight='bold')
-    curve_ax.text(0.61, 0.14, 'uniform\nsamples', transform=curve_ax.transAxes, color='#c96b00', fontsize=8.0, weight='bold')
-    draw_lut_table(ax_offline, 0.47, 0.22, 0.22, 0.58)
-    draw_flash_chip(ax_offline, 0.80, 0.30, 0.13, 0.42)
+    curve_ax.text(0.06, 0.86, 'trained\nactivation', transform=curve_ax.transAxes, color='#0f6c5c', fontsize=float(offline_cfg.get('curve_text_fontsize', 8.0)), weight='bold')
+    curve_ax.text(0.61, 0.14, 'uniform\nsamples', transform=curve_ax.transAxes, color='#c96b00', fontsize=float(offline_cfg.get('curve_text_fontsize', 8.0)), weight='bold')
+    lut = offline_cfg.get('lut_table', {})
+    bx, by = center_to_bottom_left(float(lut.get('x', 0.58)), float(lut.get('y', 0.51)), float(lut.get('w', 0.22)), float(lut.get('h', 0.58)))
+    draw_lut_table(
+        ax_offline, bx, by, float(lut.get('w', 0.22)), float(lut.get('h', 0.58)),
+        header_q_frac=float(lut.get('表头Q位置X', 0.20)),
+        header_v_frac=float(lut.get('表头V位置X', 0.66)),
+        header_y_frac=float(lut.get('表头位置Y', 0.84)),
+        row_q_frac=float(lut.get('行列Q位置X', 0.20)),
+        row_v_frac=float(lut.get('行列V位置X', 0.66)),
+        row_start_y_frac=float(lut.get('首行位置Y', 0.68)),
+        row_spacing_frac=float(lut.get('行间距', 0.13)),
+        row_font_size=float(lut.get('行列字号', 7.6)),
+        header_font_size=float(lut.get('表头字号', 8.4)),
+        line_margin_frac=float(lut.get('横线边距', 0.025)),
+        line_lw=float(lut.get('横线线宽', 0.8)),
+        label_font_size=float(lut.get('标签字号', 8.0)),
+        label_y_offset=float(lut.get('标签偏移Y', 0.055)),
+    )
+    fc = offline_cfg.get('flash_chip', {})
+    bx, by = center_to_bottom_left(float(fc.get('x', 0.865)), float(fc.get('y', 0.51)), float(fc.get('w', 0.13)), float(fc.get('h', 0.42)))
+    draw_flash_chip(ax_offline, bx, by, float(fc.get('w', 0.13)), float(fc.get('h', 0.42)))
+    offline_arrow_lw = float(offline_cfg.get('arrow_lw', 1.8))
     arrow(ax_offline, curve_to_table_points[0], curve_to_table_points[-1], '#0f6c5c')
     arrow(ax_offline, table_to_flash_points[0], table_to_flash_points[-1], '#0f6c5c')
     offline_source = save_panel_figure(
         fig_offline,
         'fig_15_lut_lookup_principles_a_offline.png',
+        margin_left=float(offline_cfg.get('margin_left', 0.0)),
+        margin_right=float(offline_cfg.get('margin_right', 0.0)),
+        margin_top=float(offline_cfg.get('margin_top', 0.0)),
+        margin_bottom=float(offline_cfg.get('margin_bottom', 0.0)),
         raw_payload={
             VISUAL_AUDIT_KEY: audit_schematic_geometry(
                 offline_boxes,
@@ -2038,7 +2390,23 @@ def make_lut_lookup_principles_figure() -> str:
         },
     )
 
-    fig_runtime, ax_runtime = plt.subplots(figsize=(6.8, 3.45), constrained_layout=True)
+    runtime_cfg = cfg.get('runtime_panel') or {}
+
+    # Resolve output_scalar position for arrow targets and box bounds
+    out_s = runtime_cfg.get('output_scalar', {})
+    out_cx = float(out_s.get('x', 0.95))
+    out_cy = float(out_s.get('y', 0.52))
+    out_w = float(out_s.get('w', 0.075))
+    out_h = float(out_s.get('h', 0.20))
+    out_left = out_cx - out_w / 2
+    out_right = out_cx + out_w / 2
+    out_top = out_cy + out_h / 2
+    out_bottom = out_cy - out_h / 2
+
+    fig_runtime, ax_runtime = plt.subplots(
+        figsize=_as_float_tuple(runtime_cfg.get('figsize'), (6.8, 3.45)),
+        constrained_layout=True,
+    )
     ax_runtime.set_xlim(0, 1)
     ax_runtime.set_ylim(0, 1)
     ax_runtime.axis('off')
@@ -2047,7 +2415,7 @@ def make_lut_lookup_principles_figure() -> str:
         {'id': 'address_mapping', 'bbox': [0.26, 0.35, 0.46, 0.67]},
         {'id': 'nearest_lookup', 'bbox': [0.56, 0.62, 0.83, 0.87]},
         {'id': 'linear_interp', 'bbox': [0.56, 0.13, 0.83, 0.43]},
-        {'id': 'output_scalar', 'bbox': [0.91, 0.42, 0.985, 0.62]},
+        {'id': 'output_scalar', 'bbox': [out_left, out_bottom, out_right, out_top]},
     ]
     input_to_address_points, input_to_address_raw = _short_arrow_payload(
         'input_to_address',
@@ -2070,13 +2438,13 @@ def make_lut_lookup_principles_figure() -> str:
     )
     nearest_to_output_points, nearest_to_output_raw = _short_arrow_payload(
         'nearest_to_output',
-        [(0.83, 0.74), (0.91, 0.57)],
+        [(0.83, 0.74), (out_left, out_cy)],
         source='nearest_lookup',
         target='output_scalar',
     )
     linear_to_output_points, linear_to_output_raw = _short_arrow_payload(
         'linear_to_output',
-        [(0.83, 0.27), (0.91, 0.48)],
+        [(0.83, 0.27), (out_left, out_cy)],
         source='linear_interp',
         target='output_scalar',
     )
@@ -2087,23 +2455,30 @@ def make_lut_lookup_principles_figure() -> str:
         nearest_to_output_raw,
         linear_to_output_raw,
     ]
-    draw_box(ax_runtime, 0.05, 0.42, 0.12, 0.17, r'input $x$', '#f7f7f7', '#555555', size=10.6, weight='bold')
+    runtime_arrow_lw = float(runtime_cfg.get('arrow_lw', 1.8))
+    input_s = runtime_cfg.get('input_scalar', {})
+    bx, by = center_to_bottom_left(float(input_s.get('x', 0.11)), float(input_s.get('y', 0.505)), float(input_s.get('w', 0.12)), float(input_s.get('h', 0.17)))
+    draw_box(ax_runtime, bx, by, float(input_s.get('w', 0.12)), float(input_s.get('h', 0.17)), r'input $x$', '#f7f7f7', '#555555', size=float(runtime_cfg.get('input_box_size', 10.6)), weight='bold')
     ax_runtime.plot([0.07, 0.15], [0.34, 0.34], color='#555555', lw=1.1)
     ax_runtime.scatter([0.12], [0.34], s=42, color='#c96b00', zorder=3)
     ax_runtime.text(0.07, 0.29, r'$x_{\min}$', ha='center', va='center', fontsize=7.4, color='#555555')
     ax_runtime.text(0.15, 0.29, r'$x_{\max}$', ha='center', va='center', fontsize=7.4, color='#555555')
-    arrow(ax_runtime, input_to_address_points[0], input_to_address_points[-1])
-    draw_box(ax_runtime, 0.26, 0.35, 0.20, 0.32, 'address\nmapping', '#fff7e8', '#c96b00', size=9.6, weight='bold')
+    arrow(ax_runtime, input_to_address_points[0], input_to_address_points[-1], lw=runtime_arrow_lw)
+    addr = runtime_cfg.get('address_mapping', {})
+    bx, by = center_to_bottom_left(float(addr.get('x', 0.36)), float(addr.get('y', 0.515)), float(addr.get('w', 0.20)), float(addr.get('h', 0.32)))
+    draw_box(ax_runtime, bx, by, float(addr.get('w', 0.20)), float(addr.get('h', 0.32)), 'address\nmapping', '#fff7e8', '#c96b00', size=float(runtime_cfg.get('box_font_size', 9.6)), weight='bold')
     for k in range(6):
         xx = 0.29 + 0.026 * k
         ax_runtime.plot([xx, xx], [0.42, 0.48], color='#c96b00', lw=1.0)
     ax_runtime.plot([0.29, 0.42], [0.45, 0.45], color='#c96b00', lw=1.2)
     ax_runtime.scatter([0.36], [0.45], s=48, color='#0f6c5c', edgecolor='white', zorder=4)
     ax_runtime.text(0.36, 0.30, r'$q,\lambda$', ha='center', va='center', fontsize=8.3, weight='bold', color='#c96b00')
-    arrow(ax_runtime, address_to_nearest_points[0], address_to_nearest_points[-1], '#c96b00')
-    arrow(ax_runtime, address_to_linear_points[0], address_to_linear_points[-1], '#1f4e79')
+    arrow(ax_runtime, address_to_nearest_points[0], address_to_nearest_points[-1], '#c96b00', lw=runtime_arrow_lw)
+    arrow(ax_runtime, address_to_linear_points[0], address_to_linear_points[-1], '#1f4e79', lw=runtime_arrow_lw)
 
-    draw_box(ax_runtime, 0.56, 0.62, 0.27, 0.25, '', '#eaf6f1', '#0f6c5c')
+    nearest = runtime_cfg.get('nearest_lookup', {})
+    bx, by = center_to_bottom_left(float(nearest.get('x', 0.695)), float(nearest.get('y', 0.745)), float(nearest.get('w', 0.27)), float(nearest.get('h', 0.25)))
+    draw_box(ax_runtime, bx, by, float(nearest.get('w', 0.27)), float(nearest.get('h', 0.25)), '', '#eaf6f1', '#0f6c5c')
     ax_runtime.text(0.695, 0.82, 'nearest lookup', ha='center', va='center', fontsize=8.9, weight='bold', color='#0f6c5c')
     cell_x = np.linspace(0.60, 0.78, 5)
     ax_runtime.plot([cell_x[0], cell_x[-1]], [0.72, 0.72], color='#0f6c5c', lw=1.1)
@@ -2113,7 +2488,9 @@ def make_lut_lookup_principles_figure() -> str:
     ax_runtime.scatter([cell_x[2]], [0.72], s=46, color='#0f6c5c', zorder=4)
     ax_runtime.text(0.695, 0.65, 'one table read', ha='center', va='center', fontsize=7.8, color='#333333')
 
-    draw_box(ax_runtime, 0.56, 0.13, 0.27, 0.30, '', '#eef3fb', '#1f4e79')
+    linear = runtime_cfg.get('linear_interp', {})
+    bx, by = center_to_bottom_left(float(linear.get('x', 0.695)), float(linear.get('y', 0.28)), float(linear.get('w', 0.27)), float(linear.get('h', 0.30)))
+    draw_box(ax_runtime, bx, by, float(linear.get('w', 0.27)), float(linear.get('h', 0.30)), '', '#eef3fb', '#1f4e79')
     ax_runtime.text(0.695, 0.37, 'linear interpolation', ha='center', va='center', fontsize=8.6, weight='bold', color='#1f4e79')
     x0, x1 = 0.61, 0.78
     y0, y1 = 0.21, 0.30
@@ -2124,12 +2501,18 @@ def make_lut_lookup_principles_figure() -> str:
     ax_runtime.scatter([blend_x], [blend_y], s=58, color='#c96b00', edgecolor='white', zorder=5)
     ax_runtime.text(0.695, 0.17, r'$(1-\lambda)v_q+\lambda v_{q+1}$', ha='center', va='center', fontsize=7.5, color='#333333')
 
-    arrow(ax_runtime, nearest_to_output_points[0], nearest_to_output_points[-1], '#0f6c5c')
-    arrow(ax_runtime, linear_to_output_points[0], linear_to_output_points[-1], '#1f4e79')
-    draw_box(ax_runtime, 0.91, 0.42, 0.075, 0.20, r'$\tilde{\phi}(x)$', '#ffffff', '#333333', size=11.0, weight='bold')
+    arrow(ax_runtime, nearest_to_output_points[0], nearest_to_output_points[-1], '#0f6c5c', lw=runtime_arrow_lw)
+    arrow(ax_runtime, linear_to_output_points[0], linear_to_output_points[-1], '#1f4e79', lw=runtime_arrow_lw)
+    bx, by = center_to_bottom_left(out_cx, out_cy, out_w, out_h)
+    draw_box(ax_runtime, bx, by, out_w, out_h, r'$\tilde{\phi}(x)$', '#ffffff', '#333333', size=11.0, weight='bold')
     runtime_source = save_panel_figure(
         fig_runtime,
         'fig_15_lut_lookup_principles_b_runtime.png',
+        pad_inches=float(runtime_cfg.get('pad_inches', 0.0)),
+        margin_left=float(runtime_cfg.get('margin_left', 0.0)),
+        margin_right=float(runtime_cfg.get('margin_right', 0.0)),
+        margin_top=float(runtime_cfg.get('margin_top', 0.0)),
+        margin_bottom=float(runtime_cfg.get('margin_bottom', 0.0)),
         raw_payload={
             VISUAL_AUDIT_KEY: audit_schematic_geometry(
                 runtime_boxes,
@@ -2151,6 +2534,7 @@ def make_lut_lookup_principles_figure() -> str:
         label_font_size=48,
         note='Composes the offline LUT construction and runtime lookup panels with the unified bitmap montage module.',
         latex_width_fraction=0.78,
+        figure_key='fig_15_lut_lookup_principles',
     )
     raw_path = FIGURES_DIR / 'fig_15_lut_lookup_principles.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -2169,7 +2553,11 @@ def make_lut_lookup_principles_figure() -> str:
     return name
 
 def make_dataset_preprocessing_workflow_figure() -> str:
-    fig, ax = plt.subplots(figsize=(7.2, 9.2), constrained_layout=True)
+    cfg = get_figure_config('fig_19_dataset_preprocessing_workflow')
+    fig, ax = plt.subplots(
+        figsize=_as_float_tuple(cfg.get('figsize'), (7.2, 9.2)),
+        constrained_layout=True,
+    )
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
@@ -2330,15 +2718,279 @@ def copy_manual_paper_asset(source_name: str, target_name: str, note: str) -> st
     return dst.name
 
 
-def make_wiener_kan_framework_figure() -> str:
-    return copy_manual_paper_asset(
-        'wiener_kan_framework.png',
-        'wiener_kan_framework.png',
-        'Manual Wiener-KAN framework schematic; do not redraw this figure from code.',
+def _stage_external_bitmap_for_montage(source_path: Path, staged_name: str) -> str:
+    if not source_path.exists():
+        raise FileNotFoundError(f'Missing source bitmap for Studio wrapper: {source_path}')
+    staged = MONTAGE_PANEL_DIR / staged_name
+    staged.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_path, staged)
+    return panel_source_name(staged.name)
+
+
+def make_wrapped_bitmap_figure(
+    figure_key: str,
+    source_path: Path,
+    output_name: str,
+    *,
+    default_fit_width: int | None = None,
+    default_fit_height: int | None = None,
+    default_trim_border: int | None = None,
+    note: str,
+    latex_width_fraction: float = 1.0,
+) -> str:
+    source_rel = _stage_external_bitmap_for_montage(source_path, f'{figure_key}_source{source_path.suffix}')
+    panel: Dict[str, Any] = {'source': source_rel, 'align_x': 'center', 'align_y': 'center'}
+    if default_fit_width is not None:
+        panel['fit_width'] = default_fit_width
+    if default_fit_height is not None:
+        panel['fit_height'] = default_fit_height
+    if default_trim_border is not None:
+        panel['trim_border'] = default_trim_border
+    name = make_bitmap_montage(
+        output_name,
+        [panel],
+        layout='matrix',
+        rows=1,
+        cols=1,
+        padding=0,
+        gutter=0,
+        label_font_size=54,
+        note=note,
+        latex_width_fraction=latex_width_fraction,
+        figure_key=figure_key,
+    )
+    raw_path = FIGURES_DIR / Path(output_name).with_suffix('.raw.json')
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload['source_bitmap'] = str(source_path.relative_to(ROOT)).replace('\\', '/')
+    raw_payload['studio_wrapper'] = True
+    save_json(raw_path, raw_payload)
+    return name
+
+
+def make_met_structure_figure() -> str:
+    return make_wrapped_bitmap_figure(
+        'met_structure',
+        PAPER_DIR / 'image' / '4.MET_structure.png',
+        'met_structure.png',
+        default_fit_width=2500,
+        default_trim_border=28,
+        note='Studio-adjustable wrapper for the MET structure bitmap used inside Fig. 20.',
     )
 
 
+def make_readout_circuit_figure() -> str:
+    return make_wrapped_bitmap_figure(
+        'readout_circuit',
+        PAPER_DIR / 'image' / '39.Readout_circuit.png',
+        'readout_circuit.png',
+        default_fit_width=2500,
+        default_trim_border=28,
+        note='Studio-adjustable wrapper for the readout circuit bitmap used inside Fig. 20.',
+    )
+
+
+def make_calibration_table_test_figure() -> str:
+    return make_wrapped_bitmap_figure(
+        'calibration_table_test',
+        PAPER_DIR / 'image' / '5.Calibration_table_test.png',
+        'calibration_table_test.png',
+        default_fit_width=3600,
+        default_trim_border=90,
+        note='Studio-adjustable wrapper for the experimental setup photograph used inside Fig. 21.',
+    )
+
+
+def make_kan_neuron_compensation_figure() -> str:
+    return make_wrapped_bitmap_figure(
+        'kan_neuron_compensation',
+        FIGURES_DIR / 'fig_07_kan_neuron_compensation.png',
+        'kan_neuron_compensation.png',
+        default_fit_width=3156,
+        note='Studio-adjustable wrapper for the traced KAN-neuron compensation bitmap used inside Fig. 23.',
+    )
+
+
+def make_mechanism_schematic_wrapper() -> str:
+    return make_wrapped_bitmap_figure(
+        'fig_14_met_nonlinear_mechanism',
+        PAPER_DIR / 'assets' / 'fig_14_met_nonlinear_mechanism_ai.png',
+        'fig_14_met_nonlinear_mechanism.png',
+        default_fit_width=2400,
+        note='Studio-adjustable wrapper for the AI-rendered MET nonlinear mechanism schematic.',
+    )
+
+
+def make_wiener_kan_framework_figure() -> str:
+    return make_wrapped_bitmap_figure(
+        'wiener_kan_framework',
+        PAPER_DIR / 'image_manual' / 'wiener_kan_framework.png',
+        'wiener_kan_framework.png',
+        default_fit_width=3000,
+        note='Studio-adjustable wrapper for the manual Wiener-KAN framework schematic.',
+    )
+
+
+def make_met_nonlinear_frequency_response_figure() -> str:
+    cfg = get_figure_config('met_nonlinear_frequency_response')
+    xy_cfg = cfg.get('xy_plot') if isinstance(cfg.get('xy_plot'), dict) else {}
+    legend_cfg = cfg.get('legend') if isinstance(cfg.get('legend'), dict) else {}
+    data_path = ROOT / 'projects' / '01_LR_STUDY' / 'FRIKANh8u6l6_e1k_lr7e4' / 'data' / 'linear_response.json'
+    with data_path.open('r', encoding='utf-8') as f:
+        data = json.load(f)
+    frequencies = np.array(data['frequencies'], dtype=float)
+    magnitudes_arr = np.array(data['magnitudes'], dtype=float)
+    gains_origin = [np.array(row, dtype=float) for row in data['gains_origin']]
+    fig, ax = plt.subplots(figsize=_as_float_tuple(cfg.get('figsize'), (7.2, 4.8)))
+    cmap = plt.cm.get_cmap(str(cfg.get('colormap', 'tab20')), len(magnitudes_arr))
+    handles = []
+    labels = []
+    for idx, (magnitude, gain) in enumerate(zip(magnitudes_arr, gains_origin)):
+        handle, = ax.loglog(
+            frequencies,
+            gain,
+            color=cmap(idx),
+            linewidth=float(cfg.get('line_width', 1.35)),
+            label=rf'{magnitude:.2f} m/s$^2$',
+        )
+        handles.append(handle)
+        labels.append(rf'{magnitude:.2f} m/s$^2$')
+    ax.set_xlabel(
+        'Frequency (Hz)',
+        fontsize=float(xy_cfg.get('label_fontsize', 12)),
+        labelpad=float(xy_cfg.get('labelpad', 4)),
+    )
+    ax.set_ylabel(
+        'Sensitivity (V s/m)',
+        fontsize=float(xy_cfg.get('label_fontsize', 12)),
+        labelpad=float(xy_cfg.get('labelpad', 4)),
+    )
+    if 'xlim' in xy_cfg:
+        ax.set_xlim(*_as_float_tuple(xy_cfg.get('xlim'), (10.0, 128.0)))
+    else:
+        ax.set_xlim(10, 128)
+    if 'ylim' in xy_cfg:
+        ax.set_ylim(*_as_float_tuple(xy_cfg.get('ylim'), (30.0, 250.0)))
+    else:
+        ax.set_ylim(30, 250)
+    ax.grid(True, which='both', linestyle='--', alpha=float(cfg.get('grid_alpha', 0.45)))
+    ax.tick_params(
+        axis='both',
+        which='major',
+        labelsize=float(xy_cfg.get('tick_fontsize', 10)),
+        pad=float(xy_cfg.get('tick_pad', 3)),
+    )
+    ax.legend(
+        handles,
+        labels,
+        loc=str(legend_cfg.get('loc', 'center left')),
+        bbox_to_anchor=tuple(legend_cfg.get('bbox_to_anchor', [1.02, 0.5])),
+        frameon=bool(legend_cfg.get('frameon', False)),
+        fontsize=float(legend_cfg.get('fontsize', 8.5)),
+        ncol=int(legend_cfg.get('ncol', 1)),
+        borderaxespad=0.0,
+        handlelength=2.2,
+    )
+    margins = cfg.get('margins') if isinstance(cfg.get('margins'), dict) else {}
+    fig.subplots_adjust(
+        left=float(margins.get('left', 0.12)),
+        right=float(margins.get('right', 0.72)),
+        bottom=float(margins.get('bottom', 0.16)),
+        top=float(margins.get('top', 0.96)),
+    )
+    out = FIGURES_DIR / 'met_nonlinear_frequency_response.png'
+    return _save_matplotlib_figure(
+        fig,
+        out,
+        raw_payload={
+            'source': 'projects/01_LR_STUDY/FRIKANh8u6l6_e1k_lr7e4/data/linear_response.json:gains_origin',
+            'modification_scope': 'Studio-adjustable frequency response redraw with shared X-Y plot and legend controls.',
+        },
+        bbox_inches='tight',
+        pad_inches=0.08,
+    )
+
+
+def make_local_transfer_slices_figure() -> str:
+    cfg = get_figure_config('local_transfer_slices')
+    panel_cfg = cfg.get('surface_panels') if isinstance(cfg.get('surface_panels'), dict) else {}
+    try:
+        from src.translate_legacy_figures import (  # type: ignore  # noqa: E402
+            TMP_DIR,
+            calculate_system_response,
+            calculate_system_response_comp,
+            plot_frirnn_panel,
+        )
+    except ImportError:  # pragma: no cover - direct script execution
+        from translate_legacy_figures import (  # type: ignore  # noqa: E402
+            TMP_DIR,
+            calculate_system_response,
+            calculate_system_response_comp,
+            plot_frirnn_panel,
+        )
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+    original_path = TMP_DIR / 'response_original_temp.png'
+    compensated_path = TMP_DIR / 'response_compensated_temp.png'
+
+    def draw_surface(path: Path, response_fn: Any, z_ticks: List[float], zlabel: str, fallback_left: float) -> Dict[str, Any]:
+        fig = plt.figure(figsize=_as_float_tuple(panel_cfg.get('figsize'), (6.8, 5.4)))
+        ax = fig.add_subplot(111, projection='3d')
+        plot_frirnn_panel(ax, response_fn, z_ticks=z_ticks, zlabel=zlabel)
+        ax.view_init(elev=float(panel_cfg.get('elev', 40)), azim=float(panel_cfg.get('azim', -140)))
+        ax.tick_params(axis='both', which='major', labelsize=float(panel_cfg.get('tick_fontsize', 9)))
+        ax.tick_params(axis='z', which='major', labelsize=float(panel_cfg.get('tick_fontsize', 9)))
+        fig.subplots_adjust(
+            left=float(panel_cfg.get('left', fallback_left)),
+            right=float(panel_cfg.get('right', 0.97)),
+            bottom=float(panel_cfg.get('bottom', 0.18)),
+            top=float(panel_cfg.get('top', 0.98)),
+        )
+        audit = audit_matplotlib_figure(fig, context=f'local_transfer_slices panel {path.name}')
+        _save_matplotlib_figure(
+            fig,
+            path,
+            raw_payload={
+                'source_trace': 'docs/paper/src/paper_pipeline.py:make_local_transfer_slices_figure',
+                'panel': path.name,
+                VISUAL_AUDIT_KEY: audit,
+            },
+            dpi=600,
+            bbox_inches='tight',
+            pad_inches=float(panel_cfg.get('pad_inches', 0.22)),
+        )
+        return audit
+
+    audit_original = draw_surface(original_path, calculate_system_response, [30, 50, 100, 200], 'Sensitivity (V s/m)', 0.16)
+    audit_compensated = draw_surface(compensated_path, calculate_system_response_comp, [0.2, 0.5, 1, 2], 'Relative gain', 0.15)
+    out_name = make_bitmap_montage(
+        'local_transfer_slices.png',
+        [
+            {'source': str(original_path), 'label': '(a)', 'fit_width': 2700, 'trim_border': 80},
+            {'source': str(compensated_path), 'label': '(b)', 'fit_width': 2700, 'trim_border': 80},
+        ],
+        layout='horizontal',
+        padding=[85, 75, 85, 85],
+        gutter=(120, 80),
+        label_font_size=62,
+        label_font_size_pt=8.0,
+        latex_width_fraction=1.0,
+        note='Studio-adjustable two-panel local transfer slice montage.',
+        figure_key='local_transfer_slices',
+    )
+    out = FIGURES_DIR / out_name
+    raw_path = out.with_suffix('.raw.json')
+    raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
+    raw_payload[VISUAL_AUDIT_KEY] = combine_audits(
+        audit_original,
+        audit_compensated,
+        raw_payload.get(VISUAL_AUDIT_KEY, {}),
+        context='local_transfer_slices.png',
+    )
+    save_json(raw_path, raw_payload)
+    return out_name
+
+
 def make_board_inference_validation_workflow_figure() -> str:
+    cfg = get_figure_config('fig_17_board_inference_validation_workflow')
     schematic_boxes: List[Dict[str, Any]] = []
     schematic_arrows: List[Dict[str, Any]] = []
 
@@ -2504,22 +3156,30 @@ def make_board_inference_validation_workflow_figure() -> str:
         for idx, xx in enumerate(bars):
             ax.add_patch(plt.Rectangle((x + w * xx, y + h * 0.22), w * 0.055, h * (0.22 + 0.08 * idx), facecolor=color, edgecolor=color, lw=0.8, alpha=0.55))
 
-    fig_export, ax_export = plt.subplots(figsize=(7.15, 3.9), constrained_layout=True)
+    export_cfg = cfg.get('export_panel') or {}
+    fig_export, ax_export = plt.subplots(
+        figsize=_as_float_tuple(export_cfg.get('figsize'), (7.15, 3.9)),
+        constrained_layout=True,
+    )
     configure_axis(ax_export)
     reset_schematic_geometry()
-    draw_card(ax_export, 0.05, 0.17, 0.23, 0.67, 'trained\nWiener-KAN', 'weights + norms', '#eef3fb', '#1f4e79', card_id='trained_project', title_size=9.5, body_size=7.5)
-    draw_card(ax_export, 0.37, 0.13, 0.28, 0.75, 'C export\npackage', 'arrays, LUTs,\nscales', '#f1f8f5', '#0f6c5c', card_id='c_export', title_size=9.5, body_size=7.4)
-    draw_card(ax_export, 0.77, 0.17, 0.18, 0.67, 'embedded C\nkernel', 'sample-by-sample\ninference', '#fff7e8', '#c96b00', card_id='embedded_kernel', title_size=9.3, body_size=7.1)
-    icon_neural_project(ax_export, 0.08, 0.48, 0.17, 0.32, '#1f4e79')
-    icon_c_package(ax_export, 0.42, 0.41, 0.19, 0.40, '#0f6c5c')
-    icon_chip(ax_export, 0.79, 0.47, 0.13, 0.33, '#c96b00', label='C')
+    draw_card(ax_export, 0.05, 0.17, 0.23, 0.67, 'trained\nWiener-KAN', 'weights + norms', '#eef3fb', '#1f4e79', card_id='trained_project', title_size=float(export_cfg.get('card_title_size', 9.5)), body_size=float(export_cfg.get('card_body_size', 7.5)))
+    draw_card(ax_export, 0.37, 0.13, 0.28, 0.75, 'C export\npackage', 'arrays, LUTs,\nscales', '#f1f8f5', '#0f6c5c', card_id='c_export', title_size=float(export_cfg.get('card_title_size', 9.5)), body_size=float(export_cfg.get('c_export_card_body_size', 7.4)))
+    draw_card(ax_export, 0.77, 0.17, 0.18, 0.67, 'embedded C\nkernel', 'sample-by-sample\ninference', '#fff7e8', '#c96b00', card_id='embedded_kernel', title_size=float(export_cfg.get('embedded_card_title_size', 9.3)), body_size=float(export_cfg.get('embedded_card_body_size', 7.1)))
+    icon_neural = export_cfg.get('icon_neural_project', {})
+    icon_neural_project(ax_export, float(icon_neural.get('x', 0.08)), float(icon_neural.get('y', 0.48)), float(icon_neural.get('w', 0.17)), float(icon_neural.get('h', 0.32)), '#1f4e79')
+    icon_pkg = export_cfg.get('icon_c_package', {})
+    icon_c_package(ax_export, float(icon_pkg.get('x', 0.42)), float(icon_pkg.get('y', 0.41)), float(icon_pkg.get('w', 0.19)), float(icon_pkg.get('h', 0.40)), '#0f6c5c')
+    icon_ch = export_cfg.get('icon_chip', {})
+    icon_chip(ax_export, float(icon_ch.get('x', 0.79)), float(icon_ch.get('y', 0.47)), float(icon_ch.get('w', 0.13)), float(icon_ch.get('h', 0.33)), '#c96b00', label='C')
     trained_to_export_full = [(0.28, 0.505), (0.37, 0.505)]
     export_to_kernel_full = [(0.65, 0.505), (0.77, 0.505)]
+    export_arrow_lw = float(export_cfg.get('arrow_lw', 1.9))
     routed_arrow(
         ax_export,
         _shorten_polyline(trained_to_export_full),
         '#1f4e79',
-        lw=1.9,
+        lw=export_arrow_lw,
         arrow_id='trained_to_export',
         source='trained_project',
         target='c_export',
@@ -2529,7 +3189,7 @@ def make_board_inference_validation_workflow_figure() -> str:
         ax_export,
         _shorten_polyline(export_to_kernel_full),
         '#0f6c5c',
-        lw=1.9,
+        lw=export_arrow_lw,
         arrow_id='export_to_kernel',
         source='c_export',
         target='embedded_kernel',
@@ -2541,28 +3201,38 @@ def make_board_inference_validation_workflow_figure() -> str:
         raw_payload=schematic_payload('board inference export panel'),
     )
 
-    fig_validate, ax_validate = plt.subplots(figsize=(7.15, 4.25), constrained_layout=True)
+    validate_cfg = cfg.get('validate_panel') or {}
+    fig_validate, ax_validate = plt.subplots(
+        figsize=_as_float_tuple(validate_cfg.get('figsize'), (7.15, 4.25)),
+        constrained_layout=True,
+    )
     configure_axis(ax_validate)
     reset_schematic_geometry()
-    draw_card(ax_validate, 0.04, 0.33, 0.24, 0.40, 'test window\n+ TF reference', 'same input trace', '#f7f7f7', '#555555', card_id='test_window', title_size=8.9, body_size=7.0)
-    draw_card(ax_validate, 0.36, 0.56, 0.28, 0.34, 'QEMU run', 'numerical\nconsistency', '#eaf6f1', '#0f6c5c', card_id='qemu_run', title_size=9.2, body_size=7.0)
-    draw_card(ax_validate, 0.36, 0.10, 0.28, 0.39, 'STM32F405', 'Keil build\n+ UART loop', '#eef3fb', '#1f4e79', card_id='stm32_run', title_size=9.2, body_size=7.0)
-    draw_card(ax_validate, 0.74, 0.58, 0.21, 0.28, 'QEMU-MAE', 'C vs TF', '#ffffff', '#0f6c5c', card_id='qemu_metric', title_size=9.4, body_size=7.0)
-    draw_card(ax_validate, 0.74, 0.14, 0.21, 0.34, 'KEIL metrics', 'MAE, speed,\nRAM / Flash', '#ffffff', '#1f4e79', card_id='keil_metric', title_size=9.2, body_size=6.8)
-    icon_wave_reference(ax_validate, 0.07, 0.45, 0.18, 0.20)
-    icon_qemu(ax_validate, 0.41, 0.67, 0.19, 0.17)
-    icon_uart_metrics(ax_validate, 0.40, 0.18, 0.21, 0.20)
-    icon_metric_card(ax_validate, 0.78, 0.67, 0.15, 0.15, '#0f6c5c')
-    icon_metric_card(ax_validate, 0.78, 0.24, 0.15, 0.18, '#1f4e79')
+    draw_card(ax_validate, 0.04, 0.33, 0.24, 0.40, 'test window\n+ TF reference', 'same input trace', '#f7f7f7', '#555555', card_id='test_window', title_size=float(validate_cfg.get('test_title_size', 8.9)), body_size=float(validate_cfg.get('test_body_size', 7.0)))
+    draw_card(ax_validate, 0.36, 0.56, 0.28, 0.34, 'QEMU run', 'numerical\nconsistency', '#eaf6f1', '#0f6c5c', card_id='qemu_run', title_size=float(validate_cfg.get('card_title_size', 9.2)), body_size=float(validate_cfg.get('card_body_size', 7.0)))
+    draw_card(ax_validate, 0.36, 0.10, 0.28, 0.39, 'STM32F405', 'Keil build\n+ UART loop', '#eef3fb', '#1f4e79', card_id='stm32_run', title_size=float(validate_cfg.get('card_title_size', 9.2)), body_size=float(validate_cfg.get('card_body_size', 7.0)))
+    draw_card(ax_validate, 0.74, 0.58, 0.21, 0.28, 'QEMU-MAE', 'C vs TF', '#ffffff', '#0f6c5c', card_id='qemu_metric', title_size=float(validate_cfg.get('metric_title_size', 9.4)), body_size=7.0)
+    draw_card(ax_validate, 0.74, 0.14, 0.21, 0.34, 'KEIL metrics', 'MAE, speed,\nRAM / Flash', '#ffffff', '#1f4e79', card_id='keil_metric', title_size=float(validate_cfg.get('card_title_size', 9.2)), body_size=float(validate_cfg.get('metric_body_size', 6.8)))
+    icon_wave_ref = validate_cfg.get('icon_wave_reference', {})
+    icon_wave_reference(ax_validate, float(icon_wave_ref.get('x', 0.07)), float(icon_wave_ref.get('y', 0.45)), float(icon_wave_ref.get('w', 0.18)), float(icon_wave_ref.get('h', 0.20)))
+    icon_q = validate_cfg.get('icon_qemu', {})
+    icon_qemu(ax_validate, float(icon_q.get('x', 0.41)), float(icon_q.get('y', 0.67)), float(icon_q.get('w', 0.19)), float(icon_q.get('h', 0.17)))
+    icon_uart = validate_cfg.get('icon_uart_metrics', {})
+    icon_uart_metrics(ax_validate, float(icon_uart.get('x', 0.40)), float(icon_uart.get('y', 0.18)), float(icon_uart.get('w', 0.21)), float(icon_uart.get('h', 0.20)))
+    icon_qemu_card = validate_cfg.get('icon_metric_card_qemu', {})
+    icon_metric_card(ax_validate, float(icon_qemu_card.get('x', 0.78)), float(icon_qemu_card.get('y', 0.67)), float(icon_qemu_card.get('w', 0.15)), float(icon_qemu_card.get('h', 0.15)), '#0f6c5c')
+    icon_keil_card = validate_cfg.get('icon_metric_card_keil', {})
+    icon_metric_card(ax_validate, float(icon_keil_card.get('x', 0.78)), float(icon_keil_card.get('y', 0.24)), float(icon_keil_card.get('w', 0.15)), float(icon_keil_card.get('h', 0.18)), '#1f4e79')
     test_to_qemu_full = [(0.28, 0.58), (0.36, 0.72)]
     test_to_stm32_full = [(0.28, 0.48), (0.36, 0.29)]
     qemu_to_metric_full = [(0.64, 0.72), (0.74, 0.72)]
     stm32_to_metric_full = [(0.64, 0.29), (0.74, 0.29)]
+    validate_arrow_lw = float(validate_cfg.get('arrow_lw', 1.8))
     routed_arrow(
         ax_validate,
         _shorten_polyline(test_to_qemu_full),
         '#555555',
-        lw=1.8,
+        lw=validate_arrow_lw,
         arrow_id='test_to_qemu',
         source='test_window',
         target='qemu_run',
@@ -2573,7 +3243,7 @@ def make_board_inference_validation_workflow_figure() -> str:
         ax_validate,
         _shorten_polyline(test_to_stm32_full),
         '#555555',
-        lw=1.8,
+        lw=validate_arrow_lw,
         arrow_id='test_to_stm32',
         source='test_window',
         target='stm32_run',
@@ -2584,7 +3254,7 @@ def make_board_inference_validation_workflow_figure() -> str:
         ax_validate,
         _shorten_polyline(qemu_to_metric_full),
         '#0f6c5c',
-        lw=1.8,
+        lw=validate_arrow_lw,
         arrow_id='qemu_to_metric',
         source='qemu_run',
         target='qemu_metric',
@@ -2594,7 +3264,7 @@ def make_board_inference_validation_workflow_figure() -> str:
         ax_validate,
         _shorten_polyline(stm32_to_metric_full),
         '#1f4e79',
-        lw=1.8,
+        lw=validate_arrow_lw,
         arrow_id='stm32_to_metric',
         source='stm32_run',
         target='keil_metric',
@@ -2617,6 +3287,7 @@ def make_board_inference_validation_workflow_figure() -> str:
         gutter=(60, 60),
         label_font_size=50,
         note='Composes the export and two-target validation panels with the unified bitmap montage module.',
+        figure_key='fig_17_board_inference_validation_workflow',
     )
     raw_path = FIGURES_DIR / 'fig_17_board_inference_validation_workflow.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -2643,23 +3314,42 @@ def make_board_inference_validation_workflow_figure() -> str:
     save_json(raw_path, raw_payload)
     return name
 
-def make_parallel_wiener_principle_schematic() -> str:
-    fig, ax = plt.subplots(figsize=(10.8, 4.5), constrained_layout=True)
+def make_parallel_wiener_principle_schematic(figure_key: str = 'fig_22_parallel_wiener_equivalent_montage') -> str:
+    cfg = get_figure_config(figure_key)
+    principle_cfg = cfg.get('principle_panel') or {}
+    label_fs = float(principle_cfg.get('label_fontsize', 11))
+    subtitle_fs = float(principle_cfg.get('subtitle_fontsize', 7.5))
+    input_arrow_lw = float(principle_cfg.get('input_arrow_lw', 2.0))
+    branch_arrow_lw = float(principle_cfg.get('branch_arrow_lw', 1.7))
+    h_to_f_arrow_lw = float(principle_cfg.get('h_to_f_arrow_lw', 1.8))
+    f_to_sum_arrow_lw = float(principle_cfg.get('f_to_sum_arrow_lw', 1.65))
+    input_text = str(principle_cfg.get('input_text', 'input\nx(t)'))
+    input_x = float(principle_cfg.get('input_x', 0.08))
+    output_text = str(principle_cfg.get('output_text', 'output\ny(t)'))
+    output_x = float(principle_cfg.get('output_x', 0.94))
+    margin_left = float(principle_cfg.get('margin_left', 0.0))
+    margin_right = float(principle_cfg.get('margin_right', 0.0))
+    margin_top = float(principle_cfg.get('margin_top', 0.0))
+    margin_bottom = float(principle_cfg.get('margin_bottom', 0.0))
+    pad_inches = float(principle_cfg.get('pad_inches', 0.08))
+    fig, ax = plt.subplots(
+        figsize=_as_float_tuple(principle_cfg.get('figsize'), (10.8, 4.5)),
+        constrained_layout=True,
+    )
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
     schematic_boxes: List[Dict[str, Any]] = []
     schematic_arrows: List[Dict[str, Any]] = []
     split_point = (0.15, 0.50)
-    ax.text(0.08, 0.50, 'input\nx(t)', ha='center', va='center', fontsize=11, weight='bold')
+    ax.text(input_x, 0.50, input_text, ha='center', va='center', fontsize=label_fs, weight='bold')
     input_arrow_points, input_arrow_raw = _short_arrow_payload(
         'input_to_split',
-        [(0.11, 0.50), split_point],
+        [(input_x + 0.03, 0.50), split_point],
         require_axis_aligned=True,
     )
-    ax.annotate('', xy=input_arrow_points[-1], xytext=input_arrow_points[0], arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333', shrinkA=0, shrinkB=0))
+    ax.annotate('', xy=input_arrow_points[-1], xytext=input_arrow_points[0], arrowprops=dict(arrowstyle='->', lw=input_arrow_lw, color='#333333', shrinkA=0, shrinkB=0))
     schematic_arrows.append(input_arrow_raw)
-    ax.add_patch(Circle(split_point, 0.006, facecolor='#666666', edgecolor='none', zorder=4))
     branch_y = [0.72, 0.50, 0.28]
     branch_names = ['low magnitude', 'middle magnitude', 'high magnitude']
     branch_colors = ['#1f4e79', '#0f6c5c', '#c96b00']
@@ -2681,10 +3371,10 @@ def make_parallel_wiener_principle_schematic() -> str:
             target=f'h{i}',
             require_axis_aligned=(abs(y - split_point[1]) < 1e-9),
         )
-        ax.annotate('', xy=split_to_h_points[-1], xytext=split_to_h_points[0], arrowprops=dict(arrowstyle='->', lw=1.7, color='#666666', shrinkA=0, shrinkB=0))
+        ax.annotate('', xy=split_to_h_points[-1], xytext=split_to_h_points[0], arrowprops=dict(arrowstyle='->', lw=branch_arrow_lw, color='#666666', shrinkA=0, shrinkB=0))
         schematic_arrows.append(split_to_h_raw)
-        ax.text(0.31, y + 0.025, f'h{i}(s)', ha='center', va='center', fontsize=11, weight='bold', color=color)
-        ax.text(0.31, y - 0.030, 'local IIR\ndynamics', ha='center', va='center', fontsize=7.5)
+        ax.text(0.31, y + 0.025, f'h{i}(s)', ha='center', va='center', fontsize=label_fs, weight='bold', color=color)
+        ax.text(0.31, y - 0.030, 'local IIR\ndynamics', ha='center', va='center', fontsize=subtitle_fs)
         h_to_f_points, h_to_f_raw = _short_arrow_payload(
             f'h{i}_to_f{i}',
             [(0.40, y), (0.48, y)],
@@ -2692,10 +3382,10 @@ def make_parallel_wiener_principle_schematic() -> str:
             target=f'f{i}',
             require_axis_aligned=True,
         )
-        ax.annotate('', xy=h_to_f_points[-1], xytext=h_to_f_points[0], arrowprops=dict(arrowstyle='->', lw=1.8, color=color, shrinkA=0, shrinkB=0))
+        ax.annotate('', xy=h_to_f_points[-1], xytext=h_to_f_points[0], arrowprops=dict(arrowstyle='->', lw=h_to_f_arrow_lw, color=color, shrinkA=0, shrinkB=0))
         schematic_arrows.append(h_to_f_raw)
-        ax.text(0.57, y + 0.025, f'f{i}(.)', ha='center', va='center', fontsize=11, weight='bold', color=color)
-        ax.text(0.57, y - 0.030, name, ha='center', va='center', fontsize=7.5)
+        ax.text(0.57, y + 0.025, f'f{i}(.)', ha='center', va='center', fontsize=label_fs, weight='bold', color=color)
+        ax.text(0.57, y - 0.030, name, ha='center', va='center', fontsize=subtitle_fs)
         sum_target_y = 0.50 + (y - 0.50) * 0.10
         f_to_sum_points, f_to_sum_raw = _short_arrow_payload(
             f'f{i}_to_sum',
@@ -2703,18 +3393,18 @@ def make_parallel_wiener_principle_schematic() -> str:
             source=f'f{i}',
             target='sum',
         )
-        ax.annotate('', xy=f_to_sum_points[-1], xytext=f_to_sum_points[0], arrowprops=dict(arrowstyle='->', lw=1.65, color=color, shrinkA=0, shrinkB=0))
+        ax.annotate('', xy=f_to_sum_points[-1], xytext=f_to_sum_points[0], arrowprops=dict(arrowstyle='->', lw=f_to_sum_arrow_lw, color=color, shrinkA=0, shrinkB=0))
         schematic_arrows.append(f_to_sum_raw)
     ax.text(sum_center[0], sum_center[1], r'$\Sigma$', ha='center', va='center', fontsize=16, weight='bold')
     sum_to_output_points, sum_to_output_raw = _short_arrow_payload(
         'sum_to_output',
-        [(sum_center[0] + sum_radius + 0.006, 0.50), (0.91, 0.50)],
+        [(sum_center[0] + sum_radius + 0.006, 0.50), (output_x - 0.03, 0.50)],
         source='sum',
         require_axis_aligned=True,
     )
-    ax.annotate('', xy=sum_to_output_points[-1], xytext=sum_to_output_points[0], arrowprops=dict(arrowstyle='->', lw=2.0, color='#333333', shrinkA=0, shrinkB=0))
+    ax.annotate('', xy=sum_to_output_points[-1], xytext=sum_to_output_points[0], arrowprops=dict(arrowstyle='->', lw=input_arrow_lw, color='#333333', shrinkA=0, shrinkB=0))
     schematic_arrows.append(sum_to_output_raw)
-    ax.text(0.94, 0.50, 'output\ny(t)', ha='center', va='center', fontsize=11, weight='bold')
+    ax.text(output_x, 0.50, output_text, ha='center', va='center', fontsize=label_fs, weight='bold')
     raw_payload = {
         'source': 'R14 parallel Wiener equivalent structure',
         'branches': branch_names,
@@ -2730,7 +3420,11 @@ def make_parallel_wiener_principle_schematic() -> str:
         fig,
         panel_name,
         dpi=300,
-        pad_inches=0.08,
+        pad_inches=pad_inches,
+        margin_left=margin_left,
+        margin_right=margin_right,
+        margin_top=margin_top,
+        margin_bottom=margin_bottom,
         raw_payload=raw_payload,
     )
     root_png = FIGURES_DIR / 'fig_14_parallel_wiener_principle.png'
@@ -2750,6 +3444,8 @@ def load_wiener_parallel_summary() -> Dict[str, Any]:
 
 def copy_wiener_parallel_figures() -> Dict[str, str]:
     image_dir = WIENER_PARALLEL_DIR / 'image'
+    parent_cfg = get_figure_config('fig_22_parallel_wiener_equivalent_montage')
+    parent_response_cfg = parent_cfg.get('response_panel') or {}
     copied: Dict[str, str] = {}
     for key, stem in {'parallel_wiener_branch_weights': '14.NN_extern_simu_reproduced_fh_kx'}.items():
         src_png = image_dir / f'{stem}.png'
@@ -2776,14 +3472,24 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
         y_label: str,
         sim_key: str,
         measured_key: str,
+        *,
+        figure_key: str,
     ) -> str:
-        fig, ax = plt.subplots(figsize=(5.8, 4.2), constrained_layout=True)
+        cfg = get_figure_config(figure_key)
+        response_cfg = cfg.get('response_panel') if isinstance(cfg.get('response_panel'), dict) else cfg
+        response_cfg = _deep_merge(parent_response_cfg, response_cfg) if response_cfg else parent_response_cfg
+        xy_cfg = response_cfg.get('xy_plot') if isinstance(response_cfg.get('xy_plot'), dict) else {}
+        legend_cfg = response_cfg.get('legend') if isinstance(response_cfg.get('legend'), dict) else {}
+        fig, ax = plt.subplots(
+            figsize=_as_float_tuple(response_cfg.get('figsize'), (5.8, 4.2)),
+            constrained_layout=True,
+        )
         ax.plot(
             analysis['amplitudes'],
             analysis[sim_key],
             color='#1f77b4',
             marker='o',
-            linewidth=2.0,
+            linewidth=float(response_cfg.get('line_width', 2.0)),
             label='Wiener simu',
         )
         ax.plot(
@@ -2791,14 +3497,24 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
             analysis[measured_key],
             color='#ff7f50',
             marker='s',
-            linewidth=2.0,
+            linewidth=float(response_cfg.get('line_width', 2.0)),
             label='Measured',
         )
         ax.set_xscale('log')
-        ax.set_xlabel('Magnitude (m/s^2)')
-        ax.set_ylabel(y_label)
-        ax.grid(True, which='both', linestyle='--', alpha=0.35)
-        ax.legend(frameon=True, loc='upper left')
+        ax.set_xlabel('Magnitude (m/s^2)', fontsize=float(xy_cfg.get('label_fontsize', 10)), labelpad=float(xy_cfg.get('labelpad', 4)))
+        ax.set_ylabel(y_label, fontsize=float(xy_cfg.get('label_fontsize', 10)), labelpad=float(xy_cfg.get('labelpad', 4)))
+        if 'xlim' in xy_cfg:
+            ax.set_xlim(*_as_float_tuple(xy_cfg.get('xlim'), ax.get_xlim()))
+        if 'ylim' in xy_cfg:
+            ax.set_ylim(*_as_float_tuple(xy_cfg.get('ylim'), ax.get_ylim()))
+        ax.tick_params(axis='both', which='major', labelsize=float(xy_cfg.get('tick_fontsize', 9)), pad=float(xy_cfg.get('tick_pad', 3)))
+        ax.grid(True, which='both', linestyle='--', alpha=float(response_cfg.get('grid_alpha', 0.35)))
+        ax.legend(
+            frameon=bool(legend_cfg.get('frameon', response_cfg.get('legend_frameon', True))),
+            loc=str(legend_cfg.get('loc', response_cfg.get('legend_loc', 'upper left'))),
+            fontsize=float(legend_cfg.get('fontsize', response_cfg.get('legend_fontsize', 8.5))),
+            ncol=int(legend_cfg.get('ncol', response_cfg.get('legend_ncol', 1))),
+        )
         out = FIGURES_DIR / name
         return _save_matplotlib_figure(
             fig,
@@ -2818,6 +3534,7 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
         'Center frequency (Hz)',
         'center_freqs',
         'fitted_center_freqs',
+        figure_key='fig_14_parallel_wiener_center_frequency',
     )
     copied['parallel_wiener_gain_100hz'] = plot_response_panel(
         'fig_14_parallel_wiener_gain_100hz.png',
@@ -2825,6 +3542,7 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
         'Gain at 100 Hz',
         'gain_at_100',
         'fitted_gain_at_100',
+        figure_key='fig_14_parallel_wiener_gain_100hz',
     )
     return copied
 
@@ -2845,7 +3563,22 @@ def make_bitmap_montage(
     note: str,
     latex_width_fraction: float = 1.0,
     label_font_size_pt: float = SUBFIGURE_LABEL_TARGET_PT,
+    figure_key: str | None = None,
 ) -> str:
+    if figure_key:
+        cfg = get_figure_config(figure_key)
+        panel_specs = _merge_panel_specs(panel_specs, cfg.get('panels'))
+        montage_cfg = cfg.get('montage') or {}
+        layout = str(montage_cfg.get('layout', layout))
+        rows = int(montage_cfg['rows']) if montage_cfg.get('rows') is not None else rows
+        cols = int(montage_cfg['cols']) if montage_cfg.get('cols') is not None else cols
+        padding = _as_int_spacing(montage_cfg.get('padding'), padding)
+        gutter = _as_int_spacing(montage_cfg.get('gutter'), gutter)
+        label_font_size = int(montage_cfg.get('label_font_size', label_font_size))
+        label_font_size_pt = float(montage_cfg.get('label_font_size_pt', label_font_size_pt))
+        latex_width_fraction = float(montage_cfg.get('latex_width_fraction', latex_width_fraction))
+        cell_widths = _as_int_list(montage_cfg.get('cell_widths'), cell_widths)
+        cell_heights = _as_int_list(montage_cfg.get('cell_heights'), cell_heights)
     panels = [
         PanelSpec(
             path=FIGURES_DIR / str(spec['source']),
@@ -2860,6 +3593,10 @@ def make_bitmap_montage(
             row_span=int(spec.get('row_span', 1)),
             col_span=int(spec.get('col_span', 1)),
             trim_border=spec.get('trim_border'),
+            trim_border_left=spec.get('trim_border_left'),
+            trim_border_right=spec.get('trim_border_right'),
+            trim_border_top=spec.get('trim_border_top'),
+            trim_border_bottom=spec.get('trim_border_bottom'),
             trim_tolerance=int(spec.get('trim_tolerance', 8)),
         )
         for spec in panel_specs
@@ -2903,6 +3640,8 @@ def make_bitmap_montage(
 
 def make_paper_bitmap_montages() -> Dict[str, str]:
     montages: Dict[str, str] = {}
+    make_met_structure_figure()
+    make_readout_circuit_figure()
     montages['met_structure_readout'] = make_bitmap_montage(
         'fig_20_met_structure_readout_montage.png',
         [
@@ -2914,7 +3653,10 @@ def make_paper_bitmap_montages() -> Dict[str, str]:
         gutter=(140, 80),
         label_font_size=66,
         note='Combines the MET structural schematic and the readout circuit into one labeled two-panel figure.',
+        figure_key='fig_20_met_structure_readout_montage',
     )
+    make_calibration_table_test_figure()
+    make_dataset_preprocessing_workflow_figure()
     montages['experimental_setup_dataset_workflow'] = make_bitmap_montage(
         'fig_21_experimental_setup_dataset_workflow_montage.png',
         [
@@ -2926,6 +3668,7 @@ def make_paper_bitmap_montages() -> Dict[str, str]:
         gutter=(110, 90),
         label_font_size=64,
         note='Places the experimental setup photograph and vertical illustrated dataset construction workflow side by side.',
+        figure_key='fig_21_experimental_setup_dataset_workflow_montage',
     )
     montages['parallel_wiener_response_row'] = make_bitmap_montage(
         'fig_22_parallel_wiener_response_row.png',
@@ -2938,6 +3681,7 @@ def make_paper_bitmap_montages() -> Dict[str, str]:
         gutter=(75, 60),
         label_font_size=50,
         note='Composes the two response-trajectory plots as the second row of the parallel Wiener equivalent figure.',
+        figure_key='fig_22_parallel_wiener_response_row',
     )
     montages['parallel_wiener_equivalent'] = make_bitmap_montage(
         'fig_22_parallel_wiener_equivalent_montage.png',
@@ -2950,7 +3694,9 @@ def make_paper_bitmap_montages() -> Dict[str, str]:
         gutter=(90, 105),
         label_font_size=68,
         note='Composes the parallel Wiener principle as the first row and the two response plots as the second row.',
+        figure_key='fig_22_parallel_wiener_equivalent_montage',
     )
+    make_kan_neuron_compensation_figure()
     montages['kan_neuron_compensation'] = make_bitmap_montage(
         'fig_23_kan_neuron_compensation_montage.png',
         [
@@ -2963,6 +3709,7 @@ def make_paper_bitmap_montages() -> Dict[str, str]:
         gutter=0,
         label_font_size=54,
         note='Normalizes the traced single KAN-neuron compensation bitmap through the same montage module.',
+        figure_key='fig_23_kan_neuron_compensation_montage',
     )
     return montages
 
@@ -3283,26 +4030,47 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
 
     generated: Dict[str, str] = {}
 
-    fig_fn, ax_fn = plt.subplots(figsize=(5.6, 2.67), constrained_layout=True)
+    freq_cfg = get_figure_config('fig_08_frequency_response_comparison')
+    fn_panel_cfg = freq_cfg.get('fn_panel') or {}
+    fig_fn, ax_fn = plt.subplots(
+        figsize=_as_float_tuple(fn_panel_cfg.get('figsize'), (5.6, 2.67)),
+        constrained_layout=True,
+    )
     for label, series in trajectories.items():
         linestyle = '--' if label == 'Origin' else '-'
-        ax_fn.plot(series['magnitudes'], series['natural_frequency_hz'], linestyle, label=label, linewidth=2.2)
+        ax_fn.plot(series['magnitudes'], series['natural_frequency_hz'], linestyle, label=label, linewidth=float(fn_panel_cfg.get('line_width', 2.2)))
     ax_fn.set_xlabel(r'Magnitude (m/s$^2$)')
     ax_fn.set_ylabel('Natural frequency (Hz)')
-    ax_fn.legend(frameon=True)
+    ax_fn.legend(
+        loc=str(fn_panel_cfg.get('legend_loc', 'best')),
+        frameon=bool(fn_panel_cfg.get('legend_frameon', True)),
+        fontsize=float(fn_panel_cfg.get('legend_fontsize', plt.rcParams.get('legend.fontsize', 8.5))),
+    )
     panel_fn = save_panel_figure(fig_fn, 'fig_08_frequency_response_comparison_a_fn.png')
 
-    fig_sens, ax_sens = plt.subplots(figsize=(5.6, 2.67), constrained_layout=True)
+    sens_panel_cfg = freq_cfg.get('sensitivity_panel') or {}
+    fig_sens, ax_sens = plt.subplots(
+        figsize=_as_float_tuple(sens_panel_cfg.get('figsize'), (5.6, 2.67)),
+        constrained_layout=True,
+    )
     for label, series in trajectories.items():
         linestyle = '--' if label == 'Origin' else '-'
-        ax_sens.plot(series['magnitudes'], series['sensitivity_100hz'], linestyle, label=label, linewidth=2.2)
+        ax_sens.plot(series['magnitudes'], series['sensitivity_100hz'], linestyle, label=label, linewidth=float(sens_panel_cfg.get('line_width', 2.2)))
     ax_sens.set_xlabel(r'Magnitude (m/s$^2$)')
     ax_sens.set_ylabel('Sensitivity at 100 Hz')
-    ax_sens.legend(frameon=True)
+    ax_sens.legend(
+        loc=str(sens_panel_cfg.get('legend_loc', 'best')),
+        frameon=bool(sens_panel_cfg.get('legend_frameon', True)),
+        fontsize=float(sens_panel_cfg.get('legend_fontsize', plt.rcParams.get('legend.fontsize', 8.5))),
+    )
     panel_sens = save_panel_figure(fig_sens, 'fig_08_frequency_response_comparison_b_sensitivity.png')
 
     wk = next(row for row in main_rows if row['label'] == 'Wiener-KAN')
-    fig_reduction, ax_reduction = plt.subplots(figsize=(5.8, 4.4), constrained_layout=True)
+    reduction_cfg = freq_cfg.get('reduction_panel') or {}
+    fig_reduction, ax_reduction = plt.subplots(
+        figsize=_as_float_tuple(reduction_cfg.get('figsize'), (5.8, 4.4)),
+        constrained_layout=True,
+    )
     metric_groups = ['Freq drift\n(Hz)', 'Sens drift\n(%)']
     x = np.arange(len(metric_groups), dtype=float)
     width = 0.34
@@ -3314,7 +4082,11 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
     ax_reduction.set_xticks(x, metric_groups)
     ax_reduction.set_ylim(0, max(origin_values + wk_values) * 1.18)
     ax_reduction.grid(True, axis='y', alpha=0.22)
-    ax_reduction.legend(frameon=True, loc='upper right', fontsize=8.0)
+    ax_reduction.legend(
+        frameon=bool(reduction_cfg.get('legend_frameon', True)),
+        loc=str(reduction_cfg.get('legend_loc', 'upper right')),
+        fontsize=float(reduction_cfg.get('legend_fontsize', 8.0)),
+    )
     for bars in (bars_origin, bars_wk):
         for bar in bars:
             value = float(bar.get_height())
@@ -3324,51 +4096,130 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
                 f'{value:.2f}',
                 ha='center',
                 va='bottom',
-                fontsize=7.8,
+                fontsize=float(reduction_cfg.get('annotation_fontsize', 7.8)),
                 color='#222222',
             )
     panel_reduction = save_panel_figure(fig_reduction, 'fig_08_frequency_response_comparison_c_drift_reduction.png')
 
-    response_path = TRAJECTORY_MODELS[0][1]
+    response_cfg = freq_cfg.get('response_panel') or {}
+    response_path = str(response_cfg.get('linear_response_path') or TRAJECTORY_MODELS[0][1])
     response_payload = load_json(response_path)
     response_freqs = np.array(response_payload['frequencies'], dtype=float)
     response_mags = np.array(response_payload['magnitudes'], dtype=float)
     response_origin = [np.array(row, dtype=float) for row in response_payload['gains_origin']]
     response_comped = [np.array(row, dtype=float) for row in response_payload['gains_comped']]
-    selected_indices = np.linspace(0, len(response_mags) - 1, 5, dtype=int).tolist()
-    fig_response, ax_response = plt.subplots(figsize=(5.35, 5.35))
-    cmap = plt.cm.get_cmap('viridis', len(selected_indices) + 2)
-    magnitude_handles: List[Line2D] = []
-    magnitude_labels: List[str] = []
-    for color_idx, mag_idx in enumerate(selected_indices):
-        color = cmap(color_idx + 1)
-        ax_response.loglog(response_freqs, response_origin[mag_idx], linestyle='--', color=color, lw=1.5, alpha=0.72)
-        handle, = ax_response.loglog(response_freqs, response_comped[mag_idx], linestyle='-', color=color, lw=1.85)
-        magnitude_handles.append(handle)
-        magnitude_labels.append(rf'{response_mags[mag_idx]:.2f} m/s$^2$')
-    style_handles = [
-        Line2D([0], [0], color='#333333', lw=1.6, linestyle='--', label='Origin'),
-        Line2D([0], [0], color='#333333', lw=1.8, linestyle='-', label='Wiener-KAN'),
-    ]
-    first_legend = ax_response.legend(
-        magnitude_handles,
-        magnitude_labels,
-        loc='center left',
-        bbox_to_anchor=(1.02, 0.55),
-        frameon=False,
-        fontsize=7.1,
-        borderaxespad=0.0,
-        handlelength=2.0,
-    )
-    ax_response.add_artist(first_legend)
-    ax_response.legend(handles=style_handles, loc='lower left', frameon=True, fontsize=7.4)
-    ax_response.set_xlim(10, 128)
-    ax_response.set_ylim(30, 250)
-    ax_response.set_xlabel('Frequency (Hz)')
-    ax_response.set_ylabel('Sensitivity (V s/m)')
+    fig_response, ax_response = plt.subplots(figsize=_as_float_tuple(response_cfg.get('figsize'), (5.35, 5.35)))
+    curve_mode = str(response_cfg.get('curve_mode', 'selected_magnitudes'))
+    if curve_mode == 'all_magnitudes_dual_legend':
+        selected_indices = list(range(len(response_mags)))
+        cmap = plt.cm.get_cmap(str(response_cfg.get('colormap', 'tab20')), len(selected_indices))
+        origin_handles: List[Line2D] = []
+        comped_handles: List[Line2D] = []
+        magnitude_labels: List[str] = []
+        for color_idx, mag_idx in enumerate(selected_indices):
+            color = cmap(color_idx)
+            origin_handle, = ax_response.loglog(
+                response_freqs,
+                response_origin[mag_idx],
+                linestyle=str(response_cfg.get('origin_linestyle', '-')),
+                color=color,
+                lw=float(response_cfg.get('origin_linewidth', 1.5)),
+                alpha=float(response_cfg.get('origin_alpha', 0.95)),
+            )
+            comped_handle, = ax_response.loglog(
+                response_freqs,
+                response_comped[mag_idx],
+                linestyle=str(response_cfg.get('comped_linestyle', '--')),
+                color=color,
+                lw=float(response_cfg.get('comped_linewidth', 1.5)),
+                alpha=float(response_cfg.get('comped_alpha', 0.95)),
+            )
+            origin_handles.append(origin_handle)
+            comped_handles.append(comped_handle)
+            magnitude_labels.append(rf'@ {response_mags[mag_idx]:.2f} m/s$^2$')
+        origin_anchor = _as_float_tuple(response_cfg.get('origin_legend_bbox_to_anchor'), (1.02, 1.0))
+        compensated_anchor = _as_float_tuple(response_cfg.get('compensated_legend_bbox_to_anchor'), (1.38, 1.0))
+        if response_cfg.get('legend_column_gap') is not None:
+            compensated_anchor = (origin_anchor[0] + float(response_cfg.get('legend_column_gap', 0.36)), compensated_anchor[1])
+        origin_legend = ax_response.legend(
+            origin_handles,
+            magnitude_labels,
+            title=str(response_cfg.get('origin_legend_title', 'ORIGIN')),
+            loc=str(response_cfg.get('origin_legend_loc', 'upper left')),
+            bbox_to_anchor=origin_anchor,
+            frameon=bool(response_cfg.get('origin_legend_frameon', False)),
+            fontsize=float(response_cfg.get('origin_legend_fontsize', response_cfg.get('legend_fontsize', 7.1))),
+            title_fontsize=float(response_cfg.get('origin_legend_title_fontsize', response_cfg.get('legend_title_fontsize', 8.5))),
+            ncol=int(response_cfg.get('origin_legend_ncol', 1)),
+            borderaxespad=float(response_cfg.get('legend_borderaxespad', 0.0)),
+            handlelength=float(response_cfg.get('legend_handlelength', 2.0)),
+            labelspacing=float(response_cfg.get('legend_labelspacing', 0.42)),
+        )
+        ax_response.add_artist(origin_legend)
+        ax_response.legend(
+            comped_handles,
+            magnitude_labels,
+            title=str(response_cfg.get('compensated_legend_title', 'Compensated')),
+            loc=str(response_cfg.get('compensated_legend_loc', 'upper left')),
+            bbox_to_anchor=compensated_anchor,
+            frameon=bool(response_cfg.get('compensated_legend_frameon', False)),
+            fontsize=float(response_cfg.get('compensated_legend_fontsize', response_cfg.get('legend_fontsize', 7.1))),
+            title_fontsize=float(response_cfg.get('compensated_legend_title_fontsize', response_cfg.get('legend_title_fontsize', 8.5))),
+            ncol=int(response_cfg.get('compensated_legend_ncol', 1)),
+            borderaxespad=float(response_cfg.get('legend_borderaxespad', 0.0)),
+            handlelength=float(response_cfg.get('legend_handlelength', 2.0)),
+            labelspacing=float(response_cfg.get('legend_labelspacing', 0.42)),
+        )
+    else:
+        selected_indices = np.linspace(0, len(response_mags) - 1, 5, dtype=int).tolist()
+        cmap = plt.cm.get_cmap('viridis', len(selected_indices) + 2)
+        magnitude_handles: List[Line2D] = []
+        magnitude_labels: List[str] = []
+        for color_idx, mag_idx in enumerate(selected_indices):
+            color = cmap(color_idx + 1)
+            ax_response.loglog(response_freqs, response_origin[mag_idx], linestyle='--', color=color, lw=float(response_cfg.get('origin_linewidth', 1.5)), alpha=float(response_cfg.get('origin_alpha', 0.72)))
+            handle, = ax_response.loglog(response_freqs, response_comped[mag_idx], linestyle='-', color=color, lw=float(response_cfg.get('comped_linewidth', 1.85)))
+            magnitude_handles.append(handle)
+            magnitude_labels.append(rf'{response_mags[mag_idx]:.2f} m/s$^2$')
+        style_handles = [
+            Line2D([0], [0], color='#333333', lw=1.6, linestyle='--', label='Origin'),
+            Line2D([0], [0], color='#333333', lw=1.8, linestyle='-', label='Wiener-KAN'),
+        ]
+        first_legend = ax_response.legend(
+            magnitude_handles,
+            magnitude_labels,
+            loc=str(response_cfg.get('magnitude_legend_loc', 'center left')),
+            bbox_to_anchor=tuple(response_cfg.get('magnitude_legend_bbox_to_anchor', [1.02, 0.55])),
+            frameon=bool(response_cfg.get('magnitude_legend_frameon', False)),
+            fontsize=float(response_cfg.get('magnitude_legend_fontsize', 7.1)),
+            ncol=int(response_cfg.get('magnitude_legend_ncol', 1)),
+            borderaxespad=0.0,
+            handlelength=2.0,
+        )
+        ax_response.add_artist(first_legend)
+        ax_response.legend(
+            handles=style_handles,
+            loc=str(response_cfg.get('style_legend_loc', 'lower left')),
+            bbox_to_anchor=tuple(response_cfg['style_legend_bbox_to_anchor']) if response_cfg.get('style_legend_bbox_to_anchor') else None,
+            frameon=bool(response_cfg.get('style_legend_frameon', True)),
+            fontsize=float(response_cfg.get('style_legend_fontsize', 7.4)),
+            ncol=int(response_cfg.get('style_legend_ncol', 1)),
+        )
+    xy_cfg = response_cfg.get('xy_plot') if isinstance(response_cfg.get('xy_plot'), dict) else {}
+    ax_response.set_xlim(*_as_float_tuple(xy_cfg.get('xlim'), (10, 128)))
+    ax_response.set_ylim(*_as_float_tuple(xy_cfg.get('ylim'), (30, 250)))
+    ax_response.set_xlabel(str(xy_cfg.get('xlabel', 'Frequency (Hz)')), fontsize=float(xy_cfg.get('label_fontsize', plt.rcParams.get('axes.labelsize', 10))), labelpad=float(xy_cfg.get('labelpad', 4.0)))
+    ax_response.set_ylabel(str(xy_cfg.get('ylabel', r'Sensitivity (V $\cdot$ s/m)')), fontsize=float(xy_cfg.get('label_fontsize', plt.rcParams.get('axes.labelsize', 10))), labelpad=float(xy_cfg.get('labelpad', 4.0)))
+    ax_response.tick_params(axis='both', which='major', labelsize=float(xy_cfg.get('tick_fontsize', plt.rcParams.get('xtick.labelsize', 9))), pad=float(xy_cfg.get('tick_pad', 3.0)))
     ax_response.set_box_aspect(1.0)
-    ax_response.grid(True, which='both', linestyle='--', alpha=0.42)
-    fig_response.subplots_adjust(left=0.14, right=0.72, bottom=0.14, top=0.97)
+    ax_response.grid(True, which='both', linestyle='--', alpha=float(response_cfg.get('grid_alpha', 0.42)))
+    response_margins = response_cfg.get('margins') or {}
+    fig_response.subplots_adjust(
+        left=float(response_margins.get('left', 0.14)),
+        right=float(response_margins.get('right', 0.72)),
+        bottom=float(response_margins.get('bottom', 0.14)),
+        top=float(response_margins.get('top', 0.97)),
+    )
     panel_response = save_panel_figure(fig_response, 'fig_08_frequency_response_comparison_d_response_before_after.png')
 
     name = make_bitmap_montage(
@@ -3389,6 +4240,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
         label_font_size=48,
         note='Composes the frequency-response comparison figure with panel (d) in the upper-left, panels (a) and (b) vertically stacked on the upper-right, panel (e) at the lower-left, and the four-bar panel (c) at the lower-right.',
         latex_width_fraction=0.85,
+        figure_key='fig_08_frequency_response_comparison',
     )
     raw_path = FIGURES_DIR / 'fig_08_frequency_response_comparison.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -3446,6 +4298,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
         label_offset=0,
         fit_width=1650,
         trim_border=28,
+        figure_key='fig_13_compensation_distribution',
     )
     name = make_bitmap_montage(
         'fig_13_compensation_distribution.png',
@@ -3456,6 +4309,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
         label_font_size=46,
         note='Composes the representative metric-range panels with the unified bitmap montage module.',
         latex_width_fraction=0.86,
+        figure_key='fig_13_compensation_distribution',
     )
     raw_path = FIGURES_DIR / 'fig_13_compensation_distribution.raw.json'
     raw_payload = json.loads(raw_path.read_text(encoding='utf-8'))
@@ -3504,7 +4358,261 @@ def save_figure_raw_files(payload: Dict[str, Any]) -> None:
         save_json(raw_path, merged)
 
 
-def generate_all() -> Dict[str, Any]:
+def _origin_metrics_from_main_rows(main_rows: List[Dict[str, Any]]) -> Dict[str, float]:
+    return {
+        'freq': float(main_rows[0]['origin_freq_drift_hz']),
+        'sens': float(main_rows[0]['origin_sens_drift_percent']),
+        'linearity': float(main_rows[0]['origin_linearity_percent']),
+    }
+
+
+def _ensure_legacy_response_panels() -> None:
+    try:
+        from src.translate_legacy_figures import plot_frirnn  # type: ignore  # noqa: E402
+    except ImportError:  # pragma: no cover - direct script execution
+        from translate_legacy_figures import plot_frirnn  # type: ignore  # noqa: E402
+    plot_frirnn()
+
+
+def _render_additional_figure(ctx: Dict[str, Any], key: str) -> str:
+    generated = create_additional_paper_figures({
+        'origin_metrics': ctx['origin_metrics'],
+        'trajectories': ctx['trajectories'],
+        'main_benchmark': ctx['main_rows'],
+        'structure_ablation': ctx['structure_rows'],
+        'main_convergence_curves': ctx['main_curves'],
+        'loss_convergence_curves': ctx['loss_curves'],
+    })
+    return str(generated[key])
+
+
+def _render_frequency_response_comparison(ctx: Dict[str, Any]) -> str:
+    _ensure_legacy_response_panels()
+    return _render_additional_figure(ctx, 'frequency_response_comparison')
+
+
+def _render_experimental_setup_dataset_workflow_montage() -> str:
+    make_dataset_preprocessing_workflow_figure()
+    return str(make_paper_bitmap_montages()['experimental_setup_dataset_workflow'])
+
+
+def _render_parallel_wiener_equivalent_montage() -> str:
+    make_parallel_wiener_principle_schematic('fig_14_parallel_wiener_principle')
+    copy_wiener_parallel_figures()
+    return str(make_paper_bitmap_montages()['parallel_wiener_equivalent'])
+
+
+def legacy_renderable_figure_catalog() -> Dict[str, Dict[str, Any]]:
+    return {
+        'calibration_table_test': {
+            'needs': set(),
+            'render': lambda _ctx: make_calibration_table_test_figure(),
+        },
+        'fig_01_drift_trajectories': {
+            'needs': {'trajectories'},
+            'render': lambda ctx: make_trajectory_figure(ctx['trajectories']),
+        },
+        'fig_02_horizontal_summary': {
+            'needs': {'main_rows', 'main_curves', 'origin_metrics'},
+            'render': lambda ctx: make_horizontal_figure(ctx['main_rows'], ctx['origin_metrics'], ctx['main_curves']),
+        },
+        'fig_03_loss_ablation': {
+            'needs': {'loss_rows', 'loss_curves'},
+            'render': lambda ctx: make_loss_ablation_figure(ctx['loss_rows'], ctx['loss_curves']),
+        },
+        'fig_04_structure_ablation': {
+            'needs': {'structure_rows'},
+            'render': lambda ctx: make_structure_figure(ctx['structure_rows']),
+        },
+        'fig_05_onboard_inference': {
+            'needs': {'deploy_rows', 'lut_rows', 'lut_point_rows'},
+            'render': lambda ctx: make_onboard_figure(ctx['deploy_rows'], ctx['lut_rows'], ctx['lut_point_rows']),
+        },
+        'fig_08_frequency_response_comparison': {
+            'needs': {'origin_metrics', 'trajectories', 'main_rows', 'structure_rows', 'main_curves', 'loss_curves'},
+            'render': _render_frequency_response_comparison,
+        },
+        'fig_13_compensation_distribution': {
+            'needs': {'origin_metrics', 'trajectories', 'main_rows', 'structure_rows', 'main_curves', 'loss_curves'},
+            'render': lambda ctx: _render_additional_figure(ctx, 'compensation_distribution'),
+        },
+        'fig_14_met_nonlinear_mechanism': {
+            'needs': set(),
+            'render': lambda _ctx: make_mechanism_schematic_wrapper(),
+        },
+        'fig_14_parallel_wiener_principle': {
+            'needs': set(),
+            'render': lambda _ctx: make_parallel_wiener_principle_schematic('fig_14_parallel_wiener_principle'),
+        },
+        'fig_14_parallel_wiener_center_frequency': {
+            'needs': set(),
+            'render': lambda _ctx: copy_wiener_parallel_figures()['parallel_wiener_center_frequency'],
+        },
+        'fig_14_parallel_wiener_gain_100hz': {
+            'needs': set(),
+            'render': lambda _ctx: copy_wiener_parallel_figures()['parallel_wiener_gain_100hz'],
+        },
+        'fig_15_lut_lookup_principles': {
+            'needs': set(),
+            'render': lambda _ctx: make_lut_lookup_principles_figure(),
+        },
+        'fig_17_board_inference_validation_workflow': {
+            'needs': set(),
+            'render': lambda _ctx: make_board_inference_validation_workflow_figure(),
+        },
+        'fig_18_hparam_sensitivity': {
+            'needs': {'hparam_summary', 'loss_rows', 'loss_curves'},
+            'render': lambda ctx: make_hparam_sensitivity_figure(ctx['hparam_summary'], ctx['loss_rows'], ctx['loss_curves']),
+        },
+        'fig_19_dataset_preprocessing_workflow': {
+            'needs': set(),
+            'render': lambda _ctx: make_dataset_preprocessing_workflow_figure(),
+        },
+        'fig_20_met_structure_readout_montage': {
+            'needs': set(),
+            'render': lambda _ctx: make_paper_bitmap_montages()['met_structure_readout'],
+        },
+        'fig_21_experimental_setup_dataset_workflow_montage': {
+            'needs': set(),
+            'render': lambda _ctx: _render_experimental_setup_dataset_workflow_montage(),
+        },
+        'fig_22_parallel_wiener_equivalent_montage': {
+            'needs': set(),
+            'render': lambda _ctx: _render_parallel_wiener_equivalent_montage(),
+        },
+        'fig_23_kan_neuron_compensation_montage': {
+            'needs': set(),
+            'render': lambda _ctx: make_paper_bitmap_montages()['kan_neuron_compensation'],
+        },
+        'kan_neuron_compensation': {
+            'needs': set(),
+            'render': lambda _ctx: make_kan_neuron_compensation_figure(),
+        },
+        'local_transfer_slices': {
+            'needs': set(),
+            'render': lambda _ctx: make_local_transfer_slices_figure(),
+        },
+        'met_nonlinear_frequency_response': {
+            'needs': set(),
+            'render': lambda _ctx: make_met_nonlinear_frequency_response_figure(),
+        },
+        'met_structure': {
+            'needs': set(),
+            'render': lambda _ctx: make_met_structure_figure(),
+        },
+        'readout_circuit': {
+            'needs': set(),
+            'render': lambda _ctx: make_readout_circuit_figure(),
+        },
+        'wiener_kan_framework': {
+            'needs': set(),
+            'render': lambda _ctx: make_wiener_kan_framework_figure(),
+        },
+    }
+
+
+def renderable_figure_catalog() -> Dict[str, Dict[str, Any]]:
+    try:
+        from src.visualization.paper_figure_projects import scan_plot_projects  # type: ignore  # noqa: E402
+    except ImportError:
+        return legacy_renderable_figure_catalog()
+
+    registry: Dict[str, Dict[str, Any]] = {}
+    for figure_id in scan_plot_projects(ROOT).keys():
+        registry[figure_id] = {
+            'needs': set(),
+            'render': lambda _ctx, fid=figure_id: _render_ex_project_figure(fid),
+        }
+    if not registry:
+        return legacy_renderable_figure_catalog()
+    return registry
+
+
+def _render_ex_project_figure(figure_id: str) -> str:
+    from src.visualization.paper_figure_projects import run_project_by_figure_id  # type: ignore  # noqa: E402
+
+    result = run_project_by_figure_id(figure_id, sync_paper=False, strict_regression=False)
+    return Path(str(result['output'])).name
+
+
+def list_renderable_figures() -> List[str]:
+    return sorted(renderable_figure_catalog().keys())
+
+
+def generate_selected_figures_legacy(
+    figure_ids: List[str],
+    *,
+    figure_config_overrides: Dict[str, Dict[str, Any]] | None = None,
+) -> Dict[str, str]:
+    apply_config()
+    if figure_config_overrides:
+        figures = FIGURE_PIPELINE_CONFIG.setdefault('figures', {})
+        for figure_id, override in figure_config_overrides.items():
+            base = figures.get(figure_id) if isinstance(figures.get(figure_id), dict) else {}
+            figures[figure_id] = _deep_merge(base, override)
+    registry = legacy_renderable_figure_catalog()
+    unknown = [figure_id for figure_id in figure_ids if figure_id not in registry]
+    if unknown:
+        raise KeyError(f'Unknown figure id(s): {", ".join(sorted(unknown))}')
+
+    needs: set[str] = set()
+    for figure_id in figure_ids:
+        needs.update(registry[figure_id]['needs'])
+
+    ctx: Dict[str, Any] = {}
+    if 'main_rows' in needs or 'origin_metrics' in needs:
+        ctx['main_rows'] = enrich_with_deployment_fields(load_metrics(MAIN_BENCHMARK))
+        ctx['origin_metrics'] = _origin_metrics_from_main_rows(ctx['main_rows'])
+    if 'loss_rows' in needs:
+        ctx['loss_rows'] = enrich_with_deployment_fields(load_metrics(LOSS_ABLATION))
+    if 'structure_rows' in needs:
+        ctx['structure_rows'] = enrich_with_deployment_fields(load_metrics(STRUCTURE_ABLATION))
+    if 'deploy_rows' in needs:
+        ctx['deploy_rows'] = enrich_with_deployment_fields(load_metrics(DEPLOYMENT))
+    if 'lut_rows' in needs:
+        ctx['lut_rows'] = load_lut_variants()
+    if 'lut_point_rows' in needs:
+        ctx['lut_point_rows'] = load_lut_point_sweep()
+    if 'trajectories' in needs:
+        ctx['trajectories'] = load_trajectories()
+    if 'main_curves' in needs:
+        ctx['main_curves'] = load_convergence_curves(MAIN_BENCHMARK)
+    if 'loss_curves' in needs:
+        ctx['loss_curves'] = load_convergence_curves(LOSS_ABLATION)
+    if 'hparam_summary' in needs:
+        ctx['hparam_summary'] = load_hparam_sensitivity_summary()
+
+    generated: Dict[str, str] = {}
+    for figure_id in figure_ids:
+        generated[figure_id] = str(registry[figure_id]['render'](ctx))
+    return generated
+
+
+def generate_selected_figures(figure_ids: List[str]) -> Dict[str, str]:
+    apply_config()
+    registry = renderable_figure_catalog()
+    unknown = [figure_id for figure_id in figure_ids if figure_id not in registry]
+    if unknown:
+        # Keep a compatibility fallback for non-migrated figures.
+        return generate_selected_figures_legacy(figure_ids)
+    generated: Dict[str, str] = {}
+    for figure_id in figure_ids:
+        generated[figure_id] = str(registry[figure_id]['render']({}))
+    return generated
+
+
+def _ex_project_figure_payload() -> Dict[str, str]:
+    try:
+        from src.visualization.paper_figure_projects import rel_to_root, scan_plot_projects  # type: ignore  # noqa: E402
+    except ImportError:
+        return {}
+    return {
+        figure_id: rel_to_root(project.output_path)
+        for figure_id, project in scan_plot_projects(ROOT).items()
+    }
+
+
+def generate_all(*, render_figures: bool = True) -> Dict[str, Any]:
     apply_config()
     main_rows = enrich_with_deployment_fields(load_metrics(MAIN_BENCHMARK))
     loss_rows = enrich_with_deployment_fields(load_metrics(LOSS_ABLATION))
@@ -3527,22 +4635,28 @@ def generate_all() -> Dict[str, Any]:
         'linearity': main_rows[0]['origin_linearity_percent'],
     }
 
-    figures = {
-        'drift_trajectories': make_trajectory_figure(trajectories),
-        'horizontal_summary': make_horizontal_figure(main_rows, origin, main_curves),
-        'loss_ablation': make_loss_ablation_figure(loss_rows, loss_curves),
-        'structure_ablation': make_structure_figure(structure_rows),
-        'onboard_inference': make_onboard_figure(deploy_rows, lut_rows, lut_point_rows),
-        'hparam_sensitivity': make_hparam_sensitivity_figure(hparam_summary, loss_rows, loss_curves),
-        'met_nonlinear_mechanism': make_mechanism_schematic(),
-        'parallel_wiener_principle': make_parallel_wiener_principle_schematic(),
-        'lut_lookup_principles': make_lut_lookup_principles_figure(),
-        'board_inference_validation_workflow': make_board_inference_validation_workflow_figure(),
-        'dataset_preprocessing_workflow': make_dataset_preprocessing_workflow_figure(),
-        'wiener_kan_framework': make_wiener_kan_framework_figure(),
-    }
-    figures.update(copy_wiener_parallel_figures())
-    figures.update(make_paper_bitmap_montages())
+    figures: Dict[str, str] = {}
+    if render_figures:
+        figures = {
+            'drift_trajectories': make_trajectory_figure(trajectories),
+            'horizontal_summary': make_horizontal_figure(main_rows, origin, main_curves),
+            'loss_ablation': make_loss_ablation_figure(loss_rows, loss_curves),
+            'structure_ablation': make_structure_figure(structure_rows),
+            'onboard_inference': make_onboard_figure(deploy_rows, lut_rows, lut_point_rows),
+            'hparam_sensitivity': make_hparam_sensitivity_figure(hparam_summary, loss_rows, loss_curves),
+            'met_nonlinear_mechanism': make_mechanism_schematic_wrapper(),
+            'parallel_wiener_principle': make_parallel_wiener_principle_schematic('fig_14_parallel_wiener_principle'),
+            'lut_lookup_principles': make_lut_lookup_principles_figure(),
+            'board_inference_validation_workflow': make_board_inference_validation_workflow_figure(),
+            'dataset_preprocessing_workflow': make_dataset_preprocessing_workflow_figure(),
+            'wiener_kan_framework': make_wiener_kan_framework_figure(),
+            'met_nonlinear_frequency_response': make_met_nonlinear_frequency_response_figure(),
+            'local_transfer_slices': make_local_transfer_slices_figure(),
+        }
+        figures.update(copy_wiener_parallel_figures())
+        figures.update(make_paper_bitmap_montages())
+    else:
+        figures = _ex_project_figure_payload()
 
     payload_stub = {
         'origin_metrics': origin,
@@ -3561,14 +4675,8 @@ def generate_all() -> Dict[str, Any]:
         'hparam_sensitivity': hparam_summary,
         'ablation_overview': ablation_overview_rows,
     }
-    figures.update(create_additional_paper_figures(payload_stub))
-    try:
-        from src.translate_legacy_figures import plot_frirnn  # type: ignore  # noqa: E402
-    except ImportError:  # pragma: no cover - direct script execution
-        from translate_legacy_figures import plot_frirnn  # type: ignore  # noqa: E402
-    plot_frirnn()
-    figures['local_transfer_slices'] = 'local_transfer_slices.png'
-
+    if render_figures:
+        figures.update(create_additional_paper_figures(payload_stub))
     payload = {
         'origin_metrics': origin,
         'main_benchmark': main_rows,
@@ -3589,20 +4697,28 @@ def generate_all() -> Dict[str, Any]:
     }
     save_json(DATA_DIR / 'results.json', payload)
     write_values_tex(payload)
-    save_figure_raw_files(payload)
-    copy_legacy_images()
-    validate_raw_title_free()
-    validate_raw_publication_quality()
+    if render_figures:
+        save_figure_raw_files(payload)
+        copy_legacy_images()
+        validate_raw_title_free()
+        validate_raw_publication_quality()
     build_tables(main_rows, loss_rows, structure_rows, iir_rows, ablation_overview_rows, deploy_rows, lut_rows, lut_point_rows, origin, optimization_profiles)
     return payload
 
 
 def generate_data_only() -> Dict[str, Any]:
-    payload = generate_all()
+    payload = generate_all(render_figures=False)
     return payload
 
 
-def main() -> None:
+def main(figure_ids: List[str] | None = None) -> None:
+    if figure_ids:
+        generated = generate_selected_figures(figure_ids)
+        print('Generated selected figures:')
+        for figure_id, name in generated.items():
+            print(f' - {figure_id}: {name}')
+        return
+
     payload = generate_all()
     print('Generated:')
     for name in payload['figures'].values():

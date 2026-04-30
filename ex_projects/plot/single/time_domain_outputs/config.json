@@ -1,0 +1,142 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "time_domain_outputs",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "time_domain_outputs",
+    "kind": "single",
+    "title": "time domain outputs",
+    "description": "Source-level redraw of the representative time-domain outputs panel.",
+    "output_name": "time_domain_outputs.png",
+    "generation_mode": "legacy_translate",
+    "source_path": "docs/paper/figures/legacy/time_domain_outputs.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "time domain outputs",
+      "description": "Source-level redraw of the representative time-domain outputs panel.",
+      "output_name": "time_domain_outputs.png",
+      "parent_montages": [
+        "fig_08_frequency_response_comparison"
+      ],
+      "time_panel": {
+        "figsize": [
+          6.9,
+          5.1
+        ],
+        "freq_indices": [
+          20,
+          40,
+          100
+        ],
+        "magn_indices": [
+          0.72,
+          1.2,
+          6
+        ],
+        "filter_band": [
+          10,
+          128
+        ],
+        "clip_window": [
+          1,
+          1.1
+        ],
+        "line_width": 1,
+        "grid_alpha": 0.5,
+        "legend": {
+          "loc": "upper center",
+          "bbox_to_anchor": [
+            0.95,
+            1.25
+          ],
+          "fontsize": 10,
+          "frameon": false,
+          "ncol": 3
+        },
+        "xy_plot": {
+          "label_fontsize": 12,
+          "tick_fontsize": 10,
+          "tick_pad": 3
+        },
+        "margins": {
+          "left": 0.11,
+          "right": 0.97,
+          "top": 0.93,
+          "bottom": 0.11
+        },
+        "dpi": 600,
+        "pad_inches": 0.1
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/time_domain_outputs.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_08_frequency_response_comparison"
+    ],
+    "legacy_function": "plot_predict",
+    "translated_output_name": "time_domain_outputs.png",
+    "default_figure_config": {
+      "kind": "single",
+      "title": "time domain outputs",
+      "description": "Source-level redraw of the representative time-domain outputs panel.",
+      "output_name": "time_domain_outputs.png",
+      "parent_montages": [
+        "fig_08_frequency_response_comparison"
+      ],
+      "time_panel": {
+        "figsize": [
+          6.9,
+          5.1
+        ],
+        "freq_indices": [
+          20,
+          40,
+          100
+        ],
+        "magn_indices": [
+          0.72,
+          1.2,
+          6
+        ],
+        "filter_band": [
+          10,
+          128
+        ],
+        "clip_window": [
+          1,
+          1.1
+        ],
+        "line_width": 1,
+        "grid_alpha": 0.5,
+        "legend": {
+          "loc": "upper center",
+          "bbox_to_anchor": [
+            0.95,
+            1.18
+          ],
+          "fontsize": 10,
+          "frameon": false,
+          "ncol": 3
+        },
+        "xy_plot": {
+          "label_fontsize": 12,
+          "tick_fontsize": 10,
+          "tick_pad": 3
+        },
+        "margins": {
+          "left": 0.11,
+          "right": 0.97,
+          "top": 0.93,
+          "bottom": 0.11
+        },
+        "dpi": 600,
+        "pad_inches": 0.1
+      }
+    },
+    "default_source_path": "docs/paper/figures/legacy/time_domain_outputs.png"
+  }
+}

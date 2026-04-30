@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_18_hparam_sensitivity_6_legend/data/fig_18_hparam_sensitivity_6_legend.png",
+  "baseline": "ex_projects/plot/single/fig_18_hparam_sensitivity_6_legend/source_baseline_panel.png",
+  "output_shape": [
+    1123,
+    1500,
+    4
+  ],
+  "baseline_shape": [
+    1052,
+    1500,
+    4
+  ],
+  "pixel_exact": false
+}

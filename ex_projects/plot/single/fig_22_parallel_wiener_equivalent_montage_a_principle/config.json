@@ -1,0 +1,50 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_22_parallel_wiener_equivalent_montage_a_principle",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_22_parallel_wiener_equivalent_montage_a_principle",
+    "kind": "single",
+    "title": "fig 22 parallel wiener equivalent montage a principle",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_22_parallel_wiener_equivalent_montage_a_principle.png.",
+    "output_name": "fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+    "generation_mode": "legacy_panel",
+    "legacy_render_id": "fig_14_parallel_wiener_principle",
+    "panel_output_name": "fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 22 parallel wiener equivalent montage a principle",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_22_parallel_wiener_equivalent_montage_a_principle.png.",
+      "output_name": "fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+      "parent_montages": [
+        "fig_22_parallel_wiener_equivalent_montage"
+      ],
+      "principle_panel": {
+        "figsize": [
+          10.8,
+          4.5
+        ],
+        "pad_inches": 0.08,
+        "input_text": "input\nx(t)",
+        "input_x": 0.08,
+        "output_text": "output\ny(t)",
+        "output_x": 0.94,
+        "label_fontsize": 14,
+        "subtitle_fontsize": 9,
+        "input_arrow_lw": 2,
+        "branch_arrow_lw": 1.7,
+        "h_to_f_arrow_lw": 1.8,
+        "f_to_sum_arrow_lw": 1.65
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_22_parallel_wiener_equivalent_montage_a_principle.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_22_parallel_wiener_equivalent_montage"
+    ]
+  }
+}

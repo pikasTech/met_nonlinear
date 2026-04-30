@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/multi/fig_05_onboard_inference/data/fig_05_onboard_inference.png",
+  "baseline": "docs/paper/figures/legacy/fig_05_onboard_inference.png",
+  "output_shape": [
+    2714,
+    3800,
+    4
+  ],
+  "baseline_shape": [
+    2766,
+    3800,
+    4
+  ],
+  "pixel_exact": false
+}

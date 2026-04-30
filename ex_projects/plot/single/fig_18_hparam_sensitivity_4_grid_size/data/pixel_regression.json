@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_18_hparam_sensitivity_4_grid_size/data/fig_18_hparam_sensitivity_4_grid_size.png",
+  "baseline": "ex_projects/plot/single/fig_18_hparam_sensitivity_4_grid_size/source_baseline_panel.png",
+  "output_shape": [
+    1106,
+    1500,
+    4
+  ],
+  "baseline_shape": [
+    1107,
+    1500,
+    4
+  ],
+  "pixel_exact": false
+}

@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_17_board_inference_validation_workflow_b_validate/data/fig_17_board_inference_validation_workflow_b_validate.png",
+  "baseline": "docs/paper/figures/legacy/_montage_panels/fig_17_board_inference_validation_workflow_b_validate.png",
+  "output_shape": [
+    1249,
+    2119,
+    4
+  ],
+  "baseline_shape": [
+    1297,
+    2167,
+    4
+  ],
+  "pixel_exact": false
+}

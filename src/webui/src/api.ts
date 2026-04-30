@@ -132,3 +132,85 @@ export async function saveState(state: PresetState): Promise<void> {
   });
   if (!res.ok) throw new Error('Failed to save state');
 }
+
+export type PaperFigureKind = 'single' | 'montage';
+
+export interface PaperFigureConfigEntry {
+  kind?: PaperFigureKind;
+  title?: string;
+  description?: string;
+  output_name?: string;
+  renderable?: boolean;
+  subfigures?: string[];
+  parent_montages?: string[];
+  [key: string]: unknown;
+}
+
+export interface PaperFigureCatalogItem {
+  id: string;
+  kind: PaperFigureKind;
+  title: string;
+  description: string;
+  editable: boolean;
+  renderable: boolean;
+  outputName: string;
+  previewUrl: string;
+  exists: boolean;
+  updatedAt: string | null;
+  config: PaperFigureConfigEntry;
+  projectPath: string;
+  configPath: string;
+}
+
+export interface PaperFigureCatalogResponse {
+  autoRenderDebounceMs: number;
+  figures: PaperFigureCatalogItem[];
+}
+
+export type PaperFigureRenderStatus = 'queued' | 'running' | 'completed' | 'failed';
+
+export interface PaperFigureRenderJob {
+  id: string;
+  figureIds: string[];
+  status: PaperFigureRenderStatus;
+  startedAt: string | null;
+  finishedAt: string | null;
+  command: string[];
+  logs: string[];
+  error: string | null;
+}
+
+export async function fetchPaperFigureCatalog(): Promise<PaperFigureCatalogResponse> {
+  const res = await fetch(`${API_BASE}/paper-figures/catalog`);
+  if (!res.ok) throw new Error('Failed to fetch paper figure catalog');
+  return res.json();
+}
+
+export async function savePaperFigureConfig(
+  figureId: string,
+  config: PaperFigureConfigEntry,
+): Promise<PaperFigureCatalogItem> {
+  const res = await fetch(`${API_BASE}/paper-figures/config/${encodeURIComponent(figureId)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(config),
+  });
+  if (!res.ok) throw new Error(`Failed to save figure config: ${figureId}`);
+  return res.json();
+}
+
+export async function startPaperFigureRender(figureIds: string[]): Promise<PaperFigureRenderJob> {
+  const res = await fetch(`${API_BASE}/paper-figures/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ figureIds }),
+  });
+  if (!res.ok) throw new Error('Failed to start figure render');
+  return res.json();
+}
+
+export async function fetchPaperFigureRenderJob(jobId: string): Promise<PaperFigureRenderJob> {
+  const res = await fetch(`${API_BASE}/paper-figures/render/${encodeURIComponent(jobId)}`);
+  if (!res.ok) throw new Error(`Failed to fetch render job: ${jobId}`);
+  return res.json();
+}

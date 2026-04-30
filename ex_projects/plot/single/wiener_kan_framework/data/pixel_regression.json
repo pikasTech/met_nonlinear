@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/single/wiener_kan_framework/data/wiener_kan_framework.png",
+  "baseline": "docs/paper/figures/legacy/wiener_kan_framework.png",
+  "shape": [
+    1348,
+    3000,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 4044000,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}

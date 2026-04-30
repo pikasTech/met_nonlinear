@@ -1,0 +1,60 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_02_horizontal_summary_3_linearity",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_02_horizontal_summary_3_linearity",
+    "kind": "single",
+    "title": "fig 02 horizontal summary 3 linearity",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_3_linearity.png.",
+    "output_name": "fig_02_horizontal_summary_3_linearity.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_02_horizontal_summary_3_linearity/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 02 horizontal summary 3 linearity",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_02_horizontal_summary_3_linearity.png.",
+      "output_name": "fig_02_horizontal_summary_3_linearity.png",
+      "parent_montages": [
+        "fig_02_horizontal_summary"
+      ],
+      "range_panels": {
+        "figsize": [
+          4.8,
+          4.2
+        ],
+        "fit_width": 1680,
+        "trim_border": 28,
+        "highlight_color": "#0f6c5c",
+        "baseline_color": "#777777",
+        "bar_alpha": 0.72,
+        "error_color": "#222222",
+        "error_linewidth": 1.1,
+        "error_capsize": 3,
+        "xtick_rotation": 45,
+        "grid_alpha": 0.25
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_02_horizontal_summary_3_linearity.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_02_horizontal_summary"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_02_horizontal_summary",
+      "paste_box": [
+        3605,
+        199,
+        5285,
+        1668
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_02_horizontal_summary",
+    "panel_output_name": "fig_02_horizontal_summary_3_linearity.png"
+  }
+}

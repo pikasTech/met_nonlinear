@@ -1,0 +1,44 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_08_frequency_response_comparison_c_drift_reduction",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_08_frequency_response_comparison_c_drift_reduction",
+    "kind": "single",
+    "title": "fig 08 frequency response comparison c drift reduction",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_08_frequency_response_comparison_c_drift_reduction.png.",
+    "output_name": "fig_08_frequency_response_comparison_c_drift_reduction.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_c_drift_reduction.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 08 frequency response comparison c drift reduction",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_08_frequency_response_comparison_c_drift_reduction.png.",
+      "output_name": "fig_08_frequency_response_comparison_c_drift_reduction.png",
+      "parent_montages": [
+        "fig_08_frequency_response_comparison"
+      ],
+      "reduction_panel": {
+        "figsize": [
+          5.8,
+          6
+        ],
+        "legend_loc": "upper right",
+        "legend_frameon": true,
+        "legend_fontsize": 8,
+        "annotation_fontsize": 7.8
+      }
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_08_frequency_response_comparison_c_drift_reduction.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_08_frequency_response_comparison"
+    ],
+    "legacy_render_id": "fig_08_frequency_response_comparison",
+    "panel_output_name": "fig_08_frequency_response_comparison_c_drift_reduction.png"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/multi/fig_15_lut_lookup_principles/data/fig_15_lut_lookup_principles.png",
+  "baseline": "docs/paper/figures/legacy/fig_15_lut_lookup_principles.png",
+  "output_shape": [
+    1816,
+    2220,
+    4
+  ],
+  "baseline_shape": [
+    2200,
+    2220,
+    4
+  ],
+  "pixel_exact": false
+}

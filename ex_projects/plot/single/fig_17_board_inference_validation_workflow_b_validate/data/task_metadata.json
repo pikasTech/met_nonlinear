@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T09:26:46.796014",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_17_board_inference_validation_workflow_b_validate",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_17_board_inference_validation_workflow_b_validate\\data"
+  ],
+  "config_hash": "529ef4e10e6945491792bc8231414637"
+}

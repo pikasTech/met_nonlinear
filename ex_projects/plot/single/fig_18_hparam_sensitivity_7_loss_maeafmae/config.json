@@ -1,0 +1,87 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_18_hparam_sensitivity_7_loss_maeafmae",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_18_hparam_sensitivity_7_loss_maeafmae",
+    "kind": "single",
+    "title": "fig 18 hparam sensitivity 7 loss maeafmae",
+    "description": "Fig. 18 final-size loss-ablation child panel; redraws from the Fig. 03 loss data when edited.",
+    "output_name": "fig_18_hparam_sensitivity_7_loss_maeafmae.png",
+    "generation_mode": "legacy_panel",
+    "source_path": "ex_projects/plot/single/fig_03_loss_ablation_1_maeafmae/source_baseline_panel.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 18 hparam sensitivity 7 loss maeafmae",
+      "description": "Fig. 18 final-size loss-ablation child panel; redraws from the Fig. 03 loss data when edited.",
+      "output_name": "fig_18_hparam_sensitivity_7_loss_maeafmae.png",
+      "parent_montages": [
+        "fig_18_hparam_sensitivity"
+      ],
+      "curve_panels": {
+        "figsize": [
+          4.2,
+          4.2
+        ],
+        "line_width": 2.6,
+        "legend_frameon": true,
+        "legend_loc": "upper right",
+        "grid_alpha": 0.25,
+        "ylim_pad_ratio": 1.05,
+        "fit_width": 1550,
+        "fit_height": 1550,
+        "trim_border": 26
+      }
+    },
+    "regression": {
+      "baseline_path": "ex_projects/plot/single/fig_18_hparam_sensitivity_7_loss_maeafmae/source_baseline_panel.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_18_hparam_sensitivity"
+    ],
+    "baseline_panel_source": {
+      "montage_figure_id": "fig_18_hparam_sensitivity",
+      "paste_box": [
+        70,
+        2790,
+        1570,
+        4290
+      ],
+      "reason": "Pixel-regression locked crop from the existing paper figure baseline."
+    },
+    "legacy_render_id": "fig_03_loss_ablation",
+    "panel_output_name": "fig_03_loss_ablation_1_maeafmae.png",
+    "default_source_path": "source_baseline_panel.png",
+    "default_figure_config": {
+      "kind": "single",
+      "title": "fig 18 hparam sensitivity 7 loss maeafmae",
+      "description": "Fig. 18 final-size loss-ablation child panel; redraws from the Fig. 03 loss data when edited.",
+      "output_name": "fig_18_hparam_sensitivity_7_loss_maeafmae.png",
+      "parent_montages": [
+        "fig_18_hparam_sensitivity"
+      ],
+      "curve_panels": {
+        "figsize": [
+          4.2,
+          4.2
+        ],
+        "line_width": 2.6,
+        "legend_frameon": true,
+        "legend_loc": "upper right",
+        "grid_alpha": 0.25,
+        "ylim_pad_ratio": 1.05,
+        "fit_width": 1550,
+        "fit_height": 1550,
+        "trim_border": 26
+      }
+    },
+    "panel_transform": {
+      "fit_width": 1500,
+      "fit_height": 1500,
+      "trim_border": 26
+    }
+  }
+}

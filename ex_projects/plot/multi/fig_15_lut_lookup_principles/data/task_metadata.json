@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-04-29T15:56:28.174825",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_15_lut_lookup_principles",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_15_lut_lookup_principles\\data"
+  ],
+  "config_hash": "7d8bee2da86fc2633c94e6c6812f9aa4"
+}

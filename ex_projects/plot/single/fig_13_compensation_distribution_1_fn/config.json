@@ -1,0 +1,32 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_13_compensation_distribution_1_fn",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "paper_figure": {
+    "figure_id": "fig_13_compensation_distribution_1_fn",
+    "kind": "single",
+    "title": "fig 13 compensation distribution 1 fn",
+    "description": "Source bitmap subfigure migrated from _montage_panels/fig_13_compensation_distribution_1_fn.png.",
+    "output_name": "fig_13_compensation_distribution_1_fn.png",
+    "generation_mode": "copy_source",
+    "source_path": "docs/paper/figures/legacy/_montage_panels/fig_13_compensation_distribution_1_fn.png",
+    "figure_config": {
+      "kind": "single",
+      "title": "fig 13 compensation distribution 1 fn",
+      "description": "Source bitmap subfigure migrated from _montage_panels/fig_13_compensation_distribution_1_fn.png.",
+      "output_name": "fig_13_compensation_distribution_1_fn.png",
+      "parent_montages": [
+        "fig_13_compensation_distribution"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/_montage_panels/fig_13_compensation_distribution_1_fn.png",
+      "pixel_exact": true
+    },
+    "parent_montages": [
+      "fig_13_compensation_distribution"
+    ]
+  }
+}

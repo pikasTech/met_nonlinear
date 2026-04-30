@@ -1,0 +1,15 @@
+{
+  "status": "diff",
+  "output": "ex_projects/plot/multi/fig_02_horizontal_summary/data/fig_02_horizontal_summary.png",
+  "baseline": "docs/paper/figures/legacy/fig_02_horizontal_summary.png",
+  "shape": [
+    3838,
+    5360,
+    4
+  ],
+  "pixel_exact": false,
+  "mismatch_pixels": 2805448,
+  "total_pixels": 20571680,
+  "mismatch_ratio": 0.13637427764771765,
+  "max_abs_channel_diff": 255
+}

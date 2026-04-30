@@ -1,0 +1,98 @@
+{
+  "source_trace": "ex_projects/plot legacy panel transform",
+  "source_panel": "docs/paper/figures/legacy/_generated_stage/fig_18_hparam_sensitivity_8_loss_mae/_montage_panels/fig_03_loss_ablation_2_mae.png",
+  "transform": {
+    "fit_width": 1500,
+    "fit_height": 1500,
+    "trim_border": 26
+  },
+  "paper_plot_style": {
+    "version": "times-new-roman-mathtext-v1",
+    "font_family": "Times New Roman",
+    "font_path": "C:/Windows/Fonts/times.ttf",
+    "text_usetex": false,
+    "latex_symbol_engine": "matplotlib mathtext",
+    "mathtext_fontset": "custom",
+    "mathtext_fallback": "stix"
+  },
+  "montage": {
+    "output": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_18_hparam_sensitivity_8_loss_mae/data/fig_18_hparam_sensitivity_8_loss_mae.png",
+    "size": [
+      1500,
+      1500
+    ],
+    "layout": "horizontal",
+    "rows": 1,
+    "cols": 1,
+    "padding": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "gutter": [
+      0,
+      0
+    ],
+    "label_font_size_px": 1,
+    "label_font_size_pt": null,
+    "label_reference_width_pt": 372.0,
+    "latex_width_fraction": 1.0,
+    "label_font_family": "Times New Roman",
+    "label_font_path": "C:/Windows/Fonts/timesbd.ttf",
+    "label_position": "top-left",
+    "label_gap": 18,
+    "label_outside_top": false,
+    "row_label_heights": [
+      0
+    ],
+    "panels": [
+      {
+        "source": "C:/work/met_nonlinear_master/docs/paper/figures/legacy/_generated_stage/fig_18_hparam_sensitivity_8_loss_mae/_montage_panels/fig_03_loss_ablation_2_mae.png",
+        "label": null,
+        "original_size": [
+          1286,
+          1286
+        ],
+        "rendered_size": [
+          1500,
+          1500
+        ],
+        "scale": 1.0,
+        "fit_width": 1500,
+        "fit_height": 1500,
+        "align_x": "center",
+        "align_y": "center",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 1,
+        "trim_border": 26,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 0,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 1,
+          "x": 0,
+          "y": 0,
+          "width": 1500,
+          "height": 1500,
+          "content_y": 0,
+          "content_height": 1500,
+          "label_band_height": 0
+        },
+        "paste_box": [
+          0,
+          0,
+          1500,
+          1500
+        ]
+      }
+    ]
+  }
+}

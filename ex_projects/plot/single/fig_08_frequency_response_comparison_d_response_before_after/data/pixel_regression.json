@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/single/fig_08_frequency_response_comparison_d_response_before_after/data/fig_08_frequency_response_comparison_d_response_before_after.png",
+  "baseline": "ex_projects/plot/single/fig_08_frequency_response_comparison_d_response_before_after/source_baseline_panel.png",
+  "output_shape": [
+    1589,
+    2260,
+    4
+  ],
+  "baseline_shape": [
+    1571,
+    2454,
+    4
+  ],
+  "pixel_exact": false
+}

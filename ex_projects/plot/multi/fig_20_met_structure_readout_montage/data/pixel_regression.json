@@ -1,0 +1,15 @@
+{
+  "status": "pass",
+  "output": "ex_projects/plot/multi/fig_20_met_structure_readout_montage/data/fig_20_met_structure_readout_montage.png",
+  "baseline": "docs/paper/figures/legacy/fig_20_met_structure_readout_montage.png",
+  "shape": [
+    1548,
+    5300,
+    4
+  ],
+  "pixel_exact": true,
+  "mismatch_pixels": 0,
+  "total_pixels": 8204400,
+  "mismatch_ratio": 0.0,
+  "max_abs_channel_diff": 0
+}
