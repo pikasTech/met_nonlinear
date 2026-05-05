@@ -35,6 +35,7 @@
 **MET Nonlinear** - 电化学非线性矫正项目。当前核心代码统一收敛在 `src/` 下，重点模块包括 `src/core/`、`src/models/`、`src/inference/`、`src/analysis/`、`src/visualization/`、`src/calibration_analyzer/`。
 
 参考索引：
+- UniDesk microservice 集成：D601 `~/met_nonlinear` 固定通过 UniDesk SSH 透传开发 TypeScript 编排后端、Dockerfile 和训练容器；主 server 本地只开发 UniDesk frontend，详见 [docs/reference/unidesk_microservice.md](docs/reference/unidesk_microservice.md)。
 - 项目结构与导入路径：详见 [docs/reference/project_structure.md](docs/reference/project_structure.md)。
 - 问题定义与建模原则：详见 [docs/reference/modeling_principles.md](docs/reference/modeling_principles.md)。
 - 并联 Wiener 模型到 Wiener-KAN 的逆解与补偿推导：详见 [docs/reference/wiener_kan_derivation.md](docs/reference/wiener_kan_derivation.md)。

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from .datastruct import DataRecord, DataRecordList
 from . import config
 from .utilities import shift_phase  # 从 utilities 导入，打破循环依赖

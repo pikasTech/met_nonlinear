@@ -9,6 +9,7 @@ BOM合并前后编号一致性深度分析脚本
 3. 验证排序算法的正确性
 4. 生成详细的对比报告
 """
+from __future__ import annotations
 
 import pandas as pd
 import json

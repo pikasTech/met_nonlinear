@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 from scipy.integrate import cumulative_trapezoid
 from typing import Tuple

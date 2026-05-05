@@ -1,0 +1,3 @@
+FROM unidesk_provider-gateway:d601
+WORKDIR /workspace/met_nonlinear/unidesk/server
+CMD ["bun", "run", "src/index.ts"]

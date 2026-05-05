@@ -1,0 +1,10 @@
+{
+  "name": "@met-nonlinear/unidesk-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "check": "bun build src/index.ts --target=bun --outfile=/tmp/unidesk-met-server-check.js"
+  }
+}

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import struct
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
