@@ -19,6 +19,7 @@ interface ProjectProgress {
   logLineCount: number;
   trainingInfo: Record<string, unknown> | null;
   etaSeconds: number | null;
+  epochPerHour: number | null;
   updatedAt: string | null;
 }
 
@@ -165,12 +166,32 @@ function projectConfig(projectPath: string): JsonRecord | null {
   return readJsonFile(join(projectAbs(projectPath), "config.json"));
 }
 
+function projectDataPath(projectPath: string, fileName: string): string {
+  return join(projectAbs(projectPath), "data", fileName);
+}
+
 function trainingLogPath(projectPath: string): string {
-  return join(projectAbs(projectPath), "data", "training_log.jsonl");
+  return projectDataPath(projectPath, "training_log.jsonl");
 }
 
 function trainingInfoPath(projectPath: string): string {
-  return join(projectAbs(projectPath), "data", "training_info.json");
+  return projectDataPath(projectPath, "training_info.json");
+}
+
+function trainingStatePath(projectPath: string): string {
+  return projectDataPath(projectPath, "training_state.json");
+}
+
+function metricsPath(projectPath: string): string {
+  return projectDataPath(projectPath, "metrics.json");
+}
+
+function modelInfoPath(projectPath: string): string {
+  return projectDataPath(projectPath, "model_info.json");
+}
+
+function computeAnalysisPath(projectPath: string): string {
+  return projectDataPath(projectPath, "compute_analysis.json");
 }
 
 function numberOrNull(value: unknown): number | null {
@@ -223,8 +244,73 @@ function projectProgress(projectPath: string): ProjectProgress {
     }
   }
   const trainingInfo = readJsonFile(trainingInfoPath(projectPath));
+  const trainingState = readJsonFile(trainingStatePath(projectPath));
+  const stateEpoch = numberOrNull(trainingState?.completed_epoch) ?? numberOrNull(trainingState?.current_epoch);
+  if (currentEpoch === null && stateEpoch !== null) currentEpoch = stateEpoch;
+  if (lastLoss === null) lastLoss = numberOrNull(trainingState?.loss);
+  if (lastValLoss === null) lastValLoss = numberOrNull(trainingState?.val_loss);
+  if (etaSeconds === null) etaSeconds = numberOrNull(trainingState?.remaining_time);
+  if (updatedAt === null && typeof trainingState?.timestamp === "string") updatedAt = trainingState.timestamp;
+  const smoothedSpeed = numberOrNull(trainingState?.smoothed_speed);
+  const elapsedSeconds = numberOrNull(trainingState?.elapsed_time);
+  const epochsForSpeed = stateEpoch ?? currentEpoch;
+  const epochPerHour = smoothedSpeed !== null && smoothedSpeed > 0
+    ? smoothedSpeed
+    : elapsedSeconds !== null && elapsedSeconds > 0 && epochsForSpeed !== null && epochsForSpeed > 0
+      ? (epochsForSpeed / elapsedSeconds) * 3600
+      : null;
   const progressPercent = epochTarget !== null && currentEpoch !== null && epochTarget > 0 ? Math.max(0, Math.min(100, (currentEpoch / epochTarget) * 100)) : null;
-  return { projectPath, epochTarget, currentEpoch, progressPercent, lastLoss, lastValLoss, logLineCount: lineCount, trainingInfo, etaSeconds, updatedAt };
+  return { projectPath, epochTarget, currentEpoch, progressPercent, lastLoss, lastValLoss, logLineCount: lineCount, trainingInfo, etaSeconds, epochPerHour, updatedAt };
+}
+
+function firstString(...values: unknown[]): string | null {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim().length > 0) return value;
+  }
+  return null;
+}
+
+function dataFileList(projectPath: string): string[] {
+  const dataDir = join(projectAbs(projectPath), "data");
+  if (!existsSync(dataDir)) return [];
+  const result = Bun.spawnSync(["bash", "-lc", `cd ${shellQuote(dataDir)} && find . -maxdepth 2 -type f | sed 's#^./##' | sort | sed -n '1,200p'`]);
+  return result.stdout.toString().split(/\r?\n/).filter(Boolean);
+}
+
+function projectDataSummary(projectPath: string): JsonRecord {
+  const trainingState = readJsonFile(trainingStatePath(projectPath));
+  const trainingInfo = readJsonFile(trainingInfoPath(projectPath));
+  const metrics = readJsonFile(metricsPath(projectPath));
+  const modelInfo = readJsonFile(modelInfoPath(projectPath));
+  const computeAnalysis = readJsonFile(computeAnalysisPath(projectPath));
+  const modelSummary = Array.isArray(modelInfo?.model_summary) ? (modelInfo.model_summary as unknown[]).slice(0, 32) : [];
+  const computeLayers = Array.isArray(computeAnalysis?.layers) ? (computeAnalysis.layers as unknown[]).slice(0, 32) : [];
+  const model = {
+    modelType: firstString(modelInfo?.model_type, computeAnalysis?.model_type, metrics?.model_type),
+    totalParams: numberOrNull(modelInfo?.total_params) ?? numberOrNull(metrics?.total_params) ?? numberOrNull(computeAnalysis?.total_params),
+    trainableParams: numberOrNull(modelInfo?.trainable_params) ?? numberOrNull(computeAnalysis?.trainable_params),
+    nonTrainableParams: numberOrNull(modelInfo?.non_trainable_params) ?? numberOrNull(computeAnalysis?.non_trainable_params),
+    computeCost: numberOrNull(metrics?.compute_cost) ?? numberOrNull(computeAnalysis?.estimated_cost && typeof computeAnalysis.estimated_cost === "object" && !Array.isArray(computeAnalysis.estimated_cost) ? (computeAnalysis.estimated_cost as JsonRecord).weighted_units && typeof (computeAnalysis.estimated_cost as JsonRecord).weighted_units === "object" && !Array.isArray((computeAnalysis.estimated_cost as JsonRecord).weighted_units) ? ((computeAnalysis.estimated_cost as JsonRecord).weighted_units as JsonRecord).total : null : null),
+    estimateStatus: firstString(computeAnalysis?.estimate_status, metrics?.compute_cost_status),
+    unsupportedLayerCount: numberOrNull(computeAnalysis?.unsupported_layer_count) ?? numberOrNull(metrics?.compute_unsupported_layer_count),
+    modelSummary,
+    computeLayers,
+  };
+  return {
+    files: dataFileList(projectPath),
+    trainingState,
+    trainingInfo,
+    metrics,
+    modelInfo,
+    computeAnalysis,
+    model,
+    displayMetrics: metrics?.display_metrics ?? null,
+  };
+}
+
+function projectDetail(projectPath: string): JsonRecord {
+  const data = projectDataSummary(projectPath);
+  return { projectPath, config: projectConfig(projectPath), progress: projectProgress(projectPath), data, model: data.model, metrics: data.metrics };
 }
 
 async function runCommand(args: string[], timeoutMs = 10_000): Promise<{ ok: boolean; exitCode: number | null; stdout: string; stderr: string; timedOut: boolean }> {
@@ -282,7 +368,7 @@ function shellQuote(value: string): string {
 
 function listProjects(rootName: "projects" | "ex_projects", limit: number): JsonRecord[] {
   const base = join(root, rootName);
-  const find = Bun.spawnSync(["bash", "-lc", `find ${shellQuote(base)} -mindepth 2 -maxdepth 3 -name config.json | sed -n '1,${limit}p'`]);
+  const find = Bun.spawnSync(["bash", "-lc", `find ${shellQuote(base)} -mindepth 2 -name config.json | sort | sed -n '1,${limit}p'`]);
   const stdout = find.stdout.toString();
   return stdout.split(/\r?\n/).filter(Boolean).map((configPath) => {
     const projectPath = configPath.slice(root.length + 1, -"/config.json".length).replace(/\\/g, "/");
@@ -480,7 +566,7 @@ async function route(req: Request): Promise<Response> {
     }
     if (url.pathname === "/api/projects/config" && req.method === "GET") {
       const projectPath = safeProjectPath(url.searchParams.get("path"));
-      return jsonResponse({ ok: true, projectPath, config: projectConfig(projectPath), progress: projectProgress(projectPath) });
+      return jsonResponse({ ok: true, ...projectDetail(projectPath) });
     }
     if (url.pathname === "/api/projects/config" && req.method === "PUT") {
       const body = await readJsonBody(req);
@@ -496,7 +582,7 @@ async function route(req: Request): Promise<Response> {
     if (url.pathname === "/api/server-test/create" && req.method === "POST") return jsonResponse(await createServerTestProjects(await readJsonBody(req)));
     if (url.pathname === "/api/queue" && req.method === "GET") {
       const state = readState();
-      const jobs = state.jobs.map((job) => job.status === "running" ? { ...job, progress: projectProgress(job.projectPath) } : job);
+      const jobs = state.jobs.map((job) => ({ ...job, progress: projectProgress(job.projectPath) }));
       return jsonResponse({ ok: true, queue: queueSummary(state), jobs: jobs.slice().reverse(), gpu: await gpuInfo() });
     }
     if (url.pathname === "/api/queue/settings" && req.method === "PUT") {
@@ -522,13 +608,14 @@ async function route(req: Request): Promise<Response> {
     }
     if (url.pathname === "/api/history") {
       const state = readState();
-      return jsonResponse({ ok: true, jobs: state.jobs.filter((job) => ["succeeded", "failed", "canceled"].includes(job.status)).slice(-200).reverse() });
+      const jobs = state.jobs.filter((job) => ["succeeded", "failed", "canceled"].includes(job.status)).map((job) => ({ ...job, progress: projectProgress(job.projectPath) }));
+      return jsonResponse({ ok: true, jobs: jobs.slice(-200).reverse() });
     }
     if (url.pathname.startsWith("/api/jobs/") && req.method === "GET") {
       const id = decodeURIComponent(url.pathname.slice("/api/jobs/".length));
       const job = readState().jobs.find((item) => item.id === id);
       if (!job) return jsonResponse({ ok: false, error: `job not found: ${id}` }, 404);
-      return jsonResponse({ ok: true, job: { ...job, progress: projectProgress(job.projectPath) }, logTail: job.logPath ? tailFile(job.logPath, 4000) : "" });
+      return jsonResponse({ ok: true, job: { ...job, progress: projectProgress(job.projectPath) }, project: projectDetail(job.projectPath), logTail: job.logPath ? tailFile(job.logPath, 4000) : "" });
     }
     if (url.pathname.startsWith("/api/jobs/") && url.pathname.endsWith("/cancel") && req.method === "POST") {
       const id = decodeURIComponent(url.pathname.slice("/api/jobs/".length, -"/cancel".length));

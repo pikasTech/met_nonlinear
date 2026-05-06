@@ -35,16 +35,16 @@ The Docker build uses the Huawei Cloud mirror of `nvidia/cuda:11.2.2-cudnn8-runt
 ## Queue API
 
 - `GET /health`: fast service, image and queue summary for Docker healthcheck and UniDesk health probes; it must not block on slow GPU discovery.
-- `GET /api/projects?root=projects&limit=80`: project list with config summary and training progress.
-- `GET /api/projects/config?path=projects/<name>`: structured config and progress.
+- `GET /api/projects?root=projects&limit=500` and `GET /api/projects?root=ex_projects&limit=500`: project list with config summary, training progress and enough rows for UniDesk to render the real folder tree. The backend must discover `config.json` at the true project path and must not group by model/status.
+- `GET /api/projects/config?path=projects/<name>`: structured config, progress, `data/` file list, `training_state.json`, `training_info.json`, `metrics.json`, `model_info.json`, `compute_analysis.json`, model parameter summary and metrics for the UniDesk detail panel.
 - `POST /api/projects/fork`: fork one or more config-only projects from an existing source Project into `projects/unidesk_forks/` or `projects/server_test/`, set `epoch_train`, force GPU training and write `unidesk_project_fork.json` metadata.
 - `POST /api/queue`: add existing projects to the scheduler with `projectPaths`, `maxConcurrency`, optional `targetGpuName` and `start=false` for the UI staged queue. Default `start` remains immediate queueing for compatibility.
 - `POST /api/queue/start`: transition staged jobs to queued after the operator clicks the UI `启动队列` control.
 - `PUT /api/queue/settings`: update `maxConcurrency` and `targetGpuName` without adding jobs.
 - `POST /api/queue/server-test`: compatibility endpoint for old scripted acceptance; it delegates to the generic fork path and is not exposed as a hard-coded frontend button.
-- `GET /api/queue`: queue, running jobs, history preview and cached GPU status.
-- `GET /api/history`: terminal jobs with exit code, duration fields and failure details.
-- `GET /api/jobs/<id>` and `GET /api/logs?jobId=<id>`: job diagnostics and log tail.
+- `GET /api/queue`: queue, all jobs with refreshed progress, `epochPerHour` speed and cached GPU status.
+- `GET /api/history`: terminal jobs with exit code, duration fields, refreshed progress, `epochPerHour` speed and failure details.
+- `GET /api/jobs/<id>` and `GET /api/logs?jobId=<id>`: job diagnostics, structured project detail and log tail.
 
 ## GPU Policy
 
@@ -72,4 +72,4 @@ curl -fsS -X POST http://127.0.0.1:3288/api/queue/start \
 watch -n 5 'curl -fsS http://127.0.0.1:3288/api/queue | python3 -m json.tool | sed -n "1,160p"'
 ```
 
-Acceptance requires the frontend to show staged, queued, running, completed and failure-diagnostic tabs; running rows must show progress and ETA from backend progress or from `startedAt` plus epoch progress; generated fork artifacts must stay ignored by git; all acceptance jobs must reach `succeeded` for the requested `epoch_train`; the effective concurrency must not exceed the configured cap or the 2080Ti VRAM safety cap; all running jobs must target the 2080Ti GPU; and `metnl-train-*` containers must be automatically removed after completion.
+Acceptance requires the frontend to show staged, queued, running, completed and failure-diagnostic tabs; running rows must show progress and ETA from backend progress or from `startedAt` plus epoch progress; queue and completed rows must show `epoch/h` training speed. The project library must render `projects/` and `ex_projects/` as a path tree whose folder counts match the number of descendant Project configs. Clicking a project row must open a structured detail panel with `config.json`, `data/` training state, model parameter count, model layers and metrics; clicking a job row must open the corresponding structured job/project detail and log-tail summary. Generated fork artifacts must stay ignored by git; all acceptance jobs must reach `succeeded` for the requested `epoch_train`; the effective concurrency must not exceed the configured cap or the 2080Ti VRAM safety cap; all running jobs must target the 2080Ti GPU; and `metnl-train-*` containers must be automatically removed after completion.
