@@ -25,7 +25,7 @@ interface ProjectProgress {
 interface TrainJob {
   id: string;
   projectPath: string;
-  status: "queued" | "running" | "succeeded" | "failed" | "canceled";
+  status: "staged" | "queued" | "running" | "succeeded" | "failed" | "canceled";
   createdAt: string;
   updatedAt: string;
   startedAt?: string;
@@ -291,36 +291,52 @@ function listProjects(rootName: "projects" | "ex_projects", limit: number): Json
   });
 }
 
-async function createServerTestProjects(body: JsonRecord): Promise<JsonRecord> {
-  const count = positiveInt(body.count, 1, 50, 10);
-  const epochs = positiveInt(body.epochs, 1, 10_000, 10);
-  const sourceProject = safeProjectPath(body.sourceProject || "projects/FRIKANh6u6l4");
+async function createProjectForks(body: JsonRecord): Promise<JsonRecord> {
+  const count = positiveInt(body.count, 1, 100, 1);
+  const sourceProject = safeProjectPath(body.sourceProject);
   const sourceConfigPath = join(projectAbs(sourceProject), "config.json");
   if (!existsSync(sourceConfigPath)) throw new Error(`source config not found: ${sourceProject}`);
-  const prefix = typeof body.prefix === "string" && /^[A-Za-z0-9_.-]+$/.test(body.prefix) ? body.prefix : `server_test_${Date.now()}`;
+  const prefix = typeof body.prefix === "string" && /^[A-Za-z0-9_.-]+$/.test(body.prefix) ? body.prefix : `fork_${Date.now()}`;
+  const forkRoot = typeof body.forkRoot === "string" && body.forkRoot === "projects/server_test" ? "projects/server_test" : "projects/unidesk_forks";
+  const epochs = body.epochs === undefined ? null : positiveInt(body.epochs, 1, 100_000, 1);
+  const patch = typeof body.patch === "object" && body.patch !== null && !Array.isArray(body.patch) ? body.patch as JsonRecord : {};
+  const overwrite = body.overwrite === true;
   const projectPaths: string[] = [];
   for (let index = 1; index <= count; index += 1) {
-    const projectPath = `projects/server_test/${prefix}_${String(index).padStart(2, "0")}`;
+    const projectPath = `${forkRoot}/${prefix}_${String(index).padStart(2, "0")}`;
     const destDir = projectAbs(projectPath);
+    const destConfigPath = join(destDir, "config.json");
+    if (existsSync(destConfigPath) && !overwrite) throw new Error(`fork target already exists: ${projectPath}`);
     mkdirSync(destDir, { recursive: true });
-    cpSync(sourceConfigPath, join(destDir, "config.json"));
-    const config = readJsonFile(join(destDir, "config.json")) ?? {};
-    config.epoch_train = epochs;
+    cpSync(sourceConfigPath, destConfigPath);
+    const config = { ...(readJsonFile(destConfigPath) ?? {}), ...patch };
+    if (epochs !== null) config.epoch_train = epochs;
     config.resume_training = false;
     config.using_gpu = true;
-    writeJsonFile(join(destDir, "config.json"), config);
-    writeJsonFile(join(destDir, "unidesk_server_test.json"), { sourceProject, index, count, epochs, createdAt: nowIso() });
+    writeJsonFile(destConfigPath, config);
+    writeJsonFile(join(destDir, "unidesk_project_fork.json"), { sourceProject, projectPath, index, count, epochs, createdAt: nowIso() });
     projectPaths.push(projectPath);
   }
-  return { ok: true, sourceProject, count, epochs, projectPaths };
+  return { ok: true, sourceProject, forkRoot, prefix, count, epochs, projectPaths };
+}
+
+async function createServerTestProjects(body: JsonRecord): Promise<JsonRecord> {
+  return createProjectForks({ sourceProject: body.sourceProject || "projects/FRIKANh6u6l4", count: body.count ?? 10, epochs: body.epochs ?? 10, prefix: body.prefix, forkRoot: "projects/server_test" });
+}
+
+function applyQueueSettings(state: SchedulerState, body: JsonRecord): void {
+  state.settings.maxConcurrency = positiveInt(body.maxConcurrency, 1, 16, state.settings.maxConcurrency);
+  if (typeof body.targetGpuName === "string" && body.targetGpuName.trim().length > 0) state.settings.targetGpuName = body.targetGpuName.trim();
+}
+
+function updateQueueSettings(body: JsonRecord): SchedulerState {
+  return updateState((state) => applyQueueSettings(state, body));
 }
 
 function enqueueProjects(projectPaths: string[], body: JsonRecord): SchedulerState {
-  const maxConcurrency = positiveInt(body.maxConcurrency, 1, 16, readState().settings.maxConcurrency);
-  const targetGpuName = typeof body.targetGpuName === "string" ? body.targetGpuName : readState().settings.targetGpuName;
+  const initialStatus = body.start === false ? "staged" : "queued";
   return updateState((state) => {
-    state.settings.maxConcurrency = maxConcurrency;
-    state.settings.targetGpuName = targetGpuName;
+    applyQueueSettings(state, body);
     for (const projectPath of projectPaths) {
       const safePath = safeProjectPath(projectPath);
       if (!existsSync(join(projectAbs(safePath), "config.json"))) throw new Error(`project config not found: ${safePath}`);
@@ -328,12 +344,27 @@ function enqueueProjects(projectPaths: string[], body: JsonRecord): SchedulerSta
       state.jobs.push({
         id: `met_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
         projectPath: safePath,
-        status: "queued",
+        status: initialStatus,
         createdAt: nowIso(),
         updatedAt: nowIso(),
         epochTarget: typeof config?.epoch_train === "number" ? config.epoch_train : undefined,
         logPath: join(logDir, `train_${Date.now()}_${Math.random().toString(16).slice(2, 8)}.log`),
       });
+    }
+  });
+}
+
+function startStagedJobs(body: JsonRecord): SchedulerState {
+  const projectFilter = Array.isArray(body.projectPaths) ? new Set(body.projectPaths.map((item) => safeProjectPath(item))) : null;
+  const jobFilter = Array.isArray(body.jobIds) ? new Set(body.jobIds.map(String)) : null;
+  return updateState((state) => {
+    applyQueueSettings(state, body);
+    for (const job of state.jobs) {
+      if (job.status !== "staged") continue;
+      if (projectFilter !== null && !projectFilter.has(job.projectPath)) continue;
+      if (jobFilter !== null && !jobFilter.has(job.id)) continue;
+      job.status = "queued";
+      job.updatedAt = nowIso();
     }
   });
 }
@@ -461,17 +492,26 @@ async function route(req: Request): Promise<Response> {
       writeJsonFile(join(projectAbs(projectPath), "config.json"), next);
       return jsonResponse({ ok: true, projectPath, config: next });
     }
+    if (url.pathname === "/api/projects/fork" && req.method === "POST") return jsonResponse(await createProjectForks(await readJsonBody(req)));
     if (url.pathname === "/api/server-test/create" && req.method === "POST") return jsonResponse(await createServerTestProjects(await readJsonBody(req)));
     if (url.pathname === "/api/queue" && req.method === "GET") {
       const state = readState();
       const jobs = state.jobs.map((job) => job.status === "running" ? { ...job, progress: projectProgress(job.projectPath) } : job);
       return jsonResponse({ ok: true, queue: queueSummary(state), jobs: jobs.slice().reverse(), gpu: await gpuInfo() });
     }
+    if (url.pathname === "/api/queue/settings" && req.method === "PUT") {
+      const state = updateQueueSettings(await readJsonBody(req));
+      return jsonResponse({ ok: true, queue: queueSummary(state) });
+    }
     if (url.pathname === "/api/queue" && req.method === "POST") {
       const body = await readJsonBody(req);
       const rawProjects = Array.isArray(body.projectPaths) ? body.projectPaths : [];
       const state = enqueueProjects(rawProjects.map(String), body);
       return jsonResponse({ ok: true, queue: queueSummary(state), jobs: state.jobs.slice(-rawProjects.length) });
+    }
+    if (url.pathname === "/api/queue/start" && req.method === "POST") {
+      const state = startStagedJobs(await readJsonBody(req));
+      return jsonResponse({ ok: true, queue: queueSummary(state), jobs: state.jobs.slice().reverse() });
     }
     if (url.pathname === "/api/queue/server-test" && req.method === "POST") {
       const body = await readJsonBody(req);
@@ -498,7 +538,7 @@ async function route(req: Request): Promise<Response> {
         const job = state.jobs.find((item) => item.id === id);
         if (!job) return;
         matched = true;
-        if (job.status === "queued" || job.status === "running") {
+        if (job.status === "staged" || job.status === "queued" || job.status === "running") {
           job.status = "canceled";
           job.finishedAt = nowIso();
           job.updatedAt = nowIso();

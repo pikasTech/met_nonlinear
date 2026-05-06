@@ -37,8 +37,11 @@ The Docker build uses the Huawei Cloud mirror of `nvidia/cuda:11.2.2-cudnn8-runt
 - `GET /health`: fast service, image and queue summary for Docker healthcheck and UniDesk health probes; it must not block on slow GPU discovery.
 - `GET /api/projects?root=projects&limit=80`: project list with config summary and training progress.
 - `GET /api/projects/config?path=projects/<name>`: structured config and progress.
-- `POST /api/queue`: enqueue existing projects with `projectPaths`, `maxConcurrency` and optional `targetGpuName`.
-- `POST /api/queue/server-test`: copy an existing project config into `projects/server_test/`, set `epoch_train`, write UniDesk metadata to `unidesk_server_test.json` instead of adding unknown fields to `config.json`, and enqueue all generated projects.
+- `POST /api/projects/fork`: fork one or more config-only projects from an existing source Project into `projects/unidesk_forks/` or `projects/server_test/`, set `epoch_train`, force GPU training and write `unidesk_project_fork.json` metadata.
+- `POST /api/queue`: add existing projects to the scheduler with `projectPaths`, `maxConcurrency`, optional `targetGpuName` and `start=false` for the UI staged queue. Default `start` remains immediate queueing for compatibility.
+- `POST /api/queue/start`: transition staged jobs to queued after the operator clicks the UI `启动队列` control.
+- `PUT /api/queue/settings`: update `maxConcurrency` and `targetGpuName` without adding jobs.
+- `POST /api/queue/server-test`: compatibility endpoint for old scripted acceptance; it delegates to the generic fork path and is not exposed as a hard-coded frontend button.
 - `GET /api/queue`: queue, running jobs, history preview and cached GPU status.
 - `GET /api/history`: terminal jobs with exit code, duration fields and failure details.
 - `GET /api/jobs/<id>` and `GET /api/logs?jobId=<id>`: job diagnostics and log tail.
@@ -51,12 +54,22 @@ The Docker build uses the Huawei Cloud mirror of `nvidia/cuda:11.2.2-cudnn8-runt
 
 ## Acceptance
 
+Acceptance is driven from the public UniDesk frontend, not from a hard-coded test button. The operator selects an existing source Project, uses `Fork Project` to create generated projects under `projects/unidesk_forks/`, sets the training epoch count, batch size and maximum concurrency through inputs, adds the forked projects to the staged queue, and only starts training by clicking `启动队列`. A full acceptance batch can use count=10, epochs=200 and maxConcurrency=3, but that scale must remain operator-entered UI data, not a dedicated frontend button.
+
+For API-level troubleshooting the equivalent sequence is:
+
 ```bash
 cd ~/met_nonlinear
-curl -fsS -X POST http://127.0.0.1:3288/api/queue/server-test \
+curl -fsS -X POST http://127.0.0.1:3288/api/projects/fork \
   -H 'content-type: application/json' \
-  -d '{"sourceProject":"projects/FRIKANh6u6l4","count":10,"epochs":10,"maxConcurrency":2}' | python3 -m json.tool
-watch -n 5 'curl -fsS http://127.0.0.1:3288/api/queue | python3 -m json.tool | sed -n "1,120p"'
+  -d '{"sourceProject":"projects/FRIKANh6u6l4","count":10,"epochs":200,"prefix":"ui_acceptance"}' | python3 -m json.tool
+curl -fsS -X POST http://127.0.0.1:3288/api/queue \
+  -H 'content-type: application/json' \
+  -d '{"projectPaths":["projects/unidesk_forks/ui_acceptance_01"],"maxConcurrency":3,"targetGpuName":"2080 Ti","start":false}' | python3 -m json.tool
+curl -fsS -X POST http://127.0.0.1:3288/api/queue/start \
+  -H 'content-type: application/json' \
+  -d '{"maxConcurrency":3,"targetGpuName":"2080 Ti"}' | python3 -m json.tool
+watch -n 5 'curl -fsS http://127.0.0.1:3288/api/queue | python3 -m json.tool | sed -n "1,160p"'
 ```
 
-Acceptance requires all ten generated `projects/server_test/` jobs to reach `succeeded` with `epoch_train=10`, no more than two simultaneous training containers, all running jobs pinned to the 2080Ti GPU, `metnl-train-*` containers automatically removed after completion, and no `projects/server_test/` generated artifacts committed to git.
+Acceptance requires the frontend to show staged, queued, running, completed and failure-diagnostic tabs; running rows must show progress and ETA from backend progress or from `startedAt` plus epoch progress; generated fork artifacts must stay ignored by git; all acceptance jobs must reach `succeeded` for the requested `epoch_train`; the effective concurrency must not exceed the configured cap or the 2080Ti VRAM safety cap; all running jobs must target the 2080Ti GPU; and `metnl-train-*` containers must be automatically removed after completion.
