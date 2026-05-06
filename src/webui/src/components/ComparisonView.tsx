@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Project, ProjectMetricsSummary } from '../types';
-import { LossCurvesState } from '../api';
+import { LossCurvesState } from '../clientApi';
 import LossCurvesView from './LossCurvesView';
 import TableView from './TableView';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';

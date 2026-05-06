@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Plot from 'react-plotly.js';
 import { Config, Data, Dash, Layout } from 'plotly.js';
-import { fetchTrainingLog, LossCurvesState, defaultLossCurvesState } from '../api';
+import { fetchTrainingLog, LossCurvesState, defaultLossCurvesState } from '../clientApi';
 import { Project, TrainingLogEntry } from '../types';
 
 interface ProjectData {

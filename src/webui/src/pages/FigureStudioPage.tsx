@@ -8,7 +8,7 @@ import {
   PaperFigureKind,
   savePaperFigureConfig,
   startPaperFigureRender,
-} from '../api';
+} from '../clientApi';
 import FigureConfigInspector, { type PathToken } from '../components/FigureConfigInspector';
 import '../App.css';
 

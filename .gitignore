@@ -124,7 +124,8 @@ docs/paper/figures/legacy/_traced_tmp/
 *.png
 **/_pychace__/**
 **screenshot**
-
 # UniDesk acceptance-generated training projects
 projects/server_test/
 projects/unidesk_forks/
+
+src/webui/test-results/

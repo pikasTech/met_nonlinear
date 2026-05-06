@@ -24,13 +24,21 @@ src/webui/
 │   └── package.json
 ├── src/                # React 前端
 │   ├── components/      # React 组件
-│   ├── api.ts          # API 调用层
+│   ├── clientApi.ts    # API 调用层
 │   ├── types.ts        # TypeScript 类型定义
 │   └── App.tsx         # 主应用组件
 └── dist/               # 构建产物（由 vite 生成）
 ```
 
 **注意**：项目根目录不允许有 `package.json`、`package-lock.json`、`node_modules` 等 npm 相关文件，这些只允许存在于 `src/webui/` 目录下。
+
+### Paper Editor 约束
+
+- 前端 API 封装文件应保持为 `src/webui/src/clientApi.ts` 这类不与 `/api` 代理前缀冲突的命名，避免 Vite 开发代理把模块路径误判为接口路径。
+- Markdown 与数学公式渲染必须复用成熟第三方链路，例如 `react-markdown`、`remark-*`、`rehype-*`、`KaTeX`；不要在项目内重复实现新的 Markdown/LaTeX 解析器。
+- Outline 的 HTML 定位必须基于最终渲染 HTML 中的 heading `id` 反查，而不能仅依赖通用 `latex -> html` 线性插值；否则文档前段标题会被压到同一 HTML 行号，导致滚动映射失真。
+- Paper Editor 的行号链路必须坚持 `view line -> raw latex -> markdown -> html` 的单向构建与严格反向映射；不要跳过中间层做插值回推。
+- 当 Paper Editor 后端契约新增 `sourceView`、`viewColumns` 一类字段时，验收应直接请求 `/api/paper-editor/document?entry=main.tex&viewColumns=80`，确认响应中存在 `sourceView`；若缺失，优先怀疑服务端启动了陈旧产物，而不是先改前端。
 
 ## 启动服务
 
@@ -216,6 +224,7 @@ cd src/webui && npm run build
 前端静态资源说明：
 
 - `python cli.py server start` 直接从 `src/webui/dist/` 提供静态文件
+- `python cli.py server start` 不应盲目固定执行 `src/webui/server/dist/index.js`；如果 `src/webui/server/src/` 比 server dist 更新，应优先使用较新的源码入口或先重建 server dist，否则 Paper Editor 接口可能继续返回旧 schema。
 - 修改 `src/webui/src/` 前端源码后，必须重新执行 `npm run build`，否则浏览器仍会加载旧的 dist 产物
 
 ## 端口说明

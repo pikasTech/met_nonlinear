@@ -126,3 +126,84 @@ export interface ProjectMetricsSummary {
   loss_function?: string | null;
   display_metrics?: Record<string, number | null | boolean | string>;
 }
+
+export interface PaperEditorOutlineItem {
+  id: string;
+  level: number;
+  title: string;
+  line: number;
+  markdownLine?: number;
+  htmlLine?: number;
+}
+
+export interface PaperEditorAsset {
+  source: string;
+  resolvedPath: string;
+  url: string;
+  caption: string;
+}
+
+export interface PaperEditorPerformance {
+  parseMs: number;
+  sourceBytes: number;
+  markdownBytes: number;
+  macroCount: number;
+  importCount: number;
+  imageCount: number;
+}
+
+export interface PaperEditorHtmlBlock {
+  htmlBlockIndex: number;
+  htmlStartLine: number;
+  htmlEndLine: number;
+  markdownStartLine: number;
+  markdownEndLine: number;
+  latexStartLine: number;
+  latexEndLine: number;
+  kind: string;
+}
+
+export interface PaperEditorLineMappings {
+  latexToMarkdown: number[];
+  markdownToLatex: number[];
+  markdownToHtml: number[];
+  htmlToMarkdown: number[];
+  htmlToLatex: number[];
+  latexToHtml: number[];
+  htmlBlocks: PaperEditorHtmlBlock[];
+}
+
+export interface PaperEditorSourceView {
+  text: string;
+  columns: number;
+  tabSize: number;
+  totalViewLines: number;
+  viewLineToLatex: number[];
+  latexToViewLineStart: number[];
+  latexToViewLineEnd: number[];
+  viewLineEndsWithSourceBreak: boolean[];
+}
+
+export interface PaperEditorDocument {
+  entry: string;
+  source: string;
+  sourceView: PaperEditorSourceView;
+  markdown: string;
+  html: string;
+  outline: PaperEditorOutlineItem[];
+  imports: string[];
+  macros: Record<string, string>;
+  assets: PaperEditorAsset[];
+  diagnostics: string[];
+  lineMappings: PaperEditorLineMappings;
+  performance: PaperEditorPerformance;
+  revision: string;
+  updatedAt: string | null;
+}
+
+export interface PaperEditorDocumentState {
+  entry: string;
+  imports: string[];
+  revision: string;
+  updatedAt: string | null;
+}

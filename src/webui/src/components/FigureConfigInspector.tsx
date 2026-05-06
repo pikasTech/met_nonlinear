@@ -1,5 +1,5 @@
 import { Fragment, useState, useRef, useCallback, useEffect, type ReactNode } from 'react';
-import { PaperFigureConfigEntry } from '../api';
+import { PaperFigureConfigEntry } from '../clientApi';
 
 export type PathToken = string | number;
 

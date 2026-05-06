@@ -1,4 +1,13 @@
-import { Project, ProjectsResponse, TrainingInfo, TrainingLogResponse, ModelInfo, ComputeAnalysis, ProjectMetricsSummary } from './types';
+import {
+  Project,
+  ProjectsResponse,
+  TrainingInfo,
+  TrainingLogResponse,
+  ModelInfo,
+  ComputeAnalysis,
+  ProjectMetricsSummary,
+  PaperEditorDocument,
+} from './types';
 
 const API_BASE = '/api';
 
@@ -212,5 +221,35 @@ export async function startPaperFigureRender(figureIds: string[]): Promise<Paper
 export async function fetchPaperFigureRenderJob(jobId: string): Promise<PaperFigureRenderJob> {
   const res = await fetch(`${API_BASE}/paper-figures/render/${encodeURIComponent(jobId)}`);
   if (!res.ok) throw new Error(`Failed to fetch render job: ${jobId}`);
+  return res.json();
+}
+
+export async function fetchPaperEditorDocument(entry = 'main.tex', viewColumns?: number): Promise<PaperEditorDocument> {
+  const params = new URLSearchParams({ entry });
+  if (typeof viewColumns === 'number' && Number.isFinite(viewColumns) && viewColumns > 0) {
+    params.set('viewColumns', String(Math.round(viewColumns)));
+  }
+  const res = await fetch(`${API_BASE}/paper-editor/document?${params.toString()}`);
+  if (!res.ok) throw new Error('Failed to load paper editor document');
+  return res.json();
+}
+
+export async function previewPaperEditorDocument(entry: string, source: string, viewColumns?: number): Promise<PaperEditorDocument> {
+  const res = await fetch(`${API_BASE}/paper-editor/preview`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ entry, source, viewColumns }),
+  });
+  if (!res.ok) throw new Error('Failed to preview paper editor document');
+  return res.json();
+}
+
+export async function savePaperEditorDocument(entry: string, source: string, viewColumns?: number): Promise<PaperEditorDocument> {
+  const res = await fetch(`${API_BASE}/paper-editor/document`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ entry, source, viewColumns }),
+  });
+  if (!res.ok) throw new Error('Failed to save paper editor document');
   return res.json();
 }

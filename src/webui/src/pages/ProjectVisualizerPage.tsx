@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Project, ProjectMetricsSummary } from '../types';
-import { fetchProjects, fetchProjectMetricsSummary, fetchState, saveState, fetchPresets, fetchPreset, savePreset, deletePreset, renamePreset, PresetState, PresetInfo, LossCurvesState, defaultLossCurvesState } from '../api';
+import { fetchProjects, fetchProjectMetricsSummary, fetchState, saveState, fetchPresets, fetchPreset, savePreset, deletePreset, renamePreset, PresetState, PresetInfo, LossCurvesState, defaultLossCurvesState } from '../clientApi';
 import ProjectList from '../components/ProjectList';
 import ComparisonView from '../components/ComparisonView';
 import { SortingState, ColumnFiltersState } from '@tanstack/react-table';

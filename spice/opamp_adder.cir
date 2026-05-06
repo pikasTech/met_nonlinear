@@ -1,0 +1,37 @@
+* Op-Amp Adder Circuit Simulation
+* Inputs: V1 (1V DC) and V2 (2V DC)
+* Output: Vout = -( (Rf/R1)*V1 + (Rf/R2)*V2 )
+
+* 1. 定义电源和输入信号
+V1 in1 0 DC 1       * Input 1: 1V DC
+V2 in2 0 DC 2       * Input 2: 2V DC
+Vcc vcc 0 DC 15     * Op-amp positive supply
+Vee vee 0 DC -15    * Op-amp negative supply
+
+* 2. 电阻网络（R1=R2=1k, Rf=2k）
+R1 in1 inv 1k       * Input resistor 1
+R2 in2 inv 1k       * Input resistor 2
+Rf inv out 2k       * Feedback resistor
+
+* 3. 定义理想运放子电路
+.subckt opamp inv noninv vcc vee out
+* 输入级（高阻抗差分输入）
+Rin inv noninv 1e12
+* 增益级（开环增益1e6）
+Eout out 0 noninv inv 1e6
+* 电源连接（可选）
+Vps vcc vee DC 0
+.ends opamp
+
+* 4. 调用运放
+X1 inv 0 vcc vee out opamp
+
+* 5. 仿真指令（DC分析）
+.control
+dc                  * DC analysis
+print v(out)        * Print output voltage
+plot v(out)         * Plot output (requires X11)
+.endc
+
+* 6. 结束
+.end

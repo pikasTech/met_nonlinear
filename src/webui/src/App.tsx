@@ -2,9 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import './App.css';
 import FigureStudioPage from './pages/FigureStudioPage';
 import HomePage from './pages/HomePage';
+import PaperEditorPage from './pages/PaperEditorPage';
 import ProjectVisualizerPage from './pages/ProjectVisualizerPage';
 
-type AppRoute = '/' | '/projects' | '/paper-figures';
+type AppRoute = '/' | '/projects' | '/paper-figures' | '/paper-editor';
 
 interface RouteLink {
   path: AppRoute;
@@ -15,6 +16,7 @@ interface RouteLink {
 const ROUTE_LINKS: RouteLink[] = [
   { path: '/', label: 'Home', caption: 'Switch workspace' },
   { path: '/projects', label: 'Projects', caption: 'Compare experiments' },
+  { path: '/paper-editor', label: 'Paper Editor', caption: 'Edit and preview LaTeX' },
   { path: '/paper-figures', label: 'Figure Studio', caption: 'Tune paper bitmaps' },
 ];
 
@@ -25,12 +27,18 @@ function normalizeRoute(pathname: string): AppRoute {
   if (pathname === '/paper-figures' || pathname.startsWith('/paper-figures/')) {
     return '/paper-figures';
   }
+  if (pathname === '/paper-editor' || pathname.startsWith('/paper-editor/')) {
+    return '/paper-editor';
+  }
   return '/';
 }
 
 function renderRoute(route: AppRoute, onNavigate: (path: string) => void) {
   if (route === '/projects') {
     return <ProjectVisualizerPage />;
+  }
+  if (route === '/paper-editor') {
+    return <PaperEditorPage />;
   }
   if (route === '/paper-figures') {
     return <FigureStudioPage />;

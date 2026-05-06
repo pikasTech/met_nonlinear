@@ -9,6 +9,13 @@ import {
   startRenderJob,
   updatePaperFigureConfig,
 } from './paperFigures.js';
+import {
+  loadPaperEditorDocument,
+  loadPaperEditorDocumentState,
+  previewPaperEditorDocument,
+  resolvePaperEditorAsset,
+  savePaperEditorDocument,
+} from './paperEditor.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +64,63 @@ function readJsonlFile(filePath: string): Array<Record<string, unknown>> {
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/paper-editor/document', (req, res) => {
+  try {
+    const entry = typeof req.query.entry === 'string' ? req.query.entry : 'main.tex';
+    const rawViewColumns = typeof req.query.viewColumns === 'string' ? Number.parseInt(req.query.viewColumns, 10) : Number.NaN;
+    const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
+    res.json(loadPaperEditorDocument(ROOT_DIR, entry, viewColumns));
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to load paper document' });
+  }
+});
+
+app.get('/api/paper-editor/state', (req, res) => {
+  try {
+    const entry = typeof req.query.entry === 'string' ? req.query.entry : 'main.tex';
+    res.json(loadPaperEditorDocumentState(ROOT_DIR, entry));
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to load paper document state' });
+  }
+});
+
+app.post('/api/paper-editor/preview', (req, res) => {
+  try {
+    const entry = typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex';
+    const source = typeof req.body?.source === 'string' ? req.body.source : '';
+    const rawViewColumns = typeof req.body?.viewColumns === 'number' ? req.body.viewColumns : Number.NaN;
+    const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
+    res.json(previewPaperEditorDocument(ROOT_DIR, entry, source, viewColumns));
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to preview paper document' });
+  }
+});
+
+app.put('/api/paper-editor/document', (req, res) => {
+  try {
+    const entry = typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex';
+    const source = typeof req.body?.source === 'string' ? req.body.source : '';
+    const rawViewColumns = typeof req.body?.viewColumns === 'number' ? req.body.viewColumns : Number.NaN;
+    const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
+    res.json(savePaperEditorDocument(ROOT_DIR, entry, source, viewColumns));
+  } catch (error) {
+    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to save paper document' });
+  }
+});
+
+app.get('/api/paper-editor/asset', (req, res) => {
+  try {
+    const requestPath = typeof req.query.path === 'string' ? req.query.path : '';
+    if (!requestPath) {
+      res.status(400).json({ error: 'Missing asset path' });
+      return;
+    }
+    res.sendFile(resolvePaperEditorAsset(ROOT_DIR, requestPath));
+  } catch (error) {
+    res.status(404).json({ error: error instanceof Error ? error.message : 'Asset not found' });
+  }
 });
 
 app.get('/api/projects', (_req, res) => {

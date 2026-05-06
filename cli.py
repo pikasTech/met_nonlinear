@@ -30,6 +30,22 @@ from logger import setup_logging
 logger = logging.getLogger('cli')
 
 
+def _resolve_bun_path() -> str | None:
+    bun_path = shutil.which('bun')
+    if bun_path:
+        return bun_path
+
+    candidates = [
+        os.path.join(os.path.expanduser('~'), '.bun', 'bin', 'bun.exe'),
+        os.path.join(os.environ.get('USERPROFILE', ''), '.bun', 'bin', 'bun.exe'),
+        os.path.join(os.path.expanduser('~'), '.bun', 'bin', 'bun'),
+    ]
+    for candidate in candidates:
+        if candidate and os.path.exists(candidate):
+            return candidate
+    return None
+
+
 def _run_test_command(args) -> None:
     """运行单元测试命令。"""
     from core.cli_parser import TaskType
@@ -115,6 +131,62 @@ def _run_server_subcommand(args) -> None:
         sys.exit(1)
 
 
+def _run_paper_editor_subcommand(args) -> None:
+    """处理 paper-editor 子命令，导出渲染产物或严格映射诊断。"""
+    if args.paper_editor_action not in {'export-md', 'export-html', 'export-map', 'diagnose-map'}:
+        print(json.dumps({'status': 'error', 'message': f'Unknown paper-editor action: {args.paper_editor_action}'}, ensure_ascii=False))
+        sys.exit(1)
+
+    bun_path = _resolve_bun_path()
+    if bun_path is None:
+        print(json.dumps({'status': 'error', 'message': 'bun not found in PATH'}, ensure_ascii=False))
+        sys.exit(1)
+
+    compiled_script_path = os.path.join(_SCRIPT_DIR, 'src', 'webui', 'server', 'dist', 'exportPaperEditor.js')
+    source_script_path = os.path.join(_SCRIPT_DIR, 'src', 'webui', 'server', 'src', 'exportPaperEditor.ts')
+    if os.path.exists(compiled_script_path) and os.path.exists(source_script_path):
+        script_path = source_script_path if os.path.getmtime(source_script_path) >= os.path.getmtime(compiled_script_path) else compiled_script_path
+    else:
+        script_path = compiled_script_path if os.path.exists(compiled_script_path) else source_script_path
+    export_format = (
+        'html' if args.paper_editor_action == 'export-html'
+        else 'mapping' if args.paper_editor_action == 'export-map'
+        else 'diagnostic' if args.paper_editor_action == 'diagnose-map'
+        else 'markdown'
+    )
+    default_suffix = 'html' if export_format == 'html' else 'json' if export_format in {'mapping', 'diagnostic'} else 'md'
+    default_name = 'main.line-mappings' if export_format == 'mapping' else 'main.diagnostic' if export_format == 'diagnostic' else 'main.preview'
+    default_output = os.path.join('cache', 'webui', 'paper-editor', f'{default_name}.{default_suffix}')
+    output_path = args.paper_output_path or default_output
+    cmd = [
+        bun_path,
+        script_path,
+        '--root',
+        _SCRIPT_DIR,
+        '--entry',
+        args.paper_entry,
+        '--output',
+        output_path,
+        '--format',
+        export_format,
+    ]
+    if getattr(args, 'paper_wrap_columns', None):
+        cmd.extend(['--wrap-columns', str(args.paper_wrap_columns)])
+    for flag, values in (
+        ('--latex-lines', getattr(args, 'paper_latex_lines', None)),
+        ('--view-lines', getattr(args, 'paper_view_lines', None)),
+        ('--markdown-lines', getattr(args, 'paper_markdown_lines', None)),
+        ('--html-lines', getattr(args, 'paper_html_lines', None)),
+    ):
+        if values:
+            cmd.append(flag)
+            cmd.extend([str(value) for value in values])
+    for title in getattr(args, 'paper_outline_titles', None) or []:
+        cmd.extend(['--outline-title', str(title)])
+    result = subprocess.run(cmd, cwd=_SCRIPT_DIR)
+    sys.exit(result.returncode)
+
+
 def _run_main_commands(args) -> None:
     """处理非 ep 的主命令，按原顺序加载重型依赖。"""
     # 第二阶段：环境检查（在重型依赖导入前）
@@ -168,6 +240,10 @@ if __name__ == '__main__':
 
     if getattr(args, 'command', None) == 'server':
         _run_server_subcommand(args)
+        sys.exit(0)
+
+    if getattr(args, 'command', None) == 'paper-editor':
+        _run_paper_editor_subcommand(args)
         sys.exit(0)
 
     # 测试命令（不加载重型依赖）

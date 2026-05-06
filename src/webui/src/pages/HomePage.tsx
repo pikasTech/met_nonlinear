@@ -33,6 +33,23 @@ export default function HomePage({ onNavigate }: HomePageProps) {
           </button>
         </article>
 
+        <article className="home-card home-card--editor">
+          <div className="home-card__badge">New</div>
+          <h2 className="home-card__title">Paper Editor</h2>
+          <p className="home-card__copy">
+            Edit docs/paper/latex/main.tex in source mode, keep the preview synchronized, inspect macros and profile the
+            live pipeline with a built-in performance panel.
+          </p>
+          <ul className="home-card__list">
+            <li>Split source / preview workspace</li>
+            <li>Math, macro and imported tex preview</li>
+            <li>Outline navigator + runtime telemetry</li>
+          </ul>
+          <button className="home-card__cta home-card__cta--editor" data-testid="open-paper-editor" onClick={() => onNavigate('/paper-editor')}>
+            Open paper editor
+          </button>
+        </article>
+
         <article className="home-card home-card--studio">
           <div className="home-card__badge">New</div>
           <h2 className="home-card__title">Figure Studio</h2>

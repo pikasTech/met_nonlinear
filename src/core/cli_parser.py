@@ -96,6 +96,15 @@ class CLIArgs:
     server_action: Optional[str] = None
     server_port: int = 3000
     server_lines: int = 100
+    paper_editor_action: Optional[str] = None
+    paper_entry: str = 'main.tex'
+    paper_output_path: Optional[str] = None
+    paper_wrap_columns: Optional[int] = None
+    paper_latex_lines: Optional[List[int]] = None
+    paper_view_lines: Optional[List[int]] = None
+    paper_markdown_lines: Optional[List[int]] = None
+    paper_html_lines: Optional[List[int]] = None
+    paper_outline_titles: Optional[List[str]] = None
 
 
 @dataclass
@@ -347,6 +356,32 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
     server_logs_parser = server_subparsers.add_parser('logs', help='查看服务器日志')
     server_logs_parser.add_argument('--lines', type=int, default=100, dest='server_lines', help='日志行数，默认: 100')
 
+    paper_editor_parser = subparsers.add_parser('paper-editor', help='论文编辑器辅助命令')
+    paper_editor_subparsers = paper_editor_parser.add_subparsers(dest='paper_editor_action', help='论文编辑器操作')
+
+    paper_export_parser = paper_editor_subparsers.add_parser('export-md', help='导出 paper editor 渲染后的 Markdown')
+    paper_export_parser.add_argument('--entry', dest='paper_entry', default='main.tex', help='latex 入口文件，默认: main.tex')
+    paper_export_parser.add_argument('--output', dest='paper_output_path', default='cache/webui/paper-editor/main.preview.md', help='导出的 Markdown 路径，相对仓库根目录')
+
+    paper_export_html_parser = paper_editor_subparsers.add_parser('export-html', help='导出 paper editor 渲染后的 HTML')
+    paper_export_html_parser.add_argument('--entry', dest='paper_entry', default='main.tex', help='latex 入口文件，默认: main.tex')
+    paper_export_html_parser.add_argument('--output', dest='paper_output_path', default='cache/webui/paper-editor/main.preview.html', help='导出的 HTML 路径，相对仓库根目录')
+
+    paper_export_map_parser = paper_editor_subparsers.add_parser('export-map', help='导出 paper editor 的 LaTeX/Markdown/HTML 行号映射 JSON')
+    paper_export_map_parser.add_argument('--entry', dest='paper_entry', default='main.tex', help='latex 入口文件，默认: main.tex')
+    paper_export_map_parser.add_argument('--output', dest='paper_output_path', default='cache/webui/paper-editor/main.line-mappings.json', help='导出的映射 JSON 路径，相对仓库根目录')
+    paper_export_map_parser.add_argument('--wrap-columns', dest='paper_wrap_columns', type=int, help='额外导出按指定列宽换行后的 view-line 到 raw-line 映射')
+
+    paper_diagnose_map_parser = paper_editor_subparsers.add_parser('diagnose-map', help='导出 paper editor 的严格映射链路诊断 JSON')
+    paper_diagnose_map_parser.add_argument('--entry', dest='paper_entry', default='main.tex', help='latex 入口文件，默认: main.tex')
+    paper_diagnose_map_parser.add_argument('--output', dest='paper_output_path', default='cache/webui/paper-editor/main.diagnostic.json', help='导出的诊断 JSON 路径，相对仓库根目录')
+    paper_diagnose_map_parser.add_argument('--wrap-columns', dest='paper_wrap_columns', type=int, help='后端按指定列宽生成 view-line 到 raw-line 映射')
+    paper_diagnose_map_parser.add_argument('--latex-lines', dest='paper_latex_lines', nargs='*', type=int, help='要诊断的 LaTeX raw line 列表')
+    paper_diagnose_map_parser.add_argument('--view-lines', dest='paper_view_lines', nargs='*', type=int, help='要诊断的 wrapped view-line 列表')
+    paper_diagnose_map_parser.add_argument('--markdown-lines', dest='paper_markdown_lines', nargs='*', type=int, help='要诊断的 Markdown line 列表')
+    paper_diagnose_map_parser.add_argument('--html-lines', dest='paper_html_lines', nargs='*', type=int, help='要诊断的 HTML line 列表')
+    paper_diagnose_map_parser.add_argument('--outline-title', dest='paper_outline_titles', action='append', help='要诊断的 outline 标题，可重复传入')
+
     return parser
 
 
@@ -535,7 +570,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
         argv = sys.argv[1:]  # 跳过脚本名称
 
     # 预处理：检测是否为轻量子命令
-    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu', 'server'}
+    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu', 'server', 'paper-editor'}
 
     # 根据是否为轻量子命令选择不同的解析器
     if is_lightweight_subcommand:
@@ -610,6 +645,23 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 server_action=getattr(args, 'server_action', None),
                 server_port=getattr(args, 'port', 3000),
                 server_lines=getattr(args, 'server_lines', 100)
+            )
+
+        is_paper_editor_subcommand = getattr(args, 'command', None) == 'paper-editor'
+        if is_paper_editor_subcommand:
+            return CLIArgs(
+                task_type=TaskType.INFERENCE,
+                project_names=[],
+                command='paper-editor',
+                paper_editor_action=getattr(args, 'paper_editor_action', None),
+                paper_entry=getattr(args, 'paper_entry', 'main.tex'),
+                paper_output_path=getattr(args, 'paper_output_path', None),
+                paper_wrap_columns=getattr(args, 'paper_wrap_columns', None),
+                paper_latex_lines=getattr(args, 'paper_latex_lines', None),
+                paper_view_lines=getattr(args, 'paper_view_lines', None),
+                paper_markdown_lines=getattr(args, 'paper_markdown_lines', None),
+                paper_html_lines=getattr(args, 'paper_html_lines', None),
+                paper_outline_titles=getattr(args, 'paper_outline_titles', None),
             )
 
         # 检查是否为测试任务

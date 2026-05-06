@@ -4,6 +4,7 @@ import signal
 import subprocess
 import sys
 import time
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -78,6 +79,69 @@ class ServerManager:
                 SERVER_PID_FILE.unlink()
             return None
 
+    def _get_bun_path(self) -> Optional[str]:
+        bun_path = shutil.which('bun')
+        if bun_path:
+            return bun_path
+
+        if sys.platform == 'win32':
+            candidates = [
+                Path.home() / '.bun' / 'bin' / 'bun.exe',
+                Path(os.environ.get('USERPROFILE', '')) / '.bun' / 'bin' / 'bun.exe',
+            ]
+        else:
+            candidates = [Path.home() / '.bun' / 'bin' / 'bun']
+
+        for candidate in candidates:
+            if candidate and candidate.exists():
+                return str(candidate)
+        return None
+
+    def _terminate_process(self, process: subprocess.Popen) -> None:
+        try:
+            process.terminate()
+            process.wait(timeout=5)
+        except Exception:
+            try:
+                process.kill()
+                process.wait(timeout=5)
+            except Exception:
+                pass
+
+    def _get_latest_tree_mtime(self, tree_root: Path) -> float:
+        if not tree_root.exists():
+            return 0.0
+        if tree_root.is_file():
+            return tree_root.stat().st_mtime
+
+        latest_mtime = 0.0
+        for candidate in tree_root.rglob('*'):
+            if not candidate.is_file():
+                continue
+            latest_mtime = max(latest_mtime, candidate.stat().st_mtime)
+        return latest_mtime
+
+    def _build_start_command(self) -> tuple[list[str], str]:
+        bun_path = self._get_bun_path()
+        if bun_path is None:
+            raise RuntimeError('bun not found in PATH or default Bun install location')
+
+        server_dir = ROOT_DIR / 'src' / 'webui' / 'server'
+        compiled_entry = server_dir / 'dist' / 'index.js'
+        source_entry = server_dir / 'src' / 'index.ts'
+        source_tree = server_dir / 'src'
+
+        if compiled_entry.exists() and source_entry.exists():
+            if self._get_latest_tree_mtime(source_tree) >= compiled_entry.stat().st_mtime:
+                return [bun_path, str(source_entry)], str(server_dir)
+            return [bun_path, str(compiled_entry)], str(server_dir)
+        if source_entry.exists():
+            return [bun_path, str(source_entry)], str(server_dir)
+        if compiled_entry.exists():
+            return [bun_path, str(compiled_entry)], str(server_dir)
+
+        raise RuntimeError(f'Server entry not found: {compiled_entry} or {source_entry}')
+
     def start(self) -> dict:
         existing_pid = self._get_pid_from_file()
         if existing_pid:
@@ -89,18 +153,10 @@ class ServerManager:
         log_path = self._get_log_path()
         self._write_log(log_path, f'Starting server on port {SERVER_PORT}...')
 
-        server_script = ROOT_DIR / 'src' / 'webui' / 'server' / 'src' / 'index.ts'
-        if not server_script.exists():
-            return {'status': 'error', 'message': f'Server script not found: {server_script}'}
-
         log_file = open(log_path, 'a', encoding='utf-8')
 
         try:
-            import platform
-            if platform.system() == 'Windows':
-                cmd_to_run = ['cmd', '/c', 'npx.cmd', 'tsx', 'watch', str(server_script)]
-            else:
-                cmd_to_run = ['npx', 'tsx', 'watch', str(server_script)]
+            cmd_to_run, cwd_to_run = self._build_start_command()
 
             self._write_log(log_path, f'Executing: {" ".join(cmd_to_run)}')
 
@@ -108,7 +164,7 @@ class ServerManager:
                 cmd_to_run,
                 stdout=log_file,
                 stderr=subprocess.STDOUT,
-                cwd=str(ROOT_DIR),
+                cwd=cwd_to_run,
                 env={**os.environ, 'NODE_ENV': 'development'}
             )
 
@@ -125,9 +181,14 @@ class ServerManager:
                     'message': f'Server started on http://localhost:{SERVER_PORT}'
                 }
             else:
+                self._terminate_process(process)
+                if SERVER_PID_FILE.exists():
+                    SERVER_PID_FILE.unlink()
                 self._write_log(log_path, 'Server failed to start within timeout')
                 return {'status': 'error', 'message': 'Server failed to start within timeout', 'logPath': log_path}
         except Exception as e:
+            if SERVER_PID_FILE.exists():
+                SERVER_PID_FILE.unlink()
             self._write_log(log_path, f'Failed to start server: {e}')
             return {'status': 'error', 'message': str(e), 'logPath': log_path}
 
@@ -137,13 +198,22 @@ class ServerManager:
             return {'status': 'not_running', 'message': 'Server is not running'}
 
         try:
-            os.kill(pid, signal.SIGTERM)
-            time.sleep(1)
-            try:
-                os.kill(pid, 0)
-                os.kill(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
+            if sys.platform == 'win32':
+                subprocess.run(
+                    ['taskkill', '/PID', str(pid), '/T', '/F'],
+                    check=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                time.sleep(1)
+            else:
+                os.kill(pid, signal.SIGTERM)
+                time.sleep(1)
+                try:
+                    os.kill(pid, 0)
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
             if SERVER_PID_FILE.exists():
                 SERVER_PID_FILE.unlink()
             return {'status': 'stopped', 'message': 'Server stopped'}
