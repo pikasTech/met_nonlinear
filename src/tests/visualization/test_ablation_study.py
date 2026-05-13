@@ -1,3 +1,4 @@
+from __future__ import annotations
 import json
 
 from visualization.ablation_study import AblationStudyAnalyzer

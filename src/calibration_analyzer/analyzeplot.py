@@ -1,3 +1,4 @@
+from __future__ import annotations
 import re
 from . import config
 from .config import CONF_USING_REF_PHASE, CONF_USING_REF_GAIN, CONF_GAIN_REF, CONF_PHASE_REF, CONF_PHASE_REF_SHIFT

@@ -1,0 +1,4 @@
+**
+!requirements.txt
+!unidesk/server/**
+!docker/unidesk/**

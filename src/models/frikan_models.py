@@ -4,6 +4,7 @@
 此模块包含FRIKAN及其变体模型，这些模型结合了IIR滤波器和KAN（Kolmogorov-Arnold Network）网络
 用于建模和补偿非线性动态系统。
 """
+from __future__ import annotations
 
 from typing import List
 from tfkan.layers import DenseKAN

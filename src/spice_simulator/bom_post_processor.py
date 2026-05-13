@@ -11,6 +11,7 @@ BOM后处理器模块 - 数值标准化和同值合并优化
 - 完全处理：不过滤任何数据，完整处理所有电阻
 - 严格验证：关键操作必须成功，不允许"礼貌失败"
 """
+from __future__ import annotations
 
 import os
 import re

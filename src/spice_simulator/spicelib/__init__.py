@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
 # Convenience direct imports
 from .raw.raw_read import RawRead, SpiceReadException
 from .raw.raw_write import RawWrite, Trace

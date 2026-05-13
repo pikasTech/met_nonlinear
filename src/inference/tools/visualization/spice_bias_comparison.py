@@ -5,6 +5,7 @@ SPICE偏置补偿对比可视化工具
 用于对比分析基准和补偿后的SPICE推理结果，
 生成学术风格的可视化图表和原始数据。
 """
+from __future__ import annotations
 
 import argparse
 import json

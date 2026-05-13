@@ -1,3 +1,4 @@
+from __future__ import annotations
 from keras.models import Sequential
 import pandas as pd
 import numpy as np
