@@ -4,19 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "9fc25711554ef90e",
+        "id": "0c783d224e2e673e",
         "type": "tabs",
         "children": [
           {
-            "id": "d7908b361fa1bd93",
+            "id": "1ccc61d378a5be1c",
             "type": "leaf",
             "state": {
-              "type": "pdf",
-              "state": {
-                "file": "docs/paper/latex/build/main.pdf"
-              },
-              "icon": "lucide-file-text",
-              "title": "main"
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "新标签页"
             }
           }
         ]
@@ -76,7 +74,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 294.51103591918945
   },
   "right": {
     "id": "bfa1cc7ceaf8a659",
@@ -92,7 +90,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "docs/paper/latex/build/main.pdf",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +99,7 @@
                 "unlinkedCollapsed": false
               },
               "icon": "links-coming-in",
-              "title": "main 的反向链接列表"
+              "title": "反向链接"
             }
           },
           {
@@ -180,8 +177,9 @@
       "bases:新建数据库": false
     }
   },
-  "active": "d7908b361fa1bd93",
+  "active": "1ccc61d378a5be1c",
   "lastOpenFiles": [
+    "docs/paper/latex/build/main.pdf",
     "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/metrics.json",
     "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/linearity_by_frequency.json",
     "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/linear_response.json",
@@ -194,7 +192,6 @@
     "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/best_val.weights.h5",
     "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/best.weights.json",
     "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/best.weights.h5",
-    "projects/06_TCN/TCNc4d1248k3_nopd_true_e1k_lr2e5_r24/data/training.lock",
     "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e6_pd8l2_d001_cvtanh_true_r24/data/predict_features_overview.png",
     "projects/05_1DCNN/1DCNNc4u8k20l8_e1k_lr18e6_pd8l2_d001_cvtanh_true_r24/data/bode_plot_overlay.png",
     "projects/01_LR_STUDY/GRNu16_e1k_lr7e6_puremae_r24/data/predict_features_overview.png",

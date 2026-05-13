@@ -48,7 +48,7 @@ class VisualizationConfigValidator:
                 "properties": {
                     "layout": {
                         "type": "string", 
-                        "enum": ["side_by_side", "overlaid", "separate"]
+                        "enum": ["side_by_side", "overlay", "overlaid", "separate"]
                     },
                     "freq_range": {
                         "type": "array",
@@ -94,7 +94,25 @@ class VisualizationConfigValidator:
                             "type": "string",
                             "enum": ["origin", "compensation", "training", "testing"]
                         },
-                        "label": {"type": "string", "minLength": 1}
+                        "label": {"type": "string", "minLength": 1},
+                        "freq_range": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "minItems": 2,
+                            "maxItems": 2
+                        },
+                        "gain_range": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "minItems": 2,
+                            "maxItems": 2
+                        },
+                        "magnitudes": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "minItems": 1
+                        },
+                        "split_magnitudes": {"type": "boolean"}
                     }
                 }
             }
@@ -1012,11 +1030,28 @@ class VisualizationConfigValidator:
             freq_range = viz_config["freq_range"]
             if len(freq_range) == 2 and freq_range[0] >= freq_range[1]:
                 raise ConfigValidationError("freq_range: 起始频率必须小于结束频率")
+        if "gain_range" in viz_config:
+            gain_range = viz_config["gain_range"]
+            if len(gain_range) == 2 and gain_range[0] >= gain_range[1]:
+                raise ConfigValidationError("gain_range: 起始值必须小于结束值")
         
         # 验证数据源
         data_sources = config.get("data_sources", [])
         if len(data_sources) < 1:
             raise ConfigValidationError("freq-response-compare任务至少需要1个数据源")
+        for idx, source in enumerate(data_sources):
+            if "freq_range" in source:
+                source_freq_range = source["freq_range"]
+                if len(source_freq_range) == 2 and source_freq_range[0] >= source_freq_range[1]:
+                    raise ConfigValidationError(
+                        f"data_sources[{idx}].freq_range: 起始频率必须小于结束频率"
+                    )
+            if "gain_range" in source:
+                source_gain_range = source["gain_range"]
+                if len(source_gain_range) == 2 and source_gain_range[0] >= source_gain_range[1]:
+                    raise ConfigValidationError(
+                        f"data_sources[{idx}].gain_range: 起始值必须小于结束值"
+                    )
 
     def _validate_qemu_c_inference_logic(self, config: Dict[str, Any]) -> None:
         """QEMU C 推理任务的特殊验证"""

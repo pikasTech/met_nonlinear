@@ -7,7 +7,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Any, Tuple, Optional, Union
 import os
 import json
 import matplotlib.pyplot as plt
@@ -26,6 +26,7 @@ class LayoutMode(Enum):
     """布局模式枚举"""
     OVERLAY = "overlay"
     SIDE_BY_SIDE = "side_by_side"
+    SEPARATE = "separate"
 
 @dataclass
 class DataSourceSpec:
@@ -105,7 +106,14 @@ class FrequencyResponseComparator:
     def compare_sources(self, source1_data: Dict[str, Any], source2_data: Dict[str, Any], 
                        output_folder: str = 'results', show_plot: bool = True,
                        freq_range: List[float] = None, gain_range: List[float] = None,
-                       figsize: List[int] = None, dpi: int = 300, title: str = None) -> Tuple[plt.Figure, str]:
+                       figsize: List[int] = None, dpi: int = 300, title: str = None,
+                       source1_freq_range: List[float] = None,
+                       source2_freq_range: List[float] = None,
+                       source1_gain_range: List[float] = None,
+                       source2_gain_range: List[float] = None,
+                       source1_split_magnitudes: bool = False,
+                       source2_split_magnitudes: bool = False
+                       ) -> Tuple[Union[plt.Figure, List[plt.Figure]], Union[str, List[str]]]:
         """对比两个数据源并生成可视化"""
         
         # 创建输出目录
@@ -121,6 +129,14 @@ class FrequencyResponseComparator:
         elif self.layout_mode == LayoutMode.SIDE_BY_SIDE:
             return self._create_side_by_side_plot(source1_data, source2_data, output_folder, show_plot,
                                                 freq_range, gain_range, figsize, dpi, title)
+        elif self.layout_mode == LayoutMode.SEPARATE:
+            return self._create_separate_plots(
+                source1_data, source2_data, output_folder, show_plot,
+                freq_range, gain_range, figsize, dpi, title,
+                source1_freq_range, source2_freq_range,
+                source1_gain_range, source2_gain_range,
+                source1_split_magnitudes, source2_split_magnitudes
+            )
     
     def _create_overlay_plot(self, source1_data: Dict, source2_data: Dict, 
                            output_folder: str, show_plot: bool,
@@ -171,6 +187,116 @@ class FrequencyResponseComparator:
             plt.show()
         
         return fig, output_path
+
+    def _create_separate_plots(self, source1_data: Dict, source2_data: Dict,
+                               output_folder: str, show_plot: bool,
+                               freq_range: List[float] = None, gain_range: List[float] = None,
+                               figsize: List[int] = None, dpi: int = 300, title: str = None,
+                               source1_freq_range: List[float] = None,
+                               source2_freq_range: List[float] = None,
+                               source1_gain_range: List[float] = None,
+                               source2_gain_range: List[float] = None,
+                               source1_split_magnitudes: bool = False,
+                               source2_split_magnitudes: bool = False
+                               ) -> Tuple[List[plt.Figure], List[str]]:
+        """为两个数据源分别创建独立坐标轴的幅频响应图。"""
+        if figsize is None:
+            figsize = [8, 6]
+
+        figures = []
+        output_paths = []
+        sources = []
+        sources.extend(
+            self._build_separate_source_specs(
+                source1_data,
+                source1_freq_range or freq_range,
+                source1_gain_range or gain_range,
+                'o',
+                source1_split_magnitudes
+            )
+        )
+        sources.extend(
+            self._build_separate_source_specs(
+                source2_data,
+                source2_freq_range or freq_range,
+                source2_gain_range or gain_range,
+                '^',
+                source2_split_magnitudes
+            )
+        )
+
+        for index, source_spec in enumerate(sources, start=1):
+            source_data = source_spec['source_data']
+            local_freq_range = source_spec['freq_range']
+            local_gain_range = source_spec['gain_range']
+            marker = source_spec['marker']
+            fig = plt.figure(figsize=figsize)
+            ax = fig.add_subplot(111)
+            self._plot_data_on_axis(
+                ax,
+                source_data,
+                marker=marker,
+                linestyle='-',
+                alpha=0.85,
+                freq_range=local_freq_range
+            )
+            ax.set_xlabel('Frequency (Hz)', fontsize=12)
+            ax.set_ylabel('Amplitude', fontsize=12)
+            ax.set_title(source_spec['title'], fontsize=14, fontweight='bold')
+            ax.grid(True, alpha=0.3, which="both", ls="--")
+            ax.legend(fontsize=10)
+
+            if local_freq_range is not None and len(local_freq_range) == 2:
+                ax.set_xlim(local_freq_range[0], local_freq_range[1])
+            if local_gain_range is not None and len(local_gain_range) == 2:
+                ax.set_ylim(local_gain_range[0], local_gain_range[1])
+
+            fig.tight_layout()
+
+            safe_name = self._safe_filename(
+                f"bode_plot_separate_{index}_{source_data['project_name']}_{source_data['state']}{source_spec['filename_suffix']}.png"
+            )
+            output_path = os.path.join(output_folder, safe_name)
+            fig.savefig(output_path, dpi=dpi, bbox_inches='tight')
+            logger.info(f"独立频率响应图像已保存: {output_path}")
+
+            figures.append(fig)
+            output_paths.append(output_path)
+
+        if show_plot:
+            plt.show()
+
+        return figures, output_paths
+
+    def _build_separate_source_specs(self, source_data: Dict[str, Any],
+                                     freq_range: Optional[List[float]],
+                                     gain_range: Optional[List[float]],
+                                     marker: str,
+                                     split_magnitudes: bool) -> List[Dict[str, Any]]:
+        """将一个数据源展开成 separate 布局所需的一个或多个绘图规格。"""
+        if not split_magnitudes:
+            return [{
+                'source_data': source_data,
+                'freq_range': freq_range,
+                'gain_range': gain_range,
+                'marker': marker,
+                'title': source_data['label'],
+                'filename_suffix': ''
+            }]
+
+        specs = []
+        for magnitude in source_data['magnitudes']:
+            filtered_source = _filter_source_magnitudes(source_data, [float(magnitude)])
+            mag_text = self._format_magnitude_for_filename(float(magnitude))
+            specs.append({
+                'source_data': filtered_source,
+                'freq_range': freq_range,
+                'gain_range': gain_range,
+                'marker': marker,
+                'title': f"{source_data['label']} @ {float(magnitude):.1f} m/s²",
+                'filename_suffix': f"_mag_{mag_text}"
+            })
+        return specs
     
     def _create_side_by_side_plot(self, source1_data: Dict, source2_data: Dict,
                                 output_folder: str, show_plot: bool,
@@ -263,6 +389,17 @@ class FrequencyResponseComparator:
                          label=f'{data["label"]} @ {magnitude:.1f} m/s²', 
                          linestyle=linestyle, marker=marker,
                          markersize=3, color=color, alpha=alpha, linewidth=1.5)
+
+    @staticmethod
+    def _safe_filename(filename: str) -> str:
+        """将项目名中的路径分隔符替换为适合文件名的字符。"""
+        return filename.replace('/', '_').replace('\\', '_').replace(':', '_')
+
+    @staticmethod
+    def _format_magnitude_for_filename(magnitude: float) -> str:
+        """将震级数值转换为稳定文件名片段。"""
+        mag_text = f"{magnitude:.3f}".rstrip('0').rstrip('.')
+        return mag_text.replace('.', 'p')
     
     def _sync_axis_limits(self, ax1, ax2) -> None:
         """同步两个subplot的坐标轴范围"""
@@ -283,7 +420,15 @@ def quick_compare(project1: str, project2: str = None,
                  layout: str = "overlay", output_dir: str = "results",
                  projects_root: str = "projects", freq_range: List[float] = None,
                  gain_range: List[float] = None, figsize: List[int] = None, 
-                 dpi: int = 300, title: str = None) -> str:
+                 dpi: int = 300, title: str = None,
+                 label1: str = None, label2: str = None,
+                 magnitudes1: List[float] = None, magnitudes2: List[float] = None,
+                 source1_freq_range: List[float] = None,
+                 source2_freq_range: List[float] = None,
+                 source1_gain_range: List[float] = None,
+                 source2_gain_range: List[float] = None,
+                 split_magnitudes1: bool = False,
+                 split_magnitudes2: bool = False) -> Union[str, List[str]]:
     """
     便利函数：快速进行频率响应对比
     
@@ -300,6 +445,16 @@ def quick_compare(project1: str, project2: str = None,
         figsize: 图像尺寸 [width, height]
         dpi: 图像分辨率
         title: 图像标题
+        label1: 第一个数据源的显示标签
+        label2: 第二个数据源的显示标签
+        magnitudes1: 第一个数据源要绘制的震级列表；None 表示全部
+        magnitudes2: 第二个数据源要绘制的震级列表；None 表示全部
+        source1_freq_range: 第一个数据源的独立频率范围，仅 separate 布局使用
+        source2_freq_range: 第二个数据源的独立频率范围，仅 separate 布局使用
+        source1_gain_range: 第一个数据源的独立增益范围，仅 separate 布局使用
+        source2_gain_range: 第二个数据源的独立增益范围，仅 separate 布局使用
+        split_magnitudes1: 是否将第一个数据源按震级拆分成多张图
+        split_magnitudes2: 是否将第二个数据源按震级拆分成多张图
     
     Returns:
         生成的图像文件路径
@@ -317,17 +472,71 @@ def quick_compare(project1: str, project2: str = None,
     data_loader = LinearResponseDataLoader(projects_root)
     source1_data = data_loader.extract_data_source(source1_spec)
     source2_data = data_loader.extract_data_source(source2_spec)
+    if label1:
+        source1_data['label'] = label1
+    if label2:
+        source2_data['label'] = label2
+    source1_data = _filter_source_magnitudes(source1_data, magnitudes1)
+    source2_data = _filter_source_magnitudes(source2_data, magnitudes2)
     
     # 创建对比图
-    comparator = FrequencyResponseComparator(LayoutMode(layout))
-    fig, output_path = comparator.compare_sources(
+    layout_aliases = {
+        "overlaid": "overlay",
+    }
+    normalized_layout = layout_aliases.get(layout, layout)
+    comparator = FrequencyResponseComparator(LayoutMode(normalized_layout))
+    fig_or_figs, output_path = comparator.compare_sources(
         source1_data, source2_data, output_dir, show_plot=False,
         freq_range=freq_range, gain_range=gain_range, figsize=figsize, 
-        dpi=dpi, title=title
+        dpi=dpi, title=title,
+        source1_freq_range=source1_freq_range,
+        source2_freq_range=source2_freq_range,
+        source1_gain_range=source1_gain_range,
+        source2_gain_range=source2_gain_range,
+        source1_split_magnitudes=split_magnitudes1,
+        source2_split_magnitudes=split_magnitudes2
     )
     
-    plt.close(fig)  # 释放内存
+    if isinstance(fig_or_figs, list):
+        for fig in fig_or_figs:
+            plt.close(fig)
+    else:
+        plt.close(fig_or_figs)  # 释放内存
     return output_path
+
+
+def _filter_source_magnitudes(source_data: Dict[str, Any],
+                              requested_magnitudes: Optional[List[float]] = None) -> Dict[str, Any]:
+    """按震级筛选数据源曲线，保持原有数据结构。"""
+    if not requested_magnitudes:
+        return source_data
+
+    magnitudes = np.asarray(source_data['magnitudes'], dtype=float)
+    gains = np.asarray(source_data['gains'], dtype=float)
+    if gains.ndim == 1:
+        gains = gains.reshape(1, -1)
+    if gains.shape[0] != magnitudes.shape[0]:
+        raise ValueError(
+            f"Magnitude count mismatch for {source_data['label']}: "
+            f"{magnitudes.shape[0]} magnitudes vs {gains.shape[0]} gain rows"
+        )
+
+    selected_indices = []
+    for requested in requested_magnitudes:
+        matches = np.where(np.isclose(magnitudes, float(requested), rtol=1e-7, atol=1e-9))[0]
+        if len(matches) == 0:
+            raise ValueError(
+                f"Magnitude {requested} not found in {source_data['label']}; "
+                f"available magnitudes: {magnitudes.tolist()}"
+            )
+        match_index = int(matches[0])
+        if match_index not in selected_indices:
+            selected_indices.append(match_index)
+
+    filtered = dict(source_data)
+    filtered['magnitudes'] = magnitudes[selected_indices].tolist()
+    filtered['gains'] = gains[selected_indices, :].tolist()
+    return filtered
 
 if __name__ == "__main__":
     # 测试代码
