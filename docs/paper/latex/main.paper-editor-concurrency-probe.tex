@@ -1,0 +1,780 @@
+% MN submission note: keep the Springer Nature single-column sn-jnl draft style; use iicol only if the journal explicitly asks for a two-column LaTeX submission.
+\documentclass[sn-nature]{sn-jnl}
+
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{Latin Modern Mono}
+\setCJKmainfont{SimSun}
+\setCJKsansfont{SimHei}
+\setCJKmonofont{FangSong}
+
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+\usepackage{makecell}
+\usepackage{arydshln}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{url}
+\usepackage{placeins}
+\usepackage{silence}
+\WarningFilter{latexfont}{Some font shapes}
+\WarningFilter{latexfont}{Font shape}
+\WarningFilter{latex}{Font shape}
+\WarningFilter{latex}{There were undefined references}
+\WarningFilter{natbib}{Citation}
+\WarningFilter{natbib}{There were undefined citations}
+\hbadness=10000
+\vbadness=10000
+\hfuzz=200pt
+\vfuzz=200pt
+\emergencystretch=3em
+
+\makeatletter
+\let\snorigincludegraphics\includegraphics
+\RenewDocumentCommand{\includegraphics}{O{} m}{%
+  \IfFileExists{#2}{%
+    \snorigincludegraphics[#1]{#2}%
+  }{%
+    \fbox{%
+      \begin{minipage}[c][0.20\textheight][c]{0.85\linewidth}%
+        \centering
+        Missing figure\\
+        {\ttfamily\detokenize{#2}}%
+      \end{minipage}%
+    }%
+  }%
+}
+\makeatother
+
+\makeatletter
+\providecommand{\headerps@out}[1]{}
+\makeatother
+
+\InputIfFileExists{values.tex}{}{%
+  \typeout{Warning: values.tex not found. Manuscript-specific value macros are missing.}%
+}
+
+% symbols
+\newcommand{\fn}{\eta} % natural frequency
+\newcommand{\Sen}{S} % sensitivity on natural frequency
+\newcommand{\magn}{m} % magnitude
+\newcommand{\fidx}{i} % frequency index
+\newcommand{\fmax}{F} % frequency index max
+\newcommand{\midx}{j} % magnitude index
+\newcommand{\mmax}{M} % magnitude index max
+\newcommand{\pidx}{n} % sample index
+\newcommand{\pmax}{N} % sample index max
+\newcommand{\dataset}{{\mathcal{D}}} % dataset
+\newcommand{\yseq}{{\mathbf{Y}}} % sequence of output
+\newcommand{\wMAE}{\beta} % MAE loss weight
+\newcommand{\lr}{\alpha} % learning rate
+\newcommand{\lrdecay}{\gamma} % learning rate decay
+\newcommand{\lridx}{k} % learning rate index
+\newcommand{\lrperiod}{K} % learning rate period
+\newcommand{\kr}{k_{\text{r}}} % rubber mold stiffness
+
+% functions
+\newcommand{\relative}[1]{\overset{\rho}{#1}} % relative value
+\newcommand{\ideal}[1]{\overset{\circ}{#1}} % ideal value
+\newcommand{\exam}[1]{\tilde{#1}} % measured value
+\newcommand{\pred}[1]{\hat{#1}} % predicted value
+\newcommand{\true}[1]{{#1}} % true value
+
+% short names
+\newcommand{\Wrecarray}{\mathcal{W}_{\text{rec}}}
+\newcommand{\Winarray}{\mathcal{W}_{\text{in}}}
+\newcommand{\Woutarray}{\mathcal{W}_{\text{out}}}
+\newcommand{\harray}{\mathcal{H}}
+\newcommand{\abase}{\exam{\Sen}  T^{2} \ideal{\fn} ^{2} \exam{\fn}  \pi^{2} \exam{\zeta}  + 2 \exam{\Sen}  T \ideal{\fn}  \exam{\fn}  \pi \ideal{\zeta}  \exam{\zeta}  + \exam{\Sen}  \exam{\fn}  \exam{\zeta}}
+
+\raggedbottom
+
+\begin{document}
+
+\title[On-Board Real-Time AI Compensation for MET]{On-Board Real-Time AI Compensation for Nonlinear Drift in Electrochemical Seismometers}
+
+\author*[1]{\fnm{Ang} \sur{Li}}\email{liang20@mails.jlu.edu.cn}
+\author[1]{\fnm{Hongyuan} \sur{Yang}}\email{yang\_hy@jlu.edu.cn}
+\author[1]{\fnm{Fan} \sur{Zheng}}\email{zhengfan@jlu.edu.cn}
+\author[1]{\fnm{Huaizhu} \sur{Zhang}}\email{huaizhuzhang@jlu.edu.cn}
+\author[1]{\fnm{Linhang} \sur{Zhang}}\email{linxing@jlu.edu.cn}
+\author[1]{\fnm{Xunqian} \sur{Tong}}\email{txq@jlu.edu.cn}
+\author[1]{\fnm{Can} \sur{Liu}}\email{canliu23@mails.jlu.edu.cn}
+\author[1]{\fnm{Ruojin} \sur{Li}}\email{lirj24@mails.jlu.edu.cn}
+
+\affil*[1]{\orgdiv{State Key Laboratory of Deep Earth Exploration and Imaging, College of Instrumentation and Electrical Engineering}, \orgname{Jilin University}, \orgaddress{\city{Changchun}, \postcode{130061}, \country{China}}}
+
+\abstract{电化学地震检波器（MET）凭借高灵敏度、宽频带以及较好的抗倾斜和抗冲击能力，在地球物理勘探中正变得越来越重要，并被认为是下一代地震信号探测的理想方案之一。然而，由于机械、流体与电化学等多个物理过程之间存在复杂耦合，MET 会表现出显著的震级相关非线性，从而引起频率响应漂移并限制动态范围，最终影响地震数据质量和事件检测可靠性。传统力反馈方法在大震级下存在闭环振荡风险，数据驱动的深度学习方法虽然在非线性补偿中展现出高精度优势，但其密集的矩阵运算难以在资源受限的微控制器上满足实时处理需求。为克服边缘算力限制和力反馈的失稳风险，本文提出面向板端实时运行的前馈补偿框架 Wiener-KAN。该框架引入了 Wiener 结构“线性动态 + 静态非线性”的分解思路：在线性部分，利用目标与理想系统间的相对频率响应初始化 Wiener 线性层，实现物理先验注入和快速的频率特征提取；在非线性部分，引入带符号与对称性约束的 Kolmogorov-Arnold 网络（KAN）可训练样条激活函数，并预计算为O(0)时间复杂度的查找表（Precomputed LUT）。此外，本文首次构建并开放了涵盖幅频耦合效应的三维频率响应数据集，并设计了针对频率特性漂移的幅频损失函数（AFMAE）以提高频域拟合精度。实验结果表明，在输入震级提升超过 \valInputGainExpansion~$\times$ 的条件下，Wiener-KAN 将频率漂移从 \valMainWienerFreqDrift~Hz 降低到 \valPrimaryFreqDrift~Hz，将灵敏度漂移从 \valMainWienerSensDrift\% 降低到 \valPrimarySensDrift\%，并将线性度误差从 \valMainWienerLinearity\% 降低到 \valPrimaryLinearity\%。实时性方面，KAN 的预计算查找表将复杂的浮点运算转化为极低延迟的内存寻址，在 STM32F405 微控制器上实现了 \valPrimaryKeilFps{} points/s 的吞吐率和 \valPrimaryKeilRamKB~KB 的极小 RAM 占用，为解决 MET 实时非线性补偿问题提供了有效的方案，并有潜力推广到其他传感器。}
+
+\keywords{electrochemical seismometer, Kolmogorov-Arnold network, nonlinearity, frequency response, loss function, on-board real-time compensation, edge AI}
+
+\maketitle
+
+\section{Introduction}
+
+电化学地震检波器（MET）因其高灵敏度、宽频带以及较强的抗倾斜和抗冲击性能，在地下资源勘探和地震监测中展现出良好应用前景，被认为是新一代地震传感器的重要候选\cite{10841463}。随着全球地震台网逐步实现宽频带、高动态范围的实时数据采集\cite{WOS:000853457100001}，核心传感器在线性度与响应保持能力方面面临更严格要求。然而，电化学反应与流体力学之间的复杂耦合会在 MET 的频率响应中引入显著的震级相关非线性，包括灵敏度漂移和固有频率漂移。这种漂移会扭曲振动波形检测结果，严重限制动态范围，并削弱地震勘探数据质量与地震事件识别可靠性。因此，提升其非线性频率响应已经成为一个重要研究问题。
+
+
+既有研究曾尝试通过结构设计优化来提升线性度。Xu 等\cite{9481294}提出了一种采用阳极键合工艺的 MEMS 电化学地震计，通过硅-玻璃-硅三层集成电极结构提高了灵敏度和器件一致性。Sun 等\cite{sun_high-consistency_2017}开发了单硅片四微电极宽频带电化学地震计，实现了 \valXuBandwidthStart--\valXuBandwidthEnd~Hz 的工作带宽，并在 \valXuPeakSensitivityFreq~Hz 获得了 \valXuPeakSensitivity~$\text{V} \cdot \text{s}/\text{m}$ 的峰值灵敏度。该类结构优化在提升线性度方面的作用较为有限，系统通常仅在震级低于 \valXuLinearLimitMm~mm/s@\valLinearLimitRefFreq~Hz（\valXuLinearLimitAcc~$\text{m}/\text{s}^2$）\cite{9481294} 或 \valSunLinearLimitMm~mm/s@\valLinearLimitRefFreq~Hz（\valSunLinearLimitAcc~$\text{m}/\text{s}^2$）\cite{sun_high-consistency_2017} 时保持近似线性运行。
+
+力反馈是一种有效的非线性抑制手段。例如，Li 等\cite{li_electrochemical_2017}在 \valLiForceFreqA~Hz（\valLiForceAccA~$\text{m}/\text{s}^2$）和 \valLiForceFreqB~Hz（\valLiForceAccB~$\text{m}/\text{s}^2$）条件下，对震级低于 \valLiForceMm~mm/s 的 MET 进行了非线性测试，并通过力反馈将平均灵敏度漂移降低了 \valLiSensitivityDriftReduction。Sun 等\cite{WOS:000408118700046}则在震级低于 \valSunForceMm~mm/s@\valSunForceFreq~Hz（\valSunForceAcc~$\text{m}/\text{s}^2$）时，将输入输出非线性误差降低了 \valSunNonlinearErrorReduction。
+
+但是，力反馈需要额外机械反馈单元来实时生成反馈力，导致系统复杂度和制造成本升高。更关键的是，非线性所引起的相位裕度下降以及大震级下闭环振荡风险，会显著限制系统稳定裕度，使其在更宽频带和更大动态范围场景中的实用性受到制约。这说明，亟需一种不依赖硬件反馈单元的补偿方法。
+
+基于预测模型的传感器校正方法\cite{WOS:001409548400009}表明，软件前馈补偿能够在保持硬件结构简洁的同时改善传感器输出质量。与力反馈系统相比，软件框架通过消除闭环相位裕度问题而具备自然稳定优势，更适用于大动态范围工作场景。此外，非机械式的实现方式显著降低了系统复杂度，更便于高精度探测设备的便携化应用。
+
+近期研究表明，当使用充分的时频域测试数据进行训练时，深度神经网络可以获得较高的传感器补偿精度\cite{HOFLER2024136528}。本文对电化学地震检波器实施了覆盖 \valFreqScanStart~Hz 到 \valFreqScanEnd~Hz 全带宽的稳态测试，并将输入上限由文献\cite{WOS:000408118700046}中的 \valSunForceAcc~$\text{m}/\text{s}^2$ 扩展至 \valMagScanEnd~$\text{m}/\text{s}^2$，即提升超过 \valInputGainExpansion~$\times$。在此基础上，本文首次构建并开放了一个同时包含震级、频率以及输入输出时序的三维频率响应数据集，并在其中显式记录了幅频耦合效应。
+
+在获得较完整测试数据之后，如何设计高效的非线性补偿算法便成为核心挑战。传统信号处理领域曾提出基于摄动法\cite{royOptimalModifiedHomotopy2023}、多尺度法\cite{jainModelOrderReduction2020}、谐波平衡法\cite{shawHybridAveragingHarmonic2023}或 Volterra 级数\cite{helieInputOutputReduced2021}的辨识方法，但当这些方法面对电化学与流体力学强耦合系统时，其模型参数通常难以精确确定。近年来，数据驱动的深度学习方法受到广泛关注\cite{anandanatarajanDeepNeuralNetworkBased2023}。然而，现代地震台站正向着密集部署与数百 Hz 至 kHz 的高频采样方向发展，将海量原始波形数据回传至云端进行离线非线性补偿会面临高昂的传输带宽成本与不可接受的通信延迟。因此，在传感器边缘节点（On-Board）直接执行实时处理成为必然趋势。但以长短期记忆网络等为代表的现有高精度时序模型，严重依赖庞大的参数量和密集的矩阵乘加运算\cite{zhaoDetectingEarlyDamages2020, thangamalarLinearisationFlowSensors2023}。这种高昂的计算代价与内存开销，导致现有深度模型难以直接部署在资源受限的微控制器上满足实时处理要求。另一方面，纯数据驱动方法通常忽略了传感器特定的频率响应规律，同时由于电化学地震检波器难以被精确表述为偏微分方程系统，直接注入物理方程的网络\cite{wangEigenvectorBiasFourier2021}也难以适用。缺乏物理先验的约束使得纯数据模型在面对大震级与宽频带输入时，往往难以维持频率响应的一致性，导致其对固有频率与灵敏度漂移的抑制效果受限。因此，如何在保证物理一致性的前提下，设计出能够克服边缘算力限制的轻量化架构，成为当前传感器非线性补偿领域亟待解决的关键问题。
+
+针对计算限制与物理先验缺失的局限，本文提出一种由 Wiener 线性层与 Kolmogorov-Arnold 网络相结合的板端实时 AI 补偿框架 Wiener-KAN。该框架引入了传统 Wiener 模型线性动态与静态非线性分离的思路\cite{sersourNonlinearSystemIdentification2018}。在线性部分，将实测得到的局部频率响应切片映射为由震级条件初始化的 Wiener 线性层；该层利用极少隐藏状态的线性循环单元实现，从而在极低算力开销下为网络直接注入频响物理先验。在非线性部分，传统的全连接层需要执行密集的权重矩阵乘法，而本文引入的 Kolmogorov-Arnold 网络依靠带符号约束的可训练样条激活函数来刻画输入输出曲线\cite{schmidt-hieberKolmogorovArnoldRepresentation2021, liu2025kankolmogorovarnoldnetworks, alvesUseKolmogorovarnoldNetworks2024, livierisCKANNewApproach2024}。更为关键的是，这种基于一维样条的非线性映射在训练完成后，可被预计算并高保真地近似为一维查找表。在板端推理阶段，原本密集的浮点运算被转化为极低延迟的内存寻址与读表操作，从而有效避免了常规深度神经网络庞大的算力需求，使得在资源受限的嵌入式微控制器上实现高吞吐率实时补偿成为可能。
+
+与此同时，本文基于包含幅频耦合效应的三维频率响应数据集设计了 AFMAE 幅频损失函数，以增强模型对频域误差的敏感性；同时提出面向 \valTargetMcu{} 的 KAN 查找表（LUT）加速方案，并验证了其在实时部署方面的可行性。当前主实现的 KEIL 板端吞吐率达到 \valPrimaryKeilFps{} points/s，有可能应用于其他地震传感器甚至任何存在漂移的传感器的在板实时神经网络补偿。
+
+本文其余部分安排如下：Section~II 介绍 MET 的研究背景与工作机理；Section~III 展示实验设计、未补偿响应和数据集构建；Section~IV 给出 Wiener-KAN 的网络结构；Section~V 汇报补偿实验、消融和部署结果；Section~VI 总结本文主要贡献并讨论未来研究方向。
+
+\section{Background and Principles}
+
+\subsection{Structure and Operating Principle of MET Electrochemical Seismometers}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../../ex_projects/plot/multi/fig_20_met_structure_readout_montage/data/fig_20_met_structure_readout_montage.png}
+    \caption{Schematic diagram of the MET structure and readout circuit. (a) Schematic diagram of the MET structure. (b) Readout circuit of the MET.}
+    \label{fig:met_structure_readout}
+\end{figure*}
+
+电化学地震检波器（MET）是一种基于分子电子转移原理检测地震振动的高灵敏度传感器。其核心组成包括电化学腔体、敏感电极、电解液以及机械拾振部件（橡胶膜与质量块），如 Fig.~\ref{fig:met_structure_readout}(a) 所示。电化学腔体通常为封闭的有机玻璃容器，内部装有多孔敏感电极（阳极/阴极）以及含有活性离子的电解液（例如碘离子），电解液由橡胶膜封装。
+
+如 Fig.~\ref{fig:met_structure_readout}(b) 所示，读出电路采用 \valReadoutAmplifier{} 运算放大器将 MET 电极产生的微弱差分电流转换为电压信号。
+
+当地震波作用于系统时，机械结构发生形变，驱动电解液流动并改变电极区域内的离子浓度分布，从而调制电极反应电流密度。该电流变化经过微电流检测电路转换为电压信号，再经前置放大和信号调理模块处理后输出，用于表征外部地震振动。
+
+MET 的小信号频率响应可由机械拾振子系统和电化学转换子系统串联得到\cite{WOS:000318036400036}。其中，机械子系统把外部振动转换为流道内电解液体积流量，电化学子系统再把流量诱导的离子浓度扰动转换为电极电流。因此，总传递函数可写为 Eq.~(\ref{eq:Ws_mech_cq})。
+
+\begin{equation}\label{eq:Ws_mech_cq}
+    H(s)  = H_{\rm mech}(s) \cdot H_{\rm ec}(s)
+\end{equation}
+
+其中，$H_{\rm mech}(s)$ 表示机械拾振部分的传递函数，$H_{\rm ec}(s)$ 表示流体力学与电化学转换部分的传递函数。
+
+在小信号条件下，机械拾振部分可近似为由橡胶膜弹性、流体惯性质量和水动力阻尼组成的线性二阶系统。设流道内流体体积位移为 $V$、外部振动加速度为 $a$，其动力学方程可写为 Eq.~(\ref{fun:h_mech_model})。
+
+\begin{equation}
+    \frac{d^2 V}{dt^2} + \frac{R_{\text{h}} S_{\rm ch}}{\rho L} \frac{dV}{dt} + \frac{\kr}{\rho L} V = -S_{\rm ch} a
+    \label{fun:h_mech_model}
+\end{equation}
+
+其中，$S_{\rm ch}$ 为通道截面积，$\kr$ 为膜弹性系数，$\rho$ 为电解液密度，$L$ 为通道长度，$R_{\text{h}}$ 为流体动力阻力\cite{agafonov2015}。定义体积流量 $Q(t)=dV(t)/dt$，外部振动速度满足 $a(t)=dv(t)/dt$。在零初始条件下，对 Eq.~(\ref{fun:h_mech_model}) 作拉普拉斯变换，可得到机械子系统从振动速度到体积流量的传递函数：
+
+\begin{equation}
+    H_{\rm mech}(s)  = \frac{Q(s)}{v(s)} = \frac{- S_{\rm ch} s^2}{s^2 + \frac{R_{\text{h}} S_{\rm ch}}{\rho L}s + \frac{\kr}{\rho L }}
+    \label{fun:h_mech_transfer}
+\end{equation}
+
+Eq.~(\ref{fun:h_mech_transfer}) 表明，机械子系统中的 $\frac{\kr}{\rho L}$ 决定小信号固有频率，$\frac{R_{\text{h}} S_{\rm ch}}{\rho L}$ 决定阻尼项；因此橡胶膜刚度、水动力阻力和等效流体质量共同控制低频端过渡特性。
+
+机械流量进入电极附近后，会改变离子浓度场和电极表面浓度梯度。小信号电化学转换过程可由不可压缩流体方程、Nernst--Planck 输运方程和电极电流表达共同描述\cite{sun_influence_2011,sun_numerical_2012}：
+
+\begin{equation}
+    \left\{
+    \begin{aligned}
+         & \nabla \cdot \mathbf{u} = 0, \\
+         & \rho \frac{d\mathbf{u}}{dt} = -\nabla P + \mu_{\rm elec}\nabla^2\mathbf{u} + \rho \mathbf{a}, \\
+         & \frac{\partial C_k}{\partial t} =
+         z_k m_k N_{\rm f} \nabla \cdot \left(C_k \nabla \varphi\right)
+         + D_k \nabla^2 C_k - \mathbf{u}\cdot\nabla C_k, \\
+         & I = -D_{\mathrm{I}_3} q_{\rm e} \oint
+         \left(\nabla C_{\mathrm{I}_3^-}\cdot\mathbf{n}\right)dS_{\rm e}.
+    \end{aligned}
+    \label{eq:small_signal_transport}
+    \right.
+\end{equation}
+
+其中，$\mathbf{u}$ 为电解液速度矢量，$P$ 为压力，$\mu_{\rm elec}$ 为动力黏度，$\mathbf{a}$ 为外界加速度，$C_k$ 为第 $k$ 种离子浓度，$z_k$ 为电荷数，$m_k$ 为离子迁移系数，$\varphi$ 为电解液电位，$D_k$ 为扩散系数，$N_{\rm f}$ 为法拉第常数，$q_{\rm e}$ 为电子电量，$\mathbf{n}$ 为电极表面外法向量，$S_{\rm e}$ 为电极表面积。在小信号线性化和理想电极条件下，上述耦合过程可降阶为体积流量到电流输出的一阶低通环节\cite{kozlov_frequency_2002,WOS:000318036400036}：
+
+\begin{equation}
+    H_{\rm ec}(s) = \frac{I(s)}{Q(s)} = \frac{2 q_{\rm e} n_{\rm c} S_{\rm e}}{1 + \frac{s}{\omega_{\rm d}}}
+    \label{fun:h_ec_transfer}
+\end{equation}
+
+其中，$n_{\rm c}$ 为载流子浓度，$\omega_{\rm d}=D_{\mathrm{I}_3}/h^2$ 为离子扩散特征角频率，$h$ 为电极间距。由此可得小信号总传递函数：
+
+\begin{equation}
+    H(s) = \frac{- S_{\rm ch} s^2}{s^2 + \frac{R_{\text{h}} S_{\rm ch}}{\rho L}s + \frac{\kr}{\rho L }}
+    \cdot
+    \frac{2 q_{\rm e} n_{\rm c} S_{\rm e}}{1 + \frac{s}{\omega_{\rm d}}}
+    \label{fun:h_transfer}
+\end{equation}
+
+Eq.~(\ref{fun:h_transfer}) 说明，MET 的理想小信号响应由机械二阶高通环节与电化学一阶低通环节共同形成：机械参数控制低频端和共振区，电极附近离子扩散控制高频端，二者共同决定通带灵敏度。
+
+\begin{equation}
+    H(s) = \Sen \frac{4\pi \zeta \fn s}{s^2 + 4\pi \zeta \fn s + 4\pi^2 \fn^2}
+    \label{fun:theFittingFormatOfWs_modified}
+\end{equation}
+
+其中，$\fn$ 为等效固有频率，$\Sen$ 为峰值附近的等效灵敏度，$\zeta$ 为等效阻尼比。在理想小信号近似下，$\fn = \frac{1}{2\pi} \sqrt{\frac{\kr}{\rho L}}$，$\Sen$ 与机械中频增益和电化学低频增益共同相关，$\zeta = \frac{R_{\text{h}} S_{\rm ch}}{2 \sqrt{\rho L \kr}}$。因此，实验测得的 $\fn$ 和 $\Sen$ 漂移可直接反映机械-电化学耦合参数随输入震级变化的结果。
+
+当输入震级升高时，Eq.~(\ref{fun:h_transfer}) 所依赖的小信号线性化条件逐渐偏离实际工作状态。机械几何非线性、流体惯性非线性、离子输运乘法耦合和电极反应动力学指数非线性会共同改变局部频率响应。
+
+首先，橡胶膜在大位移下会产生几何非线性。由于膜边缘被换能器壳体约束，中心位移 $z$ 增大时会引入附加拉伸应力，恢复力可近似写成杜芬形式：
+\begin{equation}
+    F_{\rm m} = k_1 z + k_3 z^3 + \dots
+    \label{eq:duffing_nonlinear}
+\end{equation}
+其中，$k_1$ 为线性刚度系数，$k_3$ 为三次非线性刚度系数。三次项会提高大幅值下的等效刚度，使 Eq.~(\ref{fun:theFittingFormatOfWs_modified}) 中的等效 $\fn$ 向高频方向迁移。
+
+其次，大流速会增强流体惯性项。完整的流体动力学过程可写为：
+\begin{equation}
+    \rho \frac{\partial \mathbf{u}}{\partial t}
+    + \rho(\mathbf{u}\cdot\nabla)\mathbf{u}
+    = -\nabla P + \mu_{\rm elec}\nabla^2\mathbf{u} + \rho\mathbf{a}
+    \label{eq:navier_stokes_full}
+\end{equation}
+其中，$\rho(\mathbf{u}\cdot\nabla)\mathbf{u}$ 为对流惯性项。随着特征流速增大，压强降与流速之间的线性比例关系发生变化，等效水动力阻力 $R_{\text{h}}$ 随幅值改变，从而影响 Eq.~(\ref{fun:theFittingFormatOfWs_modified}) 中的 $\Sen$ 和 $\zeta$。
+
+再次，离子输运中的对流-扩散过程会形成频率依赖的乘法耦合。Nernst--Planck 方程中的对流项可写为 Eq.~(\ref{eq:nernst_planck_nonlinear})：
+\begin{equation}
+    \frac{\partial C_k}{\partial t} =
+    z_k m_k N_{\rm f}\nabla\cdot(C_k\nabla\varphi)
+    + D_k\nabla^2 C_k
+    - \mathbf{u}\cdot\nabla C_k
+    \label{eq:nernst_planck_nonlinear}
+\end{equation}
+其中，$-\mathbf{u}\cdot\nabla C_k$ 将流速和浓度梯度相乘，使电极附近浓度场的扰动同时依赖输入幅值和频率。当激励频率接近 $\omega_{\rm d}=D_{\mathrm{I}_3}/h^2$ 时，扩散与对流的相对贡献发生变化，频率响应漂移因此呈现幅频耦合特征。
+
+最后，电极表面的电荷转移过程满足 Butler--Volmer 指数关系：
+\begin{equation}
+    J = J_0 \left[
+    \exp\left(\frac{\alpha_{\rm ct} n_{\rm e} N_{\rm f} \eta}{RT}\right)
+    -
+    \exp\left(-\frac{(1-\alpha_{\rm ct}) n_{\rm e} N_{\rm f} \eta}{RT}\right)
+    \right]
+    \label{eq:butler_volmer_nonlinear}
+\end{equation}
+其中，$J$ 为电流密度，$J_0$ 为交换电流密度，$\alpha_{\rm ct}$ 为电荷转移系数，$n_{\rm e}$ 为电极反应转移电子数，$\eta$ 为过电位，$R$ 为理想气体常数，$T$ 为绝对温度。大信号输入会引起表面浓度和过电位变化，使电极电流偏离小信号线性区，并进一步改变通带灵敏度。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{../../../ex_projects/plot/single/fig_14_met_nonlinear_mechanism/data/fig_14_met_nonlinear_mechanism.png}
+    \caption{Mechanism schematic of large-signal nonlinearity in MET. Mechanical geometry, fluid inertia, ion-transport coupling, and electrode kinetics jointly produce amplitude-dependent local dynamics, resulting in natural-frequency shift, sensitivity drift, and frequency-dependent nonlinear distortion.}
+    \label{fig:met_nonlinear_mechanism}
+\end{figure}
+
+Fig.~\ref{fig:met_nonlinear_mechanism} 展示了上述四类幅频耦合机理。它们分别改变膜等效刚度、流体阻尼、离子浓度分布层和电极反应速率，并最终表现为 Eq.~(\ref{fun:theFittingFormatOfWs_modified}) 中局部 $\fn$、$\Sen$ 和 $\zeta$ 随输入震级迁移。
+
+\section{Experimental Design and Dataset}
+
+精确评估并补偿 MET 的幅值相关非线性漂移，要求对其动态响应进行全面表征，这在实验与数据层面提出了两项严峻挑战。首先，在实验维度上，传统的单维度频率扫描\cite{WOS:000492361300009}无法揭示由输入幅值引起的系统动态变化，必须在频率与震级联合空间中进行二维扫描。其次，在数据维度上，训练端到端的深度学习前馈补偿网络不能仅依赖稳态幅频特性，而必须利用保留了波形畸变、相位偏移与局部动态细节的完整时间序列。然而，目前的公开文献与开放资源中，尚缺乏专门记录 MET 在复杂二维工况下输入输出波形的综合性时域数据集。
+
+为克服上述表征局限与数据缺失问题，本文设计了基于稳态正弦激励的频率--震级二维实验矩阵。该测试矩阵涵盖 \valFreqScanPoints{} 个频率序列与 \valMagScanPoints{} 个震级序列，其参数范围经由前期预研实验搜索和精心选择，以覆盖 MET 从近似线性到显著非线性的完整工作区间。在每个测试工况下，在每个测试工况下，实验同步采集了振动台的输入时序与实测的 MET 输出时序，其中振动台的输入时序采集基于标准压电参考传感器。随后，将振动台输入序列传入低幅值下 MET 的频率响应拟合传递函数，计算得到相对应的理想线性参考时序。基于这一实验框架，本文构建并开放了一个专门用于 MET 非线性补偿的时序数据集。该实验矩阵与数据集构成了全文后续非线性响应分析、模型训练以及补偿性能评价的统一基准。
+
+\subsection{Experimental Setup}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../../ex_projects/plot/multi/fig_21_experimental_setup_dataset_workflow_montage/data/fig_21_experimental_setup_dataset_workflow_montage.png}
+    \caption{Experimental setup and dataset construction workflow. (a) Photograph of the experimental setup. (b) Illustrated vertical dataset construction and preprocessing workflow. Controlled vibration-table sweeps define the frequency--magnitude operating grid, measured MET outputs are paired with the ideal linear reference, and the paired records are split, windowed, normalized, and packed into paired tensors for model development and evaluation.}
+    \label{fig:experimental_setup_dataset_workflow}
+\end{figure*}
+
+如 Fig.~\ref{fig:experimental_setup_dataset_workflow}(a) 所示，振动台按照频率--震级矩阵产生正弦稳态振动信号，MET 将其转换为电信号，再由数据采集系统记录。实验装置的关键参数见 Tab.~\ref{tab:experimental_setup}。被测样品为未采用力反馈的 \valTestSampleModel{}\cite{RSensors2024} 电化学腔体。频率和震级范围根据领域知识与前期标定结果确定，以覆盖 MET 从近似线性到显著非线性响应的工作区间；同一实验矩阵用于记录未补偿频率响应漂移、构造训练与验证数据，并评价补偿后的频域和时域误差。
+
+所有频率--震级工况采用相同的激励、采集和参考通道设置，数据记录阶段仅改变目标频率与震级。这样的采集方式将工况差异主要限定在 MET 的幅值相关动力学响应上，并保持采集链路条件一致。
+
+\begin{table}[ht]
+    \centering
+    \caption{Experimental setup.}
+    \label{tab:experimental_setup}
+    \begin{tabular}{ll}
+        \hline\hline
+        \multicolumn{2}{l}{\textbf{Experimental setup}} \\
+        \hline
+        Vibration Table Distortion Rate       & $\leq$ \valTableDistortion \\
+        Data Acquisition Resolution           & \valAcquisitionResolution \\
+        Environment Temperature               & $\valEnvironmentTemperature$ \\
+        Test Frequency Range                  & \valFreqScanStart$\sim$\valFreqScanEnd~Hz \\
+        Magnitude Range                       & \valMagScanStart$\sim$\valMagScanEnd~$\text{m}/\text{s}^2$ \\
+        Sampling Frequency                    & \valSamplingFreq\,Hz \\
+        Number of Frequency Sequences $\fmax$ & \valFreqScanPoints \\
+        Number of Amplitude Sequences $\mmax$ & \valMagScanPoints \\
+        Sampling Points per Sequence $\pmax$  & \valSequenceNum \\
+        \hline\hline
+    \end{tabular}
+\end{table}
+
+\subsection{Dataset}
+
+由上述实验得到的数据集包含 \valDatasetOperatingPoints{} 个频率--震级工况，每个工况保存 \valDatasetPointsPerRecord{} 个稳态采样点。数据集以成对时域序列作为基本样本，既保留幅频特征点，也保留端到端补偿器训练所需的逐点波形、相位和局部动态信息。
+
+数据集可以表示为一个 $\fmax \times \mmax$ 的矩阵 $\dataset$，其形式如 Eq.~(\ref{eq:dataset}) 所示。其中，$\fidx = 1,\dots,\fmax$ 表示频率索引 $f_\fidx$，$\midx = 1,\dots,\mmax$ 表示震级索引 $\magn_\midx$，$\pidx = 0,\dots,\pmax-1$ 表示输出信号序列中的采样点索引。
+
+\begin{equation}
+    \dataset = \left\{ \left(\exam{\yseq}_{\fidx,\midx}, \ideal{\yseq}_{\fidx,\midx} \right) \ \middle| \ \fidx = 1, \dots, \fmax, \midx = 1, \dots, \mmax \right\}
+    \label{eq:dataset}
+\end{equation}
+
+\begin{equation}
+    \left\{
+    \begin{aligned}
+        \exam{\yseq}_{\fidx,\midx}  & =
+        \bigl[
+            \,\exam{y}_{\fidx,\midx}[0],\;
+            \exam{y}_{\fidx,\midx}[1],\;
+            \ldots,\;
+            \exam{y}_{\fidx,\midx}[\pmax-1]
+        \bigr]                          \\
+        \ideal{\yseq}_{\fidx,\midx} & =
+        \bigl[
+            \,\ideal{y}_{\fidx,\midx}[0],\;
+            \ideal{y}_{\fidx,\midx}[1],\;
+            \ldots,\;
+            \ideal{y}_{\fidx,\midx}[\pmax-1]
+            \bigr]
+    \end{aligned}
+    \right.
+    \label{eq:dataset_element}
+\end{equation}
+
+在数据集 $\dataset$ 中，每个元素 $\bigl(\exam{\yseq}_{\fidx,\midx}, \ideal{\yseq}_{\fidx,\midx}\bigr)$ 都表示一对信号序列：$\exam{\yseq}_{\fidx,\midx}$ 为实测 MET 原始输出序列，$\ideal{\yseq}_{\fidx,\midx}$ 为相同频率和震级条件下理想线性系统的输出序列，两者长度均为 $\pmax$。
+目标序列 $\ideal{\yseq}_{\fidx,\midx}$ 由同一激励条件下的理想二阶线性参考系统生成，该参考系统来自低幅值输入时的系统；采样率为 \valSamplingFreq~Hz，单条稳态记录长度为 \valDatasetPointsPerRecord{} 点，频率--震级工况总数为 \valDatasetOperatingPoints{}。该定义使补偿任务具有明确目标：模型输出应在时域接近理想线性系统，同时在频域保持目标灵敏度与固有频率稳定。原始测试覆盖正弦稳态激励和逐频点震级扫描，能够对应地下勘探中从微弱振动到较强近场振动的幅值变化。数据预处理流程包括稳态片段截取、零均值校正、幅值归一化、频率与震级条件编码、训练/验证划分，以及基于相同划分的指标重算。
+
+
+Fig.~\ref{fig:experimental_setup_dataset_workflow}(b) 给出了从振动台扫频扫幅、实测响应与理想参考配对，到窗口化和归一化的完整数据构建链路。
+
+\begin{table}[ht]
+    \centering
+    \caption{Dataset definition and preprocessing protocol.}
+    \label{tab:dataset_protocol}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{p{0.36\columnwidth}p{0.54\columnwidth}}
+        \hline\hline
+        \textbf{Item} & \textbf{Value} \\ \hline
+        Target curve source & \valTargetCurveSource \\
+        Operating points & \valDatasetOperatingPoints \\
+        Samples per record & \valDatasetPointsPerRecord \\
+        Train/validation split & \valDatasetSplit \\
+        Train/validation records & \valDatasetTrainRecords{} / \valDatasetValRecords \\
+        Split unit & \valDatasetSplitUnit \\
+        Frequency range & \valDatasetFreqRange \\
+        Magnitude range & \valDatasetMagnitudeRange \\
+        Scenario mapping & \valDatasetScenarioMapping \\
+        Preprocessing steps & \valDatasetPreprocess \\ \hline\hline
+    \end{tabular}
+\end{table}
+
+Tab.~\ref{tab:dataset_protocol} 汇总了全部实验共用的数据集规模、目标序列构建方式和预处理链路。
+
+所有记录被归一化到 $\valNormMin \sim \valNormMax$ 范围内。每个频率--震级工况首先截取 \valDatasetPointsPerRecord{} 个稳态采样点，再按 \valDatasetSplit{} 划分训练和验证记录；该划分用于评价当前实验矩阵内的补偿效果。
+
+\subsection{Nonlinear Frequency Response Characteristics of MET}
+
+Fig.~\ref{fig:MET_nonlinear} 展示了未补偿 MET 在不同输入震级下的实测频率响应。当输入震级从 \valMagScanStart~$\text{m}/\text{s}^2$ 增加到 \valMagScanEnd~$\text{m}/\text{s}^2$ 时，固有频率由 \valMetFnMin~Hz 漂移至 \valMetFnMax~Hz（变化 \valMetFnDriftPct），灵敏度则由 \valMetSensMin~$\text{V} \cdot \text{s} / \text{m}$ 变化到 \valMetSensMax~$\text{V} \cdot \text{s} / \text{m}$（变化 \valMetSensDriftPct）。这直观地反映了系统由于电化学与流体力学耦合而产生的显著幅频耦合漂移现象。
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.70\columnwidth]{../../../ex_projects/plot/single/met_nonlinear_frequency_response/data/met_nonlinear_frequency_response.png}
+    \caption{Nonlinear frequency-response characteristics of the MET.}
+    \label{fig:MET_nonlinear}
+\end{figure}
+
+尽管 MET 的全量程频率响应表现出显著的震级依赖性，但在固定的单一震级下，其实测频率响应仍可近似为局部的线性二阶系统。基于这一局部线性特征，本文引入三支路并联 Wiener 等效模型，通过组合多个线性动态核与静态非线性映射，基于实测数据对系统频率响应随输入幅值的变化进行建模。该模型的输入输出关系写作
+
+\begin{equation}
+    y(t) = \sum_{i=1}^{3} f_i\left((h_i * x)(t)\right),
+    \label{eq:parallel_wiener_equivalent}
+\end{equation}
+其中，$h_i$ 表示第 $i$ 个局部线性动态支路，$f_i(\cdot)$ 表示对应的静态非线性映射。每个动态支路采用二阶带通环节近似：
+\begin{equation}
+    W_{\mathrm{w},i}(s)=\frac{A_i s}{s^2 + C_i s + B_i}.
+    \label{eq:parallel_wiener_branch}
+\end{equation}
+低幅值、中幅值和高幅值支路分别覆盖小信号响应、峰频迁移过渡区和大信号通带增益抬升区，支路叠加后的模型可描述幅值升高时的固有频率右移与 $\valWienerParallelGainFreq$~Hz 灵敏度抬升。
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../../ex_projects/plot/multi/fig_22_parallel_wiener_equivalent_montage/data/fig_22_parallel_wiener_equivalent_montage.png}
+    \caption{Parallel Wiener equivalent modeling of the amplitude-dependent MET response. (a) Principle schematic of the three-branch parallel Wiener equivalent model. Each branch combines a local linear dynamic kernel $h_i(s)$ with a static nonlinear mapping $f_i(\cdot)$, and the branch outputs are summed to reproduce the amplitude-dependent response. (b) Center-frequency trajectory reproduced across $\valWienerParallelAmpCount$ magnitude points from 0.24 to 6.0~$\text{m}/\text{s}^2$. (c) $\valWienerParallelGainFreq$~Hz gain trajectory reproduced over the same magnitude range.}
+    \label{fig:parallel_wiener_modeling}
+\end{figure*}
+
+Fig.~\ref{fig:parallel_wiener_modeling}(a) 展示了三支路并联 Wiener 等效模型的基本结构：每个支路由局部线性动态核和静态非线性映射组成，多个支路叠加后用于描述频率响应随幅值的变化。Fig.~\ref{fig:parallel_wiener_modeling}(b) 给出了并联 Wiener 等效模型与实测幅值扫描结果的对比。该模型在 $\valWienerParallelAmpCount$ 个震级点上的中心频率 MAE 为 $\valWienerParallelCfMae$~Hz，$\valWienerParallelGainFreq$~Hz 灵敏度 MAE 为 $\valWienerParallelGainMae$。这一结果说明，采用“局部线性动态 + 静态非线性映射”的架构能够有效表征 MET 的幅频耦合漂移，也说明基于 Wiener 模型特征提取的思路具有物理合理性。
+
+\section{Proposed Method}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{../../../ex_projects/plot/single/wiener_kan_framework/data/wiener_kan_framework.png}
+    \caption{Schematic of the Wiener-KAN compensation framework.}
+    \label{fig:wiener_kan_framework}
+\end{figure*}
+
+本文提出的板端实时 AI 补偿架构如 Fig.~\ref{fig:wiener_kan_framework} 所示。尽管并联 Wiener 模型能够有效表征系统的幅频耦合，但基于传统解析思路直接推导其全量程宽频带的逆模型面临着严重的数学困境。假设 MET 系统的未补偿输出为 $y(t)$，如 Eq.~(\ref{eq:parallel_wiener_equivalent}) 所示，它是由多支路局部动态 $h_i$ 与静态非线性 $f_i$ 组合而成的。为了设计一个能够恢复理想线性响应 $\ideal{y}(t) = (\ideal{h} * x)(t)$ 的前馈补偿器，一种传统的解析思路是构建“线性滤波 + 静态非线性求逆”的串联结构。假设补偿器的线性部分采用相对传递函数对应的冲击响应 $\relative{h}_j = \ideal{h} * h_j^{-1}$，当未补偿信号 $y(t)$ 经过该线性部分时，第 $j$ 支路的中间输出 $z_j(t)$ 可展开为：
+\begin{equation}
+    z_j(t) = (\relative{h}_j * y)(t) = \relative{h}_j * f_j\big(h_j * x\big) + \sum_{i \neq j} \relative{h}_j * f_i\big(h_i * x\big)
+    \label{eq:residual_derivation}
+\end{equation}
+
+在 Eq.~(\ref{eq:residual_derivation}) 中，传统解析求逆面临两个严峻的数学挑战。第一是\textbf{非交换性余项}。由于线性动态算子 $\relative{h}_j$ 与静态非线性算子 $f_j$ 不可交换，即 $\relative{h}_j * f_j(\cdot) \neq f_j(\relative{h}_j * \cdot)$，主支路响应无法化简为理想的 $f_j(\ideal{h} * x)$。若将 $f_j$ 泰勒展开至三阶项 $f_j(v) \approx k_1 v + k_3 v^3$，主支路的输出项将包含 $k_3 \big[ \relative{h}_j * (h_j * x)^3 \big]$，这与期望的纯静态分布 $k_3 (\ideal{h} * x)^3$ 产生显著差异，形成了随频率变化的记忆非线性误差。第二是 Eq.~(\ref{eq:residual_derivation}) 右侧的\textbf{跨支路串扰余项}，它代表了不同局部动态之间的复杂耦合。
+
+如果补偿器的后级仅仅依靠单维的静态解析逆映射 $f_j^{-1}(\cdot)$，它将面临非线性逆算子在多路混合信号上的不可分配性（$f_j^{-1}(A + B) \neq f_j^{-1}(A) + f_j^{-1}(B)$），导致主支路信号与跨支路串扰产生严重的非线性交调。因此，无论是采用先非线性后线性的 Hammerstein 补偿器，还是先线性后非线性的 Wiener 补偿器，都无法在多通道并联求和的前提下完全抵消上述由于算子特性（不可交换性或不可分配性）产生的动态记忆余项。正是基于这一数学盲区，Wiener-KAN 将补偿结构彻底神经网络化：用多核 Wiener 线性层同时提取各工作点下的频响特征 $\{z_j(t)\}$ 以保留局部物理先验，同时抛弃独立的一维静态求逆，转而采用多层、多输入的 KAN 网络。多层 KAN 能够接收多维特征，依靠深层样条的高维非线性表达能力，以端到端学习的方式拟合并消除上述复杂的动态余项与跨支路串扰，从而实现宽频带、全量程的高质量整体映射重构。
+
+与传统力反馈方案相比，这种纯前馈结构不需要额外机械反馈装置，因此能够避免力反馈系统中由非线性引起的闭环振荡问题，从而支持更宽震级范围和频带范围下的运行。在具体实现上，补偿器前级为利用相对频率响应初始化的线性递归权重；在训练阶段，模型将多频率、多震级振动信号同时输入至 MET 与理想线性系统，通过对比实测差异来计算损失函数，并利用反向传播联合更新 KAN 网络与整体权重。
+
+\subsection{KAN-Based Nonlinear Mapping with Sign and Symmetry Constraints}
+
+为了构建兼具结构化物理约束和非线性建模能力的补偿器，合理选择用于刻画传感器输入输出关系的神经网络结构至关重要。虽然全局多项式可以描述某些静态非线性，但在极宽的输入动态范围内，传统全局多项式难以稳定描述不同震级区间的非线性迁移。为此，本文通过 KAN 引入可训练 B 样条激活函数，利用其分段局部逼近特性直接学习传感器标定曲线。传统 MLP 只能依赖线性权重和固定激活函数（如 ReLU、tanh）来隐式逼近，不仅增加了训练难度和过拟合风险，也难以直接融合传感器特定的数学约束。与 MLP 使用固定形状激活函数进行间接拟合不同，本文采用的带符号与对称性约束的 KAN 非线性映射通过可学习的 B 样条系数来优化激活函数形状，从而提升单神经元对传感器非线性的建模能力\cite{livierisCKANNewApproach2024}。在此基础上，本文进一步引入奇对称性和正值性等约束，如 Eq.~(\ref{fun:KAN_activation}) 所示。
+
+\begin{equation}
+    \phi(x) = \text{sign}(x) \sum_{k=1}^{K} c_k B_k(|x|), B_i(x) \geq 0 \ \forall x \in \mathbb{R}, c_k \geq 0
+    \label{fun:KAN_activation}
+\end{equation}
+
+其中，$B_k(x)$ 表示 B 样条基函数，$c_k$ 表示可训练权重。经过训练之后，这些权重能够在上述约束下自适应逼近传感器标定曲线：
+
+\begin{enumerate}
+    \item \textbf{奇对称性} $\phi(-x) = -\phi(x)$：通过对输入信号取绝对值后计算激活值，再恢复符号来实现；
+    \item \textbf{正值性} $\phi(x) > 0\ (x > 0)$：通过非负基函数 $B_k(\cdot) \geq 0$ 和受限权重 $c_k \geq 0$ 保证输入输出符号方向一致。
+\end{enumerate}
+
+对于 MET 传感器而言，其基于电化学过程的输入输出关系通常具有特定对称性和正值性特征。在模型中直接纳入相应数学约束，有助于在数据稀疏区域保持物理上合理的预测结果。传统 MLP 往往只能通过损失函数中的惩罚项来间接施加这类软约束，而且训练时约束强度很难平衡；相比之下，KAN 可以通过直接约束 B 样条系数空间来实现结构性约束。
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\columnwidth]{../../../ex_projects/plot/multi/fig_23_kan_neuron_compensation_montage/data/fig_23_kan_neuron_compensation_montage.png}
+    \caption{Compensation results of a single KAN neuron for a typical third-order nonlinear system. Rows correspond to training epochs 1, 10, 30 and 50. From left to right, the columns show input versus raw output, the learned KAN compensator mapping, and input versus compensated output.}
+    \label{fig:kan_compensation}
+\end{figure}
+
+从传感器特性建模结构角度来看，当需要描述复杂非线性关系时，MLP 往往需要增加网络深度或神经元数量；而 KAN 使用的 B 样条激活函数具有分段多项式结构，这与 MET 传感器在不同震级区间呈现的分段响应特征在数学上具有一定相似性。从函数逼近角度出发，分段多项式在处理具有区间依赖变化的函数时可能具有更好的参数效率。
+
+本文在一个典型三阶非线性系统 $y = k_1 x + k_3 x^3$ 上对单个 KAN 神经元进行了仿真，其中 $k_1 = \valKanExampleCoeffA$、$k_3 = \valKanExampleCoeffB$。Fig.~\ref{fig:kan_compensation} 展示了不同训练轮次下的非线性补偿效果。左列为输入与原始输出关系，中列为 KAN 补偿器输出，右列为输入与补偿后输出关系。随着训练从 Epoch \valKanExampleEpochA、\valKanExampleEpochB 推进至 \valKanExampleEpochC，补偿后输出逐渐恢复理想线性关系，验证了该约束 KAN 补偿结构在该场景中的有效性。
+为了处理更复杂的 MET 非线性补偿问题，本文采用 Eq.~(\ref{fun:KAN}) 所示的多层 KAN 结构\cite{liu2025kankolmogorovarnoldnetworks}。给定输入向量 $\mathbf{x}$，其输出写作 $\operatorname{KAN}_{\text{con}}(\mathbf{x})$。
+
+\begin{equation}
+    \operatorname{KAN}_{\text{con}}(\mathbf{x})  = \left( \bm{\Phi}_{L-1} \circ \bm{\Phi}_{L-2} \circ \cdots \circ \bm{\Phi}_0 \right) \mathbf{x}
+    \label{fun:KAN}
+\end{equation}
+
+其中，$\bm{\Phi}_l$ 表示第 $l$ 层的函数矩阵，其元素 $\phi_{l,j,i}$ 代表连接第 $l$ 层第 $i$ 个节点与第 $l+1$ 层第 $j$ 个节点的约束激活函数，其定义见 Eq.~(\ref{fun:KAN_activation})，$L$ 表示 KAN 总层数。
+
+不过，单独使用 KAN 无法直接刻画频域信息。因此，本文在 KAN 前级串联一个 Wiener 线性层，为网络显式提供频率响应信息。
+
+\subsection{Magnitude-Conditioned Local Transfer Functions for Wiener Layer Initialization}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\columnwidth]{../../../ex_projects/plot/multi/local_transfer_slices/data/local_transfer_slices.png}
+    \caption{Local linear frequency responses identified at fixed input magnitudes. (a) Magnitude-conditioned local frequency responses of the MET. (b) Magnitude-conditioned local relative transfer functions used for initialization.}
+    \label{fig:FRIRNN_3D_response_slices}
+\end{figure}
+
+本文将 Wiener 结构中的线性动态部分实现为一个可训练的 Wiener 线性层，并利用震级条件局部传递函数完成初始化。在局部工作条件下，MET 可以被近似为线性系统。因此，对于每一个固定震级，本文都从测量数据中辨识其对应的局部线性频率响应，如 Fig.~\ref{fig:FRIRNN_3D_response_slices}(a) 所示。进一步地，依据线性系统相对传递函数方法，可计算出补偿器在相同工作点下对应的局部相对传递函数，如 Fig.~\ref{fig:FRIRNN_3D_response_slices}(b) 所示。通过将这些随震级变化的局部传递函数作为 Wiener 线性层的初始化依据，本文把信号处理领域知识引入到模型内部，以增强其频率相关补偿能力。具体而言，该 Wiener 线性层将这些局部线性响应参数转换为线性 RNN 的初始权重，并将多个工作点线性核组织为同一层的多输出响应。
+
+下面给出将这些局部线性响应映射为离散差分方程的计算过程。首先，利用 Eq.~(\ref{fun:theFittingFormatOfWs_modified}) 拟合某一特定震级下的 MET 频率响应，得到实测传递函数 $\exam{H}$。相较于理想系统，$\exam{H}$ 会表现出由固有频率 $\exam{\fn}$、在 $\exam{\fn}$ 处的灵敏度 $\exam{\Sen}$ 以及阻尼比 $\exam{\zeta}$ 所表征的非线性漂移。为了构造目标响应，本文预先设定理想线性系统的传递函数 $\ideal{H}$，其参数包括固有频率 $\ideal{\fn}$、在 $\ideal{\fn}$ 处的灵敏度 $\ideal{S}$ 和阻尼比 $\ideal{\zeta}$。
+
+依据线性系统理论，某一特定震级下的频率响应补偿可以通过在 $\exam{H}$ 前串联一个相对传递函数 $\relative{H}$ 来实现，即 $\ideal{H} = \exam{H} \cdot \relative{H}$。其中，$\relative{H}$ 的表达式如 Eq.~(\ref{eq:IIR_difference}) 所示。
+
+\begin{equation}
+    \begin{aligned}
+        y[n]  = & b_0 x[n] + b_1 x[n-1] + b_2 x[n-2] \\
+              - & a_1 y[n-1] - a_2 y[n-2]
+    \end{aligned}
+    \label{eq:IIR_difference}
+\end{equation}
+
+其中，$y[n]$ 表示第 $n$ 个时刻的输出，$x[n]$ 表示第 $n$ 个时刻的输入，$b_0,b_1,b_2$ 为滤波器零点系数，$a_1,a_2$ 为极点系数。
+
+针对不同震级工作点，本文基于提取出的差分方程参数直接构造 \mmax~个相互独立的离散线性核。令这些局部线性滤波核分别并行作用于同一输入信号 $x[n]$，即可构建出一个单输入多输出（SIMO）的多核 Wiener 线性特征提取层 $\mathrm{WienerLayer}(x[n])$。在训练过程中，该线性层的权重被完全冻结，从而确保模型忠实保留传感器在不同震级下的客观物理传递先验。
+
+最后，将 Wiener 线性层与约束 KAN 串联，即可形成面向 MET 系统频率响应非线性补偿的 Wiener-KAN 模型，其形式如 Eq.~(\ref{eq:wiener_kan}) 所示。
+
+\begin{equation}
+    \text{Wiener-KAN}(x[n]) = \operatorname{KAN}_{\text{con}} \circ \mathrm{WienerLayer}(x[n])
+    \label{eq:wiener_kan}
+\end{equation}
+
+
+\subsection{AFMAE Loss for Amplitude-Frequency Response}
+
+传统平均绝对误差（MAE）和均方误差（MSE）广泛用于回归任务，但它们主要衡量逐点误差累积，并且对高频随机噪声往往过于敏感。对于非线性系统建模而言，研究者更关注信号整体频率响应特性的保持。因此，本文设计了幅频平均绝对误差（AFMAE），用于在频域量化补偿输出与理想输出之间的差异。
+
+为推导 AFMAE 的表达式，本文首先考察正弦信号的能量-幅值关系。对周期为 $T = \frac{2\pi}{\omega}$ 的正弦波 $A\sin(\omega t)$，其能量 $E$ 可表示为 Eq.~(\ref{eq:ContinuousEnergy})。
+
+\begin{equation}
+    E = \int_{0}^{T} A^2 \sin^2(\omega t) \, dt = \frac{1}{2} A^2 \, T
+    \label{eq:ContinuousEnergy}
+\end{equation}
+
+在离散情况下，考虑到采样频率为 $f_s$ 且采样点数为 $\pmax$，对应的周期为 $T = \frac{N}{f_s}$，此时信号能量可近似表示为 Eq.~(\ref{eq:DiscreteEnergy})。
+
+\begin{equation}
+    E \approx \frac{1}{f_s} \sum_{\pidx=0}^{\pmax-1} \bigl(y[n]\bigr)^2
+    \label{eq:DiscreteEnergy}
+\end{equation}
+
+由此，输出信号幅值可写为 $A \approx \sqrt{\frac{2E}{T}}$。对于频率为 $f_\fidx$、震级为 $\magn_\midx$ 的正弦输入，其频率响应定义如 Eq.~(\ref{eq:HatH}) 所示。
+
+\begin{equation}
+    \begin{aligned}
+        \left|\pred{H}(f_\fidx,\magn_\midx)\right|
+         & = \frac{\pred{A}(f_\fidx,\magn_\midx)}{\magn_\midx}
+        = \sqrt{\frac{2}{T}} \frac{\sqrt{\hat{E}(f_\fidx,\magn_\midx)}}{\magn_\midx} \\
+         & = \sqrt{\frac{2}{T f_s}}
+        \frac{\sqrt{\sum_{\pidx=0}^{\pmax-1} \hat{y}_{\fidx,\midx}[n]^2}}{\magn_\midx}
+    \end{aligned}
+    \label{eq:HatH}
+\end{equation}
+
+其中，$\pred{H}$ 为网络预测频率响应，$\pred{A}$ 和 $\hat{E}$ 分别为网络预测输出的幅值和离散能量估计，$\hat{y}_{\fidx,\midx}[n]$ 表示在输入震级 $\magn_\midx$、频率 $f_\fidx$ 下网络预测得到的采样值。
+
+为了量化模型预测与真实输出在频率响应上的差异，本文计算真实频率响应 $H(f_\fidx,\magn_\midx)$ 与网络预测频率响应 $\pred{H}(f_\fidx,\magn_\midx)$ 的对数差值，得到 Eq.~(\ref{eq:LogH})。
+
+\begin{equation}
+    \begin{aligned}
+          & \log  \left|H(f_\fidx,\magn_\midx)\right|  - \log\left|\pred{H}(f_\fidx, \magn_\midx)\right|                                            \\
+        = & \log \sqrt{\frac{\sum_{\pidx=0}^{\pmax-1}y_{\fidx,\midx}[n]^2}{{\sum_{\pidx=0}^{\pmax-1}\hat{y}_{\fidx,\midx}[n]^2}}}                   \\
+        = & \frac{1}{2} \left( \log \sum_{\pidx=0}^{\pmax-1}y_{\fidx,\midx}[n]^2 -  \log \sum_{\pidx=0}^{\pmax-1}\hat{y}_{\fidx,\midx}[n]^2 \right)
+    \end{aligned}
+    \label{eq:LogH}
+\end{equation}
+
+其中，$H$ 表示真实频率响应。对数形式能够在对数幅值轴（dB 标度）上对输出差异进行更对称的度量，从而在预测值高于或低于真实值时保持较为均衡的惩罚，同时也避免显式计算 $\magn_\midx$。
+
+基于 Eq.~(\ref{eq:LogH})，本文对相关系数进行了简化，并将 $\mathcal{L}_{\text{AFMAE}}$ 定义为 Eq.~(\ref{eq:AFMAE_loss2})。
+
+\begin{equation}
+    \begin{aligned}
+        \mathcal{L}_{\text{AFMAE}} & =  \frac{1}{\fmax\mmax} \sum_{\fidx=1}^{\fmax} \sum_{\midx=1}^{\mmax}
+        \left|
+        \log \sum_{\pidx=0}^{\pmax-1}y_{\fidx,\midx}[n]^2
+        - \log \sum_{\pidx=0}^{\pmax-1}\hat{y}_{\fidx,\midx}[n]^2
+        \right|
+    \end{aligned}
+    \label{eq:AFMAE_loss2}
+\end{equation}
+
+其中，$\fmax$ 为参与计算的频率样本数，$\mmax$ 为参与计算的震级样本数。该方法只需进行一次能量统计，便可较高效地刻画系统的幅频特性。
+
+在实际训练中，MAE 与 AFMAE 的加权组合能够得到较优结果。本文在总损失函数中引入权重超参数 $\wMAE$，如 Eq.~(\ref{eq:TotalLoss}) 所示。
+
+\begin{equation}
+    \mathcal{L}_{\text{total}}
+    = (1-\wMAE)\,\mathcal{L}_{\text{MAE}}
+    + \wMAE\,\mathcal{L}_{\text{AFMAE}}
+    \label{eq:TotalLoss}
+\end{equation}
+
+
+\subsection{Precomputed LUT Inference for Real-Time Embedded Deployment}
+
+在典型的地震监测应用中，连续高频采样要求补偿算法的单步推理延迟必须严格小于采样周期，这种严格的实时性约束（Strict Real-Time Constraint）促使我们必须放弃神经网络密集的矩阵乘加运算。KAN 的在线推理代价主要来自每条边上的可学习激活函数求值。对于第 $l$ 层中连接输入 $i$ 与输出 $j$ 的激活函数 $\phi_{l,j,i}(x)$，精确路径需要在每个采样点计算 B 样条基函数和系数加权和。为满足硬实时要求，本文在训练完成后将该激活函数离线采样为预计算查找表（Precomputed LUT），使在线推理阶段把连续的样条求值直接转换为极低延迟的内存地址映射、读表以及可选的一阶线性插值。
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.78\columnwidth]{../../../ex_projects/plot/multi/fig_15_lut_lookup_principles/data/fig_15_lut_lookup_principles.png}
+    \caption{LUT inference principles for embedded Wiener-KAN deployment. (a) Offline table construction samples the trained KAN activation into uniform entries and stores the resulting table in Flash. (b) Runtime MCU lookup maps the input to a table index and uses either nearest lookup or linear interpolation, illustrated by the selected table cell and the interpolation segment.}
+    \label{fig:lut_lookup_principles}
+\end{figure}
+
+设 LUT 取值范围为 $[x_{\min},x_{\max}]$，采样点数为 $Q$，步长为 $\Delta_{\mathrm{LUT}}=(x_{\max}-x_{\min})/(Q-1)$。第 $q$ 个表项为
+\begin{equation}
+    v_q = \phi\left(x_{\min}+q\Delta_{\mathrm{LUT}}\right), \quad q=0,1,\dots,Q-1.
+    \label{eq:lut_grid}
+\end{equation}
+最近邻 LUT 查询把输入 $x$ 映射为整数表地址
+\begin{equation}
+    q(x)=\operatorname{clip}\left(\operatorname{round}\left(\frac{x-x_{\min}}{\Delta_{\mathrm{LUT}}}\right),0,Q-1\right), \quad \tilde{\phi}(x)=v_{q(x)}.
+    \label{eq:lut_nearest}
+\end{equation}
+一阶线性插值先计算小数网格坐标 $r=(x-x_{\min})/\Delta_{\mathrm{LUT}}$，令 $q=\left\lfloor r\right\rfloor$、$\lambda=r-q$，再得到
+\begin{equation}
+    \tilde{\phi}(x)=(1-\lambda)v_q+\lambda v_{q+1}.
+    \label{eq:lut_interp}
+\end{equation}
+因此，最近邻路径通过表地址映射和读表获得激活输出；线性插值路径在相邻表项之间增加有限的加法和乘法，用于改善表项之间的连续性。Fig.~\ref{fig:lut_lookup_principles} 展示了这两种查询路径。
+
+该部署路径与 MLP 的计算结构存在本质差异。MLP 层 $\mathbf{y}=\mathbf{W}\mathbf{x}+\mathbf{b}$ 中的权重通过矩阵乘加参与每个采样点的在线计算，输入维度和输出维度共同决定乘法与加法数量。KAN 中的边权重由可训练函数 $\phi_{l,j,i}(\cdot)$ 表达；完成训练后，函数形状被预计算进表值 $v_q$，在线路径主要围绕表地址映射、读表和可选插值展开。由此，B 样条网格数和阶数主要影响离线函数表达能力与表值生成，导出实现的实时性通过目标板吞吐率直接评价。这一特性使 KAN 在缺少 GPU/TPU 矩阵加速单元的传感器边缘设备上具有部署优势。
+
+在嵌入式实现中，LUT 表与归一化常数、线性递归核和输出缩放参数一起写入 C 端只读数据区。在线阶段按固定采样窗口逐点执行 Wiener 线性层和 KAN 查询路径，因此主评估量采用目标板串口基准循环得到的 points/s。该流程直接覆盖编译器优化、存储访问和函数调用开销，适合评价最终导出内核的实时运行能力。
+
+\FloatBarrier
+
+
+
+\section{Experiments and Results}
+
+在所有实验中，模型基于 TensorFlow 和 Adam 优化器进行训练，batch size 设为 \valBatchSize，总训练轮次为 \valEpochs。模型采用 \valLearningRateSchedule{}，学习率 $\lr(\lridx)$ 按 Eq.~(\ref{eq:learning_rate}) 设定，其中 $\valInitLR$ 为初始学习率。损失函数中 $\wMAE$ 取值为 \valMaeWeight。
+
+\begin{equation}
+    \lr(\lridx) = \valInitLR, \quad \lridx = 1, 2, \dots, \valEpochs
+    \label{eq:learning_rate}
+\end{equation}
+
+本文采用三项物理指标评价补偿质量，并通过板端数值一致性、实测吞吐率和内存占用评价部署可行性。频率漂移定义为 10--128~Hz 拟合固有频率在不同震级扫描条件下相对于中位数的最大变化量。灵敏度漂移定义为 \valSensitivityCompareFreq~Hz 处插值灵敏度在不同震级条件下相对于中位数的最大变化量。线性度误差定义为 128~Hz 以下输入--输出幅值拟合中 $1-R^2$ 的平均百分比。上述三项数值越低，分别表示震级相关的频率偏移越小、增益漂移越小、幅值响应越接近线性。
+
+嵌入式效率在 \valTargetMcu{} 平台上评价。KEIL speed 是目标板实测吞吐率，单位为 points/s，数值越高表示每秒可处理的采样点越多。KEIL RAM Usage 是 Keil 构建结果中的 RAM 占用量。QEMU-MAE 和 KEIL-MAE 用于验证导出的 C 实现与 TensorFlow 参考输出之间的数值一致性。
+
+\subsection{Wiener-KAN Compensation}
+
+本节集中评价所提出的 Wiener-KAN 主模型。未补偿 MET 响应在同一频率--震级矩阵上表现出 \valMainWienerFreqDrift~Hz 频率漂移、\valMainWienerSensDrift\% 灵敏度漂移和 \valMainWienerLinearity\% 线性度误差；Wiener-KAN 将三项指标分别降低到 \valPrimaryFreqDrift~Hz、\valPrimarySensDrift\% 和 \valPrimaryLinearity\%。
+
+\begin{figure*}[!t]
+    \centering
+    \includegraphics[width=0.85\textwidth]{../../../ex_projects/plot/multi/fig_08_frequency_response_comparison/data/fig_08_frequency_response_comparison.png}
+    \caption{Effectiveness of the unified Wiener-KAN main model in reducing amplitude-dependent frequency-response drift. (a) Frequency-response curves before and after compensation under representative magnitude conditions. (b) Natural-frequency trajectory versus magnitude before and after compensation. (c) Sensitivity trajectory at \valSensitivityCompareFreq~Hz before and after compensation. (d) Representative time-domain outputs under selected frequency and magnitude conditions. (e) Frequency-drift and sensitivity-drift values before and after compensation.}
+    \label{fig:frequency_response_comparison}
+\end{figure*}
+
+Fig.~\ref{fig:frequency_response_comparison}(a) 展示补偿前后的幅频响应曲线，显示不同震级条件下的响应包络明显收束。Fig.~\ref{fig:frequency_response_comparison}(b)--(c) 展示了 Wiener-KAN 对幅值相关频率响应漂移的抑制效果。补偿后，不同震级下的固有频率轨迹和 \valSensitivityCompareFreq~Hz 灵敏度轨迹向低幅值参考响应收敛。Fig.~\ref{fig:frequency_response_comparison}(d) 给出了在 \valFreqScanStart~Hz 到 \valFreqScanEnd~Hz 范围内、不同震级条件下的代表性时域波形。预测波形在相位和幅值上与理想参考输出保持一致，说明频域漂移抑制同时对应到时域补偿质量改善。Fig.~\ref{fig:frequency_response_comparison}(e) 给出频率漂移和灵敏度漂移的总体下降幅度。
+
+\subsection{On-board inference test flow}
+
+板端推理测试用于确认 Wiener-KAN 从训练模型到嵌入式 C 实现的完整链路。训练完成后，权重、归一化常数和 LUT 表被导出为 C 代码；同一份 C 实现先在 QEMU 中运行并与 TensorFlow 参考输出比较，再烧录到 \valTargetMcu{} 目标板，通过串口基准循环采集吞吐率，并从 Keil 构建结果中读取 Flash 与 RAM 占用。
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\columnwidth]{../../../ex_projects/plot/multi/fig_05_onboard_inference/data/fig_05_onboard_inference.png}
+    \caption{Embedded inference validation workflow and performance. (a) The trained Wiener-KAN project is exported once as a C implementation with weights, normalization constants and LUT tables. (b) The same C implementation is validated in QEMU for numerical consistency and on STM32F405 for numerical, throughput and memory metrics. (c) Embedded performance of exported baseline models and Wiener-KAN implementation variants; marker position reports RAM usage and measured KEIL throughput, while marker color encodes KEIL-MAE. The LUT nearest and LUT interp variants in this panel both use 769-point tables. (d) LUT quantization-point sweep of the same Wiener-KAN weights; the x axis gives the LUT point count, the left y axis reports QEMU-MAE, and the right y axis reports Flash usage for nearest lookup and linear interpolation.}
+    \label{fig:embedded_performance}
+\end{figure}
+
+Fig.~\ref{fig:embedded_performance}(a)--(b) 展示了嵌入式验证路径。验证窗口先归一化并封装为 C 数组，导出的 C 实现随后在 QEMU 和目标板上执行，其预测输出与 TensorFlow 参考结果对齐后计算 QEMU-MAE 和 KEIL-MAE；硬件路径通过重复 UART 基准循环获得吞吐记录，并由 Keil 构建结果给出 Flash 和 RAM 占用。Fig.~\ref{fig:embedded_performance}(c) 给出了横向导出模型与 Wiener-KAN 三种实现变体的 RAM--吞吐率--KEIL-MAE 关系，其中 LUT nearest 和 LUT interp 都采用 769 个量化点。Fig.~\ref{fig:embedded_performance}(d) 进一步固定同一训练权重，给出 65--769 个量化点范围内的 QEMU-MAE--Flash 关系，并显示插值路径在整个 sweep 上都保持更低的 QEMU-MAE。
+
+\begin{table}[ht]
+    \centering
+    \caption{On-board implementation variants of the same Wiener-KAN weights. KEIL speed is measured in processed points per second, so higher values indicate higher throughput.}
+    \label{tab:wiener_kan_lut_variants}
+    \begin{tabular}{lcc}
+        \hline\hline
+        \textbf{Implementation} & \makecell{\textbf{KEIL speed}\\(points/s)} & \textbf{KEIL-MAE} \\ \hline
+        LUT nearest & \valDeployLutNearestKeilFps & \valDeployLutNearestMae \\
+        LUT + linear interp & \valDeployLutInterpKeilFps & \valDeployLutInterpMae \\
+        No LUT exact & \valDeployNoLutKeilFps & \valDeployNoLutMae \\ \hline\hline
+    \end{tabular}
+\end{table}
+
+基于 \valTargetMcu{} 的板端基准测试显示，Wiener-KAN 主实现达到 \valPrimaryKeilFps{} points/s，RAM 占用为 \valPrimaryKeilRamKB~KB。Tab.~\ref{tab:wiener_kan_lut_variants} 显示，同一训练权重在 LUT 最近邻、LUT 线性插值和精确样条路径下形成速度--误差取舍：最近邻查表提供最高吞吐率，线性插值显著降低 KEIL-MAE，精确样条路径提供最低的 C 端近似误差。Fig.~\ref{fig:embedded_performance}(c) 展示横向导出模型与三种 Wiener-KAN 导出实现的 RAM--吞吐率--KEIL-MAE 关系。Fig.~\ref{fig:embedded_performance}(d) 展示同一训练权重在 65--769 个 LUT 量化点下的部署精度--存储权衡。随着量化点数增加，Flash 近似线性增长，而 QEMU-MAE 单调下降；线性插值在全 sweep 范围内都保持低于最近邻查表的误差曲线。
+
+\subsection{Comprehensive Comparison with Baseline Models}
+
+为评估 Wiener-KAN 的综合性能，本文将其与多类具有代表性的非线性补偿方法进行比较。首先是传统 Wiener 模型，其代表经典块结构的线性动态补偿基线。其次是 1DCNN、TCN、RNN、GRU、LSTM 和 LSTMTransformer 等时序学习基线，其中卷积模型侧重局部波形模式，循环模型侧重历史状态依赖，注意力增强模型侧重长程相关建模。各基线采用与主模型相同的数据划分、训练轮次和固定学习率策略，并按相近参数规模或资源约束选择宽度、深度、卷积核和循环单元数量，以保持横向比较的规模可比性。
+
+\begin{table*}[ht]
+    \centering
+    \small
+    \setlength{\tabcolsep}{2pt}
+    \caption{Main comparison under the physical-calibration and on-board efficiency protocol. Lower values are better for frequency drift, sensitivity drift, linearity error, and RAM; higher values are better for KEIL speed.}
+    \label{tab:models}
+    \begin{tabular}{p{0.16\textwidth}p{0.14\textwidth}p{0.14\textwidth}p{0.14\textwidth}p{0.18\textwidth}p{0.10\textwidth}}
+        \hline\hline
+        \textbf{Method} & \makecell{\textbf{Freq}\\\textbf{drift}\\(Hz)} & \makecell{\textbf{Sens}\\\textbf{drift}\\(\%)} & \makecell{\textbf{Linearity}\\(\%)} & \makecell{\textbf{KEIL speed}\\(points/s)} & \makecell{\textbf{RAM}\\(KB)} \\ \hline
+        Wiener & \valMainWienerFreqDrift & \valMainWienerSensDrift & \valMainWienerLinearity & -- & -- \\
+        1DCNN & \valMainCNNFreqDrift & \valMainCNNSensDrift & \valMainCNNLinearity & \valMainCNNKeilFps & \valMainCNNKeilRamKB \\
+        TCN & \valMainTCNFreqDrift & \valMainTCNSensDrift & \valMainTCNLinearity & \valMainTCNKeilFps & \valMainTCNKeilRamKB \\
+        RNN & \valMainRNNFreqDrift & \valMainRNNSensDrift & \valMainRNNLinearity & \valMainRNNKeilFps & \valMainRNNKeilRamKB \\
+        GRU & \valMainGRUFreqDrift & \valMainGRUSensDrift & \valMainGRULinearity & \valMainGRUKeilFps & \valMainGRUKeilRamKB \\
+        LSTM & \valMainLSTMFreqDrift & \valMainLSTMSensDrift & \valMainLSTMLinearity & \valMainLSTMKeilFps & \valMainLSTMKeilRamKB \\
+        LSTM-Trans. & \valMainLSTMTransformerFreqDrift & \valMainLSTMTransformerSensDrift & \valMainLSTMTransformerLinearity & \valMainLSTMTransformerKeilFps & \valMainLSTMTransformerKeilRamKB \\
+        \textbf{Wiener-KAN} & \textbf{\valPrimaryFreqDrift} & \textbf{\valPrimarySensDrift} & \textbf{\valPrimaryLinearity} & \textbf{\valPrimaryKeilFps} & \textbf{\valPrimaryKeilRamKB} \\ \hline\hline
+    \end{tabular}
+\end{table*}
+
+Tab.~\ref{tab:models} 在统一 MET 补偿协议下比较了 Wiener-KAN 与典型时序基线。Wiener-KAN 同时取得最低频率漂移、最低灵敏度漂移和最高板端吞吐率；TCN 在线性度误差上接近 Wiener-KAN，但其 KEIL speed 明显低于主模型；RNN 的板端吞吐率较高，但物理补偿指标的抑制效果受限。
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=0.98\textwidth]{../../../ex_projects/plot/multi/fig_02_horizontal_summary/data/fig_02_horizontal_summary.png}
+    \caption{Main benchmark summary. (a) Natural-frequency range across magnitudes. (b) Sensitivity range at \valSensitivityCompareFreq~Hz across magnitudes. (c) In-band linearity-error range across frequency points. (d) STM32F405 measured KEIL throughput with exported-kernel error annotations. (e) Five-metric radar comparison across physical accuracy and on-board efficiency metrics. (f) Main-benchmark validation-loss trajectories. Error bars in (a)--(c) indicate the corresponding min--max ranges.}
+    \label{fig:horizontal_summary}
+\end{figure*}
+
+Fig.~\ref{fig:horizontal_summary}(a)--(c) 展示了代表性模型的固有频率、\valSensitivityCompareFreq~Hz 灵敏度和带内线性度误差范围，Wiener-KAN 在固有频率和灵敏度分布上最为收敛。Fig.~\ref{fig:horizontal_summary}(d)--(f) 分别展示板端实测吞吐率、五指标雷达图和主横评训练收敛曲线。五指标雷达图将频率漂移、灵敏度漂移、线性度误差、KEIL speed 和 KEIL RAM 归一化到共同坐标中比较，显示 Wiener-KAN 在物理补偿和嵌入式效率之间保持更均衡的指标形状。
+
+\subsection{Ablation Studies of Wiener-KAN Components}
+
+消融实验围绕 Wiener-KAN 的训练目标、结构变体、物理约束、Wiener 前端和超参数设置展开。Tab.~\ref{tab:ablation_overview} 汇总 \valAblationOverviewRowCount{} 条数值对比，覆盖结构变体、物理约束、Wiener 前端和损失函数；随后分小节展开每组结果。
+
+\begin{table*}[ht]
+    \centering
+    \small
+    \setlength{\tabcolsep}{2pt}
+    \caption{Numerical overview of Wiener-KAN ablation studies. Each row reports the evaluated physical-metric triplet for one design contrast.}
+    \label{tab:ablation_overview}
+    \resizebox{\textwidth}{!}{\input{tables/ablation_overview.tex}}
+\end{table*}
+
+
+\subsubsection{Structural ablation of the Wiener and KAN blocks}
+
+Tab.~\ref{tab:ablation_overview} 中的 Struct 分组隔离了 Wiener-KAN 的两个核心结构模块。CNN-KAN 以卷积前端替代 Wiener 线性块，并保留相同的 KAN 非线性映射，用于比较显式局部频率响应切片与数据驱动时序前端的差异。Wiener-MLP 保留同一 Wiener 前端，并将带物理约束的 KAN 映射替换为 MLP 映射，用于比较样条型单神经元非线性与常规全连接映射的差异。
+
+Struct 分组结果表明，两类替换分别对应 Wiener-KAN 的线性动态骨架和非线性补偿主体。CNN-KAN 在频率漂移与灵敏度漂移上接近基线配置，但在线性度误差上表现出明显的误差上升，说明局部频率响应初始化的 Wiener 前端更有利于保持带内补偿曲线的稳定形状。Wiener-MLP 在三项物理指标上均落后于 Wiener-KAN，说明共享 Wiener 前端后，带物理约束的 KAN 映射仍然承担了幅值相关非线性补偿的主要表达能力。
+
+
+\subsubsection{Physical sign and symmetry constraints}
+
+约束消融实验将奇对称性与正值性分开考察。奇对称性对应 MET 对正负振动输入的方向一致响应，正值性对应正输入区间内的单调方向保持。各约束变体共享相同 Wiener 前端、样条阶数、网格数量和训练数据，使 Tab.~\ref{tab:ablation_overview} 中的约束分组直接反映结构约束本身对频率漂移、灵敏度漂移和线性度误差的影响。Tab.~\ref{tab:ablation_overview} 中的 \textit{Odd / No positive basis} 对照保留奇对称性，但移除了正输入区间的方向保持约束，因此其优化过程更容易偏离稳定补偿映射。该对照在频率漂移、灵敏度漂移和线性度误差上同时表现出明显的误差上升，说明正值约束为 Wiener-KAN 提供了稳定的函数形态先验。Baseline 同时保留奇对称性与正值性，使非线性补偿映射更符合器件响应规律，因此能够在三项物理指标上保持更稳定的收敛结果。
+
+\subsubsection{Wiener front-end initialization and trainability}
+
+Tab.~\ref{tab:ablation_overview} 中的 Wiener front 分组评价 Wiener 前端是否受益于局部频率响应初始化，以及注入后的 RNN-style IIR 层是否适合训练。冻结的系统先验设置给出最好的频率漂移、灵敏度漂移和线性度误差。随机初始化且冻结的前端仍可训练，但三项物理指标均有所上升。可训练 IIR 前端导致频率漂移指标明显上升，说明局部频率响应先验作为稳定线性动态骨架时最有效。
+
+\subsubsection{Hyperparameter sensitivity}
+
+Wiener-KAN 的超参数包括 Wiener 线性层中的相对频率响应切片数量 $h$、约束 KAN 的层数 $l$ 和单层单元数 $u$、以及 B 样条激活函数的阶数和网格数。本文围绕 canonical $h8u6l6g8s2$ 配置进行单因素敏感性分析，训练轮数、学习率、损失函数、数据划分和评估链路均保持一致。基线配置达到 $\textrm{Freq~Drift}=\valHpBaseFreq$~Hz、$\textrm{Sens~Drift}=\valHpBaseSens\%$、$\textrm{Linearity}=\valHpBaseLinearity\%$。
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.98\textwidth]{../../../ex_projects/plot/multi/fig_18_hparam_sensitivity/data/fig_18_hparam_sensitivity.png}
+    \caption{One-factor hyperparameter sensitivity and loss-objective convergence around the canonical Wiener-KAN configuration. (a) Wiener slices $h$. (b) KAN width $u$. (c) KAN depth $l$. (d) Spline grid $g$. (e) Spline order $s$. The unnumbered center panel in the second row summarizes the legend and the absolute baseline values used for normalization. (f) Joint MAE+AFMAE objective. (g) MAE-only objective. (h) AFMAE-only objective. Each sensitivity panel reports the relative changes in frequency drift, sensitivity drift and linearity error with respect to the baseline; the loss panels report normalized validation-loss trajectories.}
+    \label{fig:hparam_sensitivity}
+\end{figure}
+
+Fig.~\ref{fig:hparam_sensitivity}(a)--(e) 展示了所选配置附近的单因素敏感性结果；第二行中部的无编号图例面板给出了归一化所用的颜色、标记和基线绝对值。将 KAN 深度增加到 $l=7$ 可以进一步改善三项物理指标；本文采用 $h=8,u=6,l=6$ 模型作为代表性配置，并将 $l=7$ 视为精度更高的候选配置。Spline grid $g$ 和 spline order $s$ 主要影响样条函数的离线表达能力，LUT 部署时由导出实现和板端吞吐率共同决定实际运行表现。
+
+\subsubsection{Loss-function ablation}
+
+训练目标由时域误差项与幅频误差项共同定义。MAE 直接约束逐点波形误差，AFMAE 约束同一频率和震级条件下的幅值统计误差，二者组合能够同时体现波形一致性与频率响应一致性。为分离损失函数贡献，本文采用完全一致的数据划分、模型结构、初始化方式和训练轮数，对 MAE、AFMAE 以及 MAE+AFMAE 三种目标进行比较。
+
+Tab.~\ref{tab:ablation_overview} 的 Loss 分组与 Fig.~\ref{fig:hparam_sensitivity}(f)--(h) 共同评价 1k epoch 固定学习率设置下的收敛轮次和最终补偿质量。MAE+AFMAE 在频率漂移、灵敏度漂移和线性度误差三项指标上形成最均衡结果，说明时域逐点误差和幅频响应误差需要共同参与训练目标。
+
+单独使用 MAE 时，逐点误差目标对幅值相关频率漂移的约束较弱；单独使用 AFMAE 时，幅频统计约束改善频率漂移，但灵敏度漂移和线性度误差仍高于联合目标。联合损失保留两类约束，使收敛曲线和最终物理指标保持一致。
+
+\FloatBarrier
+
+\section{讨论}
+
+
+本文验证基于一个 MET 样品、受控正弦激励矩阵以及 $\valEnvironmentTemperature$ 环境。该设置提供了可复现的频率--震级响应矩阵，用于量化震级相关漂移；更多温度条件、更多传感器样品以及接近野外地震记录的复合波形需要独立测量数据支撑。
+
+嵌入式结果通过 QEMU 数值检查和 \valTargetMcu{} 板端测量验证导出实现。KEIL speed 和 KEIL RAM Usage 描述当前编译器、MCU、数值精度和窗口长度下的实现结果，QEMU-MAE 与 KEIL-MAE 用于检查导出 C 实现与 TensorFlow 参考输出之间的数值一致性。其他 MCU 系列、定点实现、多通道采集和不同编译设置会改变实测吞吐率与内存占用。扩展验证可围绕三类条件展开：在不同温度下重复频率--震级矩阵测试，在更多 MET 样品上重复标定与补偿流程，并测试更接近野外地震记录的复合波形。
+
+\subsection{数据可用性}
+
+现有公开传感器漂移数据集主要覆盖其他传感器类型，例如气体传感器阵列\cite{vergaraChemicalGasSensor2012}。据我们所知，公开资源尚未提供面向幅值相关时域补偿的同步 MET 输出、参考激励、频率、震级和目标标定曲线。本文使用的数据集是面向 MET 漂移补偿自建的频率--震级响应矩阵。处理后的响应矩阵、代表性波形、数据划分脚本和指标计算脚本将随稿件材料公开，访问地址为 \texttt{github.com/pikastech/wiener-kan-met-compensation}。
+
+\FloatBarrier
+
+\section{Conclusion}
+
+本文利用 Wiener 结构的线性-非线性分解思路，并结合频率响应信息与 Kolmogorov-Arnold 网络的结构优势，构建了 Wiener-KAN 非线性补偿框架，其主要贡献体现在四个方面：第一，在基础数据层面，本文首次构建并开放了涵盖幅频耦合效应的三维频率响应数据集，为幅值相关时域补偿研究提供了实测数据基准；第二，在物理与数据融合层面，本文将相对频率响应切片映射为 Wiener 线性层的初始化权重，从而在频域上建立了专家知识与神经网络之间的有效结合；第三，在网络结构层面，本文采用带符号与对称性约束的可训练样条激活函数，直接学习传感器标定曲线，增强了单神经元对非线性的建模能力；第四，在损失函数设计层面，本文提出的 AFMAE 通过能量统计高效估计幅频差异，克服了传统 MAE 对高频噪声过于敏感的问题，使得频域补偿更加准确。
+
+实验结果表明，Wiener-KAN 在改善电化学地震检波器输入输出曲线和抑制频率漂移方面优于多种传统方法，能够显著缓解电化学系统中的非线性问题。该结果表明，前馈补偿可以在保持传感器硬件结构的同时改善 MET 的大震级响应质量。最后，本文构建了从复杂非线性补偿模型到低功耗边缘端实时落地的完整部署链路。基于预计算查找表技术的推理机制有效规避了微控制器的算力局限，证明了深度学习在地震仪器板端执行实时运算的可行性，为解决 MET 实时非线性补偿问题提供了有效的路径，并为未来新一代智能检波器（Smart Seismometers）的软硬件协同设计提供了一种有潜力的工程范式。
+
+
+% Author biographies from the IEEE version are preserved untranslated in
+% author_bios_legacy.tex and are intentionally not included in the MN draft.
+
+\FloatBarrier
+
+\bibliography{nonlinear}
+
+\end{document}
+

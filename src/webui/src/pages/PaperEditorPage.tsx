@@ -39,6 +39,14 @@ const IDLE_PREVIEW_DEBOUNCE_MS = 5000;
 const EXTERNAL_STATE_POLL_MS = 1000;
 const SCROLL_ANCHOR_RATIO = 0.24;
 
+function resolveRequestedEntry(): string {
+  if (typeof window === 'undefined') {
+    return DEFAULT_ENTRY;
+  }
+  const requested = new URLSearchParams(window.location.search).get('entry')?.trim();
+  return requested ? requested : DEFAULT_ENTRY;
+}
+
 function formatTimestamp(value: string | null): string {
   if (!value) {
     return 'Unknown';
@@ -89,6 +97,14 @@ function getSourceScrollTopForRawLine(viewStartMap: number[], lineHeight: number
   const safeLine = clamp(lineNumber, 1, viewStartMap.length - 1);
   const viewLine = Math.max(1, viewStartMap[safeLine] ?? 1);
   return Math.max(0, (viewLine - 1) * lineHeight - viewportHeight * SCROLL_ANCHOR_RATIO);
+}
+
+function getAnchorViewLine(scrollTop: number, viewportHeight: number, lineHeight: number, totalViewLines: number): number {
+  return clamp(
+    Math.floor((scrollTop + viewportHeight * SCROLL_ANCHOR_RATIO) / Math.max(lineHeight, 1)) + 1,
+    1,
+    totalViewLines,
+  );
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -306,6 +322,7 @@ function findOutlineSegmentByLine(outline: PaperEditorOutlineItem[], targetLine:
 }
 
 export default function PaperEditorPage() {
+  const requestedEntry = useMemo(() => resolveRequestedEntry(), []);
   const [documentData, setDocumentData] = useState<PaperEditorDocument | null>(null);
   const [previewData, setPreviewData] = useState<PaperEditorDocument | null>(null);
   const [source, setSource] = useState('');
@@ -315,7 +332,7 @@ export default function PaperEditorPage() {
   const [previewing, setPreviewing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState('Loading docs/paper/latex/main.tex ...');
+  const [status, setStatus] = useState(`Loading docs/paper/latex/${requestedEntry} ...`);
   const [autoPreview, setAutoPreview] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('split');
   const [previewMode, setPreviewMode] = useState<PreviewMode>('rendered');
@@ -336,7 +353,13 @@ export default function PaperEditorPage() {
 
   const previewRequestIdRef = useRef(0);
   const renderStartRef = useRef(0);
-  const syncSourceRef = useRef<'editor' | 'preview' | null>(null);
+  const syncSourceRef = useRef<'editor' | 'preview' | 'outline' | null>(null);
+  const didInitialLoadRef = useRef(false);
+  const clientIdRef = useRef(
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `paper-editor-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  );
   const latestSourceRef = useRef('');
   const latestRevisionRef = useRef<string | null>(null);
   const pendingSelectionRestoreRef = useRef<EditorSelectionSnapshot | null>(null);
@@ -377,20 +400,44 @@ export default function PaperEditorPage() {
       return null;
     }
 
+    const hadFocus = document.activeElement === editor;
+    if (!hadFocus) {
+      const lineHeight = editorLineHeight || getEditorLineHeight(editor);
+      const totalViewLines = displayedSourceView?.totalViewLines ?? Math.max(1, sourceViewText.split(/\r?\n/).length);
+      const anchorViewLine = getAnchorViewLine(editor.scrollTop, editor.clientHeight, lineHeight, totalViewLines);
+      const rawLine = displayedSourceView?.viewLineToLatex[anchorViewLine]
+        ?? clamp(anchorViewLine, 1, Math.max(1, source.split(/\r?\n/).length));
+      const rawLineOffsets = buildLineOffsets(source);
+      const rawStart = rawLineOffsets[Math.max(0, rawLine - 1)] ?? 0;
+      return {
+        rawStart,
+        rawEnd: rawStart,
+        rawLine,
+        hadFocus: false,
+        scrollTop: editor.scrollTop,
+      };
+    }
+
     const rawStart = getRawOffsetFromViewOffset(sourceViewText, displayedSourceView, editor.selectionStart);
     const rawEnd = getRawOffsetFromViewOffset(sourceViewText, displayedSourceView, editor.selectionEnd);
     return {
       rawStart,
       rawEnd,
       rawLine: getRawLineNumberForOffset(source, rawStart),
-      hadFocus: document.activeElement === editor,
+      hadFocus,
       scrollTop: editor.scrollTop,
     };
-  }, [displayedSourceView, source, sourceViewText]);
+  }, [displayedSourceView, editorLineHeight, source, sourceViewText]);
 
   const queueSelectionRestore = useCallback((snapshot: EditorSelectionSnapshot | null) => {
     pendingSelectionRestoreRef.current = snapshot;
   }, []);
+
+  const buildRequestMeta = useCallback((reason: string) => ({
+    clientId: clientIdRef.current,
+    reason,
+    knownRevision: latestRevisionRef.current,
+  }), []);
 
   useEffect(() => {
     latestSourceRef.current = source;
@@ -412,7 +459,7 @@ export default function PaperEditorPage() {
     }
     setError(null);
     try {
-      const document = await fetchPaperEditorDocument(DEFAULT_ENTRY, viewColumns);
+      const document = await fetchPaperEditorDocument(requestedEntry, viewColumns, buildRequestMeta(`document-${reason}`));
       latestRevisionRef.current = document.revision;
       queueSelectionRestore(selectionSnapshot);
       renderStartRef.current = performance.now();
@@ -439,9 +486,13 @@ export default function PaperEditorPage() {
         setEditorLocked(false);
       }
     }
-  }, [captureEditorSelection, queueSelectionRestore, viewColumns]);
+  }, [buildRequestMeta, captureEditorSelection, queueSelectionRestore, viewColumns]);
 
   useEffect(() => {
+    if (didInitialLoadRef.current) {
+      return;
+    }
+    didInitialLoadRef.current = true;
     void loadDocument({ reason: 'initial' });
   }, [loadDocument]);
 
@@ -510,14 +561,14 @@ export default function PaperEditorPage() {
   }, [sourceLineMetrics, sourceViewText, syncGutterScroll]);
 
   const runPreview = useCallback(
-    async (nextSource: string, nextViewColumns = viewColumns) => {
+    async (nextSource: string, nextViewColumns = viewColumns, reason = 'idle') => {
       const requestId = ++previewRequestIdRef.current;
       const startedAt = performance.now();
       const requestedSource = nextSource;
       setPreviewing(true);
       setError(null);
       try {
-        const preview = await previewPaperEditorDocument(DEFAULT_ENTRY, nextSource, nextViewColumns);
+        const preview = await previewPaperEditorDocument(requestedEntry, nextSource, nextViewColumns, buildRequestMeta(`preview-${reason}`));
         if (requestId !== previewRequestIdRef.current || requestedSource !== latestSourceRef.current) {
           return;
         }
@@ -542,18 +593,56 @@ export default function PaperEditorPage() {
         }
       }
     },
-    [captureEditorSelection, queueSelectionRestore, viewColumns],
+    [buildRequestMeta, captureEditorSelection, queueSelectionRestore, viewColumns],
   );
+
+  const handleSave = useCallback(async (reason = 'manual') => {
+    if (saving || editorLocked || source === (documentData?.source ?? '')) {
+      return;
+    }
+    queueSelectionRestore(captureEditorSelection());
+    setSaving(true);
+    setError(null);
+    try {
+      const saved = await savePaperEditorDocument({
+        entry: requestedEntry,
+        source,
+        sourceViewText,
+        baseSource: documentData?.source ?? '',
+        baseSourceViewText: documentData?.sourceView.text ?? '',
+        baseRevision: documentData?.revision ?? null,
+        viewColumns,
+      }, buildRequestMeta(`save-${reason}`));
+      latestRevisionRef.current = saved.revision;
+      renderStartRef.current = performance.now();
+      startTransition(() => {
+        setDocumentData(saved);
+        setPreviewData(saved);
+        setSource(saved.source);
+        setSourceViewText(saved.sourceView.text);
+      });
+      setStatus(
+        reason === 'idle'
+          ? `Auto-saved ${saved.entry} at ${formatTimestamp(saved.updatedAt)}.`
+          : `Saved ${saved.entry} at ${formatTimestamp(saved.updatedAt)}.`
+      );
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : 'Failed to save paper document');
+      setStatus(reason === 'idle' ? 'Auto-save failed.' : 'Save failed.');
+    } finally {
+      setSaving(false);
+    }
+  }, [buildRequestMeta, captureEditorSelection, documentData?.revision, documentData?.source, documentData?.sourceView.text, editorLocked, queueSelectionRestore, saving, source, sourceViewText, viewColumns]);
 
   useEffect(() => {
     if (!autoPreview || !documentData || source === documentData.source) {
       return undefined;
     }
     const handle = window.setTimeout(() => {
-      void runPreview(source, viewColumns);
+      void handleSave('idle');
     }, IDLE_PREVIEW_DEBOUNCE_MS);
     return () => window.clearTimeout(handle);
-  }, [autoPreview, documentData, runPreview, source, viewColumns]);
+  }, [autoPreview, documentData, handleSave, source]);
 
   useEffect(() => {
     if (!documentData) {
@@ -568,7 +657,7 @@ export default function PaperEditorPage() {
       externalReloadInFlightRef.current = true;
       void (async () => {
         try {
-          const state = await fetchPaperEditorDocumentState(DEFAULT_ENTRY);
+          const state = await fetchPaperEditorDocumentState(requestedEntry, buildRequestMeta('poll-state'));
           const currentRevision = latestRevisionRef.current;
           if (!currentRevision) {
             latestRevisionRef.current = state.revision;
@@ -594,48 +683,24 @@ export default function PaperEditorPage() {
     }
 
     const handle = window.setTimeout(() => {
-      void runPreview(source, viewColumns);
+      void runPreview(source, viewColumns, 'columns');
     }, 80);
     return () => window.clearTimeout(handle);
   }, [documentData, displayedSourceView?.columns, runPreview, source, viewColumns]);
-
-  const handleSave = useCallback(async () => {
-    queueSelectionRestore(captureEditorSelection());
-    setSaving(true);
-    setError(null);
-    try {
-      const saved = await savePaperEditorDocument(DEFAULT_ENTRY, source, viewColumns);
-      latestRevisionRef.current = saved.revision;
-      renderStartRef.current = performance.now();
-      startTransition(() => {
-        setDocumentData(saved);
-        setPreviewData(saved);
-        setSource(saved.source);
-        setSourceViewText(saved.sourceView.text);
-      });
-      setStatus(`Saved ${saved.entry} at ${formatTimestamp(saved.updatedAt)}.`);
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : 'Failed to save paper document');
-      setStatus('Save failed.');
-    } finally {
-      setSaving(false);
-    }
-  }, [captureEditorSelection, queueSelectionRestore, source, viewColumns]);
 
   const handleEditorScroll = useCallback(() => {
     const editor = editorRef.current;
     const preview = previewRef.current;
     const outline = displayedDocument?.outline ?? [];
     const lineMappings = displayedDocument?.lineMappings;
-    if (!editor || !preview || syncSourceRef.current === 'preview') {
+    if (!editor || !preview || syncSourceRef.current === 'preview' || syncSourceRef.current === 'outline') {
       return;
     }
 
     syncGutterScroll(editor.scrollTop);
     const lineHeight = editorLineHeight || getEditorLineHeight(editor);
     const totalViewLines = displayedSourceView?.totalViewLines ?? Math.max(1, sourceViewText.split(/\r?\n/).length);
-    const anchorOffset = editor.scrollTop + editor.clientHeight * SCROLL_ANCHOR_RATIO;
-    const anchorViewLine = clamp(Math.floor(anchorOffset / Math.max(lineHeight, 1)) + 1, 1, totalViewLines);
+    const anchorViewLine = getAnchorViewLine(editor.scrollTop, editor.clientHeight, lineHeight, totalViewLines);
     const targetLine = displayedSourceView?.viewLineToLatex[anchorViewLine]
       ?? clamp(anchorViewLine, 1, Math.max(1, sourceLines.length));
     const maxPreviewScroll = Math.max(preview.scrollHeight - preview.clientHeight, 0);
@@ -681,7 +746,7 @@ export default function PaperEditorPage() {
     const preview = previewRef.current;
     const outline = displayedDocument?.outline ?? [];
     const lineMappings = displayedDocument?.lineMappings;
-    if (!editor || !preview || syncSourceRef.current === 'editor') {
+    if (!editor || !preview || syncSourceRef.current === 'editor' || syncSourceRef.current === 'outline') {
       return;
     }
 
@@ -752,18 +817,21 @@ export default function PaperEditorPage() {
       const preview = previewRef.current;
       const editor = editorRef.current;
       const lineMappings = displayedDocument?.lineMappings;
+      syncSourceRef.current = 'outline';
       if (preview && lineMappings) {
+        const maxPreviewScroll = Math.max(preview.scrollHeight - preview.clientHeight, 0);
         if (previewMode === 'markdown') {
           const markdownLine = item.markdownLine ?? lineMappings.latexToMarkdown[item.line] ?? 1;
           const previewLineHeight = getLineHeight(preview);
-          const maxPreviewScroll = Math.max(preview.scrollHeight - preview.clientHeight, 0);
           preview.scrollTop = clamp((markdownLine - 1) * previewLineHeight - preview.clientHeight * 0.12, 0, maxPreviewScroll);
         } else {
           const heading = preview.querySelector<HTMLElement>(`#${CSS.escape(item.id)}`);
           if (heading) {
-            const previewRect = preview.getBoundingClientRect();
-            const headingRect = heading.getBoundingClientRect();
-            preview.scrollTop += headingRect.top - previewRect.top - preview.clientHeight * 0.12;
+            preview.scrollTop = clamp(
+              getElementScrollTop(preview, heading) - preview.clientHeight * 0.12,
+              0,
+              maxPreviewScroll,
+            );
           }
         }
       }
@@ -775,10 +843,13 @@ export default function PaperEditorPage() {
         const targetScrollTop = displayedSourceView
           ? getSourceScrollTopForRawLine(displayedSourceView.latexToViewLineStart, editorLineHeight, item.line, editor.clientHeight)
           : Math.max(0, (item.line - 1) * getEditorLineHeight(editor) - editor.clientHeight * 0.2);
-        editor.scrollTop = targetScrollTop;
+        editor.scrollTop = clamp(targetScrollTop, 0, Math.max(editor.scrollHeight - editor.clientHeight, 0));
         syncGutterScroll(editor.scrollTop);
         setEditorLine(item.line);
       }
+      window.requestAnimationFrame(() => {
+        syncSourceRef.current = null;
+      });
     },
     [displayedDocument?.lineMappings, displayedSourceView, editorLineHeight, previewMode, sourceViewLineOffsets, syncGutterScroll],
   );
@@ -810,7 +881,7 @@ export default function PaperEditorPage() {
         <div className="paper-editor-header__actions">
           <div className="paper-editor-pill">
             <span>Entry</span>
-            <strong>{displayedDocument?.entry ?? DEFAULT_ENTRY}</strong>
+            <strong>{displayedDocument?.entry ?? requestedEntry}</strong>
           </div>
           <label className="paper-editor-pill paper-editor-pill--toggle">
             <input type="checkbox" checked={autoPreview} onChange={(event) => setAutoPreview(event.target.checked)} />
@@ -819,10 +890,10 @@ export default function PaperEditorPage() {
           <button type="button" className="paper-editor-button" onClick={() => void loadDocument({ reason: 'manual', preserveSelection: true })} disabled={loading || saving || editorLocked}>
             Reload
           </button>
-          <button type="button" className="paper-editor-button" onClick={() => void runPreview(source, viewColumns)} disabled={loading || previewing || editorLocked}>
+          <button type="button" className="paper-editor-button" onClick={() => void runPreview(source, viewColumns, 'manual')} disabled={loading || previewing || editorLocked}>
             {previewing ? 'Previewing…' : 'Preview now'}
           </button>
-          <button type="button" className="paper-editor-button paper-editor-button--accent" onClick={() => void handleSave()} disabled={loading || saving || editorLocked || !isDirty}>
+          <button type="button" className="paper-editor-button paper-editor-button--accent" onClick={() => void handleSave('manual')} disabled={loading || saving || editorLocked || !isDirty}>
             {saving ? 'Saving…' : 'Save source'}
           </button>
         </div>

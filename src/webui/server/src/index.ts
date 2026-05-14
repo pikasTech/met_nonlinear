@@ -12,6 +12,7 @@ import {
 import {
   loadPaperEditorDocument,
   loadPaperEditorDocumentState,
+  PaperEditorSaveConflictError,
   previewPaperEditorDocument,
   resolvePaperEditorAsset,
   savePaperEditorDocument,
@@ -19,29 +20,26 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, '../../../..');
-const DIST_WEBUI = path.join(ROOT_DIR, 'src', 'webui', 'dist');
-const CACHE_WEBUI_DIR = path.join(ROOT_DIR, 'cache', 'webui');
-const PRESETS_DIR = path.join(CACHE_WEBUI_DIR, 'presets');
-const STATE_FILE = path.join(CACHE_WEBUI_DIR, 'state.json');
-const PAPER_DIR = path.join(ROOT_DIR, 'docs', 'paper');
-const PAPER_CONFIG_PATH = path.join(PAPER_DIR, 'config.json');
-const PAPER_FIGURES_DIR = path.join(PAPER_DIR, 'figures');
-const PAPER_PLOT_DIR = path.join(ROOT_DIR, 'ex_projects', 'plot');
+const DEFAULT_ROOT_DIR = path.resolve(__dirname, '../../../..');
 
-// Ensure directories exist
-if (!fs.existsSync(CACHE_WEBUI_DIR)) {
-  fs.mkdirSync(CACHE_WEBUI_DIR, { recursive: true });
-}
-if (!fs.existsSync(PRESETS_DIR)) {
-  fs.mkdirSync(PRESETS_DIR, { recursive: true });
+function getPaperEditorRequestMeta(req: express.Request) {
+  return {
+    clientId: req.get('X-Paper-Editor-Client-Id') ?? 'unknown',
+    reason: req.get('X-Paper-Editor-Reason') ?? 'unspecified',
+    knownRevision: req.get('X-Paper-Editor-Known-Revision') ?? null,
+    remoteAddress: req.ip || req.socket.remoteAddress || 'unknown',
+    userAgent: req.get('User-Agent') ?? 'unknown',
+  };
 }
 
-const app: Express = express();
-app.use(cors());
-app.use(express.json());
-app.use('/paper-figures-assets', express.static(PAPER_FIGURES_DIR));
-app.use('/paper-plot-assets', express.static(PAPER_PLOT_DIR));
+function logPaperEditorEvent(event: string, payload: Record<string, unknown>) {
+  console.log(JSON.stringify({
+    ts: new Date().toISOString(),
+    subsystem: 'paper-editor',
+    event,
+    ...payload,
+  }));
+}
 
 function readJsonlFile(filePath: string): Array<Record<string, unknown>> {
   if (!fs.existsSync(filePath)) {
@@ -61,70 +59,215 @@ function readJsonlFile(filePath: string): Array<Record<string, unknown>> {
       }
     });
 }
+export function createApp(options?: { rootDir?: string }): Express {
+  const rootDir = options?.rootDir ?? DEFAULT_ROOT_DIR;
+  const distWebui = path.join(rootDir, 'src', 'webui', 'dist');
+  const cacheWebuiDir = path.join(rootDir, 'cache', 'webui');
+  const presetsDir = path.join(cacheWebuiDir, 'presets');
+  const stateFile = path.join(cacheWebuiDir, 'state.json');
+  const paperDir = path.join(rootDir, 'docs', 'paper');
+  const paperConfigPath = path.join(paperDir, 'config.json');
+  const paperFiguresDir = path.join(paperDir, 'figures');
+  const paperPlotDir = path.join(rootDir, 'ex_projects', 'plot');
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.get('/api/paper-editor/document', (req, res) => {
-  try {
-    const entry = typeof req.query.entry === 'string' ? req.query.entry : 'main.tex';
-    const rawViewColumns = typeof req.query.viewColumns === 'string' ? Number.parseInt(req.query.viewColumns, 10) : Number.NaN;
-    const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
-    res.json(loadPaperEditorDocument(ROOT_DIR, entry, viewColumns));
-  } catch (error) {
-    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to load paper document' });
+  if (!fs.existsSync(cacheWebuiDir)) {
+    fs.mkdirSync(cacheWebuiDir, { recursive: true });
   }
-});
-
-app.get('/api/paper-editor/state', (req, res) => {
-  try {
-    const entry = typeof req.query.entry === 'string' ? req.query.entry : 'main.tex';
-    res.json(loadPaperEditorDocumentState(ROOT_DIR, entry));
-  } catch (error) {
-    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to load paper document state' });
+  if (!fs.existsSync(presetsDir)) {
+    fs.mkdirSync(presetsDir, { recursive: true });
   }
-});
 
-app.post('/api/paper-editor/preview', (req, res) => {
-  try {
-    const entry = typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex';
-    const source = typeof req.body?.source === 'string' ? req.body.source : '';
-    const rawViewColumns = typeof req.body?.viewColumns === 'number' ? req.body.viewColumns : Number.NaN;
-    const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
-    res.json(previewPaperEditorDocument(ROOT_DIR, entry, source, viewColumns));
-  } catch (error) {
-    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to preview paper document' });
-  }
-});
+  const app: Express = express();
+  app.use(cors());
+  app.use(express.json({ limit: '2mb' }));
+  app.use('/paper-figures-assets', express.static(paperFiguresDir));
+  app.use('/paper-plot-assets', express.static(paperPlotDir));
 
-app.put('/api/paper-editor/document', (req, res) => {
-  try {
-    const entry = typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex';
-    const source = typeof req.body?.source === 'string' ? req.body.source : '';
-    const rawViewColumns = typeof req.body?.viewColumns === 'number' ? req.body.viewColumns : Number.NaN;
-    const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
-    res.json(savePaperEditorDocument(ROOT_DIR, entry, source, viewColumns));
-  } catch (error) {
-    res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to save paper document' });
-  }
-});
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
-app.get('/api/paper-editor/asset', (req, res) => {
-  try {
-    const requestPath = typeof req.query.path === 'string' ? req.query.path : '';
-    if (!requestPath) {
-      res.status(400).json({ error: 'Missing asset path' });
-      return;
+  app.get('/api/paper-editor/document', (req, res) => {
+    const startedAt = Date.now();
+    const requestMeta = getPaperEditorRequestMeta(req);
+    try {
+      const entry = typeof req.query.entry === 'string' ? req.query.entry : 'main.tex';
+      const rawViewColumns = typeof req.query.viewColumns === 'string' ? Number.parseInt(req.query.viewColumns, 10) : Number.NaN;
+      const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
+      const document = loadPaperEditorDocument(rootDir, entry, viewColumns);
+      logPaperEditorEvent('document', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry,
+        viewColumns: viewColumns ?? null,
+        revision: document.revision,
+        imports: document.imports.length,
+        status: 200,
+        durationMs: Date.now() - startedAt,
+      });
+      res.json(document);
+    } catch (error) {
+      logPaperEditorEvent('document', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry: typeof req.query.entry === 'string' ? req.query.entry : 'main.tex',
+        status: 400,
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : 'Failed to load paper document',
+      });
+      res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to load paper document' });
     }
-    res.sendFile(resolvePaperEditorAsset(ROOT_DIR, requestPath));
-  } catch (error) {
-    res.status(404).json({ error: error instanceof Error ? error.message : 'Asset not found' });
-  }
-});
+  });
 
-app.get('/api/projects', (_req, res) => {
-  const projectsDir = path.join(ROOT_DIR, 'projects');
+  app.get('/api/paper-editor/state', (req, res) => {
+    const startedAt = Date.now();
+    const requestMeta = getPaperEditorRequestMeta(req);
+    try {
+      const entry = typeof req.query.entry === 'string' ? req.query.entry : 'main.tex';
+      const state = loadPaperEditorDocumentState(rootDir, entry);
+      logPaperEditorEvent('state', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry,
+        revision: state.revision,
+        imports: state.imports.length,
+        status: 200,
+        durationMs: Date.now() - startedAt,
+      });
+      res.json(state);
+    } catch (error) {
+      logPaperEditorEvent('state', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry: typeof req.query.entry === 'string' ? req.query.entry : 'main.tex',
+        status: 400,
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : 'Failed to load paper document state',
+      });
+      res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to load paper document state' });
+    }
+  });
+
+  app.post('/api/paper-editor/preview', (req, res) => {
+    const startedAt = Date.now();
+    const requestMeta = getPaperEditorRequestMeta(req);
+    try {
+      const entry = typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex';
+      const source = typeof req.body?.source === 'string' ? req.body.source : '';
+      const rawViewColumns = typeof req.body?.viewColumns === 'number' ? req.body.viewColumns : Number.NaN;
+      const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
+      const document = previewPaperEditorDocument(rootDir, entry, source, viewColumns);
+      logPaperEditorEvent('preview', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry,
+        viewColumns: viewColumns ?? null,
+        sourceBytes: Buffer.byteLength(source, 'utf-8'),
+        revision: document.revision,
+        status: 200,
+        durationMs: Date.now() - startedAt,
+      });
+      res.json(document);
+    } catch (error) {
+      logPaperEditorEvent('preview', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry: typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex',
+        status: 400,
+        durationMs: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : 'Failed to preview paper document',
+      });
+      res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to preview paper document' });
+    }
+  });
+
+  app.put('/api/paper-editor/document', (req, res) => {
+    const startedAt = Date.now();
+    const requestMeta = getPaperEditorRequestMeta(req);
+    try {
+      const entry = typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex';
+      const rawViewColumns = typeof req.body?.viewColumns === 'number' ? req.body.viewColumns : Number.NaN;
+      const viewColumns = Number.isFinite(rawViewColumns) && rawViewColumns > 0 ? rawViewColumns : undefined;
+      const source = typeof req.body?.source === 'string' ? req.body.source : '';
+      const saveResult = savePaperEditorDocument(rootDir, {
+        entry,
+        source,
+        sourceViewText: typeof req.body?.sourceViewText === 'string' ? req.body.sourceViewText : '',
+        baseSource: typeof req.body?.baseSource === 'string' ? req.body.baseSource : '',
+        baseSourceViewText: typeof req.body?.baseSourceViewText === 'string' ? req.body.baseSourceViewText : '',
+        baseRevision: typeof req.body?.baseRevision === 'string' ? req.body.baseRevision : null,
+        sourceViewColumns: viewColumns,
+      });
+      const document = saveResult.document;
+      logPaperEditorEvent('save', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry,
+        viewColumns: viewColumns ?? null,
+        sourceBytes: Buffer.byteLength(source, 'utf-8'),
+        revision: document.revision,
+        baseRevision: saveResult.audit.baseRevision,
+        currentRevisionBeforeSave: saveResult.audit.currentRevisionBeforeSave,
+        patchAppliedToStaleRevision: saveResult.audit.patchAppliedToStaleRevision,
+        previousSourceHash: saveResult.audit.previousSourceHash,
+        nextSourceHash: saveResult.audit.nextSourceHash,
+        previousBytes: saveResult.audit.previousBytes,
+        nextBytes: saveResult.audit.nextBytes,
+        changed: saveResult.audit.changed,
+        diffSummary: saveResult.audit.diffSummary,
+        requestedDiffSummary: saveResult.audit.requestedDiffSummary,
+        viewDiffSummary: saveResult.audit.viewDiffSummary,
+        status: 200,
+        durationMs: Date.now() - startedAt,
+      });
+      res.json(document);
+    } catch (error) {
+      const statusCode = error instanceof PaperEditorSaveConflictError ? 409 : 400;
+      logPaperEditorEvent('save', {
+        ...requestMeta,
+        method: req.method,
+        path: req.path,
+        entry: typeof req.body?.entry === 'string' ? req.body.entry : 'main.tex',
+        status: statusCode,
+        durationMs: Date.now() - startedAt,
+        currentRevision: error instanceof PaperEditorSaveConflictError ? error.currentRevision : undefined,
+        updatedAt: error instanceof PaperEditorSaveConflictError ? error.updatedAt : undefined,
+        error: error instanceof Error ? error.message : 'Failed to save paper document',
+      });
+      res.status(statusCode).json({
+        error: error instanceof Error ? error.message : 'Failed to save paper document',
+        ...(error instanceof PaperEditorSaveConflictError
+          ? {
+              currentRevision: error.currentRevision,
+              updatedAt: error.updatedAt,
+            }
+          : {}),
+      });
+    }
+  });
+
+  app.get('/api/paper-editor/asset', (req, res) => {
+    try {
+      const requestPath = typeof req.query.path === 'string' ? req.query.path : '';
+      if (!requestPath) {
+        res.status(400).json({ error: 'Missing asset path' });
+        return;
+      }
+      res.sendFile(resolvePaperEditorAsset(rootDir, requestPath));
+    } catch (error) {
+      res.status(404).json({ error: error instanceof Error ? error.message : 'Asset not found' });
+    }
+  });
+
+  app.get('/api/projects', (_req, res) => {
+    const projectsDir = path.join(rootDir, 'projects');
   const projects: any[] = [];
 
   const scanDir = (dir: string, basePath: string = ''): void => {
@@ -158,53 +301,53 @@ app.get('/api/projects', (_req, res) => {
     }
   };
 
-  scanDir(projectsDir);
-  res.json({ projects, total: projects.length });
-});
+    scanDir(projectsDir);
+    res.json({ projects, total: projects.length });
+  });
 
-app.get('/api/projects/:name/data/:file', (req, res) => {
+  app.get('/api/projects/:name/data/:file', (req, res) => {
   const { name, file } = req.params;
   const safeFile = path.basename(file);
-  const filePath = path.join(ROOT_DIR, 'projects', name, 'data', safeFile);
+  const filePath = path.join(rootDir, 'projects', name, 'data', safeFile);
   if (fs.existsSync(filePath)) {
     res.json(JSON.parse(fs.readFileSync(filePath, 'utf-8')));
   } else {
     res.status(404).json({ error: 'File not found' });
   }
-});
+  });
 
-app.get('/api/projects/*/data/:file', (req, res) => {
+  app.get('/api/projects/*/data/:file', (req, res) => {
   const routeParams = req.params as Record<string, string | undefined>;
   const wildcardPath = typeof routeParams['0'] === 'string' ? routeParams['0'] : '';
   const pathParts = wildcardPath.split('/').filter(Boolean);
   const file = path.basename(req.params.file);
-  const filePath = path.join(ROOT_DIR, 'projects', ...pathParts, 'data', file);
+  const filePath = path.join(rootDir, 'projects', ...pathParts, 'data', file);
   if (fs.existsSync(filePath)) {
     res.json(JSON.parse(fs.readFileSync(filePath, 'utf-8')));
   } else {
     res.status(404).json({ error: 'File not found' });
   }
-});
+  });
 
-app.get('/api/projects/*/metrics', (req, res) => {
+  app.get('/api/projects/*/metrics', (req, res) => {
   const routeParams = req.params as Record<string, string | undefined>;
   const wildcardPath = typeof routeParams['0'] === 'string' ? routeParams['0'] : '';
   const pathParts = wildcardPath.split('/').filter(Boolean);
-  const projectDir = path.join(ROOT_DIR, 'projects', ...pathParts);
+  const projectDir = path.join(rootDir, 'projects', ...pathParts);
   const metricsPath = path.join(projectDir, 'data', 'metrics.json');
 
   if (fs.existsSync(metricsPath)) {
     return res.json(JSON.parse(fs.readFileSync(metricsPath, 'utf-8')));
   }
 
-  return res.status(404).json({ error: 'metrics.json not found' });
-});
+    return res.status(404).json({ error: 'metrics.json not found' });
+  });
 
-app.get('/api/projects/*/training-log', (req, res) => {
+  app.get('/api/projects/*/training-log', (req, res) => {
   const routeParams = req.params as Record<string, string | undefined>;
   const wildcardPath = typeof routeParams['0'] === 'string' ? routeParams['0'] : '';
   const pathParts = wildcardPath.split('/').filter(Boolean);
-  const logPath = path.join(ROOT_DIR, 'projects', ...pathParts, 'data', 'training_log.jsonl');
+  const logPath = path.join(rootDir, 'projects', ...pathParts, 'data', 'training_log.jsonl');
 
   if (!fs.existsSync(logPath)) {
     return res.status(404).json({ error: 'training_log.jsonl not found' });
@@ -215,63 +358,63 @@ app.get('/api/projects/*/training-log', (req, res) => {
     new Set(entries.flatMap((entry) => Object.keys(entry).filter((key) => key !== 'timestamp' && key !== 'epoch')))
   );
 
-  return res.json({
-    projectPath: wildcardPath,
-    projectName: pathParts[pathParts.length - 1] ?? wildcardPath,
-    total: entries.length,
-    availableMetrics,
-    entries,
+    return res.json({
+      projectPath: wildcardPath,
+      projectName: pathParts[pathParts.length - 1] ?? wildcardPath,
+      total: entries.length,
+      availableMetrics,
+      entries,
+    });
   });
-});
 
 // Preset endpoints
-app.get('/api/presets', (_req, res) => {
+  app.get('/api/presets', (_req, res) => {
   try {
-    const files = fs.readdirSync(PRESETS_DIR).filter(f => f.endsWith('.json'));
+    const files = fs.readdirSync(presetsDir).filter(f => f.endsWith('.json'));
     const presets = files.map(f => {
       const name = f.replace('.json', '');
-      const content = JSON.parse(fs.readFileSync(path.join(PRESETS_DIR, f), 'utf-8'));
+      const content = JSON.parse(fs.readFileSync(path.join(presetsDir, f), 'utf-8'));
       return { name, ...content };
     });
     res.json({ presets, total: presets.length });
   } catch (e) {
     res.status(500).json({ error: 'Failed to list presets' });
   }
-});
+  });
 
-app.get('/api/presets/:name', (req, res) => {
+  app.get('/api/presets/:name', (req, res) => {
   const safeName = path.basename(req.params.name);
-  const filePath = path.join(PRESETS_DIR, safeName + '.json');
+  const filePath = path.join(presetsDir, safeName + '.json');
   if (fs.existsSync(filePath)) {
     res.json(JSON.parse(fs.readFileSync(filePath, 'utf-8')));
   } else {
     res.status(404).json({ error: 'Preset not found' });
   }
-});
+  });
 
-app.post('/api/presets/:name', (req, res) => {
+  app.post('/api/presets/:name', (req, res) => {
   const safeName = path.basename(req.params.name);
-  const filePath = path.join(PRESETS_DIR, safeName + '.json');
+  const filePath = path.join(presetsDir, safeName + '.json');
   try {
     fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
     res.json({ success: true, name: safeName });
   } catch (e) {
     res.status(500).json({ error: 'Failed to save preset' });
   }
-});
+  });
 
-app.delete('/api/presets/:name', (req, res) => {
+  app.delete('/api/presets/:name', (req, res) => {
   const safeName = path.basename(req.params.name);
-  const filePath = path.join(PRESETS_DIR, safeName + '.json');
+  const filePath = path.join(presetsDir, safeName + '.json');
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
     res.json({ success: true });
   } else {
     res.status(404).json({ error: 'Preset not found' });
   }
-});
+  });
 
-app.patch('/api/presets/:name', (req, res) => {
+  app.patch('/api/presets/:name', (req, res) => {
   const oldName = path.basename(req.params.name);
   const newName = req.body.newName;
   if (!newName || typeof newName !== 'string' || newName.trim() === '') {
@@ -280,8 +423,8 @@ app.patch('/api/presets/:name', (req, res) => {
   }
   const safeOldName = path.basename(oldName);
   const safeNewName = path.basename(newName.trim());
-  const oldFilePath = path.join(PRESETS_DIR, safeOldName + '.json');
-  const newFilePath = path.join(PRESETS_DIR, safeNewName + '.json');
+  const oldFilePath = path.join(presetsDir, safeOldName + '.json');
+  const newFilePath = path.join(presetsDir, safeNewName + '.json');
   if (!fs.existsSync(oldFilePath)) {
     res.status(404).json({ error: 'Preset not found' });
     return;
@@ -301,92 +444,97 @@ app.patch('/api/presets/:name', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: 'Failed to rename preset' });
   }
-});
+  });
 
 // Auto-save state endpoint
-app.get('/api/state', (_req, res) => {
-  if (fs.existsSync(STATE_FILE)) {
-    res.json(JSON.parse(fs.readFileSync(STATE_FILE, 'utf-8')));
-  } else {
-    res.json(null);
-  }
-});
-
-app.post('/api/state', (req, res) => {
-  try {
-    console.log('[State] POST /api/state received, selectedProjects:', req.body.selectedProjects);
-    fs.writeFileSync(STATE_FILE, JSON.stringify(req.body, null, 2));
-    res.json({ success: true });
-  } catch (e) {
-    console.error('[State] Failed to save state:', e);
-    res.status(500).json({ error: 'Failed to save state' });
-  }
-});
-
-app.get('/api/paper-figures/catalog', (_req, res) => {
-  try {
-    const catalog = listPaperFigures(ROOT_DIR, PAPER_CONFIG_PATH);
-    res.json(catalog);
-  } catch (error) {
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to load paper figure catalog' });
-  }
-});
-
-app.put('/api/paper-figures/config/:id', (req, res) => {
-  try {
-    const updated = updatePaperFigureConfig(ROOT_DIR, PAPER_CONFIG_PATH, req.params.id, req.body);
-    res.json(updated);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to update paper figure config';
-    const status = /not found/i.test(message) ? 404 : 500;
-    res.status(status).json({ error: message });
-  }
-});
-
-app.post('/api/paper-figures/render', (req, res) => {
-  const figureIds = Array.isArray(req.body?.figureIds)
-    ? req.body.figureIds.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
-    : [];
-  try {
-    const job = startRenderJob(ROOT_DIR, PAPER_CONFIG_PATH, figureIds);
-    res.status(202).json(job);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to start render job';
-    const status = /required|not found/i.test(message) ? 400 : 500;
-    res.status(status).json({ error: message });
-  }
-});
-
-app.get('/api/paper-figures/render/:jobId', (req, res) => {
-  const job = getRenderJob(req.params.jobId);
-  if (!job) {
-    return res.status(404).json({ error: 'Render job not found' });
-  }
-  return res.json(job);
-});
-
-if (fs.existsSync(DIST_WEBUI)) {
-  app.use(express.static(DIST_WEBUI));
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(DIST_WEBUI, 'index.html'));
+  app.get('/api/state', (_req, res) => {
+    if (fs.existsSync(stateFile)) {
+      res.json(JSON.parse(fs.readFileSync(stateFile, 'utf-8')));
+    } else {
+      res.json(null);
+    }
   });
-} else {
-  app.get('/', (_req, res) => {
-    res.json({
-      message: 'MET Nonlinear API Server',
-      note: 'WebUI not built. Run: cd src/webui && npm install && npm run build',
-      endpoints: [
-        'GET /api/health',
-        'GET /api/projects',
-        'GET /api/projects/:name/data/:file',
-      ]
+
+  app.post('/api/state', (req, res) => {
+    try {
+      console.log('[State] POST /api/state received, selectedProjects:', req.body.selectedProjects);
+      fs.writeFileSync(stateFile, JSON.stringify(req.body, null, 2));
+      res.json({ success: true });
+    } catch (e) {
+      console.error('[State] Failed to save state:', e);
+      res.status(500).json({ error: 'Failed to save state' });
+    }
+  });
+
+  app.get('/api/paper-figures/catalog', (_req, res) => {
+    try {
+      const catalog = listPaperFigures(rootDir, paperConfigPath);
+      res.json(catalog);
+    } catch (error) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Failed to load paper figure catalog' });
+    }
+  });
+
+  app.put('/api/paper-figures/config/:id', (req, res) => {
+    try {
+      const updated = updatePaperFigureConfig(rootDir, paperConfigPath, req.params.id, req.body);
+      res.json(updated);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update paper figure config';
+      const status = /not found/i.test(message) ? 404 : 500;
+      res.status(status).json({ error: message });
+    }
+  });
+
+  app.post('/api/paper-figures/render', (req, res) => {
+    const figureIds = Array.isArray(req.body?.figureIds)
+      ? req.body.figureIds.filter((value: unknown): value is string => typeof value === 'string' && value.trim().length > 0)
+      : [];
+    try {
+      const job = startRenderJob(rootDir, paperConfigPath, figureIds);
+      res.status(202).json(job);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to start render job';
+      const status = /required|not found/i.test(message) ? 400 : 500;
+      res.status(status).json({ error: message });
+    }
+  });
+
+  app.get('/api/paper-figures/render/:jobId', (req, res) => {
+    const job = getRenderJob(req.params.jobId);
+    if (!job) {
+      return res.status(404).json({ error: 'Render job not found' });
+    }
+    return res.json(job);
+  });
+
+  if (fs.existsSync(distWebui)) {
+    app.use(express.static(distWebui));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distWebui, 'index.html'));
     });
-  });
+  } else {
+    app.get('/', (_req, res) => {
+      res.json({
+        message: 'MET Nonlinear API Server',
+        note: 'WebUI not built. Run: cd src/webui && npm install && npm run build',
+        endpoints: [
+          'GET /api/health',
+          'GET /api/projects',
+          'GET /api/projects/:name/data/:file',
+        ]
+      });
+    });
+  }
+  return app;
 }
 
 const PORT = 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+const app = createApp();
+const server = process.env.MET_NONLINEAR_DISABLE_AUTO_LISTEN === '1'
+  ? null
+  : app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
 
 export { app, server };

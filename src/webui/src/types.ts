@@ -207,3 +207,13 @@ export interface PaperEditorDocumentState {
   revision: string;
   updatedAt: string | null;
 }
+
+export interface PaperEditorSavePayload {
+  entry: string;
+  source: string;
+  sourceViewText: string;
+  baseSource: string;
+  baseSourceViewText: string;
+  baseRevision: string | null;
+  viewColumns?: number;
+}

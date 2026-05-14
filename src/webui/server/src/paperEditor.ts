@@ -1,6 +1,8 @@
 import fs from 'fs';
+import { createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
 import path from 'path';
+import { applyPatch, createPatch } from 'diff';
 import {
   buildApproximateLineMap,
   renderPaperEditorHtml,
@@ -56,6 +58,57 @@ export interface PaperEditorDocumentState {
   imports: string[];
   revision: string;
   updatedAt: string | null;
+}
+
+export interface PaperEditorSaveDiffSummary {
+  kind: 'no-op' | 'line-range';
+  oldRange: [number, number] | null;
+  newRange: [number, number] | null;
+  removedLineCount: number;
+  addedLineCount: number;
+  beforePreview: string[];
+  afterPreview: string[];
+}
+
+export interface PaperEditorSaveAudit {
+  changed: boolean;
+  patchAppliedToStaleRevision: boolean;
+  baseRevision: string | null;
+  currentRevisionBeforeSave: string;
+  previousSourceHash: string;
+  nextSourceHash: string;
+  previousBytes: number;
+  nextBytes: number;
+  diffSummary: PaperEditorSaveDiffSummary;
+  requestedDiffSummary: PaperEditorSaveDiffSummary;
+  viewDiffSummary: PaperEditorSaveDiffSummary;
+}
+
+export interface PaperEditorSaveResult {
+  document: PaperEditorDocument;
+  audit: PaperEditorSaveAudit;
+}
+
+export interface PaperEditorSaveInput {
+  entry?: string;
+  source?: string;
+  sourceViewText?: string;
+  baseSource?: string;
+  baseSourceViewText?: string;
+  baseRevision?: string | null;
+  sourceViewColumns?: number;
+}
+
+export class PaperEditorSaveConflictError extends Error {
+  currentRevision: string;
+  updatedAt: string | null;
+
+  constructor(message: string, currentRevision: string, updatedAt: string | null) {
+    super(message);
+    this.name = 'PaperEditorSaveConflictError';
+    this.currentRevision = currentRevision;
+    this.updatedAt = updatedAt;
+  }
 }
 
 interface MacroDefinition {
@@ -128,6 +181,116 @@ function stripComments(source: string): string {
       return line;
     })
     .join('\n');
+}
+
+function hashSourceSnapshot(source: string): string {
+  return createHash('sha256').update(source).digest('hex').slice(0, 16);
+}
+
+function clipPreviewLine(line: string, maxLength = 120): string {
+  return line.length > maxLength ? `${line.slice(0, maxLength - 1)}…` : line;
+}
+
+function toLineRange(start: number, count: number): [number, number] | null {
+  if (count <= 0) {
+    return null;
+  }
+  return [start, start + count - 1];
+}
+
+function buildSaveDiffSummary(previousSource: string, nextSource: string): PaperEditorSaveDiffSummary {
+  if (previousSource === nextSource) {
+    return {
+      kind: 'no-op',
+      oldRange: null,
+      newRange: null,
+      removedLineCount: 0,
+      addedLineCount: 0,
+      beforePreview: [],
+      afterPreview: [],
+    };
+  }
+
+  const previousLines = previousSource.split(/\r?\n/);
+  const nextLines = nextSource.split(/\r?\n/);
+  const sharedPrefix = Math.min(previousLines.length, nextLines.length);
+  let prefixCount = 0;
+  while (prefixCount < sharedPrefix && previousLines[prefixCount] === nextLines[prefixCount]) {
+    prefixCount += 1;
+  }
+
+  const remainingPrevious = previousLines.length - prefixCount;
+  const remainingNext = nextLines.length - prefixCount;
+  const maxSuffix = Math.min(remainingPrevious, remainingNext);
+  let suffixCount = 0;
+  while (
+    suffixCount < maxSuffix
+    && previousLines[previousLines.length - 1 - suffixCount] === nextLines[nextLines.length - 1 - suffixCount]
+  ) {
+    suffixCount += 1;
+  }
+
+  const removedLineCount = Math.max(0, previousLines.length - prefixCount - suffixCount);
+  const addedLineCount = Math.max(0, nextLines.length - prefixCount - suffixCount);
+  const changedPreviousLines = previousLines.slice(prefixCount, previousLines.length - suffixCount);
+  const changedNextLines = nextLines.slice(prefixCount, nextLines.length - suffixCount);
+
+  return {
+    kind: 'line-range',
+    oldRange: toLineRange(prefixCount + 1, removedLineCount),
+    newRange: toLineRange(prefixCount + 1, addedLineCount),
+    removedLineCount,
+    addedLineCount,
+    beforePreview: changedPreviousLines.slice(0, 3).map((line) => clipPreviewLine(line)),
+    afterPreview: changedNextLines.slice(0, 3).map((line) => clipPreviewLine(line)),
+  };
+}
+
+function buildSaveAudit(
+  previousSource: string,
+  nextSource: string,
+  requestedSource: string,
+  baseSource: string,
+  baseSourceViewText: string,
+  nextSourceViewText: string,
+  baseRevision: string | null,
+  currentRevisionBeforeSave: string,
+): PaperEditorSaveAudit {
+  return {
+    changed: previousSource !== nextSource,
+    patchAppliedToStaleRevision: Boolean(baseRevision) && baseRevision !== currentRevisionBeforeSave,
+    baseRevision,
+    currentRevisionBeforeSave,
+    previousSourceHash: hashSourceSnapshot(previousSource),
+    nextSourceHash: hashSourceSnapshot(nextSource),
+    previousBytes: Buffer.byteLength(previousSource, 'utf-8'),
+    nextBytes: Buffer.byteLength(nextSource, 'utf-8'),
+    diffSummary: buildSaveDiffSummary(previousSource, nextSource),
+    requestedDiffSummary: buildSaveDiffSummary(baseSource, requestedSource),
+    viewDiffSummary: buildSaveDiffSummary(baseSourceViewText, nextSourceViewText),
+  };
+}
+
+function normalizePaperEditorLineEndings(source: string): string {
+  return source.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+}
+
+function detectPaperEditorLineEnding(source: string): '\r\n' | '\n' {
+  return source.includes('\r\n') ? '\r\n' : '\n';
+}
+
+function applyPaperEditorLineEnding(source: string, lineEnding: '\r\n' | '\n'): string {
+  if (lineEnding === '\n') {
+    return source;
+  }
+  return source.replace(/\n/g, '\r\n');
+}
+
+function getRevisionStateForEntry(rootDir: string, entryFile: string): { revision: string; updatedAt: string | null } {
+  const latexRoot = path.join(rootDir, 'docs', 'paper', 'latex');
+  const ctx = buildContext(rootDir, latexRoot, new Map<string, string>());
+  visitDependencies(entryFile, ctx);
+  return buildDocumentRevision(latexRoot, ctx.visited);
 }
 
 function readDelimited(text: string, start: number, open: string, close: string): { value: string; end: number } | null {
@@ -986,10 +1149,59 @@ export function previewPaperEditorDocument(rootDir: string, entry = DEFAULT_ENTR
   return buildDocument(rootDir, entry, source, sourceViewColumns);
 }
 
-export function savePaperEditorDocument(rootDir: string, entry = DEFAULT_ENTRY, source = '', sourceViewColumns = DEFAULT_SOURCE_VIEW_COLUMNS): PaperEditorDocument {
+export function savePaperEditorDocument(rootDir: string, input: PaperEditorSaveInput = {}): PaperEditorSaveResult {
+  const entry = input.entry ?? DEFAULT_ENTRY;
+  const sourceViewColumns = input.sourceViewColumns ?? DEFAULT_SOURCE_VIEW_COLUMNS;
+  const requestedSource = input.source ?? '';
+  const baseSource = input.baseSource ?? '';
+  const baseSourceViewText = input.baseSourceViewText ?? '';
+  const nextSourceViewText = input.sourceViewText ?? '';
+  const baseRevision = input.baseRevision ?? null;
   const entryFile = getEntryFile(rootDir, entry);
-  fs.writeFileSync(entryFile, source, 'utf-8');
-  return buildDocument(rootDir, entry, undefined, sourceViewColumns);
+  const previousSourceRaw = fs.existsSync(entryFile) ? fs.readFileSync(entryFile, 'utf-8') : '';
+  const preferredLineEnding = detectPaperEditorLineEnding(previousSourceRaw || baseSource || requestedSource);
+  const previousSource = normalizePaperEditorLineEndings(previousSourceRaw);
+  const normalizedBaseSource = normalizePaperEditorLineEndings(baseSource);
+  const normalizedRequestedSource = normalizePaperEditorLineEndings(requestedSource);
+  const currentRevisionState = getRevisionStateForEntry(rootDir, entryFile);
+
+  const patch = createPatch(
+    toPosix(path.basename(entryFile)),
+    normalizedBaseSource,
+    normalizedRequestedSource,
+    'base',
+    'requested',
+    { context: 0 },
+  );
+  const nextSourceNormalized = previousSource === normalizedBaseSource
+    ? normalizedRequestedSource
+    : applyPatch(previousSource, patch, { fuzzFactor: 2 });
+
+  if (nextSourceNormalized === false) {
+    throw new PaperEditorSaveConflictError(
+      'Paper source changed on disk and your patch could not be applied cleanly. Reload and reapply your edit.',
+      currentRevisionState.revision,
+      currentRevisionState.updatedAt,
+    );
+  }
+
+  const nextSource = applyPaperEditorLineEnding(nextSourceNormalized, preferredLineEnding);
+
+  const audit = buildSaveAudit(
+    previousSourceRaw,
+    nextSource,
+    normalizedRequestedSource,
+    normalizedBaseSource,
+    baseSourceViewText,
+    nextSourceViewText,
+    baseRevision,
+    currentRevisionState.revision,
+  );
+  fs.writeFileSync(entryFile, nextSource, 'utf-8');
+  return {
+    document: buildDocument(rootDir, entry, undefined, sourceViewColumns),
+    audit,
+  };
 }
 
 export function exportPaperEditorMarkdown(rootDir: string, entry = DEFAULT_ENTRY, outputPath?: string): PaperEditorDocument {

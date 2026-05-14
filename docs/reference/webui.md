@@ -39,6 +39,15 @@ src/webui/
 - Outline 的 HTML 定位必须基于最终渲染 HTML 中的 heading `id` 反查，而不能仅依赖通用 `latex -> html` 线性插值；否则文档前段标题会被压到同一 HTML 行号，导致滚动映射失真。
 - Paper Editor 的行号链路必须坚持 `view line -> raw latex -> markdown -> html` 的单向构建与严格反向映射；不要跳过中间层做插值回推。
 - 当 Paper Editor 后端契约新增 `sourceView`、`viewColumns` 一类字段时，验收应直接请求 `/api/paper-editor/document?entry=main.tex&viewColumns=80`，确认响应中存在 `sourceView`；若缺失，优先怀疑服务端启动了陈旧产物，而不是先改前端。
+- Paper Editor 访问诊断以 `logs/server_*.log` 为准；后端会按 JSON 行输出 `subsystem: paper-editor`，并记录 `event`、`clientId`、`reason`、`revision`、`viewColumns`、`durationMs`。
+- 只有 `PUT /api/paper-editor/document` 会写回 `.tex` 并改变文件时间戳；`GET /api/paper-editor/document`、`GET /api/paper-editor/state`、`POST /api/paper-editor/preview` 都是只读请求。排查“多前端实例导致刷新风暴”时，应先看日志里是否真的出现了额外的 `save` 事件，而不是把普通轮询误判成写回。
+- `save` 事件会额外记录保存前后源码的短 SHA-256 哈希、字节数以及紧凑的行级 diff 摘要（`oldRange`、`newRange`、`beforePreview`、`afterPreview`）；如果 revision 变化前没有对应 `save` 事件，则应优先判断为 WebUI 外部修改。
+- Paper Editor 保存不再直接把整份 raw source 覆盖写回；当前实现会携带基线 `revision` 与基线源码，生成“基线 raw -> 当前编辑 raw”的 patch，再尝试 apply 到磁盘最新 raw。若 patch 无法 clean apply，则接口返回 `409`，前端应提示用户 reload 后重试，而不是静默吞掉并发修改。
+- 对同一基线 revision 的多前端并发保存，若各自修改落在不同 raw 行上，后端应允许 stale patch 依次 merge 到最新磁盘版本，而不是让后到的请求覆盖先到结果；只有真正落在同一 raw 行、无法 clean apply 的冲突，才应该返回 `409`。
+- 浏览器 textarea 会把行尾统一成 `\n`；如果磁盘上的 `.tex` 仍是 `\r\n`，后端必须先把 `previous/base/requested` 统一到同一行尾口径再生成 patch，并在落盘时按原文件的行尾风格回写，否则一次局部编辑会被放大成整文件换行差异，进一步把大文件并发保存误判成冲突。
+- 如果需要一个与 `main.tex` 字节级一致的大文件测试副本，创建和收尾都应直接走文件系统 copy；不要用 Paper Editor 的保存接口去“重置副本内容”，因为保存接口会刻意保留目标文件当前已有的行尾风格，只保证语义一致，不承诺把 LF 目标文件重新写回 CRLF。
+- 为了让“非重叠 stale patch 可 merge、同一行冲突仍拒绝”同时成立，生成 patch 时应尽量压窄上下文，避免小文件里多个独立修改被同一个大 hunk 绑定；而 apply stale patch 时只应允许有限 fuzz，用来容忍前序保存造成的邻近行号漂移，不要把 fuzz/context 放宽到足以吞掉真实冲突。
+- Paper Editor 并发保存的回归验收分两层：`src/webui/server/tests/paperEditorSave.test.ts` 锁定 save core 的 patch 语义，`src/webui/server/tests/paperEditorApi.test.ts` 锁定 `PUT /api/paper-editor/document` 的 HTTP 行为。最小检查命令是 `cd src/webui/server && bun test tests/paperEditorSave.test.ts tests/paperEditorApi.test.ts`，其中必须同时覆盖“3 个同基线非重叠修改全部 merge 成功”和“同一行冲突仍返回 409”这两类判定。
 
 ## 启动服务
 

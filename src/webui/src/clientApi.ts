@@ -8,7 +8,40 @@ import {
   ProjectMetricsSummary,
   PaperEditorDocument,
   PaperEditorDocumentState,
+  PaperEditorSavePayload,
 } from './types';
+
+export interface PaperEditorRequestMeta {
+  clientId?: string;
+  reason?: string;
+  knownRevision?: string | null;
+}
+
+function buildPaperEditorHeaders(meta?: PaperEditorRequestMeta, includeJsonContentType = false): HeadersInit {
+  const headers: Record<string, string> = {};
+  if (includeJsonContentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+  if (meta?.clientId) {
+    headers['X-Paper-Editor-Client-Id'] = meta.clientId;
+  }
+  if (meta?.reason) {
+    headers['X-Paper-Editor-Reason'] = meta.reason;
+  }
+  if (meta?.knownRevision) {
+    headers['X-Paper-Editor-Known-Revision'] = meta.knownRevision;
+  }
+  return headers;
+}
+
+async function readApiErrorMessage(res: Response, fallback: string): Promise<string> {
+  try {
+    const payload = await res.json() as { error?: string };
+    return payload.error || fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 const API_BASE = '/api';
 
@@ -221,39 +254,50 @@ export async function fetchPaperFigureRenderJob(jobId: string): Promise<PaperFig
   return res.json();
 }
 
-export async function fetchPaperEditorDocument(entry = 'main.tex', viewColumns?: number): Promise<PaperEditorDocument> {
+export async function fetchPaperEditorDocument(entry = 'main.tex', viewColumns?: number, meta?: PaperEditorRequestMeta): Promise<PaperEditorDocument> {
   const params = new URLSearchParams({ entry });
   if (typeof viewColumns === 'number' && Number.isFinite(viewColumns) && viewColumns > 0) {
     params.set('viewColumns', String(Math.round(viewColumns)));
   }
-  const res = await fetch(`${API_BASE}/paper-editor/document?${params.toString()}`);
+  const res = await fetch(`${API_BASE}/paper-editor/document?${params.toString()}`, {
+    headers: buildPaperEditorHeaders(meta),
+  });
   if (!res.ok) throw new Error('Failed to load paper editor document');
   return res.json();
 }
 
-export async function fetchPaperEditorDocumentState(entry = 'main.tex'): Promise<PaperEditorDocumentState> {
+export async function fetchPaperEditorDocumentState(entry = 'main.tex', meta?: PaperEditorRequestMeta): Promise<PaperEditorDocumentState> {
   const params = new URLSearchParams({ entry });
-  const res = await fetch(`${API_BASE}/paper-editor/state?${params.toString()}`);
+  const res = await fetch(`${API_BASE}/paper-editor/state?${params.toString()}`, {
+    headers: buildPaperEditorHeaders(meta),
+  });
   if (!res.ok) throw new Error('Failed to load paper editor document state');
   return res.json();
 }
 
-export async function previewPaperEditorDocument(entry: string, source: string, viewColumns?: number): Promise<PaperEditorDocument> {
+export async function previewPaperEditorDocument(entry: string, source: string, viewColumns?: number, meta?: PaperEditorRequestMeta): Promise<PaperEditorDocument> {
   const res = await fetch(`${API_BASE}/paper-editor/preview`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: buildPaperEditorHeaders(meta, true),
     body: JSON.stringify({ entry, source, viewColumns }),
   });
-  if (!res.ok) throw new Error('Failed to preview paper editor document');
+  if (!res.ok) {
+    throw new Error(await readApiErrorMessage(res, 'Failed to preview paper document'));
+  }
   return res.json();
 }
 
-export async function savePaperEditorDocument(entry: string, source: string, viewColumns?: number): Promise<PaperEditorDocument> {
+export async function savePaperEditorDocument(payload: PaperEditorSavePayload, meta?: PaperEditorRequestMeta): Promise<PaperEditorDocument> {
   const res = await fetch(`${API_BASE}/paper-editor/document`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ entry, source, viewColumns }),
+    headers: buildPaperEditorHeaders(meta, true),
+    body: JSON.stringify(payload),
   });
-  if (!res.ok) throw new Error('Failed to save paper editor document');
+  if (!res.ok) {
+    const fallback = res.status === 409
+      ? 'Paper source changed on disk and your patch could not be applied cleanly. Reload and reapply your edit.'
+      : 'Failed to save paper editor document';
+    throw new Error(await readApiErrorMessage(res, fallback));
+  }
   return res.json();
 }
