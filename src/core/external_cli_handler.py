@@ -510,13 +510,28 @@ def _execute_freq_response_task(ep_path: ExternalPath, config: dict) -> bool:
         # 构建参数
         project1 = data_sources[0]['project']
         state1 = data_sources[0].get('state', 'origin')
+        label1 = data_sources[0].get('label')
+        magnitudes1 = data_sources[0].get('magnitudes')
+        source1_freq_range = data_sources[0].get('freq_range')
+        source1_gain_range = data_sources[0].get('gain_range')
+        split_magnitudes1 = data_sources[0].get('split_magnitudes', False)
         
         if len(data_sources) >= 2:
             project2 = data_sources[1]['project']
             state2 = data_sources[1].get('state', 'compensation')
+            label2 = data_sources[1].get('label')
+            magnitudes2 = data_sources[1].get('magnitudes')
+            source2_freq_range = data_sources[1].get('freq_range')
+            source2_gain_range = data_sources[1].get('gain_range')
+            split_magnitudes2 = data_sources[1].get('split_magnitudes', False)
         else:
             project2 = None  # 默认与project1相同
             state2 = 'compensation'
+            label2 = None
+            magnitudes2 = None
+            source2_freq_range = None
+            source2_gain_range = None
+            split_magnitudes2 = False
         
         layout = viz_config.get('layout', 'side_by_side')
         freq_range = viz_config.get('freq_range')
@@ -538,10 +553,21 @@ def _execute_freq_response_task(ep_path: ExternalPath, config: dict) -> bool:
             gain_range=gain_range,
             figsize=figsize,
             dpi=dpi,
-            title=title
+            title=title,
+            label1=label1,
+            label2=label2,
+            magnitudes1=magnitudes1,
+            magnitudes2=magnitudes2,
+            source1_freq_range=source1_freq_range,
+            source2_freq_range=source2_freq_range,
+            source1_gain_range=source1_gain_range,
+            source2_gain_range=source2_gain_range,
+            split_magnitudes1=split_magnitudes1,
+            split_magnitudes2=split_magnitudes2
         )
         
-        if output_file and os.path.exists(output_file):
+        output_files = output_file if isinstance(output_file, list) else [output_file]
+        if output_files and all(path and os.path.exists(path) for path in output_files):
             logger.info(f"频率响应图已生成: {output_file}")
             
             # 保存元数据
@@ -678,15 +704,17 @@ def _execute_waveform_analysis_task(ep_path: ExternalPath, config: dict) -> bool
     return False
 
 
-def _save_task_metadata(ep_path: ExternalPath, config: dict, output_file: str) -> None:
+def _save_task_metadata(ep_path: ExternalPath, config: dict, output_file) -> None:
     """保存任务元数据"""
     import json
     from datetime import datetime
+
+    output_files = output_file if isinstance(output_file, list) else [output_file]
     
     metadata = {
         "execution_time": datetime.now().isoformat(),
         "task_info": config['task_info'],
-        "output_files": [output_file],
+        "output_files": output_files,
         "config_hash": _calculate_config_hash(config)
     }
     

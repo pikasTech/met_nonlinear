@@ -46,10 +46,11 @@ class TestLayoutMode:
         """Test LayoutMode has correct values"""
         assert LayoutMode.OVERLAY.value == "overlay"
         assert LayoutMode.SIDE_BY_SIDE.value == "side_by_side"
+        assert LayoutMode.SEPARATE.value == "separate"
 
     def test_layout_mode_count(self):
-        """Test LayoutMode has two modes"""
-        assert len(LayoutMode) == 2
+        """Test LayoutMode has three modes"""
+        assert len(LayoutMode) == 3
 
 
 class TestDataSourceSpec:
@@ -309,6 +310,51 @@ class TestFrequencyResponseComparator:
         assert os.path.exists(output_path)
         assert 'sidebyside' in output_path or 'side_by_side' in output_path
 
+    def test_compare_sources_separate(self, sample_source_data, temp_output_dir):
+        """Test compare_sources with SEPARATE layout"""
+        import matplotlib
+        matplotlib.use('Agg')
+
+        comparator = FrequencyResponseComparator(LayoutMode.SEPARATE)
+
+        with patch('matplotlib.pyplot.show'):
+            figs, output_paths = comparator.compare_sources(
+                sample_source_data,
+                sample_source_data,
+                output_folder=temp_output_dir,
+                show_plot=False,
+                source1_freq_range=[10, 50],
+                source2_freq_range=[50, 100],
+                source1_gain_range=[1, 5],
+                source2_gain_range=[2, 8]
+            )
+
+        assert len(figs) == 2
+        assert len(output_paths) == 2
+        assert all(os.path.exists(path) for path in output_paths)
+        assert all('separate' in path for path in output_paths)
+
+    def test_compare_sources_separate_with_split_magnitudes(self, sample_source_data, temp_output_dir):
+        """Test separate layout can expand one source into one file per magnitude"""
+        import matplotlib
+        matplotlib.use('Agg')
+
+        comparator = FrequencyResponseComparator(LayoutMode.SEPARATE)
+
+        with patch('matplotlib.pyplot.show'):
+            figs, output_paths = comparator.compare_sources(
+                sample_source_data,
+                sample_source_data,
+                output_folder=temp_output_dir,
+                show_plot=False,
+                source2_split_magnitudes=True
+            )
+
+        assert len(figs) == 3
+        assert len(output_paths) == 3
+        assert any('mag_0p5' in path for path in output_paths)
+        assert any('mag_1' in path for path in output_paths)
+
     def test_compare_sources_with_freq_range(self, sample_source_data, temp_output_dir):
         """Test compare_sources with frequency range filter"""
         import matplotlib
@@ -519,6 +565,95 @@ class TestQuickCompare:
 
         assert output_path is not None
         assert os.path.exists(output_path)
+
+        import shutil
+        shutil.rmtree(temp_dir)
+
+    def test_quick_compare_with_custom_labels(self):
+        """Test quick_compare forwards custom display labels to the plotter"""
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+
+        temp_dir = tempfile.mkdtemp()
+        test_data = {
+            "gains_origin": [[1.0, 2.0, 3.0]],
+            "gains_comped": [[1.1, 2.1, 3.1]],
+            "magnitudes": [0.5],
+            "frequencies": [10.0, 50.0, 100.0]
+        }
+
+        for project_name in ["test_project", "test_project2"]:
+            json_path = os.path.join(temp_dir, project_name, "data", "linear_response.json")
+            os.makedirs(os.path.dirname(json_path), exist_ok=True)
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(test_data, f)
+
+        output_path = os.path.join(temp_dir, "labeled.png")
+        with patch.object(FrequencyResponseComparator, "compare_sources") as mock_compare:
+            mock_compare.return_value = (plt.figure(), output_path)
+            result = quick_compare(
+                "test_project",
+                "test_project2",
+                state1="origin",
+                state2="origin",
+                layout="side_by_side",
+                projects_root=temp_dir,
+                label1="PS-5/190 (data/ALIA)",
+                label2="PS-5/360 (data/ALIA_PS5-360-20250904)",
+                magnitudes2=[0.5]
+            )
+
+        source1_data, source2_data = mock_compare.call_args.args[:2]
+        kwargs = mock_compare.call_args.kwargs
+        assert result == output_path
+        assert source1_data["label"] == "PS-5/190 (data/ALIA)"
+        assert source2_data["label"] == "PS-5/360 (data/ALIA_PS5-360-20250904)"
+        assert source2_data["magnitudes"] == [0.5]
+        assert source2_data["gains"] == [[1.0, 2.0, 3.0]]
+        assert kwargs["source1_split_magnitudes"] is False
+        assert kwargs["source2_split_magnitudes"] is False
+
+        import shutil
+        shutil.rmtree(temp_dir)
+
+    def test_quick_compare_forwards_split_magnitude_flags(self):
+        """Test quick_compare forwards split-by-magnitude flags to the comparator"""
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+
+        temp_dir = tempfile.mkdtemp()
+        test_data = {
+            "gains_origin": [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+            "gains_comped": [[1.1, 2.1, 3.1], [4.1, 5.1, 6.1]],
+            "magnitudes": [0.5, 1.0],
+            "frequencies": [10.0, 50.0, 100.0]
+        }
+
+        for project_name in ["test_project", "test_project2"]:
+            json_path = os.path.join(temp_dir, project_name, "data", "linear_response.json")
+            os.makedirs(os.path.dirname(json_path), exist_ok=True)
+            with open(json_path, 'w', encoding='utf-8') as f:
+                json.dump(test_data, f)
+
+        output_paths = [os.path.join(temp_dir, "a.png"), os.path.join(temp_dir, "b.png")]
+        with patch.object(FrequencyResponseComparator, "compare_sources") as mock_compare:
+            mock_compare.return_value = ([plt.figure(), plt.figure()], output_paths)
+            result = quick_compare(
+                "test_project",
+                "test_project2",
+                state1="origin",
+                state2="origin",
+                layout="separate",
+                projects_root=temp_dir,
+                split_magnitudes2=True
+            )
+
+        kwargs = mock_compare.call_args.kwargs
+        assert result == output_paths
+        assert kwargs["source1_split_magnitudes"] is False
+        assert kwargs["source2_split_magnitudes"] is True
 
         import shutil
         shutil.rmtree(temp_dir)

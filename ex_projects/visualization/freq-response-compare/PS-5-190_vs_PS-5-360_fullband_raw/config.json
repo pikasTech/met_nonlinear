@@ -1,0 +1,44 @@
+{
+  "task_info": {
+    "task_type": "freq-response-compare"
+  },
+  "visualization_config": {
+    "layout": "separate",
+    "output_format": "png",
+    "dpi": 300,
+    "figsize": [
+      8,
+      5.5
+    ],
+    "title": "PS-5 full-band frequency response"
+  },
+  "data_sources": [
+    {
+      "project": "LSTMu32al_rs300",
+      "state": "origin",
+      "label": "PS-5/190 (data/ALIA)",
+      "freq_range": [
+        10.0,
+        427.0
+      ],
+      "gain_range": [
+        150.0,
+        270.0
+      ]
+    },
+    {
+      "project": "LSTMu32al_rs300_PS-5",
+      "state": "origin",
+      "label": "PS-5/360 (data/ALIA_PS5-360-20250904)",
+      "split_magnitudes": true,
+      "freq_range": [
+        10.0,
+        401.0
+      ],
+      "gain_range": [
+        300.0,
+        400.0
+      ]
+    }
+  ]
+}

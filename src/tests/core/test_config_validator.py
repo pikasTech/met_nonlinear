@@ -173,6 +173,50 @@ class TestFreqResponseSchema:
         with pytest.raises(ConfigValidationError):
             validator.validate_config_data(config, "freq-response-compare")
 
+    def test_valid_separate_layout_source_axis_and_magnitude_filters(self, validator):
+        """Test per-source axis ranges and magnitude filters are accepted"""
+        config = {
+            "task_info": {"task_type": "freq-response-compare"},
+            "visualization_config": {"layout": "separate"},
+            "data_sources": [
+                {
+                    "project": "p1",
+                    "label": "l1",
+                    "state": "origin",
+                    "freq_range": [10, 427],
+                    "gain_range": [150, 270],
+                    "magnitudes": [1.2]
+                },
+                {
+                    "project": "p2",
+                    "label": "l2",
+                    "state": "origin",
+                    "split_magnitudes": True,
+                    "freq_range": [10, 401],
+                    "gain_range": [340, 370],
+                    "magnitudes": [1.2]
+                }
+            ]
+        }
+
+        assert validator.validate_config_data(config, "freq-response-compare") == config
+
+    def test_source_gain_range_order_validation(self, validator):
+        """Test per-source gain range order validation"""
+        config = {
+            "task_info": {"task_type": "freq-response-compare"},
+            "visualization_config": {"layout": "separate"},
+            "data_sources": [
+                {
+                    "project": "p1",
+                    "label": "l1",
+                    "gain_range": [270, 150]
+                }
+            ]
+        }
+        with pytest.raises(ConfigValidationError):
+            validator.validate_config_data(config, "freq-response-compare")
+
 
 class TestBiasVisualizationSchema:
     """Test bias visualization schema validation"""

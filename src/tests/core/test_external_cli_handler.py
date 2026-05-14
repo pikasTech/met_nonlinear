@@ -202,7 +202,7 @@ class TestExecuteTask:
             },
             "data_sources": [
                 {"project": "test_project", "state": "origin", "label": "Before"},
-                {"project": "test_project", "state": "compensation", "label": "After"}
+                {"project": "test_project", "state": "compensation", "label": "After", "split_magnitudes": True}
             ]
         }
 
@@ -301,7 +301,7 @@ class TestExecuteFreqResponseTask:
             },
             "data_sources": [
                 {"project": "test_project", "state": "origin", "label": "Before"},
-                {"project": "test_project", "state": "compensation", "label": "After"}
+                {"project": "test_project", "state": "compensation", "label": "After", "split_magnitudes": True}
             ]
         }
 
@@ -319,6 +319,11 @@ class TestExecuteFreqResponseTask:
 
         assert result is True
         mock_quick_compare.assert_called_once()
+        _, kwargs = mock_quick_compare.call_args
+        assert kwargs["label1"] == "Before"
+        assert kwargs["label2"] == "After"
+        assert kwargs["split_magnitudes1"] is False
+        assert kwargs["split_magnitudes2"] is True
 
     def test_execute_freq_response_task_no_data_sources(self, mock_ep_path):
         """Test frequency response task with no data sources"""
