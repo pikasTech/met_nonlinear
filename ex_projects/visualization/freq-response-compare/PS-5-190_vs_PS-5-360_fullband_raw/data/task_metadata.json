@@ -1,15 +1,15 @@
 {
-  "execution_time": "2026-05-13T20:48:01.140926",
+  "execution_time": "2026-05-13T22:20:18.560106",
   "task_info": {
     "task_type": "freq-response-compare"
   },
   "output_files": [
-    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_1_LSTMu32al_rs300_origin.png",
-    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_2_LSTMu32al_rs300_PS-5_origin_mag_1p2.png",
-    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_3_LSTMu32al_rs300_PS-5_origin_mag_2p4.png",
-    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_4_LSTMu32al_rs300_PS-5_origin_mag_3p6.png",
-    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_5_LSTMu32al_rs300_PS-5_origin_mag_4p8.png",
-    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_6_LSTMu32al_rs300_PS-5_origin_mag_6.png"
+    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_1_PS-5_190 (data_ALIA)_origin.png",
+    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_2_PS-5_360 (data_ALIA_PS5-360-20250904)_origin_mag_1p2.png",
+    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_3_PS-5_360 (data_ALIA_PS5-360-20250904)_origin_mag_2p4.png",
+    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_4_PS-5_360 (data_ALIA_PS5-360-20250904)_origin_mag_3p6.png",
+    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_5_PS-5_360 (data_ALIA_PS5-360-20250904)_origin_mag_4p8.png",
+    "C:\\work\\met_nonlinear_master\\ex_projects\\visualization\\freq-response-compare\\PS-5-190_vs_PS-5-360_fullband_raw\\data\\bode_plot_separate_6_PS-5_360 (data_ALIA_PS5-360-20250904)_origin_mag_6.png"
   ],
-  "config_hash": "69949f9b4910ac1da8c1f144105382bb"
+  "config_hash": "e7cdaee63d3ec97a01913c29ae69b91c"
 }

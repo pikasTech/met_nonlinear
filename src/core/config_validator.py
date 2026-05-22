@@ -86,7 +86,7 @@ class VisualizationConfigValidator:
                 "maxItems": 10,  # 合理的上限
                 "items": {
                     "type": "object",
-                    "required": ["project", "label"],
+                    "required": ["label"],
                     "additionalProperties": False,
                     "properties": {
                         "project": {"type": "string", "minLength": 1},
@@ -112,7 +112,41 @@ class VisualizationConfigValidator:
                             "items": {"type": "number"},
                             "minItems": 1
                         },
-                        "split_magnitudes": {"type": "boolean"}
+                        "split_magnitudes": {"type": "boolean"},
+                        "export_raw_xlsx": {"type": "boolean"},
+                        "export_raw_xlsx_magnitudes": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "minItems": 1
+                        },
+                        "composite_sources": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                                "type": "object",
+                                "required": ["source_type"],
+                                "additionalProperties": False,
+                                "properties": {
+                                    "source_type": {
+                                        "type": "string",
+                                        "enum": ["project", "excel"]
+                                    },
+                                    "project": {"type": "string", "minLength": 1},
+                                    "state": {
+                                        "type": "string",
+                                        "enum": ["origin", "compensation", "training", "testing"]
+                                    },
+                                    "path": {"type": "string", "minLength": 1},
+                                    "sheet_name": {"type": "string", "minLength": 1},
+                                    "freq_column": {"type": "string", "minLength": 1},
+                                    "gain_column": {"type": "string", "minLength": 1},
+                                    "freq_min": {"type": "number"},
+                                    "freq_max": {"type": "number"},
+                                    "include_min": {"type": "boolean"},
+                                    "include_max": {"type": "boolean"}
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1024,6 +1058,7 @@ class VisualizationConfigValidator:
     def _validate_freq_response_logic(self, config: Dict[str, Any]) -> None:
         """频率响应任务的特殊验证"""
         viz_config = config.get("visualization_config", {})
+        layout = viz_config.get("layout", "side_by_side")
         
         # 验证频率范围
         if "freq_range" in viz_config:
@@ -1040,6 +1075,10 @@ class VisualizationConfigValidator:
         if len(data_sources) < 1:
             raise ConfigValidationError("freq-response-compare任务至少需要1个数据源")
         for idx, source in enumerate(data_sources):
+            if "project" not in source and "composite_sources" not in source:
+                raise ConfigValidationError(
+                    f"data_sources[{idx}]: 必须至少提供 project 或 composite_sources"
+                )
             if "freq_range" in source:
                 source_freq_range = source["freq_range"]
                 if len(source_freq_range) == 2 and source_freq_range[0] >= source_freq_range[1]:
@@ -1051,6 +1090,26 @@ class VisualizationConfigValidator:
                 if len(source_gain_range) == 2 and source_gain_range[0] >= source_gain_range[1]:
                     raise ConfigValidationError(
                         f"data_sources[{idx}].gain_range: 起始值必须小于结束值"
+                    )
+            if (source.get("export_raw_xlsx") or source.get("export_raw_xlsx_magnitudes")) and layout != "separate":
+                raise ConfigValidationError(
+                    f"data_sources[{idx}]: export_raw_xlsx 仅支持 separate 布局"
+                )
+            for seg_idx, segment in enumerate(source.get("composite_sources", [])):
+                source_type = segment.get("source_type")
+                if source_type == "project" and "project" not in segment:
+                    raise ConfigValidationError(
+                        f"data_sources[{idx}].composite_sources[{seg_idx}]: project 段必须提供 project"
+                    )
+                if source_type == "excel" and "path" not in segment:
+                    raise ConfigValidationError(
+                        f"data_sources[{idx}].composite_sources[{seg_idx}]: excel 段必须提供 path"
+                    )
+                seg_freq_min = segment.get("freq_min")
+                seg_freq_max = segment.get("freq_max")
+                if seg_freq_min is not None and seg_freq_max is not None and seg_freq_min > seg_freq_max:
+                    raise ConfigValidationError(
+                        f"data_sources[{idx}].composite_sources[{seg_idx}]: freq_min 不能大于 freq_max"
                     )
 
     def _validate_qemu_c_inference_logic(self, config: Dict[str, Any]) -> None:

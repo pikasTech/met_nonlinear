@@ -5,7 +5,7 @@
 - 构建后的主 Papaer [[main.pdf]] [main.tex](docs\paper\latex\main.tex)
 	- 过程文档 [20260327-转投](docs\MDTODO\20260327-转投.md)
 - [[文献笔记]] - 用户自己写的文献阅读笔记，不要修改
-- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考。
+- 论文 LaTeX 与 MN 投稿稿整理：详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)，其中包含 MN AI+sensor 标杆论文（Nano Lett. ML+MEMS 元结构）作为成稿参考，以及中文中间稿 `\CNEN` 自动翻译工作流的长期约定。
 - 论文核心故事线与引言重构：详见 [docs/reference/paper_storyline_refinement.md](docs/reference/paper_storyline_refinement.md)。
 - 论文方法中间稿撰写规范：详见 [docs/reference/paper_method_draft_writing.md](docs/reference/paper_method_draft_writing.md)。
 - 论文消融实验方法：详见 [docs/reference/paper_ablation_method.md](docs/reference/paper_ablation_method.md)。

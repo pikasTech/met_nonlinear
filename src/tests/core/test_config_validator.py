@@ -217,6 +217,94 @@ class TestFreqResponseSchema:
         with pytest.raises(ConfigValidationError):
             validator.validate_config_data(config, "freq-response-compare")
 
+    def test_valid_composite_source_config(self, validator):
+        """Test composite project/excel source config is accepted"""
+        config = {
+            "task_info": {"task_type": "freq-response-compare"},
+            "visualization_config": {"layout": "separate"},
+            "data_sources": [
+                {
+                    "label": "stitched",
+                    "split_magnitudes": True,
+                    "export_raw_xlsx_magnitudes": [2.4],
+                    "freq_range": [10, 401],
+                    "gain_range": [340, 370],
+                    "composite_sources": [
+                        {
+                            "source_type": "excel",
+                            "path": "data/example.xlsx",
+                            "freq_max": 150,
+                            "include_max": False
+                        },
+                        {
+                            "source_type": "project",
+                            "project": "p1",
+                            "state": "origin",
+                            "freq_min": 150,
+                            "freq_max": 200
+                        },
+                        {
+                            "source_type": "excel",
+                            "path": "data/example.xlsx",
+                            "freq_min": 200,
+                            "include_min": False
+                        }
+                    ]
+                }
+            ]
+        }
+
+        assert validator.validate_config_data(config, "freq-response-compare") == config
+
+    def test_valid_raw_xlsx_export_config(self, validator):
+        """Test separate-layout raw xlsx export options are accepted"""
+        config = {
+            "task_info": {"task_type": "freq-response-compare"},
+            "visualization_config": {"layout": "separate"},
+            "data_sources": [
+                {
+                    "project": "p1",
+                    "label": "l1",
+                    "export_raw_xlsx": True
+                },
+                {
+                    "project": "p2",
+                    "label": "l2",
+                    "split_magnitudes": True,
+                    "export_raw_xlsx_magnitudes": [2.4]
+                }
+            ]
+        }
+
+        assert validator.validate_config_data(config, "freq-response-compare") == config
+
+    def test_raw_xlsx_export_requires_separate_layout(self, validator):
+        """Test raw xlsx export is rejected outside separate layout"""
+        config = {
+            "task_info": {"task_type": "freq-response-compare"},
+            "visualization_config": {"layout": "overlay"},
+            "data_sources": [
+                {
+                    "project": "p1",
+                    "label": "l1",
+                    "export_raw_xlsx": True
+                }
+            ]
+        }
+
+        with pytest.raises(ConfigValidationError):
+            validator.validate_config_data(config, "freq-response-compare")
+
+    def test_source_requires_project_or_composite_sources(self, validator):
+        """Test a data source needs either project or composite_sources"""
+        config = {
+            "task_info": {"task_type": "freq-response-compare"},
+            "visualization_config": {},
+            "data_sources": [{"label": "l1"}]
+        }
+        with pytest.raises(ConfigValidationError):
+            validator.validate_config_data(config, "freq-response-compare")
+
 
 class TestBiasVisualizationSchema:
     """Test bias visualization schema validation"""

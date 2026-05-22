@@ -11,16 +11,17 @@
   "dependencies": {
     "@tanstack/react-table": "^8.11.0",
     "@types/rc-tree": "^1.11.4",
+    "katex": "^0.16.47",
     "plotly.js": "^3.5.0",
     "rc-tree": "^5.13.1",
-    "react-markdown": "^10.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
     "react-plotly.js": "^2.6.0",
+    "recharts": "^3.8.1",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
-    "remark-math": "^6.0.0",
-    "recharts": "^3.8.1"
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

@@ -122,6 +122,66 @@ MN ??????? Springer Nature `sn-jnl` ????????????? LaTeX ?????? PDF ?????????????
 
 如需改变以上边界，应视为新的写作决策，而不是默认整理动作。
 
+## 自动化翻译工作流
+
+本项目历史上存在一套面向论文中间稿的自动化翻译链，但它不在当前仓库内，而是依赖外部脚本目录 `D:/Work/agi_mpy/bin`。该链路只适用于仍保留 `\CNEN{中文}{英文}` 宏的中间稿，不适用于已经展开为普通英文正文的最终稿。
+
+当前仓库的 canonical 英文主稿是 `docs/paper/latex/main.tex`。该文件默认视为已脱离 `\CNEN` 工作流的成稿入口；如果要重走自动翻译，应先确认操作对象仍是带 `\CNEN` 宏的中文中间稿副本，而不是直接对当前主稿做抽取。
+
+### 外部入口与职责分工
+
+- `D:/Work/agi_mpy/bin/textran.bat`：调用 `textran.py`，负责抽取 `\CNEN` 条目、生成模板、回填译文，以及在清空翻译时保留中文源文。
+- `D:/Work/agi_mpy/bin/llmt.bat`：调用 `llmt.py`，负责把抽取出的条目送入 LLM 翻译流水线，并输出新的译文 JSON。
+- `D:/Work/agi_mpy/terms.json`：术语表权威入口。自动翻译默认按该术语表约束大小写无关的术语映射。
+
+职责边界如下：
+
+- `textran` 只负责 `\CNEN` 宏的结构化抽取、增量检测和回填，不直接调用翻译服务。
+- `llmt` 才是实际的自动翻译入口；其底层通过 OpenAI 兼容的 chat completions 接口访问 LLM。
+- 具体模型名、接口地址和温度等运行参数以 `D:/Work/agi_mpy/config.py` 为准，不要在稿件文档里硬编码某个厂商名或一次性的模型版本。
+
+### 路径与工作目录约束
+
+- 两个 `.bat` 包装脚本只负责定位 Python 入口，不会自动切换当前工作目录。
+- `textran.py` 默认把 `translate/`、`status.json`、`translations.json` 和 `template.tex` 写到当前工作目录。
+- `llmt.py` 默认把 `translate/translations.json` 作为输入，把 `output/translations_output.json` 作为输出，并从当前工作目录解析 `terms.json`。
+- 因此，只要不是在 `D:/Work/agi_mpy` 根目录直接运行，就应优先显式传入 `--terms`、`--translations`、`--output`、`-o`、`-t` 等路径，避免把翻译产物散落到错误目录。
+
+推荐做法是：在目标稿件所在目录或专门的翻译工作目录中运行命令，并显式指定输入、模板、翻译 JSON 和输出 TeX 的路径。
+
+### 推荐顺序
+
+1. 先冻结中文中间稿的技术口径、数据宏、图表顺序和边界声明，再开始自动翻译；不要把自动翻译当成结构整理工具。
+2. 对带 `\CNEN` 宏的源 TeX 执行 `textran export`，生成模板和待翻译 JSON。
+3. 对导出的 JSON 执行 `llmt`，让 LLM 根据术语表和最近上下文生成英文条目。
+4. 用 `textran fill` 把译文 JSON 回填为新的英文 TeX；如需重置英文槽位，才使用 `textran clear`。
+5. 回填后的英文 TeX 进入本仓库的常规 LaTeX 校稿与编译链，不再继续依赖 `\CNEN` 作为最终投稿形态。
+
+最小可复用命令顺序如下：
+
+```bash
+D:/Work/agi_mpy/bin/textran.bat export path/to/source_with_cnen.tex -o path/to/translate/translations.json -t path/to/translate/template.tex
+D:/Work/agi_mpy/bin/llmt.bat --terms D:/Work/agi_mpy/terms.json --translations path/to/translate/translations.json --output path/to/output/translations_output.json
+D:/Work/agi_mpy/bin/textran.bat fill -t path/to/translate/template.tex -j path/to/output/translations_output.json -o path/to/output/english.tex
+```
+
+### 稳定行为与判定口径
+
+- `textran export` 会按 `\CNEN{中文}{英文}` 抽取条目，并为中文内容计算 `CNHash`；中文未变化的条目可以复用已有英文译文。
+- `textran fill` 和 `textran clear` 在覆盖现有输出文件前会先写入同级 `backup/` 目录；如果输出文件本身就是权威稿件，仍应先自行确认目标路径正确。
+- `llmt` 的 prompt 已约束模型保留 `\cite`、`\val` 等 LaTeX 标记，并要求遵循术语表与近邻上下文风格；术语一致性问题应优先通过术语表修正，而不是在回填后手工逐段替换。
+- 自动翻译阶段允许生成英文中间稿，但不允许改变数值宏、图表引用顺序、实验边界、limitations 和模型命名口径。
+
+### 验收标准
+
+以下条件同时满足时，可判定一次自动化翻译链基本合格：
+
+- 导出的条目数与预期的 `\CNEN` 段落数一致，没有抽取失败或参数错位。
+- 回填后的英文 TeX 中不再残留需要继续交互处理的空英文槽位。
+- `\cite`、`\ref`、`\val`、数学公式和其他 LaTeX 结构标记保持可编译状态，没有被模型改写成自然语言。
+- 术语、模型名和叙事口径与当前稿件的长期约定一致，尤其不重新引入 `FRI`、`QLFRS` 等已收敛的对外命名。
+- 英文稿回到本仓库后，能够继续通过本地 `latex` 校稿与编译验证。
+
 ## 数值抽离约定
 
 稿件中的 manuscript-level 数值应统一抽离到 `docs/paper/latex/values.md`，再由 `main.tex` 通过宏引用。

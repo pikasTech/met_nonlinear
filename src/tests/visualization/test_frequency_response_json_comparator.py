@@ -21,7 +21,9 @@ from visualization.frequency_response_json_comparator import (
     LayoutMode,
     DataSourceSpec,
     LinearResponseDataLoader,
+    ExcelCurveDataLoader,
     FrequencyResponseComparator,
+    build_source_data_from_config,
     quick_compare
 )
 
@@ -355,6 +357,57 @@ class TestFrequencyResponseComparator:
         assert any('mag_0p5' in path for path in output_paths)
         assert any('mag_1' in path for path in output_paths)
 
+    def test_compare_sources_separate_exports_selected_raw_xlsx(self, sample_source_data, temp_output_dir):
+        """Test separate layout can export selected raw single-curve xlsx files"""
+        import matplotlib
+        matplotlib.use('Agg')
+        import pandas as pd
+
+        comparator = FrequencyResponseComparator(LayoutMode.SEPARATE)
+        source1_data = {
+            'gains': [[1.0, 2.0, 3.0]],
+            'magnitudes': [0.5],
+            'frequencies': [10.0, 50.0, 100.0],
+            'project_name': 'single_curve',
+            'state': 'origin',
+            'label': 'single_curve@origin',
+            '_raw_export_xlsx': {'enabled': True}
+        }
+        source2_data = dict(sample_source_data)
+        source2_data['_raw_export_xlsx'] = {'enabled': True, 'magnitudes': [1.0]}
+
+        with patch('matplotlib.pyplot.show'):
+            _, output_paths = comparator.compare_sources(
+                source1_data,
+                source2_data,
+                output_folder=temp_output_dir,
+                show_plot=False,
+                source2_split_magnitudes=True
+            )
+
+        assert len(output_paths) == 3
+
+        xlsx_path1 = os.path.splitext(output_paths[0])[0] + '.xlsx'
+        xlsx_path2 = os.path.splitext(output_paths[1])[0] + '.xlsx'
+        xlsx_path3 = os.path.splitext(output_paths[2])[0] + '.xlsx'
+
+        assert os.path.exists(xlsx_path1)
+        assert not os.path.exists(xlsx_path2)
+        assert os.path.exists(xlsx_path3)
+
+        df1 = pd.read_excel(xlsx_path1)
+        df3 = pd.read_excel(xlsx_path3)
+        assert list(df1.columns) == ['frequency', 'sensitivity']
+        assert df1.to_dict(orient='list') == {
+            'frequency': [10, 50, 100],
+            'sensitivity': [1, 2, 3]
+        }
+        assert list(df3.columns) == ['frequency', 'sensitivity']
+        assert df3.to_dict(orient='list') == {
+            'frequency': [10, 50, 100],
+            'sensitivity': [4, 5, 6]
+        }
+
     def test_compare_sources_with_freq_range(self, sample_source_data, temp_output_dir):
         """Test compare_sources with frequency range filter"""
         import matplotlib
@@ -568,6 +621,81 @@ class TestQuickCompare:
 
         import shutil
         shutil.rmtree(temp_dir)
+
+
+class TestCompositeSourceBuild:
+    """Test composite-source frequency response assembly"""
+
+    def test_build_source_data_from_composite_config(self):
+        """Test project/excel segments are stitched together in order"""
+        data_loader = LinearResponseDataLoader()
+        excel_loader = ExcelCurveDataLoader()
+
+        project_source = {
+            "gains": [
+                [1.0, 2.0, 3.0, 4.0, 5.0],
+                [10.0, 20.0, 30.0, 40.0, 50.0],
+            ],
+            "magnitudes": [1.2, 2.4],
+            "frequencies": [10.0, 50.0, 100.0, 150.0, 200.0],
+            "project_name": "project_curve",
+            "state": "origin",
+            "label": "project_curve@origin",
+        }
+        excel_source = {
+            "gains": [[100.0, 200.0, 500.0, 1500.0, 3000.0]],
+            "magnitudes": [1.0],
+            "frequencies": [10.0, 20.0, 50.0, 150.0, 300.0],
+            "project_name": "excel_curve",
+            "state": "origin",
+            "label": "excel_curve",
+        }
+
+        with patch.object(
+            LinearResponseDataLoader,
+            "extract_data_source",
+            return_value=project_source
+        ), patch.object(
+            ExcelCurveDataLoader,
+            "load_excel_curve",
+            return_value=excel_source
+        ):
+            source_data = build_source_data_from_config(
+                {
+                    "label": "stitched",
+                    "export_raw_xlsx_magnitudes": [2.4],
+                    "composite_sources": [
+                        {
+                            "source_type": "excel",
+                            "path": "dummy.xlsx",
+                            "freq_max": 50.0,
+                            "include_max": False
+                        },
+                        {
+                            "source_type": "project",
+                            "project": "dummy_project",
+                            "state": "origin",
+                            "freq_min": 50.0,
+                            "freq_max": 150.0
+                        },
+                        {
+                            "source_type": "excel",
+                            "path": "dummy.xlsx",
+                            "freq_min": 150.0,
+                            "include_min": False
+                        }
+                    ]
+                },
+                data_loader=data_loader,
+                excel_loader=excel_loader
+            )
+
+        assert source_data["label"] == "stitched"
+        assert source_data["_raw_export_xlsx"] == {"enabled": True, "magnitudes": [2.4]}
+        assert source_data["magnitudes"] == [1.2, 2.4]
+        assert source_data["frequencies"] == [10.0, 20.0, 50.0, 100.0, 150.0, 300.0]
+        assert source_data["gains"][0] == [100.0, 200.0, 2.0, 3.0, 4.0, 3000.0]
+        assert source_data["gains"][1] == [100.0, 200.0, 20.0, 30.0, 40.0, 3000.0]
 
     def test_quick_compare_with_custom_labels(self):
         """Test quick_compare forwards custom display labels to the plotter"""

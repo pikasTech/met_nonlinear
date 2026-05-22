@@ -10,34 +10,94 @@
       8,
       5.5
     ],
-    "title": "PS-5 full-band frequency response"
+    "title": "PS-5 stitched full-band frequency response"
   },
   "data_sources": [
     {
-      "project": "LSTMu32al_rs300",
       "state": "origin",
       "label": "PS-5/190 (data/ALIA)",
+      "export_raw_xlsx": true,
       "freq_range": [
-        10.0,
-        427.0
+        0.1,
+        350.0
       ],
       "gain_range": [
-        150.0,
-        270.0
+        0.08,
+        300.0
+      ],
+      "composite_sources": [
+        {
+          "source_type": "excel",
+          "path": "data/20260513-PS-5-190-360-浙大/浙江大学—PS-5-190测试.xlsx",
+          "sheet_name": "Sheet1",
+          "freq_column": "freq",
+          "gain_column": "gain",
+          "freq_max": 50.0,
+          "include_max": false
+        },
+        {
+          "source_type": "project",
+          "project": "LSTMu32al_rs300",
+          "state": "origin",
+          "freq_min": 50.0,
+          "freq_max": 150.0,
+          "include_min": true,
+          "include_max": true
+        },
+        {
+          "source_type": "excel",
+          "path": "data/20260513-PS-5-190-360-浙大/浙江大学—PS-5-190测试.xlsx",
+          "sheet_name": "Sheet1",
+          "freq_column": "freq",
+          "gain_column": "gain",
+          "freq_min": 150.0,
+          "include_min": false
+        }
       ]
     },
     {
-      "project": "LSTMu32al_rs300_PS-5",
       "state": "origin",
       "label": "PS-5/360 (data/ALIA_PS5-360-20250904)",
       "split_magnitudes": true,
+      "export_raw_xlsx_magnitudes": [
+        2.4
+      ],
       "freq_range": [
-        10.0,
-        401.0
+        0.1,
+        300.0
       ],
       "gain_range": [
-        300.0,
-        400.0
+        0.2,
+        420.0
+      ],
+      "composite_sources": [
+        {
+          "source_type": "excel",
+          "path": "data/20260513-PS-5-190-360-浙大/PS-5-360-①.xlsx",
+          "sheet_name": "Sheet1",
+          "freq_column": "freq",
+          "gain_column": "gain",
+          "freq_max": 150.0,
+          "include_max": false
+        },
+        {
+          "source_type": "project",
+          "project": "LSTMu32al_rs300_PS-5",
+          "state": "origin",
+          "freq_min": 150.0,
+          "freq_max": 200.0,
+          "include_min": true,
+          "include_max": true
+        },
+        {
+          "source_type": "excel",
+          "path": "data/20260513-PS-5-190-360-浙大/PS-5-360-①.xlsx",
+          "sheet_name": "Sheet1",
+          "freq_column": "freq",
+          "gain_column": "gain",
+          "freq_min": 200.0,
+          "include_min": false
+        }
       ]
     }
   ]

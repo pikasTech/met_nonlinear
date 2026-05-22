@@ -508,7 +508,8 @@ def _execute_freq_response_task(ep_path: ExternalPath, config: dict) -> bool:
             return False
         
         # 构建参数
-        project1 = data_sources[0]['project']
+        source1_config = data_sources[0]
+        project1 = source1_config.get('project', '__unused_source1__')
         state1 = data_sources[0].get('state', 'origin')
         label1 = data_sources[0].get('label')
         magnitudes1 = data_sources[0].get('magnitudes')
@@ -517,7 +518,8 @@ def _execute_freq_response_task(ep_path: ExternalPath, config: dict) -> bool:
         split_magnitudes1 = data_sources[0].get('split_magnitudes', False)
         
         if len(data_sources) >= 2:
-            project2 = data_sources[1]['project']
+            source2_config = data_sources[1]
+            project2 = source2_config.get('project', '__unused_source2__')
             state2 = data_sources[1].get('state', 'compensation')
             label2 = data_sources[1].get('label')
             magnitudes2 = data_sources[1].get('magnitudes')
@@ -525,6 +527,7 @@ def _execute_freq_response_task(ep_path: ExternalPath, config: dict) -> bool:
             source2_gain_range = data_sources[1].get('gain_range')
             split_magnitudes2 = data_sources[1].get('split_magnitudes', False)
         else:
+            source2_config = None
             project2 = None  # 默认与project1相同
             state2 = 'compensation'
             label2 = None
@@ -563,7 +566,9 @@ def _execute_freq_response_task(ep_path: ExternalPath, config: dict) -> bool:
             source1_gain_range=source1_gain_range,
             source2_gain_range=source2_gain_range,
             split_magnitudes1=split_magnitudes1,
-            split_magnitudes2=split_magnitudes2
+            split_magnitudes2=split_magnitudes2,
+            source1_config=source1_config,
+            source2_config=source2_config
         )
         
         output_files = output_file if isinstance(output_file, list) else [output_file]
