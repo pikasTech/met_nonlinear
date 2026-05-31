@@ -124,55 +124,72 @@ MN ??????? Springer Nature `sn-jnl` ????????????? LaTeX ?????? PDF ?????????????
 
 ## 自动化翻译工作流
 
-本项目历史上存在一套面向论文中间稿的自动化翻译链，但它不在当前仓库内，而是依赖外部脚本目录 `D:/Work/agi_mpy/bin`。该链路只适用于仍保留 `\CNEN{中文}{英文}` 宏的中间稿，不适用于已经展开为普通英文正文的最终稿。
+本项目当前的自动化翻译能力已经统一迁移到 `llmtran` skill，权威入口是 `~/.agents/skills/llmtran/SKILL.md`。当前论文翻译不再依赖 `D:/Work/agi_mpy`，也不再以 `PAPER_TRANSLATE_*` 环境变量作为正式配置入口。
 
-当前仓库的 canonical 英文主稿是 `docs/paper/latex/main.tex`。该文件默认视为已脱离 `\CNEN` 工作流的成稿入口；如果要重走自动翻译，应先确认操作对象仍是带 `\CNEN` 宏的中文中间稿副本，而不是直接对当前主稿做抽取。
+当前仓库的 canonical 英文主稿仍是 `docs/paper/latex/main.tex`。如需重走自动翻译，应先确认操作对象是仍保留 `\CNEN{中文}{英文}` 宏的中文中间稿副本，而不是已经展开为普通英文正文的最终稿。
 
-### 外部入口与职责分工
+### llmtran Skill 与本仓库的连接点
 
-- `D:/Work/agi_mpy/bin/textran.bat`：调用 `textran.py`，负责抽取 `\CNEN` 条目、生成模板、回填译文，以及在清空翻译时保留中文源文。
-- `D:/Work/agi_mpy/bin/llmt.bat`：调用 `llmt.py`，负责把抽取出的条目送入 LLM 翻译流水线，并输出新的译文 JSON。
-- `D:/Work/agi_mpy/terms.json`：术语表权威入口。自动翻译默认按该术语表约束大小写无关的术语映射。
+- skill 根目录固定为 `~/.agents/skills/llmtran`。
+- 用户级翻译配置固定为 `~/.skill_config/llmtran/config.json`；模型、base URL、API key、thinking 和 `max_tokens` 都由该配置驱动。
+- 当前论文翻译默认术语表固定由 skill 内置文件 `~/.agents/skills/llmtran/docs/paper_terms.json` 提供；本仓库不再依赖外部 `terms.json`。
+- 本仓库不再维护 `paper-translate` 子命令；论文翻译统一直接调用 llmtran skill，本仓库只维护稿件路径约定、缓存路径和验收口径。
 
-职责边界如下：
+本仓库当前稳定使用的路径约定如下：
 
-- `textran` 只负责 `\CNEN` 宏的结构化抽取、增量检测和回填，不直接调用翻译服务。
-- `llmt` 才是实际的自动翻译入口；其底层通过 OpenAI 兼容的 chat completions 接口访问 LLM。
-- 具体模型名、接口地址和温度等运行参数以 `D:/Work/agi_mpy/config.py` 为准，不要在稿件文档里硬编码某个厂商名或一次性的模型版本。
-
-### 路径与工作目录约束
-
-- 两个 `.bat` 包装脚本只负责定位 Python 入口，不会自动切换当前工作目录。
-- `textran.py` 默认把 `translate/`、`status.json`、`translations.json` 和 `template.tex` 写到当前工作目录。
-- `llmt.py` 默认把 `translate/translations.json` 作为输入，把 `output/translations_output.json` 作为输出，并从当前工作目录解析 `terms.json`。
-- 因此，只要不是在 `D:/Work/agi_mpy` 根目录直接运行，就应优先显式传入 `--terms`、`--translations`、`--output`、`-o`、`-t` 等路径，避免把翻译产物散落到错误目录。
-
-推荐做法是：在目标稿件所在目录或专门的翻译工作目录中运行命令，并显式指定输入、模板、翻译 JSON 和输出 TeX 的路径。
+- 中文中间稿：`docs/paper/latex/main.tex`
+- 导出 JSON：`cache/paper-translate/translations.json`
+- 模板文件：`cache/paper-translate/template.tex`
+- 英文输出 JSON：`cache/paper-translate/translations_output.json`
+- 回填英文稿：`docs/paper/latex/main.translated.tex` 或新的对比输出文件
 
 ### 推荐顺序
 
 1. 先冻结中文中间稿的技术口径、数据宏、图表顺序和边界声明，再开始自动翻译；不要把自动翻译当成结构整理工具。
-2. 对带 `\CNEN` 宏的源 TeX 执行 `textran export`，生成模板和待翻译 JSON。
-3. 对导出的 JSON 执行 `llmt`，让 LLM 根据术语表和最近上下文生成英文条目。
-4. 用 `textran fill` 把译文 JSON 回填为新的英文 TeX；如需重置英文槽位，才使用 `textran clear`。
+2. 使用 llmtran skill 对带 `\CNEN` 宏的源 TeX 执行 `export`，生成模板和待翻译 JSON。
+3. 使用 llmtran skill 的 `translate` 生成新的英文条目 JSON。
+4. 用 llmtran skill 的 `fill` 把译文 JSON 回填为新的英文 TeX；如需重置英文槽位，才使用 `clear`。
 5. 回填后的英文 TeX 进入本仓库的常规 LaTeX 校稿与编译链，不再继续依赖 `\CNEN` 作为最终投稿形态。
 
-最小可复用命令顺序如下：
+针对本仓库的稳定命令形态见下节；长期口径只保留一套 llmtran skill 直连示例，不再在文档中重复维护等价命令块。
+
+### llmtran Skill 直连命令
+
+本项目的长期口径是直接调用 llmtran skill，不再经过任何仓库内转发层。常用命令形态如下：
 
 ```bash
-D:/Work/agi_mpy/bin/textran.bat export path/to/source_with_cnen.tex -o path/to/translate/translations.json -t path/to/translate/template.tex
-D:/Work/agi_mpy/bin/llmt.bat --terms D:/Work/agi_mpy/terms.json --translations path/to/translate/translations.json --output path/to/output/translations_output.json
-D:/Work/agi_mpy/bin/textran.bat fill -t path/to/translate/template.tex -j path/to/output/translations_output.json -o path/to/output/english.tex
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py dry-run
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py check
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py export --input C:/work/met_nonlinear_master/docs/paper/latex/main.tex --translations C:/work/met_nonlinear_master/cache/paper-translate/translations.json --template C:/work/met_nonlinear_master/cache/paper-translate/template.tex
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py translate --translations C:/work/met_nonlinear_master/cache/paper-translate/translations.json --output C:/work/met_nonlinear_master/cache/paper-translate/translations_output.json
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py status --job-id <job_id>
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py logs --job-id <job_id> --tail 30
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py result --job-id <job_id>
+python C:/Users/lyon/.agents/skills/llmtran/scripts/llmtran-cli.py debug prompt --translations C:/work/met_nonlinear_master/cache/paper-translate/translations.json --entry-id 12
 ```
+
+本仓库侧只保留以下长期约束：
+
+- `dry-run` 和 `check` 用于直接查看 llmtran 当前配置与依赖状态。
+- `export`、`fill`、`clear`、`translate` 都使用 llmtran 的异步任务系统；命令返回后应继续用 `status`、`logs`、`result` 查询进度，而不是假定同步完成。
+- `debug prompt` 直接调用 llmtran 的真实 prompt 生成逻辑，用于排查术语表、上下文窗口和 LaTeX 保留规则是否生效。
+
+### 续翻、重翻与结果切换
+
+翻译结果管理的长期约束如下：
+
+- `--resume` 只用于同一份 `translations.json`、同一输出 JSON 和同一组关键翻译配置下的中断恢复；如果模型、术语表、配置或中文源内容已经变化，应视为新一轮翻译，而不是续翻旧结果。
+- 需要整轮重跑时，使用 `llmtran-cli.py translate --retranslate`，并把 `--output` 指向新的结果文件；不要直接覆盖当前权威 `translations_output.json`。
+- 在发起重翻之前，先备份当前权威翻译 JSON 与当前使用中的英文 TeX；skill 自动生成的同级 `backup/` 只覆盖单次写文件保护，不承担版本对比职责。
+- 对比不同模型或不同配置的翻译效果时，旧版和新版应同时保留各自的 JSON 与回填 TeX；先比较条目级改写范围、术语一致性、LaTeX 结构完整性与编译结果，再决定是否切换主入口文件。
+- 仓库内不再维护翻译转发层；论文翻译统一直接调用 llmtran skill，不要再新增或恢复任何 repo 内包装脚本，也不要把翻译流程重新挂回 `agi_mpy`。
 
 ### 稳定行为与判定口径
 
-- `textran export` 会按 `\CNEN{中文}{英文}` 抽取条目，并为中文内容计算 `CNHash`；中文未变化的条目可以复用已有英文译文。
-- `textran fill` 和 `textran clear` 在覆盖现有输出文件前会先写入同级 `backup/` 目录；如果输出文件本身就是权威稿件，仍应先自行确认目标路径正确。
-- `llmt` 的 prompt 已约束模型保留 `\cite`、`\val` 等 LaTeX 标记，并要求遵循术语表与近邻上下文风格；术语一致性问题应优先通过术语表修正，而不是在回填后手工逐段替换。
-- 自动翻译阶段允许生成英文中间稿，但不允许改变数值宏、图表引用顺序、实验边界、limitations 和模型命名口径。
-
-### 验收标准
+- llmtran 的 `export` 会按 `\CNEN{中文}{英文}` 抽取条目，并为中文内容计算 `CNHash`；中文未变化的条目可以复用已有英文译文。
+- llmtran 的 `fill` 和 `clear` 在覆盖现有输出文件前会先写入同级 `backup/` 目录；如果输出文件本身就是权威稿件，仍应先自行确认目标路径正确。
+- llmtran 的 `translate` prompt 已约束模型保留 `\cite`、`\ref`、`\val` 等 LaTeX 标记，并要求遵循术语表与近邻上下文风格；术语一致性问题应优先通过术语表修正，而不是在回填后手工逐段替换。
+- 自动翻译阶段允许生成英文中间稿，但不允许改变数值宏、图表引用顺序、实验边界、 limitations 和模型命名口径。
 
 以下条件同时满足时，可判定一次自动化翻译链基本合格：
 
@@ -181,6 +198,8 @@ D:/Work/agi_mpy/bin/textran.bat fill -t path/to/translate/template.tex -j path/t
 - `\cite`、`\ref`、`\val`、数学公式和其他 LaTeX 结构标记保持可编译状态，没有被模型改写成自然语言。
 - 术语、模型名和叙事口径与当前稿件的长期约定一致，尤其不重新引入 `FRI`、`QLFRS` 等已收敛的对外命名。
 - 英文稿回到本仓库后，能够继续通过本地 `latex` 校稿与编译验证。
+
+llmtran skill 的通用能力、配置 schema 和 debug 细节以 `~/.agents/skills/llmtran/SKILL.md` 为准；本仓库文档只维护与当前论文目录、缓存路径和验收口径相关的长期约束。
 
 ## 数值抽离约定
 
@@ -231,6 +250,60 @@ D:/Work/agi_mpy/bin/textran.bat fill -t path/to/translate/template.tex -j path/t
 
 - `docs/paper/latex`
 - `docs/paper/latex/main.tex`
+
+### 仓库内 paper-latex CLI
+
+仓库内现提供统一的 `paper-latex` 子命令，用于把常用的 `xelatex + bibtex + xelatex + xelatex` 编译链收敛到同一个入口，避免手工漏跑 `bibtex`。
+
+常用命令形态：
+
+```bash
+python cli.py paper-latex build
+python cli.py paper-latex build --tex main.translated.tex
+python cli.py paper-latex build --tex main.translated.tex --output-dir build
+```
+
+稳定约定如下：
+
+- 默认工作目录是 `docs/paper/latex`。
+- 默认入口文件是 `main.tex`；如需编译翻译稿，显式传入 `--tex main.translated.tex`。
+- 默认输出目录是 `docs/paper/latex/build`。
+- 默认引擎是 `xelatex`。
+- 默认总共执行 3 次 LaTeX pass，并在第 1 次之后自动执行 1 次 `bibtex`。
+- 只有在明确确认当前稿件不需要文献收敛时，才使用 `--no-bibtex`。
+
+等价的默认编译链可理解为：
+
+```bash
+xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.translated.tex
+bibtex build/main.translated
+xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.translated.tex
+xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.translated.tex
+```
+
+使用注意事项如下：
+
+- `--tex` 既可以传工作目录下的相对路径，也可以传绝对路径；相对路径的基准是 `--workdir`，不是当前 shell 的工作目录。
+- `--output-dir` 可以是相对目录或绝对目录；相对目录时，产物会落在 `--workdir` 下对应子目录。
+- 引擎解析顺序是“显式绝对路径”优先，其次查 `PATH`，最后回退到 `D:/texlive/2024/bin/windows/<engine>.EXE`；如果本机 TeX Live 不在该位置，应优先修正环境而不是在文档里固化临时路径。
+- 当启用 `bibtex` 时，`--passes` 至少应为 `2`；当前实现会直接拒绝 `passes < 2` 的组合，避免只跑出半收敛产物。
+- 该命令按阶段顺序执行，任意一步返回非 0 就会立即停止并返回当前阶段名；排障时先看失败阶段，而不是先怀疑整个链路都坏了。
+- 命令执行过程中输出保持前台可见；如果只想拿到最终 PDF 路径而不关心 warning，不应再人为包一层静默脚本，否则会损失最直接的错误定位信息。
+
+实现架构约定如下：
+
+- [src/core/cli_parser.py](src/core/cli_parser.py) 负责声明 `paper-latex build` 子命令、默认参数和轻量子命令入口，并把解析结果映射回 `CLIArgs`。
+- [cli.py](cli.py) 只负责识别 `paper-latex` 命令并调用专用 runner，不负责具体阶段编排。
+- [src/core/paper_latex_cli.py](src/core/paper_latex_cli.py) 是编译链的唯一实现入口：`build_paper_latex_plan(...)` 负责解析路径、引擎和 stage 列表，`run_paper_latex_subcommand(...)` 负责顺序执行并输出 JSON 状态。
+- 路径解析由 `_resolve_repo_path(...)` 和 `_relative_or_absolute(...)` 统一处理；可执行文件解析由 `_resolve_executable(...)` 统一处理，避免把 PATH 查找、绝对路径和 TeX Live fallback 散落到 CLI 主入口里。
+- 运行期输出协议固定为 JSON `running` / `ok` / `error` 包络加实时子进程输出；`ok` 阶段会附带 `outputPdf` 和每个 stage 的 `stageReturncodes`，便于上层自动消费。
+- 解析与执行层的回归点分别在 [src/tests/core/test_cli_parser.py](src/tests/core/test_cli_parser.py) 和 [src/tests/core/test_paper_latex_cli.py](src/tests/core/test_paper_latex_cli.py)。
+
+判定仓库内编译命令可复用的最小标准：
+
+- 命令执行过程中子进程输出保持前台可见，便于直接看 warning 与错误位置。
+- 命令结束后产物稳定落在 `docs/paper/latex/build/` 或显式指定的输出目录。
+- 对有参考文献的稿件，不再需要手工补跑 `bibtex` 才能得到收敛结果。
 
 ## 可接受的本地编译兜底
 

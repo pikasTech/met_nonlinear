@@ -105,6 +105,13 @@ class CLIArgs:
     paper_markdown_lines: Optional[List[int]] = None
     paper_html_lines: Optional[List[int]] = None
     paper_outline_titles: Optional[List[str]] = None
+    paper_latex_action: Optional[str] = None
+    paper_latex_workdir: Optional[str] = None
+    paper_latex_tex: Optional[str] = None
+    paper_latex_output_dir: Optional[str] = None
+    paper_latex_engine: Optional[str] = None
+    paper_latex_passes: int = 3
+    paper_latex_no_bibtex: bool = False
 
 
 @dataclass
@@ -382,6 +389,17 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
     paper_diagnose_map_parser.add_argument('--html-lines', dest='paper_html_lines', nargs='*', type=int, help='要诊断的 HTML line 列表')
     paper_diagnose_map_parser.add_argument('--outline-title', dest='paper_outline_titles', action='append', help='要诊断的 outline 标题，可重复传入')
 
+    paper_latex_parser = subparsers.add_parser('paper-latex', help='论文 LaTeX 编译辅助命令')
+    paper_latex_subparsers = paper_latex_parser.add_subparsers(dest='paper_latex_action', help='论文 LaTeX 操作')
+
+    paper_latex_build_parser = paper_latex_subparsers.add_parser('build', help='执行本地 LaTeX 编译链')
+    paper_latex_build_parser.add_argument('--workdir', dest='paper_latex_workdir', default='docs/paper/latex', help='LaTeX 工作目录，相对仓库根目录')
+    paper_latex_build_parser.add_argument('--tex', dest='paper_latex_tex', default='main.tex', help='TeX 入口文件，相对 workdir 或绝对路径')
+    paper_latex_build_parser.add_argument('--output-dir', dest='paper_latex_output_dir', default='build', help='编译输出目录，相对 workdir 或绝对路径')
+    paper_latex_build_parser.add_argument('--engine', dest='paper_latex_engine', default='xelatex', help='LaTeX 引擎，默认: xelatex')
+    paper_latex_build_parser.add_argument('--passes', dest='paper_latex_passes', type=int, default=3, help='LaTeX 总 pass 数，默认: 3')
+    paper_latex_build_parser.add_argument('--no-bibtex', dest='paper_latex_no_bibtex', action='store_true', help='跳过 bibtex 步骤')
+
     return parser
 
 
@@ -570,7 +588,7 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
         argv = sys.argv[1:]  # 跳过脚本名称
 
     # 预处理：检测是否为轻量子命令
-    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu', 'server', 'paper-editor'}
+    is_lightweight_subcommand = len(argv) > 0 and argv[0] in {'ep', 'qemu', 'server', 'paper-editor', 'paper-latex'}
 
     # 根据是否为轻量子命令选择不同的解析器
     if is_lightweight_subcommand:
@@ -662,6 +680,21 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 paper_markdown_lines=getattr(args, 'paper_markdown_lines', None),
                 paper_html_lines=getattr(args, 'paper_html_lines', None),
                 paper_outline_titles=getattr(args, 'paper_outline_titles', None),
+            )
+
+        is_paper_latex_subcommand = getattr(args, 'command', None) == 'paper-latex'
+        if is_paper_latex_subcommand:
+            return CLIArgs(
+                task_type=TaskType.INFERENCE,
+                project_names=[],
+                command='paper-latex',
+                paper_latex_action=getattr(args, 'paper_latex_action', None),
+                paper_latex_workdir=getattr(args, 'paper_latex_workdir', None),
+                paper_latex_tex=getattr(args, 'paper_latex_tex', None),
+                paper_latex_output_dir=getattr(args, 'paper_latex_output_dir', None),
+                paper_latex_engine=getattr(args, 'paper_latex_engine', None),
+                paper_latex_passes=getattr(args, 'paper_latex_passes', 3),
+                paper_latex_no_bibtex=getattr(args, 'paper_latex_no_bibtex', False),
             )
 
         # 检查是否为测试任务

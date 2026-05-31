@@ -13,6 +13,8 @@ WebUI 是基于 React + TypeScript 的项目可视化平台，用于浏览、选
 
 Figure Studio 页面用于调整论文图。它不维护硬编码图清单，后端递归扫描 `ex_projects/plot/**/config.json`，把每个 `paper_figure` 配置暴露给前端；渲染结果读取对应 ex_project 的 `data/` 目录。
 
+Paper Editor 页面用于编辑和快速预览 `docs/paper/latex/main.tex`。其固定前端路由为 `/paper-editor`，默认通过 `/api/paper-editor/*` 读取主稿、预览渲染结果、大纲和图片资源，并通过保存接口回写同一份 `.tex` 文件。
+
 ## 技术架构
 
 ```
@@ -34,12 +36,14 @@ src/webui/
 
 ### Paper Editor 约束
 
+- Paper Editor 的默认文档入口固定为 `docs/paper/latex/main.tex`，对应前端访问路径固定为 `/paper-editor`；除显式传入 `entry` 查询参数外，不要把其他稿件目录再包装成新的默认入口。
 - 前端 API 封装文件应保持为 `src/webui/src/clientApi.ts` 这类不与 `/api` 代理前缀冲突的命名，避免 Vite 开发代理把模块路径误判为接口路径。
 - Markdown 与数学公式渲染必须复用成熟第三方链路，例如 `react-markdown`、`remark-*`、`rehype-*`、`KaTeX`；不要在项目内重复实现新的 Markdown/LaTeX 解析器。
 - Outline 的 HTML 定位必须基于最终渲染 HTML 中的 heading `id` 反查，而不能仅依赖通用 `latex -> html` 线性插值；否则文档前段标题会被压到同一 HTML 行号，导致滚动映射失真。
 - Paper Editor 的行号链路必须坚持 `view line -> raw latex -> markdown -> html` 的单向构建与严格反向映射；不要跳过中间层做插值回推。
 - 当 Paper Editor 后端契约新增 `sourceView`、`viewColumns` 一类字段时，验收应直接请求 `/api/paper-editor/document?entry=main.tex&viewColumns=80`，确认响应中存在 `sourceView`；若缺失，优先怀疑服务端启动了陈旧产物，而不是先改前端。
 - Paper Editor 访问诊断以 `logs/server_*.log` 为准；后端会按 JSON 行输出 `subsystem: paper-editor`，并记录 `event`、`clientId`、`reason`、`revision`、`viewColumns`、`durationMs`。
+- Windows 下若用 `curl.exe`、PowerShell 或其他 CLI 验证本机 `Paper Editor` 接口，且响应头出现 `Proxy-Connection: close` 或直接返回 `503 Service Unavailable`，优先判断为请求被系统代理截走，而不是 WebUI 本身异常；对 `127.0.0.1` / `localhost` 的最小验收应显式绕过代理，例如 `curl.exe --noproxy 127.0.0.1,localhost "http://127.0.0.1:3000/api/paper-editor/document?entry=main.tex"`。
 - 只有 `PUT /api/paper-editor/document` 会写回 `.tex` 并改变文件时间戳；`GET /api/paper-editor/document`、`GET /api/paper-editor/state`、`POST /api/paper-editor/preview` 都是只读请求。排查“多前端实例导致刷新风暴”时，应先看日志里是否真的出现了额外的 `save` 事件，而不是把普通轮询误判成写回。
 - `save` 事件会额外记录保存前后源码的短 SHA-256 哈希、字节数以及紧凑的行级 diff 摘要（`oldRange`、`newRange`、`beforePreview`、`afterPreview`）；如果 revision 变化前没有对应 `save` 事件，则应优先判断为 WebUI 外部修改。
 - Paper Editor 保存不再直接把整份 raw source 覆盖写回；当前实现会携带基线 `revision` 与基线源码，生成“基线 raw -> 当前编辑 raw”的 patch，再尝试 apply 到磁盘最新 raw。若 patch 无法 clean apply，则接口返回 `409`，前端应提示用户 reload 后重试，而不是静默吞掉并发修改。
@@ -56,6 +60,14 @@ python cli.py server start
 ```
 
 服务启动后访问 `http://localhost:3000`
+
+Paper Editor 的固定入口是 `http://127.0.0.1:3000/paper-editor`，默认编辑 `docs/paper/latex/main.tex`。
+
+最小验收可以直接请求文档接口，确认返回 `200` 且 JSON 中包含 `source`、`outline`、`sourceView` 与 `revision`：
+
+```bash
+curl.exe --noproxy 127.0.0.1,localhost "http://127.0.0.1:3000/api/paper-editor/document?entry=main.tex"
+```
 
 推荐在启动前先为目标项目准备好评估与指标汇总产物：
 
@@ -155,6 +167,24 @@ GET /api/projects/*/training-log
 - `Loss Curves` 视图优先读取该接口，而不是从 `training_info.json` 推断整条曲线
 - 接口只负责把 `training_log.jsonl` 解析成结构化数据，不会补算缺失训练日志
 
+### Paper Editor
+
+```
+GET /api/paper-editor/document?entry=main.tex
+GET /api/paper-editor/state?entry=main.tex
+POST /api/paper-editor/preview
+PUT /api/paper-editor/document
+GET /api/paper-editor/asset?path=...
+```
+
+说明：
+
+- `/paper-editor` 是默认前端页面，默认服务对象是 `docs/paper/latex/main.tex`。
+- `GET /api/paper-editor/document` 返回当前源码、预览用 `html` / `markdown`、`outline`、`imports`、`macros`、`assets`、`diagnostics`、`lineMappings`、`sourceView` 与 `revision`。
+- `GET /api/paper-editor/state` 只返回轻量状态，用于轮询 revision / updatedAt，不返回整份文档内容。
+- `POST /api/paper-editor/preview` 是只读预览，不写盘；`PUT /api/paper-editor/document` 是唯一会写回 `.tex` 的接口。
+- `GET /api/paper-editor/asset` 负责把 `main.tex` 中引用到的本地图片暴露给前端；缺失图片时前端应显示缺图占位与诊断，而不是静默空白。
+
 ### 论文图 Studio
 
 ```
@@ -195,6 +225,13 @@ GET /api/paper-figures/render/{job_id}
 - **状态恢复约束**：catalog 异步加载完成前不得把恢复出的 `selectedFigureId` 清成 `null`，也不得让持久化 effect 把这个临时空值写回 localStorage；兜底选择只能在 `figures.length > 0` 且当前 id 已确认不在当前 tab pool 中时执行。
 - **持久化验收**：修改 Figure Studio 选择逻辑后必须用 Playwright 覆盖刷新恢复场景，至少验证 single 与 montage 各自保存一个非首个 figure 后刷新，目标 tab、左侧 thumb、右侧 stage 标题和 localStorage 中的 `{ figureId, kind }` 都保持一致。
 
+### Paper Editor
+
+- 固定前端入口是 `/paper-editor`，默认面向 `docs/paper/latex/main.tex`。
+- 页面支持源码编辑、Markdown 输出、Rendered preview、outline 导航、滚动同步、诊断信息、导入文件与宏列表展示。
+- 预览区会直接显示可解析的本地图像；缺失图片时用可见占位卡片替代空白失败。
+- 页面默认依赖 `/api/paper-editor/document` 的 `sourceView` 和 `lineMappings` 完成源码/预览联动；若这些字段缺失，应优先判断为服务端产物陈旧。
+
 ### Loss Curves 视图
 - 当前只展示 `loss` 与 `val_loss`，**合并在同一张图中**
 - 同一个 project 的 loss 和 val_loss 保持**同一种颜色**，loss 为实线，val_loss 为虚线，便于横向对应
@@ -221,13 +258,19 @@ GET /api/paper-figures/render/{job_id}
 cd src/webui/server && npm install
 cd src/webui && npm install
 
-# 开发模式
-cd src/webui/server && npx tsx watch src/index.ts
+# 构建服务端（构建产物输出到 src/webui/server/dist/）
+cd src/webui/server && npm run build
 
 # 构建前端（构建产物输出到 src/webui/dist/）
 cd src/webui && npm run build
 # Windows PATH 未配置时：
 # D:/Program Files/nodejs/npm.cmd run build
+
+# 前台开发模式（推荐用于排查 Paper Editor）
+cd src/webui/server && bun run dev
+
+# 前台验证已构建服务端
+cd src/webui/server && bun dist/index.js
 ```
 
 前端静态资源说明：

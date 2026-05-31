@@ -169,6 +169,16 @@
 - `python cli.py server logs`
 	- 服务日志：查看服务器日志输出，详见 [docs/reference/webui.md](docs/reference/webui.md)。
 
+
+- `python ~/.agents/skills/llmtran/scripts/llmtran-cli.py <export|fill|clear|translate|dry-run|check|status|logs|result|debug>`
+	- 论文翻译链：直接调用 `llmtran` skill 的导出、回填、清空英文槽位与异步 LLM 翻译入口，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+	- 配置诊断：`dry-run` 与 `check` 直接回显 `llmtran` 当前配置、模型解析与依赖状态，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+	- 异步任务：`translate` 启动后通过 `status`、`logs`、`result` 查询任务进度和结果，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+	- 调试入口：`debug prompt` 直接输出指定条目的真实翻译 prompt，用于排查术语表和上下文拼装，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+
+- `python cli.py paper-latex build --tex main.translated.tex`
+	- 论文编译链：在 `docs/paper/latex` 下执行仓库内统一的 `xelatex + bibtex + xelatex + xelatex` 流程，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+
 - `python cli.py --vis-freq-response-compare PROJECT[@STATE] [PROJECT[@STATE]]`
 	- 频响直连对比：直接基于 `linear_response.json` 生成频率响应对比图，无需进入 ep 工作流，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。
 	- 布局模式：支持叠加和左右并排两种布局，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。

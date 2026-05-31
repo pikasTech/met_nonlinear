@@ -403,6 +403,35 @@ class TestParseArguments:
         with pytest.raises(ArgumentParsingError):
             parse_arguments(['ep', 'create'])
 
+    def test_parse_paper_translate_command_removed(self):
+        """Test paper-translate command is no longer supported in repo CLI"""
+        with pytest.raises(SystemExit):
+            parse_arguments([
+                'paper-translate',
+                'dry-run',
+            ])
+
+    def test_parse_paper_latex_build_command(self):
+        """Test parsing paper-latex build subcommand"""
+        args = parse_arguments([
+            'paper-latex',
+            'build',
+            '--workdir', 'docs/paper/latex',
+            '--tex', 'main.translated.tex',
+            '--output-dir', 'build',
+            '--engine', 'xelatex',
+            '--passes', '3',
+            '--no-bibtex',
+        ])
+        assert args.command == 'paper-latex'
+        assert args.paper_latex_action == 'build'
+        assert args.paper_latex_workdir == 'docs/paper/latex'
+        assert args.paper_latex_tex == 'main.translated.tex'
+        assert args.paper_latex_output_dir == 'build'
+        assert args.paper_latex_engine == 'xelatex'
+        assert args.paper_latex_passes == 3
+        assert args.paper_latex_no_bibtex is True
+
 
 class TestCreateParser:
     """Test create_parser function"""

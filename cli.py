@@ -5,6 +5,8 @@ cli.py - CLI 接口，仅作为内部功能的代理。
 可见性丢失或 Windows 原生崩溃。
 """
 
+from __future__ import annotations
+
 import sys
 import os
 
@@ -187,6 +189,13 @@ def _run_paper_editor_subcommand(args) -> None:
     sys.exit(result.returncode)
 
 
+def _run_paper_latex_subcommand(args) -> None:
+    """处理 paper-latex 子命令，执行本地 LaTeX 编译链。"""
+    from core.paper_latex_cli import run_paper_latex_subcommand
+
+    sys.exit(run_paper_latex_subcommand(args, _SCRIPT_DIR))
+
+
 def _run_main_commands(args) -> None:
     """处理非 ep 的主命令，按原顺序加载重型依赖。"""
     # 第二阶段：环境检查（在重型依赖导入前）
@@ -244,6 +253,10 @@ if __name__ == '__main__':
 
     if getattr(args, 'command', None) == 'paper-editor':
         _run_paper_editor_subcommand(args)
+        sys.exit(0)
+
+    if getattr(args, 'command', None) == 'paper-latex':
+        _run_paper_latex_subcommand(args)
         sys.exit(0)
 
     # 测试命令（不加载重型依赖）
