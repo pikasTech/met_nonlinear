@@ -178,6 +178,7 @@
 
 - `python cli.py paper-latex build --tex main.translated.tex`
 	- 论文编译链：在 `docs/paper/latex` 下执行仓库内统一的 `xelatex + bibtex + xelatex + xelatex` 流程，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
+	- 审阅高亮：`paper-latex review-highlight` 生成只展示最终稿、原色荧光笔标记修改处的 TeX，再用同一编译链生成 PDF，详见 [docs/reference/paper_latex_submission.md](docs/reference/paper_latex_submission.md)。
 
 - `python cli.py --vis-freq-response-compare PROJECT[@STATE] [PROJECT[@STATE]]`
 	- 频响直连对比：直接基于 `linear_response.json` 生成频率响应对比图，无需进入 ep 工作流，详见 [docs/reference/freq_response_compare.md](docs/reference/freq_response_compare.md)。

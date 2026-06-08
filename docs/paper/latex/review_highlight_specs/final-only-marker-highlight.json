@@ -1,0 +1,155 @@
+{
+  "schema": "met-paper-final-only-marker-highlight-v1",
+  "description": "Final/current manuscript only; mark changed text with native LaTeX soul highlighter, without old/deleted text, blue text, Supplementary Information highlights, or References highlights.",
+  "baseTex": "main.translated.tex",
+  "output": "build/review-highlight/main.final-only-marker-highlight.tex",
+  "highlightColor": "yellow!45",
+  "macroName": "Change",
+  "rules": {
+    "showOnlyFinalVersion": true,
+    "hideDeletedText": true,
+    "preserveOriginalTextColor": true,
+    "forbidRasterOverlay": true,
+    "forbidLatexdiffMarkup": true,
+    "doNotHighlightSupplementaryInformation": true,
+    "doNotHighlightReferences": true,
+    "allowFundingHighlight": true
+  },
+  "replacements": [
+    {
+      "id": "L117",
+      "sourceLine": 117,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\title[On-Board Real-Time AI Compensation System for MET]{On-Board Real-Time AI Compensation System for Nonlinear Drift in Electrochemical Seismometers}",
+      "replacement": "\\title[On-Board Real-Time AI Compensation System for MET]{On-Board Real-Time AI Compensation \\Change{System} for Nonlinear Drift in Electrochemical Seismometers}",
+      "count": 1
+    },
+    {
+      "id": "L119",
+      "sourceLine": 119,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\author[1]{\\fnm{Ang} \\sur{Li}}\\email{liang20@mails.jlu.edu.cn}",
+      "replacement": "\\author[1]{\\fnm{\\Change{Ang}} \\sur{\\Change{Li}}}\\email{liang20@mails.jlu.edu.cn}",
+      "count": 1
+    },
+    {
+      "id": "L120",
+      "sourceLine": 120,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\author*[1]{\\fnm{Hongyuan} \\sur{Yang}}\\email{yang\\_hy@jlu.edu.cn}",
+      "replacement": "\\author*[1]{\\fnm{\\Change{Hongyuan}} \\sur{\\Change{Yang}}}\\email{yang\\_hy@jlu.edu.cn}",
+      "count": 1
+    },
+    {
+      "id": "L121",
+      "sourceLine": 121,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\author*[1]{\\fnm{Huaizhu} \\sur{Zhang}}\\email{huaizhuzhang@jlu.edu.cn}",
+      "replacement": "\\author*[1]{\\fnm{\\Change{Huaizhu}} \\sur{\\Change{Zhang}}}\\email{huaizhuzhang@jlu.edu.cn}",
+      "count": 1
+    },
+    {
+      "id": "L122",
+      "sourceLine": 122,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\author[1]{\\fnm{Xintong} \\sur{Dong}}",
+      "replacement": "\\author[1]{\\fnm{\\Change{Xintong}} \\sur{\\Change{Dong}}}",
+      "count": 1
+    },
+    {
+      "id": "L133",
+      "sourceLine": 133,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "Electrochemical seismometers (MET) are gaining importance in geophysical exploration due to their high sensitivity, wide bandwidth, and strong tilt/impact resistance, and are considered a promising next-generation seismic detection solution. However, complex coupling among mechanical, fluid, and electrochemical processes induces significant magnitude-dependent nonlinearity, causing frequency response drift and limiting dynamic range, ultimately degrading seismic data quality and event detection reliability. Traditional force feedback methods risk closed-loop oscillation at large magnitudes, while data-driven deep learning methods, despite high accuracy in nonlinear compensation, struggle to meet real-time requirements on resource-constrained microcontrollers due to intensive matrix operations. To address real-time compensation and feedback-stability limitations, this paper proposes Wiener-KAN, a feedforward compensation system for on-board real-time execution. The system adopts the Wiener-model decomposition into linear dynamics and static nonlinearity: in the linear part, the Wiener linear layer is initialized with the relative frequency response between the target and ideal systems, injecting a physical prior and enabling rapid frequency feature extraction; in the nonlinear part, a sign- and symmetry-constrained Kolmogorov-Arnold network (KAN) with trainable spline activation functions is introduced and precomputed into lookup tables, replacing spline-function evaluation with low-latency table lookup during inference. Furthermore, this paper constructs and releases a three-dimensional frequency response dataset capturing amplitude-frequency coupling effects, and designs an amplitude-frequency loss (AFMAE) targeting frequency characteristic drift to improve frequency-domain fitting accuracy. Experimental results show that with input magnitude increased by over \\valInputGainExpansion~$\\times$, Wiener-KAN reduces frequency drift from \\valMainWienerFreqDrift~Hz to \\valPrimaryFreqDrift~Hz, \\valSensitivityCompareFreq~Hz sensitivity drift from \\valMainWienerSensDrift~$\\text{V}\\cdot\\text{s}/\\text{m}$ to \\valPrimarySensDrift~$\\text{V}\\cdot\\text{s}/\\text{m}$, and linearity error from \\valMainWienerLinearity\\% to \\valPrimaryLinearity\\%. For real-time feasibility, the precomputed KAN lookup table converts complex floating-point operations into ultra-low-latency memory addressing, achieving a throughput of \\valPrimaryKeilFps{} points/s and a minimal RAM footprint of \\valPrimaryKeilRamKB~KB on the STM32F405 microcontroller, providing an effective solution for real-time MET nonlinear compensation.%<CNHash>9A866DB2</CNHash>",
+      "replacement": "Electrochemical seismometers (MET) are gaining importance in geophysical exploration due to their high sensitivity, wide bandwidth, and strong tilt/impact resistance, and are considered a promising next-generation seismic detection solution. However, complex coupling among mechanical, fluid, and electrochemical processes induces significant magnitude-dependent nonlinearity, causing frequency response drift and limiting dynamic range, ultimately degrading seismic data quality and event detection reliability. Traditional force feedback methods risk closed-loop oscillation at large magnitudes, while data-driven deep learning methods, despite high accuracy in nonlinear compensation, struggle to meet real-time requirements on resource-constrained microcontrollers due to intensive matrix operations. \\Change{To address real-time compensation and feedback-stability limitations, this paper proposes Wiener-KAN, a feedforward compensation system for on-board real-time execution.} \\Change{The system adopts the Wiener-model decomposition into linear dynamics and static nonlinearity: in the linear part, the Wiener linear layer is initialized with the relative frequency response between the target and ideal systems, injecting a physical prior and enabling rapid frequency feature extraction; in the nonlinear part, a sign- and symmetry-constrained Kolmogorov-Arnold network (KAN) with trainable spline activation functions is introduced and precomputed into lookup tables, replacing spline-function evaluation with low-latency table lookup during inference.} \\Change{Furthermore, this paper constructs and releases a three-dimensional frequency response dataset capturing amplitude-frequency coupling effects, and designs an amplitude-frequency loss (AFMAE) targeting frequency characteristic drift to improve frequency-domain fitting accuracy.} Experimental results show that with input magnitude increased by over \\valInputGainExpansion~$\\times$, Wiener-KAN reduces frequency drift from \\valMainWienerFreqDrift~Hz to \\valPrimaryFreqDrift~Hz, \\valSensitivityCompareFreq~Hz sensitivity drift from \\valMainWienerSensDrift~$\\text{V}\\cdot\\text{s}/\\text{m}$ to \\valPrimarySensDrift~$\\text{V}\\cdot\\text{s}/\\text{m}$, and linearity error from \\valMainWienerLinearity\\% to \\valPrimaryLinearity\\%. \\Change{For real-time feasibility, the precomputed KAN lookup table converts complex floating-point operations into ultra-low-latency memory addressing, achieving a throughput of }\\valPrimaryKeilFps{}\\Change{ points/s and a minimal RAM footprint of }\\valPrimaryKeilRamKB~\\Change{KB on the STM32F405 microcontroller, providing an effective solution for real-time MET nonlinear compensation.}%<CNHash>9A866DB2</CNHash>",
+      "count": 1
+    },
+    {
+      "id": "L136",
+      "sourceLine": 136,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\keywords{electrochemical seismometer, Kolmogorov-Arnold network, nonlinearity, frequency response, loss function, on-board real-time compensation, compensation system}",
+      "replacement": "\\keywords{electrochemical seismometer, Kolmogorov-Arnold network, nonlinearity, frequency response, loss function, on-board real-time compensation, \\Change{compensation system}}",
+      "count": 1
+    },
+    {
+      "id": "L163",
+      "sourceLine": 163,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\CNEN{针对计算限制与物理先验缺失的局限，本文提出由 Wiener 线性层与 Kolmogorov-Arnold 网络相结合的板端实时 AI 补偿系统 Wiener-KAN。该系统引入传统 Wiener 模型线性动态与静态非线性分离的思路\\cite{sersourNonlinearSystemIdentification2018}：在线性部分，将实测局部频率响应切片映射为由震级条件初始化的 Wiener 线性层；在非线性部分，引入带符号与对称性约束的 Kolmogorov-Arnold 网络（KAN）可训练样条激活函数\\cite{schmidt-hieberKolmogorovArnoldRepresentation2021,liu2025kankolmogorovarnoldnetworks,alvesUseKolmogorovarnoldNetworks2024,livierisCKANNewApproach2024}。训练完成后，KAN 的一维样条映射被预计算为查找表，在板端推理阶段将密集浮点运算转化为低延迟内存寻址与读表操作。}{To address the limitations of computational constraints and missing physical priors, this paper proposes Wiener-KAN as an on-board real-time AI compensation system combining a Wiener linear layer with a Kolmogorov-Arnold network. The system adopts the classical Wiener model concept of separating linear dynamics from static nonlinearity \\cite{sersourNonlinearSystemIdentification2018}: in the linear part, measured local frequency response slices are mapped to a Wiener linear layer initialized by magnitude conditions; in the nonlinear part, a sign- and symmetry-constrained Kolmogorov-Arnold network (KAN) with trainable spline activation functions is introduced \\cite{schmidt-hieberKolmogorovArnoldRepresentation2021,liu2025kankolmogorovarnoldnetworks,alvesUseKolmogorovarnoldNetworks2024,livierisCKANNewApproach2024}. After training, the one-dimensional spline mappings in KAN are precomputed into lookup tables, transforming dense floating-point operations into low-latency memory addressing and table lookup during on-board inference.%<CNHash>F742EF80</CNHash>",
+      "replacement": "\\CNEN{针对计算限制与物理先验缺失的局限，本文提出由 Wiener 线性层与 Kolmogorov-Arnold 网络相结合的板端实时 AI 补偿系统 Wiener-KAN。该系统引入传统 Wiener 模型线性动态与静态非线性分离的思路\\cite{sersourNonlinearSystemIdentification2018}：在线性部分，将实测局部频率响应切片映射为由震级条件初始化的 Wiener 线性层；在非线性部分，引入带符号与对称性约束的 Kolmogorov-Arnold 网络（KAN）可训练样条激活函数\\cite{schmidt-hieberKolmogorovArnoldRepresentation2021,liu2025kankolmogorovarnoldnetworks,alvesUseKolmogorovarnoldNetworks2024,livierisCKANNewApproach2024}。训练完成后，KAN 的一维样条映射被预计算为查找表，在板端推理阶段将密集浮点运算转化为低延迟内存寻址与读表操作。}{\\Change{To address the limitations of computational constraints and missing physical priors, this paper proposes Wiener-KAN as an on-board real-time AI compensation system combining a Wiener linear layer with a Kolmogorov-Arnold network.} \\Change{The system adopts the classical Wiener model concept of separating linear dynamics from static nonlinearity} \\cite{sersourNonlinearSystemIdentification2018}: in the linear part, measured local frequency response slices are mapped to a Wiener linear layer initialized by magnitude conditions; in the nonlinear part, a sign- and symmetry-constrained Kolmogorov-Arnold network (KAN) with trainable spline activation functions is introduced \\cite{schmidt-hieberKolmogorovArnoldRepresentation2021,liu2025kankolmogorovarnoldnetworks,alvesUseKolmogorovarnoldNetworks2024,livierisCKANNewApproach2024}. After training, the one-dimensional spline mappings in KAN are precomputed into lookup tables, transforming dense floating-point operations into low-latency memory addressing and table lookup during on-board inference.%<CNHash>F742EF80</CNHash>",
+      "count": 1
+    },
+    {
+      "id": "L166",
+      "sourceLine": 166,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\CNEN{据此，本文贡献围绕板端补偿系统及其数据、模型、损失和部署组件展开。三维频率响应数据集为幅频耦合提供实测证据；Wiener 线性层承载局部频率响应先验；带符号和对称性条件的 KAN 使用可训练样条函数映射剩余震级相关非线性；AFMAE 使训练目标与频率响应精度一致；预计算 LUT 将训练后的映射转化为嵌入式实现。上述组件在相同物理指标和板端协议下进行评价。}{Accordingly, the contribution of this work is organized around an on-board compensation system and its data, model, loss, and deployment components. The three-dimensional frequency response dataset supplies measured evidence for amplitude-frequency coupling; the Wiener linear layer carries the local frequency response prior; the sign- and symmetry-conditioned KAN maps the remaining magnitude-dependent nonlinearity with trainable spline functions; AFMAE aligns the training objective with frequency-response accuracy; and the precomputed LUT converts the trained mapping into an embedded implementation. These components are evaluated under the same physical metrics and on-board protocol.}",
+      "replacement": "\\CNEN{据此，本文贡献围绕板端补偿系统及其数据、模型、损失和部署组件展开。三维频率响应数据集为幅频耦合提供实测证据；Wiener 线性层承载局部频率响应先验；带符号和对称性条件的 KAN 使用可训练样条函数映射剩余震级相关非线性；AFMAE 使训练目标与频率响应精度一致；预计算 LUT 将训练后的映射转化为嵌入式实现。上述组件在相同物理指标和板端协议下进行评价。}{\\Change{Accordingly, the contribution of this work is organized around an on-board compensation system and its data, model, loss, and deployment components.} The three-dimensional frequency response dataset supplies measured evidence for amplitude-frequency coupling; the Wiener linear layer carries the local frequency response prior; the sign- and symmetry-conditioned KAN maps the remaining magnitude-dependent nonlinearity with trainable spline functions; AFMAE aligns the training objective with frequency-response accuracy; and the precomputed LUT converts the trained mapping into an embedded implementation. These components are evaluated under the same physical metrics and on-board protocol.}",
+      "count": 1
+    },
+    {
+      "id": "L252",
+      "sourceLine": 252,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\CNEN{本文提出的板端实时 AI 补偿系统如 Fig.~\\ref{fig:wiener_kan_framework}(a) 所示。Wiener-KAN 将补偿问题表述为神经 Wiener 系统：用多核 Wiener 线性层同时提取各工作点下的频响特征，以保留局部物理先验；再采用多层、多输入 KAN 网络，以端到端学习方式拟合复杂动态余项与跨支路串扰，从而实现宽频带、全量程的整体映射重构。相比传统力反馈方案，该前馈结构不需要额外机械反馈装置，因此能够避免力反馈系统中由非线性引起的闭环振荡问题。并联 Wiener 逆模型的解析困难见 Supplementary Note 4。}{The proposed on-board real-time AI compensation system is illustrated in Fig.~\\ref{fig:wiener_kan_framework}(a). Wiener-KAN casts the compensation problem into a neural Wiener system: a multi-kernel Wiener linear layer extracts frequency response features at different operating points to retain local physical priors, and a multi-layer, multi-input KAN network then learns the complex dynamic residuals and cross-branch crosstalk end to end, enabling global mapping reconstruction over a wide bandwidth and full dynamic range. Compared with traditional force feedback approaches, this feedforward structure requires no additional mechanical feedback unit, thereby avoiding closed-loop oscillation caused by nonlinearity in force feedback systems. The analytical difficulty of the parallel Wiener inverse model is given in Supplementary Note 4.%<CNHash>DFEEC505</CNHash>",
+      "replacement": "\\CNEN{本文提出的板端实时 AI 补偿系统如 Fig.~\\ref{fig:wiener_kan_framework}(a) 所示。Wiener-KAN 将补偿问题表述为神经 Wiener 系统：用多核 Wiener 线性层同时提取各工作点下的频响特征，以保留局部物理先验；再采用多层、多输入 KAN 网络，以端到端学习方式拟合复杂动态余项与跨支路串扰，从而实现宽频带、全量程的整体映射重构。相比传统力反馈方案，该前馈结构不需要额外机械反馈装置，因此能够避免力反馈系统中由非线性引起的闭环振荡问题。并联 Wiener 逆模型的解析困难见 Supplementary Note 4。}{\\Change{The proposed on-board real-time AI compensation system is illustrated in Fig.}~\\ref{fig:wiener_kan_framework}\\Change{(a).} \\Change{Wiener-KAN casts the compensation problem into a neural Wiener system:} a multi-kernel Wiener linear layer extracts frequency response features at different operating points to retain local physical priors, and a multi-layer, multi-input KAN network then learns the complex dynamic residuals and cross-branch crosstalk end to end, enabling global mapping reconstruction over a wide bandwidth and full dynamic range. Compared with traditional force feedback approaches, this feedforward structure requires no additional mechanical feedback unit, thereby avoiding closed-loop oscillation caused by nonlinearity in force feedback systems. The analytical difficulty of the parallel Wiener inverse model is given in Supplementary Note 4.%<CNHash>DFEEC505</CNHash>",
+      "count": 1
+    },
+    {
+      "id": "L409",
+      "sourceLine": 409,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\CNEN{消融实验评价 Wiener-KAN 的训练目标、结构变体、符号与对称性条件、Wiener 前端和超参数设置。Tab.~\\ref{tab:ablation_overview} 汇总 \\valAblationOverviewRowCount{} 条数值对比，覆盖结构变体、符号与对称性条件、Wiener 前端和损失函数。}{The ablation study evaluates the training objective, structural variants, sign and symmetry conditions, Wiener front-end, and hyperparameter settings of Wiener-KAN. Tab.~\\ref{tab:ablation_overview} summarizes \\valAblationOverviewRowCount{} numerical comparisons covering structural variants, sign and symmetry conditions, the Wiener front-end, and the loss function.%<CNHash>9B63CC30</CNHash>",
+      "replacement": "\\CNEN{消融实验评价 Wiener-KAN 的训练目标、结构变体、符号与对称性条件、Wiener 前端和超参数设置。Tab.~\\ref{tab:ablation_overview} 汇总 \\valAblationOverviewRowCount{} 条数值对比，覆盖结构变体、符号与对称性条件、Wiener 前端和损失函数。}{\\Change{The ablation study evaluates the training objective, structural variants, sign and symmetry conditions, Wiener front-end, and hyperparameter settings of Wiener-KAN.} \\Change{Tab.}~\\ref{tab:ablation_overview}\\Change{ summarizes }\\valAblationOverviewRowCount{}\\Change{ numerical comparisons covering structural variants, sign and symmetry conditions, the Wiener front-end, and the loss function.}%<CNHash>9B63CC30</CNHash>",
+      "count": 1
+    },
+    {
+      "id": "L427",
+      "sourceLine": 427,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\CNEN{损失函数消融显示，MAE+AFMAE 在频率漂移、灵敏度漂移和线性度误差三项指标上形成最均衡结果，说明时域逐点误差和幅频响应误差需要共同参与训练目标。单独使用 MAE 时，逐点误差目标对幅值相关频率漂移的约束较弱；单独使用 AFMAE 时，幅频统计约束改善频率漂移，但灵敏度漂移和线性度误差仍高于联合目标。结构变体、物理约束、Wiener 前端、超参数敏感性和损失函数消融的详细结果见 Supplementary Note 7。}{The loss-function ablation shows that MAE+AFMAE yields the most balanced results across frequency drift, sensitivity drift, and linearity error, indicating that pointwise time-domain error and amplitude-frequency response error must jointly participate in the training objective. With MAE alone, the pointwise error objective imposes weak constraints on amplitude-related frequency drift. With AFMAE alone, the amplitude-frequency statistical constraint improves frequency drift, but sensitivity drift and linearity error remain higher than those of the joint objective. Detailed structural, constraint, Wiener-front-end, hyperparameter, and loss-function ablations are provided in Supplementary Note 7.%<CNHash>A8825545</CNHash>",
+      "replacement": "\\CNEN{损失函数消融显示，MAE+AFMAE 在频率漂移、灵敏度漂移和线性度误差三项指标上形成最均衡结果，说明时域逐点误差和幅频响应误差需要共同参与训练目标。单独使用 MAE 时，逐点误差目标对幅值相关频率漂移的约束较弱；单独使用 AFMAE 时，幅频统计约束改善频率漂移，但灵敏度漂移和线性度误差仍高于联合目标。结构变体、物理约束、Wiener 前端、超参数敏感性和损失函数消融的详细结果见 Supplementary Note 7。}{The loss-function ablation shows that MAE+AFMAE yields the most balanced results across frequency drift, sensitivity drift, and linearity error, indicating that pointwise time-domain error and amplitude-frequency response error must jointly participate in the training objective. With MAE alone, the pointwise error objective imposes weak constraints on amplitude-related frequency drift. With AFMAE alone, the amplitude-frequency statistical constraint improves frequency drift, but sensitivity drift and linearity error remain higher than those of the joint objective. \\Change{Detailed structural, constraint, Wiener-front-end, hyperparameter, and loss-function ablations are provided in Supplementary Note 7.}%<CNHash>A8825545</CNHash>",
+      "count": 1
+    },
+    {
+      "id": "L455",
+      "sourceLine": 455,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\CNEN{本文结合 Wiener 结构的线性--非线性分解、频率响应信息和 Kolmogorov-Arnold 网络，构建了 Wiener-KAN 非线性补偿系统。本文构建并开放了捕获幅频耦合效应的三维频率响应数据集，将相对频率响应切片映射到 Wiener 线性层初始化权重，使用带符号和对称性约束的可训练样条激活函数直接学习传感器校准曲线，并通过 AFMAE 约束幅频差异。实验结果表明，Wiener-KAN 改善了电化学地震检波器的输入输出曲线并抑制频率漂移，说明前馈补偿可以在保持传感器硬件结构的同时改善 MET 传感器的大震级响应质量。基于预计算查找表的推理机制进一步验证了地震仪器板端实时计算的可行性。}{This work constructs the Wiener-KAN nonlinear compensation system by combining the linear-nonlinear decomposition of the Wiener structure, frequency response information, and Kolmogorov-Arnold networks. This paper constructs and releases a three-dimensional frequency response dataset capturing amplitude-frequency coupling effects, maps relative frequency response slices into the initialization weights of the Wiener linear layer, uses trainable spline activation functions with sign and symmetry constraints to directly learn the sensor calibration curve, and constrains amplitude-frequency discrepancy through AFMAE. Experimental results show that Wiener-KAN improves the input-output curve of electrochemical seismometers and suppresses frequency drift, indicating that feedforward compensation can improve the large-magnitude response quality of MET sensors while preserving the sensor hardware structure. The inference mechanism based on a precomputed lookup table further demonstrates the feasibility of real-time on-board computation in seismic instruments.%<CNHash>55797861</CNHash>",
+      "replacement": "\\CNEN{本文结合 Wiener 结构的线性--非线性分解、频率响应信息和 Kolmogorov-Arnold 网络，构建了 Wiener-KAN 非线性补偿系统。本文构建并开放了捕获幅频耦合效应的三维频率响应数据集，将相对频率响应切片映射到 Wiener 线性层初始化权重，使用带符号和对称性约束的可训练样条激活函数直接学习传感器校准曲线，并通过 AFMAE 约束幅频差异。实验结果表明，Wiener-KAN 改善了电化学地震检波器的输入输出曲线并抑制频率漂移，说明前馈补偿可以在保持传感器硬件结构的同时改善 MET 传感器的大震级响应质量。基于预计算查找表的推理机制进一步验证了地震仪器板端实时计算的可行性。}{\\Change{This work constructs the Wiener-KAN nonlinear compensation system by combining the linear-nonlinear decomposition of the Wiener structure, frequency response information, and Kolmogorov-Arnold networks.} This paper constructs and releases a three-dimensional frequency response dataset capturing amplitude-frequency coupling effects, maps relative frequency response slices into the initialization weights of the Wiener linear layer, uses trainable spline activation functions with sign and symmetry constraints to directly learn the sensor calibration curve, and constrains amplitude-frequency discrepancy through AFMAE. Experimental results show that Wiener-KAN improves the input-output curve of electrochemical seismometers and suppresses frequency drift, indicating that feedforward compensation can improve the large-magnitude response quality of MET sensors while preserving the sensor hardware structure. \\Change{The inference mechanism based on a precomputed lookup table further demonstrates the feasibility of real-time on-board computation in seismic instruments.}%<CNHash>55797861</CNHash>",
+      "count": 1
+    },
+    {
+      "id": "L465",
+      "sourceLine": 465,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\section*{Funding}",
+      "replacement": "\\section*{\\Change{Funding}}",
+      "count": 1
+    },
+    {
+      "id": "L466",
+      "sourceLine": 466,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "This work was funded by the Deep Earth Probe and Mineral Resources Exploration-National Science and Technology Major Project (Grant No. 2024ZD1002503).",
+      "replacement": "\\Change{This work was funded by the Deep Earth Probe and Mineral Resources Exploration-National Science and Technology Major Project (Grant No. 2024ZD1002503).}",
+      "count": 1
+    }
+  ]
+}

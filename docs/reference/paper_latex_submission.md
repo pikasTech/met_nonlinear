@@ -23,6 +23,7 @@ MN 本地稿件相关文件以 `docs/paper/latex/` 作为唯一权威目录，�
 - `docs/paper/latex/nonlinear.bib`：本地参考文献数据源。
 - `docs/paper/latex/sn-jnl.cls`：Springer Nature 期刊模板类文件。
 - `docs/paper/latex/bst/sn-nature.bst`：模板对应的参考文献样式文件。
+- `docs/paper/latex/review_highlight_specs/`：最终稿审阅高亮规范，记录哪些最终稿内容需要用 LaTeX 原生荧光笔标记。
 - `docs/paper/latex/build/main.pdf`：中文中间稿本地编译产物。
 - `docs/paper/latex/build/main.translated.pdf`：英文投稿稿本地编译产物。
 - `docs/paper/latex/build/supplement.pdf`：补充材料本地编译产物。
@@ -346,9 +347,9 @@ xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.t
 
 实现架构约定如下：
 
-- [src/core/cli_parser.py](src/core/cli_parser.py) 负责声明 `paper-latex build` 子命令、默认参数和轻量子命令入口，并把解析结果映射回 `CLIArgs`。
+- [src/core/cli_parser.py](src/core/cli_parser.py) 负责声明 `paper-latex build` / `review-highlight` 子命令、默认参数和轻量子命令入口，并把解析结果映射回 `CLIArgs`。
 - [cli.py](cli.py) 只负责识别 `paper-latex` 命令并调用专用 runner，不负责具体阶段编排。
-- [src/core/paper_latex_cli.py](src/core/paper_latex_cli.py) 是编译链的唯一实现入口：`build_paper_latex_plan(...)` 负责解析路径、引擎和 stage 列表，`run_paper_latex_subcommand(...)` 负责顺序执行并输出 JSON 状态。
+- [src/core/paper_latex_cli.py](src/core/paper_latex_cli.py) 是编译链和审阅高亮生成的唯一实现入口：`build_paper_latex_plan(...)` 负责解析路径、引擎和 stage 列表，`build_review_highlight_plan(...)` 负责按 JSON 规范生成 final-only 荧光高亮 TeX，`run_paper_latex_subcommand(...)` 负责顺序执行并输出 JSON 状态。
 - 路径解析由 `_resolve_repo_path(...)` 和 `_relative_or_absolute(...)` 统一处理；可执行文件解析由 `_resolve_executable(...)` 统一处理，避免把 PATH 查找、绝对路径和 TeX Live fallback 散落到 CLI 主入口里。
 - 运行期输出协议固定为 JSON `running` / `ok` / `error` 包络加实时子进程输出；`ok` 阶段会附带 `outputPdf` 和每个 stage 的 `stageReturncodes`，便于上层自动消费。
 - 解析与执行层的回归点分别在 [src/tests/core/test_cli_parser.py](src/tests/core/test_cli_parser.py) 和 [src/tests/core/test_paper_latex_cli.py](src/tests/core/test_paper_latex_cli.py)。
@@ -358,6 +359,30 @@ xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.t
 - 命令执行过程中子进程输出保持前台可见，便于直接看 warning 与错误位置。
 - 命令结束后产物稳定落在 `docs/paper/latex/build/` 或显式指定的输出目录。
 - 对有参考文献的稿件，不再需要手工补跑 `bibtex` 才能得到收敛结果。
+
+### Final-only 荧光高亮审阅稿
+
+当需要交付“只展示最终稿、修改处高亮”的审阅 PDF 时，权威入口是仓库内 `paper-latex review-highlight` 子命令和 `docs/paper/latex/review_highlight_specs/` 下的 JSON 规范；不要再手工拼 `latexdiff` 输出或页面截图叠加。
+
+默认生成命令如下：
+
+```bash
+python cli.py paper-latex review-highlight --tex main.translated.tex
+python cli.py paper-latex build --tex build/review-highlight/main.final-only-marker-highlight.tex
+```
+
+如果需要固定 PDF 文件名，可让 `review-highlight` 通过 `--output` 在 `docs/paper/latex/` 下临时写出同名 TeX，编译完成后删除该临时 TeX；正式的规范文件仍保留在 `review_highlight_specs/`，编译产物仍落在 `build/`。
+
+审阅高亮的稳定标准如下：
+
+- 只展示当前最终稿，不展示旧稿文本、删除文本或前后两个版本。
+- 使用 LaTeX 原生 `soul` 高亮：`\sethlcolor{yellow!45}` 与 `\hl{...}`，文本保持原色，不使用蓝字、删除线或 `DIFadd` / `DIFdel`。
+- 不允许把 PDF 页面转成图片后再叠加高亮；正文、公式、链接和文字选择能力应保持 LaTeX 原生输出。
+- 新增、替换或删除导致的变更按可读性标记；如果涉及删除或整句重组，优先高亮上下句或整段，而不是只标一个新词。
+- `Supplementary Information` 声明段和 `References` 不高亮；Funding 元信息若属于本轮新增或更新，可以高亮。
+- 生成器必须验证输出 TeX 中不存在 `DIFadd`、`DIFdel`、`\color{blue}`，且 Supplementary Information 段和 References 段没有 `\Change{...}`。
+
+`review_highlight_specs/final-only-marker-highlight.json` 是当前 MN 主稿 final-only 高亮的唯一规范来源。若后续正文继续微调，应先更新该 JSON 中的 `target` / `replacement`，再运行 `paper-latex review-highlight` 重新生成 TeX；不要直接编辑 `build/` 下的生成稿作为权威来源。
 
 ## 可接受的本地编译兜底
 

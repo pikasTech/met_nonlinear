@@ -432,6 +432,27 @@ class TestParseArguments:
         assert args.paper_latex_passes == 3
         assert args.paper_latex_no_bibtex is True
 
+    def test_parse_paper_latex_review_highlight_command(self):
+        """Test parsing paper-latex review-highlight subcommand"""
+        args = parse_arguments([
+            'paper-latex',
+            'review-highlight',
+            '--workdir', 'docs/paper/latex',
+            '--tex', 'main.translated.tex',
+            '--spec', 'review_highlight_specs/final-only-marker-highlight.json',
+            '--output', 'build/review-highlight.tex',
+            '--highlight-color', 'yellow!45',
+            '--macro-name', 'Change',
+        ])
+        assert args.command == 'paper-latex'
+        assert args.paper_latex_action == 'review-highlight'
+        assert args.paper_latex_workdir == 'docs/paper/latex'
+        assert args.paper_latex_tex == 'main.translated.tex'
+        assert args.paper_latex_highlight_spec == 'review_highlight_specs/final-only-marker-highlight.json'
+        assert args.paper_latex_highlight_output == 'build/review-highlight.tex'
+        assert args.paper_latex_highlight_color == 'yellow!45'
+        assert args.paper_latex_highlight_macro == 'Change'
+
 
 class TestCreateParser:
     """Test create_parser function"""

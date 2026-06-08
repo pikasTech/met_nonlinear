@@ -112,6 +112,10 @@ class CLIArgs:
     paper_latex_engine: Optional[str] = None
     paper_latex_passes: int = 3
     paper_latex_no_bibtex: bool = False
+    paper_latex_highlight_spec: Optional[str] = None
+    paper_latex_highlight_output: Optional[str] = None
+    paper_latex_highlight_color: Optional[str] = None
+    paper_latex_highlight_macro: Optional[str] = None
 
 
 @dataclass
@@ -399,6 +403,17 @@ def _create_subcommand_parser(config: CLIConfig) -> argparse.ArgumentParser:
     paper_latex_build_parser.add_argument('--engine', dest='paper_latex_engine', default='xelatex', help='LaTeX 引擎，默认: xelatex')
     paper_latex_build_parser.add_argument('--passes', dest='paper_latex_passes', type=int, default=3, help='LaTeX 总 pass 数，默认: 3')
     paper_latex_build_parser.add_argument('--no-bibtex', dest='paper_latex_no_bibtex', action='store_true', help='跳过 bibtex 步骤')
+
+    paper_latex_highlight_parser = paper_latex_subparsers.add_parser(
+        'review-highlight',
+        help='生成只展示最终稿、原色荧光笔标记修改处的 review TeX'
+    )
+    paper_latex_highlight_parser.add_argument('--workdir', dest='paper_latex_workdir', default='docs/paper/latex', help='LaTeX 工作目录，相对仓库根目录')
+    paper_latex_highlight_parser.add_argument('--tex', dest='paper_latex_tex', default='main.translated.tex', help='TeX 入口文件，相对 workdir 或绝对路径')
+    paper_latex_highlight_parser.add_argument('--spec', dest='paper_latex_highlight_spec', default='review_highlight_specs/final-only-marker-highlight.json', help='高亮替换规范 JSON，相对 workdir 或绝对路径')
+    paper_latex_highlight_parser.add_argument('--output', dest='paper_latex_highlight_output', help='输出 TeX，相对 workdir 或绝对路径')
+    paper_latex_highlight_parser.add_argument('--highlight-color', dest='paper_latex_highlight_color', help='soul 高亮颜色，默认由 spec 指定')
+    paper_latex_highlight_parser.add_argument('--macro-name', dest='paper_latex_highlight_macro', help='高亮宏名，默认由 spec 指定')
 
     return parser
 
@@ -695,6 +710,10 @@ def parse_arguments(argv: Optional[List[str]] = None) -> CLIArgs:
                 paper_latex_engine=getattr(args, 'paper_latex_engine', None),
                 paper_latex_passes=getattr(args, 'paper_latex_passes', 3),
                 paper_latex_no_bibtex=getattr(args, 'paper_latex_no_bibtex', False),
+                paper_latex_highlight_spec=getattr(args, 'paper_latex_highlight_spec', None),
+                paper_latex_highlight_output=getattr(args, 'paper_latex_highlight_output', None),
+                paper_latex_highlight_color=getattr(args, 'paper_latex_highlight_color', None),
+                paper_latex_highlight_macro=getattr(args, 'paper_latex_highlight_macro', None),
             )
 
         # 检查是否为测试任务
