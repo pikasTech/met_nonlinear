@@ -1,5 +1,5 @@
 {
-  "execution_time": "2026-04-28T18:59:40.429838",
+  "execution_time": "2026-06-04T21:32:40.975472",
   "task_info": {
     "task_type": "paper-figure-single",
     "task_name": "fig_14_met_nonlinear_mechanism",
@@ -8,5 +8,5 @@
   "output_files": [
     "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_14_met_nonlinear_mechanism\\data"
   ],
-  "config_hash": "546731481d92b334b6287dce8c7d2487"
+  "config_hash": "ea86ebc574387a6577a74e4db3586a99"
 }

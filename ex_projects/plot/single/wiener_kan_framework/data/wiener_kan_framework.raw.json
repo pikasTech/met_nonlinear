@@ -17,7 +17,7 @@
     "output": "C:/work/met_nonlinear_master/ex_projects/plot/single/wiener_kan_framework/data/wiener_kan_framework.png",
     "size": [
       3000,
-      1348
+      1318
     ],
     "layout": "matrix",
     "rows": 1,
@@ -50,11 +50,11 @@
         "label": null,
         "original_size": [
           3920,
-          1761
+          1722
         ],
         "rendered_size": [
           3000,
-          1348
+          1318
         ],
         "scale": 1.0,
         "fit_width": 3000,
@@ -79,16 +79,16 @@
           "x": 0,
           "y": 0,
           "width": 3000,
-          "height": 1348,
+          "height": 1318,
           "content_y": 0,
-          "content_height": 1348,
+          "content_height": 1318,
           "label_band_height": 0
         },
         "paste_box": [
           0,
           0,
           3000,
-          1348
+          1318
         ]
       }
     ]

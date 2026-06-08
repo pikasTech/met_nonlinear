@@ -2,7 +2,8 @@
   "source_trace": "ex_projects/plot paper figure workflow",
   "source_figures": [
     "ex_projects/plot/single/calibration_table_test/data/calibration_table_test.png",
-    "ex_projects/plot/single/fig_19_dataset_preprocessing_workflow/data/fig_19_dataset_preprocessing_workflow.png"
+    "ex_projects/plot/single/fig_19_dataset_preprocessing_workflow/data/fig_19_dataset_preprocessing_workflow.png",
+    "ex_projects/plot/single/met_nonlinear_frequency_response/data/met_nonlinear_frequency_response.png"
   ],
   "modification_scope": "Multi-panel figure composed inside ex_projects/plot/multi/fig_21_experimental_setup_dataset_workflow_montage.",
   "paper_plot_style": {
@@ -17,23 +18,23 @@
   "montage": {
     "output": "C:/work/met_nonlinear_master/ex_projects/plot/multi/fig_21_experimental_setup_dataset_workflow_montage/data/fig_21_experimental_setup_dataset_workflow_montage.png",
     "size": [
-      6036,
-      3001
+      5380,
+      3779
     ],
-    "layout": "horizontal",
-    "rows": 1,
+    "layout": "matrix",
+    "rows": 2,
     "cols": 2,
     "padding": [
-      90,
-      80,
-      90,
+      774,
+      70,
+      774,
       80
     ],
     "gutter": [
-      110,
-      90
+      40,
+      80
     ],
-    "label_font_size_px": 130,
+    "label_font_size_px": 116,
     "label_font_size_pt": 8.0,
     "label_reference_width_pt": 372.0,
     "latex_width_fraction": 1.0,
@@ -43,7 +44,8 @@
     "label_gap": 24,
     "label_outside_top": true,
     "row_label_heights": [
-      141
+      128,
+      128
     ],
     "panels": [
       {
@@ -54,11 +56,11 @@
           2052
         ],
         "rendered_size": [
-          3600,
-          2051
+          2600,
+          1481
         ],
         "scale": 1.0,
-        "fit_width": 3600,
+        "fit_width": 2600,
         "fit_height": null,
         "align_x": "center",
         "align_y": "center",
@@ -77,19 +79,19 @@
           "col": 0,
           "row_span": 1,
           "col_span": 1,
-          "x": 90,
-          "y": 80,
-          "width": 3600,
-          "height": 2841,
-          "content_y": 221,
-          "content_height": 2700,
-          "label_band_height": 141
+          "x": 774,
+          "y": 70,
+          "width": 2600,
+          "height": 1628,
+          "content_y": 198,
+          "content_height": 1500,
+          "label_band_height": 128
         },
         "paste_box": [
-          90,
-          545,
-          3690,
-          2596
+          774,
+          207,
+          3374,
+          1688
         ]
       },
       {
@@ -100,12 +102,12 @@
           1902
         ],
         "rendered_size": [
-          2146,
-          2700
+          1192,
+          1500
         ],
         "scale": 1.0,
         "fit_width": null,
-        "fit_height": 2700,
+        "fit_height": 1500,
         "align_x": "center",
         "align_y": "top",
         "offset_x": 0,
@@ -123,19 +125,65 @@
           "col": 1,
           "row_span": 1,
           "col_span": 1,
-          "x": 3800,
-          "y": 80,
-          "width": 2146,
-          "height": 2841,
-          "content_y": 221,
-          "content_height": 2700,
-          "label_band_height": 141
+          "x": 3414,
+          "y": 70,
+          "width": 1192,
+          "height": 1628,
+          "content_y": 198,
+          "content_height": 1500,
+          "label_band_height": 128
         },
         "paste_box": [
-          3800,
-          221,
-          5946,
-          2921
+          3414,
+          198,
+          4606,
+          1698
+        ]
+      },
+      {
+        "source": "C:/work/met_nonlinear_master/ex_projects/plot/single/met_nonlinear_frequency_response/data/met_nonlinear_frequency_response.png",
+        "label": "(c)",
+        "original_size": [
+          1774,
+          874
+        ],
+        "rendered_size": [
+          3640,
+          1793
+        ],
+        "scale": 1.0,
+        "fit_width": 3640,
+        "fit_height": null,
+        "align_x": "center",
+        "align_y": "top",
+        "offset_x": 0,
+        "offset_y": 0,
+        "row_span": 1,
+        "col_span": 2,
+        "trim_border": 30,
+        "trim_border_left": null,
+        "trim_border_right": null,
+        "trim_border_top": null,
+        "trim_border_bottom": null,
+        "trim_tolerance": 8,
+        "cell": {
+          "row": 1,
+          "col": 0,
+          "row_span": 1,
+          "col_span": 2,
+          "x": 774,
+          "y": 1778,
+          "width": 3832,
+          "height": 1921,
+          "content_y": 1906,
+          "content_height": 1793,
+          "label_band_height": 128
+        },
+        "paste_box": [
+          870,
+          1906,
+          4510,
+          3699
         ]
       }
     ]

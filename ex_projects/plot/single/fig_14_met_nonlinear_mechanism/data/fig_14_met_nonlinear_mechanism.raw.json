@@ -17,7 +17,7 @@
     "output": "C:/work/met_nonlinear_master/ex_projects/plot/single/fig_14_met_nonlinear_mechanism/data/fig_14_met_nonlinear_mechanism.png",
     "size": [
       2400,
-      1102
+      1110
     ],
     "layout": "matrix",
     "rows": 1,
@@ -49,12 +49,12 @@
         "source": "C:/work/met_nonlinear_master/docs/paper/figures/legacy/_montage_panels/fig_14_met_nonlinear_mechanism_source.png",
         "label": null,
         "original_size": [
-          1729,
-          794
+          1747,
+          808
         ],
         "rendered_size": [
           2400,
-          1102
+          1110
         ],
         "scale": 1.0,
         "fit_width": 2400,
@@ -79,16 +79,16 @@
           "x": 0,
           "y": 0,
           "width": 2400,
-          "height": 1102,
+          "height": 1110,
           "content_y": 0,
-          "content_height": 1102,
+          "content_height": 1110,
           "label_band_height": 0
         },
         "paste_box": [
           0,
           0,
           2400,
-          1102
+          1110
         ]
       }
     ]

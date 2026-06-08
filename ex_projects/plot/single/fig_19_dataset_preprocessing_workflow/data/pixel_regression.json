@@ -1,16 +1,15 @@
 {
-  "status": "shape_mismatch",
+  "status": "diff",
   "output": "ex_projects/plot/single/fig_19_dataset_preprocessing_workflow/data/fig_19_dataset_preprocessing_workflow.png",
   "baseline": "docs/paper/figures/legacy/fig_19_dataset_preprocessing_workflow.png",
-  "output_shape": [
-    2027,
-    1587,
-    4
-  ],
-  "baseline_shape": [
+  "shape": [
     2049,
     1609,
     4
   ],
-  "pixel_exact": false
+  "pixel_exact": false,
+  "mismatch_pixels": 106301,
+  "total_pixels": 3296841,
+  "mismatch_ratio": 0.03224328986444903,
+  "max_abs_channel_diff": 221
 }

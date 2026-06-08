@@ -11,13 +11,13 @@
 % Scan settings
 \newcommand{\valFreqScanStart}{10}
 \newcommand{\valFreqScanEnd}{128}
-\newcommand{\valFreqScanPoints}{14}
+\newcommand{\valFreqScanPoints}{12}
 \newcommand{\valMagScanStart}{0.24}
 \newcommand{\valMagScanEnd}{6.0}
 \newcommand{\valMagScanPoints}{25}
 \newcommand{\valScanSeconds}{4}
 \newcommand{\valCalibrationTableFreqStart}{5}
-\newcommand{\valCalibrationTableFreqEnd}{200}
+\newcommand{\valCalibrationTableFreqEnd}{128}
 \newcommand{\valSequenceNum}{8000}
 \newcommand{\valSamplingFreq}{2000}
 
@@ -50,10 +50,8 @@
 % Nonlinear frequency-response drift example
 \newcommand{\valMetFnMin}{34.2}
 \newcommand{\valMetFnMax}{93.4}
-\newcommand{\valMetFnDriftPct}{173.1\%}
-\newcommand{\valMetSensMin}{60.6}
+\newcommand{\valMetSensMin}{60.0}
 \newcommand{\valMetSensMax}{203.4}
-\newcommand{\valMetSensDriftPct}{254.6\%}
 \newcommand{\valLrnnStateDim}{4}
 \newcommand{\valIirOrder}{2}
 \newcommand{\valInputGainExpansion}{10}
@@ -76,7 +74,7 @@
 
 % Embedded deployment results
 \newcommand{\valTargetMcu}{STM32F405}
-\newcommand{\valLutPoints}{800}
+\newcommand{\valLutPoints}{769}
 \newcommand{\valLutTargetMae}{0.005}
 \newcommand{\valLutFlashKB}{550}
 \newcommand{\valLutAccuracyLossMax}{0.5\%}
@@ -94,17 +92,17 @@
 
 % Generated values for manuscript expansion
 
-\newcommand{\valDatasetFreqRange}{10--200~Hz sampled grid; evaluation band $\leq 128$~Hz}
+\newcommand{\valDatasetFreqRange}{10--128~Hz}
 
-\newcommand{\valDatasetMagnitudeRange}{0.24--6.0 m/s2}
+\newcommand{\valDatasetMagnitudeRange}{0.24--6.0~$\text{m}/\text{s}^2$}
 
-\newcommand{\valDatasetPreprocess}{steady-state clipping, two-window slicing, and normalization to [-1, 1]}
+\newcommand{\valDatasetPreprocess}{steady-state clipping, per-condition temporal splitting, and input/target normalization to [-1, 1]}
 
 \newcommand{\valDatasetScenarioMapping}{frequency--magnitude matrix with paired measured and ideal waveforms}
 
-\newcommand{\valDatasetSplit}{50\%/50\% training/validation split}
+\newcommand{\valDatasetSplit}{per-condition 50\%/50\% temporal training/validation split}
 
-\newcommand{\valDatasetTotalRecords}{350 frequency--magnitude operating points}
+\newcommand{\valDatasetTotalRecords}{300 frequency--magnitude operating points}
 
 \newcommand{\valTargetCurveSource}{ideal second-order response fitted from the low-magnitude calibration sweep}
 
@@ -204,35 +202,35 @@
 
 \newcommand{\valHpHBestFreq}{8 (2.34 Hz)}
 
-\newcommand{\valHpHBestSens}{8 (9.09\%)}
+\newcommand{\valHpHBestSens}{8 (9.09 $\text{V}\cdot\text{s}/\text{m}$)}
 
 \newcommand{\valHpHBestLinearity}{8 (0.511\%)}
 
 
 \newcommand{\valHpUBestFreq}{8 (2.10 Hz)}
 
-\newcommand{\valHpUBestSens}{6 (9.09\%)}
+\newcommand{\valHpUBestSens}{6 (9.09 $\text{V}\cdot\text{s}/\text{m}$)}
 
 \newcommand{\valHpUBestLinearity}{6 (0.511\%)}
 
 
 \newcommand{\valHpLBestFreq}{7 (2.18 Hz)}
 
-\newcommand{\valHpLBestSens}{6 (9.09\%)}
+\newcommand{\valHpLBestSens}{6 (9.09 $\text{V}\cdot\text{s}/\text{m}$)}
 
 \newcommand{\valHpLBestLinearity}{7 (0.465\%)}
 
 
 \newcommand{\valHpGridBestFreq}{8 (2.34 Hz)}
 
-\newcommand{\valHpGridBestSens}{8 (9.09\%)}
+\newcommand{\valHpGridBestSens}{8 (9.09 $\text{V}\cdot\text{s}/\text{m}$)}
 
 \newcommand{\valHpGridBestLinearity}{8 (0.511\%)}
 
 
 \newcommand{\valHpOrderBestFreq}{3 (2.28 Hz)}
 
-\newcommand{\valHpOrderBestSens}{2 (9.09\%)}
+\newcommand{\valHpOrderBestSens}{2 (9.09 $\text{V}\cdot\text{s}/\text{m}$)}
 
 \newcommand{\valHpOrderBestLinearity}{2 (0.511\%)}
 
@@ -329,19 +327,19 @@
 
 \newcommand{\valPrimaryParams}{2,569}
 
-\newcommand{\valDatasetOperatingPoints}{350}
+\newcommand{\valDatasetOperatingPoints}{300}
 
 \newcommand{\valDatasetPointsPerRecord}{8000}
 
 \newcommand{\valDatasetWindowPoints}{8000}
 
-\newcommand{\valDatasetWindowRecords}{350}
+\newcommand{\valDatasetWindowRecords}{300}
 
-\newcommand{\valDatasetTrainRecords}{175}
+\newcommand{\valDatasetTrainRecords}{300}
 
-\newcommand{\valDatasetValRecords}{175}
+\newcommand{\valDatasetValRecords}{300}
 
-\newcommand{\valDatasetSplitUnit}{frequency--magnitude operating points after steady-state clipping}
+\newcommand{\valDatasetSplitUnit}{temporal halves within each frequency--magnitude operating condition}
 
 \newcommand{\valLearningRateSchedule}{fixed learning rate}
 

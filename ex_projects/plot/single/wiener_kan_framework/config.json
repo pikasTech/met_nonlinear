@@ -32,11 +32,17 @@
         "padding": 0,
         "gutter": 0,
         "label_font_size": 54
-      }
+      },
+      "parent_montages": [
+        "fig_23_wiener_kan_framework_local_transfer_montage"
+      ]
     },
     "regression": {
       "baseline_path": "docs/paper/figures/legacy/wiener_kan_framework.png",
       "pixel_exact": true
-    }
+    },
+    "parent_montages": [
+      "fig_23_wiener_kan_framework_local_transfer_montage"
+    ]
   }
 }

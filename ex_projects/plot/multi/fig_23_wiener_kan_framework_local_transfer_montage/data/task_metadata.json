@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-06-04T15:47:11.708973",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_23_wiener_kan_framework_local_transfer_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_23_wiener_kan_framework_local_transfer_montage\\data"
+  ],
+  "config_hash": "2b295bc0267c69ef68dd6f038bef5844"
+}

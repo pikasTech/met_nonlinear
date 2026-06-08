@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-06-04T21:34:18.177841",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "fig_19_dataset_preprocessing_workflow",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\fig_19_dataset_preprocessing_workflow\\data"
+  ],
+  "config_hash": "c99d9dd33316aa59d215a7fa516649f3"
+}

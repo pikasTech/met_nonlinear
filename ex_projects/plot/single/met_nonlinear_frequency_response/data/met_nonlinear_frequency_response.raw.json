@@ -41,11 +41,11 @@
       "figures/legacy/_generated_stage/met_nonlinear_frequency_response/met_nonlinear_frequency_response.png": {
         "image_edge_content": {
           "size": [
-            1336,
-            1160
+            1759,
+            847
           ],
           "edge_guard_px": 4,
-          "edge_pixel_count": 19904,
+          "edge_pixel_count": 20784,
           "edge_dark_pixels": 0,
           "edge_ratio": 0.0,
           "violation": false
@@ -86,8 +86,8 @@
           "matplotlib_canvas_bbox": [
             0.0,
             0.0,
-            4320.0,
-            2880.0
+            1568.0,
+            672.0
           ],
           "bbox_reliable_text_count": 37,
           "three_d_axes_bbox_checks_skipped": [],
@@ -99,27 +99,27 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  -1879.496,
-                  341.506,
-                  -1765.743,
-                  435.8
+                  -592.427,
+                  84.735,
+                  -560.719,
+                  114.293
                 ]
               },
               "details": {
                 "bbox": [
-                  -1879.496,
-                  341.506,
-                  -1765.743,
-                  435.8
+                  -592.427,
+                  84.735,
+                  -560.719,
+                  114.293
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
-                  "left_px": 1878.496,
+                  "left_px": 591.427,
                   "bottom_px": 0.0,
                   "right_px": 0.0,
                   "top_px": 0.0
@@ -133,29 +133,29 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  5145.0,
-                  341.206,
-                  5255.877,
-                  435.8
+                  1702.084,
+                  84.735,
+                  1733.168,
+                  114.293
                 ]
               },
               "details": {
                 "bbox": [
-                  5145.0,
-                  341.206,
-                  5255.877,
-                  435.8
+                  1702.084,
+                  84.735,
+                  1733.168,
+                  114.293
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
                   "left_px": 0.0,
                   "bottom_px": 0.0,
-                  "right_px": 934.877,
+                  "right_px": 164.168,
                   "top_px": 0.0
                 }
               }
@@ -167,29 +167,29 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  7484.582,
-                  340.906,
-                  7598.334,
-                  435.8
+                  2466.442,
+                  84.735,
+                  2498.276,
+                  114.293
                 ]
               },
               "details": {
                 "bbox": [
-                  7484.582,
-                  340.906,
-                  7598.334,
-                  435.8
+                  2466.442,
+                  84.735,
+                  2498.276,
+                  114.293
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
                   "left_px": 0.0,
                   "bottom_px": 0.0,
-                  "right_px": 3277.334,
+                  "right_px": 929.276,
                   "top_px": 0.0
                 }
               }
@@ -201,28 +201,28 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  379.648,
-                  -3291.283,
-                  493.4,
-                  -3196.989
+                  149.784,
+                  -737.145,
+                  181.493,
+                  -707.586
                 ]
               },
               "details": {
                 "bbox": [
-                  379.648,
-                  -3291.283,
-                  493.4,
-                  -3196.989
+                  149.784,
+                  -737.145,
+                  181.493,
+                  -707.586
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
                   "left_px": 0.0,
-                  "bottom_px": 3290.283,
+                  "bottom_px": 736.145,
                   "right_px": 0.0,
                   "top_px": 0.0
                 }
@@ -235,28 +235,28 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  384.773,
-                  -789.321,
-                  493.4,
-                  -694.709
+                  150.988,
+                  -167.912,
+                  181.493,
+                  -138.354
                 ]
               },
               "details": {
                 "bbox": [
-                  384.773,
-                  -789.321,
-                  493.4,
-                  -694.709
+                  150.988,
+                  -167.912,
+                  181.493,
+                  -138.354
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
                   "left_px": 0.0,
-                  "bottom_px": 788.321,
+                  "bottom_px": 166.912,
                   "right_px": 0.0,
                   "top_px": 0.0
                 }
@@ -269,30 +269,30 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  382.523,
-                  4214.93,
-                  493.4,
-                  4309.524
+                  150.409,
+                  970.553,
+                  181.493,
+                  1000.111
                 ]
               },
               "details": {
                 "bbox": [
-                  382.523,
-                  4214.93,
-                  493.4,
-                  4309.524
+                  150.409,
+                  970.553,
+                  181.493,
+                  1000.111
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
                   "left_px": 0.0,
                   "bottom_px": 0.0,
                   "right_px": 0.0,
-                  "top_px": 1428.524
+                  "top_px": 327.111
                 }
               }
             },
@@ -303,103 +303,35 @@
                 "axis_index": 0,
                 "font_size_pt": 10.0,
                 "bbox": [
-                  379.648,
-                  6716.901,
-                  493.4,
-                  6811.795
+                  149.659,
+                  1539.786,
+                  181.493,
+                  1569.344
                 ]
               },
               "details": {
                 "bbox": [
-                  379.648,
-                  6716.901,
-                  493.4,
-                  6811.795
+                  149.659,
+                  1539.786,
+                  181.493,
+                  1569.344
                 ],
                 "canvas_bbox": [
                   0.0,
                   0.0,
-                  4320.0,
-                  2880.0
+                  1568.0,
+                  672.0
                 ],
                 "overflow": {
                   "left_px": 0.0,
                   "bottom_px": 0.0,
                   "right_px": 0.0,
-                  "top_px": 3930.795
-                }
-              }
-            },
-            {
-              "text": {
-                "text": "0.24 m/s$^2$",
-                "role": "legend_text",
-                "axis_index": 0,
-                "font_size_pt": 8.5,
-                "bbox": [
-                  3403.073,
-                  2977.691,
-                  3673.04,
-                  3059.421
-                ]
-              },
-              "details": {
-                "bbox": [
-                  3403.073,
-                  2977.691,
-                  3673.04,
-                  3059.421
-                ],
-                "canvas_bbox": [
-                  0.0,
-                  0.0,
-                  4320.0,
-                  2880.0
-                ],
-                "overflow": {
-                  "left_px": 0.0,
-                  "bottom_px": 0.0,
-                  "right_px": 0.0,
-                  "top_px": 178.421
-                }
-              }
-            },
-            {
-              "text": {
-                "text": "0.48 m/s$^2$",
-                "role": "legend_text",
-                "axis_index": 0,
-                "font_size_pt": 8.5,
-                "bbox": [
-                  3403.073,
-                  2860.545,
-                  3673.04,
-                  2942.275
-                ]
-              },
-              "details": {
-                "bbox": [
-                  3403.073,
-                  2860.545,
-                  3673.04,
-                  2942.275
-                ],
-                "canvas_bbox": [
-                  0.0,
-                  0.0,
-                  4320.0,
-                  2880.0
-                ],
-                "overflow": {
-                  "left_px": 0.0,
-                  "bottom_px": 0.0,
-                  "right_px": 0.0,
-                  "top_px": 61.275
+                  "top_px": 896.344
                 }
               }
             }
           ],
-          "matplotlib_canvas_overflow_count": 9,
+          "matplotlib_canvas_overflow_count": 7,
           "axes_font_balance": [
             {
               "axis_index": 0,
@@ -442,11 +374,11 @@
         "checks": {
           "image_edge_content": {
             "size": [
-              1336,
-              1160
+              1759,
+              847
             ],
             "edge_guard_px": 4,
-            "edge_pixel_count": 19904,
+            "edge_pixel_count": 20784,
             "edge_dark_pixels": 0,
             "edge_ratio": 0.0,
             "violation": false

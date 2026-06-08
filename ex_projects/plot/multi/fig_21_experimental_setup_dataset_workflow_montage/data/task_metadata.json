@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-06-04T21:34:20.950748",
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_21_experimental_setup_dataset_workflow_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_21_experimental_setup_dataset_workflow_montage\\data"
+  ],
+  "config_hash": "15e2f4d345611a5b8260bce96fc9e53d"
+}

@@ -1,5 +1,5 @@
 {
-  "execution_time": "2026-04-28T18:59:25.069304",
+  "execution_time": "2026-06-04T21:32:43.864689",
   "task_info": {
     "task_type": "paper-figure-multi",
     "task_name": "fig_20_met_structure_readout_montage",
@@ -8,5 +8,5 @@
   "output_files": [
     "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\multi\\fig_20_met_structure_readout_montage\\data"
   ],
-  "config_hash": "22cd88e2b78232a96944607238af3ff5"
+  "config_hash": "0c6ef37e20d4b2c9006020b1cbaa5a15"
 }

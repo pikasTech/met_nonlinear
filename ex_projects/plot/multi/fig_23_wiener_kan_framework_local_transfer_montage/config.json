@@ -1,0 +1,104 @@
+{
+  "task_info": {
+    "task_type": "paper-figure-multi",
+    "task_name": "fig_23_wiener_kan_framework_local_transfer_montage",
+    "standard_workflow": "ex_projects/plot/multi"
+  },
+  "paper_figure": {
+    "figure_id": "fig_23_wiener_kan_framework_local_transfer_montage",
+    "kind": "montage",
+    "title": "Wiener-KAN framework and local transfer prior montage",
+    "description": "Three-panel method montage combining the Wiener-KAN framework with magnitude-conditioned local transfer slices.",
+    "output_name": "fig_23_wiener_kan_framework_local_transfer_montage.png",
+    "generation_mode": "multi",
+    "subfigures": [
+      {
+        "project_path": "ex_projects/plot/single/wiener_kan_framework",
+        "label": "(a)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/response_original_temp",
+        "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/response_compensated_temp",
+        "label": "(c)"
+      }
+    ],
+    "figure_config": {
+      "kind": "montage",
+      "title": "Wiener-KAN framework and local transfer prior montage",
+      "description": "Three-panel method montage combining the Wiener-KAN framework with magnitude-conditioned local transfer slices.",
+      "output_name": "fig_23_wiener_kan_framework_local_transfer_montage.png",
+      "surface_panels": {
+        "figsize": [
+          6.8,
+          5.4
+        ],
+        "elev": 40,
+        "azim": -140,
+        "tick_fontsize": 9,
+        "left": 0.16,
+        "right": 0.97,
+        "bottom": 0.18,
+        "top": 0.98,
+        "pad_inches": 0.22
+      },
+      "panels": [
+        {
+          "fit_width": 5200,
+          "fit_mode": "width",
+          "row_span": 1,
+          "col_span": 2,
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 0
+        },
+        {
+          "fit_width": 2400,
+          "fit_mode": "width",
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 80
+        },
+        {
+          "fit_width": 2400,
+          "fit_mode": "width",
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 80
+        }
+      ],
+      "montage": {
+        "layout": "matrix",
+        "rows": 2,
+        "cols": 2,
+        "padding": [
+          90,
+          70,
+          90,
+          80
+        ],
+        "gutter": [
+          90,
+          90
+        ],
+        "label_font_size": 62,
+        "label_font_size_pt": 8,
+        "latex_width_fraction": 1,
+        "label_position": "outside-top-left",
+        "label_gap": 24,
+        "label_box": false
+      },
+      "subfigures": [
+        "wiener_kan_framework",
+        "response_original_temp",
+        "response_compensated_temp"
+      ]
+    },
+    "regression": {
+      "baseline_path": "docs/paper/figures/legacy/local_transfer_slices.png",
+      "pixel_exact": true
+    }
+  }
+}

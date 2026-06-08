@@ -990,10 +990,10 @@ def make_trajectory_figure(trajectories: Dict[str, Dict[str, List[float]]]) -> s
         axes[0].plot(series['magnitudes'], series['natural_frequency_hz'], label=label, color=color, linestyle=linestyle, linewidth=linewidth)
         axes[1].plot(series['magnitudes'], series['sensitivity_100hz'], label=label, color=color, linestyle=linestyle, linewidth=linewidth)
 
-    axes[0].set_xlabel('Magnitude (m/s^2)', fontsize=label_fontsize, labelpad=labelpad)
+    axes[0].set_xlabel(r'Magnitude (m/s$^2$)', fontsize=label_fontsize, labelpad=labelpad)
     axes[0].set_ylabel('Peak frequency (Hz)', fontsize=label_fontsize, labelpad=labelpad)
-    axes[1].set_xlabel('Magnitude (m/s^2)', fontsize=label_fontsize, labelpad=labelpad)
-    axes[1].set_ylabel('Sensitivity at 100 Hz (%)', fontsize=label_fontsize, labelpad=labelpad)
+    axes[1].set_xlabel(r'Magnitude (m/s$^2$)', fontsize=label_fontsize, labelpad=labelpad)
+    axes[1].set_ylabel('Sensitivity at 100 Hz (V s/m)', fontsize=label_fontsize, labelpad=labelpad)
     for ax in axes:
         ax.tick_params(axis='both', which='major', labelsize=tick_fontsize, pad=tick_pad)
     if 'xlim' in xy_cfg:
@@ -1325,7 +1325,7 @@ def make_structure_figure(rows: List[Dict[str, Any]]) -> str:
     colors = [get_palette_color(row['label'], figure_key='fig_04_structure_ablation') for row in rows]
     specs = [
         ('freq_drift_hz', 'Freq drift (Hz)', True),
-        ('sens_drift_percent', 'Sensitivity drift (%)', False),
+        ('sens_drift_percent', 'Sensitivity drift (V s/m)', False),
         ('linearity_percent', 'In-band linearity error (%)', True),
     ]
     for ax, (key, title, use_log) in zip(axes, specs):
@@ -1764,7 +1764,7 @@ def make_hparam_sensitivity_figure(summary: Dict[str, Any], loss_rows: List[Dict
     baseline_text = (
         'Baseline data (h=8, u=6, l=6, g=8, s=2):\n'
         f"Freq drift = {baseline_values['freq_drift_hz']:.2f} Hz; "
-        f"Sens drift = {baseline_values['sens_drift_percent']:.2f}%;\n"
+        f"Sens drift = {baseline_values['sens_drift_percent']:.2f} V s/m;\n"
         f"Linearity error = {baseline_values['linearity_percent']:.3f}%"
     )
     legend_ax.text(
@@ -1876,8 +1876,8 @@ def build_ablation_overview_rows(
 
     baseline_reference = _metric_row_for_ablation(
         'Baseline',
-        'B-spline + Odd+pos. + System, fixed, + MAE + AFMAE',
-        'Shared canonical Wiener-KAN setting',
+        'Canonical',
+        'B-spline KAN; odd + positive; fixed system prior; MAE+AFMAE',
         structure_map['Wiener-KAN'],
     )
     baseline_candidates = [
@@ -1903,9 +1903,9 @@ def build_ablation_overview_rows(
     add_structure('No symmetry', 'Constr.', 'Positive', 'No odd symmetry')
     add_structure('No positive (stress)', 'Constr.', 'Odd', 'No positive basis')
 
-    add_iir('Random, frozen', 'Random / fixed', 'Random init., frozen')
-    add_iir('System prior, trainable', 'System / trainable', 'Measured init., trainable')
-    add_iir('Random, trainable', 'Random / trainable', 'Random init., trainable')
+    add_iir('Random, frozen', 'Random/fixed', 'Random init., frozen')
+    add_iir('System prior, trainable', 'Sys/trainable', 'Measured init., trainable')
+    add_iir('Random, trainable', 'Rand/trainable', 'Random init., trainable')
 
     add_loss('MAE', 'MAE', 'Time-domain pointwise loss')
     add_loss('AFMAE', 'AFMAE', 'Amplitude-frequency loss')
@@ -1962,9 +1962,9 @@ def write_ablation_overview_tex(rows: List[Dict[str, Any]]) -> None:
         '% Auto-generated table; do not edit manually.',
         r'\begingroup',
         r'\renewcommand{\arraystretch}{1.22}',
-        r'\begin{tabular}{@{}p{0.12\textwidth}p{0.18\textwidth}p{0.40\textwidth}ccc@{}}',
+        r'\begin{tabular}{@{}p{0.13\textwidth}p{0.16\textwidth}p{0.41\textwidth}ccc@{}}',
         r'\hline\hline',
-        r'\textbf{Group} & \textbf{Variant} & \textbf{Controlled contrast} & \makecell{\textbf{Freq}\\\textbf{drift}\\(Hz)} & \makecell{\textbf{Sens}\\\textbf{drift}\\(\%)} & \makecell{\textbf{Linearity}\\(\%)} \\ \hline',
+        r'\textbf{Group} & \textbf{Variant} & \textbf{Controlled contrast} & \makecell{\textbf{Freq}\\\textbf{drift}\\(Hz)} & \makecell{\textbf{Sens}\\\textbf{drift}\\($\text{V}\cdot\text{s}/\text{m}$)} & \makecell{\textbf{Linearity}\\(\%)} \\ \hline',
     ]
     for row_index, row in enumerate(rows):
         render_cell = latex_bold if row.get('emphasize') else latex_escape
@@ -1985,7 +1985,7 @@ def write_ablation_overview_tex(rows: List[Dict[str, Any]]) -> None:
         ]
         lines.append(' & '.join(cells) + r' \\')
         if row_index + 1 < len(rows) and rows[row_index + 1]['group'] != row['group']:
-            lines.append(r'\hdashline')
+            lines.append(r'\hline')
     lines.extend([r'\hline\hline', r'\end{tabular}', r'\endgroup', ''])
     (table_dir / 'ablation_overview.tex').write_text('\n'.join(lines), encoding='utf-8')
 
@@ -2013,7 +2013,7 @@ def build_tables(
             format_optional(row.get('ram_bytes', None) / 1024.0 if row.get('ram_bytes') is not None else None, '{:.1f}'),
         ]
         for row in main_rows
-    ], ['Model', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'KEIL-MAE', 'KEIL speed (Points/s)', 'RAM (KB)'])
+    ], ['Model', 'Freq Drift (Hz)', 'Sens Drift (V s/m)', 'Linearity (in-band, %)', 'KEIL-MAE', 'KEIL speed (Points/s)', 'RAM (KB)'])
 
     table_loss = make_table([
         [
@@ -2027,7 +2027,7 @@ def build_tables(
             format_optional(row['board_keil_fps'], '{:.1f}'),
         ]
         for row in loss_rows
-    ], ['Variant', 'Active loss', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)', 'QEMU-MAE', 'KEIL-MAE', 'KEIL speed (Points/s)'])
+    ], ['Variant', 'Active loss', 'Freq Drift (Hz)', 'Sens Drift (V s/m)', 'Linearity (in-band, %)', 'QEMU-MAE', 'KEIL-MAE', 'KEIL speed (Points/s)'])
 
     table_structure = make_table([
         [
@@ -2037,7 +2037,7 @@ def build_tables(
             f"{row['linearity_percent']:.3f}",
         ]
         for row in structure_rows
-    ], ['Variant', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)'])
+    ], ['Variant', 'Freq Drift (Hz)', 'Sens Drift (V s/m)', 'Linearity (in-band, %)'])
 
     table_iir = make_table([
         [
@@ -2048,7 +2048,7 @@ def build_tables(
             f"{row['linearity_percent']:.3f}",
         ]
         for row in iir_rows
-    ], ['Variant', 'Epochs', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)'])
+    ], ['Variant', 'Epochs', 'Freq Drift (Hz)', 'Sens Drift (V s/m)', 'Linearity (in-band, %)'])
 
     table_ablation_overview = make_table([
         [
@@ -2060,7 +2060,7 @@ def build_tables(
             markdown_bold(row['linearity_percent']) if row.get('emphasize') else row['linearity_percent'],
         ]
         for row in ablation_overview_rows
-    ], ['Group', 'Variant', 'Controlled contrast', 'Freq Drift (Hz)', 'Sens Drift (%)', 'Linearity (in-band, %)'])
+    ], ['Group', 'Variant', 'Controlled contrast', 'Freq Drift (Hz)', 'Sens Drift (V s/m)', 'Linearity (in-band, %)'])
 
     table_deploy = make_table([
         [
@@ -2113,21 +2113,21 @@ def build_tables(
 
     band_freqs = ', '.join(f"{int(value) if float(value).is_integer() else value:g}" for value in main_rows[0]['linearity_band_frequencies_hz'])
     full_grid_desc = (
-        f"{main_rows[0]['linearity_full_frequencies_hz'][0]:.0f}-"
-        f"{main_rows[0]['linearity_full_frequencies_hz'][-1]:.0f} Hz, "
-        f"{main_rows[0]['linearity_full_frequency_count']} sampled points"
+        f"{main_rows[0]['linearity_band_frequencies_hz'][0]:.0f}-"
+        f"{main_rows[0]['linearity_band_frequencies_hz'][-1]:.0f} Hz, "
+        f"{main_rows[0]['linearity_band_count']} sampled points"
     )
     protocol_table = make_table([
         ['Sensor sample', 'MTSS-1001'],
         ['Environment', '25 C'],
         ['Frequency grid (saved evaluation)', full_grid_desc],
-        ['Magnitude sweep', '0.24-6.0 m/s^2, 25 levels'],
+        ['Magnitude sweep', '0.24-6.0 $\\text{m}/\\text{s}^2$, 25 levels'],
         ['Sequence duration', '4.0 s'],
         ['Sampling rate', '2000 Hz'],
         ['Window count', '8000 sequences'],
         ['Reference sensitivity point', '100 Hz'],
         ['Freq-drift fitted center-frequency band', '10-128 Hz with band-limited fit_params'],
-        ['Linearity band (this draft)', f"<= {main_rows[0]['linearity_band_max_hz']:.0f} Hz, {main_rows[0]['linearity_band_count']} points ({band_freqs} Hz)"],
+        ['Linearity band', f"<= {main_rows[0]['linearity_band_max_hz']:.0f} Hz, {main_rows[0]['linearity_band_count']} points ({band_freqs} Hz)"],
     ], ['Item', 'Value'])
 
     write_ablation_overview_tex(ablation_overview_rows)
@@ -2140,7 +2140,7 @@ def build_tables(
         '## Main benchmark',
         table_main,
         '',
-        f"Origin metrics: Freq Drift = {origin['freq']:.2f} Hz, Sens Drift = {origin['sens']:.2f} %, In-band linearity = {origin['linearity']:.3f} %.",
+        f"Origin metrics: Freq Drift = {origin['freq']:.2f} Hz, Sens Drift = {origin['sens']:.2f} V s/m, In-band linearity = {origin['linearity']:.3f} %.",
         '',
         '## Loss ablation',
         table_loss,
@@ -2637,12 +2637,12 @@ def make_dataset_preprocessing_workflow_figure() -> str:
             ax.plot([base[0, 0], base[1, 0]], [base[0, 1] + (base[3, 1] - base[0, 1]) * frac, base[1, 1] + (base[2, 1] - base[1, 1]) * frac], color='#9aa6b2', lw=0.65)
 
     steps = [
-        ('1', 'MET excitation', 'frequency sweep f; magnitude sweep m', draw_sine_icon),
+        ('1', 'MET excitation', r'frequency sweep $f_i$; magnitude sweep $m_j$', draw_sine_icon),
         ('2', 'Ideal reference', 'low-magnitude fitted second-order response', draw_response_icon),
-        ('3', 'Paired matrix D', 'measured waveform paired with ideal waveform', draw_pair_icon),
-        ('4', '50% / 50% split', '175 train records; 175 validation records', draw_split_icon),
-        ('5', 'Windowing', 'steady-state segment, 8000 samples', draw_window_icon),
-        ('6', 'Normalization', 'per-channel min-max scaling to [-1, 1]', draw_norm_icon),
+        ('3', r'Paired matrix $\mathcal{D}$', r'measured sequence paired with ideal sequence', draw_pair_icon),
+        ('4', 'Steady-state clipping', r'one clipped sequence for each $(f_i, m_j)$', draw_window_icon),
+        ('5', 'Temporal train/validation split', r'train and validation halves within each condition', draw_split_icon),
+        ('6', 'Normalization', 'input/target min-max scaling to [-1, 1]', draw_norm_icon),
         ('7', 'Model tensors', 'paired input and target sequences', draw_tensor_icon),
     ]
     colors = ['#e8f1fb', '#eaf7ee', '#fff4df', '#f1ecfb', '#e8f6f7', '#eef2f7', '#fdeceb']
@@ -2690,9 +2690,9 @@ def make_dataset_preprocessing_workflow_figure() -> str:
             })
     out = FIGURES_DIR / 'fig_19_dataset_preprocessing_workflow.png'
     _save_matplotlib_figure(fig, out, raw_payload={
-        'source_trace': 'AI-rendered schematic asset existed without editable source; replaced by a code-generated schematic to enforce the documented 50/50 split.',
+        'source_trace': 'AI-rendered schematic asset existed without editable source; replaced by a code-generated schematic to enforce the implemented per-condition temporal train/validation split.',
         'modification_scope': 'vertical illustrated dataset split and data-construction workflow',
-        'split': {'train_records': 175, 'validation_records': 175, 'unit': 'frequency--magnitude operating points'},
+        'split': {'train_sequences': 'one temporal half per frequency--magnitude condition', 'validation_sequences': 'the complementary temporal half per frequency--magnitude condition', 'unit': 'temporal halves within each frequency--magnitude operating condition'},
         'visual_elements': ['sine sweep icon', 'second-order response icon', 'paired waveform icon', 'split icon', 'windowed waveform icon', 'normalization scale icon', 'tensor grid icon'],
         VISUAL_AUDIT_KEY: audit_schematic_geometry(
             schematic_boxes,
@@ -2959,7 +2959,7 @@ def make_local_transfer_slices_figure() -> str:
         )
         return audit
 
-    audit_original = draw_surface(original_path, calculate_system_response, [30, 50, 100, 200], 'Sensitivity (V s/m)', 0.16)
+    audit_original = draw_surface(original_path, calculate_system_response, [30, 50, 100, 128], 'Sensitivity (V s/m)', 0.16)
     audit_compensated = draw_surface(compensated_path, calculate_system_response_comp, [0.2, 0.5, 1, 2], 'Relative gain', 0.15)
     out_name = make_bitmap_montage(
         'local_transfer_slices.png',
@@ -3501,7 +3501,7 @@ def copy_wiener_parallel_figures() -> Dict[str, str]:
             label='Measured',
         )
         ax.set_xscale('log')
-        ax.set_xlabel('Magnitude (m/s^2)', fontsize=float(xy_cfg.get('label_fontsize', 10)), labelpad=float(xy_cfg.get('labelpad', 4)))
+        ax.set_xlabel(r'Magnitude (m/s$^2$)', fontsize=float(xy_cfg.get('label_fontsize', 10)), labelpad=float(xy_cfg.get('labelpad', 4)))
         ax.set_ylabel(y_label, fontsize=float(xy_cfg.get('label_fontsize', 10)), labelpad=float(xy_cfg.get('labelpad', 4)))
         if 'xlim' in xy_cfg:
             ax.set_xlim(*_as_float_tuple(xy_cfg.get('xlim'), ax.get_xlim()))
@@ -3766,12 +3766,12 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     wp_gain = wiener_parallel.get('gain_at_target_frequency', {})
 
     overrides: Dict[str, str] = {
-        'valDatasetFreqRange': '10--200~Hz sampled grid; evaluation band $\\leq 128$~Hz',
-        'valDatasetMagnitudeRange': '0.24--6.0 m/s2',
-        'valDatasetPreprocess': 'steady-state clipping, two-window slicing, and normalization to [-1, 1]',
+        'valDatasetFreqRange': '10--128~Hz',
+        'valDatasetMagnitudeRange': '0.24--6.0~$\\text{m}/\\text{s}^2$',
+        'valDatasetPreprocess': 'steady-state clipping, per-condition temporal splitting, and input/target normalization to [-1, 1]',
         'valDatasetScenarioMapping': 'frequency--magnitude matrix with paired measured and ideal waveforms',
-        'valDatasetSplit': r'50\%/50\% training/validation split',
-        'valDatasetTotalRecords': f"{int((payload['main_benchmark'][0].get('linearity_full_frequency_count') or 0) * (len((payload.get('trajectories') or {}).get('Origin', {}).get('magnitudes', [])) or 25))} frequency--magnitude operating points",
+        'valDatasetSplit': r'per-condition temporal training/validation split',
+        'valDatasetTotalRecords': f"{int((payload['main_benchmark'][0].get('linearity_band_count') or 0) * (len((payload.get('trajectories') or {}).get('Origin', {}).get('magnitudes', [])) or 25))} frequency--magnitude operating points",
         'valTargetCurveSource': 'ideal second-order response fitted from the low-magnitude calibration sweep',
         'valOpenDataPackage': 'processed response matrix and plotting scripts are available with the manuscript materials',
         'valOpenCodePackage': 'analysis and plotting code are available with the manuscript materials',
@@ -3809,11 +3809,11 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
     points_per_record = int(primary_config.get('use_points') or round(sample_rate * clipped_s))
     window_points = points_per_record
     magnitude_count = len((payload.get('trajectories') or {}).get('Origin', {}).get('magnitudes', [])) or int(primary.get('magnitude_count', 25))
-    frequency_count = int(primary.get('linearity_full_frequency_count') or primary.get('linearity_band_count') or 0)
+    frequency_count = int(primary.get('linearity_band_count') or 0)
     operating_points = frequency_count * magnitude_count
     window_records = operating_points
-    train_records = window_records // 2
-    val_records = window_records - train_records
+    train_records = operating_points
+    val_records = operating_points
     primary_values = metric_value_macros(primary)
     overrides.update({
         'valPrimaryProject': 'FRIKANh8u6l6\\_e1k\\_lr7e4',
@@ -3831,7 +3831,7 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valDatasetWindowRecords': str(window_records),
         'valDatasetTrainRecords': str(train_records),
         'valDatasetValRecords': str(val_records),
-        'valDatasetSplitUnit': 'frequency--magnitude operating points after steady-state clipping',
+        'valDatasetSplitUnit': 'temporal halves within each frequency--magnitude operating condition',
         'valEpochs': str(int(primary_config.get('epoch_train', primary.get('epochs', 1000)))),
         'valInitLR': f"{float(primary_config.get('learning_rate', primary.get('lr', 0.0007))):.4g}",
         'valLearningRateSchedule': 'fixed learning rate',
@@ -3956,19 +3956,19 @@ def build_value_overrides(payload: Dict[str, Any]) -> Dict[str, str]:
         'valHpGridSet': _hparam_axis_values(hparam, 'GRID_SIZE'), 'valHpOrderSet': _hparam_axis_values(hparam, 'SPLINE_ORDER'),
         'valHpGridOrderBase': '8/2',
         'valHpHBestFreq': _hparam_best_text(hparam, 'H_UNITS', 'freq_drift_hz', ' Hz', 2),
-        'valHpHBestSens': _hparam_best_text(hparam, 'H_UNITS', 'sens_drift_percent', '\\%', 2),
+        'valHpHBestSens': _hparam_best_text(hparam, 'H_UNITS', 'sens_drift_percent', ' $\\text{V}\\cdot\\text{s}/\\text{m}$', 2),
         'valHpHBestLinearity': _hparam_best_text(hparam, 'H_UNITS', 'linearity_percent', '\\%', 3),
         'valHpUBestFreq': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'freq_drift_hz', ' Hz', 2),
-        'valHpUBestSens': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'sens_drift_percent', '\\%', 2),
+        'valHpUBestSens': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'sens_drift_percent', ' $\\text{V}\\cdot\\text{s}/\\text{m}$', 2),
         'valHpUBestLinearity': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'linearity_percent', '\\%', 3),
         'valHpLBestFreq': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'freq_drift_hz', ' Hz', 2),
-        'valHpLBestSens': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'sens_drift_percent', '\\%', 2),
+        'valHpLBestSens': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'sens_drift_percent', ' $\\text{V}\\cdot\\text{s}/\\text{m}$', 2),
         'valHpLBestLinearity': _hparam_best_text(hparam, 'INNER_KAN_LAYERS', 'linearity_percent', '\\%', 3),
         'valHpGridBestFreq': _hparam_best_text(hparam, 'GRID_SIZE', 'freq_drift_hz', ' Hz', 2),
-        'valHpGridBestSens': _hparam_best_text(hparam, 'GRID_SIZE', 'sens_drift_percent', '\\%', 2),
+        'valHpGridBestSens': _hparam_best_text(hparam, 'GRID_SIZE', 'sens_drift_percent', ' $\\text{V}\\cdot\\text{s}/\\text{m}$', 2),
         'valHpGridBestLinearity': _hparam_best_text(hparam, 'GRID_SIZE', 'linearity_percent', '\\%', 3),
         'valHpOrderBestFreq': _hparam_best_text(hparam, 'SPLINE_ORDER', 'freq_drift_hz', ' Hz', 2),
-        'valHpOrderBestSens': _hparam_best_text(hparam, 'SPLINE_ORDER', 'sens_drift_percent', '\\%', 2),
+        'valHpOrderBestSens': _hparam_best_text(hparam, 'SPLINE_ORDER', 'sens_drift_percent', ' $\\text{V}\\cdot\\text{s}/\\text{m}$', 2),
         'valHpOrderBestLinearity': _hparam_best_text(hparam, 'SPLINE_ORDER', 'linearity_percent', '\\%', 3),
         'valHpHBestMetric': _hparam_best_text(hparam, 'H_UNITS', 'linearity_percent', '\\%', 3),
         'valHpUBestMetric': _hparam_best_text(hparam, 'INNER_KAN_UNITS', 'freq_drift_hz', ' Hz', 2),
@@ -4017,7 +4017,7 @@ def write_values_tex(payload: Dict[str, Any]) -> None:
             text += f"\n\\newcommand{{\\{name}}}{{{value}}}\n"
     text = re.sub(r'\{TBD\}', '{N/A}', text)
     values_path.write_text(text, encoding='utf-8')
-    save_json(DATA_DIR / 'values_raw.json', overrides)
+    save_json(DATA_DIR / 'values.generated.json', overrides)
 
 
 def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
@@ -4071,7 +4071,7 @@ def create_additional_paper_figures(payload: Dict[str, Any]) -> Dict[str, str]:
         figsize=_as_float_tuple(reduction_cfg.get('figsize'), (5.8, 4.4)),
         constrained_layout=True,
     )
-    metric_groups = ['Freq drift\n(Hz)', 'Sens drift\n(%)']
+    metric_groups = ['Freq drift\n(Hz)', 'Sens drift\n(V s/m)']
     x = np.arange(len(metric_groups), dtype=float)
     width = 0.34
     origin_values = [origin['freq'], origin['sens']]

@@ -18,7 +18,8 @@
       "description": "Source bitmap subfigure migrated from C:/work/met_nonlinear_master/docs/paper/figures/legacy/legacy/_traced_tmp/response_original_temp.png.",
       "output_name": "response_original_temp.png",
       "parent_montages": [
-        "local_transfer_slices"
+        "local_transfer_slices",
+        "fig_23_wiener_kan_framework_local_transfer_montage"
       ]
     },
     "regression": {
@@ -26,7 +27,8 @@
       "pixel_exact": true
     },
     "parent_montages": [
-      "local_transfer_slices"
+      "local_transfer_slices",
+      "fig_23_wiener_kan_framework_local_transfer_montage"
     ]
   }
 }

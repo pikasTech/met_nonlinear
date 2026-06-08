@@ -874,40 +874,62 @@
       },
       "fig_21_experimental_setup_dataset_workflow_montage": {
         "kind": "montage",
-        "title": "Experimental setup + dataset workflow montage",
-        "description": "Photograph and vertical dataset workflow side by side.",
+        "title": "Experimental setup + dataset workflow + nonlinear response montage",
+        "description": "Experimental photograph, dataset workflow, and nonlinear frequency response in a two-row montage.",
         "output_name": "fig_21_experimental_setup_dataset_workflow_montage.png",
         "panels": [
           {
-            "fit_width": 3600,
+            "fit_width": 2600,
+            "fit_mode": "width",
             "align_x": "center",
             "align_y": "center",
             "trim_border": 90
           },
           {
-            "fit_height": 2700,
+            "fit_height": 1500,
+            "fit_mode": "height",
             "align_x": "center",
             "align_y": "top",
             "trim_border": 90
+          },
+          {
+            "fit_width": 3640,
+            "fit_mode": "width",
+            "col_span": 2,
+            "align_x": "center",
+            "align_y": "top",
+            "trim_border": 30
           }
         ],
         "montage": {
-          "layout": "horizontal",
+          "layout": "matrix",
+          "rows": 2,
+          "cols": 2,
           "padding": [
-            90,
-            80,
-            90,
+            774,
+            70,
+            774,
             80
           ],
           "gutter": [
-            110,
-            90
+            40,
+            80
           ],
-          "label_font_size": 64
+          "label_font_size": 64,
+          "label_font_size_pt": 8,
+          "latex_width_fraction": 1,
+          "cell_widths": [
+            2600,
+            1192
+          ],
+          "label_position": "outside-top-left",
+          "label_gap": 24,
+          "label_box": false
         },
         "subfigures": [
           "calibration_table_test",
-          "fig_19_dataset_preprocessing_workflow"
+          "fig_19_dataset_preprocessing_workflow",
+          "met_nonlinear_frequency_response"
         ]
       },
       "fig_22_parallel_wiener_response_row": {
@@ -1052,8 +1074,8 @@
         "description": "Log-frequency response curves of the nonlinear MET sensor, directly cited in main.tex.",
         "output_name": "met_nonlinear_frequency_response.png",
         "figsize": [
-          7.2,
-          4.8
+          9.8,
+          4.2
         ],
         "line_width": 1.35,
         "colormap": "tab20",
@@ -1078,16 +1100,19 @@
             1.02,
             0.5
           ],
-          "ncol": 1,
+          "ncol": 2,
           "frameon": false,
-          "fontsize": 8.5
+          "fontsize": 8
         },
         "margins": {
           "left": 0.12,
-          "right": 0.72,
-          "bottom": 0.16,
+          "right": 0.66,
+          "bottom": 0.18,
           "top": 0.96
-        }
+        },
+        "parent_montages": [
+          "fig_21_experimental_setup_dataset_workflow_montage"
+        ]
       },
       "wiener_kan_framework": {
         "kind": "single",

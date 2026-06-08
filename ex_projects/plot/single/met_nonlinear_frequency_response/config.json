@@ -18,8 +18,8 @@
       "description": "Log-frequency response curves of the nonlinear MET sensor, directly cited in main.tex.",
       "output_name": "met_nonlinear_frequency_response.png",
       "figsize": [
-        7.2,
-        4.8
+        9.8,
+        4.2
       ],
       "line_width": 1.35,
       "colormap": "tab20",
@@ -44,20 +44,26 @@
           1.02,
           0.5
         ],
-        "ncol": 1,
+        "ncol": 2,
         "frameon": false,
-        "fontsize": 8.5
+        "fontsize": 8
       },
       "margins": {
         "left": 0.12,
-        "right": 0.72,
-        "bottom": 0.16,
+        "right": 0.66,
+        "bottom": 0.18,
         "top": 0.96
-      }
+      },
+      "parent_montages": [
+        "fig_21_experimental_setup_dataset_workflow_montage"
+      ]
     },
     "regression": {
       "baseline_path": "docs/paper/figures/legacy/met_nonlinear_frequency_response.png",
       "pixel_exact": true
-    }
+    },
+    "parent_montages": [
+      "fig_21_experimental_setup_dataset_workflow_montage"
+    ]
   }
 }

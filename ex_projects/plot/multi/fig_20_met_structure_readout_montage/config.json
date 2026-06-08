@@ -7,8 +7,8 @@
   "paper_figure": {
     "figure_id": "fig_20_met_structure_readout_montage",
     "kind": "montage",
-    "title": "MET structure and readout montage",
-    "description": "Two-panel montage of MET structure and readout circuit.",
+    "title": "MET structure, readout, and nonlinear mechanism montage",
+    "description": "Three-panel montage of MET structure, readout circuit, and large-signal nonlinear mechanism.",
     "output_name": "fig_20_met_structure_readout_montage.png",
     "generation_mode": "multi",
     "subfigures": [
@@ -19,42 +19,62 @@
       {
         "project_path": "ex_projects/plot/single/readout_circuit",
         "label": "(b)"
+      },
+      {
+        "project_path": "ex_projects/plot/single/fig_14_met_nonlinear_mechanism",
+        "label": "(c)"
       }
     ],
     "figure_config": {
       "kind": "montage",
-      "title": "MET structure and readout montage",
-      "description": "Two-panel montage of MET structure and readout circuit.",
+      "title": "MET structure, readout, and nonlinear mechanism montage",
+      "description": "Three-panel montage of MET structure, readout circuit, and large-signal nonlinear mechanism.",
       "output_name": "fig_20_met_structure_readout_montage.png",
       "panels": [
         {
-          "fit_width": 2500,
+          "fit_width": 2400,
           "align_y": "top",
           "trim_border": 28
         },
         {
-          "fit_width": 2500,
+          "fit_width": 2400,
           "align_y": "top",
           "trim_border": 28
+        },
+        {
+          "fit_width": 5000,
+          "fit_mode": "width",
+          "row_span": 1,
+          "col_span": 2,
+          "align_x": "center",
+          "align_y": "top",
+          "trim_border": 0
         }
       ],
       "montage": {
-        "layout": "horizontal",
+        "layout": "matrix",
+        "rows": 2,
+        "cols": 2,
         "padding": [
-          80,
+          90,
           70,
-          80,
-          70
-        ],
-        "gutter": [
-          140,
+          90,
           80
         ],
-        "label_font_size": 66
+        "gutter": [
+          90,
+          95
+        ],
+        "label_font_size": 66,
+        "label_font_size_pt": 8,
+        "label_position": "outside-top-left",
+        "label_gap": 24,
+        "label_box": false
       },
       "subfigures": [
         "met_structure",
-        "readout_circuit"
+        "readout_circuit",
+        "fig_14_met_nonlinear_mechanism"
       ]
     },
     "regression": {

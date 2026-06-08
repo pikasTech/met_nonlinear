@@ -14,7 +14,7 @@
 - `docs/paper/src/`：论文数据采集、派生指标、旧绘图辅助逻辑与迁移后溯源代码的实现目录。
 - `docs/paper/src/legacy/`：仅用于保留溯源信息的已退役旧绘图入口。
 - `docs/paper/data/results.json`：冻结的论文数据快照，供生成表格和数值宏使用。
-- `docs/paper/data/values_raw.json`：写入 `latex/values.tex` 的机器可读数值源记录。
+- `docs/paper/data/values.generated.json`：可选的机器可读数值覆盖记录；`values_raw.json` 属于已废弃旧缓存，论文构建以 `latex/values.tex` 为准。
 - `docs/paper/figures/legacy/`：来自已退役 `gen_figures.py` 工作流的归档输出，以及迁移图使用的像素回归基线；`main.tex` 不得引用该目录。
 - `docs/paper/image/`：从旧论文工作区迁移来的原始图片资源。
 - `docs/paper/latex/`：稿件、模板、参考文献和构建产物所在目录。
@@ -26,7 +26,7 @@
 稳定的数据流如下：
 
 1. `docs/paper/config.json` 声明论文数据快照所需的外部 project 路径、ex_project 路径、旧图映射以及旧绘图代码溯源信息。
-2. `python docs/paper/gen_data.py` 读取这些来源，并写出 `docs/paper/data/results.json`、生成的表格片段以及 `docs/paper/latex/values.tex`。
+2. `python docs/paper/gen_data.py` 读取这些来源，并写出 `docs/paper/data/results.json`、生成的表格片段以及 `docs/paper/latex/values.tex`。若生成机器可读宏覆盖记录，应写入 `docs/paper/data/values.generated.json`。
 3. 每一张论文图都通过各自的 ex_project，使用 `python cli.py ep ex_projects/plot/.../<figure_project>` 渲染生成。
 4. 多面板论文图配置通过 `paper_figure.subfigures[].project_path` 列出子图工程；父级 montage 读取子图 `data/` 输出，再写出自己的 `data/` 输出。
 5. `docs/paper/latex/main.tex` 直接引用 canonical 的 `ex_projects/plot/**/data/*.png` 输出，不得引用 `docs/paper/figures/legacy/`。
@@ -53,6 +53,62 @@
 - 归档 legacy 位图可以作为回归基线，但可编辑、可重渲染的唯一事实来源仍然是 ex_project 配置。
 - 表格、图中文字标签以及正文数值必须来自同一个 `results.json` 快照，或来自显式迁移的 raw 记录。
 - 主横向对比摘要图的 canonical 路径是 `ex_projects/plot/multi/fig_02_horizontal_summary/data/fig_02_horizontal_summary.png`；其 raw 记录必须包含主 benchmark 行、origin 指标、metric-range 行以及用于 metric-range、compute-speed、radar 与 convergence 子图的收敛曲线。
+
+## 主文与 Supplement 图件边界
+
+主文和 Supplement 的图件不能互相重复。主文用于承载论文结论链条所需的核心图，Supplement 只补充主文没有展示的推导、协议细节、扩展消融、超参数敏感性和部署验证细节。
+
+稳定判定如下：
+
+- 如果一个图或子图已经进入 `main.translated.tex` 的主文图序列，`supplement.tex` 中不得再放同一位图、同义拼图或仅改 caption 的重复版本。
+- 如果某个 supplement 图被迁移到主文，supplement 中对应的完整图注、重复解释段和结果再叙述应同步删除；最多保留一句短上下文，把读者指向主文图或保留后续补充分析。
+- Supplement 里的图应有独立信息增量，例如更多频点、更多变体、额外推导检查、额外超参数或部署 sweep；不能只是主文图的另一种排版。
+- 主文和 supplement 都引用同一组底层数据时，图内显示层应错开：主文展示核心结论，supplement 展示支撑细节。
+- 多子图从 supplement 调回主文后，应更新 montage 配置，让主文图直接引用 leaf 子图工程；不要让 supplement montage 继续作为主文 montage 的来源。
+
+投稿前检查图件重复时，按以下顺序进行：
+
+1. 扫描 `main.translated.tex` 与 `supplement.tex` 的 `\includegraphics` 路径，确认没有同一路径重复出现。
+2. 对不同路径但相同 `figure_id`、相同源数据或相同视觉语义的图，检查是否属于主文/补充材料重复。
+3. 打开相邻正文和 caption，确认 supplement 没有重复解释已经由主文承担的机制、流程或结果。
+4. 对迁移过的图，检查旧 supplement 图位、旧 label 和旧 cross-reference 是否已经清理。
+
+可用的粗筛命令：
+
+```bash
+rg -n "\\includegraphics" docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+rg -n "\\label\\{fig:|\\caption\\{" docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+```
+
+粗筛只能发现同路径或同 label 问题；最终仍需目视比较主文和 supplement 的 PDF 页面，确认不存在同义重复。
+
+## 数值与图文一致性检查
+
+投稿前应把正文、caption、表格、`values.tex`、`results.json`、项目级 `metrics.json` 和图件 `.raw.json` 看成同一证据链，而不是分散产物。任何主结果数值、频带、单位或数据划分口径发生变化时，都需要同步检查这些层级。
+
+长期口径如下：
+
+- 论文正式频带收敛到 `10--128 Hz`；不要在主文、caption、表格或 supplement 参数表中混入旧的 `200 Hz` 评价口径。
+- 灵敏度漂移当前按 `100 Hz` 处绝对灵敏度漂移表达，单位为 `V s/m` 或等价 LaTeX 单位；不要再把该值写成百分比。
+- 未补偿 MET 的自然频率和灵敏度随震级变化，正文优先写 min--max 范围；若百分比不能从当前端点和定义复现，应删除百分比。
+- `values_raw.json` 是旧缓存，不作为 TeX 编译事实来源；论文构建以 `docs/paper/latex/values.tex` 为准。若旧缓存不再被 pipeline 引用，应废弃或明确标记，避免旧划分和旧频带回流。
+- Fig.2(b) 数据流程图应与当前实现一致：每个工况内时域 train/validation split，输入和目标序列 min--max scaling 到 `[-1, 1]`，并基于相同划分重算指标。
+- 表格单位应使用清晰 LaTeX 上标和乘点，不出现 `m/s2` 这类纯文本单位。
+- 图内符号必须被正文或 caption 解释；机制图可适度模糊，但不要出现正文从未定义且会被读者视作精确定义的新符号。
+
+推荐检查顺序：
+
+1. 先查频带、单位和数据划分这类全局口径。
+2. 再查主结果表、消融表、横向对比图和摘要中的关键数值是否来自同一批 `metrics.json` / `results.json`。
+3. 接着查每张主图的 `.raw.json`，确认 source trace、输入数据和图内标签与正文一致。
+4. 最后检查 supplement 的参数表、扩展图和说明段，确认没有把旧主文口径重新带回来。
+
+常用残留搜索：
+
+```bash
+rg -n "200\\s*Hz|10--200|10~200|254\\.6|Sens Drift \\(%\\)|m/s2|values_raw" docs/paper/latex docs/paper/data docs/paper/src ex_projects/plot
+rg -n "50%|175|350 / 350|\\[-1, 1\\]|min--max|temporal" docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex ex_projects/plot
+```
 
 ## 图 CLI 入口
 

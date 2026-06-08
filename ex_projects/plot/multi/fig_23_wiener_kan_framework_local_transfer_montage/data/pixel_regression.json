@@ -1,0 +1,16 @@
+{
+  "status": "shape_mismatch",
+  "output": "ex_projects/plot/multi/fig_23_wiener_kan_framework_local_transfer_montage/data/fig_23_wiener_kan_framework_local_transfer_montage.png",
+  "baseline": "docs/paper/figures/legacy/local_transfer_slices.png",
+  "output_shape": [
+    5045,
+    5380,
+    4
+  ],
+  "baseline_shape": [
+    2840,
+    5690,
+    4
+  ],
+  "pixel_exact": false
+}

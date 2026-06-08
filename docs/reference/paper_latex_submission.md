@@ -16,50 +16,48 @@
 
 MN 本地稿件相关文件以 `docs/paper/latex/` 作为唯一权威目录，关键文件包括：
 
-- `docs/paper/latex/main.tex`：主稿件入口。
-- `docs/paper/latex/values.md`：稿件级数值宏定义文件，供 `main.tex` 统一引用。
+- `docs/paper/latex/main.tex`：中文中间稿与本地结构维护入口。
+- `docs/paper/latex/main.translated.tex`：英文投稿稿入口。
+- `docs/paper/latex/supplement.tex`：Supplementary Information 入口。
+- `docs/paper/latex/values.tex`：稿件级数值宏定义文件，供主稿统一引用。
+- `docs/paper/latex/nonlinear.bib`：本地参考文献数据源。
 - `docs/paper/latex/sn-jnl.cls`：Springer Nature 期刊模板类文件。
 - `docs/paper/latex/bst/sn-nature.bst`：模板对应的参考文献样式文件。
-- `docs/paper/latex/build/main.pdf`：本地编译产物。
+- `docs/paper/latex/build/main.pdf`：中文中间稿本地编译产物。
+- `docs/paper/latex/build/main.translated.pdf`：英文投稿稿本地编译产物。
+- `docs/paper/latex/build/supplement.pdf`：补充材料本地编译产物。
 
 如果需要保留旧模板下的非当前主稿内容，应单独存放，不要重新并入 `main.tex` 主体流程。
 
-## MN ???????????
+## MN 模板与版式口径
 
-MN ??????? Springer Nature `sn-jnl` ????????????? LaTeX ?????? PDF ?????????????MN ???????????????????????????????????????????????Springer Nature LaTeX authoring template ??????????????? `sn-article.tex` ? **single column layout**????????????????????? `iicol` ????? double column?MN ????????????????????????????
+MN 投稿稿沿用 Springer Nature `sn-jnl` 模板。当前仓库的默认本地稿件样式是单栏 `sn-nature`，只有期刊明确要求双栏 LaTeX 文件时才启用 `iicol`。
 
-???????
+稳定约定如下：
 
-- ?????/?????`\documentclass[sn-nature]{sn-jnl}`??? `xelatex` ???
-- ?????/????????`\documentclass[lineno,sn-nature]{sn-jnl}`?
-- ???????????? double-line spacing????? `referee`?? `\documentclass[referee,lineno,sn-nature]{sn-jnl}`?
-- ?????? PDF ??????? `iicol`?`iicol` ??????????? LaTeX ??????
-- ?????? `geometry` ????????????? Springer Nature ?????????????????????????????????????
+- 正文模板保持 `\documentclass[sn-nature]{sn-jnl}`。
+- 需要行号时使用 `\documentclass[lineno,sn-nature]{sn-jnl}`；需要审稿双倍行距时再考虑 `referee`。
+- 不主动启用 `iicol`，也不通过 `geometry` 覆盖官方版芯。
+- 本地编译默认使用 `xelatex`，以兼容中文中间稿、CJK 字体和当前工作区字体设置。
+- 参考文献样式保持 `sn-nature` 与 `sn-nature.bst`，对应 Nature Portfolio numbered reference style。
+- 不为解决正文、参考文献或 supplement 小问题而修改官方 `sn-jnl.cls`、`sn-nature.bst` 或 Springer Nature 模板文件。
 
-???????
+可接受与不可接受的 class / 编译选择如下：
 
-- MN ?? Nature Portfolio ?????? LaTeX ???? `sn-nature`??? `sn-nature.bst` ? numbered Nature Portfolio reference style?
-- `sn-basic`?`sn-mathphys-num`?`sn-vancouver-num` ?? Springer Nature ?????????????????????????? MN ???????
-
-?? class ?????
-
-| ?? | ?? | MN ???? |
+| 选择 | 用途 | MN 当前口径 |
 | --- | --- | --- |
-| `sn-nature` | Nature Portfolio numbered reference style | ?? |
-| `lineno` | ?????? | ????/?????? |
-| `referee` | ??????? | ???????????? |
-| `iicol` | ???? | ????????????? |
-| `pdflatex` | ????? PDFLaTeX ?? | ??????????? XeLaTeX |
-| `sn-basic` / `sn-mathphys-num` / `sn-vancouver-num` | ?? Springer Nature ?????? | ???? |
+| `sn-nature` | Nature Portfolio numbered reference style | 默认使用 |
+| `lineno` | 行号 | 按投稿或审稿要求启用 |
+| `referee` | 审稿双倍行距 | 按要求启用 |
+| `iicol` | 双栏版式 | 只有期刊明确要求时启用 |
+| `pdflatex` | PDFLaTeX 编译 | 不作为本项目默认入口 |
+| `sn-basic` / `sn-mathphys-num` / `sn-vancouver-num` | 其他 Springer Nature 样式 | 不作为当前 MN 默认样式 |
 
-?????????????
+判定模板口径正确的最小标准：
 
-- `main.tex` ?? `\documentclass[sn-nature]{sn-jnl}` ?????????
-- ??????????? `sn-jnl.cls`?
-- ??? `docs/paper/latex/build/main.pdf`?
-- `latex` skill ? layout-check ????????? margin overflow?late float ??? overfull box?
-
-???????????????????????
+- `main.translated.tex` 和 `supplement.tex` 使用当前本地模板与 `xelatex` 能生成 PDF。
+- 没有为临时排版效果改动官方模板文件。
+- `latex` skill 的 layout check 不报告 late float after references、margin overflow、未解析 `?` 或明显页面下部大面积空白。
 
 ## 当前稿件叙事基调与命名边界
 
@@ -97,6 +95,59 @@ MN ??????? Springer Nature `sn-jnl` ????????????? LaTeX ?????? PDF ?????????????
 - caption 优先描述图表展示的对象和比较关系，避免堆叠过多背景论述。
 - 对并列子图，优先使用 `(a) ... (b) ...` 的紧凑说明格式。
 - 同一术语在标题、caption、正文中的写法保持一致，例如 `Wiener-KAN`、`Wiener 线性层`、`约束 KAN` 不应混写成多套近义命名。
+
+## MN Supplementary Information 引用口径
+
+MN 投稿稿应主动在正文末尾、参考文献之前加入 Supplementary Information 声明。TeX 中的固定写法为：
+
+```tex
+\section*{\CNEN{补充材料}{Supplementary Information}}
+\CNEN{补充材料随稿件发布于 Microsystems \& Nanoengineering 网站（http://www.nature.com/micronano）。}{Supplementary information accompanies the manuscript on the Microsystems \& Nanoengineering website (http://www.nature.com/micronano).}
+```
+
+该声明属于主文内容，不属于官方模板逻辑；不要通过改 `sn-jnl.cls` 或 bst 文件实现。
+
+Supplement 引用的长期约定如下：
+
+- 主文引用具体补充条目，不写泛泛的 `See Supplementary Information` 来承载关键论据。
+- Note 引用写成 `Supplementary Note 1`、`Supplementary Note 2`，不要写 `Supplementary Note S1`。
+- 主文若引用补充图表，优先写 `Supplementary Fig. 1`、`Supplementary Table 1`，避免 `Fig. S1`、`Table S1`、`Supplementary Fig. S1` 三种混用。
+- `supplement.tex` 的章节标题同步写成 `Supplementary Note 1: ...`，不要在 Note 编号中再加 `S`。
+- Supplement 内部的 figure/table/equation 编号可以继续通过 `\renewcommand{\thefigure}{S\arabic{figure}}` 等方式显示为 `S1`，但正文 prose 引用层面仍使用 `Supplementary Fig. 1` 这一路径。
+- Supplement 只承载推导、协议细节、扩展消融、超参数和部署细节；主文必须保留关键定义、实验边界、核心数值和足以独立理解结论的证据链。
+- Supplement 不重复承载主文已经放入的图。若某个图、子图或关键说明已经从 supplement 迁移到 main，则 supplement 中对应图件和重复解释应删除或改为极短的上下文承接，不再保留第二份完整说明。
+- Supplement 只放主文没有的补充图、补充表、推导细节和扩展实验；主图中已经出现的流程图、机制图、结果图或同义拼图，不应在 supplement 中再次出现。
+- Supplement 不单独维护参考文献列表，不写 `\bibliography{...}`、`\bibliographystyle{...}` 或 `\nocite{...}`。需要引用的文献应在主文合适位置完成引用，并由主文参考文献列表统一承载。
+- Supplement 中尽量避免新增 `\cite{...}`。若补充推导确实依赖外部文献，应先判断该文献是否已经在主文相关方法、机理或实验段落中引用；没有主文引用时，应优先补到主文，而不是在 supplement 单独生成参考文献体系。
+
+投稿前至少检查以下残留：
+
+```bash
+rg -n "Supplementary Note S[0-9]|Fig\.~S[0-9]|Fig\. S[0-9]|Table S[0-9]|Tab\.~S[0-9]|Supplementary Fig\. S|Supplementary Table S|this paper on the Microsystems" docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+rg -n "\\bibliography|\\bibliographystyle|\\nocite|\\cite" docs/paper/latex/supplement.tex
+```
+
+若出现已发表 MN 论文使用 `Fig. S1`、`Table S1` 等短格式，按“已发表实践可兼容、投稿稿从严收口”的原则处理：投稿稿仍优先采用官方 formatting instructions 更稳妥的 `Supplementary Fig. 1` / `Supplementary Table 1` / `Supplementary Note 1`。
+
+## 引号与强调性短语
+
+正文、标题、caption 和 supplement 标题中默认不使用强调性引号。引号只用于原文引用、代码字面量、文件路径或确需保留的外文书名/题名规范；不要用引号标记作者自己提出的结构、流程或标签。
+
+长期改写原则如下：
+
+- `“线性动态 + 静态非线性”` 改为 `线性动态与静态非线性分离` 或 `线性动态与静态非线性相结合`。
+- `“线性滤波 + 静态非线性求逆”` 改为 `线性滤波与静态非线性求逆相结合`。
+- Supplement 标题写 `Supplementary Information for On-Board ...`，不要把论文题名再包入 LaTeX 引号。
+- 英文所有格撇号如 `sensor's` 不按引号问题处理。
+
+投稿前应对主文和 supplement 做固定残留检查：
+
+```bash
+rg -n "[“”‘’]" docs/paper/latex/main.tex docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+rg -n --fixed-strings '"' docs/paper/latex/main.tex docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+rg -n --fixed-strings '``' docs/paper/latex/main.tex docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+rg -n --fixed-strings "''" docs/paper/latex/main.tex docs/paper/latex/main.translated.tex docs/paper/latex/supplement.tex
+```
 
 
 ## 中文定稿与英文翻译原则
@@ -249,7 +300,10 @@ llmtran skill 的通用能力、配置 schema 和 debug 细节以 `~/.agents/ski
 标准工作目录与目标文件：
 
 - `docs/paper/latex`
-- `docs/paper/latex/main.tex`
+- `docs/paper/latex/main.translated.tex`
+- `docs/paper/latex/supplement.tex`
+
+中文中间稿 `main.tex` 可以作为结构维护和中文审阅对象，但 MN 投稿收尾以 `main.translated.tex` 与 `supplement.tex` 的编译结果为准。
 
 ### 仓库内 paper-latex CLI
 
@@ -314,6 +368,24 @@ xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.t
 
 这些机制的目标是保证本地结构整理、模板迁移和文字修改期间可以持续得到 PDF；如果后续进入正式投稿收尾阶段，应再单独检查是否需要切换到最终投稿态资源链路。
 
+## 参考文献与 `.bib` 修改边界
+
+参考文献源文件固定为 `docs/paper/latex/nonlinear.bib`。参考文献格式问题优先通过 `.bib` 字段、条目类型、作者名、期刊名、页码、卷期、DOI 和语言字段修正；只有确认 `.bib` 无法表达目标格式时，才考虑接受模板或 bst 的既有限制，不主动修改官方模板。
+
+长期约定如下：
+
+- 可以直接修改 `nonlinear.bib` 来解决中文字段、标题语言、作者名、期刊名、页码、DOI、URL 或 note 等问题。
+- 不因单个条目格式不理想而修改 `sn-jnl.cls`、`sn-nature.bst` 或 Springer Nature 官方模板文件。
+- 参考文献最终显示以 `sn-nature.bst` 生成的 numbered Nature Portfolio style 为准；本地已下载 MN 论文可作为排版观感参考，但不覆盖当前官方模板与 Guide 要求。
+- 对中文文献或中文字段，优先把条目整理成英文投稿可接受的元数据；如果确需保留中文信息，应确认 BibTeX 输出不会在英文参考文献列表中混入不必要中文。
+- `.bib` 变化后必须重新运行包含 BibTeX 的编译链，不以旧 `.bbl` 结果作为格式判断依据。
+
+最小验收标准：
+
+- `main.translated.tex` 的 `\bibliography{nonlinear}` 能从 `nonlinear.bib` 与 `sn-nature.bst` 生成参考文献。
+- 编译后的参考文献列表中没有未预期中文、乱码、空字段占位、重复 DOI 或明显缺失作者/题名/期刊信息。
+- 不存在为了参考文献格式而修改官方模板文件的本地差异。
+
 ## MN AI+sensor 常用参考论文
 
 以下论文为 MN 期刊在 AI+physical sensors / microsystems 方向的标杆论文，是当前稿件成稿风格的重要参考：
@@ -329,16 +401,24 @@ xelatex -interaction=nonstopmode -file-line-error -output-directory=build main.t
 
 ## 编译通过判定标准
 
-对 `docs/paper/latex/main.tex` 的本地编译，满足以下条件即可判定“编译通过”：
+对 MN 投稿主链路，`main.translated.tex` 和 `supplement.tex` 都应编译通过。满足以下条件时，可判定主投稿 PDF 可用：
 
 - `latex` skill 的 `build` 最终 `status = done`
 - `returncode = 0`
-- 生成 `docs/paper/latex/build/main.pdf`
+- `main.translated.tex` 生成 `docs/paper/latex/build/main.translated.pdf`
+- `supplement.tex` 生成 `docs/paper/latex/build/supplement.pdf`
+- `layout_check.status = passed`
+
+中文中间稿 `main.tex` 的最低要求是 LaTeX 返回码为 `0` 并生成 `build/main.pdf`。如果其 layout check 报告未解析引用、中文稿页面留白或中间稿特有排版问题，应记录为中间稿问题，不覆盖英文投稿稿和 supplement 的验收状态。
 
 以下情况默认视为 warning，而不是编译失败：
 
-- 在缺少完整 `.bib` 数据时出现 undefined citations
 - 模板或字体层面的非致命 warning
 - 占位图片导致的版面 warning
 
-只有在无法生成 PDF、返回码非 0，或主稿入口、模板或资源路径解析失败时，才视为未通过。
+以下情况在投稿主链路中应视为需要处理的问题：
+
+- `main.translated.pdf` 或 `supplement.pdf` 中出现未解析 `?`。
+- figure/table 漂移到 References 后。
+- layout check 报告 `underfilled_page`、`margin_overflow_risk`、表格过小或明显重叠。
+- Supplement 引用、引号、未解释符号或数值单位残留与当前投稿口径不一致。

@@ -46582,8 +46582,8 @@
   "ablation_overview": [
     {
       "group": "Baseline",
-      "variant": "B-spline + Odd+pos. + System, fixed, + MAE + AFMAE",
-      "contrast": "Shared canonical Wiener-KAN setting",
+      "variant": "Canonical",
+      "contrast": "B-spline KAN; odd + positive; fixed system prior; MAE+AFMAE",
       "freq_drift_hz": "2.34",
       "sens_drift_percent": "9.09",
       "linearity_percent": "0.511",
@@ -46627,7 +46627,7 @@
     },
     {
       "group": "Wiener front",
-      "variant": "Random / fixed",
+      "variant": "Random/fixed",
       "contrast": "Random init., frozen",
       "freq_drift_hz": "5.37",
       "sens_drift_percent": "22.28",
@@ -46636,7 +46636,7 @@
     },
     {
       "group": "Wiener front",
-      "variant": "System / trainable",
+      "variant": "Sys/trainable",
       "contrast": "Measured init., trainable",
       "freq_drift_hz": "94.87",
       "sens_drift_percent": "64.68",
@@ -46645,7 +46645,7 @@
     },
     {
       "group": "Wiener front",
-      "variant": "Random / trainable",
+      "variant": "Rand/trainable",
       "contrast": "Random init., trainable",
       "freq_drift_hz": "102.57",
       "sens_drift_percent": "16.65",

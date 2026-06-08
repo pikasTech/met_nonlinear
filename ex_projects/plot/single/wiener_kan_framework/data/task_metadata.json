@@ -1,0 +1,12 @@
+{
+  "execution_time": "2026-06-04T15:47:00.447486",
+  "task_info": {
+    "task_type": "paper-figure-single",
+    "task_name": "wiener_kan_framework",
+    "standard_workflow": "ex_projects/plot/single"
+  },
+  "output_files": [
+    "C:\\work\\met_nonlinear_master\\ex_projects\\plot\\single\\wiener_kan_framework\\data"
+  ],
+  "config_hash": "ea73e9b2296b2e69f13ea02952002705"
+}

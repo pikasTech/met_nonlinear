@@ -8,8 +8,8 @@
     4
   ],
   "pixel_exact": false,
-  "mismatch_pixels": 2213673,
+  "mismatch_pixels": 2214553,
   "total_pixels": 21421044,
-  "mismatch_ratio": 0.10334104164110769,
+  "mismatch_ratio": 0.10338212273874234,
   "max_abs_channel_diff": 255
 }
