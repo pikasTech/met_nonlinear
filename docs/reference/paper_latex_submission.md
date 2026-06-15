@@ -130,6 +130,66 @@ rg -n "\\bibliography|\\bibliographystyle|\\nocite|\\cite" docs/paper/latex/supp
 
 若出现已发表 MN 论文使用 `Fig. S1`、`Table S1` 等短格式，按“已发表实践可兼容、投稿稿从严收口”的原则处理：投稿稿仍优先采用官方 formatting instructions 更稳妥的 `Supplementary Fig. 1` / `Supplementary Table 1` / `Supplementary Note 1`。
 
+## MN 投稿声明、贡献与 Cover Letter
+
+MN 投稿前的声明、作者贡献和 cover letter 应以 Springer Nature 官方模板、MN Guide for Authors、Springer Nature cover letter checklist 和 Nature Portfolio authorship policy 为主线，不按临时表单印象自由发挥。当前稿件的长期口径如下：
+
+- Cover letter 使用正式、简短的期刊投稿语气，核心只说明题名、投稿期刊、方法贡献、稿件完整性声明、公开资源和通讯作者信息；不写营销式夸张表述。
+- 若投稿系统中的 manuscript/comment 字段、MTS 分类说明、推荐审稿人等项目不是必填项，默认留空；只有系统明确标记必填或用户指定时再补。
+- 推荐审稿人默认不填写；如果期刊系统强制要求推荐审稿人，先回到用户处确认人选。
+- 当前稿件无预印本、无相关在投/已投稿件、无与 Springer Nature 编辑的预先讨论；相关表单项按否定或空白处理。
+- 当前稿件声明无利益冲突；正文固定使用 `The authors declare no competing interests.`。
+- 代码和处理后的数据资源可公开，主稿中分别设置 `Code Availability` 与 `Data Availability`，公开地址为 `https://github.com/pikastech/wiener-kan`。
+- Funding 以正文 Funding section 为权威来源，不在 cover letter 或表单中重新发明项目名、编号或资助关系。
+- LLM / AI 工具使用披露属于投稿前人工决策项，不由 agent 自动推断或补写；最终提交前必须按用户最新确认和期刊表单要求处理。
+
+当前稿件的通讯作者与投稿联系人口径如下：
+
+- MTS 主通讯作者使用 Hongyuan Yang。
+- Hongyuan Yang 的投稿联系电话使用 `+86 136 0442 6707`。
+- 其他通讯作者如果系统非必填，默认不填写电话。
+
+### MTS 投稿系统操作口径
+
+MTS 在线投稿属于高风险交互表单，现场投稿时优先采用有头 Chrome 的逐步交互方式，便于用户观察和随时接管。不要默认编写或运行跨多个页面的自动化投稿脚本；除非用户明确要求，agent 只应按“打开页面、读取当前状态、执行一个动作、再次读取状态”的节奏推进。
+
+稳定约定如下：
+
+- 使用有头 Chrome 操作 MTS 页面；涉及用户登录、最终提交、文件确认等动作时，保持浏览器可见。
+- 每次只推进一个可验证动作，例如打开稿件、进入某个 tab、点击一个 `Validate PDF`、勾选一个 approve 复选框或点击一次 `Save and Continue`。
+- 每个动作后都要读取当前页面的主 tab、子 tab、关键页面文字和相关控件状态，再决定下一步；不要假设上一页的勾选状态一定会被 MTS 保留。
+- 绝不由 agent 点击最终 `Approve Submission` / `Approve Manuscript` / final submit 按钮；最终提交必须留给用户 review 后人工确认。
+- MTS 的 `Continue Halted Submission` 常会回到 `Files -> Upload Files`，这不等于文件丢失；应通过顶部 primary task / nested tab 回到需要检查的位置。
+- `Validate -> Approve Files` 页的 approve 复选框可能初始为 disabled；必须先点击每个文件对应的 `Validate PDF` 打开转换后的 PDF，复选框启用后再逐项勾选。
+- 对 cover letter、article file 和 supplementary information，分别完成 `Validate PDF -> 勾选 approve -> 读回 checked=true`，再点击 `Save and Continue`。
+- 若 `Validate -> Approve Manuscript` 页面显示 `No errors found`，只能说明校验通过；进入 `Submit` 页后仍需确认最终按钮未被点击。
+- MTS 的 funder 自动补全只接受系统已收录 funder。正文 Funding section 中的项目若不在自动补全结果中，不要硬填 `Funder(s)` 文本框后假定会保存；应使用页面提供的 “funder does not appear” / other funder details 字段填写完整项目名与 grant number。
+- 投稿表单中的可选 manuscript comment、分类说明、推荐审稿人、非必填电话等项目默认留空；只有系统明确报错或用户明确要求时才补。
+
+作者贡献声明采用 Nature Portfolio 对每位作者给出具体贡献的要求，并可按 CRediT taxonomy 的角色词组织。当前稿件的贡献分工为：
+
+- A.L. 是主要撰稿、方法开发、软件实现、数据分析和可视化负责人。
+- H.Y. 负责方法论贡献、实验资源与条件、项目监督和稿件审阅修改。
+- H.Z. 负责监督、实验资源和稿件审阅修改。
+- X.D. 负责资源、验证和稿件审阅修改。
+- F.Z. 与 L.Z. 负责软件实现和验证。
+- C.L. 与 R.L. 负责数据收集、数据整理和验证。
+- 所有作者均审阅并批准最终稿。
+
+TeX 中的当前英文贡献声明固定写法为：
+
+```tex
+\section*{Author Contributions}
+A.L. led the methodology development, software implementation, data analysis, visualization, and writing of the original draft. H.Y. contributed to the methodology, provided experimental resources and conditions, supervised the project, and reviewed and edited the manuscript. H.Z. contributed to supervision, experimental resources, and manuscript review and editing. X.D. contributed to resources, validation, and manuscript review and editing. F.Z. and L.Z. contributed to software implementation and validation. C.L. and R.L. contributed to data collection, data curation, and validation. All authors reviewed and approved the final manuscript.
+```
+
+投稿前的最小检查项如下：
+
+```bash
+rg -n "Code Availability|Data Availability|Author Contributions|Competing Interests|github.com/pikastech/wiener-kan|no competing interests" docs/paper/latex/main.translated.tex docs/paper/latex/main.tex
+python cli.py paper-latex build --tex main.translated.tex
+```
+
 ## 引号与强调性短语
 
 正文、标题、caption 和 supplement 标题中默认不使用强调性引号。引号只用于原文引用、代码字面量、文件路径或确需保留的外文书名/题名规范；不要用引号标记作者自己提出的结构、流程或标签。

@@ -119,13 +119,14 @@
 \author[1]{\fnm{Ang} \sur{Li}}\email{liang20@mails.jlu.edu.cn}
 \author*[1]{\fnm{Hongyuan} \sur{Yang}}\email{yang\_hy@jlu.edu.cn}
 \author*[1]{\fnm{Huaizhu} \sur{Zhang}}\email{huaizhuzhang@jlu.edu.cn}
-\author[1]{\fnm{Xintong} \sur{Dong}}
+\author[1,2]{\fnm{Xintong} \sur{Dong}}\email{dxt@jlu.edu.cn}
 \author[1]{\fnm{Fan} \sur{Zheng}}\email{zhengfan@jlu.edu.cn}
 \author[1]{\fnm{Linhang} \sur{Zhang}}\email{linxing@jlu.edu.cn}
 \author[1]{\fnm{Can} \sur{Liu}}\email{canliu23@mails.jlu.edu.cn}
 \author[1]{\fnm{Ruojin} \sur{Li}}\email{lirj24@mails.jlu.edu.cn}
 
 \affil*[1]{\orgdiv{State Key Laboratory of Deep Earth Exploration and Imaging, College of Instrumentation and Electrical Engineering}, \orgname{Jilin University}, \orgaddress{\city{Changchun}, \postcode{130061}, \country{China}}}
+\affil[2]{\orgname{Southern Marine Science and Engineering Guangdong Laboratory (Zhanjiang)}, \orgaddress{\city{Zhanjiang}, \postcode{524000}, \country{China}}}
 
 \abstract{\CNEN{电化学地震检波器（MET）凭借高灵敏度、宽频带以及较好的抗倾斜和抗冲击能力，在地球物理勘探中正变得越来越重要，并被认为是下一代地震信号探测的理想方案之一。然而，由于机械、流体与电化学等多个物理过程之间存在复杂耦合，MET 会表现出显著的震级相关非线性，从而引起频率响应漂移并限制动态范围，最终影响地震数据质量和事件检测可靠性。传统力反馈方法在大震级下存在闭环振荡风险，数据驱动的深度学习方法虽然在非线性补偿中展现出高精度优势，但其密集的矩阵运算难以在资源受限的微控制器上满足实时处理需求。为克服边缘算力限制和力反馈的失稳风险，本文提出面向板端实时运行的前馈补偿框架 Wiener-KAN。该框架引入了 Wiener 结构中线性动态与静态非线性分离的思路：在线性部分，利用目标与理想系统间的相对频率响应初始化 Wiener 线性层，实现物理先验注入和快速的频率特征提取；在非线性部分，引入带符号与对称性约束的 Kolmogorov-Arnold 网络（KAN）可训练样条激活函数，并预计算为查找表（Precomputed LUT），在推理阶段以低延迟读表替代样条函数求值。此外，本文首次构建并开放了涵盖幅频耦合效应的三维频率响应数据集，并设计了针对频率特性漂移的幅频损失函数（AFMAE）以提高频域拟合精度。实验结果表明，在输入震级提升超过 \valInputGainExpansion~$\times$ 的条件下，Wiener-KAN 将频率漂移从 \valMainWienerFreqDrift~Hz 降低到 \valPrimaryFreqDrift~Hz，将 \valSensitivityCompareFreq~Hz 灵敏度漂移从 \valMainWienerSensDrift~$\text{V}\cdot\text{s}/\text{m}$ 降低到 \valPrimarySensDrift~$\text{V}\cdot\text{s}/\text{m}$，并将线性度误差从 \valMainWienerLinearity\% 降低到 \valPrimaryLinearity\%。实时性方面，KAN 的预计算查找表将复杂的浮点运算转化为极低延迟的内存寻址，在 STM32F405 微控制器上实现了 \valPrimaryKeilFps{} points/s 的吞吐率和 \valPrimaryKeilRamKB~KB 的极小 RAM 占用，为解决 MET 实时非线性补偿问题提供了有效的方案，并有潜力推广到其他传感器。}{}}
 
@@ -664,9 +665,13 @@ te higher throughput.}
 
 \CNEN{本文验证基于一个 MET 样品、受控正弦激励矩阵以及 $\valEnvironmentTemperature$ 环境。该设置提供了可复现的频率--震级响应矩阵，用于量化震级相关漂移；更多温度条件、更多传感器样品以及接近野外地震记录的复合波形需要独立测量数据支撑。嵌入式结果通过 QEMU 数值检查和 \valTargetMcu{} 板端测量验证导出实现。KEIL speed 和 KEIL RAM Usage 描述当前编译器、MCU、数值精度和窗口长度下的实现结果，QEMU-MAE 与 KEIL-MAE 用于检查导出 C 实现与 TensorFlow 参考输出之间的数值一致性。其他 MCU 系列、定点实现、多通道采集和不同编译设置会改变实测吞吐率与内存占用。扩展验证可围绕三类条件展开：在不同温度下重复频率--震级矩阵测试，在更多 MET 样品上重复标定与补偿流程，并测试更接近野外地震记录的复合波形。}{}
 
-\subsection{\CNEN{数据可用性}{}}
+\subsection{\CNEN{代码可用性}{Code Availability}}
 
-\CNEN{现有公开传感器漂移数据集主要覆盖其他传感器类型，例如气体传感器阵列\cite{vergaraChemicalGasSensor2012}。据我们所知，公开资源尚未提供面向幅值相关时域补偿的同步 MET 输出、参考激励、频率、震级和目标标定曲线。本文使用的数据集是面向 MET 漂移补偿自建的频率--震级响应矩阵。处理后的响应矩阵、代表性波形、数据划分脚本和指标计算脚本公开于 \texttt{github.com/pikastech/wiener-kan}.}{}
+\CNEN{模型训练、评估、嵌入式导出、数据划分和指标计算所用代码公开于 https://github.com/pikastech/wiener-kan.}{}
+
+\subsection{\CNEN{数据可用性}{Data Availability}}
+
+\CNEN{现有公开传感器漂移数据集主要覆盖其他传感器类型，例如气体传感器阵列\cite{vergaraChemicalGasSensor2012}。据我们所知，公开资源尚未提供面向幅值相关时域补偿的同步 MET 输出、参考激励、频率、震级和目标标定曲线。本文使用的数据集是面向 MET 漂移补偿自建的频率--震级响应矩阵。处理后的响应矩阵和代表性波形公开于 https://github.com/pikastech/wiener-kan.}{}
 \FloatBarrier
 
 \section{Conclusion}
@@ -686,6 +691,12 @@ old 网络的结构优势，构建了 Wiener-KAN 非线性补偿框架，其主�
 
 \section*{Funding}
 This work was funded by the Deep Earth Probe and Mineral Resources Exploration-National Science and Technology Major Project (Grant No. 2024ZD1002503).
+
+\section*{Author Contributions}
+A.L. led the methodology development, software implementation, data analysis, visualization, and writing of the original draft. H.Y. contributed to the methodology, provided experimental resources and conditions, supervised the project, and reviewed and edited the manuscript. H.Z. contributed to supervision, experimental resources, and manuscript review and editing. X.D. contributed to resources, validation, and manuscript review and editing. F.Z. and L.Z. contributed to software implementation and validation. C.L. and R.L. contributed to data collection, data curation, and validation. All authors reviewed and approved the final manuscript.
+
+\section*{Competing Interests}
+The authors declare no competing interests.
 
 \FloatBarrier
 

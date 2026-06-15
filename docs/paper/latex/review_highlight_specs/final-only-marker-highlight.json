@@ -57,8 +57,17 @@
       "sourceLine": 122,
       "scope": "final-current-only",
       "reason": "changed in the current final-only review copy",
-      "target": "\\author[1]{\\fnm{Xintong} \\sur{Dong}}",
-      "replacement": "\\author[1]{\\fnm{\\Change{Xintong}} \\sur{\\Change{Dong}}}",
+      "target": "\\author[1,2]{\\fnm{Xintong} \\sur{Dong}}\\email{dxt@jlu.edu.cn}",
+      "replacement": "\\author[1,\\Change{2}]{\\fnm{\\Change{Xintong}} \\sur{\\Change{Dong}}}\\email{\\Change{dxt@jlu.edu.cn}}",
+      "count": 1
+    },
+    {
+      "id": "L129",
+      "sourceLine": 129,
+      "scope": "final-current-only",
+      "reason": "changed in the current final-only review copy",
+      "target": "\\affil[2]{\\orgname{Southern Marine Science and Engineering Guangdong Laboratory (Zhanjiang)}, \\orgaddress{\\city{Zhanjiang}, \\postcode{524000}, \\country{China}}}",
+      "replacement": "\\affil[\\Change{2}]{\\orgname{\\Change{Southern Marine Science and Engineering Guangdong Laboratory (Zhanjiang)}}, \\orgaddress{\\city{\\Change{Zhanjiang}}, \\postcode{\\Change{524000}}, \\country{\\Change{China}}}}",
       "count": 1
     },
     {

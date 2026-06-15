@@ -119,13 +119,14 @@
 \author[1]{\fnm{Ang} \sur{Li}}\email{liang20@mails.jlu.edu.cn}
 \author*[1]{\fnm{Hongyuan} \sur{Yang}}\email{yang\_hy@jlu.edu.cn}
 \author*[1]{\fnm{Huaizhu} \sur{Zhang}}\email{huaizhuzhang@jlu.edu.cn}
-\author[1]{\fnm{Xintong} \sur{Dong}}
+\author[1,2]{\fnm{Xintong} \sur{Dong}}\email{dxt@jlu.edu.cn}
 \author[1]{\fnm{Fan} \sur{Zheng}}\email{zhengfan@jlu.edu.cn}
 \author[1]{\fnm{Linhang} \sur{Zhang}}\email{linxing@jlu.edu.cn}
 \author[1]{\fnm{Can} \sur{Liu}}\email{canliu23@mails.jlu.edu.cn}
 \author[1]{\fnm{Ruojin} \sur{Li}}\email{lirj24@mails.jlu.edu.cn}
 
 \affil*[1]{\orgdiv{State Key Laboratory of Deep Earth Exploration and Imaging, College of Instrumentation and Electrical Engineering}, \orgname{Jilin University}, \orgaddress{\city{Changchun}, \postcode{130061}, \country{China}}}
+\affil[2]{\orgname{Southern Marine Science and Engineering Guangdong Laboratory (Zhanjiang)}, \orgaddress{\city{Zhanjiang}, \postcode{524000}, \country{China}}}
 
 \abstract{\CNEN{%
 电化学地震检波器（MET）凭借高灵敏度、宽频带以及较好的抗倾斜和抗冲击能力，在地球物理勘探中正变得越来越重要，并被认为是下一代地震信号探测的理想方案之一。然而，由于机械、流体与电化学等多个物理过程之间存在复杂耦合，MET 会表现出显著的震级相关非线性，从而引起频率响应漂移并限制动态范围，最终影响地震数据质量和事件检测可靠性。传统力反馈方法在大震级下存在闭环振荡风险，数据驱动的深度学习方法虽然在非线性补偿中展现出高精度优势，但其密集的矩阵运算难以在资源受限的微控制器上满足实时处理需求。针对上述实时补偿与反馈稳定性问题，本文提出面向板端实时运行的前馈补偿系统 Wiener-KAN。该系统引入了 Wiener 结构“线性动态 + 静态非线性”的分解思路：在线性部分，利用目标与理想系统间的相对频率响应初始化 Wiener 线性层，实现物理先验注入和快速的频率特征提取；在非线性部分，引入带符号与对称性约束的 Kolmogorov-Arnold 网络（KAN）可训练样条激活函数，并预计算为查找表（Precomputed LUT）。此外，本文构建并开放了涵盖幅频耦合效应的三维频率响应数据集，并设计了针对频率特性漂移的幅频损失函数（AFMAE）以提高频域拟合精度。实验结果表明，在输入震级提升超过 \valInputGainExpansion~$\times$ 的条件下，Wiener-KAN 将频率漂移从 \valMainWienerFreqDrift~Hz 降低到 \valPrimaryFreqDrift~Hz，将 \valSensitivityCompareFreq~Hz 灵敏度漂移从 \valMainWienerSensDrift~$\text{V}\cdot\text{s}/\text{m}$ 降低到 \valPrimarySensDrift~$\text{V}\cdot\text{s}/\text{m}$，并将线性度误差从 \valMainWienerLinearity\% 降低到 \valPrimaryLinearity\%。实时性方面，KAN 的预计算查找表将复杂的浮点运算转化为极低延迟的内存寻址，在 STM32F405 微控制器上实现了 \valPrimaryKeilFps{} points/s 的吞吐率和 \valPrimaryKeilRamKB~KB 的极小 RAM 占用，为 MET 实时非线性补偿提供了有效方案。%
@@ -444,9 +445,13 @@ Electrochemical seismometers (MET) are gaining importance in geophysical explora
 
 \CNEN{这些适用条件保留本文关于方法可行性的核心结论，并限定了结果的适用范围。本文给出的频率漂移、灵敏度漂移和线性度误差应理解为当前样品、当前频率--震级矩阵和当前目标参考系统下的补偿结果；板端速度和内存占用应理解为当前 \valTargetMcu{}、浮点实现和导出内核下的实现结果。将该流程迁移到其他 MET 结构时，需要重新测量局部频率响应、重建目标参考系统，并按相同指标重新评价。}{These applicability conditions preserve the core conclusion on method feasibility and delimit the scope of the results. The reported frequency drift, sensitivity drift, and linearity error should be interpreted as compensation results under the current sample, frequency--magnitude matrix, and target reference system; the on-board speed and memory footprint should be interpreted as implementation results under the current \valTargetMcu{}, floating-point realization, and exported kernel. When transferring the workflow to other MET structures, the local frequency responses should be remeasured, the target reference system rebuilt, and the same metrics recomputed.}
 
+\subsection{Code Availability}
+
+\CNEN{模型训练、评估、嵌入式导出、数据划分和指标计算所用代码公开于 https://github.com/pikastech/wiener-kan.}{The code used for model training, evaluation, embedded export, data partitioning, and metric calculation is publicly available at https://github.com/pikastech/wiener-kan.}
+
 \subsection{Data Availability}
 
-\CNEN{现有公开传感器漂移数据集主要覆盖其他传感器类型，例如气体传感器阵列\cite{vergaraChemicalGasSensor2012}。据我们所知，公开资源尚未提供面向幅值相关时域补偿的同步 MET 输出、参考激励、频率、震级和目标标定曲线。本文使用的数据集是面向 MET 漂移补偿自建的频率--震级响应矩阵。处理后的响应矩阵、代表性波形、数据划分脚本和指标计算脚本公开于 \texttt{github.com/pikastech/wiener-kan}.}{Existing public sensor drift datasets mainly cover other sensor types, such as gas sensor arrays \cite{vergaraChemicalGasSensor2012}. To our knowledge, no public resource provides synchronized MET output, reference excitation, frequency, magnitude, and target calibration curves for amplitude-dependent time-domain compensation. The dataset used in this paper is a self-built frequency--magnitude response matrix for MET drift compensation. The processed response matrix, representative waveforms, data partitioning scripts, and metric calculation scripts are available at \texttt{github.com/pikastech/wiener-kan}.%<CNHash>133F80DB</CNHash>
+\CNEN{现有公开传感器漂移数据集主要覆盖其他传感器类型，例如气体传感器阵列\cite{vergaraChemicalGasSensor2012}。据我们所知，公开资源尚未提供面向幅值相关时域补偿的同步 MET 输出、参考激励、频率、震级和目标标定曲线。本文使用的数据集是面向 MET 漂移补偿自建的频率--震级响应矩阵。处理后的响应矩阵和代表性波形公开于 https://github.com/pikastech/wiener-kan.}{Existing public sensor drift datasets mainly cover other sensor types, such as gas sensor arrays \cite{vergaraChemicalGasSensor2012}. To our knowledge, no public resource provides synchronized MET output, reference excitation, frequency, magnitude, and target calibration curves for amplitude-dependent time-domain compensation. The dataset used in this paper is a self-built frequency--magnitude response matrix for MET drift compensation. The processed response matrix and representative waveforms are publicly available at https://github.com/pikastech/wiener-kan.%<CNHash>133F80DB</CNHash>
 }
 \FloatBarrier
 
@@ -464,6 +469,12 @@ Electrochemical seismometers (MET) are gaining importance in geophysical explora
 
 \section*{Funding}
 This work was funded by the Deep Earth Probe and Mineral Resources Exploration-National Science and Technology Major Project (Grant No. 2024ZD1002503).
+
+\section*{Author Contributions}
+A.L. led the methodology development, software implementation, data analysis, visualization, and writing of the original draft. H.Y. contributed to the methodology, provided experimental resources and conditions, supervised the project, and reviewed and edited the manuscript. H.Z. contributed to supervision, experimental resources, and manuscript review and editing. X.D. contributed to resources, validation, and manuscript review and editing. F.Z. and L.Z. contributed to software implementation and validation. C.L. and R.L. contributed to data collection, data curation, and validation. All authors reviewed and approved the final manuscript.
+
+\section*{Competing Interests}
+The authors declare no competing interests.
 
 \FloatBarrier
 
